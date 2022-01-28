@@ -476,37 +476,37 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             bool validated = false;
             try
             {
-				// Set geometry
+                // Set geometry
                 mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
-				mx::FilePath geomPath;
-				if (!testOptions.shadedGeometry.isEmpty())
-				{
-					if (!testOptions.shadedGeometry.isAbsolute())
-					{
-						geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
-					}
-					else
-					{
-						geomPath = testOptions.shadedGeometry;
-					}
-				}
-				else
-				{
-					geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
-				}
+                mx::FilePath geomPath;
+                if (!testOptions.shadedGeometry.isEmpty())
+                {
+                    if (!testOptions.shadedGeometry.isAbsolute())
+                    {
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
+                    }
+                    else
+                    {
+                        geomPath = testOptions.shadedGeometry;
+                    }
+                }
+                else
+                {
+                    geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
+                }
 
                 if (!geomHandler->hasGeometry(geomPath))
-				{
+                {
                     // For test sphere and plane geometry perform a V-flip of texture coordinates.
                     const std::string baseName = geomPath.getBaseName();
                     bool uvVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
-					geomHandler->clearGeometry();
-					geomHandler->loadGeometry(geomPath,uvVerticalFlip);
-					for (mx::MeshPtr mesh : geomHandler->getMeshes())
-					{
-						addAdditionalTestStreams(mesh);
-					}
-				}
+                    geomHandler->clearGeometry();
+                    geomHandler->loadGeometry(geomPath, uvVerticalFlip);
+                    for (mx::MeshPtr mesh : geomHandler->getMeshes())
+                    {
+                        addAdditionalTestStreams(mesh);
+                    }
+                }
 
                 bool isShader = mx::elementRequiresShading(element);
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
