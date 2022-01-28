@@ -100,7 +100,7 @@ int main(int argc, char* const argv[])
     int bakeWidth = 0;
     int bakeHeight = 0;
     std::string bakeFilename;
-    int refresh = 50;
+    float refresh = 50.0f;
     bool srgbBuffer = false;
 #ifdef MATERIALX_BUILD_OCIO
     mx::FilePath ocioConfigFile;

@@ -902,7 +902,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     if (_gammaMaterial)
     {
         ng::Widget* gammaRow = new ng::Widget(advancedPopup);
-        gammaRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+        gammaRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
         ui.uiMin = mx::Value::createValue(0.01f);
         ui.uiMax = mx::Value::createValue(2.2f);
         ng::FloatBox<float>* gammaBox = createFloatWidget(gammaRow, "Gamma:",
@@ -910,7 +910,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         {
             _gammaValue = value;
         });
-        gammaBox->setEditable(true);
+        gammaBox->set_editable(true);
     }
 
     ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
