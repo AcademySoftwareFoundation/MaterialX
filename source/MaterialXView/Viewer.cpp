@@ -889,22 +889,25 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* referenceQualityBox = new ng::CheckBox(advancedPopup, "Reference Quality");
-    referenceQualityBox->set_checked(false);
-    referenceQualityBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
-        // There is no Albedo Table support for Essl currently. Always set to curve fit.
-        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
-        reloadShaders();
-    });
-
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
+        reloadShaders();
+    });
+
+    Widget* albedoGroup = new Widget(advancedPopup);
+    albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(albedoGroup, "Albedo Method:");
+    mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
+    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
+    albedoBox->set_chevron_icon(-1);
+    albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
+    albedoBox->set_callback([this](int index)
+    {
+        _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
         reloadShaders();
     });
 
