@@ -56,11 +56,17 @@ mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
     mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath().getParentPath();
+    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(installRootPath);
-    searchPath.append(devRootPath);
+    if ((devRootPath / "libraries").exists())
+    {
+        searchPath.append(devRootPath);
+    }
+    else
+    {
+        searchPath.append(installRootPath);
+    }
 
     return searchPath;
 }
