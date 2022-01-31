@@ -18,7 +18,7 @@ class PyGeometryLoader : public mx::GeometryLoader
     {
     }
 
-    bool load(const mx::FilePath& filePath, mx::MeshList& meshList, bool uvVerticalFlip = false) override
+    bool load(const mx::FilePath& filePath, mx::MeshList& meshList, bool texcoordVerticalFlip = false) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,
@@ -26,7 +26,7 @@ class PyGeometryLoader : public mx::GeometryLoader
             load,
             filePath,
             meshList,
-            uvVerticalFlip
+            texcoordVerticalFlip
         );
     }
 };

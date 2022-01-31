@@ -499,9 +499,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 {
                     // For test sphere and plane geometry perform a V-flip of texture coordinates.
                     const std::string baseName = geomPath.getBaseName();
-                    bool uvVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
+                    bool texcoordVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
                     geomHandler->clearGeometry();
-                    geomHandler->loadGeometry(geomPath, uvVerticalFlip);
+                    geomHandler->loadGeometry(geomPath, texcoordVerticalFlip);
                     for (mx::MeshPtr mesh : geomHandler->getMeshes())
                     {
                         addAdditionalTestStreams(mesh);
