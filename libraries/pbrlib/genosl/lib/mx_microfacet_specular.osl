@@ -40,6 +40,8 @@ color mx_ggx_dir_albedo(float NdotV, float roughness, color F0, color F90)
                 vector4(19.98406, 0.29060, 15.85408, 300.10923) * x * y2 +
                 vector4(-5.41717, 0.62933, 33.41550, -284.73288) * x2 * y2;
     vector2 AB = vector2(r.x, r.y) / vector2(r.z, r.w);
+    AB.x = clamp(AB.x, 0.0, 1.0);
+    AB.y = clamp(AB.y, 0.0, 1.0);
     return F0 * AB.x + F90 * AB.y;
 }
 
