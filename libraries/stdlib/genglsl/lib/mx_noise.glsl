@@ -133,6 +133,16 @@ uint mx_rotl32(uint x, int k)
     return (x<<k) | (x>>(32-k));
 }
 
+void mx_bjmix(inout uint a, inout uint b, inout uint c)
+{
+    a -= c; a ^= mx_rotl32(c, 4); c += b;
+    b -= a; b ^= mx_rotl32(a, 6); a += c;
+    c -= b; c ^= mx_rotl32(b, 8); b += a;
+    a -= c; a ^= mx_rotl32(c,16); c += b;
+    b -= a; b ^= mx_rotl32(a,19); a += c;
+    c -= b; c ^= mx_rotl32(b, 4); b += a;
+}
+
 // Mix up and combine the bits of a, b, and c (doesn't change them, but
 // returns a hash of those three original values).
 uint mx_bjfinal(uint a, uint b, uint c)
@@ -158,6 +168,13 @@ float mx_fade(float t)
    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
+uint mx_hash_int(int x)
+{
+    uint len = 1u;
+    uint seed = uint(0xdeadbeef) + (len << 2u) + 13u;
+    return mx_bjfinal(seed+uint(x), seed, seed);
+}
+
 uint mx_hash_int(int x, int y)
 {
     uint len = 2u;
@@ -176,6 +193,33 @@ uint mx_hash_int(int x, int y, int z)
     a += uint(x);
     b += uint(y);
     c += uint(z);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx)
+{
+    uint len = 4u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx, int yy)
+{
+    uint len = 5u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    b += uint(yy);
     return mx_bjfinal(a, b, c);
 }
 
@@ -279,6 +323,12 @@ vec3 mx_perlin_noise_vec3(vec3 p)
     return mx_gradient_scale3d(result);
 }
 
+float mx_cell_noise_float(float p)
+{
+    int ix = mx_floor(p);
+    return mx_bits_to_01(mx_hash_int(ix));
+}
+
 float mx_cell_noise_float(vec2 p)
 {
     int ix = mx_floor(p.x);
@@ -292,6 +342,61 @@ float mx_cell_noise_float(vec3 p)
     int iy = mx_floor(p.y);
     int iz = mx_floor(p.z);
     return mx_bits_to_01(mx_hash_int(ix, iy, iz));
+}
+
+float mx_cell_noise_float(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    return mx_bits_to_01(mx_hash_int(ix, iy, iz, iw));
+}
+
+vec3 mx_cell_noise_vec3(float p)
+{
+    int ix = mx_floor(p);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, 0)),
+            mx_bits_to_01(mx_hash_int(ix, 1)),
+            mx_bits_to_01(mx_hash_int(ix, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec2 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec3 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 2))
+    );
 }
 
 float mx_fractal_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
@@ -324,8 +429,8 @@ float mx_8bits_to_01(uint bits) { return float(bits) / float(0xff); }
 
 float mx_worley_distance2(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
 {
-    uvec3 hash = mx_hash_vec3(x+xoff, y+yoff);
-    vec2  off = vec2(mx_8bits_to_01(hash.x), mx_8bits_to_01(hash.y));
+    vec3  tmp = mx_cell_noise_vec3(vec2(x+xoff, y+yoff));
+    vec2  off = vec2(tmp.x, tmp.y);
 
     off -= 0.5f;
     off *= jitter;
@@ -343,10 +448,7 @@ float mx_worley_distance2(vec2 p, int x, int y, int xoff, int yoff, float jitter
 
 float mx_worley_distance3(vec3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
 {
-    uvec3 hash = mx_hash_vec3(x+xoff, y+yoff, z+zoff);
-    vec3  off = vec3(mx_8bits_to_01(hash.x),
-                     mx_8bits_to_01(hash.y),
-                     mx_8bits_to_01(hash.z));
+    vec3  off = mx_cell_noise_vec3(vec3(x+xoff, y+yoff, z+zoff));
 
     off -= 0.5f;
     off *= jitter;
