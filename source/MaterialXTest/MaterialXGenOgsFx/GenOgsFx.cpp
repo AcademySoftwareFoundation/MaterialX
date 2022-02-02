@@ -67,7 +67,7 @@ TEST_CASE("GenShader: OGSFX Implementation Check", "[genogsfx]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 62);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 54);
 }
 
 TEST_CASE("GenShader: OGSFX Unique Names", "[genogsfx]")

@@ -46,7 +46,7 @@ jobs:
           os: ubuntu-18.04
           compiler: clang
           compiler_version: "9"
-          python: 3.6
+          python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
@@ -55,7 +55,8 @@ jobs:
           compiler: clang
           compiler_version: "11"
           python: 3.7
-          run_on_push : OFF
+          build_javascript: ON
+          run_on_push : ON
 
         - name: Linux_Clang_12_Python39
           os: ubuntu-20.04
