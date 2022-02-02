@@ -94,7 +94,7 @@ vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
              vec4(-26.51510, 1.43366, -36.16186, 54.86775) * x2 * y +
              vec4(19.98406, 0.29060, 15.85408, 300.10923) * x * y2 +
              vec4(-5.41717, 0.62933, 33.41550, -284.73288) * x2 * y2;
-    vec2 AB = r.xy / r.zw;
+    vec2 AB = clamp(r.xy / r.zw, 0.0, 1.0);
     return F0 * AB.x + F90 * AB.y;
 }
 

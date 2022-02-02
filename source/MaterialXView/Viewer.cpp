@@ -284,17 +284,14 @@ Viewer::Viewer(const std::string& materialFilename,
     set_background(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
     // Set default Glsl generator options.
-    _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
-    _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
+    _genContext.getOptions().hwShadowMap = true;
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
-    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
 
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
@@ -961,6 +958,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
         reloadShaders();
+        updateAlbedoTable();
     });
 
     Widget* sampleGroup = new Widget(advancedPopup);
@@ -1942,9 +1940,6 @@ void Viewer::renderFrame()
         glClearColor(r, g, b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
-
-    // Update shading tables
-    updateAlbedoTable();
 
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
