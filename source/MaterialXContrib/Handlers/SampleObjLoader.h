@@ -38,7 +38,7 @@ class SampleObjLoader : public GeometryLoader
     virtual ~SampleObjLoader() {}
 
     /// Load geometry from disk
-    bool load(const FilePath& filePath, MeshList& meshList) override;
+    bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) override;
 
     /// Set to read groups as partitions. 
     void setReadGroups(bool val)
