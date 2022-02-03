@@ -1327,7 +1327,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         {
             // Extend the image search path to include this material folder.
             mx::FilePath materialFolder = _materialFilename.getParentPath();
-            mx::FileSearchPath materialSearchPath = _searchPath;
+            mx::FileSearchPath materialSearchPath = _imageHandler->getSearchPath();
             materialSearchPath.append(materialFolder);
             _imageHandler->setSearchPath(materialSearchPath);
 
