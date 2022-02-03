@@ -46,12 +46,6 @@ vec3 mx_fresnel_schlick(float cosTheta, vec3 F0, vec3 F90, float exponent)
     return mix(F0, F90, pow(x, exponent));
 }
 
-// Compute the average of an anisotropic roughness pair
-float mx_average_roughness(vec2 roughness)
-{
-    return sqrt(roughness.x * roughness.y);
-}
-
 // Enforce that the given normal is forward-facing from the specified view direction.
 vec3 mx_forward_facing_normal(vec3 N, vec3 V)
 {

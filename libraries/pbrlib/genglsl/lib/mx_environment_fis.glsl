@@ -10,7 +10,7 @@ float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamp
     return max(effectiveMaxMipLevel - 0.5 * log2(float(envSamples) * pdf * distortion), 0.0);
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     // Generate tangent frame.
     vec3 Y = normalize(cross(N, X));
@@ -22,7 +22,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
 
     // Compute derived properties.
     float NdotV = clamp(V.z, M_FLOAT_EPS, 1.0);
-    float avgRoughness = mx_average_roughness(roughness);
+    float avgAlpha = mx_average_alpha(alpha);
     
     // Integrate outgoing radiance using filtered importance sampling.
     // http://cgg.mff.cuni.cz/~jaroslav/papers/2008-egsr-fis/2008-egsr-fis-final-embedded.pdf
@@ -33,7 +33,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_NDF(Xi, roughness);
+        vec3 H = mx_ggx_importance_sample_NDF(Xi, alpha);
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -44,7 +44,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
 
         // Sample the environment light from the given direction.
         vec3 Lw = tangentToWorld * L;
-        float pdf = mx_ggx_PDF(H, LdotH, roughness);
+        float pdf = mx_ggx_PDF(H, LdotH, alpha);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
 
@@ -52,7 +52,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distrib
         vec3 F = mx_compute_fresnel(VdotH, fd);
 
         // Compute the geometric term.
-        float G = mx_ggx_smith_G2(NdotL, NdotV, avgRoughness);
+        float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
