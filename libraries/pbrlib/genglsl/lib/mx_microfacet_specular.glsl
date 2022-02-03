@@ -79,12 +79,12 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
-vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_analytic(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
     float x = NdotV;
-    float y = roughness;
-    float x2 = mx_square(NdotV);
-    float y2 = mx_square(roughness);
+    float y = alpha;
+    float x2 = mx_square(x);
+    float y2 = mx_square(y);
     vec4 r = vec4(0.10031, 0.93450, 1.0, 1.0) +
              vec4(-0.63301, -2.32352, -1.76427, 0.22797) * x +
              vec4(9.74995, 2.22823, 8.26501, 15.93688) * y +
@@ -98,12 +98,12 @@ vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     if (textureSize($albedoTable, 0).x > 1)
     {
-        vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
+        vec2 AB = texture($albedoTable, vec2(NdotV, alpha)).rg;
         return F0 * AB.x + F90 * AB.y;
     }
 #endif
@@ -111,10 +111,10 @@ vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
-    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
+    vec3 V = vec3(sqrt(1.0 - mx_square(NdotV)), 0, NdotV);
 
     vec2 AB = vec2(0.0);
     const int SAMPLE_COUNT = 64;
@@ -123,7 +123,7 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(roughness));
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(alpha));
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -135,7 +135,7 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
 
         // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
         // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
-        float weight = mx_ggx_smith_G2(NdotL, NdotV, roughness) / mx_ggx_smith_G1(NdotV, roughness);
+        float weight = mx_ggx_smith_G2(NdotL, NdotV, alpha) / mx_ggx_smith_G1(NdotV, alpha);
         
         // Add the contribution of this sample.
         AB += vec2(weight * (1.0 - Fc), weight * Fc);
@@ -148,33 +148,39 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, alpha, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, alpha, F0, F90);
 #else
-    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, alpha, F0, F90);
 #endif
 }
 
-float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float alpha, float F0, float F90)
 {
-    return mx_ggx_dir_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
+    return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
-vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
+vec3 mx_ggx_energy_compensation(float NdotV, float alpha, vec3 Fss)
 {
-    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, alpha, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
-float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
+float mx_ggx_energy_compensation(float NdotV, float alpha, float Fss)
 {
-    return mx_ggx_energy_compensation(NdotV, roughness, vec3(Fss)).x;
+    return mx_ggx_energy_compensation(NdotV, alpha, vec3(Fss)).x;
+}
+
+// Compute the average of an anisotropic alpha pair.
+float mx_average_alpha(vec2 alpha)
+{
+    return sqrt(alpha.x * alpha.y);
 }
 
 // Convert a real-valued index of refraction to normal-incidence reflectivity.
