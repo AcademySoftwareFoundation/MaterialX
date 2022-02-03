@@ -198,8 +198,22 @@ void GlslRenderer::render()
             }
             else
             {
-                // Bind the program to use
-                _program->bind();
+                // Bind the shader program.
+                if (!_program->bind())
+                {
+                    throw ExceptionRenderError("Cannot bind inputs without a valid program");
+                }
+
+                // Update uniforms and attributes.
+                _program->getUniformsList();
+                _program->getAttributesList();
+
+                // Bind shader properties.
+                _program->bindViewInformation(_camera);
+                _program->bindTextures(_imageHandler);
+                _program->bindLighting(_lightHandler, _imageHandler);
+                _program->bindTimeAndFrame();
+
 
                if (_colorManagementSystem)
                 {

@@ -270,9 +270,9 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     {
         return;
     }
-
     const string colorTransformNodeName = input->getFullName() + "_cm";
     ShaderNodePtr colorTransformNodePtr = colorManagementSystem->createNode(this, transform, colorTransformNodeName, context);
+
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
