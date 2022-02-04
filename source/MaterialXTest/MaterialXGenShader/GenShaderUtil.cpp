@@ -102,11 +102,7 @@ void checkImplementations(mx::GenContext& context,
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
-        "anisotropic_vdf",
         "thin_surface",
-        "thin_film_bsdf",
-        "worleynoise2d",
-        "worleynoise3d",
         "geompropvalue",
         "surfacematerial",
         "volumematerial"
@@ -966,8 +962,8 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tSpecular Environment Method: " << specularEnvironmentMethod << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
-    output << "\tExternal library paths: " << externalLibraryPaths.asString() << std::endl;
-    output << "\tExternal test root paths: " << externalTestPaths.asString() << std::endl;
+    output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
+    output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
     output << "\tColor management config file: " << colorManagementConfigFile.asString() << std::endl;
 }
 
@@ -997,11 +993,10 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SPECULAR_ENVIRONMENT_METHOD("specularEnvironmentMethod");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
     const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
-    const std::string TRANSFORM_UVS_STRING("transformUVs");
     const std::string SPHERE_OBJ("sphere.obj");
     const std::string SHADERBALL_OBJ("shaderball.obj");
-    const std::string EXTERNAL_LIBRARY_PATHS("externalLibraryPaths");
-    const std::string EXTERNAL_TEST_PATHS("externalTestPaths");
+    const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
+    const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string COLORMANAGEMENT_CONFIG_FILE("colorManagementConfigFile");
     const std::string WEDGE_SETTING("wedgerender");
     const std::string BAKER_SETTINGS("baker");
@@ -1177,24 +1172,20 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         irradianceIBLPath = p->getValueString();
                     }
-                    else if (name == TRANSFORM_UVS_STRING)
-                    {
-                        transformUVs = val->asA<mx::Matrix44>();
-                    }
-                    else if (name == EXTERNAL_LIBRARY_PATHS)
+                    else if (name == EXTRA_LIBRARY_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalLibraryPaths.append(mx::FilePath(l));
+                            extraLibraryPaths.append(mx::FilePath(l));
                         }
                     }
-                    else if (name == EXTERNAL_TEST_PATHS)
+                    else if (name == RENDER_TEST_PATHS)
                     {
                         mx::StringVec list = mx::splitString(p->getValueString(), ",");
                         for (const auto& l : list)
                         {
-                            externalTestPaths.append(mx::FilePath(l));
+                            renderTestPaths.append(mx::FilePath(l));
                         }
                     }
                     else if (name == COLORMANAGEMENT_CONFIG_FILE)

@@ -117,10 +117,6 @@ Upgrade path test from 1.36 to 1.37
     <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
     <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.5"/>
   </transformnormal>
-  <transformnormal name="normal_transform34" type="vector4">
-    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
-    <input name="mat" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
-  </transformnormal>
 
   <!-- No change to transform space variants -->
   <transformpoint name="no_transformpoint_change" type="vector3">

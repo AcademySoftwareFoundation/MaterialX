@@ -92,7 +92,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 63);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 55);
 }
 
 /*
@@ -103,7 +103,7 @@ TEST_CASE("GenShader: MDL Unique Names", "[genmdl]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     context.registerSourceCodeSearchPath(searchPath);
     // TODO: Add path to find MDL module files
-    // context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
+    // context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/mdl"));
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
@@ -236,13 +236,10 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 
 TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
 
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
@@ -258,6 +255,6 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     mx::GenOptions genOptions;
     genOptions.targetColorSpaceOverride = "lin_rec709";
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }

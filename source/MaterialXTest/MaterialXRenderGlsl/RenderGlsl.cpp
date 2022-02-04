@@ -38,8 +38,6 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& log) override;
 
-    void transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const;
-
     bool runRenderer(const std::string& shaderName,
                      mx::TypedElementPtr element,
                      mx::GenContext& context,
@@ -100,6 +98,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
+    _lightHandler->setEnvSamples(256);
 }
 
 //
@@ -375,30 +374,6 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
     }
 }
 
-void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const
-{
-    for(mx::MeshPtr mesh : meshes)
-    {
-        // Transform texture coordinates.
-        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
-        uvStream->transform(matrixTransform);
-
-        // Regenerate tangents
-        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
-        if (tangentStream)
-        {
-            mesh->removeStream(tangentStream);
-            tangentStream = mesh->generateTangents(mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0),
-                                                   mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0),
-                                                   uvStream);
-            if (tangentStream)
-            {
-                mesh->addStream(tangentStream);
-            }
-        }
-    }
-}
-
 bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           mx::TypedElementPtr element,
                                           mx::GenContext& context,
@@ -410,6 +385,8 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
+    std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
+
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
@@ -504,77 +481,40 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             bool validated = false;
             try
             {
+                // Set geometry
                 mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
-
-                bool isShader = mx::elementRequiresShading(element);
-                if (isShader)
+                mx::FilePath geomPath;
+                if (!testOptions.shadedGeometry.isEmpty())
                 {
-                    // Set shaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.shadedGeometry.isEmpty())
+                    if (!testOptions.shadedGeometry.isAbsolute())
                     {
-                        if (!testOptions.shadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.shadedGeometry;
-                        }
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
                     }
                     else
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/shaderball.obj");
+                        geomPath = testOptions.shadedGeometry;
                     }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
-                        }
-                    }
-
-                    // Set shaded element lights
-                    _renderer->setLightHandler(_lightHandler);
                 }
                 else
                 {
-                    // Set unshaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.unShadedGeometry.isEmpty())
-                    {
-                        if (!testOptions.unShadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.unShadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.unShadedGeometry;
-                        }
-                    }
-                    else
-                    {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
-                    }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
-                        }
-                    }
-
-                    // Clear lights for unshaded element
-                    _renderer->setLightHandler(nullptr);
+                    geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
                 }
+
+                if (!geomHandler->hasGeometry(geomPath))
+                {
+                    // For test sphere and plane geometry perform a V-flip of texture coordinates.
+                    const std::string baseName = geomPath.getBaseName();
+                    bool texcoordVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
+                    geomHandler->clearGeometry();
+                    geomHandler->loadGeometry(geomPath, texcoordVerticalFlip);
+                    for (mx::MeshPtr mesh : geomHandler->getMeshes())
+                    {
+                        addAdditionalTestStreams(mesh);
+                    }
+                }
+
+                bool isShader = mx::elementRequiresShading(element);
+                _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
 
                 {
                     mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
@@ -729,20 +669,13 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-
-    GenShaderUtil::TestSuiteOptions options;
+	GenShaderUtil::TestSuiteOptions options;
     if (options.readOptions(optionsFilePath))
     {
         renderTester.setColorManagementConfigFile(options.colorManagementConfigFile);
     }
-    renderTester.validate(testRootPaths, optionsFilePath);
+
+    renderTester.validate(optionsFilePath);
 }

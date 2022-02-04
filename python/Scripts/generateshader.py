@@ -12,7 +12,7 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
-    if codevalidator and os.path.isfile(codevalidator):
+    if codevalidator:
         cmd = codevalidator + ' ' + sourceCodeFile 
         if codevalidatorArgs:
             cmd += ' ' + codevalidatorArgs

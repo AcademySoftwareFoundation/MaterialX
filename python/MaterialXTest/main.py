@@ -27,20 +27,18 @@ _testValues = (1,
 
 _fileDir = os.path.dirname(os.path.abspath(__file__))
 _libraryDir = os.path.join(_fileDir, '../../libraries/stdlib/')
-_exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/Syntax/')
+_exampleDir = os.path.join(_fileDir, '../../resources/Materials/Examples/')
 _searchPath = _libraryDir + mx.PATH_LIST_SEPARATOR + _exampleDir
 
 _libraryFilenames = ('stdlib_defs.mtlx',
-                     'stdlib_ng.mtlx',
-                     'osl/stdlib_osl_impl.mtlx')
-_exampleFilenames = ('CustomNode.mtlx',
-                     'Looks.mtlx',
-                     'MaterialBasic.mtlx',
-                     'MultiOutput.mtlx',
-                     'NodeGraphs.mtlx',
-                     'PaintMaterials.mtlx',
-                     'PostShaderComposite.mtlx',
-                     'PreShaderComposite.mtlx')
+                     'stdlib_ng.mtlx')
+_exampleFilenames = ('StandardSurface/standard_surface_brass_tiled.mtlx',
+                     'StandardSurface/standard_surface_brick_procedural.mtlx',
+                     'StandardSurface/standard_surface_carpaint.mtlx',
+                     'StandardSurface/standard_surface_marble_solid.mtlx',
+                     'StandardSurface/standard_surface_look_brass_tiled.mtlx',
+                     'UsdPreviewSurface/usd_preview_surface_gold.mtlx',
+                     'UsdPreviewSurface/usd_preview_surface_plastic.mtlx')
 
 _epsilon = 1e-4
 
@@ -478,7 +476,7 @@ class TestMaterialX(unittest.TestCase):
         # Read the same document twice, and verify that duplicate elements
         # are skipped.
         doc = mx.createDocument()
-        filename = 'PostShaderComposite.mtlx'
+        filename = 'StandardSurface/standard_surface_carpaint.mtlx'
         mx.readFromXmlFile(doc, filename, _searchPath)
         mx.readFromXmlFile(doc, filename, _searchPath)
         self.assertTrue(doc.validate()[0])

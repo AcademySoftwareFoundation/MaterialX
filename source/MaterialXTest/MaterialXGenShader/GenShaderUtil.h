@@ -134,14 +134,11 @@ class TestSuiteOptions
     // Irradiance IBL file.
     mx::FilePath irradianceIBLPath;
 
-    // Transforms UVs of loaded geometry
-    mx::Matrix44 transformUVs;
+    // Extra library paths
+    mx::FileSearchPath extraLibraryPaths;
 
-    // Additional library paths
-    mx::FileSearchPath externalLibraryPaths;
-
-    // Additional testPaths paths
-    mx::FileSearchPath externalTestPaths;
+    // Render test paths
+    mx::FileSearchPath renderTestPaths;
 
     // Color management configuration file.Only applicable if building with OCIO
     mx::FilePath colorManagementConfigFile;

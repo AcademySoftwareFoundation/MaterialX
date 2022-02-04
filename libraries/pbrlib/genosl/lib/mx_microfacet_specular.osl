@@ -23,71 +23,26 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
     return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
 }
 
-// https://www.unrealengine.com/blog/physically-based-shading-on-mobile
-color mx_ggx_dir_albedo_analytic(float NdotV, float roughness, color F0, color F90)
-{
-    vector4 c0 = vector4(-1, -0.0275, -0.572, 0.022);
-    vector4 c1 = vector4( 1,  0.0425,  1.04, -0.04 );
-    vector4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vector2 AB = vector2(-1.04, 1.04) * a004 + vector2(r.z, r.w);
-    return F0 * AB.x + F90 * AB.y;
-}
-
-color mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, color F0, color F90)
-{
-    vector2 st = vector2(NdotV, roughness);
-    vector AB = texture(GGX_DIRECTIONAL_ALBEDO_TABLE, st.x, st.y);
-    return F0 * AB[0] + F90 * AB[1];
-}
-
-// https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-color mx_ggx_dir_albedo_monte_carlo(float _NdotV, float roughness, color F0, color F90)
-{
-    float NdotV = clamp(_NdotV, M_FLOAT_EPS, 1.0);
-    vector V = vector(sqrt(1.0 - mx_square(NdotV)), 0.0, NdotV);
-
-    vector2 AB = vector2(0.0, 0.0);
-    int SAMPLE_COUNT = 64;
-    for (int i = 0; i < SAMPLE_COUNT; i++)
-    {
-        vector2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
-
-        // Compute the half vector and incoming light direction.
-        vector H = mx_ggx_importance_sample_NDF(Xi, vector(1, 0, 0), vector(0, 1, 0), vector(0, 0, 1), roughness, roughness);
-        vector L = -reflect(V, H);
-        
-        // Compute dot products for this sample.
-        float NdotL = clamp(L[2], M_FLOAT_EPS, 1.0);
-        float NdotH = clamp(H[2], M_FLOAT_EPS, 1.0);
-        float VdotH = clamp(dot(V, H), M_FLOAT_EPS, 1.0);
-
-        // Compute the Fresnel term.
-        float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
-
-        // Compute the geometric visibility term.
-        float Gvis = mx_ggx_smith_G2(NdotL, NdotV, roughness) * VdotH / (NdotH * NdotV);
-        
-        // Add the contribution of this sample.
-        AB += vector2(Gvis * (1 - Fc), Gvis * Fc);
-    }
-
-    // Normalize integrated terms.
-    AB /= SAMPLE_COUNT;
-
-    // Return the final directional albedo.
-    return F0 * AB.x + F90 * AB.y;
-}
-
+// Rational quadratic fit to Monte Carlo data for GGX directional albedo.
 color mx_ggx_dir_albedo(float NdotV, float roughness, color F0, color F90)
 {
-#if GGX_DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
-#elif GGX_DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
-#else
-    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
-#endif
+    float x = NdotV;
+    float y = roughness;
+    float x2 = mx_square(NdotV);
+    float y2 = mx_square(roughness);
+    vector4 r = vector4(0.10031, 0.93450, 1.0, 1.0) +
+                vector4(-0.63301, -2.32352, -1.76427, 0.22797) * x +
+                vector4(9.74995, 2.22823, 8.26501, 15.93688) * y +
+                vector4(-2.02075, -3.74584, 11.54840, -55.82466) * x * y +
+                vector4(29.38247, 1.42450, 28.99991, 13.07919) * x2 +
+                vector4(-8.24713, -0.76829, -7.50867, 41.25882) * y2 +
+                vector4(-26.51510, 1.43366, -36.16186, 54.86775) * x2 * y +
+                vector4(19.98406, 0.29060, 15.85408, 300.10923) * x * y2 +
+                vector4(-5.41717, 0.62933, 33.41550, -284.73288) * x2 * y2;
+    vector2 AB = vector2(r.x, r.y) / vector2(r.z, r.w);
+    AB.x = clamp(AB.x, 0.0, 1.0);
+    AB.y = clamp(AB.y, 0.0, 1.0);
+    return F0 * AB.x + F90 * AB.y;
 }
 
 float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)

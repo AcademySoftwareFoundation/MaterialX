@@ -195,18 +195,9 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
 
     emitIncludes(stage, context);
 
-    // Resolve path to directional albedo table.
-    // Force path to use slash since backslash even if escaped 
-    // gives problems when saving the source code to file.
-    FilePath albedoTableFile = context.resolveSourceFile("resources/Lights/AlbedoTable.exr");
-    string albedoTableFilePath = albedoTableFile.asString();
-    std::replace(albedoTableFilePath.begin(), albedoTableFilePath.end(), '\\', '/');
-
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
     emitLine("#define M_FLOAT_EPS 1e-8", stage, false);
-    emitLine("#define GGX_DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
-    emitLine("#define GGX_DIRECTIONAL_ALBEDO_TABLE \"" + albedoTableFilePath + "\"", stage, false);
     emitLineBreak(stage);
 
     // Set the include file to use for uv transformations,

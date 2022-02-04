@@ -1,29 +1,10 @@
-option(MATERIALX_BUILD_JS "Build the MaterialX Javascript package from C++ bindings. Requires the emscripten environment." OFF)
-set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'C:/emsdk').")
-
-if (MATERIALX_BUILD_JS)
-    # Set the the emsdk path
-    if (EXISTS "${MATERIALX_EMSDK_PATH}")
-        set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
-    elseif (EXISTS $ENV{EMSDK})
-        set(EMSDK_PATH $ENV{EMSDK})
-    endif()
-
-    if (EMSDK_PATH)
-        # NOTE: Setting the CMAKE_TOOLCHAIN_FILE needs to happen before calling project()
-        set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
-    else()
-        message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
-        set(MATERIALX_BUILD_JS OFF)
-    endif()
-endif()
-
-project(MaterialX)
+# MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
 set(MATERIALX_BUILD_VERSION 4)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
+# Cmake setup
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -32,6 +13,25 @@ enable_testing()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# JavaScript setup 
+option(MATERIALX_BUILD_JS "Build the MaterialX JavaScript package from C++ bindings. Requires the emscripten environment." OFF)
+set(MATERIALX_EMSDK_PATH "" CACHE PATH "Path to EMSDK (e.g. 'D:/Projects/emsdk').")
+if (MATERIALX_BUILD_JS)
+    if (EXISTS "${MATERIALX_EMSDK_PATH}")
+        set(EMSDK_PATH ${MATERIALX_EMSDK_PATH})
+    elseif (EXISTS $ENV{EMSDK})
+        set(EMSDK_PATH $ENV{EMSDK})
+    endif()
+    if (EMSDK_PATH)
+        set(CMAKE_TOOLCHAIN_FILE "${EMSDK_PATH}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+    else()
+        message("The EMSDK path was not supplied, disabling MATERIALX_BUILD_JS")
+        set(MATERIALX_BUILD_JS OFF)
+    endif()
+endif()
+
+project(MaterialX)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." ON)
@@ -64,15 +64,21 @@ set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO
 
 set(MATERIALX_OCIO_DIR "" CACHE PATH "Path to the root folder of the OpenColorIO installation.")
 
+if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_GEN_GLSL ON)
+endif()
+
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
 set(MATERIALX_INSTALL_LIB_PATH "lib" CACHE STRING "Install lib path (e.g. 'libs', 'lib').")
 set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtlx std libs (e.g. 'libraries').")
 
 # Helpers for OSL validation
-set(MATERIALX_TESTOSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary.")
-set(MATERIALX_TESTRENDER_EXECUTABLE "" CACHE FILEPATH "Full path to the testrender binary.")
-set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to osl include paths. e.g. location of stdosl.h")
+set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler binary.")
+set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
+set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
+
+# Helpers for Arnold OSL validation
 set(MATERIALX_ARNOLD_OSLC_EXECUTABLE "" CACHE FILEPATH "Full path to the oslc binary for Arnold.")
 set(MATERIALX_ARNOLD_EXECUTABLE "" CACHE FILEPATH "Full path to the test renderer for Arnold.")
 
@@ -105,7 +111,6 @@ mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
-mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
@@ -119,13 +124,17 @@ mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
 mark_as_advanced(MATERIALX_PYTHON_PYBIND11_DIR)
 mark_as_advanced(MATERIALX_OIIO_DIR)
-mark_as_advanced(MATERIALX_TESTOSLC_EXECUTABLE)
-mark_as_advanced(MATERIALX_TESTRENDER_EXECUTABLE)
+mark_as_advanced(MATERIALX_OSL_BINARY_OSLC)
+mark_as_advanced(MATERIALX_OSL_BINARY_TESTRENDER)
 mark_as_advanced(MATERIALX_OSL_INCLUDE_PATH)
-mark_as_advanced(MATERIALX_ARNOLD_EXECUTABLE)
 mark_as_advanced(MATERIALX_INSTALL_INCLUDE_PATH)
 mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
+mark_as_advanced(MATERIALX_BUILD_JS)
+mark_as_advanced(MATERIALX_EMSDK_PATH)
+
+mark_as_advanced(MATERIALX_BUILD_OCIO)
+mark_as_advanced(MATERIALX_ARNOLD_EXECUTABLE)
 
 ### ADSK only modules ###
 option(MATERIALX_BUILD_CONTRIB "Build contribution folder." ON)
@@ -188,8 +197,8 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 
 # Add global definitions
-add_definitions(-DMATERIALX_TESTOSLC_EXECUTABLE=\"${MATERIALX_TESTOSLC_EXECUTABLE}\")
-add_definitions(-DMATERIALX_TESTRENDER_EXECUTABLE=\"${MATERIALX_TESTRENDER_EXECUTABLE}\")
+add_definitions(-DMATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\")
+add_definitions(-DMATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 add_definitions(-DMATERIALX_ARNOLD_OSLC_EXECUTABLE=\"${MATERIALX_ARNOLD_OSLC_EXECUTABLE}\")
 add_definitions(-DMATERIALX_ARNOLD_EXECUTABLE=\"${MATERIALX_ARNOLD_EXECUTABLE}\")

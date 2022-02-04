@@ -70,9 +70,9 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 
     const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
     mx::loadLibraries(libraries, searchPath, dependLib);
-    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
+    for (size_t i = 0; i < options.extraLibraryPaths.size(); i++)
     {
-        const mx::FilePath& libraryPath = options.externalLibraryPaths[i];
+        const mx::FilePath& libraryPath = options.extraLibraryPaths[i];
         for (const mx::FilePath& libraryFile : libraryPath.getFilesInDirectory("mtlx"))
         {
             std::cout << "Extra library path: " << (libraryPath / libraryFile).asString() << std::endl;
@@ -97,7 +97,7 @@ void ShaderRenderTester::addSkipFiles()
     _skipFiles.insert("material_element_to_surface_material.mtlx");
 }
 
-bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
+bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
 #ifdef LOG_TO_FILE
     std::ofstream logfile(_shaderGenerator->getTarget() + "_render_log.txt");
@@ -105,7 +105,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "__render_profiling_log.txt");
+    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -142,24 +142,11 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
     mx::ScopedTimer ioTimer(&profileTimes.ioTime);
     mx::FilePathVec dirs;
-    if (options.externalTestPaths.size() == 0)
+    for (const auto& root : options.renderTestPaths)
     {
-        for (const auto& testRoot : testRootPaths)
-        {
-            mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
-            dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
-        }
+        mx::FilePathVec testRootDirs = root.getSubDirectories();
+        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
     }
-    else
-    {
-        // Use test roots from options file
-        for (size_t i = 0; i < options.externalTestPaths.size(); i++)
-        {
-            std::cout << "Test root: " << options.externalTestPaths[i].asString() << std::endl;
-            dirs.push_back(options.externalTestPaths[i]);
-        }
-    }
-
     ioTimer.endTimer();
 
     // Add files to skip
@@ -297,7 +284,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             ioTimer.endTimer();
 
             validateTimer.startTimer();
-            std::cout << "- Validating rendering for: " << filename.asString() << std::endl;
             log << "MTLX Filename: " << filename.asString() << std::endl;
 
             // Validate the test document

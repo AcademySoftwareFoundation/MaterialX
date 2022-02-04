@@ -14,7 +14,7 @@
 #include <limits>
 
 MATERIALX_NAMESPACE_BEGIN
-bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
+bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
 {
     std::ifstream objfile;
     objfile.open(filePath);
@@ -108,6 +108,10 @@ bool SampleObjLoader::load(const FilePath& filePath, MeshList& meshList)
         {
             std::istringstream valstring(line.substr(3));
             valstring >> val1; valstring >> val2;
+            if (texcoordVerticalFlip)
+            {
+                val2 = 1.0f - val2;
+            }
             uv.push_back(val1); uv.push_back(val2);
 
             if (_debugDump)

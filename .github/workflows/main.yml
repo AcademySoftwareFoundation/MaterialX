@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_5_Python27
+        - name: Linux_GCC_7_Python27
           os: ubuntu-18.04
           compiler: gcc
-          compiler_version: "5"
+          compiler_version: "7"
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
@@ -33,19 +33,18 @@ jobs:
           python: 3.7
           run_on_push : OFF
 
-        - name: Linux_GCC_11_Python37
+        - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
           compiler: gcc
           compiler_version: "11"
-          python: 3.7
-          test_render: ON
+          python: 3.9
           run_on_push : OFF
 
-        - name: Linux_Clang_9_Python36
+        - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
           compiler: clang
           compiler_version: "9"
-          python: 3.6
+          python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
           run_on_push : OFF
 
@@ -54,14 +53,16 @@ jobs:
           compiler: clang
           compiler_version: "11"
           python: 3.7
-          run_on_push : OFF
+          build_javascript: ON
+          run_on_push : ON
 
-        - name: Linux_Clang_12_Python38
+        - name: Linux_Clang_12_Python39
           os: ubuntu-20.04
           compiler: clang
           compiler_version: "12"
-          python: 3.8
+          python: 3.9
           test_render: ON
+          upload_reference_shaders: ON
           run_on_push : ON
 
         - name: MacOS_Xcode_10_Python27
@@ -75,16 +76,16 @@ jobs:
         - name: MacOS_Xcode_12_Python37
           os: macos-11
           compiler: xcode
-          compiler_version: "12.5.1"
+          compiler_version: "12.4"
           python: 3.7
           run_on_push: ON
 
-        - name: MacOS_Xcode_13_Python38
+        - name: MacOS_Xcode_13_Python39
           os: macos-11
           compiler: xcode
-          compiler_version: "13.0"
-          python: 3.8
-          cmake_config: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          compiler_version: "13.1"
+          python: 3.9
+          cmake_config: -DCMAKE_OSX_ARCHITECTURES="x86_64"
           run_on_push : OFF
 
         - name: Windows_VS2019_Win32_Python27
@@ -106,8 +107,8 @@ jobs:
           architecture: x64
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
-          test_validate: ON
-          run_on_push : ON
+          test_shaders: ON
+          run_on_push: ON
 
     steps:
     - name: Sync Repository
@@ -145,6 +146,15 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
         fi
 
+    - name: Install Dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
+        vcpkg/bootstrap-vcpkg.bat -disableMetrics
+        echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
+
     - name: Install Python ${{ matrix.python }}
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       uses: actions/setup-python@v2
@@ -152,33 +162,38 @@ jobs:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
 
-    - name: Create Build Directory
-      if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: mkdir build
-      
+    - name: Install OpenImageIO
+      if: matrix.install_oiio == 'ON' && runner.os == 'Windows'
+      run: |
+        vcpkg/vcpkg install openimageio --triplet=x64-windows
+
+    - name: Install Emscripten
+      if: matrix.build_javascript == 'ON'
+      run: |
+        git clone https://github.com/emscripten-core/emsdk --recursive
+        cd emsdk
+        ./emsdk install 2.0.20
+        ./emsdk activate 2.0.20
+        source ./emsdk_env.sh
+        echo "EMSDK=$EMSDK" >> $GITHUB_ENV
+
+    - name: Install Node
+      if: matrix.build_javascript == 'ON'
+      uses: actions/setup-node@v1
+      with:
+         node-version: '12'
+
     - name: CMake Generate
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_RUNTIME=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
-      working-directory: build
+      run: |
+        mkdir build
+        cd build
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       if: ${{ ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       run: cmake --build . --target install --config Release --parallel 2
       working-directory: build
-
-    - name: Initialize Virtual Framebuffer
-      if: ${{ matrix.test_render == 'ON' && runner.os == 'Linux' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
-      run: |
-        Xvfb :1 -screen 0 1280x960x24 &
-        echo "DISPLAY=:1" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
-
-    - name: Set Runtime Path (Windows)
-      if: ${{ runner.os == 'Windows' && ( github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev') }}
-      run: echo "$PWD" | Out-File -FilePath $env:GITHUB_PATH -Append
-      working-directory: build/installed/bin
 
     - name: CMake Unit Tests
       if: ${{ github.event_name == 'pull_request' || matrix.run_on_push == 'ON' || github.ref == 'refs/heads/adsk_contrib/dev' }}
@@ -198,6 +213,24 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
       working-directory: python
 
+    - name: Shader Validation Tests
+      if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
+      run: |
+        vcpkg/vcpkg install glslang --triplet=x64-windows
+        glslangValidator.exe -v
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+
+    - name: Initialize Virtual Framebuffer
+      if: ${{ matrix.test_render == 'ON' && runner.os == 'Linux' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
+      run: |
+        Xvfb :1 -screen 0 1280x960x24 &
+        echo "DISPLAY=:1" >> $GITHUB_ENV
+        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
+        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+
     - name: Render Tests
       if: ${{ matrix.test_render == 'ON' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' ) }}
       run: |
@@ -207,25 +240,54 @@ jobs:
         build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
         build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
 
-    - name: Shader Validation Tests
-      if: matrix.test_validate == 'ON' && runner.os == 'Windows'
+    - name: JavaScript CMake Generate
+      if: matrix.build_javascript == 'ON'
       run: |
-        git clone https://github.com/Microsoft/vcpkg
-        cd vcpkg
-        bootstrap-vcpkg.bat
-        vcpkg integrate install
-        vcpkg install glslang:x64-windows
-        cd ..
-        vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator vcpkg/packages/glslang_x64-windows/tools/glslang/glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        mkdir javascript/build
+        cd javascript/build
+        cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ../..
+
+    - name: JavaScript CMake Build
+      if: matrix.build_javascript == 'ON'
+      run: cmake --build . --target install --config Release --parallel 2
+      working-directory: javascript/build
+    
+    - name: JavaScript Unit Tests
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run test
+        npm run test:browser
+      working-directory: javascript/MaterialXTest
+
+    - name: Build Web Viewer
+      if: matrix.build_javascript == 'ON'
+      run: |
+        npm install
+        npm run build
+      working-directory: javascript/MaterialXView
+
+    - name: Deploy Web Viewer
+      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      uses: JamesIves/github-pages-deploy-action@4.1.9
+      with:
+        branch: gh-pages
+        folder: javascript/MaterialXView/dist
+        single-commit: true
+
     - name: Upload Installed Package
       uses: actions/upload-artifact@v2.2.4
       if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/adsk_contrib/dev' }}
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
+
+    - name: Upload Reference Shaders
+      uses: actions/upload-artifact@v2.2.4
+      if: matrix.upload_reference_shaders == 'ON'
+      with:
+        name: Reference_Shaders_${{ matrix.name }}
+        path: build/bin/reference/
 
     - name: Upload Renders
       uses: actions/upload-artifact@v2.2.4

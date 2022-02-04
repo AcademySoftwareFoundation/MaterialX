@@ -25,7 +25,6 @@ set(CORE_DEPS ${CORE}JsTypes.cpp
 set(FORMAT_DEPS
     ${FORMAT}JsUtil.cpp
     ${FORMAT}JsXmlIo.cpp
-    ${FORMAT}JsXmlExport.cpp
     ${FORMAT}JsEnviron.cpp)
 
 set(GENSHADER_DEPS ${GENSHADER}JsGenContext.cpp
