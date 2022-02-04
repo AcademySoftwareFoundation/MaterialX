@@ -2,6 +2,7 @@
   <img src="documents/Images/MaterialXLogo.png" height="170" />
 </p>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/61c9879d1f5348ceb70599659cabe20d)](https://app.codacy.com/gh/autodesk-forks/MaterialX?utm_source=github.com&utm_medium=referral&utm_content=autodesk-forks/MaterialX&utm_campaign=Badge_Grade_Settings)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/materialx/MaterialX/blob/main/LICENSE.txt)
 [![Version](https://img.shields.io/github/v/release/materialx/MaterialX)](https://github.com/materialx/MaterialX/releases/latest)
 [![Build Status](https://github.com/MaterialX/MaterialX/workflows/main/badge.svg?branch=main)](https://github.com/MaterialX/MaterialX/actions?query=branch%3Amain)
