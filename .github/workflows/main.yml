@@ -268,7 +268,7 @@ jobs:
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/adsk_contrib/dev'
       uses: JamesIves/github-pages-deploy-action@4.1.9
       with:
         branch: gh-pages
