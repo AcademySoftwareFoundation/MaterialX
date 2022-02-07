@@ -85,15 +85,15 @@ vec3 mx_ggx_dir_albedo_analytic(float NdotV, float alpha, vec3 F0, vec3 F90)
     float y = alpha;
     float x2 = mx_square(x);
     float y2 = mx_square(y);
-    vec4 r = vec4(0.10031, 0.93450, 1.0, 1.0) +
-             vec4(-0.63301, -2.32352, -1.76427, 0.22797) * x +
-             vec4(9.74995, 2.22823, 8.26501, 15.93688) * y +
-             vec4(-2.02075, -3.74584, 11.54840, -55.82466) * x * y +
-             vec4(29.38247, 1.42450, 28.99991, 13.07919) * x2 +
-             vec4(-8.24713, -0.76829, -7.50867, 41.25882) * y2 +
-             vec4(-26.51510, 1.43366, -36.16186, 54.86775) * x2 * y +
-             vec4(19.98406, 0.29060, 15.85408, 300.10923) * x * y2 +
-             vec4(-5.41717, 0.62933, 33.41550, -284.73288) * x2 * y2;
+    vec4 r = vec4(0.1003, 0.9345, 1.0, 1.0) +
+             vec4(-0.6303, -2.323, -1.765, 0.2281) * x +
+             vec4(9.748, 2.229, 8.263, 15.94) * y +
+             vec4(-2.038, -3.748, 11.53, -55.83) * x * y +
+             vec4(29.34, 1.424, 28.96, 13.08) * x2 +
+             vec4(-8.245, -0.7684, -7.507, 41.26) * y2 +
+             vec4(-26.44, 1.436, -36.11, 54.9) * x2 * y +
+             vec4(19.99, 0.2913, 15.86, 300.2) * x * y2 +
+             vec4(-5.448, 0.6286, 33.37, -285.1) * x2 * y2;
     vec2 AB = clamp(r.xy / r.zw, 0.0, 1.0);
     return F0 * AB.x + F90 * AB.y;
 }
@@ -133,16 +133,16 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float alpha, vec3 F0, vec3 F90)
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
-        // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
+        // Compute the per-sample geometric term.
         // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
-        float weight = mx_ggx_smith_G2(NdotL, NdotV, alpha) / mx_ggx_smith_G1(NdotV, alpha);
+        float G2 = mx_ggx_smith_G2(NdotL, NdotV, alpha);
         
         // Add the contribution of this sample.
-        AB += vec2(weight * (1.0 - Fc), weight * Fc);
+        AB += vec2(G2 * (1.0 - Fc), G2 * Fc);
     }
 
-    // Normalize integrated terms.
-    AB /= float(SAMPLE_COUNT);
+    // Apply the global component of the geometric term and normalize.
+    AB /= mx_ggx_smith_G1(NdotV, alpha) * float(SAMPLE_COUNT);
 
     // Return the final directional albedo.
     return F0 * AB.x + F90 * AB.y;
