@@ -59,15 +59,30 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     logFile.open(logPath);
 
     // Generate reference shaders.
+    // Ignore the following node as they do not have implementations
+    const mx::StringSet ignoreNodeList = { "surfacematerial", "volumematerial",
+                                           "constant_filename", "arrayappend",
+                                           "dot_filename"};
     for (const mx::NodeDefPtr& nodedef : stdlib->getNodeDefs())
     {
         std::string nodeName = nodedef->getName();
+        std::string nodeNode = nodedef->getNodeString();
         if (nodeName.size() > 3 && nodeName.substr(0, 3) == "ND_")
         {
             nodeName = nodeName.substr(3);
         }
-        if (nodeName == mx::MATERIAL_TYPE_STRING)
+        if (nodeName == mx::MATERIAL_TYPE_STRING || 
+            ignoreNodeList.find(nodeName) != ignoreNodeList.end() ||
+            ignoreNodeList.find(nodeNode) != ignoreNodeList.end())
         {
+            logFile << "Skip for '" << nodeName << "'" << std::endl;
+            continue;
+        }
+
+        mx::InterfaceElementPtr interface = nodedef->getImplementation();
+        if (!interface)
+        {
+            logFile << "No implementation for '" << nodeName << "'" << std::endl;
             continue;
         }
 
@@ -85,6 +100,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             REQUIRE(file.is_open());
             file << shader->getSourceCode();
             file.close();
+
+            // Need to copy over any include files locally !            
 
             if (oslRenderer)
             {
