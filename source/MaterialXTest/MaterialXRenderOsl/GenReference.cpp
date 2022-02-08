@@ -46,11 +46,8 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
     mx::GenContext context(generator);
     context.getOptions().addUpstreamDependencies = false;
-    if (oslRenderer)
-    {
-        context.registerSourceCodeSearchPath(librariesPath);
-        context.getOptions().fileTextureVerticalFlip = true;
-    }
+    context.registerSourceCodeSearchPath(librariesPath);
+    context.getOptions().fileTextureVerticalFlip = true;
 
     // Create output directory.
     mx::FilePath outputPath = mx::FilePath::getCurrentPath() / mx::FilePath("reference/osl");
@@ -105,7 +102,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             file.open(filepath);
             REQUIRE(file.is_open());
             file << shader->getSourceCode();
-            file.close();         
+            file.close();
 
             if (oslRenderer)
             {
