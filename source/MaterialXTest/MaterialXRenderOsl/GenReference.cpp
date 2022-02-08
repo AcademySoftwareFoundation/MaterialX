@@ -34,7 +34,11 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     {
         oslRenderer = mx::OslRenderer::create();
         oslRenderer->setOslCompilerExecutable(MATERIALX_OSL_BINARY_OSLC);
-        oslRenderer->setOslIncludePath(MATERIALX_OSL_INCLUDE_PATH);
+        mx::FileSearchPath oslIncludePaths = mx::FilePath(MATERIALX_OSL_INCLUDE_PATH);
+        // Add in library include path for compile testing as the generated
+        // shader's includes are not added with absolute paths.
+        oslIncludePaths.append(librariesPath / mx::FilePath("stdlib/genosl/include"));
+        oslRenderer->setOslIncludePath(oslIncludePaths);
     }
 
     // Create shader generator.
@@ -44,7 +48,6 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     if (oslRenderer)
     {
         context.registerSourceCodeSearchPath(librariesPath);
-        context.registerSourceCodeSearchPath(librariesPath / mx::FilePath("stdlib/genosl/include"));
         context.getOptions().fileTextureVerticalFlip = true;
     }
 
@@ -59,10 +62,12 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     logFile.open(logPath);
 
     // Generate reference shaders.
-    // Ignore the following node as they do not have implementations
+    // Ignore the following nodes:
     const mx::StringSet ignoreNodeList = { "surfacematerial", "volumematerial",
                                            "constant_filename", "arrayappend",
                                            "dot_filename"};
+
+    bool failedGeneration = false;
     for (const mx::NodeDefPtr& nodedef : stdlib->getNodeDefs())
     {
         std::string nodeName = nodedef->getName();
@@ -75,14 +80,14 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             ignoreNodeList.find(nodeName) != ignoreNodeList.end() ||
             ignoreNodeList.find(nodeNode) != ignoreNodeList.end())
         {
-            logFile << "Skip for '" << nodeName << "'" << std::endl;
+            logFile << "Skip generating reference for'" << nodeName << "'" << std::endl;
             continue;
         }
 
         mx::InterfaceElementPtr interface = nodedef->getImplementation();
         if (!interface)
         {
-            logFile << "No implementation for '" << nodeName << "'" << std::endl;
+            logFile << "Skip generating reference for unimplemented node '" << nodeName << "'" << std::endl;
             continue;
         }
 
@@ -99,9 +104,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             file.open(filepath);
             REQUIRE(file.is_open());
             file << shader->getSourceCode();
-            file.close();
-
-            // Need to copy over any include files locally !            
+            file.close();         
 
             if (oslRenderer)
             {
@@ -116,15 +119,19 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             {
                 logFile << error << std::endl;
             }
+            failedGeneration = true;
         }
         catch (mx::Exception& e)
         {
             logFile << "Error generating OSL reference for '" << nodeName << "' : " << std::endl;
             logFile << e.what() << std::endl;
+            failedGeneration = true;
         }
 
         stdlib->removeChild(node->getName());
     }
 
     logFile.close();
+
+    REQUIRE(failedGeneration == false);
 }
