@@ -236,11 +236,18 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
 
-    // Add any metadata if set on the graph.
     const ShaderMetadataVecPtr& metadata = graph.getMetadata();
-    if (metadata && metadata->size())
+    bool haveShaderMetaData = ( metadata && metadata->size() );
+
+    // Always emit node information
+    emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+    emitLine("string mtlx_category = \"" + element->getCategory() + "\"" + Syntax::COMMA, stage, false);
+    emitLine("string mtlx_name = \"" + element->getName() + "\"" + 
+            (haveShaderMetaData ? Syntax::COMMA : EMPTY_STRING), stage, false);
+
+    // Add any metadata if set on the graph.
+    if (haveShaderMetaData)
     {
-        emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
         for (size_t j = 0; j < metadata->size(); ++j)
         {
             const ShaderMetadata& data = metadata->at(j);
@@ -249,9 +256,10 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
             emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
         }
-        emitScopeEnd(stage, false, false);
-        emitLineEnd(stage, false);
     }
+    emitScopeEnd(stage, false, false);
+    emitLineEnd(stage, false);
+
 
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
