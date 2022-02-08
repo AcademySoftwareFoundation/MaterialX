@@ -284,8 +284,12 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     const string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    string command = _oslCompilerExecutable.asString() + " -q -I\"" + _oslIncludePath.asString() + "\" " +
-                     oslFilePath.asString() + " -o " + outputFileName.asString() + " > " + errorFile + redirectString;
+    string command = _oslCompilerExecutable.asString() + " -q ";
+    for (FilePath p : _oslIncludePath)
+    { 
+        command += " -I\"" + p.asString() + "\" ";
+    }
+    command += oslFilePath.asString() + " -o " + outputFileName.asString() + " > " + errorFile + redirectString;
 
     int returnValue = std::system(command.c_str());
 
