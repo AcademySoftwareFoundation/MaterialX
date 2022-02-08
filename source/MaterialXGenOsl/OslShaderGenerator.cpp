@@ -242,7 +242,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Always emit node information
     emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
     emitLine("string mtlx_category = \"" + element->getCategory() + "\"" + Syntax::COMMA, stage, false);
-    emitLine("string mtlx_name = \"" + element->getName() + "\"" + 
+    emitLine("string mtlx_name = \"" + element->getQualifiedName(element->getName())+ "\"" + 
             (haveShaderMetaData ? Syntax::COMMA : EMPTY_STRING), stage, false);
 
     // Add any metadata if set on the graph.
