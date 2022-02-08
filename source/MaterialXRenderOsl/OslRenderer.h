@@ -108,7 +108,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Set the search locations for OSL include files.
     /// @param dirPath Include path(s) for the OSL compiler. This should include the
     /// path to stdosl.h.
-    void setOslIncludePath(const FilePath& dirPath)
+    void setOslIncludePath(const FileSearchPath& dirPath)
     {
         _oslIncludePath = dirPath;
     }
@@ -225,7 +225,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Path to "oslc" executable`
     FilePath _oslCompilerExecutable;
     /// OSL include path
-    FilePath _oslIncludePath;
+    FileSearchPath _oslIncludePath;
     /// Output file path. File name does not include an extension
     FilePath _oslOutputFilePath;
     /// Output image file name
