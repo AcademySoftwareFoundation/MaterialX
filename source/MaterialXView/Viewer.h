@@ -93,6 +93,13 @@ class Viewer : public ng::Screen
         _modifiers = modifiers;
     }
 
+#ifdef MATERIALX_BUILD_OCIO
+    void setOCIOConfigFile(const mx::FilePath& ocioConfigFile)
+    {
+        _ocioConfigFile = ocioConfigFile;
+    }
+#endif
+
     // Set the target width for texture baking.
     void setBakeWidth(unsigned int bakeWidth)
     {
@@ -294,6 +301,11 @@ class Viewer : public ng::Screen
 
     // Ambient occlusion
     float _ambientOcclusionGain;
+
+    // Color management
+#ifdef MATERIALX_BUILD_OCIO
+    mx::FilePath _ocioConfigFile;
+#endif
 
     // Geometry selections
     std::vector<mx::MeshPartitionPtr> _geometryList;

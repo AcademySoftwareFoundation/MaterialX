@@ -104,7 +104,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
-TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
+TEST_CASE("GenShader: Graph + Nodedf Transparency Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();

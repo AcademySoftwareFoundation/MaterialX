@@ -147,6 +147,11 @@ static void generateGlslCode(bool generateLayout = false)
         tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
+    GenShaderUtil::TestSuiteOptions options;
+    if (options.readOptions(optionsFilePath))
+    {
+        tester.setColorManagementConfigFile(options.colorManagementConfigFile);
+    }
     tester.validate(genOptions, optionsFilePath);
 }
 

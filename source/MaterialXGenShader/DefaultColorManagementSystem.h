@@ -17,7 +17,10 @@ MATERIALX_NAMESPACE_BEGIN
 using DefaultColorManagementSystemPtr = shared_ptr<class DefaultColorManagementSystem>;
 
 /// @class DefaultColorManagementSystem
-/// Class for a default color management system.
+/// Class for a default color management system. The default color management system uses
+/// the typical workflow for registering nodes with the exception that the target for the
+/// nodedefs is set to DefaultColorManagementSystem::CMS_NAME.
+///
 class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSystem
 {
   public:

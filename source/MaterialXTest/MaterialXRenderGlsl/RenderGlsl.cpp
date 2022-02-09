@@ -103,10 +103,13 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
 }
 
 //
-// Create a renderer with the apporpraite image, geometry and light handlers.
+// Create a renderer with the appropraite image, geometry and light handlers.
 // The light handler on the renderer is cleared on initialization to indicate no lighting
 // is required. During code generation, if the element to validate requires lighting then
 // the handler _lightHandler will be used.
+//
+// Additionally set an color management system in case any additional uniforms
+// which are created during code generation need to be bound during rendering.
 //
 void GlslShaderRenderTester::createRenderer(std::ostream& log)
 {
@@ -127,6 +130,9 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
 
         // Set light handler.
         _renderer->setLightHandler(nullptr);
+
+        // Set color management system
+        _renderer->setColorManagementSystem(_colorManagementSystem);
 
         initialized = true;
     }
@@ -663,6 +669,13 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+
+    FIX THIS
+    GenShaderUtil::TestSuiteOptions options;
+    if (options.readOptions(optionsFilePath))
+    {
+        renderTester.setColorManagementConfigFile(options.colorManagementConfigFile);
+    }
 
     renderTester.validate(optionsFilePath);
 }

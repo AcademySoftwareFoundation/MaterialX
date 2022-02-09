@@ -11,6 +11,34 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+// Color management uniform block name
+std::string ColorManagementSystem::COLOR_MANAGEMENT_UNIFORMS = "ColorManagmentUniforms";
+
+//
+// Color management uniform methods
+//
+ColorSpaceConstant::ColorSpaceConstant(const string name, const ValuePtr value)
+    : ColorSpaceUniform(name),
+    _value(value)
+{
+}
+
+ColorSpaceConstantPtr ColorSpaceConstant::create(const std::string& name, const ValuePtr value)
+{
+    return std::make_shared<ColorSpaceConstant>(name, value);
+}
+
+ColorSpaceTexture::ColorSpaceTexture(const string name, const FloatVec& inputData)
+    : ColorSpaceUniform(name),
+      data(inputData.begin(), inputData.end())
+{
+}
+
+ColorSpaceTexturePtr ColorSpaceTexture::create(const std::string& name, const FloatVec& data)
+{
+    return std::make_shared<ColorSpaceTexture>(name, data);
+}
+
 //
 // ColorSpaceTransform methods
 //
@@ -70,11 +98,11 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
 
     // Create ports on the node.
     ShaderInput* input = shaderNode->addInput("in", transform.type);
-    if (transform.type == Type::COLOR3)
+    if (transform.type->getName() == Type::COLOR3->getName())
     {
         input->setValue(Value::createValue(Color3(0.0f, 0.0f, 0.0f)));
     }
-    else if (transform.type == Type::COLOR4)
+    else if (transform.type->getName() == Type::COLOR4->getName())
     {
         input->setValue(Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0)));
     }
@@ -87,4 +115,105 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     return shaderNode;
 }
 
-} // namespace MaterialX
+
+void ColorManagementSystem::getPortConnections(ShaderGraph* graph, ShaderNode* colorTransformNode,
+                                               const TypeDesc* targetType, GenContext& context,
+                                               ShaderInput*& inputToConnect, ShaderOutput*& outputToConnect)
+{
+    const std::string colorTransformNodeName = colorTransformNode->getName();
+    ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
+    ShaderInput* colorTransformNodeInput = colorTransformNode->getInput(0);
+
+    outputToConnect = colorTransformNodeOutput;
+    inputToConnect = colorTransformNodeInput;
+    if ((colorTransformNodeInput->getType() == Type::COLOR4 && targetType == Type::COLOR3) ||
+        (colorTransformNodeInput->getType() == Type::COLOR3 && targetType == Type::COLOR4))
+    {
+        const string convertToColor4String = "c3_to_" + colorTransformNodeName;
+        ShaderNode* convertToColor4Ptr = graph->getNode(convertToColor4String);
+        if (!convertToColor4Ptr)
+        {
+            NodeDefPtr toColor4NodeDef = _document->getNodeDef("ND_convert_color3_color4");
+            ShaderNodePtr convertToColor4 = ShaderNode::create(graph, convertToColor4String, *toColor4NodeDef, context);
+            graph->addNode(convertToColor4);
+            convertToColor4Ptr = convertToColor4.get();
+        }
+        const string convertToColor3String = colorTransformNodeName + "_to_c3";
+        ShaderNode* convertToColor3Ptr = graph->getNode(convertToColor3String);
+        if (!convertToColor3Ptr)
+        {
+            NodeDefPtr toColor3NodeDef = _document->getNodeDef("ND_convert_color4_color3");
+            ShaderNodePtr convertToColor3 = ShaderNode::create(graph, convertToColor3String, *toColor3NodeDef, context);
+            graph->addNode(convertToColor3);
+            convertToColor3Ptr = convertToColor3.get();
+        }
+
+        if (targetType == Type::COLOR3)
+        {
+            colorTransformNodeInput->makeConnection(convertToColor4Ptr->getOutput(0));
+            convertToColor3Ptr->getInput(0)->makeConnection(colorTransformNodeOutput);
+            inputToConnect = convertToColor4Ptr->getInput(0);
+            outputToConnect = convertToColor3Ptr->getOutput(0);
+        }
+        else
+        {
+            colorTransformNodeInput->makeConnection(convertToColor3Ptr->getOutput(0));
+            convertToColor4Ptr->getInput(0)->makeConnection(colorTransformNodeOutput);
+            inputToConnect = convertToColor3Ptr->getInput(0);
+            outputToConnect = convertToColor4Ptr->getOutput(0);
+        }
+    }
+}
+
+void ColorManagementSystem::connectNodeToShaderInput(ShaderGraph* graph, ShaderNode* colorTransformNode, ShaderInput* shaderInput, GenContext& context)
+{
+    if (!graph || !colorTransformNode|| !shaderInput)
+    {
+        throw ExceptionShaderGenError("Cannot connect color management node to shader input");
+    }
+
+    ShaderInput* inputToConnect = nullptr;
+    ShaderOutput* outputToConnect = nullptr;
+
+    getPortConnections(graph, colorTransformNode, shaderInput->getType(), context, inputToConnect, outputToConnect);
+    if (inputToConnect && outputToConnect)
+    {
+        inputToConnect->setValue(shaderInput->getValue());
+
+        if (shaderInput->isBindInput())
+        {
+            ShaderOutput* oldConnection = shaderInput->getConnection();
+            inputToConnect->makeConnection(oldConnection);
+        }
+
+        shaderInput->makeConnection(outputToConnect);
+    }
+}
+
+
+void ColorManagementSystem::connectNodeToShaderOutput(ShaderGraph* graph, ShaderNode* colorTransformNode, ShaderOutput* shaderOutput, GenContext& context)
+{
+    if (!graph || !colorTransformNode || !shaderOutput)
+    {
+        throw ExceptionShaderGenError("Cannot connect color management node to shader output");
+    }
+
+    ShaderInput* inputToConnect = nullptr;
+    ShaderOutput* outputToConnect = nullptr;
+
+    getPortConnections(graph, colorTransformNode, shaderOutput->getType(), context, inputToConnect, outputToConnect);
+    if (inputToConnect && outputToConnect)
+    {
+        ShaderInputVec downStreamInputs = shaderOutput->getConnections();
+        for (ShaderInput* downStreamInput : downStreamInputs)
+        {
+            downStreamInput->breakConnection();
+            downStreamInput->makeConnection(outputToConnect);
+        }
+
+        // Connect the node to the upstream output.
+        inputToConnect->makeConnection(shaderOutput);
+    }
+}
+
+MATERIALX_NAMESPACE_END
