@@ -237,7 +237,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     emitLine(functionName, stage, false);
 
     const ShaderMetadataVecPtr& metadata = graph.getMetadata();
-    bool haveShaderMetaData = ( metadata && metadata->size() );
+    bool haveShaderMetaData = metadata && metadata->size();
 
     // Always emit node information
     emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
@@ -259,7 +259,6 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     }
     emitScopeEnd(stage, false, false);
     emitLineEnd(stage, false);
-
 
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
