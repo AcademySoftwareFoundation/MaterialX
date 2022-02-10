@@ -649,7 +649,7 @@ InputPtr Node::addInputFromNodeDef(const string& name)
     if (!nodeInput)
     {
         NodeDefPtr nodeDef = getNodeDef();
-        InputPtr nodeDefInput = nodeDef ? nodeDef->getInput(name) : nullptr;
+        InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(name) : nullptr;
         if (nodeDefInput)
         {
             nodeInput = addInput(nodeDefInput->getName());
