@@ -279,7 +279,8 @@ int main(int argc, char* const argv[])
         viewer->setBakeFilename(bakeFilename);
  #ifdef MATERIALX_BUILD_OCIO
         viewer->setOCIOConfigFile(ocioConfigFile);
-#endif       viewer->initialize();
+#endif       
+        viewer->initialize();
         if (!bakeFilename.empty()) 
         {
             viewer->bakeTextures();
