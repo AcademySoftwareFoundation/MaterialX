@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!-- OCIO example tests
+   - Test of color4 
+   - Test of color3 where no conversion from color3->color4->color3 is required
+   - Test reuse single update node with a given color transform
+   - Test us of multiple upstrea nodes using the same color transform code but different inputs / outputs
+-->
+<materialx version="1.38" cms="ocio" cmsconfig="config.ocio" colorspace="lin_rec709">
+   <!-- non-LUT color4 input test -->
+   <nodegraph name="color4_acescg_nodegraph">
+      <!-- The transform will be generated once. The node will rout to multiple downstream inputs -->
+      <constant name="color4_acescg" type="color4">
+         <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="acescg" />
+      </constant>
+      <standard_surface name="color4_acescg_shader" type="surfaceshader">
+         <input name="base_color" type="color3" value="1, 1, 1" nodename="color4_acescg" channels="rgb" />
+      </standard_surface>
+      <output name="color4_acescg_output" type="surfaceshader" nodename="color4_acescg_shader" />
+      <standard_surface name="color4_acescg_shader2" type="surfaceshader">
+         <input name="base_color" type="color3" value="1, 1, 1" nodename="color4_acescg" channels="rgb" />
+      </standard_surface>
+      <output name="color4_acescg_output" type="surfaceshader" nodename="color4_acescg_shader" />
+      <output name="color4_acescg_output2" type="surfaceshader" nodename="color4_acescg_shader2" />
+   </nodegraph>
+
+   <!-- non-LUT color3 -->
+   <nodegraph name="color3_acescg_nodegraph">
+      <constant name="color3_acescg" type="color3">
+         <input name="value" type="color3" value="0.5, 0.0, 0.0" colorspace="acescg" />
+      </constant>
+      <standard_surface name="color3_acescg_shader" type="surfaceshader">
+         <input name="base_color" type="color3" value="1, 1, 1" nodename="color3_acescg" />
+      </standard_surface>
+      <output name="color3_acescg_output" type="surfaceshader" nodename="color3_acescg_shader" />
+
+      <!-- This node will reuse the same transform code as color3_acescg -->
+      <constant name="color3_acescg2" type="color3">
+         <input name="value" type="color3" value="0.0, 0.5, 0.0" colorspace="acescg" />
+      </constant>
+      <add name="add_acescg" type="color3">
+         <input name="in1" type="color3" nodename="color3_acescg"/>
+         <input name="in2" type="color3" nodename="color3_acescg2" />
+      </add>
+      <standard_surface name="color3_acescg_shader_add" type="surfaceshader">
+         <input name="base_color" type="color3" value="1, 1, 1" nodename="add_acescg" />
+      </standard_surface>
+      <output name="color3_acescg_output_add" type="surfaceshader" nodename="color3_acescg_shader_add" />
+   </nodegraph>
+
+   <!-- Basic image input to test appending transform after image read  -->
+   <nodegraph name="image3_acescg_nodegraph">
+      <image name="image3_acescg" type="color3">
+         <input name="file" type="filename" value="resources/Images/grid.png" colorspace="acescg" />
+      </image>
+      <output name="out_image3_acescg" type="color3" nodename="image3_acescg" />
+   </nodegraph>
+
+</materialx>

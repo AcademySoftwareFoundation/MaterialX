@@ -33,9 +33,10 @@ const std::string options =
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
-"#ifdef MATERIALX_BUILD_OCIO
+#ifdef MATERIALX_BUILD_OCIO
 "    --ocioConfigFile [STRING]      Specify a OCIO configuration file to use for color management.\n"
-#endif    --help                         Display the complete list of command-line options\n";
+#endif
+"     --help                         Display the complete list of command - line options\n";
 
 template<class T> void parseToken(std::string token, std::string type, T& res)
 {

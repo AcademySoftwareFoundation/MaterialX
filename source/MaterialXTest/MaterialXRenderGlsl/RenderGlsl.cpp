@@ -670,7 +670,6 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    FIX THIS
     GenShaderUtil::TestSuiteOptions options;
     if (options.readOptions(optionsFilePath))
     {

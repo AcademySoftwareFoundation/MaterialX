@@ -240,7 +240,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     const mx::IntVec& bakeResolution = options.bakeResolutions;
     const mx::BoolVec& bakeHdr = options.bakeHdrs;
 
-    const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
     {
         ioTimer.startTimer();
