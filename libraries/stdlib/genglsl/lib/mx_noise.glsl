@@ -51,8 +51,7 @@ float mx_negate_if(float val, bool b)
 
 int mx_floor(float x)
 {
-    // return the greatest integer <= x
-    return x < 0.0 ? int(x) - 1 : int(x);
+    return int(floor(x));
 }
 
 // return mx_floor as well as the fractional remainder
@@ -425,9 +424,20 @@ vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish
     return result;
 }
 
-float mx_8bits_to_01(uint bits) { return float(bits) / float(0xff); }
+vec2 mx_fractal_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+}
 
-float mx_worley_distance2(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
+vec4 mx_fractal_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
+float mx_worley_distance(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
 {
     vec3  tmp = mx_cell_noise_vec3(vec2(x+xoff, y+yoff));
     vec2  off = vec2(tmp.x, tmp.y);
@@ -446,7 +456,7 @@ float mx_worley_distance2(vec2 p, int x, int y, int xoff, int yoff, float jitter
     return dot(diff, diff);
 }
 
-float mx_worley_distance3(vec3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
+float mx_worley_distance(vec3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
 {
     vec3  off = mx_cell_noise_vec3(vec3(x+xoff, y+yoff, z+zoff));
 
@@ -473,7 +483,7 @@ float mx_worley_noise_float(vec2 p, float jitter, int metric)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float dist = mx_worley_distance2(localpos, x, y, X, Y, jitter, metric);
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
             sqdist = min(sqdist, dist);
         }
     }
@@ -491,7 +501,7 @@ vec2 mx_worley_noise_vec2(vec2 p, float jitter, int metric)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float dist = mx_worley_distance2(localpos, x, y, X, Y, jitter, metric);
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
             if (dist < sqdist.x)
             {
                 sqdist.y = sqdist.x;
@@ -517,7 +527,7 @@ vec3 mx_worley_noise_vec3(vec2 p, float jitter, int metric)
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float dist = mx_worley_distance2(localpos, x, y, X, Y, jitter, metric);
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
             if (dist < sqdist.x)
             {
                 sqdist.z = sqdist.y;
@@ -551,7 +561,7 @@ float mx_worley_noise_float(vec3 p, float jitter, int metric)
         {
             for (int z = -1; z <= 1; ++z)
             {
-                float dist = mx_worley_distance3(localpos, x, y, z, X, Y, Z, jitter, metric);
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
                 sqdist = min(sqdist, dist);
             }
         }
@@ -572,7 +582,7 @@ vec2 mx_worley_noise_vec2(vec3 p, float jitter, int metric)
         {
             for (int z = -1; z <= 1; ++z)
             {
-                float dist = mx_worley_distance3(localpos, x, y, z, X, Y, Z, jitter, metric);
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
                 if (dist < sqdist.x)
                 {
                     sqdist.y = sqdist.x;
@@ -601,7 +611,7 @@ vec3 mx_worley_noise_vec3(vec3 p, float jitter, int metric)
         {
             for (int z = -1; z <= 1; ++z)
             {
-                float dist = mx_worley_distance3(localpos, x, y, z, X, Y, Z, jitter, metric);
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
                 if (dist < sqdist.x)
                 {
                     sqdist.z = sqdist.y;
