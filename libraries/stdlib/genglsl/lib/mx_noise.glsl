@@ -424,6 +424,19 @@ vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish
     return result;
 }
 
+vec2 mx_fractal_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+}
+
+vec4 mx_fractal_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
 float mx_worley_distance(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
 {
     vec3  tmp = mx_cell_noise_vec3(vec2(x+xoff, y+yoff));
