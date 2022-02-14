@@ -8,8 +8,6 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
-#include <cstring>
-
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wswitch"
@@ -34,6 +32,8 @@
 #include <iostream>
 #include <algorithm>
 #include <stack>
+#include <cstring>
+#include <limits>
 
 MATERIALX_NAMESPACE_BEGIN
 
