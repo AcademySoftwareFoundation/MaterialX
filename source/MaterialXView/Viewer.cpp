@@ -7,6 +7,10 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
+#if defined(MATERIALX_BUILD_GLTF)
+#include <MaterialXRender/TinyGLTFLoader.h>
+#include <MaterialXRender/CGLTFLoader.h>
+#endif
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -359,6 +363,10 @@ void Viewer::initialize()
     mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
     _geometryHandler->addLoader(loader);
+#if defined(MATERIALX_BUILD_GLTF)
+    mx::CGLTFLoaderPtr gltfLoader = mx::CGLTFLoader::create();
+    _geometryHandler->addLoader(gltfLoader);
+#endif
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
@@ -609,8 +617,12 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
     meshButton->set_icon(FA_FOLDER);
     meshButton->set_callback([this]()
     {
-        m_process_events = false;
-        std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" } }, false);
+        m_process_events = false;;
+        std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" },
+#if defined(MATERIALX_BUILD_GLTF)
+            { "gltf", "GLTF ASCII" }, { "glb", "GLTF Binary"} 
+#endif
+            }, false);
         if (!filename.empty())
         {
             loadMesh(filename);
