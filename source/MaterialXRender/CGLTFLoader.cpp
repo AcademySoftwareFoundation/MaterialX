@@ -8,6 +8,8 @@
 #include <MaterialXCore/Node.h>
 #include <MaterialXCore/Document.h>
 
+#include <cstring>
+
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wswitch"
@@ -158,12 +160,10 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 				continue;
 			}
 
-			cgltf_accessor* indexAccessor = primitive->indices;
-			if (indexAccessor &&
-				indexAccessor->component_type != cgltf_primitive_type_triangles)
+			if (primitive->type != cgltf_primitive_type_triangles)
 			{
 				if (_debugLevel > 0)
-					std::cout << "Skip non triangle indexed mesh: " << cmesh->name << std::endl;
+					std::cout << "Skip non-triangle indexed mesh: " << cmesh->name << std::endl;
 				continue;
 			}
 
@@ -311,7 +311,8 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
 				// Read indexing
 				MeshPartitionPtr part = MeshPartition::create();
-				size_t indexCount = 0;
+				size_t indexCount = 0;			
+				cgltf_accessor* indexAccessor = primitive->indices;
 				if (indexAccessor)
 				{
 					indexCount = indexAccessor->count;
