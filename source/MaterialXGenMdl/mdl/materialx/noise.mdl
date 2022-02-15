@@ -128,6 +128,17 @@ int mx_rotl32(int mxp_x, int mxp_k)
     return (mxp_x<<mxp_k) | (mxp_x>>>(32-mxp_k)); //note the unsigned right shift
 }
 
+int3 mx_bjmix(int a, int b, int c)
+{
+    a -= c; a ^= mx_rotl32(c, 4); c += b;
+    b -= a; b ^= mx_rotl32(a, 6); a += c;
+    c -= b; c ^= mx_rotl32(b, 8); b += a;
+    a -= c; a ^= mx_rotl32(c,16); c += b;
+    b -= a; b ^= mx_rotl32(a,19); a += c;
+    c -= b; c ^= mx_rotl32(b, 4); b += a;
+    return int3(a, b, c);
+}
+
 // Mix up and combine the bits of a, b, and c (doesn't change them, but
 // returns a hash of those three original values).
 int mx_bjfinal(int mxp_a, int mxp_b, int mxp_c)
@@ -154,6 +165,13 @@ float mx_fade(float mxp_t)
    return mxp_t * mxp_t * mxp_t * (mxp_t * (mxp_t * 6.0 - 15.0) + 10.0);
 }
 
+int mx_hash_int(int mxp_x)
+{
+    int len = 1;
+    int seed = int(0xdeadbeef) + (len << 2) + 13;
+    return mx_bjfinal(seed + mxp_x, seed, seed);
+}
+
 int mx_hash_int(int mxp_x, int mxp_y)
 {
     int len = 2;
@@ -172,6 +190,39 @@ int mx_hash_int(int mxp_x, int mxp_y, int mxp_z)
     a += mxp_x;
     b += mxp_y;
     c += mxp_z;
+    return mx_bjfinal(a, b, c);
+}
+
+int mx_hash_int(int x, int y, int z, int xx)
+{
+    int len = 4;
+    int a, b, c;
+    a = b = c = int(0xdeadbeef) + (len << 2) + 13;
+    a += x;
+    b += y;
+    c += z;
+    int3 abc = mx_bjmix(a, b, c);
+    a = abc.x;
+    b = abc.y;
+    c = abc.z;
+    a += xx;
+    return mx_bjfinal(a, b, c);
+}
+
+int mx_hash_int(int x, int y, int z, int xx, int yy)
+{
+    int len = 5;
+    int a, b, c;
+    a = b = c = int(0xdeadbeef) + (len << 2) + 13;
+    a += x;
+    b += y;
+    c += z;
+    int3 abc = mx_bjmix(a, b, c);
+    a = abc.x;
+    b = abc.y;
+    c = abc.z;
+    a += xx;
+    b += yy;
     return mx_bjfinal(a, b, c);
 }
 
@@ -307,6 +358,15 @@ export float3 mx_perlin_noise_float3(
   return mx_gradient_scale3d_float3(result);
 }
 
+export float mx_cell_noise_float(float mxp_p)
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p);
+    return mx_bits_to_01(mx_hash_int(ix));
+}
+
 export float mx_cell_noise_float(
   float2 mxp_p = swizzle::xy( ::state::texture_coordinate(0)))
 [[
@@ -328,6 +388,78 @@ export float mx_cell_noise_float(
     int iy = math::floor(mxp_p.y);
     int iz = math::floor(mxp_p.z);
     return mx_bits_to_01(mx_hash_int(ix, iy, iz));
+}
+
+export float mx_cell_noise_float(float4 mxp_p)
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p.x);
+    int iy = math::floor(mxp_p.y);
+    int iz = math::floor(mxp_p.z);
+    int iw = math::floor(mxp_p.w);
+    return mx_bits_to_01(mx_hash_int(ix, iy, iz, iw));
+}
+
+export float3 mx_cell_noise_float3(float mxp_p)
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p);
+    return float3(
+        mx_bits_to_01(mx_hash_int(ix, 0)),
+        mx_bits_to_01(mx_hash_int(ix, 1)),
+        mx_bits_to_01(mx_hash_int(ix, 2))
+    );
+}
+
+export float3 mx_cell_noise_float3(
+    float2 mxp_p = swizzle::xy( ::state::texture_coordinate(0)))
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p.x);
+    int iy = math::floor(mxp_p.y);
+    return float3(
+        mx_bits_to_01(mx_hash_int(ix, iy, 0)),
+        mx_bits_to_01(mx_hash_int(ix, iy, 1)),
+        mx_bits_to_01(mx_hash_int(ix, iy, 2))
+    );
+}
+
+export float3 mx_cell_noise_float3(
+    float3 mxp_p = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()))
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p.x);
+    int iy = math::floor(mxp_p.y);
+    int iz = math::floor(mxp_p.z);
+    return float3(
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, 0)),
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, 1)),
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, 2))
+    );
+}
+
+export float3 mx_cell_noise_float3(float4 mxp_p)
+[[
+    anno::noinline() 
+]]
+{
+    int ix = math::floor(mxp_p.x);
+    int iy = math::floor(mxp_p.y);
+    int iz = math::floor(mxp_p.z);
+    int iw = math::floor(mxp_p.w);
+    return float3(
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 0)),
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 1)),
+        mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 2))
+    );
 }
 
 export float mx_fractal_noise_float(
@@ -398,15 +530,10 @@ export float4 mx_fractal_noise_float4(
     return float4(c.x, c.y, c.z, a);
 }
 
-float mx_8bits_to_01(int bits)
-{
-    return float(bits) / float(0xff);
-}
-
 float mx_worley_distance2(float2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
 {
-    int3 hash = mx_hash_int3(x+xoff, y+yoff);
-    float2  off = float2(mx_8bits_to_01(hash.x), mx_8bits_to_01(hash.y));
+    float3 tmp = mx_cell_noise_float3(float2(x+xoff, y+yoff));
+    float2 off = float2(tmp.x, tmp.y);
 
     off -= 0.5f;
     off *= jitter;
@@ -424,10 +551,7 @@ float mx_worley_distance2(float2 p, int x, int y, int xoff, int yoff, float jitt
 
 float mx_worley_distance3(float3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
 {
-    int3 hash = mx_hash_int3(x+xoff, y+yoff, z+zoff);
-    float3  off = float3(mx_8bits_to_01(hash.x),
-                         mx_8bits_to_01(hash.y),
-                         mx_8bits_to_01(hash.z));
+    float3 off = mx_cell_noise_float3(float3(x+xoff, y+yoff, z+zoff));
 
     off -= 0.5f;
     off *= jitter;
