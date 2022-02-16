@@ -755,7 +755,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     ///    geometry token substitutions are applied.  If the universal geometry
     ///    name "/" is given, then all geometry token substitutions are applied,
     /// @return A shared pointer to a StringResolver.
-    virtual StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
+    StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
 
     /// Return a single-line description of this element, including its category,
     /// name, and attributes.

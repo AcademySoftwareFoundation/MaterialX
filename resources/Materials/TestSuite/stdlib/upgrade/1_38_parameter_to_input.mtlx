@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.37">
   <nodegraph name="parameter_as_input" fileprefix="resources/Images/">
     <constant name="constant" type="color3">
       <input name="value" type="color3" value="1, 0, 0" />
