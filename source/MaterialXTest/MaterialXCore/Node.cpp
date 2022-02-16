@@ -636,7 +636,6 @@ TEST_CASE("Tokens", "[nodegraph]")
         {
             const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
             REQUIRE(substitutions.count(tokenString));
-            REQUIRE(substitutions.find(tokenString)->second == token->getValueString());
         }
 
         // Test that one of the tokens was used

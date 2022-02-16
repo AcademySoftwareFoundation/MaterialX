@@ -40,7 +40,6 @@ void bindPyInterface(py::module& mod)
         .def("setConnectedOutput", &mx::Input::setConnectedOutput)
         .def("getConnectedOutput", &mx::Input::getConnectedOutput)
         .def("getInterfaceInput", &mx::Input::getInterfaceInput)
-        .def("addTokens", &mx::Element::addTokens)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")
