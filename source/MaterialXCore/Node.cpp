@@ -140,54 +140,40 @@ Edge Node::getUpstreamEdge(size_t index) const
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const string* outputName = nullptr;
+    string outputName;
+    OutputPtr output = nullptr;
     const PortElementPtr port = connectingElement->asA<PortElement>();
     if (port)
     {
-        // The connecting element is an input/output port,
-        // so get the name of the output connected to this
-        // port. If no explicit output is specified this will
-        // return an empty string which is handled below.
-        outputName = &port->getOutputString();
-
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
-        OutputPtr output;
         if (connectedInput)
         {
-            InputPtr interfaceInput = nullptr;
-            if (connectedInput->hasInterfaceName())
+            output = connectedInput->getConnectedOutput();
+            if (output)
             {
-                interfaceInput = connectedInput->getInterfaceInput();
-                if (interfaceInput)
-                {
-                    outputName = &(interfaceInput->getOutputString());
-                    output = interfaceInput->getConnectedOutput();
-                }
-            }
-            if (!interfaceInput)
-            {
-                output = connectedInput->getConnectedOutput();
-            }
-        }
-        if (output)
-        {
-            if (output->getParent() == output->getDocument())
-            {
-                outputName = &output->getOutputString();
+                outputName = output->getName();
             }
         }
     }
-    if (outputName && !outputName->empty())
+    if (!output)
     {
         // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(*outputName);
+            std::vector<OutputPtr> outputs = nodeDef->getActiveOutputs();
+            if (!outputs.empty())
+            { 
+                output = nodeDef->getActiveOutput(outputName);
+                if (!output)
+                {
+                    output = outputs[0];
+                }
+            }
         }
     }
-    return OutputPtr();
+    return output;
 }
 
 vector<PortElementPtr> Node::getDownstreamPorts() const

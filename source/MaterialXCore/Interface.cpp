@@ -11,6 +11,7 @@
 #include <MaterialXCore/Node.h>
 
 #include <stdexcept>
+#include <iostream>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -77,7 +78,7 @@ bool PortElement::validate(string* message) const
         NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeName());
         if (!nodeGraph)
         {
-            validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
+            //validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
         }
     }
     if (connectedNode)
@@ -253,7 +254,30 @@ OutputPtr Input::getConnectedOutput() const
                 }
                 else
                 {
-                    result = nodeGraph->getOutput(outputString);
+                    for (auto op : outputs)
+                    { 
+                        std::cout << "Compare: " << op->getName() << ". vs: " << outputString;
+                        if (op->getName() == outputString)
+                        { 
+                            const string outputNodeName = op->getNodeName();
+                            if (!outputNodeName.empty())
+                            {
+                                NodePtr graphNode = nodeGraph->getNode(outputNodeName);
+                                const string& graphNodeOutputString = graphNode ? op->getOutputString() : EMPTY_STRING;
+                                if (!graphNodeOutputString.empty())
+                                {
+                                    OutputPtr nodeOutput = graphNode->getOutput(graphNodeOutputString);
+                                    result = nodeOutput;
+                                }
+                            }
+                            else
+                            { 
+                                result = op;
+                            }
+                            break;
+                        }
+                        //result = nodeGraph->getOutput(outputString);
+                    }
                 }
             }
         }
