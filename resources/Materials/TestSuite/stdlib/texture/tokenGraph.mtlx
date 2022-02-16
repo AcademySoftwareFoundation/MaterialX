@@ -22,7 +22,7 @@
    </nodegraph>
    
    <!-- top level tokens are not support. bmp will be the found token -->
-   <token name="Image_Extension" type="string" value="jpg" uiname="Image Extension" />
+   <token name="Image_Extension" type="string" value="png" uiname="Image Extension" />
    <nodegraph name="Tokenized_Image_top_level" >
       <tiledimage name="tiledimage" type="color3" nodedef="ND_tiledimage_color3" >
          <token name="Image_Extension" type="string" value="bmp" uiname="Image Extension" />
