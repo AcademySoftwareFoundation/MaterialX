@@ -263,7 +263,7 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
         MeshStreamPtr stream = mesh->getStream(input.first);
         if (!stream)
         {
-            throw ExceptionRenderError("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
+            continue;
         }
         MeshFloatBuffer& attributeData = stream->getData();
         stride = stream->getStride();
