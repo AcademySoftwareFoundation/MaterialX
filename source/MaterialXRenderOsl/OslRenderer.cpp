@@ -27,7 +27,9 @@ OslRendererPtr OslRenderer::create(unsigned int width, unsigned int height, Imag
 
 OslRenderer::OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
-    _useTestRender(true) // By default use testrender
+    _useTestRender(true),
+    _raysPerPixelLit(1),
+    _raysPerPixelUnlit(1)
 {
 }
 
@@ -160,10 +162,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     command += " " + outputFileName;
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
     command += " --path " + osoPaths;
-    if (isColorClosure)
-    {
-        command += " -aa 6"; // Increase rays per pixel for lit surfaces
-    }
+    command += " -aa " + std::to_string(isColorClosure ? _raysPerPixelLit : _raysPerPixelUnlit);
     command += " > " + errorFile + redirectString;
 
     // Repeat the render command to allow for sporadic errors.

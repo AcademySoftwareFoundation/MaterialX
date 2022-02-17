@@ -110,20 +110,11 @@ class TestSuiteOptions
     // Shaded geometry file
     MaterialX::FilePath shadedGeometry;
 
-    // Amount to scale geometry. 
-    float geometryScale;
-
     // Enable direct lighting. Default is true. 
     bool enableDirectLighting;
 
     // Enable indirect lighting. Default is true. 
     bool enableIndirectLighting;
-
-    // Method for specular environment sampling (only used for HW rendering):
-    //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
-    //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
-    // Default value is 1.
-    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod;
 
     // Radiance IBL file.
     mx::FilePath radianceIBLPath;
@@ -136,6 +127,9 @@ class TestSuiteOptions
 
     // Render test paths
     mx::FileSearchPath renderTestPaths;
+
+    // Enable reference quality rendering. Default is false.
+    bool enableReferenceQuality;
 
     // Wedge parameters
     mx::StringVec wedgeFiles;
