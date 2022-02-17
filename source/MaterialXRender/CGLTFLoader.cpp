@@ -345,13 +345,6 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 					}
 				}
 				mesh->addPartition(part);
-
-				// TODO handle materials
-				cgltf_material* material = primitive->material;
-				if (material)
-				{
-
-				}
 			}
 
 			// General noramsl if none provided

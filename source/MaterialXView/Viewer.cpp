@@ -8,7 +8,6 @@
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #if defined(MATERIALX_BUILD_GLTF)
-#include <MaterialXRender/TinyGLTFLoader.h>
 #include <MaterialXRender/CGLTFLoader.h>
 #endif
 
@@ -1883,6 +1882,7 @@ void Viewer::renderFrame()
     }
 
     // Opaque pass
+    mx::MeshPtr lastMesh = nullptr;
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
@@ -1894,7 +1894,13 @@ void Viewer::renderFrame()
         }
 
         material->bindShader();
-        material->bindMesh(_geometryHandler->findParentMesh(geom));
+        mx::MeshPtr currentMesh = _geometryHandler->findParentMesh(geom);
+        if (currentMesh != lastMesh)
+        { 
+            material->unbindGeometry();
+            lastMesh = currentMesh;
+        }
+        material->bindMesh(currentMesh);
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
@@ -1907,6 +1913,7 @@ void Viewer::renderFrame()
     }
 
     // Transparent pass
+    lastMesh = nullptr;
     if (_renderTransparency)
     {
         glEnable(GL_BLEND);
@@ -1922,7 +1929,13 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            material->bindMesh(_geometryHandler->findParentMesh(geom));
+            mx::MeshPtr currentMesh = _geometryHandler->findParentMesh(geom);
+            if (currentMesh != lastMesh)
+            { 
+                material->unbindGeometry();
+                lastMesh = currentMesh;
+            }
+            material->bindMesh(currentMesh);
             if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
