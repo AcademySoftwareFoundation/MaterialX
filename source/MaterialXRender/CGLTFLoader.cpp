@@ -352,12 +352,14 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             if (!normalStream && positionStream)
             {
                 normalStream = mesh->generateNormals(positionStream);
+                mesh->addStream(normalStream);
             }
 
             // Generate tangents if none provided
             if (!tangentStream && texcoordStream && positionStream && normalStream)
             {
                 tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                mesh->addStream(tangentStream);
             }
 
             // Assign properties to mesh.
