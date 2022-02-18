@@ -309,44 +309,44 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                         }
                     }
                 }
-
-                // Read indexing
-                MeshPartitionPtr part = MeshPartition::create();
-                size_t indexCount = 0;
-                cgltf_accessor* indexAccessor = primitive->indices;
-                if (indexAccessor)
-                {
-                    indexCount = indexAccessor->count;
-                }
-                else if (positionStream)
-                {
-                    indexCount = positionStream->getData().size();
-                    ;
-                }
-                size_t faceCount = indexCount / FACE_VERTEX_COUNT;
-                part->setFaceCount(faceCount);
-                part->setName(meshName);
-
-                MeshIndexBuffer& indices = part->getIndices();
-                if (_debugLevel > 0)
-                    std::cout << "** Read indexing: Count = " << std::to_string(indexCount) << std::endl;
-                if (indexAccessor)
-                {
-                    for (cgltf_size i = 0; i < indexCount; i++)
-                    {
-                        uint32_t vertexIndex = static_cast<uint32_t>(cgltf_accessor_read_index(indexAccessor, i));
-                        indices.push_back(vertexIndex);
-                    }
-                }
-                else
-                {
-                    for (cgltf_size i = 0; i < indexCount; i++)
-                    {
-                        indices.push_back(static_cast<uint32_t>(i));
-                    }
-                }
-                mesh->addPartition(part);
             }
+
+            // Read indexing
+            MeshPartitionPtr part = MeshPartition::create();
+            size_t indexCount = 0;
+            cgltf_accessor* indexAccessor = primitive->indices;
+            if (indexAccessor)
+            {
+                indexCount = indexAccessor->count;
+            }
+            else if (positionStream)
+            {
+                indexCount = positionStream->getData().size();
+                ;
+            }
+            size_t faceCount = indexCount / FACE_VERTEX_COUNT;
+            part->setFaceCount(faceCount);
+            part->setName(meshName);
+
+            MeshIndexBuffer& indices = part->getIndices();
+            if (_debugLevel > 0)
+                std::cout << "** Read indexing: Count = " << std::to_string(indexCount) << std::endl;
+            if (indexAccessor)
+            {
+                for (cgltf_size i = 0; i < indexCount; i++)
+                {
+                    uint32_t vertexIndex = static_cast<uint32_t>(cgltf_accessor_read_index(indexAccessor, i));
+                    indices.push_back(vertexIndex);
+                }
+            }
+            else
+            {
+                for (cgltf_size i = 0; i < indexCount; i++)
+                {
+                    indices.push_back(static_cast<uint32_t>(i));
+                }
+            }
+            mesh->addPartition(part);
 
             // General noramsl if none provided
             if (!normalStream && positionStream)

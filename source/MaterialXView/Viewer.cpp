@@ -1963,6 +1963,7 @@ void Viewer::renderFrame()
         _wireMaterial->bindMesh(_geometryHandler->findParentMesh(getSelectedGeometry()));
         _wireMaterial->bindViewInformation(_viewCamera);
         _wireMaterial->drawPartition(getSelectedGeometry());
+        _wireMaterial->unbindGeometry();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
@@ -2418,6 +2419,7 @@ void Viewer::updateShadowMap()
             mx::MeshPartitionPtr geom = mesh->getPartition(i);
             _shadowMaterial->drawPartition(geom);
         }
+        _shadowMaterial->unbindGeometry();
     }
     _shadowMap = framebuffer->getColorImage();
 
