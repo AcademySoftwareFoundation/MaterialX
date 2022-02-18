@@ -99,7 +99,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSamples(256);
+    _lightHandler->setEnvSamples(1024);
 }
 
 //
@@ -433,7 +433,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
