@@ -4,8 +4,6 @@
   <nodegraph name="height_to_normal_cm">
     <image name="b_image" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
     </image>
     <extract name="extract1" type="float">
       <input name="in" type="color3" nodename="b_image" />
@@ -21,8 +19,6 @@
   <nodegraph name="normalmap_cm">
     <image name="b_image" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_texture" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
     </image>
     <convert name="c3tov3" type="vector3">
       <input name="in" type="color3" nodename="b_image" />

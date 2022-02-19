@@ -50,7 +50,7 @@
   <nodegraph name="NG_upstream_graph" nodedef="ND_upstream_graph">
     <input name="nd_file" type="filename" uniform="true" value="resources/Images/grid.png" />
     <input name="nd_file2" type="filename" uniform="true" value="resources/Images/cloth.png" />
-    <image name="image" type="color3" xpos="-79" ypos="-448.596">
+    <image name="image" type="color3">
       <input name="file" type="filename" uniform="true" interfacename="nd_file" value="resources/Images/grid.png" />
     </image>
     <image name="image2" type="color3">

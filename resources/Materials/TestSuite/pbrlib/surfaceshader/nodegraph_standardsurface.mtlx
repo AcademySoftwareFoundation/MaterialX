@@ -1,54 +1,54 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodegraph name="IMPL_standard_surface_graph" type="" xpos="5.77241" ypos="16.6699">
-    <constant name="coat_affect_roughness" type="float" xpos="-5.97931" ypos="17.86">
+  <nodegraph name="IMPL_standard_surface_graph">
+    <constant name="coat_affect_roughness" type="float">
       <input name="value" type="float" value="1.0000" />
     </constant>
-    <invert name="invert1" type="float" xpos="-0.8" ypos="12.94">
+    <invert name="invert1" type="float">
       <input name="in" type="float" />
       <input name="amount" type="float" value="1.0" />
     </invert>
-    <multiply name="multiply5" type="float" xpos="-3.76552" ypos="17.24">
+    <multiply name="multiply5" type="float">
       <input name="in1" type="float" nodename="coat_affect_roughness" />
       <input name="in2" type="float" />
     </multiply>
-    <multiply name="multiply6" type="float" xpos="-2.28276" ypos="16.62">
+    <multiply name="multiply6" type="float">
       <input name="in1" type="float" nodename="multiply5" />
       <input name="in2" type="float" />
     </multiply>
-    <invert name="invert2" type="float" xpos="-0.8" ypos="16">
+    <invert name="invert2" type="float">
       <input name="in" type="float" nodename="multiply6" />
       <input name="amount" type="float" value="1.0" />
     </invert>
-    <multiply name="multiply7" type="float" xpos="0.682758" ypos="13.54">
+    <multiply name="multiply7" type="float">
       <input name="in1" type="float" nodename="invert1" />
       <input name="in2" type="float" nodename="invert2" />
     </multiply>
-    <invert name="invert3" type="float" xpos="2.16552" ypos="12.9056">
+    <invert name="invert3" type="float">
       <input name="in" type="float" nodename="multiply7" />
       <input name="amount" type="float" value="1.0" />
     </invert>
-    <roughness_anisotropy name="rougness2" type="vector2" xpos="3.64828" ypos="12.3">
+    <roughness_anisotropy name="rougness2" type="vector2">
       <input name="roughness" type="float" nodename="invert3" />
       <input name="anisotropy" type="float" />
     </roughness_anisotropy>
-    <oren_nayar_diffuse_bsdf name="Diffuse_BSDF" type="BSDF" xpos="3.64828" ypos="2.02564">
+    <oren_nayar_diffuse_bsdf name="Diffuse_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0000" />
       <input name="color" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="roughness" type="float" />
       <input name="normal" type="vector3" />
     </oren_nayar_diffuse_bsdf>
-    <translucent_bsdf name="SSS_BSDF" type="BSDF" xpos="3.64828" ypos="6.96564">
+    <translucent_bsdf name="SSS_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="normal" type="vector3" />
     </translucent_bsdf>
-    <mix name="mix1" type="BSDF" xpos="5.18621" ypos="4.66564">
+    <mix name="mix1" type="BSDF">
       <input name="fg" type="BSDF" nodename="Diffuse_BSDF" />
       <input name="bg" type="BSDF" nodename="SSS_BSDF" />
       <input name="mix" type="float" value="1.0000" />
     </mix>
-    <dielectric_bsdf name="Transmission_BSDF" type="BSDF" xpos="5.18621" ypos="9">
+    <dielectric_bsdf name="Transmission_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="1.0000, 1.0000, 1.0000" />
       <input name="ior" type="float" value="0.2000" />
@@ -58,12 +58,12 @@
       <input name="distribution" type="string" value="ggx" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
-    <mix name="mix3" type="BSDF" xpos="7.16552" ypos="6.54984">
+    <mix name="mix3" type="BSDF">
       <input name="fg" type="BSDF" nodename="mix1" />
       <input name="bg" type="BSDF" nodename="Transmission_BSDF" />
       <input name="mix" type="float" value="1.0000" />
     </mix>
-    <dielectric_bsdf name="Specular_BSDF__layer_top" type="BSDF" xpos="8.65818" ypos="1.33436">
+    <dielectric_bsdf name="Specular_BSDF__layer_top" type="BSDF">
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="0.0000, 0.0000, 0.0000" />
       <input name="ior" type="float" value="0.7700" />
@@ -72,7 +72,7 @@
       <input name="tangent" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
     </dielectric_bsdf>
-    <conductor_bsdf name="Metal_BSDF" type="BSDF" xpos="8.64828" ypos="8.78">
+    <conductor_bsdf name="Metal_BSDF" type="BSDF">
       <input name="weight" type="float" value="1.0000" />
       <input name="roughness" type="vector2" nodename="rougness2" />
       <input name="normal" type="vector3" />
@@ -81,25 +81,25 @@
       <input name="ior" type="color3" nodename="Metal_BSDF__artistic_ior" output="ior" />
       <input name="extinction" type="color3" nodename="Metal_BSDF__artistic_ior" output="extinction" />
     </conductor_bsdf>
-    <mix name="mix2" type="BSDF" xpos="10.2966" ypos="3.1">
+    <mix name="mix2" type="BSDF">
       <input name="fg" type="BSDF" nodename="Specular_BSDF" />
       <input name="bg" type="BSDF" nodename="Metal_BSDF" />
       <input name="mix" type="float" value="0.9000" />
     </mix>
-    <mix name="coat_attenuation" type="color3" xpos="10.2966" ypos="7.43436">
+    <mix name="coat_attenuation" type="color3">
       <input name="fg" type="color3" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
       <input name="mix" type="float" />
     </mix>
-    <multiply name="scale_bsdf1" type="BSDF" xpos="12.3184" ypos="2.4032">
+    <multiply name="scale_bsdf1" type="BSDF">
       <input name="in1" type="BSDF" nodename="mix2" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
-    <roughness_anisotropy name="coat_roughness2" type="vector2" xpos="12.2937" ypos="6.65742">
+    <roughness_anisotropy name="coat_roughness2" type="vector2">
       <input name="roughness" type="float" value="1.0000" />
       <input name="anisotropy" type="float" value="0.0000" />
     </roughness_anisotropy>
-    <dielectric_bsdf name="Coat_BSDF__layer_top" type="BSDF" xpos="13.869" ypos="2.47694">
+    <dielectric_bsdf name="Coat_BSDF__layer_top" type="BSDF">
       <input name="weight" type="float" value="1.0000" />
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" value="0.5440" />
@@ -107,25 +107,25 @@
       <input name="normal" type="vector3" />
       <input name="distribution" type="string" value="ggx" />
     </dielectric_bsdf>
-    <multiply name="multiply3" type="color3" xpos="10.2966" ypos="11.74">
+    <multiply name="multiply3" type="color3">
       <input name="in1" type="color3" value="0.0010, 0.0000, 0.0000" />
       <input name="in2" type="float" value="1.0000" />
     </multiply>
-    <multiply name="multiply4" type="color3" xpos="12.0759" ypos="10.2656">
+    <multiply name="multiply4" type="color3">
       <input name="in1" type="color3" nodename="multiply3" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
-    <uniform_edf name="Emission_EDF" type="EDF" xpos="13.869" ypos="9.34564">
+    <uniform_edf name="Emission_EDF" type="EDF">
       <input name="color" type="color3" nodename="multiply4" />
     </uniform_edf>
-    <luminance name="luminance1" type="color3" xpos="12.0759" ypos="13.96">
+    <luminance name="luminance1" type="color3">
       <input name="in" type="color3" value="0.7000, 0.7000, 0.7000" />
     </luminance>
-    <swizzle name="luminance1_x" type="float" xpos="13.869" ypos="12.42">
+    <swizzle name="luminance1_x" type="float">
       <input name="in" type="color3" nodename="luminance1" />
       <input name="channels" type="string" value="r" />
     </swizzle>
-    <surface name="Surface_Constructor" type="surfaceshader" xpos="15.4276" ypos="6.84">
+    <surface name="Surface_Constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="Coat_BSDF" />
       <input name="edf" type="EDF" nodename="Emission_EDF" />
       <input name="opacity" type="float" nodename="luminance1_x" />
