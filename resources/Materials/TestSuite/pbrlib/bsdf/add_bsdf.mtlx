@@ -5,12 +5,12 @@
       <input name="value" type="float" value="0.5" />
     </constant>
     <clamp name="clamp1" type="float">
-      <input name="in" type="float" value="0.0" nodename="constant1" />
+      <input name="in" type="float" nodename="constant1" />
       <input name="low" type="float" value="0.0" />
       <input name="high" type="float" value="1.0" />
     </clamp>
     <invert name="invert1" type="float">
-      <input name="in" type="float" value="0.0" nodename="clamp1" />
+      <input name="in" type="float" nodename="clamp1" />
       <input name="amount" type="float" value="1.0" />
     </invert>
     <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
