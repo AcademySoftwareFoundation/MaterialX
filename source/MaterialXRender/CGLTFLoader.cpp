@@ -61,7 +61,7 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
             (float) t[4], (float) t[5], (float) t[6], (float) t[7],
             (float) t[8], (float) t[9], (float) t[10], (float) t[11],
             (float) t[12], (float) t[13], (float) t[14], (float) t[15]);
-        meshMatrices[cmesh] = positionMatrix; //.getTranspose();
+        meshMatrices[cmesh] = positionMatrix;
     }
     else
     {
@@ -322,7 +322,6 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             else if (positionStream)
             {
                 indexCount = positionStream->getData().size();
-                ;
             }
             size_t faceCount = indexCount / FACE_VERTEX_COUNT;
             part->setFaceCount(faceCount);
@@ -348,7 +347,7 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             }
             mesh->addPartition(part);
 
-            // General noramsl if none provided
+            // General normals if none provided
             if (!normalStream && positionStream)
             {
                 normalStream = mesh->generateNormals(positionStream);

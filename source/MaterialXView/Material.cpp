@@ -165,7 +165,11 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     _glProgram->bind();
     try 
     { 
-        _glProgram->unbindGeometry();
+        if (!_boundMesh || (mesh->getName() != _boundMesh->getName()))
+        {
+            const_cast<Material*>(this)->_boundMesh = mesh;
+            _glProgram->unbindGeometry();
+        }
         _glProgram->bindMesh(mesh);
      }
     catch (std::exception& e)
@@ -388,6 +392,7 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
 
 void Material::unbindGeometry() const
 {
+    const_cast<Material*>(this)->_boundMesh = nullptr;
     if (_glProgram)
     {
         _glProgram->bind();

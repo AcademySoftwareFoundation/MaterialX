@@ -183,6 +183,8 @@ class Material
     mx::ShaderPtr _hwShader;
     mx::GlslProgramPtr _glProgram;
 
+    mx::MeshPtr _boundMesh;
+
     mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;
     mx::NodePtr _materialNode;
