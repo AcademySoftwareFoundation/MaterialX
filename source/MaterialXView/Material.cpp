@@ -165,6 +165,7 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     _glProgram->bind();
     try 
     { 
+        _glProgram->unbindGeometry();
         _glProgram->bindMesh(mesh);
      }
     catch (std::exception& e)

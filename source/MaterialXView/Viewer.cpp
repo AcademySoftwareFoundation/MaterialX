@@ -1882,7 +1882,6 @@ void Viewer::renderFrame()
     }
 
     // Opaque pass
-    mx::MeshPtr lastMesh = nullptr;
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
@@ -1894,13 +1893,7 @@ void Viewer::renderFrame()
         }
 
         material->bindShader();
-        mx::MeshPtr currentMesh = _geometryHandler->findParentMesh(geom);
-        if (currentMesh != lastMesh)
-        { 
-            material->unbindGeometry();
-            lastMesh = currentMesh;
-        }
-        material->bindMesh(currentMesh);
+        material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
@@ -1913,7 +1906,6 @@ void Viewer::renderFrame()
     }
 
     // Transparent pass
-    lastMesh = nullptr;
     if (_renderTransparency)
     {
         glEnable(GL_BLEND);
@@ -1929,13 +1921,7 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            mx::MeshPtr currentMesh = _geometryHandler->findParentMesh(geom);
-            if (currentMesh != lastMesh)
-            { 
-                material->unbindGeometry();
-                lastMesh = currentMesh;
-            }
-            material->bindMesh(currentMesh);
+            material->bindMesh(_geometryHandler->findParentMesh(geom));
             if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
@@ -1963,7 +1949,6 @@ void Viewer::renderFrame()
         _wireMaterial->bindMesh(_geometryHandler->findParentMesh(getSelectedGeometry()));
         _wireMaterial->bindViewInformation(_viewCamera);
         _wireMaterial->drawPartition(getSelectedGeometry());
-        _wireMaterial->unbindGeometry();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
@@ -2419,7 +2404,6 @@ void Viewer::updateShadowMap()
             mx::MeshPartitionPtr geom = mesh->getPartition(i);
             _shadowMaterial->drawPartition(geom);
         }
-        _shadowMaterial->unbindGeometry();
     }
     _shadowMap = framebuffer->getColorImage();
 
