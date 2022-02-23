@@ -1,6 +1,6 @@
 # MaterialX Development Environment
 ## 1. Autodesk Fork 
-- https://github.com/materialx/MaterialX
+- https://github.com/autodesk-forks/MaterialX
 - This is where Autodesk specific additions to ASWF main fork reside.
 - Any areas of core which are not part of main should be resolved. ADSK core and ASWF core should always be in sync per release.
 - Additions include things like additional code generators, utilities etc.
