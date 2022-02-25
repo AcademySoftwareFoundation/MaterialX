@@ -3,13 +3,11 @@
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXRender/CGLTFLoader.h>
 #include <MaterialXRender/Harmonics.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#if defined(MATERIALX_BUILD_GLTF)
-#include <MaterialXRender/CGLTFLoader.h>
-#endif
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -359,18 +357,14 @@ void Viewer::initialize()
     });
 
     // Create geometry handler.
-    mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
-    _geometryHandler->addLoader(loader);
-#if defined(MATERIALX_BUILD_GLTF)
-    mx::CGLTFLoaderPtr gltfLoader = mx::CGLTFLoader::create();
-    _geometryHandler->addLoader(gltfLoader);
-#endif
+    _geometryHandler->addLoader(mx::TinyObjLoader::create());
+    _geometryHandler->addLoader(mx::CGLTFLoader::create());
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(loader);
+    _envGeometryHandler->addLoader(mx::TinyObjLoader::create());
     mx::FilePath envSphere("resources/Geometry/sphere.obj");
     _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
 
@@ -616,12 +610,13 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
     meshButton->set_icon(FA_FOLDER);
     meshButton->set_callback([this]()
     {
-        m_process_events = false;;
-        std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" },
-#if defined(MATERIALX_BUILD_GLTF)
-            { "gltf", "GLTF ASCII" }, { "glb", "GLTF Binary"} 
-#endif
-            }, false);
+        m_process_events = false;
+        std::string filename = ng::file_dialog(
+        {
+            { "obj", "Wavefront OBJ" },
+            { "gltf", "GLTF ASCII" },
+            { "glb", "GLTF Binary"} 
+        }, false);
         if (!filename.empty())
         {
             loadMesh(filename);

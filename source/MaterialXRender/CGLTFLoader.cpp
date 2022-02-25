@@ -138,7 +138,7 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         std::string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
         if (meshName.empty())
         {
-            meshName = "generatedName_" + std::to_string(m);
+            meshName = "Mesh_" + std::to_string(m);
         }
         MeshPtr mesh = Mesh::create(meshName);
         if (_debugLevel > 0)
