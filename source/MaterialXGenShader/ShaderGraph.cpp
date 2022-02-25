@@ -85,12 +85,6 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
             + upstreamElement->getName() + "'");
     }
     const string& newNodeName = upstreamNode->getName();
-    if (connectingElement && connectingElement->getNamePath() == "SR_untitled/base")
-    { 
-        std::cout << "Connect upstream: " << upstreamNode->getNamePath() <<
-            ". Downstream: " << downstreamElement->getNamePath() << "connecting element: "
-            << connectingElement->getNamePath() << std::endl;
-    }
     ShaderNode* newNode = getNode(newNodeName);
     if (!newNode)
     {
