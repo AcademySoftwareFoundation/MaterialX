@@ -3,11 +3,11 @@
   <!-- point space transform -->
   <nodegraph name="tf_point_vector3">
     <transformpoint name="transformpoint1" type="vector3">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="position1" />
+      <input name="in" type="vector3" nodename="position1" />
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformpoint>
-    <position name="position1" type="vector3" xpos="4.29468" ypos="7.25674">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
     <output name="out" type="vector3" nodename="transformpoint1" />
@@ -15,65 +15,65 @@
   <!-- vector space transform -->
   <nodegraph name="tf_vector_vector3">
     <transformvector name="transformvector1" type="vector3">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="normal1" />
+      <input name="in" type="vector3" nodename="normal1" />
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformvector>
-    <normal name="normal1" type="vector3" xpos="4.77303" ypos="13.4329">
+    <normal name="normal1" type="vector3">
       <input name="space" type="string" value="object" />
     </normal>
     <output name="out" type="vector3" nodename="transformvector1" />
   </nodegraph>
   <!-- normal space transform -->
-  <nodegraph name="tf_normal_vector3" xpos="6.83448" ypos="23.3">
+  <nodegraph name="tf_normal_vector3">
     <transformnormal name="transformnormal1" type="vector3">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="normal1" />
+      <input name="in" type="vector3" nodename="normal1" />
       <input name="fromspace" type="string" value="object" />
       <input name="tospace" type="string" value="world" />
     </transformnormal>
-    <normal name="normal1" type="vector3" xpos="3.855" ypos="10.3157">
+    <normal name="normal1" type="vector3">
       <input name="space" type="string" value="object" />
     </normal>
     <output name="out" type="vector3" nodename="transformnormal1" />
   </nodegraph>
   <!-- vector/matrix transform -->
   <nodegraph name="tf_matrix3_vector2">
-    <transformmatrix name="transformpoint2M3" type="vector2" xpos="5.12832" ypos="10.7513">
-      <input name="in" type="vector2" value="1.0, 0.5" nodename="texcoord1" />
+    <transformmatrix name="transformpoint2M3" type="vector2">
+      <input name="in" type="vector2" nodename="texcoord1" />
       <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 1.0" />
     </transformmatrix>
     <output name="out" type="vector2" nodename="transformpoint2M3" />
-    <texcoord name="texcoord1" type="vector2" xpos="4.05281" ypos="11.1126">
+    <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" value="0" />
     </texcoord>
   </nodegraph>
   <nodegraph name="tf_matrix3_vector3">
     <transformmatrix name="transformpoint1" type="vector3">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="position1" />
+      <input name="in" type="vector3" nodename="position1" />
       <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0" />
     </transformmatrix>
-    <position name="position1" type="vector3" xpos="4.29468" ypos="7.25674">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
     <output name="out" type="vector3" nodename="transformpoint1" />
   </nodegraph>
-  <nodegraph name="tf_matrix4_vector3" xpos="6.93103" ypos="29.02">
+  <nodegraph name="tf_matrix4_vector3">
     <output name="out" type="vector3" nodename="transformpoint3M4" />
-    <transformmatrix name="transformpoint3M4" type="vector3" xpos="5.1253" ypos="10.5662">
-      <input name="in" type="vector3" value="1.0, 0.5, 0.0" nodename="position1" />
+    <transformmatrix name="transformpoint3M4" type="vector3">
+      <input name="in" type="vector3" nodename="position1" />
       <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0" />
     </transformmatrix>
-    <position name="position1" type="vector3" xpos="4.29468" ypos="7.25674">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
   </nodegraph>
-  <nodegraph name="tf_matrix4_vector4" xpos="6.77241" ypos="0.411679">
-    <transformmatrix name="transformvector1" type="vector4" xpos="5.73505" ypos="11.4101">
+  <nodegraph name="tf_matrix4_vector4">
+    <transformmatrix name="transformvector1" type="vector4">
       <input name="in" type="vector4" nodename="normal1" channels="xyz0" />
       <input name="mat" type="matrix44" value="0.5, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0" />
     </transformmatrix>
     <output name="out" type="vector4" nodename="transformvector1" channels="xyz1" />
-    <normal name="normal1" type="vector3" xpos="4.77303" ypos="13.4329">
+    <normal name="normal1" type="vector3">
       <input name="space" type="string" value="object" />
     </normal>
   </nodegraph>
@@ -165,8 +165,8 @@
     <output name="N_out_vec3" type="vector3" nodename="N_convtov3" />
   </nodegraph>
   <!-- place2d -->
-  <nodegraph name="place2d_vector2" xpos="6.93103" ypos="26.16">
-    <texcoord name="texcoord1" type="vector2" xpos="4.05281" ypos="11.1126">
+  <nodegraph name="place2d_vector2">
+    <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" value="0" />
     </texcoord>
     <place2d name="place2d1_1" type="vector2">

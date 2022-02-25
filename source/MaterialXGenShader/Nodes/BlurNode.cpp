@@ -15,7 +15,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// as input, and return a 2 channel vector as output
 const string BlurNode::_sampleSizeFunctionUV = "mx_compute_sample_size_uv";
 
-const float BlurNode::_filterSize = 2.0;
+const float BlurNode::_filterSize = 1.0;
 const float BlurNode::_filterOffset = 0.0;
 
 const string BlurNode::BOX_FILTER = "box";

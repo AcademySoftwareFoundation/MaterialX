@@ -18,7 +18,7 @@
       <input name="space" type="string" value="tangent" />
     </normalmap>
     <tiledimage name="tiledimage" type="vector3">
-      <input name="file" type="filename" uniform="true" value="resources/images/mesh_wire_norm.png" />
+      <input name="file" type="filename" value="resources/images/mesh_wire_norm.png" />
       <input name="realworldimagesize" type="vector2" value="1.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="realworldtilesize" type="vector2" value="3.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="uvtiling" type="vector2" value="12, 10" />
