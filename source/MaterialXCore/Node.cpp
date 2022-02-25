@@ -172,11 +172,15 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            // Use output's output string
-            const string& outputOutputString = output->getOutputString();
-            if (!outputOutputString.empty())
+            if (connectedInput || 
+                output->getParent() == output->getDocument())
             {
-                outputName = &outputOutputString;
+                // Use output's output string
+                const string& outputOutputString = output->getOutputString();
+                if (!outputOutputString.empty())
+                {
+                    outputName = &outputOutputString;
+                }
             }
         }
     }
