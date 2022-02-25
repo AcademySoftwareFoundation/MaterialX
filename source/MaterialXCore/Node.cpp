@@ -172,9 +172,11 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            if (output->getParent() == output->getDocument())
+            // Use output's output string
+            const string& outputOutputString = output->getOutputString();
+            if (!outputOutputString.empty())
             {
-                outputName = &output->getOutputString();
+                outputName = &outputOutputString;
             }
         }
     }
