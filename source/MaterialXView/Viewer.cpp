@@ -357,14 +357,16 @@ void Viewer::initialize()
     });
 
     // Create geometry handler.
+    mx::TinyObjLoaderPtr objLoader = mx::TinyObjLoader::create();
+    mx::CgltfLoaderPtr gltfLoader = mx::CgltfLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
-    _geometryHandler->addLoader(mx::TinyObjLoader::create());
-    _geometryHandler->addLoader(mx::CgltfLoader::create());
+    _geometryHandler->addLoader(objLoader);
+    _geometryHandler->addLoader(gltfLoader);
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(mx::TinyObjLoader::create());
+    _envGeometryHandler->addLoader(objLoader);
     mx::FilePath envSphere("resources/Geometry/sphere.obj");
     _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
 
