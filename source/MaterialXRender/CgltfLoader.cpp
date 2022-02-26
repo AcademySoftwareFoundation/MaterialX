@@ -1,5 +1,5 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -44,7 +44,7 @@ using GLTFMeshMatrixList = std::unordered_map<cgltf_mesh*, Matrix44>;
 // Compute matrices for each mesh. Does not support transform instancing.
 void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
 {
-    std::string indent;
+    string indent;
 
     cgltf_mesh* cmesh = cnode->mesh;
     if (cmesh)
@@ -72,11 +72,10 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
 
 bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
 {
-    const std::string input_filename = filePath.asString();
-
-    const std::string ext = stringToLower(filePath.getExtension());
-    const std::string BINARY_EXTENSION = "glb";
-    const std::string ASCII_EXTENSION = "gltf";
+    const string input_filename = filePath.asString();
+    const string ext = stringToLower(filePath.getExtension());
+    const string BINARY_EXTENSION = "glb";
+    const string ASCII_EXTENSION = "gltf";
     if (ext != BINARY_EXTENSION && ext != ASCII_EXTENSION)
     {
         return false;
@@ -130,7 +129,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
         Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-        std::string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
+        string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
         if (meshName.empty())
         {
             meshName = "Mesh_" + std::to_string(m);

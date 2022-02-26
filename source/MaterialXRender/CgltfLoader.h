@@ -1,5 +1,5 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -14,7 +14,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a GLTFLoader
-using CGLTFLoaderPtr = std::shared_ptr<class CgltfLoader>;
+using CgltfLoaderPtr = std::shared_ptr<class CgltfLoader>;
 
 /// @class CgltfLoader
 /// Wrapper for loader to read in GLTF files using the Cgltf library.
@@ -29,7 +29,7 @@ class MX_RENDER_API CgltfLoader : public GeometryLoader
     virtual ~CgltfLoader() { }
 
     /// Create a new loader
-    static CGLTFLoaderPtr create() { return std::make_shared<CgltfLoader>(); }
+    static CgltfLoaderPtr create() { return std::make_shared<CgltfLoader>(); }
 
     /// Load geometry from file path
     bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip=false) override;
