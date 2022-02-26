@@ -7,7 +7,7 @@
 #define MATERIALX_CGLTFLOADER_H
 
 /// @file 
-/// GLTF format loader using the cgltf library
+/// GLTF format loader using the Cgltf library
 
 #include <MaterialXRender/GeometryHandler.h>
 
