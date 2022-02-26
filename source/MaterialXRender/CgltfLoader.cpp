@@ -16,7 +16,7 @@
 #endif
 
 #define CGLTF_IMPLEMENTATION
-#include <MaterialXRender/External/cgltf/cgltf.h>
+#include <MaterialXRender/External/Cgltf/cgltf.h>
 
 #if defined(_MSC_VER)
     #pragma warning(pop)
