@@ -153,7 +153,7 @@ void Material::bindShader()
     }
 }
 
-void Material::bindMesh(mx::MeshPtr mesh) const
+void Material::bindMesh(mx::MeshPtr mesh)
 {
     if (!mesh || !_glProgram)
     {
@@ -161,12 +161,12 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     }
 
     _glProgram->bind();
-    if (!_boundMesh || (mesh->getName() != _boundMesh->getName()))
+    if (_boundMesh && mesh->getName() != _boundMesh->getName())
     {
-        const_cast<Material*>(this)->_boundMesh = mesh;
         _glProgram->unbindGeometry();
     }
     _glProgram->bindMesh(mesh);
+    _boundMesh = mesh;
 }
 
 bool Material::bindPartition(mx::MeshPartitionPtr part) const

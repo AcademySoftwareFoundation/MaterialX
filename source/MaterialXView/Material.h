@@ -155,7 +155,7 @@ class Material
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind the given mesh to this material.
-    void bindMesh(mx::MeshPtr mesh) const;
+    void bindMesh(mx::MeshPtr mesh);
 
     /// Bind a mesh partition to this material.
     bool bindPartition(mx::MeshPartitionPtr part) const;
