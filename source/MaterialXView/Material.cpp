@@ -381,14 +381,14 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
     mx::checkGlErrors("after draw partition");
 }
 
-void Material::unbindGeometry() const
+void Material::unbindGeometry()
 {
-    const_cast<Material*>(this)->_boundMesh = nullptr;
     if (_glProgram)
     {
         _glProgram->bind();
         _glProgram->unbindGeometry();
     }
+    _boundMesh = nullptr;
 }
 
 mx::VariableBlock* Material::getPublicUniforms() const

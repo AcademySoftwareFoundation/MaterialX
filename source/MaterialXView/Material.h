@@ -164,7 +164,7 @@ class Material
     void drawPartition(mx::MeshPartitionPtr part) const;
 
     /// Unbind all geometry from this material.
-    void unbindGeometry() const;
+    void unbindGeometry();
 
     /// Return the block of public uniforms for this material.
     mx::VariableBlock* getPublicUniforms() const;
