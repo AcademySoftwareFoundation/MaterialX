@@ -21,8 +21,8 @@ using CGLTFLoaderPtr = std::shared_ptr<class CGLTFLoader>;
 class MX_RENDER_API CGLTFLoader : public GeometryLoader
 {
   public:
-    CGLTFLoader()
-    : _debugLevel(0)
+    CGLTFLoader() :
+        _debugLevel(0)
     {
         _extensions = { "glb", "GLB", "gltf", "GLTF" };
     }
@@ -34,7 +34,7 @@ class MX_RENDER_API CGLTFLoader : public GeometryLoader
     /// Load geometry from file path
     bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip=false) override;
 
-private:
+  private:
     unsigned int _debugLevel;
 };
 

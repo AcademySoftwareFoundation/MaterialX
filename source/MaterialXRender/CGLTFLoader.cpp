@@ -4,9 +4,6 @@
 //
 
 #include <MaterialXRender/CGLTFLoader.h>
-#include <MaterialXCore/Util.h>
-#include <MaterialXCore/Node.h>
-#include <MaterialXCore/Document.h>
 
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
@@ -29,10 +26,8 @@
     #pragma GCC diagnostic pop
 #endif
 
-#include <iostream>
-#include <algorithm>
-#include <stack>
 #include <cstring>
+#include <iostream>
 #include <limits>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -142,7 +137,9 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         }
         MeshPtr mesh = Mesh::create(meshName);
         if (_debugLevel > 0)
+        {
             std::cout << "Translate mesh: " << meshName << std::endl;
+        }
         meshList.push_back(mesh);
         mesh->setSourceUri(filePath);
 
@@ -164,7 +161,9 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             if (primitive->type != cgltf_primitive_type_triangles)
             {
                 if (_debugLevel > 0)
+                {
                     std::cout << "Skip non-triangle indexed mesh: " << cmesh->name << std::endl;
+                }
                 continue;
             }
 
@@ -329,7 +328,9 @@ bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
             MeshIndexBuffer& indices = part->getIndices();
             if (_debugLevel > 0)
+            {
                 std::cout << "** Read indexing: Count = " << std::to_string(indexCount) << std::endl;
+            }
             if (indexAccessor)
             {
                 for (cgltf_size i = 0; i < indexCount; i++)
