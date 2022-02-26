@@ -8,8 +8,6 @@
 
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
-
 //
 // Material methods
 //
@@ -163,19 +161,12 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     }
 
     _glProgram->bind();
-    try 
-    { 
-        if (!_boundMesh || (mesh->getName() != _boundMesh->getName()))
-        {
-            const_cast<Material*>(this)->_boundMesh = mesh;
-            _glProgram->unbindGeometry();
-        }
-        _glProgram->bindMesh(mesh);
-     }
-    catch (std::exception& e)
+    if (!_boundMesh || (mesh->getName() != _boundMesh->getName()))
     {
-        std::cerr << "Geometry binding error: " << e.what() << std::endl;
+        const_cast<Material*>(this)->_boundMesh = mesh;
+        _glProgram->unbindGeometry();
     }
+    _glProgram->bindMesh(mesh);
 }
 
 bool Material::bindPartition(mx::MeshPartitionPtr part) const
