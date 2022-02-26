@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRender/CGLTFLoader.h>
+#include <MaterialXRender/CgltfLoader.h>
 
 #if defined(__GNUC__)
     #pragma GCC diagnostic push
@@ -70,7 +70,7 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
 
 } // anonymous namespace
 
-bool CGLTFLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
+bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
 {
     const std::string input_filename = filePath.asString();
 

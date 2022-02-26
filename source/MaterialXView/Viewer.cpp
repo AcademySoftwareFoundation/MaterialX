@@ -3,7 +3,7 @@
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
-#include <MaterialXRender/CGLTFLoader.h>
+#include <MaterialXRender/CgltfLoader.h>
 #include <MaterialXRender/Harmonics.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -359,7 +359,7 @@ void Viewer::initialize()
     // Create geometry handler.
     _geometryHandler = mx::GeometryHandler::create();
     _geometryHandler->addLoader(mx::TinyObjLoader::create());
-    _geometryHandler->addLoader(mx::CGLTFLoader::create());
+    _geometryHandler->addLoader(mx::CgltfLoader::create());
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.

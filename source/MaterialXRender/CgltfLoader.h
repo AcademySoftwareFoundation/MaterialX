@@ -14,22 +14,22 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a GLTFLoader
-using CGLTFLoaderPtr = std::shared_ptr<class CGLTFLoader>;
+using CGLTFLoaderPtr = std::shared_ptr<class CgltfLoader>;
 
-/// @class CGLTFLoader
-/// Wrapper for loader to read in GLTF files using the cgltf library.
-class MX_RENDER_API CGLTFLoader : public GeometryLoader
+/// @class CgltfLoader
+/// Wrapper for loader to read in GLTF files using the Cgltf library.
+class MX_RENDER_API CgltfLoader : public GeometryLoader
 {
   public:
-    CGLTFLoader() :
+    CgltfLoader() :
         _debugLevel(0)
     {
         _extensions = { "glb", "GLB", "gltf", "GLTF" };
     }
-    virtual ~CGLTFLoader() { }
+    virtual ~CgltfLoader() { }
 
     /// Create a new loader
-    static CGLTFLoaderPtr create() { return std::make_shared<CGLTFLoader>(); }
+    static CGLTFLoaderPtr create() { return std::make_shared<CgltfLoader>(); }
 
     /// Load geometry from file path
     bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip=false) override;
