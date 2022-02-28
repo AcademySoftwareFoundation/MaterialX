@@ -9,7 +9,7 @@
       <output name="outb" type="float" />
     </separate3>
     <output name="green_output" type="float" nodename="green_node" output="outg" />
-    <output name="blue_output" type="float" nodename="green_node" output="outn" />
+    <output name="blue_output" type="float" nodename="green_node" output="outb" />
   </nodegraph>
 
   <!-- Test to pick the appropraite output from the nodegraph. In this case this is the green output which is 1.0 or white -->
