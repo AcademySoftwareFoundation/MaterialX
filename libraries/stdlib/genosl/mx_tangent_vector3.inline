@@ -1,1 +1,1 @@
-transform({{space}}, dPdu)
+transform({{space}}, normalize(dPdu))

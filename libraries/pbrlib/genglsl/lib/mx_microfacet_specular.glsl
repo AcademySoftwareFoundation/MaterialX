@@ -208,18 +208,27 @@ float mx_fresnel_dielectric(float cosTheta, float ior)
     return 0.5 * x * x * (1.0 + y * y);
 }
 
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 {
-   float c2 = cosTheta*cosTheta;
-   vec3 n2_k2 = n*n + k*k;
-   vec3 nc2 = 2.0 * n * cosTheta;
+    cosTheta = clamp(cosTheta, 0.0, 1.0);
+    float cosTheta2 = cosTheta * cosTheta;
+    float sinTheta2 = 1.0 - cosTheta2;
+    vec3 n2 = n * n;
+    vec3 k2 = k * k;
 
-   vec3 rs_a = n2_k2 + c2;
-   vec3 rp_a = n2_k2 * c2 + 1.0;
-   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
-   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
+    vec3 t0 = n2 - k2 - sinTheta2;
+    vec3 a2plusb2 = sqrt(t0 * t0 + 4.0 * n2 * k2);
+    vec3 t1 = a2plusb2 + cosTheta2;
+    vec3 a = sqrt(max(0.5 * (a2plusb2 + t0), 0.0));
+    vec3 t2 = 2.0 * a * cosTheta;
+    vec3 rs = (t1 - t2) / (t1 + t2);
 
-   return 0.5 * (rs + rp);
+    vec3 t3 = cosTheta2 * a2plusb2 + sinTheta2 * sinTheta2;
+    vec3 t4 = t2 * sinTheta2;
+    vec3 rp = rs * (t3 - t4) / (t3 + t4);
+
+    return 0.5 * (rp + rs);
 }
 
 // Fresnel for dielectric/dielectric interface and polarized light.

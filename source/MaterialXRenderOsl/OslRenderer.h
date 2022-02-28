@@ -196,6 +196,18 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _useTestRender = useTestRender;
     }
 
+    /// Set the number of rays per pixel to be used for lit surfaces.
+    void setRaysPerPixelLit(int rays)
+    {
+        _raysPerPixelLit = rays;
+    }
+
+    /// Set the number of rays per pixel to be used for unlit surfaces.
+    void setRaysPerPixelUnlit(int rays)
+    {
+        _raysPerPixelUnlit = rays;
+    }
+
     ///
     /// Compile OSL code stored in a file. Will throw an exception if an error occurs.
     /// @param oslFilePath OSL file path.
@@ -222,35 +234,23 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
   private:
-    /// Path to "oslc" executable`
     FilePath _oslCompilerExecutable;
-    /// OSL include path
     FileSearchPath _oslIncludePath;
-    /// Output file path. File name does not include an extension
     FilePath _oslOutputFilePath;
-    /// Output image file name
     FilePath _oslOutputFileName;
 
-    /// Path to "testshade" executable
     FilePath _oslTestShadeExecutable;
-    /// Path to "testrender" executable
     FilePath _oslTestRenderExecutable;
-    /// Path to template scene XML file used for "testrender"
     FilePath _oslTestRenderSceneTemplateFile;
-    /// Name of shader. Used for rendering with "testrender"
     string _oslShaderName;
-    /// Set of strings containing parameter override settings for "testrender"
     StringVec _oslShaderParameterOverrides;
-    /// Set of strings containing environment parameter override settings for "testrender"
     StringVec _envOslShaderParameterOverrides;
-    /// Name of output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputName;
-    /// MaterialX type of the output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputType;
-    /// Path for utility shaders (.oso) used when rendering with "testrender"
     FilePath _oslUtilityOSOPath;
-    /// Use "testshade" or "testender" for render validation
     bool _useTestRender;
+    int _raysPerPixelLit;
+    int _raysPerPixelUnlit;
 };
 
 MATERIALX_NAMESPACE_END

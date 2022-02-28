@@ -5,7 +5,7 @@
       <input name="space" type="string" value="object" />
     </position>
     <multiply name="multiply1" type="vector3">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
     <fractal3d name="fractal3d1" type="float">
@@ -13,7 +13,7 @@
       <input name="octaves" type="integer" value="2" />
       <input name="lacunarity" type="float" value="2.0000" />
       <input name="diminish" type="float" value="0.5000" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </fractal3d>
     <displacement name="disp1" type="displacementshader">
       <input name="displacement" type="float" nodename="fractal3d1" />
@@ -26,7 +26,7 @@
       <input name="space" type="string" value="object" />
     </position>
     <multiply name="multiply1" type="vector3">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
     <fractal3d name="fractal3d1" type="vector3">
@@ -34,7 +34,7 @@
       <input name="octaves" type="integer" value="2" />
       <input name="lacunarity" type="float" value="2.0000" />
       <input name="diminish" type="float" value="0.5000" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </fractal3d>
     <displacement name="disp1" type="displacementshader">
       <input name="displacement" type="vector3" nodename="fractal3d1" />
