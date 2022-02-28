@@ -347,7 +347,17 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             }
             mesh->addPartition(part);
 
-            // General normals if none provided
+            // Create some texture coordiantes if none provided
+            if (!texcoordStream && positionStream)
+            {
+                texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+                texcoordStream->setStride(MeshStream::STRIDE_2D);
+                texcoordStream->resize(positionStream->getData().size() / MeshStream::STRIDE_3D);
+                std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
+                mesh->addStream(texcoordStream);
+            }
+
+            // Generate normals if none provided
             if (!normalStream && positionStream)
             {
                 normalStream = mesh->generateNormals(positionStream);
@@ -358,7 +368,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             if (!tangentStream && texcoordStream && positionStream && normalStream)
             {
                 tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
-                mesh->addStream(tangentStream);
+                if (tangentStream)
+                {
+                    mesh->addStream(tangentStream);
+                }
             }
 
             // Assign properties to mesh.
