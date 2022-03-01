@@ -39,7 +39,7 @@ const float MAX_FLOAT = std::numeric_limits<float>::max();
 const size_t FACE_VERTEX_COUNT = 3;
 
 // List of transforms which match to meshes
-using GLTFMeshMatrixList = std::unordered_map<cgltf_mesh*, Matrix44>;
+using GLTFMeshMatrixList = std::unordered_map<cgltf_mesh*, std::vector<Matrix44>>;
 
 // Compute matrices for each mesh. Does not support transform instancing.
 void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
@@ -56,7 +56,7 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
             (float) t[4], (float) t[5], (float) t[6], (float) t[7],
             (float) t[8], (float) t[9], (float) t[10], (float) t[11],
             (float) t[12], (float) t[13], (float) t[14], (float) t[15]);
-        meshMatrices[cmesh] = positionMatrix;
+        meshMatrices[cmesh].push_back(positionMatrix);
     }
     else
     {
@@ -113,6 +113,9 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
     }
 
     // Read in all meshes
+    StringSet meshNames;
+    const string MeshPrefix = "Mesh_";
+    const string TransformPrefix = "Transform_";
     for (size_t m = 0; m < data->meshes_count; m++)
     {
         cgltf_mesh* cmesh = &(data->meshes[m]);
@@ -120,270 +123,291 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         {
             continue;
         }
-        Matrix44 positionMatrix = Matrix44::IDENTITY;
+        std::vector<Matrix44> positionMatrices;
         if (gltfMeshMatrixList.find(cmesh) != gltfMeshMatrixList.end())
         {
-            positionMatrix = gltfMeshMatrixList[cmesh];
+            positionMatrices = gltfMeshMatrixList[cmesh];
+        }
+        if (positionMatrices.empty())
+        {
+            positionMatrices.push_back(Matrix44::IDENTITY);
         }
 
-        Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
-        Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
-
-        string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
-        if (meshName.empty())
+        for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
-            meshName = "Mesh_" + std::to_string(m);
-        }
-        MeshPtr mesh = Mesh::create(meshName);
-        if (_debugLevel > 0)
-        {
-            std::cout << "Translate mesh: " << meshName << std::endl;
-        }
-        meshList.push_back(mesh);
-        mesh->setSourceUri(filePath);
+            const Matrix44& positionMatrix = positionMatrices[mtx];
 
-        MeshStreamPtr positionStream = nullptr;
-        MeshStreamPtr normalStream = nullptr;
-        MeshStreamPtr colorStream = nullptr;
-        MeshStreamPtr texcoordStream = nullptr;
-        MeshStreamPtr tangentStream = nullptr;
+            Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
+            Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-        for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
-        {
-            cgltf_primitive* primitive = &cmesh->primitives[primitiveIndex];
-
-            if (!primitive)
+            // Create a unique name for the mesh. Prepend transform name
+            // if the mesh is instanced.
+            string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
+            if (meshName.empty())
             {
-                continue;
+                meshName = MeshPrefix + std::to_string(m);
             }
-
-            if (primitive->type != cgltf_primitive_type_triangles)
+            if (positionMatrices.size() > 1)
             {
+                meshName = TransformPrefix + std::to_string(mtx) + NAME_PATH_SEPARATOR + meshName;
+            }
+            while (meshNames.count(meshName))
+            {
+                meshName = incrementName(meshName);
+            }
+            meshNames.insert(meshName);
+
+            MeshPtr mesh = Mesh::create(meshName);
+            if (_debugLevel > 0)
+            {
+                std::cout << "Translate mesh: " << meshName << std::endl;
+            }
+            meshList.push_back(mesh);
+            mesh->setSourceUri(filePath);
+
+            MeshStreamPtr positionStream = nullptr;
+            MeshStreamPtr normalStream = nullptr;
+            MeshStreamPtr colorStream = nullptr;
+            MeshStreamPtr texcoordStream = nullptr;
+            MeshStreamPtr tangentStream = nullptr;
+
+            for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
+            {
+                cgltf_primitive* primitive = &cmesh->primitives[primitiveIndex];
+
+                if (!primitive)
+                {
+                    continue;
+                }
+
+                if (primitive->type != cgltf_primitive_type_triangles)
+                {
+                    if (_debugLevel > 0)
+                    {
+                        std::cout << "Skip non-triangle indexed mesh: " << cmesh->name << std::endl;
+                    }
+                    continue;
+                }
+
+                // Read in vertex streams
+                for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
+                {
+                    cgltf_attribute* attribute = &primitive->attributes[prim];
+                    cgltf_accessor* accessor = attribute->data;
+                    if (!accessor)
+                    {
+                        continue;
+                    }
+                    // Only load one stream of each type for now.
+                    cgltf_int streamIndex = attribute->index;
+                    if (streamIndex != 0)
+                    {
+                        continue;
+                    }
+
+                    // Get data as floats
+                    cgltf_size floatCount = cgltf_accessor_unpack_floats(accessor, NULL, 0);
+                    std::vector<float> attributeData;
+                    attributeData.resize(floatCount);
+                    floatCount = cgltf_accessor_unpack_floats(accessor, &attributeData[0], floatCount);
+
+                    cgltf_size vectorSize = cgltf_num_components(accessor->type);
+                    size_t desiredVectorSize = 3;
+
+                    MeshStreamPtr geomStream = nullptr;
+
+                    bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
+                    bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
+                    bool isTexCoordSteram = (attribute->type == cgltf_attribute_type_texcoord);
+                    if (isPositionStream)
+                    {
+                        // Create position stream
+                        positionStream = MeshStream::create("i_" + MeshStream::POSITION_ATTRIBUTE, MeshStream::POSITION_ATTRIBUTE, streamIndex);
+                        mesh->addStream(positionStream);
+                        geomStream = positionStream;
+                    }
+                    else if (attribute->type == cgltf_attribute_type_normal)
+                    {
+                        normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, streamIndex);
+                        mesh->addStream(normalStream);
+                        geomStream = normalStream;
+                    }
+                    else if (attribute->type == cgltf_attribute_type_tangent)
+                    {
+                        tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, streamIndex);
+                        mesh->addStream(tangentStream);
+                        geomStream = tangentStream;
+                    }
+                    else if (attribute->type == cgltf_attribute_type_color)
+                    {
+                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE, MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        geomStream = colorStream;
+                        if (vectorSize == 4)
+                        {
+                            desiredVectorSize = 4;
+                        }
+                    }
+                    else if (attribute->type == cgltf_attribute_type_texcoord)
+                    {
+                        texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+                        mesh->addStream(texcoordStream);
+                        if (vectorSize == 2)
+                        {
+                            texcoordStream->setStride(MeshStream::STRIDE_2D);
+                            desiredVectorSize = 2;
+                        }
+                        geomStream = texcoordStream;
+                    }
+                    else
+                    {
+                        if (_debugLevel > 0)
+                            std::cout << "Unknown stream type: " << std::to_string(attribute->type)
+                            << std::endl;
+                    }
+
+                    // Fill in stream
+                    if (geomStream)
+                    {
+                        MeshFloatBuffer& buffer = geomStream->getData();
+                        cgltf_size vertexCount = accessor->count;
+
+                        if (_debugLevel > 0)
+                        {
+                            std::cout << "** Read stream: " << geomStream->getName() << std::endl;
+                            std::cout << " - vertex count: " << std::to_string(vertexCount) << std::endl;
+                            std::cout << " - vector size: " << std::to_string(vectorSize) << std::endl;
+                        }
+
+                        for (cgltf_size i = 0; i < vertexCount; i++)
+                        {
+                            const float* input = &attributeData[vectorSize * i];
+                            if (isPositionStream)
+                            {
+                                Vector3 position;
+                                for (cgltf_size v = 0; v < desiredVectorSize; v++)
+                                {
+                                    // Update bounding box
+                                    float floatValue = (v < vectorSize) ? input[v] : 0.0f;
+                                    position[v] = floatValue;
+                                }
+                                position = positionMatrix.transformPoint(position);
+                                for (cgltf_size v = 0; v < desiredVectorSize; v++)
+                                {
+                                    buffer.push_back(position[v]);
+                                    boxMin[v] = std::min(position[v], boxMin[v]);
+                                    boxMax[v] = std::max(position[v], boxMax[v]);
+                                }
+                            }
+                            else if (isNormalStream)
+                            {
+                                Vector3 normal;
+                                for (cgltf_size v = 0; v < desiredVectorSize; v++)
+                                {
+                                    float floatValue = (v < vectorSize) ? input[v] : 0.0f;
+                                    normal[v] = floatValue;
+                                }
+                                normal = positionMatrix.transformNormal(normal);
+                                for (cgltf_size v = 0; v < desiredVectorSize; v++)
+                                {
+                                    buffer.push_back(normal[v]);
+                                }
+                            }
+                            else
+                            {
+                                for (cgltf_size v = 0; v < desiredVectorSize; v++)
+                                {
+                                    float floatValue = (v < vectorSize) ? input[v] : 0.0f;
+                                    // Perform v-flip
+                                    if (isTexCoordSteram && v == 1)
+                                    {
+                                        if (!texcoordVerticalFlip)
+                                        {
+                                            floatValue = 1.0f - floatValue;
+                                        }
+                                    }
+                                    buffer.push_back(floatValue);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Read indexing
+                MeshPartitionPtr part = MeshPartition::create();
+                size_t indexCount = 0;
+                cgltf_accessor* indexAccessor = primitive->indices;
+                if (indexAccessor)
+                {
+                    indexCount = indexAccessor->count;
+                }
+                else if (positionStream)
+                {
+                    indexCount = positionStream->getData().size();
+                }
+                size_t faceCount = indexCount / FACE_VERTEX_COUNT;
+                part->setFaceCount(faceCount);
+                part->setName(meshName);
+
+                MeshIndexBuffer& indices = part->getIndices();
                 if (_debugLevel > 0)
                 {
-                    std::cout << "Skip non-triangle indexed mesh: " << cmesh->name << std::endl;
+                    std::cout << "** Read indexing: Count = " << std::to_string(indexCount) << std::endl;
                 }
-                continue;
-            }
-
-            // Read in vertex streams
-            for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
-            {
-                cgltf_attribute* attribute = &primitive->attributes[prim];
-                cgltf_accessor* accessor = attribute->data;
-                if (!accessor)
+                if (indexAccessor)
                 {
-                    continue;
-                }
-                // Only load one stream of each type for now.
-                cgltf_int streamIndex = attribute->index;
-                if (streamIndex != 0)
-                {
-                    continue;
-                }
-
-                // Get data as floats
-                cgltf_size floatCount = cgltf_accessor_unpack_floats(accessor, NULL, 0);
-                std::vector<float> attributeData;
-                attributeData.resize(floatCount);
-                floatCount = cgltf_accessor_unpack_floats(accessor, &attributeData[0], floatCount);
-
-                cgltf_size vectorSize = cgltf_num_components(accessor->type);
-                size_t desiredVectorSize = 3;
-
-                MeshStreamPtr geomStream = nullptr;
-
-                bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
-                bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
-                bool isTexCoordSteram = (attribute->type == cgltf_attribute_type_texcoord);
-                if (isPositionStream)
-                {
-                    // Create position stream
-                    positionStream = MeshStream::create("i_" + MeshStream::POSITION_ATTRIBUTE, MeshStream::POSITION_ATTRIBUTE, streamIndex);
-                    mesh->addStream(positionStream);
-                    geomStream = positionStream;
-                }
-                else if (attribute->type == cgltf_attribute_type_normal)
-                {
-                    normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, streamIndex);
-                    mesh->addStream(normalStream);
-                    geomStream = normalStream;
-                }
-                else if (attribute->type == cgltf_attribute_type_tangent)
-                {
-                    tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, streamIndex);
-                    mesh->addStream(tangentStream);
-                    geomStream = tangentStream;
-                }
-                else if (attribute->type == cgltf_attribute_type_color)
-                {
-                    colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE, MeshStream::COLOR_ATTRIBUTE, streamIndex);
-                    geomStream = colorStream;
-                    if (vectorSize == 4)
+                    for (cgltf_size i = 0; i < indexCount; i++)
                     {
-                        desiredVectorSize = 4;
+                        uint32_t vertexIndex = static_cast<uint32_t>(cgltf_accessor_read_index(indexAccessor, i));
+                        indices.push_back(vertexIndex);
                     }
-                }
-                else if (attribute->type == cgltf_attribute_type_texcoord)
-                {
-                    texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
-                    mesh->addStream(texcoordStream);
-                    if (vectorSize == 2)
-                    {
-                        texcoordStream->setStride(MeshStream::STRIDE_2D);
-                        desiredVectorSize = 2;
-                    }
-                    geomStream = texcoordStream;
                 }
                 else
                 {
-                    if (_debugLevel > 0)
-                        std::cout << "Unknown stream type: " << std::to_string(attribute->type)
-                                  << std::endl;
-                }
-
-                // Fill in stream
-                if (geomStream)
-                {
-                    MeshFloatBuffer& buffer = geomStream->getData();
-                    cgltf_size vertexCount = accessor->count;
-
-                    if (_debugLevel > 0)
+                    for (cgltf_size i = 0; i < indexCount; i++)
                     {
-                        std::cout << "** Read stream: " << geomStream->getName() << std::endl;
-                        std::cout << " - vertex count: " << std::to_string(vertexCount) << std::endl;
-                        std::cout << " - vector size: " << std::to_string(vectorSize) << std::endl;
-                    }
-
-                    for (cgltf_size i = 0; i < vertexCount; i++)
-                    {
-                        const float* input = &attributeData[vectorSize * i];
-                        if (isPositionStream)
-                        {
-                            Vector3 position;
-                            for (cgltf_size v = 0; v < desiredVectorSize; v++)
-                            {
-                                // Update bounding box
-                                float floatValue = (v < vectorSize) ? input[v] : 0.0f;
-                                position[v] = floatValue;
-                            }
-                            position = positionMatrix.transformPoint(position);
-                            for (cgltf_size v = 0; v < desiredVectorSize; v++)
-                            {
-                                buffer.push_back(position[v]);
-                                boxMin[v] = std::min(position[v], boxMin[v]);
-                                boxMax[v] = std::max(position[v], boxMax[v]);
-                            }
-                        }
-                        else if (isNormalStream)
-                        {
-                            Vector3 normal;
-                            for (cgltf_size v = 0; v < desiredVectorSize; v++)
-                            {
-                                float floatValue = (v < vectorSize) ? input[v] : 0.0f;
-                                normal[v] = floatValue;
-                            }
-                            normal = positionMatrix.transformNormal(normal);
-                            for (cgltf_size v = 0; v < desiredVectorSize; v++)
-                            {
-                                buffer.push_back(normal[v]);
-                            }
-                        }
-                        else
-                        {
-                            for (cgltf_size v = 0; v < desiredVectorSize; v++)
-                            {
-                                float floatValue = (v < vectorSize) ? input[v] : 0.0f;
-                                // Perform v-flip
-                                if (isTexCoordSteram && v == 1)
-                                {
-                                    if (!texcoordVerticalFlip)
-                                    {
-                                        floatValue = 1.0f - floatValue;
-                                    }
-                                }
-                                buffer.push_back(floatValue);
-                            }
-                        }
+                        indices.push_back(static_cast<uint32_t>(i));
                     }
                 }
-            }
+                mesh->addPartition(part);
 
-            // Read indexing
-            MeshPartitionPtr part = MeshPartition::create();
-            size_t indexCount = 0;
-            cgltf_accessor* indexAccessor = primitive->indices;
-            if (indexAccessor)
-            {
-                indexCount = indexAccessor->count;
-            }
-            else if (positionStream)
-            {
-                indexCount = positionStream->getData().size();
-            }
-            size_t faceCount = indexCount / FACE_VERTEX_COUNT;
-            part->setFaceCount(faceCount);
-            part->setName(meshName);
-
-            MeshIndexBuffer& indices = part->getIndices();
-            if (_debugLevel > 0)
-            {
-                std::cout << "** Read indexing: Count = " << std::to_string(indexCount) << std::endl;
-            }
-            if (indexAccessor)
-            {
-                for (cgltf_size i = 0; i < indexCount; i++)
+                // Create some texture coordiantes if none provided
+                if (!texcoordStream && positionStream)
                 {
-                    uint32_t vertexIndex = static_cast<uint32_t>(cgltf_accessor_read_index(indexAccessor, i));
-                    indices.push_back(vertexIndex);
+                    texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+                    texcoordStream->setStride(MeshStream::STRIDE_2D);
+                    texcoordStream->resize(positionStream->getData().size() / MeshStream::STRIDE_3D);
+                    std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
+                    mesh->addStream(texcoordStream);
                 }
-            }
-            else
-            {
-                for (cgltf_size i = 0; i < indexCount; i++)
+
+                // Generate normals if none provided
+                if (!normalStream && positionStream)
                 {
-                    indices.push_back(static_cast<uint32_t>(i));
+                    normalStream = mesh->generateNormals(positionStream);
+                    mesh->addStream(normalStream);
                 }
-            }
-            mesh->addPartition(part);
 
-            // Create some texture coordiantes if none provided
-            if (!texcoordStream && positionStream)
-            {
-                texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
-                texcoordStream->setStride(MeshStream::STRIDE_2D);
-                texcoordStream->resize(positionStream->getData().size() / MeshStream::STRIDE_3D);
-                std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
-                mesh->addStream(texcoordStream);
-            }
-
-            // Generate normals if none provided
-            if (!normalStream && positionStream)
-            {
-                normalStream = mesh->generateNormals(positionStream);
-                mesh->addStream(normalStream);
-            }
-
-            // Generate tangents if none provided
-            if (!tangentStream && texcoordStream && positionStream && normalStream)
-            {
-                tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
-                if (tangentStream)
+                // Generate tangents if none provided
+                if (!tangentStream && texcoordStream && positionStream && normalStream)
                 {
-                    mesh->addStream(tangentStream);
+                    tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                    if (tangentStream)
+                    {
+                        mesh->addStream(tangentStream);
+                    }
                 }
-            }
 
-            // Assign properties to mesh.
-            if (positionStream)
-            {
-                mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
+                // Assign properties to mesh.
+                if (positionStream)
+                {
+                    mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
+                }
+                mesh->setMinimumBounds(boxMin);
+                mesh->setMaximumBounds(boxMax);
+                Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
+                mesh->setSphereCenter(sphereCenter);
+                mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
             }
-            mesh->setMinimumBounds(boxMin);
-            mesh->setMaximumBounds(boxMax);
-            Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
-            mesh->setSphereCenter(sphereCenter);
-            mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
         }
     }
 
