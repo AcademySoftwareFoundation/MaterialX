@@ -4528,8 +4528,8 @@ export float2 mx_fractal3d_float2(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float3 v = noise::mx_fractal_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
-    return swizzle::xy(v) * mxp_amplitude;
+    float2 v = noise::mx_fractal_noise_float2(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
 }
 
 export float3 mx_fractal3d_float3(
@@ -4552,9 +4552,8 @@ export float4 mx_fractal3d_float4(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float3 v = noise::mx_fractal_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
-    float w = noise::mx_fractal_noise_float(mxp_position + float3(19.0, 193.0, 17.0), mxp_octaves, mxp_lacunarity, mxp_diminish);
-    return float4(v.x, v.y, v.z, w) * mxp_amplitude;
+    float4 v = noise::mx_fractal_noise_float4(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
 }
 
 export color mx_fractal3d_color3(

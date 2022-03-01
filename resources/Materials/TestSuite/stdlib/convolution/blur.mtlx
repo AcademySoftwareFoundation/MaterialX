@@ -3,164 +3,86 @@
   <!---
      Blur unit test
   -->
-  <nodegraph name="blur_float" type="" xpos="8.42368" ypos="11.8375">
-    <image name="image1" type="float" xpos="4.26897" ypos="10.02">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="float" value="0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
+  <nodegraph name="blur_color3">
+    <image name="image1" type="color3">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
     </image>
-    <blur name="blur1" type="float" xpos="5.74789" ypos="9.48">
-      <input name="in" type="float" value="0.0" nodename="image1" />
-      <input name="size" type="float" value="0.4000" />
+    <blur name="blur_color3" type="color3">
+      <input name="in" type="color3" nodename="image1" />
+      <input name="size" type="float" value="0.5" />
+      <input name="filtertype" type="string" value="gaussian" />
+    </blur>
+    <output name="blur_color3_out" type="color3" nodename="blur_color3" />
+  </nodegraph>
+  <nodegraph name="blur_color4">
+    <tiledimage name="tiledimage1" type="color4">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+    </tiledimage>
+    <blur name="blur_color4" type="color4">
+      <input name="in" type="color4" nodename="tiledimage1" />
+      <input name="size" type="float" value="0.5" />
+      <input name="filtertype" type="string" value="gaussian" />
+    </blur>
+    <output name="blur_color4_out" type="color4" nodename="blur_color4" />
+  </nodegraph>
+  <nodegraph name="blur_float">
+    <image name="image1" type="float">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+    </image>
+    <blur name="blur_float" type="float">
+      <input name="in" type="float" nodename="image1" />
+      <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="out" type="float" nodename="blur1" />
+    <output name="blur_float_out" type="float" nodename="blur_float" />
   </nodegraph>
-  <nodegraph name="blur_color3" type="" xpos="8.38333" ypos="15.4672">
-    <image name="image2" type="color3" xpos="4.26514" ypos="10.02">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="color3" value="0.0, 0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-    </image>
-    <blur name="blur2" type="color3" xpos="5.75172" ypos="9.48">
-      <input name="in" type="color3" value="0.0, 0.0, 0.0" nodename="image2" />
-      <input name="size" type="float" value="0.1000" />
+  <nodegraph name="blur_vector2">
+    <tiledimage name="tiledimage1" type="vector2">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+    </tiledimage>
+    <blur name="blur_vector2" type="vector2">
+      <input name="in" type="vector2" nodename="tiledimage1" />
+      <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="box" />
     </blur>
-    <output name="out" type="color3" nodename="blur2" />
+    <output name="blur_vector2_out" type="vector2" nodename="blur_vector2" />
   </nodegraph>
-  <nodegraph name="blur_float_cellnoise" type="" xpos="6.95067" ypos="17.8001">
-    <cellnoise2d name="cellnoise2d1" type="float" xpos="5.75172" ypos="9.2">
-      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
+  <nodegraph name="blur_vector3">
+    <tiledimage name="tiledimage1" type="vector3">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+    </tiledimage>
+    <blur name="blur_vector3" type="vector3">
+      <input name="in" type="vector3" nodename="tiledimage1" />
+      <input name="size" type="float" value="0.5" />
+      <input name="filtertype" type="string" value="box" />
+    </blur>
+    <output name="blur_vector3_out" type="vector3" nodename="blur_vector3" />
+  </nodegraph>
+  <nodegraph name="blur_vector4">
+    <tiledimage name="tiledimage1" type="vector4">
+      <input name="file" type="filename" value="resources/Images/grid.png" />
+    </tiledimage>
+    <blur name="blur_vector4" type="vector4">
+      <input name="in" type="vector4" nodename="tiledimage1" />
+      <input name="size" type="float" value="0.5" />
+      <input name="filtertype" type="string" value="box" />
+    </blur>
+    <output name="blur_vector4_out" type="vector4" nodename="blur_vector4" />
+  </nodegraph>
+  <nodegraph name="blur_cellnoise">
+    <texcoord name="texcoord1" type="vector2" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
+      <input name="in2" type="float" value="100" />
+    </multiply>
+    <cellnoise2d name="cellnoise2d1" type="float">
+      <input name="texcoord" type="vector2" nodename="multiply1" />
     </cellnoise2d>
-    <blur name="blur3" type="float" xpos="7.23448" ypos="9.2">
-      <input name="in" type="float" value="0.0" nodename="cellnoise2d1" />
-      <input name="size" type="float" value="0.7000" />
-      <input name="filtertype" type="string" value="box" />
-    </blur>
-    <output name="out" type="float" nodename="blur3" />
-    <texcoord name="texcoord1" type="vector2" xpos="2.78621" ypos="10.3">
-      <input name="index" type="integer" value="0" />
-    </texcoord>
-    <multiply name="multiply1" type="vector2" xpos="4.26897" ypos="9.76">
-      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
-      <input name="in2" type="vector2" value="100.0000, 100.0000" />
-    </multiply>
-  </nodegraph>
-  <nodegraph name="blur_noise" type="" xpos="6.92883" ypos="15.5156">
-    <blur name="blur1" type="vector2" xpos="7.24668" ypos="8.96">
-      <input name="in" type="vector2" value="0.0, 1.0" nodename="noise2d1" />
-      <input name="size" type="float" value="0.1000" />
-      <input name="filtertype" type="string" value="box" />
-    </blur>
-    <noise2d name="noise2d1" type="vector2" xpos="5.82162" ypos="10.035">
-      <input name="amplitude" type="vector2" value="1.0000, 2.0000" />
-      <input name="pivot" type="float" value="0.4000" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
-    </noise2d>
-    <output name="out" type="vector2" nodename="blur1" />
-    <texcoord name="texcoord1" type="vector2" xpos="2.78621" ypos="10.58">
-      <input name="index" type="integer" value="0" />
-    </texcoord>
-    <multiply name="multiply1" type="vector2" xpos="4.26897" ypos="9.98694">
-      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
-      <input name="in2" type="vector2" value="50.0000, 50.0000" />
-    </multiply>
-  </nodegraph>
-  <nodegraph name="blur_color2" type="" xpos="8.36983" ypos="14.1887">
-    <image name="image1" type="vector2" xpos="4.72893" ypos="14.7138">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="layer" type="string" value="" />
-      <input name="default" type="vector2" value="0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="framerange" type="string" value="" />
-      <input name="frameoffset" type="integer" value="0" />
-      <input name="frameendaction" type="string" value="constant" />
-    </image>
-    <output name="out" type="vector2" nodename="blur1" />
-    <blur name="blur1" type="vector2" xpos="6.00592" ypos="14.0457">
-      <input name="in" type="vector2" value="0.0, 1.0" nodename="image1" />
-      <input name="size" type="float" value="1.0000" />
-      <input name="filtertype" type="string" value="box" />
-    </blur>
-  </nodegraph>
-  <nodegraph name="blur_vector2" type="" xpos="8.44298" ypos="19.7465">
-    <tiledimage name="tiledimage1" type="vector2" xpos="4.36194" ypos="5.05426">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="vector2" value="0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-      <input name="uvtiling" type="vector2" value="0.2000, 0.2000" />
-      <input name="uvoffset" type="vector2" value="0.0, 0.0" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="framerange" type="string" value="" />
-      <input name="frameoffset" type="integer" value="0" />
-      <input name="frameendaction" type="string" value="constant" />
-    </tiledimage>
-    <output name="out" type="vector2" nodename="blur1" />
-    <blur name="blur1" type="vector2" xpos="5.62498" ypos="7.67688">
-      <input name="in" type="vector2" value="0.0, 0.0" nodename="tiledimage1" />
-      <input name="size" type="float" value="0.4000" />
+    <blur name="blur_cellnoise" type="float">
+      <input name="in" type="float" nodename="cellnoise2d1" />
+      <input name="size" type="float" value="0.5" />
       <input name="filtertype" type="string" value="gaussian" />
     </blur>
-  </nodegraph>
-  <nodegraph name="blur_vector3" type="" xpos="8.44785" ypos="21.4295">
-    <tiledimage name="tiledimage1" type="vector3" xpos="4.82888" ypos="5.20368">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-      <input name="uvtiling" type="vector2" value="0.1000, 0.1000" />
-      <input name="uvoffset" type="vector2" value="0.0, 0.0" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="framerange" type="string" value="" />
-      <input name="frameoffset" type="integer" value="0" />
-      <input name="frameendaction" type="string" value="constant" />
-    </tiledimage>
-    <output name="out" type="vector3" nodename="blur1" />
-    <blur name="blur1" type="vector3" xpos="6.08171" ypos="7.48624">
-      <input name="in" type="vector3" value="0.0, 0.0, 0.0" nodename="tiledimage1" />
-      <input name="size" type="float" value="0.1000" />
-      <input name="filtertype" type="string" value="box" />
-    </blur>
-  </nodegraph>
-  <nodegraph name="blur_color4" type="" xpos="8.4381" ypos="17.7808">
-    <blur name="blur1" type="color4" xpos="6.57318" ypos="7.01756">
-      <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" nodename="tiledimage1" />
-      <input name="size" type="float" value="0.3000" />
-      <input name="filtertype" type="string" value="gaussian" />
-    </blur>
-    <tiledimage name="tiledimage1" type="color4" xpos="5.38269" ypos="7.44224">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-      <input name="uvtiling" type="vector2" value="0.2000, 0.2000" />
-      <input name="uvoffset" type="vector2" value="0.0, 0.0" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="framerange" type="string" value="" />
-      <input name="frameoffset" type="integer" value="0" />
-      <input name="frameendaction" type="string" value="constant" />
-    </tiledimage>
-    <output name="out" type="color4" nodename="blur1" />
-  </nodegraph>
-  <nodegraph name="blur_vector4" type="" xpos="8.46248" ypos="23.2538">
-    <blur name="blur1" type="vector4" xpos="6.46253" ypos="8.25236">
-      <input name="in" type="vector4" value="0.0, 0.0, 0.0, 1.0" nodename="tiledimage1" />
-      <input name="size" type="float" value="0.3000" />
-      <input name="filtertype" type="string" value="gaussian" />
-    </blur>
-    <tiledimage name="tiledimage1" type="vector4" xpos="5.45428" ypos="6.50982">
-      <input name="file" type="filename" value="resources/Images/marble.png" />
-      <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" />
-      <input name="uvtiling" type="vector2" value="0.4000, 0.4000" />
-      <input name="uvoffset" type="vector2" value="0.0, 0.0" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="framerange" type="string" value="" />
-      <input name="frameoffset" type="integer" value="0" />
-      <input name="frameendaction" type="string" value="constant" />
-    </tiledimage>
-    <output name="out" type="vector4" nodename="blur1" />
+    <output name="blur_cellnoise_out" type="float" nodename="blur_cellnoise" />
   </nodegraph>
 </materialx>
