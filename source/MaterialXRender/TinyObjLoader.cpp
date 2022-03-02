@@ -160,7 +160,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
     mesh->setSphereCenter(sphereCenter);
     mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
-    if (normalStream)
+    if (normalsFound)
     {
         mesh->addStream(normalStream);
     }
