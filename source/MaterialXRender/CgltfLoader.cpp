@@ -136,45 +136,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
-
-            Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
-            Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
-
-            // Create a unique name for the mesh. Prepend transform name
-            // if the mesh is instanced.
-            string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
-            if (meshName.empty())
-            {
-                meshName = MeshPrefix + std::to_string(m);
-            }
-            if (positionMatrices.size() > 1)
-            {
-                meshName = TransformPrefix + std::to_string(mtx) + NAME_PATH_SEPARATOR + meshName;
-            }
-            while (meshNames.count(meshName))
-            {
-                meshName = incrementName(meshName);
-            }
-            meshNames.insert(meshName);
-
-            MeshPtr mesh = Mesh::create(meshName);
-            if (_debugLevel > 0)
-            {
-                std::cout << "Translate mesh: " << meshName << std::endl;
-            }
-            meshList.push_back(mesh);
-            mesh->setSourceUri(filePath);
-
-            MeshStreamPtr positionStream = nullptr;
-            MeshStreamPtr normalStream = nullptr;
-            MeshStreamPtr colorStream = nullptr;
-            MeshStreamPtr texcoordStream = nullptr;
-            MeshStreamPtr tangentStream = nullptr;
-
+            
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
                 cgltf_primitive* primitive = &cmesh->primitives[primitiveIndex];
-
                 if (!primitive)
                 {
                     continue;
@@ -188,6 +153,44 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                     continue;
                 }
+
+                Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
+                Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
+
+                // Create a unique name for the mesh. Prepend transform name
+                // if the mesh is instanced, and append partition name.
+                string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
+                if (meshName.empty())
+                {
+                    meshName = MeshPrefix + std::to_string(m);
+                }
+                if (positionMatrices.size() > 1)
+                {
+                    meshName = TransformPrefix + std::to_string(mtx) + NAME_PATH_SEPARATOR + meshName;
+                }
+                if (cmesh->primitives_count > 1)
+                {
+                    meshName += NAME_PATH_SEPARATOR + "part_" + std::to_string(primitiveIndex);
+                }
+                while (meshNames.count(meshName))
+                {
+                    meshName = incrementName(meshName);
+                }
+                meshNames.insert(meshName);
+
+                MeshPtr mesh = Mesh::create(meshName);
+                if (_debugLevel > 0)
+                {
+                    std::cout << "Translate mesh: " << meshName << std::endl;
+                }
+                meshList.push_back(mesh);
+                mesh->setSourceUri(filePath);
+
+                MeshStreamPtr positionStream = nullptr;
+                MeshStreamPtr normalStream = nullptr;
+                MeshStreamPtr colorStream = nullptr;
+                MeshStreamPtr texcoordStream = nullptr;
+                MeshStreamPtr tangentStream = nullptr;
 
                 // Read in vertex streams
                 for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
@@ -370,34 +373,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 }
                 mesh->addPartition(part);
 
-                // Create some texture coordiantes if none provided
-                if (!texcoordStream && positionStream)
-                {
-                    texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
-                    texcoordStream->setStride(MeshStream::STRIDE_2D);
-                    texcoordStream->resize(positionStream->getData().size() / MeshStream::STRIDE_3D);
-                    std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
-                    mesh->addStream(texcoordStream);
-                }
-
-                // Generate normals if none provided
-                if (!normalStream && positionStream)
-                {
-                    normalStream = mesh->generateNormals(positionStream);
-                    mesh->addStream(normalStream);
-                }
-
-                // Generate tangents if none provided
-                if (!tangentStream && texcoordStream && positionStream && normalStream)
-                {
-                    tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
-                    if (tangentStream)
-                    {
-                        mesh->addStream(tangentStream);
-                    }
-                }
-
-                // Assign properties to mesh.
+                // Update positional information.
                 if (positionStream)
                 {
                     mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
@@ -407,6 +383,16 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
                 mesh->setSphereCenter(sphereCenter);
                 mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
+
+                // Generate tangents, normals and texture coordinates if none provided
+                if (!tangentStream && positionStream)
+                {
+                    tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                    if (tangentStream)
+                    {
+                        mesh->addStream(tangentStream);
+                    }
+                }
             }
         }
     }
