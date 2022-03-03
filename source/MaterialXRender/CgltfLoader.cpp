@@ -41,11 +41,9 @@ const size_t FACE_VERTEX_COUNT = 3;
 // List of transforms which match to meshes
 using GLTFMeshMatrixList = std::unordered_map<cgltf_mesh*, std::vector<Matrix44>>;
 
-// Compute matrices for each mesh. Does not support transform instancing.
+// Compute matrices for each mesh. Appends a transform for each transform instance
 void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
 {
-    string indent;
-
     cgltf_mesh* cmesh = cnode->mesh;
     if (cmesh)
     {
@@ -58,13 +56,13 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
             (float) t[12], (float) t[13], (float) t[14], (float) t[15]);
         meshMatrices[cmesh].push_back(positionMatrix);
     }
-    else
+
+    // Iterate over all children. Note that the existence of a mesh
+    // does not imply that this is a leaf node so traversal should 
+    // continue even when a mesh is encountered.
+    for (cgltf_size i = 0; i < cnode->children_count; i++)
     {
-        // Iterate over all children.
-        for (cgltf_size i = 0; i < cnode->children_count; i++)
-        {
-            computeMeshMatrices(meshMatrices, cnode->children[i]);
-        }
+        computeMeshMatrices(meshMatrices, cnode->children[i]);
     }
 }
 
@@ -96,7 +94,8 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         return false;
     }
 
-    // Precompute mesh / matrix associations
+    // Precompute mesh / matrix associations starting from the root
+    // of the scene.
     GLTFMeshMatrixList gltfMeshMatrixList;
     for (cgltf_size sceneIndex = 0; sceneIndex < data->scenes_count; ++sceneIndex)
     {
@@ -133,6 +132,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             positionMatrices.push_back(Matrix44::IDENTITY);
         }
 
+        // Iterate through all parent transform
         for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
