@@ -11,6 +11,13 @@
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
+  <!-- <surface> -->
+  <implementation name="IM_surface_unlit_genosl" nodedef="ND_surface_unlit" file="stdlib/genosl/mx_surface_unlit.osl" function="mx_surface_unlit" target="genosl" />
+
+  <!-- ======================================================================== -->
+  <!-- Texture nodes                                                            -->
+  <!-- ======================================================================== -->
+
   <!-- <image> -->
   <implementation name="IM_image_float_genosl" nodedef="ND_image_float" file="stdlib/genosl/mx_image_float.osl" function="mx_image_float" target="genosl">
     <input name="default" type="float" implname="default_value" />

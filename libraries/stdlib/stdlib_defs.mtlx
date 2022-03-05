@@ -97,6 +97,20 @@
   </nodedef>
 
   <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!-- Surface shader -->
+  <nodedef name="ND_surface_std" node="surface" nodegroup="shader" doc="Construct a surface shader from emission and transmission values.">
+    <input name="emission" type="float" value="1.0" doc="Surface emission amount." />
+    <input name="emission_color" type="color3" value="0,0,0" doc="Surface emission color." />
+    <input name="transmission" type="float" value="0.0" doc="Surface transmission amount." />
+    <input name="transmission_color" type="color3" value="1,1,1" doc="Surface transmission color." />
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity." />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
