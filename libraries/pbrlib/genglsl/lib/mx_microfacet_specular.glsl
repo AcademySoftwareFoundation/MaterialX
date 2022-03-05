@@ -1,5 +1,33 @@
 #include "pbrlib/genglsl/lib/mx_microfacet.glsl"
 
+// Fresnel model options.
+const int FRESNEL_MODEL_DIELECTRIC = 0;
+const int FRESNEL_MODEL_CONDUCTOR = 1;
+const int FRESNEL_MODEL_SCHLICK = 2;
+const int FRESNEL_MODEL_AIRY = 3;
+
+// XYZ to CIE 1931 RGB color space (using neutral E illuminant)
+const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
+
+// Parameters for Fresnel calculations.
+struct FresnelData
+{
+    int model;
+
+    // Physical Fresnel
+    vec3 ior;
+    vec3 extinction;
+
+    // Generalized Schlick Fresnel
+    vec3 F0;
+    vec3 F90;
+    float exponent;
+
+    // Thin film
+    float tf_thickness;
+    float tf_ior;
+};
+
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Appendix B.2 Equation 13
 float mx_ggx_NDF(vec3 H, vec2 alpha)
@@ -79,31 +107,31 @@ float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
-vec3 mx_ggx_dir_albedo_analytic(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_analytic(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
     float x = NdotV;
-    float y = roughness;
-    float x2 = mx_square(NdotV);
-    float y2 = mx_square(roughness);
-    vec4 r = vec4(0.10901, 0.92163, 1.0, 1.0) +
-             vec4(-0.72019, -2.29412, -1.81963, -0.02130) * x +
-             vec4(9.54750, 1.78914, 8.10489, 15.21516) * y +
-             vec4(-0.93177, -2.62475, 12.89250, -45.75644) * x * y +
-             vec4(29.60456, 1.40796, 29.11995, 13.53548) * x2 +
-             vec4(-8.10263, -0.48479, -7.40042, 34.87345) * y2 +
-             vec4(-27.96958, 0.71494, -36.69717, 26.50811) * x2 * y +
-             vec4(18.28144, -0.50156, 13.79722, 253.01230) * x * y2 +
-             vec4(-4.85579, 1.22080, 32.57057, -162.71012) * x2 * y2;
-    vec2 AB = r.xy / r.zw;
+    float y = alpha;
+    float x2 = mx_square(x);
+    float y2 = mx_square(y);
+    vec4 r = vec4(0.1003, 0.9345, 1.0, 1.0) +
+             vec4(-0.6303, -2.323, -1.765, 0.2281) * x +
+             vec4(9.748, 2.229, 8.263, 15.94) * y +
+             vec4(-2.038, -3.748, 11.53, -55.83) * x * y +
+             vec4(29.34, 1.424, 28.96, 13.08) * x2 +
+             vec4(-8.245, -0.7684, -7.507, 41.26) * y2 +
+             vec4(-26.44, 1.436, -36.11, 54.9) * x2 * y +
+             vec4(19.99, 0.2913, 15.86, 300.2) * x * y2 +
+             vec4(-5.448, 0.6286, 33.37, -285.1) * x2 * y2;
+    vec2 AB = clamp(r.xy / r.zw, 0.0, 1.0);
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
     if (textureSize($albedoTable, 0).x > 1)
     {
-        vec2 AB = texture($albedoTable, vec2(NdotV, roughness)).rg;
+        vec2 AB = texture($albedoTable, vec2(NdotV, alpha)).rg;
         return F0 * AB.x + F90 * AB.y;
     }
 #endif
@@ -111,10 +139,10 @@ vec3 mx_ggx_dir_albedo_table_lookup(float NdotV, float roughness, vec3 F0, vec3 
 }
 
 // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
-vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
-    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
+    vec3 V = vec3(sqrt(1.0 - mx_square(NdotV)), 0, NdotV);
 
     vec2 AB = vec2(0.0);
     const int SAMPLE_COUNT = 64;
@@ -123,7 +151,7 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         vec2 Xi = mx_spherical_fibonacci(i, SAMPLE_COUNT);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(roughness));
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(alpha));
         vec3 L = -reflect(V, H);
         
         // Compute dot products for this sample.
@@ -133,48 +161,54 @@ vec3 mx_ggx_dir_albedo_monte_carlo(float NdotV, float roughness, vec3 F0, vec3 F
         // Compute the Fresnel term.
         float Fc = mx_fresnel_schlick(VdotH, 0.0, 1.0);
 
-        // Compute the sample weight, combining the geometric term, BRDF denominator, and PDF.
+        // Compute the per-sample geometric term.
         // https://hal.inria.fr/hal-00996995v2/document, Algorithm 2
-        float weight = mx_ggx_smith_G2(NdotL, NdotV, roughness) / mx_ggx_smith_G1(NdotV, roughness);
+        float G2 = mx_ggx_smith_G2(NdotL, NdotV, alpha);
         
         // Add the contribution of this sample.
-        AB += vec2(weight * (1.0 - Fc), weight * Fc);
+        AB += vec2(G2 * (1.0 - Fc), G2 * Fc);
     }
 
-    // Normalize integrated terms.
-    AB /= float(SAMPLE_COUNT);
+    // Apply the global component of the geometric term and normalize.
+    AB /= mx_ggx_smith_G1(NdotV, alpha) * float(SAMPLE_COUNT);
 
     // Return the final directional albedo.
     return F0 * AB.x + F90 * AB.y;
 }
 
-vec3 mx_ggx_dir_albedo(float NdotV, float roughness, vec3 F0, vec3 F90)
+vec3 mx_ggx_dir_albedo(float NdotV, float alpha, vec3 F0, vec3 F90)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 0
-    return mx_ggx_dir_albedo_analytic(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_analytic(NdotV, alpha, F0, F90);
 #elif DIRECTIONAL_ALBEDO_METHOD == 1
-    return mx_ggx_dir_albedo_table_lookup(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_table_lookup(NdotV, alpha, F0, F90);
 #else
-    return mx_ggx_dir_albedo_monte_carlo(NdotV, roughness, F0, F90);
+    return mx_ggx_dir_albedo_monte_carlo(NdotV, alpha, F0, F90);
 #endif
 }
 
-float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float alpha, float F0, float F90)
 {
-    return mx_ggx_dir_albedo(NdotV, roughness, vec3(F0), vec3(F90)).x;
+    return mx_ggx_dir_albedo(NdotV, alpha, vec3(F0), vec3(F90)).x;
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
-vec3 mx_ggx_energy_compensation(float NdotV, float roughness, vec3 Fss)
+vec3 mx_ggx_energy_compensation(float NdotV, float alpha, vec3 Fss)
 {
-    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, alpha, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
-float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
+float mx_ggx_energy_compensation(float NdotV, float alpha, float Fss)
 {
-    return mx_ggx_energy_compensation(NdotV, roughness, vec3(Fss)).x;
+    return mx_ggx_energy_compensation(NdotV, alpha, vec3(Fss)).x;
+}
+
+// Compute the average of an anisotropic alpha pair.
+float mx_average_alpha(vec2 alpha)
+{
+    return sqrt(alpha.x * alpha.y);
 }
 
 // Convert a real-valued index of refraction to normal-incidence reflectivity.
@@ -202,18 +236,27 @@ float mx_fresnel_dielectric(float cosTheta, float ior)
     return 0.5 * x * x * (1.0 + y * y);
 }
 
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 {
-   float c2 = cosTheta*cosTheta;
-   vec3 n2_k2 = n*n + k*k;
-   vec3 nc2 = 2.0 * n * cosTheta;
+    cosTheta = clamp(cosTheta, 0.0, 1.0);
+    float cosTheta2 = cosTheta * cosTheta;
+    float sinTheta2 = 1.0 - cosTheta2;
+    vec3 n2 = n * n;
+    vec3 k2 = k * k;
 
-   vec3 rs_a = n2_k2 + c2;
-   vec3 rp_a = n2_k2 * c2 + 1.0;
-   vec3 rs = (rs_a - nc2) / (rs_a + nc2);
-   vec3 rp = (rp_a - nc2) / (rp_a + nc2);
+    vec3 t0 = n2 - k2 - sinTheta2;
+    vec3 a2plusb2 = sqrt(t0 * t0 + 4.0 * n2 * k2);
+    vec3 t1 = a2plusb2 + cosTheta2;
+    vec3 a = sqrt(max(0.5 * (a2plusb2 + t0), 0.0));
+    vec3 t2 = 2.0 * a * cosTheta;
+    vec3 rs = (t1 - t2) / (t1 + t2);
 
-   return 0.5 * (rs + rp);
+    vec3 t3 = cosTheta2 * a2plusb2 + sinTheta2 * sinTheta2;
+    vec3 t4 = t2 * sinTheta2;
+    vec3 rp = rs * (t3 - t4) / (t3 + t4);
+
+    return 0.5 * (rp + rs);
 }
 
 // Fresnel for dielectric/dielectric interface and polarized light.
@@ -262,9 +305,6 @@ void mx_fresnel_conductor_polarized(float cosTheta, float n1, float n2, float k,
             (mx_square(mx_square(n2) * (1.0 - mx_square(k)) * cosTheta + n1*U) + mx_square(2.0 * mx_square(n2) * k * cosTheta + n1*V));
     phi.x = atan(2.0 * n1 * mx_square(n2) * cosTheta * (2.0*k*U - (1.0 - mx_square(k)) * V), mx_square(mx_square(n2) * (1.0 + mx_square(k)) * cosTheta) - mx_square(n1) * (mx_square(U) + mx_square(V)));
 }
-
-// XYZ to CIE 1931 RGB color space (using neutral E illuminant)
-const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
 
 // Depolarization functions for natural light
 float mx_depolarize(vec2 v)
@@ -345,64 +385,48 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     return R;
 }
 
-// Parameters for Fresnel calculations.
-struct FresnelData
+FresnelData mx_init_fresnel_data(int model)
 {
-    vec3 ior;        // In Schlick Fresnel mode these two
-    vec3 extinction; // hold F0 and F90 reflectance values
-    float exponent;
-    float tf_thickness;
-    float tf_ior;
-    int model;
-};
+    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0);
+}
 
 FresnelData mx_init_fresnel_dielectric(float ior)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 0;
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_DIELECTRIC);
     fd.ior = vec3(ior);
-    fd.tf_thickness = 0.0f;
     return fd;
 }
 
 FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 1;
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_CONDUCTOR);
     fd.ior = ior;
     fd.extinction = extinction;
-    fd.tf_thickness = 0.0f;
     return fd;
 }
 
 FresnelData mx_init_fresnel_schlick(vec3 F0)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 2;
-    fd.ior = F0;
-    fd.extinction = vec3(1.0);
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
+    fd.F0 = F0;
+    fd.F90 = vec3(1.0);
     fd.exponent = 5.0f;
-    fd.tf_thickness = 0.0f;
     return fd;
 }
 
 FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 2;
-    fd.ior = F0;
-    fd.extinction = F90;
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
+    fd.F0 = F0;
+    fd.F90 = F90;
     fd.exponent = exponent;
-    fd.tf_thickness = 0.0f;
     return fd;
 }
 
 FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 3;
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_AIRY);
     fd.ior = vec3(ior);
-    fd.extinction = vec3(0.0);
     fd.tf_thickness = tf_thickness;
     fd.tf_ior = tf_ior;
     return fd;
@@ -410,8 +434,7 @@ FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float
 
 FresnelData mx_init_fresnel_conductor_airy(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = FresnelData(vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, -1);
-    fd.model = 3;
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_AIRY);
     fd.ior = ior;
     fd.extinction = extinction;
     fd.tf_thickness = tf_thickness;
@@ -421,15 +444,22 @@ FresnelData mx_init_fresnel_conductor_airy(vec3 ior, vec3 extinction, float tf_t
 
 vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
 {
-    if (fd.model == 0)
+    if (fd.model == FRESNEL_MODEL_DIELECTRIC)
+    {
         return vec3(mx_fresnel_dielectric(cosTheta, fd.ior.x));
-    else if (fd.model == 1)
+    }
+    else if (fd.model == FRESNEL_MODEL_CONDUCTOR)
+    {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
-    else if (fd.model == 2)
-        // ior & extinction holds F0 & F90
-        return mx_fresnel_schlick(cosTheta, fd.ior, fd.extinction, fd.exponent);
+    }
+    else if (fd.model == FRESNEL_MODEL_SCHLICK)
+    {
+        return mx_fresnel_schlick(cosTheta, fd.F0, fd.F90, fd.exponent);
+    }
     else
+    {
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior);
+    }
 }
 
 vec2 mx_latlong_projection(vec3 dir)

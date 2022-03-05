@@ -272,17 +272,14 @@ Viewer::Viewer(const std::string& materialFilename,
     set_background(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
 
     // Set default Glsl generator options.
-    _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
-    _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
+    _genContext.getOptions().hwShadowMap = true;
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
-    _genContextEssl.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
 
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
@@ -889,16 +886,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* referenceQualityBox = new ng::CheckBox(advancedPopup, "Reference Quality");
-    referenceQualityBox->set_checked(false);
-    referenceQualityBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_MONTE_CARLO : mx::DIRECTIONAL_ALBEDO_TABLE;
-        // There is no Albedo Table support for Essl currently. Always set to curve fit.
-        _genContextEssl.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_ANALYTIC;
-        reloadShaders();
-    });
-
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
@@ -906,6 +893,20 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
         reloadShaders();
+    });
+
+    Widget* albedoGroup = new Widget(advancedPopup);
+    albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(albedoGroup, "Albedo Method:");
+    mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
+    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
+    albedoBox->set_chevron_icon(-1);
+    albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
+    albedoBox->set_callback([this](int index)
+    {
+        _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
+        reloadShaders();
+        updateAlbedoTable();
     });
 
     Widget* sampleGroup = new Widget(advancedPopup);
@@ -1819,9 +1820,6 @@ void Viewer::renderFrame()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
-
-    // Update shading tables
-    updateAlbedoTable();
 
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
