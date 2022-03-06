@@ -422,7 +422,7 @@ void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContex
 {
     emitScopeBegin(stage, punc);
 
-    if (node.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (node.hasClassification(ShaderNode::Classification::SHADER) || node.hasClassification(ShaderNode::Classification::CLOSURE))
     {
         emitLine("closure color null_closure = 0", stage);
     }

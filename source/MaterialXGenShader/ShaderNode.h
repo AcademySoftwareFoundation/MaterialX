@@ -349,12 +349,13 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
         static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
         static const uint32_t LIGHT         = 1 << 15; /// A light shader node
+        static const uint32_t UNLIT         = 1 << 16; /// A unlit surface shader node
         // Specific conditional types
-        static const uint32_t IFELSE        = 1 << 16; /// An if-else statement
-        static const uint32_t SWITCH        = 1 << 17; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 17; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 18; /// A switch statement
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 18; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 19; /// Can be sampled in 3D (position)
+        static const uint32_t SAMPLE2D      = 1 << 19; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 20; /// Can be sampled in 3D (position)
     };
 
     /// @struct ScopeInfo

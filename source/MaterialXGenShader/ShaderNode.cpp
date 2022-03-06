@@ -302,7 +302,14 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->getType() == Type::SURFACESHADER)
     {
-        newNode->_classification = Classification::SURFACE | Classification::SHADER | Classification::CLOSURE;
+        if (nodeDef.getName() == "ND_surface_unlit")
+        {
+            newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::UNLIT;
+        }
+        else
+        {
+            newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::CLOSURE;
+        }
     }
     else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {

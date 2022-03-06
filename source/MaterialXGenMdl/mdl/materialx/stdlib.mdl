@@ -23,6 +23,7 @@ import ::math::*;
 import ::tex::*;
 import ::state::*;
 import ::anno::*;
+import ::df::*;
 
 // NOTE: To insulate MaterialX names from MDL names, in particular 
 //       conflicts with MDL reserved names, all node names, type names 
@@ -31,6 +32,29 @@ import ::anno::*;
 
 // NOTE: We use the ::anno::unused() annotation to mark unsupported parameters
 
+
+// Shader Nodes
+
+export material mx_surface_unlit(
+    float mxp_emission = 0.0,
+    color mxp_emission_color = color(1.0, 1.0, 1.0),
+    float mxp_transmission = 0.0,
+    color mxp_transmission_color = color(1.0, 1.0, 1.0),
+    float mxp_opacity = 1.0
+)
+= let {
+    bsdf              bsdf_node = df::specular_bsdf(mxp_transmission * mxp_transmission_color, df::scatter_transmit);
+    material_emission edf_node  = material_emission(df::diffuse_edf(), mxp_emission * mxp_emission_color * math::PI);
+} in material(
+    thin_walled: true,
+    surface: material_surface(
+        scattering: bsdf_node,
+        emission: edf_node
+    ),
+    geometry: material_geometry(
+        cutout_opacity: mxp_opacity
+    )
+);
 
 // Texture Nodes
 
