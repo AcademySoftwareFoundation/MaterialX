@@ -57,6 +57,7 @@
 
   <surface name="unlit_surface1" type="surfaceshader">
     <input name="emission" type="float" nodename="checker1" />
+    <input name="opacity" type="float" value="1.0" />
   </surface>
   <surfacematerial name="unlit_mtrl1" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface1" />
@@ -74,6 +75,7 @@
     <input name="emission" type="float" nodename="checker1" />
     <input name="transmission" type="float" nodename="checker4" />
     <input name="transmission_color" type="color3" value="0.0, 0.0, 1.0" />
+    <input name="opacity" type="float" value="1.0" />
   </surface>
   <surfacematerial name="unlit_mtrl3" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface3" />

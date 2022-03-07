@@ -1,5 +1,5 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -16,8 +16,6 @@ class MX_GENGLSL_API UnlitSurfaceNodeGlsl : public GlslImplementation
 {
   public:
     static ShaderNodeImplPtr create();
-
-//    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };

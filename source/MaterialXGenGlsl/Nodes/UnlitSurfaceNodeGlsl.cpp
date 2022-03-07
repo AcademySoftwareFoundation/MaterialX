@@ -30,15 +30,6 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
         const string outColor = output->getVariable() + ".color";
         const string outTransparency = output->getVariable() + ".transparency";
 
-        if (context.getOptions().hwTransparency)
-        {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitString("float surfaceOpacity = ", stage);
-            shadergen.emitInput(node.getInput("opacity"), context, stage);
-            shadergen.emitLineEnd(stage);
-            shadergen.emitLineBreak(stage);
-        }
-
         const ShaderInput* emission = node.getInput("emission");
         const ShaderInput* emissionColor = node.getInput("emission_color");
         shadergen.emitLine(outColor + " = " + shadergen.getUpstreamResult(emission, context) + " * " + shadergen.getUpstreamResult(emissionColor, context), stage);
@@ -49,9 +40,10 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
             const ShaderInput* transmissionColor = node.getInput("transmission_color");
             shadergen.emitLine(outTransparency + " = " + shadergen.getUpstreamResult(transmission, context) + " * " + shadergen.getUpstreamResult(transmissionColor, context), stage);
 
-            shadergen.emitComment("Mix in opacity which affect the total result", stage);
-            shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
-            shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
+            const ShaderInput* opacity = node.getInput("opacity");
+            const string surfaceOpacity = shadergen.getUpstreamResult(opacity, context);
+            shadergen.emitLine(outColor + " *= " + surfaceOpacity, stage);
+            shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")", stage);
         }
         else
         {
