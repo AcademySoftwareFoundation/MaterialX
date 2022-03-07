@@ -16,7 +16,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-extern MX_RENDER_API const int DEFAULT_ENV_SAMPLES;
+extern MX_RENDER_API const int DEFAULT_ENV_SAMPLE_COUNT;
 
 class GenContext;
 
@@ -36,7 +36,7 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envSamples(DEFAULT_ENV_SAMPLES)
+        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT)
     {
     }
     virtual ~LightHandler() { }
@@ -123,16 +123,16 @@ class MX_RENDER_API LightHandler
         return _albedoTable;
     }
 
-    /// Set the number of environment lighting samples.
-    void setEnvSamples(int samples)
+    /// Set the environment lighting sample count.
+    void setEnvSampleCount(int count)
     {
-        _envSamples = samples;
+        _envSampleCount = count;
     }
 
-    /// Return the number of environment lighting samples.
-    int getEnvSamples() const
+    /// Return the environment lighting sample count.
+    int getEnvSampleCount() const
     {
-        return _envSamples;
+        return _envSampleCount;
     }
 
     /// @}
@@ -202,7 +202,7 @@ class MX_RENDER_API LightHandler
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
     ImagePtr _albedoTable;
-    int _envSamples;
+    int _envSampleCount;
 
     vector<NodePtr> _lightSources;
     std::unordered_map<string, unsigned int> _lightIdMap;
