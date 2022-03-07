@@ -1415,7 +1415,11 @@ void Viewer::saveShaderSource(mx::GenContext& context)
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+            const bool hasTransparency = mx::isTransparentSurface(elem, context.getShaderGenerator().getTarget());
+            mx::GenContext materialContext = context;
+            materialContext.getOptions().hwTransparency = hasTransparency;
+
+            mx::ShaderPtr shader = createShader(elem->getNamePath(), materialContext, elem);
             if (shader)
             {
                 mx::FilePath sourceFilename = getBaseOutputPath();
