@@ -33,7 +33,7 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
         const ShaderInput* emission = node.getInput("emission");
         const ShaderInput* emissionColor = node.getInput("emission_color");
         shadergen.emitLine(outColor + " = " + shadergen.getUpstreamResult(emission, context) + " * " + shadergen.getUpstreamResult(emissionColor, context), stage);
-
+        
         if (context.getOptions().hwTransparency)
         {
             const ShaderInput* transmission = node.getInput("transmission");
