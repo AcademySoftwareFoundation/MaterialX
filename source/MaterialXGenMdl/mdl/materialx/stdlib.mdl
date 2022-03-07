@@ -43,8 +43,9 @@ export material mx_surface_unlit(
     float mxp_opacity = 1.0
 )
 = let {
-    bsdf              bsdf_node = df::specular_bsdf(mxp_transmission * mxp_transmission_color, df::scatter_transmit);
-    material_emission edf_node  = material_emission(df::diffuse_edf(), mxp_emission * mxp_emission_color * math::PI);
+    float trans = math::clamp(mxp_transmission, 0.0, 1.0);
+    bsdf bsdf_node = df::specular_bsdf(trans * mxp_transmission_color, df::scatter_transmit);
+    material_emission edf_node = material_emission(df::diffuse_edf(), (1.0 - trans) * mxp_emission * mxp_emission_color * math::PI);
 } in material(
     thin_walled: true,
     surface: material_surface(
