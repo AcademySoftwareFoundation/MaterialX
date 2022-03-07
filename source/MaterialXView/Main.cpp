@@ -20,6 +20,7 @@ const std::string options =
 "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
+"    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
 "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
 "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
@@ -92,8 +93,9 @@ int main(int argc, char* const argv[])
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    int envSampleCount = mx::DEFAULT_ENV_SAMPLES;
+    int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
     float lightRotation = 0.0f;
+    bool shadowMap = true;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
@@ -158,6 +160,10 @@ int main(int argc, char* const argv[])
         else if (token == "--lightRotation")
         {
             parseToken(nextToken, "float", lightRotation);
+        }
+        else if (token == "--shadowMap")
+        {
+            parseToken(nextToken, "boolean", shadowMap);
         }
         else if (token == "--path")
         {
@@ -261,6 +267,7 @@ int main(int argc, char* const argv[])
         viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
+        viewer->setShadowMapEnable(shadowMap);
         viewer->setDocumentModifiers(modifiers);
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
