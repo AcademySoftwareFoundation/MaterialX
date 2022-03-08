@@ -78,13 +78,19 @@ class Viewer : public ng::Screen
     // Set the number of environment samples.
     void setEnvSampleCount(int count)
     {
-        _envSampleCount = count;
+        _lightHandler->setEnvSampleCount(count);
     }
 
     // Set the rotation of the lighting environment about the Y axis.
     void setLightRotation(float rotation)
     {
         _lightRotation = rotation;
+    }
+
+    // Enable or disable shadow maps.
+    void setShadowMapEnable(bool enable)
+    {
+        _genContext.getOptions().hwShadowMap = enable;
     }
 
     // Set the modifiers to be applied to loaded documents.
@@ -277,8 +283,6 @@ class Viewer : public ng::Screen
     mx::FilePath _lightRigFilename;
     mx::DocumentPtr _lightRigDoc;
     float _lightRotation;
-    bool _directLighting;
-    bool _indirectLighting;
 
     // Light processing options
     bool _normalizeEnvironment;
@@ -354,7 +358,6 @@ class Viewer : public ng::Screen
     bool _renderTransparency;
     bool _renderDoubleSided;
     bool _outlineSelection;
-    int _envSampleCount;
     bool _drawEnvironment;
 
     // Shader translation

@@ -58,7 +58,6 @@ jobs:
           compiler: clang
           compiler_version: "12"
           python: 3.9
-          test_render: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
@@ -189,7 +188,8 @@ jobs:
         python MaterialXTest/genshader.py
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
-        python Scripts/mxdoc.py ../libraries/pbrlib/pbrlib_defs.mtlx
+        python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
+        python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_gold.mtlx --path .. --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_copper.mtlx --path .. --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
@@ -218,8 +218,8 @@ jobs:
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
-        build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_BrassAverage.png
-        build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --captureFilename build/render/Viewer_CarpaintTranslated.png
+        build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename build/render/Viewer_BrassAverage.png
+        build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename build/render/Viewer_CarpaintTranslated.png
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'

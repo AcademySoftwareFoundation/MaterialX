@@ -136,6 +136,21 @@ TEST_CASE("Node", "[node]")
     REQUIRE(doc->getOutputs().empty());
 }
 
+TEST_CASE("Inheritance", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    const mx::FilePathVec libraryFolders;
+    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::loadLibraries(libraryFolders, libraryRoot, doc);
+    REQUIRE(doc->validate());
+    auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
+    REQUIRE(nodedef);
+    mx::NodePtr surfaceNode = doc->addNodeInstance(nodedef);
+    REQUIRE(surfaceNode);
+    mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular");
+    REQUIRE(specularInput);
+}
+
 TEST_CASE("Flatten", "[nodegraph]")
 {
     mx::FileSearchPath searchPath = "resources/Materials/Examples/Syntax" +
