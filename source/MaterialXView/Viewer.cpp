@@ -38,8 +38,8 @@ const float DEFAULT_CAMERA_ZOOM = 1.0f;
 namespace
 {
 
-const int MIN_ENV_SAMPLES = 4;
-const int MAX_ENV_SAMPLES = 1024;
+const int MIN_ENV_SAMPLE_COUNT = 4;
+const int MAX_ENV_SAMPLE_COUNT = 1024;
 
 const int SHADOW_MAP_SIZE = 2048;
 const int ALBEDO_TABLE_SIZE = 128;
@@ -218,8 +218,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _userCameraEnabled(true),
     _userTranslationActive(false),
     _lightRotation(0.0f),
-    _directLighting(true),
-    _indirectLighting(true),
     _normalizeEnvironment(false),
     _splitDirectLight(false),
     _generateReferenceIrradiance(false),
@@ -251,7 +249,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderTransparency(true),
     _renderDoubleSided(true),
     _outlineSelection(false),
-    _envSampleCount(mx::DEFAULT_ENV_SAMPLES),
     _drawEnvironment(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
@@ -793,17 +790,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     lightingLabel->set_font("sans-bold");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
-    directLightingBox->set_checked(_directLighting);
+    directLightingBox->set_checked(_lightHandler->getDirectLighting());
     directLightingBox->set_callback([this](bool enable)
     {
-        _directLighting = enable;
+        _lightHandler->setDirectLighting(enable);
     });
 
     ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
-    indirectLightingBox->set_checked(_indirectLighting);
+    indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
     indirectLightingBox->set_callback([this](bool enable)
     {
-        _indirectLighting = enable;
+        _lightHandler->setIndirectLighting(enable);
     });
 
     ng::CheckBox* normalizeEnvironmentBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
@@ -921,7 +918,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     sampleGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(sampleGroup, "Environment Samples:");
     mx::StringVec sampleOptions;
-    for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+    for (int i = MIN_ENV_SAMPLE_COUNT; i <= MAX_ENV_SAMPLE_COUNT; i *= 4)
     {
         m_process_events = false;
         sampleOptions.push_back(std::to_string(i));
@@ -929,10 +926,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     }
     ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
     sampleBox->set_chevron_icon(-1);
-    sampleBox->set_selected_index((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
+    sampleBox->set_selected_index((int)std::log2(_lightHandler->getEnvSampleCount() / MIN_ENV_SAMPLE_COUNT) / 2);
     sampleBox->set_callback([this](int index)
     {
-        _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
+        _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
     ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
@@ -1831,9 +1828,6 @@ void Viewer::renderFrame()
 
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
-    _lightHandler->setDirectLighting(_directLighting);
-    _lightHandler->setIndirectLighting(_indirectLighting);
-    _lightHandler->setEnvSamples(_envSampleCount);
 
     // Update shadow state.
     ShadowState shadowState;
