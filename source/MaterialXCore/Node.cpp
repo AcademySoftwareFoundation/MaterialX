@@ -140,7 +140,7 @@ Edge Node::getUpstreamEdge(size_t index) const
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const string* outputName = nullptr;
+    string outputName;
     const PortElementPtr port = connectingElement->asA<PortElement>();
     if (port)
     {
@@ -148,7 +148,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         // so get the name of the output connected to this
         // port. If no explicit output is specified this will
         // return an empty string which is handled below.
-        outputName = &port->getOutputString();
+        outputName = port->getOutputString();
 
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
@@ -161,7 +161,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
                 interfaceInput = connectedInput->getInterfaceInput();
                 if (interfaceInput)
                 {
-                    outputName = &(interfaceInput->getOutputString());
+                    outputName = interfaceInput->getOutputString();
                     output = interfaceInput->getConnectedOutput();
                 }
             }
@@ -175,22 +175,20 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
             if (connectedInput || 
                 output->getParent() == output->getDocument())
             {
-                // Use output's output string
-                const string& outputOutputString = output->getOutputString();
-                if (!outputOutputString.empty())
+                if (!output->getOutputString().empty())
                 {
-                    outputName = &outputOutputString;
+                    outputName = output->getOutputString();
                 }
             }
         }
     }
-    if (outputName && !outputName->empty())
+    if (!outputName.empty())
     {
         // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(*outputName);
+            return nodeDef->getActiveOutput(outputName);
         }
     }
     return OutputPtr();
