@@ -434,7 +434,10 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
             }
         }
     }
-
+    
+    // Add in token substitutions
+    resolver->addTokenSubstitutions(getSelf());
+  
     return resolver;
 }
 
@@ -537,6 +540,32 @@ bool ValueElement::validate(string* message) const
     {
         validateRequire(getValue() != nullptr, res, message, "Invalid value");
     }
+
+    if (hasInterfaceName())
+    {
+        validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
+        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
+        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
+        if (nodeDef)
+        {
+            ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            if (valueElem)
+            {
+                ConstPortElementPtr portElem = asA<PortElement>();
+                if (portElem && portElem->hasChannels())
+                {
+                    bool valid = portElem->validChannelsString(portElem->getChannels(), valueElem->getType(), getType());
+                    validateRequire(valid, res, message, "Invalid channels string for interface name");
+                }
+                else
+                {
+                    validateRequire(getType() == valueElem->getType(), res, message, "Interface name refers to value element of a different type");
+                }
+            }
+        }
+    }
+
     UnitTypeDefPtr unitTypeDef;
     if (hasUnitType())
     {
@@ -579,6 +608,34 @@ void StringResolver::setUdimString(const string& udim)
 void StringResolver::setUvTileString(const string& uvTile)
 {
     setFilenameSubstitution(UV_TILE_TOKEN, uvTile);
+}
+
+void StringResolver::addTokenSubstitutions(ConstElementPtr element)
+{
+    const string DELIMITER_PREFIX = "[";
+    const string DELIMITER_POSTFIX = "]";
+
+    // Travese from sibliings up until root is reached.
+    // Child tokens override any parent tokens.
+    ConstElementPtr parent = element->getParent();
+    while (parent)
+    {
+        ConstInterfaceElementPtr interfaceElem = parent->asA<InterfaceElement>();
+        if (interfaceElem)
+        {       
+            vector<TokenPtr> tokens = interfaceElem->getActiveTokens();
+            for (auto token : tokens)
+            {
+                string key = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
+                string value = token->getResolvedValueString();
+                if (!_filenameMap.count(key))
+                { 
+                    setFilenameSubstitution(key, value);
+                }
+            }
+        }
+        parent = parent->getParent();
+    }
 }
 
 string StringResolver::resolve(const string& str, const string& type) const

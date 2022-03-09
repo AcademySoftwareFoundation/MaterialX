@@ -1240,6 +1240,9 @@ class MX_CORE_API StringResolver
         _filenameMap[key] = value;
     }
 
+    /// Add filename token substitutions for a given element
+    void addTokenSubstitutions(ConstElementPtr element);
+
     /// Return the map of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const
     {
