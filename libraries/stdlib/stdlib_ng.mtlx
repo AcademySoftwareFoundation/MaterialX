@@ -1285,6 +1285,8 @@
     </remap>
     <clamp name="N_clamp_float" type="float">
       <input name="in" type="float" nodename="N_remap2_float" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_float" type="float">
       <input name="in1" type="float" nodename="N_clamp_float" />
@@ -1329,6 +1331,8 @@
     </remap>
     <clamp name="N_clamp_color3" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3" />
+      <input name="low" type="color3" interfacename="outlow" />
+      <input name="high" type="color3" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_color3" type="color3">
       <input name="in1" type="color3" nodename="N_clamp_color3" />
@@ -1373,6 +1377,8 @@
     </remap>
     <clamp name="N_clamp_color4" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4" />
+      <input name="low" type="color4" interfacename="outlow" />
+      <input name="high" type="color4" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_color4" type="color4">
       <input name="in1" type="color4" nodename="N_clamp_color4" />
@@ -1418,6 +1424,8 @@
     </remap>
     <clamp name="N_clamp_vector2" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2" />
+      <input name="low" type="vector2" interfacename="outlow" />
+      <input name="high" type="vector2" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector2" type="vector2">
       <input name="in1" type="vector2" nodename="N_clamp_vector2" />
@@ -1462,6 +1470,8 @@
     </remap>
     <clamp name="N_clamp_vector3" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3" />
+      <input name="low" type="vector3" interfacename="outlow" />
+      <input name="high" type="vector3" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector3" type="vector3">
       <input name="in1" type="vector3" nodename="N_clamp_vector3" />
@@ -1506,6 +1516,8 @@
     </remap>
     <clamp name="N_clamp_vector4" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4" />
+      <input name="low" type="vector4" interfacename="outlow" />
+      <input name="high" type="vector4" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector4" type="vector4">
       <input name="in1" type="vector4" nodename="N_clamp_vector4" />
@@ -1550,6 +1562,8 @@
     </remap>
     <clamp name="N_clamp_color3FA" type="color3">
       <input name="in" type="color3" nodename="N_remap2_color3FA" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_color3FA" type="color3">
       <input name="in1" type="color3" nodename="N_clamp_color3FA" />
@@ -1594,6 +1608,8 @@
     </remap>
     <clamp name="N_clamp_color4FA" type="color4">
       <input name="in" type="color4" nodename="N_remap2_color4FA" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_color4FA" type="color4">
       <input name="in1" type="color4" nodename="N_clamp_color4FA" />
@@ -1638,6 +1654,8 @@
     </remap>
     <clamp name="N_clamp_vector2FA" type="vector2">
       <input name="in" type="vector2" nodename="N_remap2_vector2FA" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector2FA" type="vector2">
       <input name="in1" type="vector2" nodename="N_clamp_vector2FA" />
@@ -1682,6 +1700,8 @@
     </remap>
     <clamp name="N_clamp_vector3FA" type="vector3">
       <input name="in" type="vector3" nodename="N_remap2_vector3FA" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector3FA" type="vector3">
       <input name="in1" type="vector3" nodename="N_clamp_vector3FA" />
@@ -1726,6 +1746,8 @@
     </remap>
     <clamp name="N_clamp_vector4FA" type="vector4">
       <input name="in" type="vector4" nodename="N_remap2_vector4FA" />
+      <input name="low" type="float" interfacename="outlow" />
+      <input name="high" type="float" interfacename="outhigh" />
     </clamp>
     <ifequal name="N_switch_vector4FA" type="vector4">
       <input name="in1" type="vector4" nodename="N_clamp_vector4FA" />
