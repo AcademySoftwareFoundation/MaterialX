@@ -155,7 +155,7 @@ class Material
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind the given mesh to this material.
-    void bindMesh(mx::MeshPtr mesh) const;
+    void bindMesh(mx::MeshPtr mesh);
 
     /// Bind a mesh partition to this material.
     bool bindPartition(mx::MeshPartitionPtr part) const;
@@ -164,7 +164,7 @@ class Material
     void drawPartition(mx::MeshPartitionPtr part) const;
 
     /// Unbind all geometry from this material.
-    void unbindGeometry() const;
+    void unbindGeometry();
 
     /// Return the block of public uniforms for this material.
     mx::VariableBlock* getPublicUniforms() const;
@@ -182,6 +182,8 @@ class Material
   protected:
     mx::ShaderPtr _hwShader;
     mx::GlslProgramPtr _glProgram;
+
+    mx::MeshPtr _boundMesh;
 
     mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;
