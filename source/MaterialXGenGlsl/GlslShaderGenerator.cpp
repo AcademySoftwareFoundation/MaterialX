@@ -486,10 +486,11 @@ const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& verte
 
 bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 {
-    return graph.hasClassification(ShaderNode::Classification::BSDF) ||
-        (graph.hasClassification(ShaderNode::Classification::SHADER) &&
-            graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-            !graph.hasClassification(ShaderNode::Classification::UNLIT));
+    bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+                              graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                              !graph.hasClassification(ShaderNode::Classification::UNLIT);
+    return isBsdf || isLitSurfaceShader;
 }
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
