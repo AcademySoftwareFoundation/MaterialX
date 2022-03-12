@@ -3,6 +3,7 @@
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXRender/CgltfLoader.h>
 #include <MaterialXRender/Harmonics.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -353,14 +354,16 @@ void Viewer::initialize()
     });
 
     // Create geometry handler.
-    mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
+    mx::TinyObjLoaderPtr objLoader = mx::TinyObjLoader::create();
+    mx::CgltfLoaderPtr gltfLoader = mx::CgltfLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
-    _geometryHandler->addLoader(loader);
+    _geometryHandler->addLoader(objLoader);
+    _geometryHandler->addLoader(gltfLoader);
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(loader);
+    _envGeometryHandler->addLoader(objLoader);
     mx::FilePath envSphere("resources/Geometry/sphere.obj");
     _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
 
@@ -607,7 +610,12 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
     meshButton->set_callback([this]()
     {
         m_process_events = false;
-        std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" } }, false);
+        std::string filename = ng::file_dialog(
+        {
+            { "obj", "Wavefront OBJ" },
+            { "gltf", "GLTF ASCII" },
+            { "glb", "GLTF Binary"} 
+        }, false);
         if (!filename.empty())
         {
             loadMesh(filename);

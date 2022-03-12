@@ -153,7 +153,7 @@ void Material::bindShader()
     }
 }
 
-void Material::bindMesh(mx::MeshPtr mesh) const
+void Material::bindMesh(mx::MeshPtr mesh)
 {
     if (!mesh || !_glProgram)
     {
@@ -161,7 +161,12 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     }
 
     _glProgram->bind();
+    if (_boundMesh && mesh->getName() != _boundMesh->getName())
+    {
+        _glProgram->unbindGeometry();
+    }
     _glProgram->bindMesh(mesh);
+    _boundMesh = mesh;
 }
 
 bool Material::bindPartition(mx::MeshPartitionPtr part) const
@@ -376,13 +381,14 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
     mx::checkGlErrors("after draw partition");
 }
 
-void Material::unbindGeometry() const
+void Material::unbindGeometry()
 {
     if (_glProgram)
     {
         _glProgram->bind();
         _glProgram->unbindGeometry();
     }
+    _boundMesh = nullptr;
 }
 
 mx::VariableBlock* Material::getPublicUniforms() const
