@@ -16,6 +16,7 @@
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightShaderNodeGlsl.h>
@@ -205,6 +206,8 @@ GlslShaderGenerator::GlslShaderGenerator() :
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
+    registerImplementation("IM_surface_unlit_" + GlslShaderGenerator::TARGET, UnlitSurfaceNodeGlsl::create);
+
     // <!-- <light> -->
     registerImplementation("IM_light_" + GlslShaderGenerator::TARGET, LightNodeGlsl::create);
 
@@ -483,8 +486,11 @@ const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& verte
 
 bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 {
-    return graph.hasClassification(ShaderNode::Classification::SHADER|ShaderNode::Classification::SURFACE) ||
-           graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+                              graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                              !graph.hasClassification(ShaderNode::Classification::UNLIT);
+    return isBsdf || isLitSurfaceShader;
 }
 
 void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const

@@ -1,0 +1,9 @@
+void mx_surface_unlit(float emission_weight, color emission_color, float transmission_weight, color transmission_color, float opacity, output surfaceshader result)
+{
+    float trans = clamp(transmission_weight, 0.0, 1.0);
+    closure color E = (1.0 - trans) * emission_weight * emission_color * emission();
+    closure color T = trans * transmission_color * transparent();
+    
+    float opac = clamp(opacity, 0.0, 1.0);
+    result = (1.0 - opac) * transparent() + opac * (E + T);
+}
