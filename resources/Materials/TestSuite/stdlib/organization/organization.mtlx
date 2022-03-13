@@ -10,16 +10,6 @@
       <input name="value" type="float" value="0.5000" />
     </constant>
   </nodegraph>
-  <nodegraph name="dot_color2">
-    <dot name="dot1" type="vector2">
-      <input name="in" type="vector2" nodename="constant1" />
-      <input name="note" type="string" value="" />
-    </dot>
-    <output name="out" type="vector2" nodename="dot1" />
-    <constant name="constant1" type="vector2">
-      <input name="value" type="vector2" value="0.5000, 1.0" />
-    </constant>
-  </nodegraph>
   <nodegraph name="dot_color3">
     <dot name="dot1" type="color3">
       <input name="in" type="color3" nodename="constant1" />

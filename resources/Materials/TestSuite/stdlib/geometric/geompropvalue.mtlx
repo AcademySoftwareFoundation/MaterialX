@@ -34,10 +34,6 @@
   <geompropvalue name="geompropvalue_float" type="float">
     <input name="geomprop" type="string" value="geompropvalue_float" />
   </geompropvalue>
-  <output name="geompropvalue_color2_out" type="vector2" nodename="geompropvalue_color2" />
-  <geompropvalue name="geompropvalue_color2" type="vector2">
-    <input name="geomprop" type="string" value="geompropvalue_color2" />
-  </geompropvalue>
   <output name="geompropvalue_color3_out" type="color3" nodename="geompropvalue_color3" />
   <geompropvalue name="geompropvalue_color3" type="color3">
     <input name="geomprop" type="string" value="geompropvalue_color3" />
