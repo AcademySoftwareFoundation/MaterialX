@@ -13,15 +13,6 @@
     </ifgreater>
     <output name="out" type="float" nodename="ifgreater1" />
   </nodegraph>
-  <nodegraph name="ifgreater_color2">
-    <ifgreater name="ifgreater1" type="vector2">
-      <input name="value1" type="float" value="0.8000" />
-      <input name="value2" type="float" value="0.6000" />
-      <input name="in1" type="vector2" value="1.0000, 1.0" />
-      <input name="in2" type="vector2" value="0.0, 0.0000" />
-    </ifgreater>
-    <output name="out" type="vector2" nodename="ifgreater1" />
-  </nodegraph>
   <nodegraph name="ifgreater_color3">
     <ifgreater name="ifgreater1" type="color3">
       <input name="value1" type="float" value="0.8000" />
@@ -76,15 +67,6 @@
     </ifequal>
     <output name="out" type="float" nodename="ifequal1" />
   </nodegraph>
-  <nodegraph name="ifequal_color2">
-    <ifequal name="ifequal1" type="vector2">
-      <input name="value1" type="float" value="0.8000" />
-      <input name="value2" type="float" value="0.8000" />
-      <input name="in1" type="vector2" value="1.0000, 1.0" />
-      <input name="in2" type="vector2" value="0.0, 0.0000" />
-    </ifequal>
-    <output name="out" type="vector2" nodename="ifequal1" />
-  </nodegraph>
   <nodegraph name="ifequal_color3">
     <ifequal name="ifequal1" type="color3">
       <input name="value1" type="float" value="0.8000" />
@@ -138,15 +120,6 @@
       <input name="in2" type="float" value="0.0" />
     </ifgreatereq>
     <output name="out" type="float" nodename="ifgreatereq1" />
-  </nodegraph>
-  <nodegraph name="ifgreatereq_color2">
-    <ifgreatereq name="ifgreatereq1" type="vector2">
-      <input name="value1" type="float" value="0.8000" />
-      <input name="value2" type="float" value="0.6000" />
-      <input name="in1" type="vector2" value="1.0000, 1.0" />
-      <input name="in2" type="vector2" value="0.0, 0.0000" />
-    </ifgreatereq>
-    <output name="out" type="vector2" nodename="ifgreatereq1" />
   </nodegraph>
   <nodegraph name="ifgreatereq_color3">
     <ifgreatereq name="ifgreatereq1" type="color3">
