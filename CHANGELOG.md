@@ -2,6 +2,21 @@
 
 ## [1.38.4] - Development
 
+### Added
+- Added [JavaScript bindings](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/javascript) for MaterialXCore, MaterialXFormat, and MaterialXGenGlsl.
+- Added a sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/), built and deployed through GitHub Actions.
+- Added new 'worleynoise2d' and 'worleynoise3d' nodes, with implementations in GLSL, OSL, and MDL.
+- Added support for the glTF geometry format in MaterialXRender and MaterialXView.
+
+### Changed
+- Moved the MaterialX project to the [Academy Software Foundation GitHub](https://github.com/AcademySoftwareFoundation/MaterialX).
+- Improved the accuracy of mx_ggx_dir_albedo_analytic and mx_fresnel_conductor in GLSL.
+
+### Fixed
+- Aligned GLSL and MDL implementations of 'fractal3d' with OSL.
+- Fixed MDL implementations of 'sheen_bsdf' and 'thin_film_bsdf'.
+- Fixed an error in code generation from multi-output node graphs.
+
 ## [1.38.3] - 2021-12-14
 
 ### Added
