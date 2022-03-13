@@ -11,10 +11,6 @@
     <input name="file" type="filename" value="resources/Images/grid.png" />
   </image>
   <output name="image_color3_output" type="color3" nodename="image_color3" />
-  <image name="image_color2" type="vector2">
-    <input name="file" type="filename" value="resources/Images/grid.png" />
-  </image>
-  <output name="image_color2_output" type="vector2" nodename="image_color2" />
   <image name="image_vector4" type="vector4">
     <input name="file" type="filename" value="resources/Images/grid.png" />
   </image>
