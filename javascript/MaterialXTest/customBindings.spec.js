@@ -3,7 +3,7 @@ import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
 describe('Custom Bindings', () => {
-    const examplesPath = '../../resources/Materials/Examples/Syntax';
+    const examplesPath = '../../resources/Materials/Examples/StandardSurface';
 
     let mx; 
     before(async () => {
@@ -89,13 +89,13 @@ describe('Custom Bindings', () => {
 
     it('getReferencedSourceUris', async () => {
         const doc = mx.createDocument();
-        const filename = 'PaintMaterials.mtlx';
+        const filename = 'standard_surface_look_brass_tiled.mtlx';
         await mx.readFromXmlFile(doc, filename, examplesPath);
         const sourceUris = doc.getReferencedSourceUris();
         expect(sourceUris).to.be.instanceof(Array);
-        expect(sourceUris.length).to.equal(2);
+        expect(sourceUris.length).to.equal(3);
         expect(sourceUris[0]).to.be.a('string');
-        expect(sourceUris.includes('SimpleSrf.mtlx')).to.be.true;
+        expect(sourceUris.includes('standard_surface_brass_tiled.mtlx')).to.be.true;
     });
 
     it('Should invoke correct instance of \'validate\'', () => {
@@ -158,38 +158,19 @@ describe('Custom Bindings', () => {
 
     it('getShaderNodes', async () => {
         const doc = mx.createDocument();
-        const fileNames = ['MaterialBasic.mtlx'];
+        const fileNames = ['standard_surface_marble_solid.mtlx'];
         const mtlxStrs = getMtlxStrings(fileNames, examplesPath);
         await mx.readFromXmlString(doc, mtlxStrs[0]);
         let matNodes = doc.getMaterialNodes();
-        expect(matNodes.length).to.equal(2);
+        expect(matNodes.length).to.equal(1);
         const matNode = matNodes[0];
 
-        // Should return a surface shader node when called without optional parameters
+        // Should return a surface shader node but no displacement shader node
         let shaderNodes = mx.getShaderNodes(matNode);
         expect(shaderNodes).to.be.instanceof(Array);
         expect(shaderNodes.length).to.equal(1);
         expect(shaderNodes[0].getType()).to.equal(mx.SURFACE_SHADER_TYPE_STRING);
-
-        // Should return a shader node of the given optional type
         shaderNodes = mx.getShaderNodes(matNode, mx.DISPLACEMENT_SHADER_TYPE_STRING);
-        expect(shaderNodes).to.be.instanceof(Array);
-        expect(shaderNodes.length).to.equal(1);
-        expect(shaderNodes[0].getType()).to.equal(mx.DISPLACEMENT_SHADER_TYPE_STRING);
-        shaderNodes = mx.getShaderNodes(matNode, 'bogus');
-        expect(shaderNodes).to.be.instanceof(Array);
-        expect(shaderNodes.length).to.equal(0);
-
-        // Should filter shader nodes based on the given optional target type
-        // We need to manually add the target type to one of the existing NodeDefs, since there is no sample file that
-        // contains a shader node with a target definition.
-        const nodeDefs = doc.getMatchingNodeDefs('simplesrf');
-        nodeDefs[0].setTarget('testTarget');
-        shaderNodes = mx.getShaderNodes(matNode, mx.SURFACE_SHADER_TYPE_STRING, 'testTarget');
-        expect(shaderNodes).to.be.instanceof(Array);
-        expect(shaderNodes.length).to.equal(1);
-        expect(shaderNodes[0].getType()).to.equal(mx.SURFACE_SHADER_TYPE_STRING);
-        shaderNodes = mx.getShaderNodes(matNode, mx.SURFACE_SHADER_TYPE_STRING, 'bogus');
         expect(shaderNodes).to.be.instanceof(Array);
         expect(shaderNodes.length).to.equal(0);
     });
