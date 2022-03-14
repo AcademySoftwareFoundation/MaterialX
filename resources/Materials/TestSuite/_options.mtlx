@@ -80,7 +80,7 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/Examples/UsdPreviewSurface,resources/Materials/TestSuite" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/Examples/UsdPreviewSurface,resources/Materials/Examples/GltfPbr,resources/Materials/TestSuite" />
 
     <!-- Enable reference quality rendering. Default is false. -->
     <input name="enableReferenceQuality" type="boolean" value="false" />

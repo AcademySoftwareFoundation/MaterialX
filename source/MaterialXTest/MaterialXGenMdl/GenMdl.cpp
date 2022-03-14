@@ -240,6 +240,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     testRootPaths.push_back("resources/Materials/TestSuite");
     testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
     testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
+    testRootPaths.push_back("resources/Materials/Examples/GltfPbr");
 
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
