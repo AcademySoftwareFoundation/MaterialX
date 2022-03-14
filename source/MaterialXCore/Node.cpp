@@ -649,6 +649,12 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 
 InputPtr Node::addInputFromNodeDef(const string& name)
 {
+    StringVec nonInstanceAttributes = { DOC_ATTRIBUTE, ValueElement::INTERFACE_NAME_ATTRIBUTE,
+                                        ValueElement::ENUM_ATTRIBUTE, ValueElement::ENUM_VALUES_ATTRIBUTE, 
+                                        ValueElement::UI_NAME_ATTRIBUTE, ValueElement::UI_FOLDER_ATTRIBUTE, ValueElement::UI_MIN_ATTRIBUTE,
+                                        ValueElement::UI_MAX_ATTRIBUTE, ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+                                        ValueElement::UI_STEP_ATTRIBUTE, ValueElement::UI_ADVANCED_ATTRIBUTE, ValueElement::UNIFORM_ATTRIBUTE };
+
     InputPtr nodeInput = getInput(name);
     if (!nodeInput)
     {
@@ -658,9 +664,26 @@ InputPtr Node::addInputFromNodeDef(const string& name)
         {
             nodeInput = addInput(nodeDefInput->getName());
             nodeInput->copyContentFrom(nodeDefInput);
+            for (auto nonInstanceAttribute : nonInstanceAttributes)
+            {
+                nodeInput->removeAttribute(nonInstanceAttribute);
+            }
         }
     }
     return nodeInput;
+}
+
+void Node::addInputsFromNodeDef()
+{
+    NodeDefPtr nodeNodeDef = getNodeDef();
+    if (nodeNodeDef)
+    {
+        for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
+        {
+            const std::string& valueElemName = nodeDefValueElem->getName();
+            addInputFromNodeDef(valueElemName);
+        }
+    }
 }
 
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)

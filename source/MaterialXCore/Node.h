@@ -160,6 +160,10 @@ class MX_CORE_API Node : public InterfaceElement
     /// If the input already exists on the node it will just be returned.
     InputPtr addInputFromNodeDef(const string& name);
 
+    /// Add inputs based on the corresponding associated node definition.
+    /// If the inputs already exists on the node it will just be returned.
+    void addInputsFromNodeDef();
+
     /// @}
     /// @name Validation
     /// @{

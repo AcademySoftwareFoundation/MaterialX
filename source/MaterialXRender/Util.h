@@ -107,7 +107,7 @@ using UIPropertyGroup = std::multimap<string, UIPropertyItem>;
 /// Utility to group UI properties items based on Element group name from a VariableBlock.
 /// Returns a list of named and unnamed groups.
 MX_RENDER_API void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
-                                          UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs);
+                                          UIPropertyGroup& unnamedGroups, const string& pathSeparator);
 
 /// @}
 

@@ -641,9 +641,8 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        bool showAllInputs = viewer->getShowAllInputs();
         mx::createUIPropertyGroups(elem->getDocument(), *publicUniforms, groups, unnamedGroups,
-                                   pathSeparator, showAllInputs); 
+                                   pathSeparator); 
 
         // First add items with named groups.
         std::string previousFolder;

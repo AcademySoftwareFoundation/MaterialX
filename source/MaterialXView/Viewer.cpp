@@ -1209,6 +1209,16 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << message;
         }
 
+        // Add any node definition inputs not explicit set on a node
+        if (_showAllInputs)
+        {
+            std::vector<mx::NodePtr> allNodes = doc->getNodes();
+            for (mx::NodePtr node : allNodes)
+            {
+                node->addInputsFromNodeDef();
+            }
+        }
+
         // Find new renderable elements.
         mx::StringVec renderablePaths;
         std::vector<mx::TypedElementPtr> elems;
