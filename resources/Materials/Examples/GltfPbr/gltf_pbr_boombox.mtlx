@@ -46,6 +46,7 @@
     <input name="metallic" type="float" nodegraph="NG_boombox" output="out_metallic" />
     <input name="roughness" type="float" nodegraph="NG_boombox" output="out_roughness" />
     <input name="normal" type="vector3" nodegraph="NG_boombox" output="out_normal" />
+    <input name="occlusion" type="float" nodegraph="NG_boombox" output="out_occlusion" />	  
     <input name="transmission" type="float" value="0" />
     <input name="ior" type="float" value="1.5" />
     <input name="specular" type="float" value="1" />
