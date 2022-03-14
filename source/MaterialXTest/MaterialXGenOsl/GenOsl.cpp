@@ -191,8 +191,7 @@ static void generateOslCode()
 {
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
-    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
+    testRootPaths.push_back("resources/Materials/Examples");
 
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
