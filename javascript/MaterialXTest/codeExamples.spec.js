@@ -112,7 +112,7 @@ describe('Code Examples', () => {
     });
 
     it('Building a MaterialX Document', async () => {
-        const xmlStr = getMtlxStrings(['MaterialBasic.mtlx'], '../../resources/Materials/Examples/Syntax')[0];
+        const xmlStr = getMtlxStrings(['standard_surface_marble_solid.mtlx'], '../../resources/Materials/Examples/StandardSurface')[0];
         const mx = await Module();
 
         // Read a document from disk.
