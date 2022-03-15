@@ -130,24 +130,6 @@ FilePath FilePath::operator/(const FilePath& rhs) const
     return combined;
 }
 
-FilePath FilePath::removeRelativePathQualifiers() const
-{
-    const string POP_PATH_QUALIFIER = "..";
-    FilePath returnPath;
-    for (size_t i = 0; i < _vec.size(); i++)
-    {
-        if (_vec[i] == POP_PATH_QUALIFIER && !returnPath._vec.empty())
-        {
-            returnPath._vec.pop_back();
-        }
-        else
-        {
-            returnPath._vec.push_back(_vec[i]);
-        }
-    }
-    return returnPath;
-}
-
 bool FilePath::exists() const
 {
 #if defined(_WIN32)
