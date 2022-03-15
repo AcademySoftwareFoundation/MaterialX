@@ -15,6 +15,7 @@ namespace RenderUtil
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
     _shaderGenerator(shaderGenerator),
+    _resolveImageFilenames(false),
     _emitColorTransforms(true)
 {
 }
@@ -268,6 +269,12 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
             mx::FileSearchPath imageSearchPath(dir);
             imageSearchPath.append(searchPath);
+            
+            // Resolve file names if specified
+            if (_resolveImageFilenames)
+            {
+                mx::flattenFilenames(doc, imageSearchPath, _customFilenameResolver);
+            }
 
             mx::FilePath outputPath = mx::FilePath(dir) / file;
             outputPath.removeExtension();

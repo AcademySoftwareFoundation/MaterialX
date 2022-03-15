@@ -173,6 +173,9 @@ class MX_FORMAT_API FilePath
         return _vec[index];
     }
 
+    /// Remove relative ".." relative pathing
+    FilePath removeRelativePathQualifiers() const;
+
     /// @}
     /// @name File System Operations
     /// @{

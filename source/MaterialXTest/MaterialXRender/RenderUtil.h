@@ -176,6 +176,9 @@ class ShaderRenderTester
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
+    // Whether to resolve image file name references before code generation
+    bool _resolveImageFilenames;
+    mx::StringResolverPtr _customFilenameResolver;
 
     // Files to skip
     mx::StringSet _skipFiles;

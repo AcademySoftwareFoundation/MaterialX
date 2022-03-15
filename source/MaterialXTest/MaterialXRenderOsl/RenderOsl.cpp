@@ -75,6 +75,13 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
     explicit OslShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
         RenderUtil::ShaderRenderTester(shaderGenerator)
     {
+        // Preprocess to resolve to absolute image file names 
+        // and all non-POSIX separators must be converted to POSIX ones (this only affects running on Windows)
+        _resolveImageFilenames = true;
+        _customFilenameResolver = mx::StringResolver::create();
+        _customFilenameResolver->setFilenameSubstitution("\\\\", "/");
+        _customFilenameResolver->setFilenameSubstitution("\\", "/");
+
     }
 
   protected:
@@ -233,14 +240,6 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                 return false;
             }
             CHECK(shader->getSourceCode().length() > 0);
-
-            // Convert relative paths to absolute, using hardcoded logic for now.
-            mx::StringMap resourceStringMap =
-            {
-                {"\"../../../Images", "\"resources/Images"},
-                {"\"textures/", "\"resources/Materials/TestSuite/libraries/metal/textures"}
-            };
-            shader->setSourceCode(mx::replaceSubstrings(shader->getSourceCode(), resourceStringMap));
 
             std::string shaderPath;
             mx::FilePath outputFilePath = outputPath;
