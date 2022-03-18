@@ -174,16 +174,14 @@ TEST_CASE("IntraGraph Traversal", "[traversal]")
     REQUIRE(doc->validate());
 }
 
-TEST_CASE("InterGraph Tranversal", "[traversal]")
+TEST_CASE("InterGraph Traversal", "[traversal]")
 {
-    mx::FileSearchPath searchPath;
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    searchPath.append(currentPath / mx::FilePath("libraries"));
-
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibraries({ "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::FileSearchPath searchPath(currentPath);
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
 
-    mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx");
+    mx::FilePath testFile = currentPath / mx::FilePath("resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx");
     mx::readFromXmlFile(doc, testFile, searchPath);
     REQUIRE(doc->validate());
 

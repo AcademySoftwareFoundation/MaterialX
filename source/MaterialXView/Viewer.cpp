@@ -258,7 +258,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _wedgePropertyMin(0.0f),
     _wedgePropertyMax(1.0f),
     _wedgeImageCount(8),
-    _bakeTextures(false),
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
@@ -500,7 +499,8 @@ void Viewer::loadEnvironmentLight()
         _lightRigFilename = _envRadianceFilename;
         _lightRigFilename.removeExtension();
         _lightRigFilename.addExtension(mx::MTLX_EXTENSION);
-        if (_searchPath.find(_lightRigFilename).exists())
+        _lightRigFilename = _searchPath.find(_lightRigFilename);
+        if (_lightRigFilename.exists())
         {
             _lightRigDoc = mx::createDocument();
             mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
@@ -953,7 +953,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     textureLabel->set_font("sans-bold");
 
     ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
-    bakeHdrBox->set_checked(_bakeTextures);
+    bakeHdrBox->set_checked(_bakeHdr);
     bakeHdrBox->set_callback([this](bool enable)
     {
         _bakeHdr = enable;
@@ -1563,11 +1563,8 @@ mx::DocumentPtr Viewer::translateMaterial()
 
 void Viewer::initContext(mx::GenContext& context)
 {
-    // Initialize search paths.
-    for (const mx::FilePath& path : _searchPath)
-    {
-        context.registerSourceCodeSearchPath(path / "libraries");
-    }
+    // Initialize search path.
+    context.registerSourceCodeSearchPath(_searchPath);
 
     // Initialize color management.
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());

@@ -204,11 +204,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
     }
 
     // Emit function definitions for all nodes

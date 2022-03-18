@@ -33,7 +33,7 @@ def main():
     filePath = os.path.dirname(os.path.abspath(__file__))
     searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
     searchPath.append(os.path.dirname(opts.inputFilename))
-    libraryFolders = [ "libraries" ]
+    libraryFolders = []
     if opts.paths:
         for pathList in opts.paths:
             for path in pathList:
@@ -42,6 +42,7 @@ def main():
         for libraryList in opts.libraries:
             for library in libraryList:
                 libraryFolders.append(library)
+    libraryFolders.append("libraries")
     mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
 

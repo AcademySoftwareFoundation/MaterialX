@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
 float mx_latlong_compute_lod(float alpha)
 {

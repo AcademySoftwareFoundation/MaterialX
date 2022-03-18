@@ -23,9 +23,9 @@ namespace mx = MaterialX;
 TEST_CASE("GenReference: OSL Reference", "[genreference]")
 {
     mx::DocumentPtr stdlib = mx::createDocument();
-    mx::FilePath librariesPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    mx::FileSearchPath searchPath(librariesPath);
-    loadLibraries({ "targets", "stdlib" }, searchPath, stdlib);
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::FileSearchPath searchPath(currentPath);
+    loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, stdlib);
 
     // Create renderer if requested.
     bool runCompileTest = !std::string(MATERIALX_OSL_BINARY_OSLC).empty();
@@ -38,7 +38,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
         oslIncludePaths.append(mx::FilePath(MATERIALX_OSL_INCLUDE_PATH));
         // Add in library include path for compile testing as the generated
         // shader's includes are not added with absolute paths.
-        oslIncludePaths.append(librariesPath / mx::FilePath("stdlib/genosl/include"));
+        oslIncludePaths.append(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
         oslRenderer->setOslIncludePath(oslIncludePaths);
     }
 
@@ -46,7 +46,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
     mx::GenContext context(generator);
     context.getOptions().addUpstreamDependencies = false;
-    context.registerSourceCodeSearchPath(librariesPath);
+    context.registerSourceCodeSearchPath(currentPath);
     context.getOptions().fileTextureVerticalFlip = true;
 
     // Create output directory.
