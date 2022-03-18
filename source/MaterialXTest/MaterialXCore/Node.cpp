@@ -139,9 +139,8 @@ TEST_CASE("Node", "[node]")
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();
-    const mx::FilePathVec libraryFolders;
-    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::loadLibraries(libraryFolders, libraryRoot, doc);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
     REQUIRE(doc->validate());
     auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
     REQUIRE(nodedef);

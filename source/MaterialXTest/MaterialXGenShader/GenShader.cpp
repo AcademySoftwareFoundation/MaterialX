@@ -58,8 +58,8 @@ TEST_CASE("GenShader: Valid Libraries", "[genshader]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "targets", "stdlib", "pbrlib" }, searchPath, doc);
+    searchPath.append(mx::FilePath::getCurrentPath());
+    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
 
     std::string validationErrors;
     bool valid = doc->validate(&validationErrors);
@@ -108,11 +108,11 @@ TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    searchPath.append(currentPath / mx::FilePath("libraries"));
+    searchPath.append(currentPath);
     searchPath.append(currentPath / mx::FilePath("resources/Materials/TestSuite"));
 
     mx::DocumentPtr doc = mx::createDocument();
-    loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf",  }, searchPath, doc);
+    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, doc);
     mx::FilePath testPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/pbrlib/surfaceshader/transparency_test.mtlx");
     mx::readFromXmlFile(doc, testPath, searchPath);
 
@@ -167,8 +167,8 @@ TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
 
 TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 {
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::DocumentPtr libraries = mx::createDocument();
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::FileSearchPath searchPath(currentPath);
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
@@ -263,9 +263,9 @@ void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& cont
 
 TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
 {
-    const mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
     mx::DocumentPtr libraries = mx::createDocument();
-    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, libraries);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {

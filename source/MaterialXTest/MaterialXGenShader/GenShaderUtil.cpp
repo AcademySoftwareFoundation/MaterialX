@@ -73,10 +73,8 @@ void checkImplementations(mx::GenContext& context,
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    mx::FileSearchPath searchPath; 
-    mx::FilePath librariesRoot = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    searchPath.append(librariesRoot);
-    loadLibraries({ "targets", "adsk", "stdlib", "pbrlib" }, searchPath, doc);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
 
     const std::string& target = shadergen.getTarget();
 
@@ -86,9 +84,7 @@ void checkImplementations(mx::GenContext& context,
     implDumpBuffer.open(fileName, std::ios::out);
     std::ostream implDumpStream(&implDumpBuffer);
 
-    mx::FileSearchPath sourceSearchPath = searchPath;
-    sourceSearchPath.append(librariesRoot / mx::FilePath("adsk"));
-    context.registerSourceCodeSearchPath(sourceSearchPath);
+    context.registerSourceCodeSearchPath(searchPath);
 
     // Node types to explicitly skip temporarily.
     mx::StringSet skipNodeTypes =
@@ -289,9 +285,8 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "targets", "stdlib" }, searchPath, doc);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
 
@@ -488,8 +483,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
-    loadLibraries(libraries, _libSearchPath, _dependLib, _skipLibraryFiles);
+    loadLibraries({ "libraries" }, _libSearchPath, _dependLib, _skipLibraryFiles);
 }
 
 void ShaderGeneratorTester::addSkipFiles()

@@ -1,4 +1,4 @@
-#include "stdlib/genglsl/mx_overlay.glsl"
+#include "libraries/stdlib/genglsl/mx_overlay.glsl"
 
 void mx_overlay_color3(vec3 fg, vec3 bg, float mix, out vec3 result)
 {
