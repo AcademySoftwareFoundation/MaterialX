@@ -60,8 +60,7 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "bxdf", "lights" };
-    mx::loadLibraries(libraries, searchPath, dependLib);
+    mx::loadLibraries({ "libraries" }, searchPath, dependLib);
     for (size_t i = 0; i < options.extraLibraryPaths.size(); i++)
     {
         const mx::FilePath& libraryPath = options.extraLibraryPaths[i];
@@ -145,8 +144,9 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     addSkipFiles();
 
     // Library search path
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    searchPath.append(currentPath);
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -176,8 +176,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
     mx::GenContext context(_shaderGenerator);
-    context.registerSourceCodeSearchPath(searchPath);
-    registerSourceCodeSearchPaths(context);
+    context.registerSourceCodeSearchPath(currentPath);
+    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";

@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
 
 // Fresnel model options.
 const int FRESNEL_MODEL_DIELECTRIC = 0;

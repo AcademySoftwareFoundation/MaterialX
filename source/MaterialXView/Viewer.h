@@ -377,7 +377,6 @@ class Viewer : public ng::Screen
     unsigned int _wedgeImageCount;
 
     // Texture baking
-    bool _bakeTextures;
     bool _bakeHdr;
     bool _bakeAverage;
     bool _bakeOptimize;

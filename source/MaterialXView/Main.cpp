@@ -84,7 +84,7 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
-    mx::FilePathVec libraryFolders = { "libraries" };
+    mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
@@ -247,6 +247,9 @@ int main(int argc, char* const argv[])
             i++;
         }
     }
+
+    // Append the standard library folder, giving it a lower precedence than user-supplied libraries.
+    libraryFolders.push_back("libraries");
 
     ng::init();
     {
