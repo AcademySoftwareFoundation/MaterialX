@@ -235,7 +235,10 @@ class Viewer : public ng::Screen
     // returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    void updateShadowMap();
+    MaterialPtr getEnvironmentMaterial();
+    MaterialPtr getWireframeMaterial();
+
+    mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
 
     void renderFrame();
