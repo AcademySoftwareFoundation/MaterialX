@@ -673,7 +673,7 @@ void Node::addInputsFromNodeDef()
     {
         for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
         {
-            const std::string& valueElemName = nodeDefValueElem->getName();
+            const string& valueElemName = nodeDefValueElem->getName();
             addInputFromNodeDef(valueElemName, nodeNodeDef);
         }
     }
