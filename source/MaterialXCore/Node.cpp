@@ -647,27 +647,20 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-InputPtr Node::addInputFromNodeDef(const string& name)
+InputPtr Node::addInputFromNodeDef(const string& name, NodeDefPtr fromNodeDef)
 {
-    StringVec nonInstanceAttributes = { DOC_ATTRIBUTE, ValueElement::INTERFACE_NAME_ATTRIBUTE,
-                                        ValueElement::ENUM_ATTRIBUTE, ValueElement::ENUM_VALUES_ATTRIBUTE, 
-                                        ValueElement::UI_NAME_ATTRIBUTE, ValueElement::UI_FOLDER_ATTRIBUTE, ValueElement::UI_MIN_ATTRIBUTE,
-                                        ValueElement::UI_MAX_ATTRIBUTE, ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
-                                        ValueElement::UI_STEP_ATTRIBUTE, ValueElement::UI_ADVANCED_ATTRIBUTE, ValueElement::UNIFORM_ATTRIBUTE };
-
+    const StringSet valueAttributes = { Element::NAME_ATTRIBUTE, ValueElement::TYPE_ATTRIBUTE,
+                                        ValueElement::VALUE_ATTRIBUTE };
+   
     InputPtr nodeInput = getInput(name);
     if (!nodeInput)
     {
-        NodeDefPtr nodeDef = getNodeDef();
+        NodeDefPtr nodeDef = fromNodeDef ? fromNodeDef : getNodeDef();
         InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(name) : nullptr;
         if (nodeDefInput)
         {
             nodeInput = addInput(nodeDefInput->getName());
-            nodeInput->copyContentFrom(nodeDefInput);
-            for (auto nonInstanceAttribute : nonInstanceAttributes)
-            {
-                nodeInput->removeAttribute(nonInstanceAttribute);
-            }
+            nodeInput->copyContentFrom(nodeDefInput, valueAttributes);
         }
     }
     return nodeInput;
@@ -681,7 +674,7 @@ void Node::addInputsFromNodeDef()
         for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
         {
             const std::string& valueElemName = nodeDefValueElem->getName();
-            addInputFromNodeDef(valueElemName);
+            addInputFromNodeDef(valueElemName, nodeNodeDef);
         }
     }
 }

@@ -147,8 +147,16 @@ TEST_CASE("Inheritance", "[nodedef]")
     REQUIRE(nodedef);
     mx::NodePtr surfaceNode = doc->addNodeInstance(nodedef);
     REQUIRE(surfaceNode);
-    mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular");
+    mx::InputPtr nodedefSpecularInput = nodedef->getActiveInput("specular");
+    REQUIRE(nodedefSpecularInput);
+    mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular", nodedef);
     REQUIRE(specularInput);
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::NAME_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::NAME_ATTRIBUTE));
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
 TEST_CASE("Flatten", "[nodegraph]")
@@ -728,11 +736,17 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                 mx::ValueElementPtr valueElem = node->getValueElement(valueElemName);
                 if (!valueElem)
                 {
-                    valueElem = node->addInputFromNodeDef(valueElemName);
+                    valueElem = node->addInputFromNodeDef(valueElemName, nodeNodeDef);
                     if (!valueElem)
                     {
                         continue;
                     }
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::NAME_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::NAME_ATTRIBUTE));
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
                 }
 
                 mx::InputPtr input = valueElem->asA<mx::Input>();
