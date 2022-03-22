@@ -69,6 +69,10 @@ public:
         // ensure GIL is held during functor destruction
         struct func_handle {
             function f;
+#if !(defined(_MSC_VER) && _MSC_VER == 1916 && defined(PYBIND11_CPP17))
+            // This triggers a syntax error under very special conditions (very weird indeed).
+            explicit
+#endif
             func_handle(function &&f_) noexcept : f(std::move(f_)) {}
             func_handle(const func_handle &f_) { operator=(f_); }
             func_handle &operator=(const func_handle &f_) {
@@ -85,7 +89,7 @@ public:
         // to emulate 'move initialization capture' in C++11
         struct func_wrapper {
             func_handle hfunc;
-            func_wrapper(func_handle &&hf) noexcept : hfunc(std::move(hf)) {}
+            explicit func_wrapper(func_handle &&hf) noexcept : hfunc(std::move(hf)) {}
             Return operator()(Args... args) const {
                 gil_scoped_acquire acq;
                 object retval(hfunc.f(std::forward<Args>(args)...));
@@ -109,8 +113,8 @@ public:
         return cpp_function(std::forward<Func>(f_), policy).release();
     }
 
-    PYBIND11_TYPE_CASTER(type, _("Callable[[") + concat(make_caster<Args>::name...) + _("], ")
-                               + make_caster<retval_type>::name + _("]"));
+    PYBIND11_TYPE_CASTER(type, const_name("Callable[[") + concat(make_caster<Args>::name...) + const_name("], ")
+                               + make_caster<retval_type>::name + const_name("]"));
 };
 
 PYBIND11_NAMESPACE_END(detail)
