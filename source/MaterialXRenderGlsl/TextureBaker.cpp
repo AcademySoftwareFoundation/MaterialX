@@ -59,6 +59,9 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _generator(GlslShaderGenerator::create()),
     _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" })
 {
+    // Set default texture space
+    _textureSpace = std::make_pair(Vector2(0.0f, 0.0f), Vector2(1.0f, 1.0f));
+
     if (baseType == Image::BaseType::UINT8)
     {
 #if MATERIALX_BUILD_OIIO
@@ -121,6 +124,13 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
         {
             bakedImageName.replace(i, pair.first.length(), replacement);
         }
+    }
+
+    if (_hashImageNames)
+    {
+        std::stringstream hashStream;
+        hashStream << std::hash<std::string>{}(bakedImageName);
+        bakedImageName = hashStream.str();
     }
     return _outputImagePath / bakedImageName;
 }
@@ -213,7 +223,8 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     // Render and capture the requested image.
-    renderTextureSpace();
+    auto textureSpaceRange = getTextureSpace();
+    renderTextureSpace(textureSpaceRange.first, textureSpaceRange.second);
     string texturefilepath = generateTextureFilename(filenameTemplateMap);
     captureImage(_frameCaptureImage);
 
@@ -475,7 +486,14 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
-    genContext.registerSourceCodeSearchPath(searchPath);
+    if (!_codeSearchPath.isEmpty())
+    {
+        genContext.registerSourceCodeSearchPath(_codeSearchPath);
+    }
+    for (const FilePath& path : searchPath)
+    {
+        genContext.registerSourceCodeSearchPath(path / "libraries");
+    }
     genContext.getShaderGenerator().setColorManagementSystem(cms);
 
     // Compute the material tag set.
