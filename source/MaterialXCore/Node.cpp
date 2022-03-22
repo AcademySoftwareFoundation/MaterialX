@@ -649,7 +649,7 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 
 InputPtr Node::addInputFromNodeDef(const string& name, NodeDefPtr fromNodeDef)
 {
-    const StringSet valueAttributes = { Element::NAME_ATTRIBUTE, ValueElement::TYPE_ATTRIBUTE,
+    const StringSet valueAttributes = { ValueElement::TYPE_ATTRIBUTE,
                                         ValueElement::VALUE_ATTRIBUTE };
    
     InputPtr nodeInput = getInput(name);

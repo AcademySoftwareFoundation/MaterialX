@@ -151,8 +151,6 @@ TEST_CASE("Inheritance", "[nodedef]")
     REQUIRE(nodedefSpecularInput);
     mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular", nodedef);
     REQUIRE(specularInput);
-    REQUIRE(specularInput->getAttribute(mx::ValueElement::NAME_ATTRIBUTE) ==
-        nodedefSpecularInput->getAttribute(mx::ValueElement::NAME_ATTRIBUTE));
     REQUIRE(specularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) ==
         nodedefSpecularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
     REQUIRE(specularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) ==
@@ -741,8 +739,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                     {
                         continue;
                     }
-                    REQUIRE(valueElem->getAttribute(mx::ValueElement::NAME_ATTRIBUTE) == 
-                            nodeDefValueElem->getAttribute(mx::ValueElement::NAME_ATTRIBUTE));
                     REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
                             nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
                     REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
