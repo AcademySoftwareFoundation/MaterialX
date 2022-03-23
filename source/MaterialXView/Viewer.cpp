@@ -1209,11 +1209,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << message;
         }
 
-        // Add any node definition inputs not explicit set on a node
+        // If requested, add implicit inputs to top-level nodes.
         if (_showAllInputs)
         {
-            std::vector<mx::NodePtr> allNodes = doc->getNodes();
-            for (mx::NodePtr node : allNodes)
+            for (mx::NodePtr node : doc->getNodes())
             {
                 node->addInputsFromNodeDef();
             }
