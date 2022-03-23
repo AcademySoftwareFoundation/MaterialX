@@ -647,20 +647,18 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-InputPtr Node::addInputFromNodeDef(const string& name, NodeDefPtr fromNodeDef)
+InputPtr Node::addInputFromNodeDef(const string& name)
 {
-    const StringSet valueAttributes = { ValueElement::TYPE_ATTRIBUTE,
-                                        ValueElement::VALUE_ATTRIBUTE };
-   
     InputPtr nodeInput = getInput(name);
     if (!nodeInput)
     {
-        NodeDefPtr nodeDef = fromNodeDef ? fromNodeDef : getNodeDef();
+        NodeDefPtr nodeDef = getNodeDef();
         InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(name) : nullptr;
         if (nodeDefInput)
         {
-            nodeInput = addInput(nodeDefInput->getName());
-            nodeInput->copyContentFrom(nodeDefInput, valueAttributes);
+            nodeInput = addInput(nodeDefInput->getName(), nodeDefInput->getType());
+            nodeInput->setAttribute(ValueElement::VALUE_ATTRIBUTE, 
+                                    nodeDefInput->getAttribute(ValueElement::VALUE_ATTRIBUTE));
         }
     }
     return nodeInput;
@@ -671,10 +669,16 @@ void Node::addInputsFromNodeDef()
     NodeDefPtr nodeNodeDef = getNodeDef();
     if (nodeNodeDef)
     {
-        for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
+        for (auto nodeDefInput : nodeNodeDef->getActiveValueElements())
         {
-            const string& valueElemName = nodeDefValueElem->getName();
-            addInputFromNodeDef(valueElemName, nodeNodeDef);
+            const string& name = nodeDefInput->getName();
+            InputPtr nodeInput = getInput(name);
+            if (!nodeInput)
+            {
+                nodeInput = addInput(name, nodeDefInput->getType());
+                nodeInput->setAttribute(ValueElement::VALUE_ATTRIBUTE,
+                                        nodeDefInput->getAttribute(ValueElement::VALUE_ATTRIBUTE));
+            }
         }
     }
 }

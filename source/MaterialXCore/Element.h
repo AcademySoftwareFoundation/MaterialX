@@ -730,8 +730,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Copy all attributes and descendants from the given element to this one.
     /// @param source The element from which content is copied.
-    /// @param attributeList Only copy over the attributes specified in the list. Default is an empty list.
-    void copyContentFrom(const ConstElementPtr& source, const StringSet& attributeList = StringSet());
+    void copyContentFrom(const ConstElementPtr& source);
 
     /// Clear all attributes and descendants from this element.
     void clearContent();

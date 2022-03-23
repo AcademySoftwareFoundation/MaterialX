@@ -358,35 +358,13 @@ InheritanceIterator Element::traverseInheritance() const
     return InheritanceIterator(getSelf());
 }
 
-void Element::copyContentFrom(const ConstElementPtr& source, const StringSet& attributeList)
+void Element::copyContentFrom(const ConstElementPtr& source)
 {
     getDocument()->invalidateCache();
 
     _sourceUri = source->_sourceUri;
-    if (!attributeList.empty())
-    {      
-        _attributeMap.clear();
-        _attributeOrder.clear();
-        for (auto const& attribMapItem : source->_attributeMap)
-        {
-            if (attributeList.count(attribMapItem.first))
-            {
-                _attributeMap[attribMapItem.first] = attribMapItem.second;
-            }
-        }
-        for (auto const& attributeOrderItem : source->_attributeOrder)
-        {
-            if (attributeList.count(attributeOrderItem))
-            {
-                _attributeOrder.push_back(attributeOrderItem);
-            }
-        }
-    }
-    else
-    {
-        _attributeMap = source->_attributeMap;
-        _attributeOrder = source->_attributeOrder;
-    }
+    _attributeMap = source->_attributeMap;
+    _attributeOrder = source->_attributeOrder;
 
     for (auto child : source->getChildren())
     {
@@ -401,7 +379,7 @@ void Element::copyContentFrom(const ConstElementPtr& source, const StringSet& at
 
         // Create the copied element.
         ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
-        childCopy->copyContentFrom(child, attributeList);
+        childCopy->copyContentFrom(child);
     }
 }
 

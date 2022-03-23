@@ -159,8 +159,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// Add an input based on the corresponding input for the associated node definition.
     /// If the input already exists on the node it will just be returned.
     /// @param name Name of input
-    /// @param fromNodeDef Nodedef to add from. By default this is empty.
-    InputPtr addInputFromNodeDef(const string& name, NodeDefPtr fromNodeDef = nullptr);
+    InputPtr addInputFromNodeDef(const string& name);
 
     /// Add inputs based on the corresponding associated node definition.
     void addInputsFromNodeDef();
