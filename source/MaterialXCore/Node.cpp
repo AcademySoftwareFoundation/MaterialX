@@ -657,8 +657,11 @@ InputPtr Node::addInputFromNodeDef(const string& name)
         if (nodeDefInput)
         {
             nodeInput = addInput(nodeDefInput->getName(), nodeDefInput->getType());
-            nodeInput->setAttribute(ValueElement::VALUE_ATTRIBUTE, 
-                                    nodeDefInput->getAttribute(ValueElement::VALUE_ATTRIBUTE));
+            const string& valueString = nodeDefInput->getValueString();
+            if (!valueString.empty())
+            {
+                nodeInput->setValueString(valueString);
+            }
         }
     }
     return nodeInput;
