@@ -669,15 +669,18 @@ void Node::addInputsFromNodeDef()
     NodeDefPtr nodeNodeDef = getNodeDef();
     if (nodeNodeDef)
     {
-        for (auto nodeDefInput : nodeNodeDef->getActiveValueElements())
+        for (auto nodeDefInput : nodeNodeDef->getActiveInputs())
         {
             const string& name = nodeDefInput->getName();
             InputPtr nodeInput = getInput(name);
             if (!nodeInput)
             {
                 nodeInput = addInput(name, nodeDefInput->getType());
-                nodeInput->setAttribute(ValueElement::VALUE_ATTRIBUTE,
-                                        nodeDefInput->getAttribute(ValueElement::VALUE_ATTRIBUTE));
+                const string& valueString = nodeDefInput->getValueString();
+                if (!valueString.empty())
+                {
+                    nodeInput->setValueString(valueString);
+                }
             }
         }
     }
