@@ -211,12 +211,11 @@ int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode ad
 
 int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps)
 {
-    int filterType = enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+        return enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
     }
-    return filterType;
+    return enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
 }
 
 void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,

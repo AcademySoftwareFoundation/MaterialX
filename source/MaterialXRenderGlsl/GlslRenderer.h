@@ -88,9 +88,9 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// Return the GL frame buffer.
-    GLFrameBufferPtr getFrameBuffer() const
+    GLFramebufferPtr getFramebuffer() const
     {
-        return _frameBuffer;
+        return _framebuffer;
     }
 
     /// Return the GLSL program.
@@ -116,7 +116,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
   private:
     GlslProgramPtr _program;
 
-    GLFrameBufferPtr _frameBuffer;
+    GLFramebufferPtr _framebuffer;
 
     bool _initialized;
 

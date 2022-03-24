@@ -79,7 +79,7 @@ void GlslRenderer::initialize()
 #endif
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
+            _framebuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
             _initialized = true;
         }
     }
@@ -115,9 +115,9 @@ void GlslRenderer::renderTextureSpace()
     _program->bind();
     _program->bindTextures(_imageHandler);
 
-    _frameBuffer->bind();
+    _framebuffer->bind();
     drawScreenSpaceQuad();
-    _frameBuffer->unbind();
+    _framebuffer->unbind();
 
     _program->unbind();
 }
@@ -138,13 +138,13 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
     {
-        if (_frameBuffer)
+        if (_framebuffer)
         {
-            _frameBuffer->resize(width, height);
+            _framebuffer->resize(width, height);
         }
         else
         {
-            _frameBuffer = GLFramebuffer::create(width, height, 4, _baseType);
+            _framebuffer = GLFramebuffer::create(width, height, 4, _baseType);
         }
         _width = width;
         _height = height;
@@ -173,7 +173,7 @@ void GlslRenderer::render()
     }
 
     // Set up target
-    _frameBuffer->bind();
+    _framebuffer->bind();
 
     glClearColor(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]);
 
@@ -252,17 +252,17 @@ void GlslRenderer::render()
     }
     catch (ExceptionRenderError& e)
     {
-        _frameBuffer->unbind();
+        _framebuffer->unbind();
         throw e;
     }
 
     // Unset target
-    _frameBuffer->unbind();
+    _framebuffer->unbind();
 }
 
 ImagePtr GlslRenderer::captureImage(ImagePtr image)
 {
-    return _frameBuffer->getColorImage(image);
+    return _framebuffer->getColorImage(image);
 }
 
 void GlslRenderer::drawScreenSpaceQuad()

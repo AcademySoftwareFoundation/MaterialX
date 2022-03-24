@@ -17,9 +17,9 @@ MATERIALX_NAMESPACE_BEGIN
 // GLFramebuffer methods
 //
 
-GLFrameBufferPtr GLFramebuffer::create(unsigned int width, unsigned int height, unsigned channelCount, Image::BaseType baseType)
+GLFramebufferPtr GLFramebuffer::create(unsigned int width, unsigned int height, unsigned channelCount, Image::BaseType baseType)
 {
-    return GLFrameBufferPtr(new GLFramebuffer(width, height, channelCount, baseType));
+    return GLFramebufferPtr(new GLFramebuffer(width, height, channelCount, baseType));
 }
 
 GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType) :
@@ -28,7 +28,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     _channelCount(channelCount),
     _baseType(baseType),
     _encodeSrgb(false),
-    _frameBuffer(0),
+    _framebuffer(0),
     _colorTexture(0),
     _depthTexture(0)
 {
@@ -42,8 +42,8 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     GLTextureHandler::mapTextureFormatToGL(baseType, channelCount, true, glType, glFormat, glInternalFormat);
 
     // Create and bind framebuffer.
-    glGenFramebuffers(1, &_frameBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    glGenFramebuffers(1, &_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
     // Create the offscreen color target and attach to the framebuffer.
     glGenTextures(1, &_colorTexture);
@@ -69,8 +69,8 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDeleteFramebuffers(1, &_frameBuffer);
-        _frameBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+        glDeleteFramebuffers(1, &_framebuffer);
+        _framebuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
         string errorMessage;
         switch (status)
@@ -113,12 +113,12 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
 
 GLFramebuffer::~GLFramebuffer()
 {
-    if (_frameBuffer)
+    if (_framebuffer)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
         glDeleteTextures(1, &_colorTexture);
         glDeleteTextures(1, &_depthTexture);
-        glDeleteFramebuffers(1, &_frameBuffer);
+        glDeleteFramebuffers(1, &_framebuffer);
     }
 }
 
@@ -151,12 +151,12 @@ void GLFramebuffer::resize(unsigned int width, unsigned int height)
 
 void GLFramebuffer::bind()
 {
-    if (!_frameBuffer)
+    if (!_framebuffer)
     {
         throw ExceptionRenderError("No framebuffer exists to bind");
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     GLenum colorList[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, colorList);
 
@@ -200,7 +200,7 @@ ImagePtr GLFramebuffer::getColorImage(ImagePtr image)
 
 void GLFramebuffer::blit()
 {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, _frameBuffer);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 
