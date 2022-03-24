@@ -1160,6 +1160,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << message;
         }
 
+        // If requested, add implicit inputs to top-level nodes.
+        if (_showAllInputs)
+        {
+            for (mx::NodePtr node : doc->getNodes())
+            {
+                node->addInputsFromNodeDef();
+            }
+        }
+
         // Find new renderable elements.
         mx::StringVec renderablePaths;
         std::vector<mx::TypedElementPtr> elems;
