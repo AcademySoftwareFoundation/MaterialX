@@ -212,14 +212,19 @@ jobs:
         echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
         echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
 
-    - name: Render Tests
+    - name: Render Script Tests
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/render
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
-        build/installed/bin/MaterialXView --material build/render/brass_average_baked.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename build/render/Viewer_BrassAverage.png
-        build/installed/bin/MaterialXView --material build/render/usd_preview_surface_carpaint.mtlx --mesh resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename build/render/Viewer_CarpaintTranslated.png
+
+    - name: Viewer Tests
+      if: matrix.test_render == 'ON'
+      run: |
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+      working-directory: build/render
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'

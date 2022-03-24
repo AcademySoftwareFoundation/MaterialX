@@ -1,5 +1,5 @@
 /*
-    pybind11/exec.h: Support for evaluating Python expressions and statements
+    pybind11/eval.h: Support for evaluating Python expressions and statements
     from strings and files
 
     Copyright (c) 2016 Klemens Morgenstern <klemens.morgenstern@ed-chemnitz.de> and
@@ -19,11 +19,11 @@ PYBIND11_NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
 PYBIND11_NAMESPACE_BEGIN(detail)
 
 inline void ensure_builtins_in_globals(object &global) {
-    #if PY_VERSION_HEX < 0x03080000
+    #if defined(PYPY_VERSION) || PY_VERSION_HEX < 0x03080000
         // Running exec and eval on Python 2 and 3 adds `builtins` module under
         // `__builtins__` key to globals if not yet present.
         // Python 3.8 made PyRun_String behave similarly. Let's also do that for
-        // older versions, for consistency.
+        // older versions, for consistency. This was missing from PyPy3.8 7.3.7.
         if (!global.contains("__builtins__"))
             global["__builtins__"] = module_::import(PYBIND11_BUILTINS_MODULE);
     #else
@@ -135,6 +135,15 @@ object eval_file(str fname, object global = globals(), object local = object()) 
         PyErr_Clear();
         pybind11_fail("File \"" + fname_str + "\" could not be opened!");
     }
+
+    // In Python2, this should be encoded by getfilesystemencoding.
+    // We don't boher setting it since Python2 is past EOL anyway.
+    // See PR#3233
+#if PY_VERSION_HEX >= 0x03000000
+    if (!global.contains("__file__")) {
+        global["__file__"] = std::move(fname);
+    }
+#endif
 
 #if PY_VERSION_HEX < 0x03000000 && defined(PYPY_VERSION)
     PyObject *result = PyRun_File(f, fname_str.c_str(), start, global.ptr(),

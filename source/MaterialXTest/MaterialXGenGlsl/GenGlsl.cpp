@@ -91,8 +91,8 @@ TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    context.registerSourceCodeSearchPath(searchPath);
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    context.registerSourceCodeSearchPath(currentPath);
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
@@ -102,8 +102,8 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "targets", "stdlib", "pbrlib", "lights" }, searchPath, doc);
+    searchPath.append(mx::FilePath::getCurrentPath());
+    loadLibraries({ "libraries" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
@@ -111,7 +111,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE(spotLightShader != nullptr);
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
-    context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    context.registerSourceCodeSearchPath(searchPath);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));
@@ -127,7 +127,7 @@ static void generateGlslCode(bool generateLayout = false)
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/TestSuite");
     testRootPaths.push_back("resources/Materials/Examples");
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     bool writeShadersToDisk = false;
 

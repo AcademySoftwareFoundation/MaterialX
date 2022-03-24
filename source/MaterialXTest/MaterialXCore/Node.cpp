@@ -139,16 +139,21 @@ TEST_CASE("Node", "[node]")
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();
-    const mx::FilePathVec libraryFolders;
-    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::loadLibraries(libraryFolders, libraryRoot, doc);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
     REQUIRE(doc->validate());
     auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
     REQUIRE(nodedef);
     mx::NodePtr surfaceNode = doc->addNodeInstance(nodedef);
     REQUIRE(surfaceNode);
+    mx::InputPtr nodedefSpecularInput = nodedef->getActiveInput("specular");
+    REQUIRE(nodedefSpecularInput);
     mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular");
     REQUIRE(specularInput);
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
@@ -632,6 +637,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                     {
                         continue;
                     }
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
                 }
 
                 mx::InputPtr input = valueElem->asA<mx::Input>();

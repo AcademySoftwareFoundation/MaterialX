@@ -128,9 +128,6 @@ class ShaderRenderTester
     // Code generation methods
     //
 
-    // Register any additional source code paths used by the generator
-    virtual void registerSourceCodeSearchPaths(mx::GenContext& /*context*/) {};
-
     // Register any lights used by the generation context
     virtual void registerLights(mx::DocumentPtr /*dependLib*/,
                                 const GenShaderUtil::TestSuiteOptions &/*options*/,
