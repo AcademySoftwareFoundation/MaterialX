@@ -2245,10 +2245,11 @@ void Viewer::initCamera()
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
                          _meshScale == 1.0f;
 
-    if (_geometryHandler->getMeshes().empty())
+    if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
     {
         return;
     }
+
     const mx::Vector3& boxMax = _geometryHandler->getMaximumBounds();
     const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
@@ -2256,12 +2257,8 @@ void Viewer::initCamera()
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
-
-    if (_userCameraEnabled)
-    {
-        _meshTranslation = -meshRotation.transformPoint(sphereCenter);
-        _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
-    }
+    _meshTranslation = -meshRotation.transformPoint(sphereCenter);
+    _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
 }
 
 void Viewer::updateCameras()
@@ -2429,7 +2426,7 @@ mx::ImagePtr Viewer::getShadowMap()
         if (_shadowMaterial && _shadowBlurMaterial)
         {
             // Create framebuffer.
-            mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
+            mx::GLFramebufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
             framebuffer->bind();
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -2499,7 +2496,7 @@ void Viewer::updateAlbedoTable()
     }
 
     // Create framebuffer.
-    mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE, 3, mx::Image::BaseType::FLOAT);
+    mx::GLFramebufferPtr framebuffer = mx::GLFramebuffer::create(ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE, 3, mx::Image::BaseType::FLOAT);
     framebuffer->bind();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
