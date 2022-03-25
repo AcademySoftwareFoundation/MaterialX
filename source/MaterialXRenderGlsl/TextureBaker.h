@@ -118,12 +118,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         return _outputImagePath;
     }
 
-    /// Set the "libraries" search path location.
-    void setCodeSearchPath(const FileSearchPath& codesearchPath)
-    {
-        _codeSearchPath = codesearchPath;
-    }
-
     /// Set the name of the baked graph element.
     void setBakedGraphName(const string& name)
     {
@@ -275,7 +269,6 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _bakedGraphName;
     string _bakedGeomInfoName;
     string _textureFilenameTemplate;
-    FileSearchPath _codeSearchPath;
     std::ostream* _outputStream;
     bool _hashImageNames;
     std::pair<Vector2, Vector2> _textureSpace;

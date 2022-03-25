@@ -115,9 +115,9 @@ void GlslRenderer::renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax
     _program->bind();
     _program->bindTextures(_imageHandler);
 
-    _frameBuffer->bind();
+    _framebuffer->bind();
     drawScreenSpaceQuad(uvMin, uvMax);
-    _frameBuffer->unbind();
+    _framebuffer->unbind();
 
     _program->unbind();
 }

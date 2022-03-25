@@ -176,9 +176,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
     mx::GenContext context(_shaderGenerator);
-    context.registerSourceCodeSearchPath(searchPath);
+    context.registerSourceCodeSearchPath(currentPath);
     context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
-    registerSourceCodeSearchPaths(context);
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
@@ -279,7 +278,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
                     {
                         outputBakeFile.removeExtension();
                         outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
-                        runBake(doc, imageSearchPath, searchPath, outputBakeFile, doctoBake, log);
+                        runBake(doc, imageSearchPath, outputBakeFile, doctoBake, log);
                         break;
                     }
                 }

@@ -486,14 +486,7 @@ DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPat
 
     DefaultColorManagementSystemPtr cms = DefaultColorManagementSystem::create(genContext.getShaderGenerator().getTarget());
     cms->loadLibrary(doc);
-    if (!_codeSearchPath.isEmpty())
-    {
-        genContext.registerSourceCodeSearchPath(_codeSearchPath);
-    }
-    for (const FilePath& path : searchPath)
-    {
-        genContext.registerSourceCodeSearchPath(path / "libraries");
-    }
+    genContext.registerSourceCodeSearchPath(searchPath);
     genContext.getShaderGenerator().setColorManagementSystem(cms);
 
     // Compute the material tag set.
