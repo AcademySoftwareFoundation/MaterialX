@@ -60,7 +60,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" })
 {
     // Set default texture space
-    _textureSpace = std::make_pair(Vector2(0.0f, 0.0f), Vector2(1.0f, 1.0f));
+    _textureSpace = std::make_pair(Vector2(0.0f), Vector2(1.0f));
 
     if (baseType == Image::BaseType::UINT8)
     {
