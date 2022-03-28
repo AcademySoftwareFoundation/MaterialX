@@ -95,7 +95,7 @@ class MX_GENSHADER_API Shader
     bool hasClassification(unsigned int c) const { return _graph->hasClassification(c); }
 
     /// Set the shader source code for a given shader stage.
-    const void setSourceCode(const string& code, const string& stage = Stage::PIXEL) { getStage(stage).setSourceCode(code); }
+    void setSourceCode(const string& code, const string& stage = Stage::PIXEL) { getStage(stage).setSourceCode(code); }
 
     /// Return the shader source code for a given shader stage.
     const string& getSourceCode(const string& stage = Stage::PIXEL) const { return getStage(stage).getSourceCode(); }

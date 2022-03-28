@@ -210,7 +210,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
 
     bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
         (output->getType() == "color3" || output->getType() == "color4");
-    getFrameBuffer()->setEncodeSrgb(encodeSrgb);
+    getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     // Render and capture the requested image.
     renderTextureSpace();
