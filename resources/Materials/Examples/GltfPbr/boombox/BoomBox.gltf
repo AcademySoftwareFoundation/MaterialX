@@ -77,20 +77,6 @@
       "byteLength": 207816
     }
   ],
-  "images": [
-    {
-      "uri": "BoomBox_baseColor.png"
-    },
-    {
-      "uri": "BoomBox_occlusionRoughnessMetallic.png"
-    },
-    {
-      "uri": "BoomBox_normal.png"
-    },
-    {
-      "uri": "BoomBox_emissive.png"
-    }
-  ],
   "meshes": [
     {
       "primitives": [
@@ -102,37 +88,9 @@
             "POSITION": 3
           },
           "indices": 4,
-          "material": 0
         }
       ],
       "name": "BoomBox"
-    }
-  ],
-  "materials": [
-    {
-      "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 0
-        },
-        "metallicRoughnessTexture": {
-          "index": 1
-        }
-      },
-      "normalTexture": {
-        "index": 2
-      },
-      "occlusionTexture": {
-        "index": 1
-      },
-      "emissiveFactor": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "emissiveTexture": {
-        "index": 3
-      },
-      "name": "BoomBox_Mat"
     }
   ],
   "nodes": [
@@ -153,20 +111,6 @@
       "nodes": [
         0
       ]
-    }
-  ],
-  "textures": [
-    {
-      "source": 0
-    },
-    {
-      "source": 1
-    },
-    {
-      "source": 2
-    },
-    {
-      "source": 3
     }
   ]
 }
