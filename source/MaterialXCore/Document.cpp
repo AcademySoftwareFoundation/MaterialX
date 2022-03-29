@@ -169,11 +169,20 @@ void Document::initialize()
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
-                                         const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
+                                         const string& version, bool isDefaultVersion, const string& group, string& newGraphName, const string& namespaceString)
 {
-    if (getNodeDef(nodeDefName))
+    if (!nodeGraph || nodeDefName.empty() || node.empty())
     {
-        throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
+        throw Exception("Invalid input arguments specified for nodedef creation");
+    }
+
+    // Always store nodedef name as fully qualified name
+    bool isNameSpaced = !namespaceString.empty();
+    string qualifiedNodeDefName = isNameSpaced ? (namespaceString + NAME_PREFIX_SEPARATOR + nodeDefName) : nodeDefName;
+    
+    if (getNodeDef(qualifiedNodeDefName))
+    {
+        throw Exception("Cannot create duplicate nodedef: " + qualifiedNodeDefName);
     }
 
     NodeGraphPtr graph = nodeGraph;
@@ -186,9 +195,9 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         graph = addNodeGraph(newGraphName);
         graph->copyContentFrom(nodeGraph);
     }
-    graph->setNodeDefString(nodeDefName);
+    graph->setNodeDefString(qualifiedNodeDefName);
 
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    NodeDefPtr nodeDef = addChild<NodeDef>(qualifiedNodeDefName);
     nodeDef->setNodeString(node);
     if (!group.empty())
     {
@@ -204,6 +213,13 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         {
             nodeDef->setDefaultVersion(true);
         }
+    }
+
+    // Set the namespace for the functional graph and nodedef
+    if (isNameSpaced)
+    {
+        graph->setNamespace(namespaceString);
+        nodeDef->setNamespace(namespaceString);
     }
 
     for (auto output : graph->getOutputs())

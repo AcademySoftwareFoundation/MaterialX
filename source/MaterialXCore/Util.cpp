@@ -6,6 +6,8 @@
 #include <MaterialXCore/Types.h>
 
 #include <cctype>
+#include <sstream>
+#include <iomanip>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -55,6 +57,11 @@ bool isValidName(const string& name)
     return it == name.end();
 }
 
+bool hasNamespace(const string& name)
+{
+    return isValidName(name) && name.find(NAME_PREFIX_SEPARATOR) == std::string::npos;
+}
+
 string incrementName(const string& name)
 {
     size_t split = name.length();
@@ -89,6 +96,16 @@ StringVec splitString(const string& str, const string& sep)
     }
 
     return split;
+}
+
+string joinStrings(const StringVec& stringVec, const string& sep)
+{
+    string res;
+    for (const string& name : stringVec)
+    {
+        res = res.empty() ? name : res + sep + name;
+    }
+    return res;
 }
 
 string replaceSubstrings(string str, const StringMap& stringMap)
@@ -145,11 +162,7 @@ StringVec splitNamePath(const string& namePath)
 
 string createNamePath(const StringVec& nameVec)
 {
-    string res;
-    for (const string& name : nameVec)
-    {
-        res = res.empty() ? name : res + NAME_PATH_SEPARATOR + name;
-    }
+    string res = joinStrings(nameVec, NAME_PATH_SEPARATOR);
     return res;
 }
 

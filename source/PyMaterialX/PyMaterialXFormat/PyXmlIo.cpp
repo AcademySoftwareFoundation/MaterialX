@@ -35,6 +35,12 @@ void bindPyXmlIo(py::module& mod)
         py::arg("doc"), py::arg("writeOptions") = nullptr);
     mod.def("prependXInclude", mx::prependXInclude);
 
+    mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
+        py::arg("sep") = mx::PATH_LIST_SEPARATOR);
+
+    mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
+    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
+
     py::register_exception<mx::ExceptionParseError>(mod, "ExceptionParseError");
     py::register_exception<mx::ExceptionFileMissing>(mod, "ExceptionFileMissing");
 }
