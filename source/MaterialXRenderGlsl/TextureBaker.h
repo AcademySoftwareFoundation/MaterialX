@@ -190,17 +190,28 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         return _hashImageNames;
     }
 
-    /// Set the min and max UV values for the geometry used for texture baking 
-    /// By default it is a screen quad with UV (0,0) - (1,1)
-    void setTextureSpace(Vector2 uvMin, Vector2 uvMax)
+    /// Set the minimum texcoords used in texture baking.  Defaults to 0, 0.
+    void setTextureSpaceMin(const Vector2& min)
     {
-        _textureSpace = std::make_pair(uvMin, uvMax);
+        _textureSpaceMin = min;
     }
 
-    /// Get the min and max UV values for the baking texture space
-    std::pair<Vector2, Vector2> getTextureSpace() const
+    /// Return the minimum texcoords used in texture baking.
+    Vector2 getTextureSpaceMin() const
     {
-        return _textureSpace;
+        return _textureSpaceMin;
+    }
+
+    /// Set the maximum texcoords used in texture baking.  Defaults to 1, 1.
+    void setTextureSpaceMax(const Vector2& max)
+    {
+        _textureSpaceMax = max;
+    }
+
+    /// Return the maximum texcoords used in texture baking.
+    Vector2 getTextureSpaceMax() const
+    {
+        return _textureSpaceMax;
     }
 
     /// Set up the unit definitions to be used in baking.
@@ -271,7 +282,8 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _textureFilenameTemplate;
     std::ostream* _outputStream;
     bool _hashImageNames;
-    std::pair<Vector2, Vector2> _textureSpace;
+    Vector2 _textureSpaceMin;
+    Vector2 _textureSpaceMax;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;

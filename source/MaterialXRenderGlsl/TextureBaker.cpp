@@ -56,12 +56,11 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _textureFilenameTemplate("$MATERIAL_$SHADINGMODEL_$INPUT$UDIMPREFIX$UDIM.$EXTENSION"),
     _outputStream(&std::cout),
     _hashImageNames(false),
+    _textureSpaceMin(0.0f),
+    _textureSpaceMax(1.0f),
     _generator(GlslShaderGenerator::create()),
     _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" })
 {
-    // Set default texture space
-    _textureSpace = std::make_pair(Vector2(0.0f), Vector2(1.0f));
-
     if (baseType == Image::BaseType::UINT8)
     {
 #if MATERIALX_BUILD_OIIO
@@ -223,8 +222,7 @@ void TextureBaker::bakeGraphOutput(OutputPtr output, GenContext& context, const 
     getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     // Render and capture the requested image.
-    auto textureSpaceRange = getTextureSpace();
-    renderTextureSpace(textureSpaceRange.first, textureSpaceRange.second);
+    renderTextureSpace(getTextureSpaceMin(), getTextureSpaceMax());
     string texturefilepath = generateTextureFilename(filenameTemplateMap);
     captureImage(_frameCaptureImage);
 

@@ -644,7 +644,8 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
     baker->setImageHandler(_renderer->getImageHandler());
     baker->setOptimizeConstants(true);
     baker->setHashImageNames(true);
-    baker->setTextureSpace(bakeOptions.uvmin, bakeOptions.uvmax);
+    baker->setTextureSpaceMin(bakeOptions.uvmin);
+    baker->setTextureSpaceMax(bakeOptions.uvmax);
 
     try
     {
