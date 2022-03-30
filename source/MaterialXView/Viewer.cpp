@@ -1199,7 +1199,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         }
 
         // Check for any udim set.
-        mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+        mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
         // Create new materials.
         mx::TypedElementPtr udimElement;

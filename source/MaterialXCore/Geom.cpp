@@ -11,9 +11,9 @@ MATERIALX_NAMESPACE_BEGIN
 
 const string GEOM_PATH_SEPARATOR = "/";
 const string UNIVERSAL_GEOM_NAME = GEOM_PATH_SEPARATOR;
-const string UDIMSET = "udimset";
 const string UDIM_TOKEN = "<UDIM>";
 const string UV_TILE_TOKEN = "<UVTILE>";
+const string UDIM_SET_PROPERTY = "udimset";
 
 const string GeomElement::GEOM_ATTRIBUTE = "geom";
 const string GeomElement::COLLECTION_ATTRIBUTE = "collection";
