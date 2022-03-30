@@ -213,11 +213,11 @@ function init()
         bbox.getBoundingSphere(bsphere);
 
         controls.target = bsphere.center;
-        camera.position.y = bsphere.radius * 0.65;
-        camera.position.z = bsphere.radius * 1.95;
+        camera.position.y = bsphere.center.y;
+        camera.position.z = bsphere.radius * 2.0;
         controls.update();
 
-        camera.far = bsphere.radius * 10;
+        camera.far = 5000.0;
         camera.updateProjectionMatrix();
 
     }).then(() => {

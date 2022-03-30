@@ -31,8 +31,6 @@ dirent = fs.readdirSync(geometryFiles).filter(
 )
 let geometry = dirent
   .map((fileName) => ({name: fileName, value: `${geometryFilesURL}/${fileName}`}));
-
-console.log( geometry );
   
 module.exports = {
   entry: './source/index.js',
