@@ -155,6 +155,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     // Set oso file paths
     string osoPaths(_oslUtilityOSOPath);
     osoPaths += PATH_LIST_SEPARATOR + dirPath.asString();
+    osoPaths += PATH_LIST_SEPARATOR + dirPath.getParentPath().asString();
 
     // Build and run render command
     string command(_oslTestRenderExecutable);
