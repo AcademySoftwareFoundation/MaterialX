@@ -89,4 +89,10 @@ void bindPyGeom(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);
+
+    mod.attr("GEOM_PATH_SEPARATOR") = mx::GEOM_PATH_SEPARATOR;
+    mod.attr("UNIVERSAL_GEOM_NAME") = mx::UNIVERSAL_GEOM_NAME;
+    mod.attr("UDIM_TOKEN") = mx::UDIM_TOKEN;
+    mod.attr("UV_TILE_TOKEN") = mx::UV_TILE_TOKEN;
+    mod.attr("UDIM_SET_PROPERTY") = mx::UDIM_SET_PROPERTY;
 }

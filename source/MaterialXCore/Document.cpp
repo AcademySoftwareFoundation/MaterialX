@@ -607,7 +607,7 @@ void Document::upgradeVersion()
             }
 
             GeomInfoPtr udimSetInfo = addGeomInfo();
-            udimSetInfo->setGeomPropValue("udimset", udimSetString, getTypeString<StringVec>());
+            udimSetInfo->setGeomPropValue(UDIM_SET_PROPERTY, udimSetString, getTypeString<StringVec>());
         }
 
         minorVersion = 34;

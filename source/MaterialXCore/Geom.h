@@ -18,8 +18,8 @@ MATERIALX_NAMESPACE_BEGIN
 extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
 extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
 extern MX_CORE_API const string UDIM_TOKEN;
-extern MX_CORE_API const string UDIMSET;
 extern MX_CORE_API const string UV_TILE_TOKEN;
+extern MX_CORE_API const string UDIM_SET_PROPERTY;
 
 class GeomElement;
 class GeomInfo;
