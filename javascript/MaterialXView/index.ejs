@@ -1,33 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">  
-    <title>MaterialX Web Viewer</title>
-    <link rel="icon" type="image/x-icon" href="public/favicon.ico" />
-  </head>
-  <body style="margin: 0px; overflow: hidden;">
-    <div id="container">
-      <div>
-        <label for="materials">Choose a material:</label>
-        <select name="materials" id="materials">
-          <% materials.forEach(function(m){ %>
-            <option value="<%-m.value%>"><%-m.name%></option>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>MaterialX Web Viewer</title>
+  <link rel="icon" type="image/x-icon" href="public/favicon.ico" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial
+    }
+  </style>
+</head>
+
+<body style="margin: 0px; overflow: hidden;">
+  <div id="container">
+    <div>
+      <label for="materials">Choose a material:</label>
+      <select name="materials" id="materials">
+        <% materials.forEach(function(m){ %>
+          <option value="<%-m.value%>">
+            <%-m.name%>
+          </option>
           <% }); %>
-        </select>
-      </div>
-      <div>
-        <label for="geometry">Choose geometry:</label>
-        <select name="geometry" id="geometry">
-          <% geometry.forEach(function(m){ %>
-            <option value="<%-m.value%>"><%-m.name%></option>
-          <% }); %>
-        </select>
-      </div>      
-      
-      <canvas id="webglcanvas"></canvas>
+      </select>
     </div>
-    <script src="JsMaterialXGenShader.js"></script>
-    <script src="main.js"></script>
-  </body>
+    <div>
+      <label for="geometry">Choose geometry:</label>
+      <select name="geometry" id="geometry">
+        <% geometry.forEach(function(m){ %>
+          <option value="<%-m.value%>">
+            <%-m.name%>
+          </option>
+          <% }); %>
+      </select>
+    </div>
+
+    <canvas id="webglcanvas"></canvas>
+  </div>
+  <script src="JsMaterialXGenShader.js"></script>
+  <script src="main.js"></script>
+</body>
+
 </html>

@@ -21,6 +21,7 @@ let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
 
+// Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
 if (!materialFilename) {
   materialFilename = 'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
