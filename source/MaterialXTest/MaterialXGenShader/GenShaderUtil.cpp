@@ -941,23 +941,23 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     enableIndirectLighting = true;
     enableReferenceQuality = false;
 
-    MaterialX::DocumentPtr doc = MaterialX::createDocument();
+    mx::DocumentPtr doc = mx::createDocument();
     try
     {
-        MaterialX::readFromXmlFile(doc, optionFile, mx::FileSearchPath());
+        mx::readFromXmlFile(doc, optionFile, mx::FileSearchPath());
 
-        MaterialX::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
+        mx::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
             // Read Wedge Render Settings
-            for (MaterialX::ElementPtr p : optionDefs->getChildrenOfType<MaterialX::Element>(WEDGE_SETTING))
+            for (mx::ElementPtr p : optionDefs->getChildrenOfType<mx::Element>(WEDGE_SETTING))
             {
                 WedgeSetting setting;
                 for (auto child : p->getChildren())
                 {
                     mx::InputPtr input = child->asA<mx::Input>();
                     const std::string& name = input->getName();
-                    MaterialX::ValuePtr val = input->getValue();
+                    mx::ValuePtr val = input->getValue();
 
                     if (name == "file")
                     {
@@ -980,14 +980,14 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
             }
 
             // Read Baker Settings
-            for (MaterialX::ElementPtr p : optionDefs->getChildrenOfType<MaterialX::Element>(BAKER_SETTINGS))
+            for (mx::ElementPtr p : optionDefs->getChildrenOfType<mx::Element>(BAKER_SETTINGS))
             {
                 BakeSetting setting;
                 for (auto child : p->getChildren())
                 {
                     mx::InputPtr input = child->asA<mx::Input>();
                     const std::string& name = input->getName();
-                    MaterialX::ValuePtr val = input->getValue();
+                    mx::ValuePtr val = input->getValue();
 
                     if (name == "file")
                     {
@@ -1016,16 +1016,16 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
             for (auto p : optionDefs->getInputs())
             {
                 const std::string& name = p->getName();
-                MaterialX::ValuePtr val = p->getValue();
+                mx::ValuePtr val = p->getValue();
                 if (val)
                 {
                     if (name == OVERRIDE_FILES_STRING)
                     {
-                        overrideFiles = MaterialX::splitString(p->getValueString(), ",");
+                        overrideFiles = mx::splitString(p->getValueString(), ",");
                     }
                     else if (name == LIGHT_FILES_STRING)
                     {
-                        lightFiles = MaterialX::splitString(p->getValueString(), ",");
+                        lightFiles = mx::splitString(p->getValueString(), ",");
                     }
                     else if (name == SHADER_INTERFACES_STRING)
                     {
