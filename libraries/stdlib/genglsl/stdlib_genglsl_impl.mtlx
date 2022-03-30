@@ -11,7 +11,7 @@
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
 
-  <!-- <surface> -->
+  <!-- <surface_unlit> -->
   <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" target="genglsl" />
 
   <!-- ======================================================================== -->
