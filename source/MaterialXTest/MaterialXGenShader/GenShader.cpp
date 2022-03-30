@@ -104,7 +104,7 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
     REQUIRE(mx::TypeDesc::get("bar") == nullptr);
 }
 
-TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
+TEST_CASE("GenShader: Graph + Nodedf Transparent Check", "[genshader]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
@@ -163,6 +163,41 @@ TEST_CASE("GenShader: Graph + Nodedf Translation Check", "[genshader]")
         }
     }
     mx::writeToXmlFile(doc, "transparency_test_nodedefs.mtlx");
+}
+
+TEST_CASE("GenShader: Shader Translation", "[translate]")
+{
+    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    mx::FileSearchPath searchPath(currentPath);
+    mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
+
+    mx::FilePath testPath = currentPath / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr doc = mx::createDocument();
+        loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, doc);
+
+        mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
+        mtlxFile.removeExtension();
+
+        try
+        {
+            shaderTranslator->translateAllMaterials(doc, "UsdPreviewSurface");
+        }
+        catch (mx::Exception &e)
+        {
+            std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
+        }
+
+        std::string validationErrors;
+        bool valid = doc->validate(&validationErrors);
+        if (!doc->validate(&validationErrors))
+        {
+            std::cout << "Shader translation of " << (testPath / mtlxFile).asString() << " failed" << std::endl;
+            std::cout << "Validation errors: " << validationErrors << std::endl;
+        }
+        CHECK(valid);
+    }
 }
 
 TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")

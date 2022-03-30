@@ -132,16 +132,25 @@ class TestSuiteOptions
     bool enableReferenceQuality;
 
     // Wedge parameters
-    mx::StringVec wedgeFiles;
-    mx::StringVec wedgeParameters;
-    mx::FloatVec wedgeRangeMin;
-    mx::FloatVec wedgeRangeMax;
-    mx::IntVec wedgeSteps;
-
+    struct WedgeSetting
+    {
+        std::string wedgeFile;
+        std::string parameter;
+        mx::Vector2 range;
+        int steps;
+    };
+    std::vector <WedgeSetting> wedgeSettings;
+    
     // Bake parameters
-    mx::StringVec bakeFiles;
-    mx::BoolVec bakeHdrs;
-    mx::IntVec bakeResolutions;
+    struct BakeSetting
+    {
+        std::string bakeFile;
+        bool hdr = false; 
+        unsigned int resolution = 512;
+        mx::Vector2 uvmin = mx::Vector2(0.0f);
+        mx::Vector2 uvmax = mx::Vector2(1.0f);
+    };
+    std::vector<BakeSetting> bakeSettings;
 };
 
 // Utility class to handle testing of shader generators.

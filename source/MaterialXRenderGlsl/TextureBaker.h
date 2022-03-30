@@ -190,6 +190,30 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
         return _hashImageNames;
     }
 
+    /// Set the minimum texcoords used in texture baking.  Defaults to 0, 0.
+    void setTextureSpaceMin(const Vector2& min)
+    {
+        _textureSpaceMin = min;
+    }
+
+    /// Return the minimum texcoords used in texture baking.
+    Vector2 getTextureSpaceMin() const
+    {
+        return _textureSpaceMin;
+    }
+
+    /// Set the maximum texcoords used in texture baking.  Defaults to 1, 1.
+    void setTextureSpaceMax(const Vector2& max)
+    {
+        _textureSpaceMax = max;
+    }
+
+    /// Return the maximum texcoords used in texture baking.
+    Vector2 getTextureSpaceMax() const
+    {
+        return _textureSpaceMax;
+    }
+
     /// Set up the unit definitions to be used in baking.
     void setupUnitSystem(DocumentPtr unitDefinitions);
 
@@ -258,6 +282,8 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     string _textureFilenameTemplate;
     std::ostream* _outputStream;
     bool _hashImageNames;
+    Vector2 _textureSpaceMin;
+    Vector2 _textureSpaceMax;
 
     ShaderGeneratorPtr _generator;
     ConstNodePtr _material;
