@@ -11,7 +11,7 @@
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
 
-  <!-- <surface> -->
+  <!-- <surface_unlit> -->
   <implementation name="IM_surface_unlit_genosl" nodedef="ND_surface_unlit" file="libraries/stdlib/genosl/mx_surface_unlit.osl" function="mx_surface_unlit" target="genosl" />
 
   <!-- ======================================================================== -->
