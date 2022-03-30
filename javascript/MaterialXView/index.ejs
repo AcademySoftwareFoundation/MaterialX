@@ -17,7 +17,7 @@
 <body style="margin: 0px; overflow: hidden;">
   <div id="container">
     <div>
-      <label for="materials">Choose a material:</label>
+      <label for="materials">Material:</label>
       <select name="materials" id="materials">
         <% materials.forEach(function(m){ %>
           <option value="<%-m.value%>">
@@ -27,7 +27,7 @@
       </select>
     </div>
     <div>
-      <label for="geometry">Choose geometry:</label>
+      <label for="geometry">Geometry:</label>
       <select name="geometry" id="geometry">
         <% geometry.forEach(function(m){ %>
           <option value="<%-m.value%>">
