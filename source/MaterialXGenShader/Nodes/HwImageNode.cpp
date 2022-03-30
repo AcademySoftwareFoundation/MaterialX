@@ -41,7 +41,7 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
             const string& fileName = file->getValueString();
             if (fileName.find(UDIM_TOKEN) != string::npos)
             {
-                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIMSET);
+                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIM_SET_PROPERTY);
                 if (udimSetValue && udimSetValue->isA<StringVec>())
                 {
                     const StringVec& udimIdentifiers = udimSetValue->asA<StringVec>();

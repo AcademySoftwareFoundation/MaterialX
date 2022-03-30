@@ -54,7 +54,7 @@ def main():
         print(msg)
 
     # Check the document for a UDIM set.
-    udimSetValue = doc.getGeomPropValue('udimset')
+    udimSetValue = doc.getGeomPropValue(mx.UDIM_SET_PROPERTY)
     udimSet = udimSetValue.getData() if udimSetValue else []
 
     # Compute baking resolution from the source document.

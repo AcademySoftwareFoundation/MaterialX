@@ -335,7 +335,7 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
-        bakedGeom->setGeomPropValue("udimset", udimSet, "stringarray");
+        bakedGeom->setGeomPropValue(UDIM_SET_PROPERTY, udimSet, "stringarray");
     }
 
     // Create a shader node.
@@ -550,7 +550,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
     findRenderableElements(doc, renderableMaterials);
 
     // Compute the UDIM set.
-    ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+    ValuePtr udimSetValue = doc->getGeomPropValue(UDIM_SET_PROPERTY);
     StringVec udimSet;
     if (udimSetValue && udimSetValue->isA<StringVec>())
     {
