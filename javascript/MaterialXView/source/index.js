@@ -22,7 +22,13 @@ let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
 
 let materialFilename = new URLSearchParams(document.location.search).get("file");
+if (!materialFilename) {
+  materialFilename = 'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
+}
 let geometryFilename = new URLSearchParams(document.location.search).get("geom");
+if (!geometryFilename) {
+  geometryFilename = 'Geometry/shaderball.glb';
+}
 
 init();
 
@@ -56,9 +62,7 @@ function init()
 
     // Material selection
     let materialsSelect = document.getElementById('materials');
-    materialsSelect.value = materialFilename ?
-                            materialFilename :
-                            'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
+    materialsSelect.value = materialFilename;
     materialsSelect.addEventListener('change', (e) => {
       materialFilename = e.target.value;
       window.location.href = 
@@ -67,9 +71,7 @@ function init()
 
     // Geometry selection
     let geometrySelect = document.getElementById('geometry');
-    geometrySelect.value = geometryFilename ?
-                            geometryFilename :
-                            'Geometry/shaderball.glb';
+    geometrySelect.value = geometryFilename;
     geometrySelect.addEventListener('change', (e) => {
       geometryFilename = e.target.value;
       window.location.href = 
