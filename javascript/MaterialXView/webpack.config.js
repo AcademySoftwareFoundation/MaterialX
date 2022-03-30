@@ -23,8 +23,17 @@ let gltfMaterials = dirent
 
 materials = materials.concat( usdMaterials );
 materials = materials.concat( gltfMaterials );
-console.log( materials );
 
+const geometryFiles = "../../resources/Geometry";
+const geometryFilesURL = "Geometry";
+dirent = fs.readdirSync(geometryFiles).filter(
+  function (file) { if (file.lastIndexOf(".glb") > -1) return file; }
+)
+let geometry = dirent
+  .map((fileName) => ({name: fileName, value: `${geometryFilesURL}/${fileName}`}));
+
+console.log( geometry );
+  
 module.exports = {
   entry: './source/index.js',
   output: {
@@ -35,7 +44,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       templateParameters: {
-        materials        
+        materials,
+        geometry
       },
       template: 'index.ejs'
     }),

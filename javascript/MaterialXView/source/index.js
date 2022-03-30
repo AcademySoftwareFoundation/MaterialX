@@ -21,7 +21,8 @@ let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
 
-const materialFilename = new URLSearchParams(document.location.search).get("file");
+let materialFilename = new URLSearchParams(document.location.search).get("file");
+let geometryFilename = new URLSearchParams(document.location.search).get("geom");
 
 init();
 
@@ -38,17 +39,41 @@ function fallbackMaterial(doc)
     shaderElement.setNodeName(ssName);
 }
 
+function loadGeometry(scene, gltfLoader, filename, resolve)
+{
+  // Clear the scene first
+  while (scene.children.length > 0) {
+    scene.remove(scene.children[0]);
+  }
+
+  gltfLoader.load(filename, resolve); 
+}
+
 function init()
 {
     let canvas = document.getElementById('webglcanvas');
-    let materialsSelect = document.getElementById('materials');
     let context = canvas.getContext('webgl2');
 
+    // Material selection
+    let materialsSelect = document.getElementById('materials');
     materialsSelect.value = materialFilename ?
                             materialFilename :
                             'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
     materialsSelect.addEventListener('change', (e) => {
-      window.location.href = `${window.location.origin}${window.location.pathname}?file=${e.target.value}`;
+      materialFilename = e.target.value;
+      window.location.href = 
+      `${window.location.origin}${window.location.pathname}?file=${materialFilename}&geom=${geometryFilename}`;
+    });
+
+    // Geometry selection
+    let geometrySelect = document.getElementById('geometry');
+    geometrySelect.value = geometryFilename ?
+                            geometryFilename :
+                            'Geometry/shaderball.glb';
+    geometrySelect.addEventListener('change', (e) => {
+      geometryFilename = e.target.value;
+      window.location.href = 
+      `${window.location.origin}${window.location.pathname}?file=${materialFilename}&geom=${geometryFilename}`;
     });
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
@@ -79,11 +104,12 @@ function init()
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
+    const geometryFile = 'Geometry/boombox.glb';
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => gltfLoader.load('Geometry/boombox.glb', resolve)),
+        new Promise(resolve => loadGeometry(scene, gltfLoader, geometryFilename, resolve)),
         new Promise(function (resolve) { 
           MaterialX().then((module) => { 
             resolve(module); 
