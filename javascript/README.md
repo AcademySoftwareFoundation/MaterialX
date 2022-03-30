@@ -28,17 +28,21 @@ Another alternative is to use a [Docker](https://docs.docker.com/) image. With D
 ### Build Steps
 Run the following commands in the root folder of this repository.
 
-Create a build folder in the *root* of the repository and navigate to that folder:
+Create a build folder in the javascript folder below the *root* of the repository and navigate to that folder:
 ```sh
-mkdir ./build
-cd ./build
+mkdir ./javascript/build
+cd ./javascript/build
 ```
 
 If you are using the emsdk directly on Windows, note that the emscripten SDK doesn't work with Microsoft's Visual Studio build tools. You need to use an alternative CMake generator like [MinGW](http://mingw-w64.org/doku.php) Makefiles or [Ninja](https://ninja-build.org/). We recommend to use Ninja (unless you already have MinGW installed), since it's pretty lightweight and a pure build system, instead of a full compiler suite.
 
 Generate the build files with CMake. When building the JavaScript bindings, you can optionally specify the emsdk path with the `MATERIALX_EMSDK_PATH` option. This option can be omitted if the `emsdk/emsdk_env.sh` script was run beforehand.
 ```sh
-cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_GLSL=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF -DMATERIALX_BUILD_GEN_OGSXML=OFF -DMATERIALX_BUILD_GEN_OGSFX=OFF -DMATERIALX_BUILD_GEN_ARNOLD=OFF -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_EMSDK_PATH=/path/to/emsdk
+cmake .. -DMATERIALX_BUILD_JS=ON -DMATERIALX_BUILD_RENDER=OFF 
+-DMATERIALX_BUILD_TESTS=OFF 
+-DMATERIALX_BUILD_GEN_OSL=OFF
+-DMATERIALX_BUILD_GEN_MDL=OFF  
+-DMATERIALX_EMSDK_PATH=</path to emsdk>
 ```
 On Windows, remember to set the CMake generator via the `-G` flag , e.g. `-G "Ninja"`.
 
@@ -59,20 +63,42 @@ For follow-up builds (i.e. after changing the source code), remove the `<cmake g
 After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project.
 
 ## Testing
-The JavaScript tests are located in the `MaterialXTest` folder and use the `.spec.js` suffix.
+JavaScript unit tests are located in the `MaterialXTest` folder and use the `.spec.js` suffix. A sample browser is located in the `MaterialXView` folder which allows preview of some of provided sample MaterialX materials.
 
-#### Setup
+### Unit Tests 
 These tests require `node.js`, which is shipped with the emscripten environment. Make sure to `source` the `emsdk/emsdk_env.sh` script before running the steps described below, if you don't have NodeJs installed on your system already (running the command is not required otherwise).
 
-1. From the test directory, install the npm packages.
-```sh
-npm install
-```
+1. From the `MaterialXTest` directory, install the npm packages.
+    ```sh
+    npm install
+    ```
 
 2. Run the tests from the MaterialXTest directory.
-```sh
-npm run test
-```
+    ```sh
+    npm run test         # Core library tests
+    npm run test:browser # Code generation library test
+    ```
+
+### Sample Viewer
+
+1. From the `MaterialXView` directory, install the npm packages and build the viewer.
+    ```sh
+    npm install
+    call npm run build
+    ```
+
+2. Start a local host and open in a browser. In this example `http-server` is being used but any utility which can open a local host can be used.
+    ```sh
+    call npm install http-server -g
+    call http-server . -p 8000
+    # Open browser
+    ```
+## Sample build scripts
+Note that a sample build script is provided in 
+`javascript/build_javascript_win.bat` with a corresponding script to clean the build area in
+`javascript/clean_javascript_win.bat`. Modify the Emscripten SDK and MaterialX build locations as needed.
+
+Additionaly the github actions workflow YAML file (`.github/workflows/main.yml`) can be examined as well.
 
 ## Using the Bindings
 ### Consuming the Module
