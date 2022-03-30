@@ -83,7 +83,7 @@ function init()
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => gltfLoader.load('Geometry/shaderball.glb', resolve)),
+        new Promise(resolve => gltfLoader.load('Geometry/boombox.glb', resolve)),
         new Promise(function (resolve) { 
           MaterialX().then((module) => { 
             resolve(module); 
@@ -101,7 +101,7 @@ function init()
         doc.importLibrary(stdlib);
 
         // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface';
+        const searchPath = 'Materials/Examples/';
 
         // Load material
         if (mtlxMaterial)
