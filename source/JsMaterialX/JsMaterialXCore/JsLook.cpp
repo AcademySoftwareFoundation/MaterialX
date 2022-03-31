@@ -43,7 +43,6 @@ EMSCRIPTEN_BINDINGS(look)
         .function("getVisibilities", &mx::Look::getVisibilities)
         .function("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .function("removeVisibility", &mx::Look::removeVisibility)
-        .function("append", &mx::Look::append)
         .class_property("CATEGORY", &mx::Look::CATEGORY);
 
     ems::class_<mx::LookGroup, ems::base<mx::Element>>("LookGroup")

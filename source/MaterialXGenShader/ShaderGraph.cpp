@@ -276,7 +276,23 @@ void ShaderGraph::addColorTransformNode(ShaderInput* input, const ColorSpaceTran
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-        colorManagementSystem->connectNodeToShaderInput(this, colorTransformNodePtr.get(), input, context);
+
+        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
+        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
+
+        ShaderInput* shaderInput = colorTransformNode->getInput(0);
+        shaderInput->setVariable(input->getFullName());
+        shaderInput->setValue(input->getValue());
+        shaderInput->setPath(input->getPath());
+        shaderInput->setUnit(EMPTY_STRING);
+
+        if (input->isBindInput())
+        {
+            ShaderOutput* oldConnection = input->getConnection();
+            shaderInput->makeConnection(oldConnection);
+        }
+
+        input->makeConnection(colorTransformNodeOutput);
     }
 }
 
@@ -294,7 +310,20 @@ void ShaderGraph::addColorTransformNode(ShaderOutput* output, const ColorSpaceTr
     if (colorTransformNodePtr)
     {
         addNode(colorTransformNodePtr);
-        colorManagementSystem->connectNodeToShaderOutput(this, colorTransformNodePtr.get(), output, context);
+
+        ShaderNode* colorTransformNode = colorTransformNodePtr.get();
+        ShaderOutput* colorTransformNodeOutput = colorTransformNode->getOutput(0);
+
+        ShaderInputVec inputs = output->getConnections();
+        for (ShaderInput* input : inputs)
+        {
+            input->breakConnection();
+            input->makeConnection(colorTransformNodeOutput);
+        }
+
+        // Connect the node to the upstream output
+        ShaderInput* colorTransformNodeInput = colorTransformNode->getInput(0);
+        colorTransformNodeInput->makeConnection(output);
     }
 }
 

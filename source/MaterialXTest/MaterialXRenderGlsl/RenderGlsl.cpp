@@ -130,9 +130,6 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
         // Set light handler.
         _renderer->setLightHandler(nullptr);
 
-        // Set color management system
-        _renderer->setColorManagementSystem(_colorManagementSystem);
-
         initialized = true;
     }
     catch (mx::ExceptionRenderError& e)
@@ -670,12 +667,6 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
-	GenShaderUtil::TestSuiteOptions options;
-    if (options.readOptions(optionsFilePath))
-    {
-        renderTester.setColorManagementConfigFile(options.colorManagementConfigFile);
-    }
 
     renderTester.validate(optionsFilePath);
 }

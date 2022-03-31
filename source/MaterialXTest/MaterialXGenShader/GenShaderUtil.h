@@ -11,9 +11,6 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/XmlIo.h>
 
-#ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OCIOColorManagementSystem.h>
-#endif
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/TypeDesc.h>
@@ -140,8 +137,6 @@ class TestSuiteOptions
     // Render test paths
     mx::FileSearchPath renderTestPaths;
 
-    // Color management configuration file.Only applicable if building with OCIO
-    mx::FilePath colorManagementConfigFile;
 
     // Wedge parameters
     struct WedgeSetting {
@@ -205,10 +200,6 @@ class ShaderGeneratorTester
 
     // Add color management
     virtual void addColorManagement();
-    void setColorManagementConfigFile(const mx::FilePath& path)
-    {
-        _colorManagementConfigFile = path;
-    }
 
     // Add unit system
     virtual void addUnitSystem();
@@ -252,13 +243,11 @@ class ShaderGeneratorTester
 
     // Get implementation "whitelist" for those implementations that have
     // been skipped for checking
-    virtual void getImplementationWhiteList(mx::StringSet& whiteList);
+    virtual void getImplementationWhiteList(mx::StringSet& /*whiteList*/) {};
 
     mx::ShaderGeneratorPtr _shaderGenerator;
     const std::string _targetString;
-    mx::ColorManagementSystemPtr _colorManagementSystem;
-    mx::FilePath _colorManagementConfigFile;
-    mx::StringSet _colorManagementImplWhiteList;
+    mx::DefaultColorManagementSystemPtr _colorManagementSystem;
 
     // Unit system 
     mx::UnitSystemPtr _unitSystem;

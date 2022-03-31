@@ -94,11 +94,6 @@ class ShaderRenderTester
 
     bool validate(const mx::FilePath optionsFilePath);
 
-    void setColorManagementConfigFile(const mx::FilePath& path)
-    {
-        _colorManagementConfigFile = path;
-    }
-
     void setEmitColorTransforms(bool val)
     {
         _emitColorTransforms = val;

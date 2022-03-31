@@ -56,10 +56,8 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     }      
     _boundTextureLocations[textureUnit] = image->getResourceId();
 
-    GLenum targetType = image->getHeight() > 1 ? GL_TEXTURE_2D : GL_TEXTURE_1D;
-
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(targetType, image->getResourceId());
+    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
 
     // Set up texture properties
     GLint minFilterType = mapFilterTypeToGL(samplingProperties.filterType, samplingProperties.enableMipmaps);
@@ -67,12 +65,12 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     GLint uaddressMode = mapAddressModeToGL(samplingProperties.uaddressMode);
     GLint vaddressMode = mapAddressModeToGL(samplingProperties.vaddressMode);
     Color4 borderColor(samplingProperties.defaultColor);
-    glTexParameterfv(targetType, GL_TEXTURE_BORDER_COLOR, borderColor.data());
-    glTexParameteri(targetType, GL_TEXTURE_WRAP_S, uaddressMode);
-    glTexParameteri(targetType, GL_TEXTURE_WRAP_T, vaddressMode);
-    glTexParameteri(targetType, GL_TEXTURE_MIN_FILTER, minFilterType);
-    glTexParameteri(targetType, GL_TEXTURE_MAG_FILTER, magFilterType);
-    glTexParameterf(targetType, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, uaddressMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vaddressMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterType);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilterType);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
     return true;
 }
@@ -85,7 +83,7 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
         if (textureUnit >= 0)
         {
             glActiveTexture(GL_TEXTURE0 + textureUnit);
-            glBindTexture(image->getHeight() > 1 ? GL_TEXTURE_2D : GL_TEXTURE_1D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
+            glBindTexture(GL_TEXTURE_2D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
             _boundTextureLocations[textureUnit] = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
             return true;
         }
@@ -113,36 +111,26 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
         return false;
     }
 
-    GLenum targetType = image->getHeight() > 1 ? GL_TEXTURE_2D : GL_TEXTURE_1D;
-
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(targetType, image->getResourceId());
+    glBindTexture(GL_TEXTURE_2D, image->getResourceId());
 
     int glType, glFormat, glInternalFormat;
     mapTextureFormatToGL(image->getBaseType(), image->getChannelCount(), false,
         glType, glFormat, glInternalFormat);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    if (targetType == GL_TEXTURE_2D)
-    {
-        glTexImage2D(targetType, 0, glInternalFormat, image->getWidth(), image->getHeight(),
-            0, glFormat, glType, image->getResourceBuffer());
-    }
-    else
-    {
-        glTexImage1D(targetType, 0, glInternalFormat, image->getWidth(),
-            0, glFormat, glType, image->getResourceBuffer());
-    }
+    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, image->getWidth(), image->getHeight(),
+        0, glFormat, glType, image->getResourceBuffer());
     if (image->getChannelCount() == 1)
     {
         GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-        glTexParameteriv(targetType, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
     }
 
     if (generateMipMaps)
     {
-        glGenerateMipmap(targetType);
+        glGenerateMipmap(GL_TEXTURE_2D);
     }
-    glBindTexture(targetType, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     return true;
 }
@@ -223,12 +211,11 @@ int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode ad
 
 int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps)
 {
-    int filterType = enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+        return enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
     }
-    return filterType;
+    return enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
 }
 
 void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,

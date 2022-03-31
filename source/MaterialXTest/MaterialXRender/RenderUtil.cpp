@@ -7,14 +7,7 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXCore/Unit.h>
-
 #include <MaterialXFormat/Util.h>
-
-#include <MaterialXRender/Image.h>
-
-#ifdef MATERIALX_BUILD_OCIO
-#include <MaterialXGenShader/OCIOColorManagementSystem.h>
-#endif
 
 namespace mx = MaterialX;
 
@@ -166,36 +159,11 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Create renderers and generators
     mx::ScopedTimer setupTime(&profileTimes.languageTimes.setupTime);
 
-    _colorManagementSystem = nullptr;
-#ifdef MATERIALX_BUILD_OCIO
-    if (!_colorManagementConfigFile.isEmpty())
-    {
-        mx::OCIOColorManagementSystemPtr ocio = mx::OCIOColorManagementSystem::create(_shaderGenerator->getTarget());
-        if (ocio->readConfigFile(_colorManagementConfigFile))
-        {
-            _colorManagementSystem = ocio;
-        }
-        else
-        {
-            docValidLog << ">> Failed to setup OCIO color management configuration: '" + _colorManagementConfigFile.asString() + "'" << std::endl;
-        }
-    }
-#endif
-    if (!_colorManagementSystem)
-    {
-        _colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
-    }
-    if (!_colorManagementSystem)
-    {
-        docValidLog << ">> Failed to initialize color management system." << std::endl;
-    }
-    else
-    {
-        _colorManagementSystem->loadLibrary(dependLib);
-        _shaderGenerator->setColorManagementSystem(_colorManagementSystem);
-    }
-
     createRenderer(log);
+
+    mx::ColorManagementSystemPtr colorManagementSystem = mx::DefaultColorManagementSystem::create(_shaderGenerator->getTarget());
+    colorManagementSystem->loadLibrary(dependLib);
+    _shaderGenerator->setColorManagementSystem(colorManagementSystem);
 
     // Setup Unit system and working space
     mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_shaderGenerator->getTarget());
@@ -236,8 +204,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     mx::StringSet usedImpls;
 
     const std::string MTLX_EXTENSION("mtlx");
-    const std::string OCIO_STRING("ocio");
-
     for (const auto& dir : dirs)
     {
         ioTimer.startTimer();
@@ -296,19 +262,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             }
             validateTimer.endTimer();
             CHECK(validDoc);
-
-#ifdef MATERIALX_BUILD_OCIO
-            // TODO: For OCIO if there is a configuration file specified on the document
-            // then this should be used instead of the default one used for testing
-            if (doc->getColorManagementSystem() == OCIO_STRING)
-            {
-                mx::FilePath configFile = doc->getColorManagementConfig();
-                if (configFile.exists())
-                {
-                    setColorManagementConfigFile(configFile);
-                }
-            }
-#endif
 
             mx::FileSearchPath imageSearchPath(dir);
             imageSearchPath.append(searchPath);

@@ -174,7 +174,7 @@ TEST_CASE("IntraGraph Traversal", "[traversal]")
     REQUIRE(doc->validate());
 }
 
-TEST_CASE("InterGraph Tranversal", "[traversal]")
+TEST_CASE("InterGraph Traversal", "[traversal]")
 {
     mx::FileSearchPath searchPath;
     const mx::FilePath currentPath = mx::FilePath::getCurrentPath();

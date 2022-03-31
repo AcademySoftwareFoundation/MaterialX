@@ -114,28 +114,6 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
     return activeVisibilities;
 }
 
-void Look::append(const LookPtr& source)
-{
-    for (auto child : source->getChildren())
-    {
-        if (!child)
-        {
-            continue;
-        }
-        string name = source->getName() + "_" + child->getName();
-
-        ConstElementPtr previous = getChild(name);
-        if (previous)
-        {
-            name = createValidChildName(name);
-        }
-
-        // Create the copied element.
-        ElementPtr childCopy = addChildOfCategory(child->getCategory(), name);
-        childCopy->copyContentFrom(child);
-    }
-}
-
 //
 // MaterialAssign methods
 //
@@ -148,8 +126,6 @@ NodePtr MaterialAssign::getReferencedMaterial() const
 vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
 {
     vector<OutputPtr> materialOutputs;
-    // Note: Only nodegraphs are examined. When explicit outputs on nodes
-    // are supported then nodes will be also be considered (getReferencedMaterial()).
     NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
     if (materialGraph)
     {

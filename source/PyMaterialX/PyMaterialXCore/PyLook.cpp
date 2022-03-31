@@ -46,7 +46,6 @@ void bindPyLook(py::module& mod)
         .def("getVisibilities", &mx::Look::getVisibilities)
         .def("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .def("removeVisibility", &mx::Look::removeVisibility)
-        .def("append", &mx::Look::append)
         .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
 
     py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")

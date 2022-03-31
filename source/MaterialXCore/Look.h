@@ -27,10 +27,6 @@ class Visibility;
 using LookPtr = shared_ptr<Look>;
 /// A shared pointer to a const Look
 using ConstLookPtr = shared_ptr<const Look>;
-/// Look vector
-using LookVec = vector<LookPtr>;
-/// Constant look vector
-using ConstLookVec = vector<ConstLookPtr>;
 
 /// A shared pointer to a LookGroup
 using LookGroupPtr = shared_ptr<LookGroup>;
@@ -238,11 +234,6 @@ class MX_CORE_API Look : public Element
     }
 
     /// @}
-    /// @name Operators
-    /// @{
-
-    /// Append another look to this look
-    void append(const LookPtr& look);
 
   public:
     static const string CATEGORY;
@@ -321,7 +312,7 @@ class MX_CORE_API MaterialAssign : public GeomElement
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
 
-    ///  Return material-type outputs for all referenced nodegraphs
+    ///  Return the outputs on any referenced material
     vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}

@@ -42,9 +42,6 @@ add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
 
 if(MATERIALX_BUILD_GEN)
-  if (MATERIALX_BUILD_OCIO)
-     target_link_libraries(MaterialXTest ${MATERIALX_OCIO_LIBRARIES})
-  endif()
   add_subdirectory(MaterialXGenShader)
   target_link_libraries(MaterialXTest MaterialXGenShader)
   if(MATERIALX_BUILD_GEN_GLSL)
@@ -90,9 +87,6 @@ if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant
   if (MATERIALX_BUILD_OIIO)
     target_link_libraries(MaterialXTest ${OPENIMAGEIO_LIBRARIES})
   endif()
-  if (MATERIALX_BUILD_OCIO)
-     target_link_libraries(MaterialXTest ${MATERIALX_OCIO_LIBRARIES})
-  endif()
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXRenderGlsl)
     target_link_libraries(MaterialXTest MaterialXRenderGlsl)
@@ -111,11 +105,6 @@ if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant
       add_custom_command(TARGET MaterialXTest POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
-  endif()
-  if(MATERIALX_BUILD_OCIO AND MATERIALX_OCIO_DIR)
-      add_custom_command(TARGET MaterialXTest POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${MATERIALX_OCIO_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
   endif()
 endif()
 

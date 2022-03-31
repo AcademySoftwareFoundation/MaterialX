@@ -376,15 +376,6 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
     }
 }
 
-void Material::bindColorManagement(mx::ColorManagementSystemPtr cms, mx::ImageHandlerPtr imageHandler)
-{
-    if (!_glProgram)
-    {
-        return;
-    }
-    _glProgram->bindColorManagement(cms, imageHandler);
-}
-
 void Material::drawPartition(mx::MeshPartitionPtr part) const
 {
     if (!part || !bindPartition(part))

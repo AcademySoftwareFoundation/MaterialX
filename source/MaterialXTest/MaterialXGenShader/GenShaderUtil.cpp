@@ -325,10 +325,6 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
     REQUIRE(sgNode1->getOutput()->getVariable() == "unique_names_out");
 }
 
-void ShaderGeneratorTester::getImplementationWhiteList(mx::StringSet& whiteList)
-{
-    whiteList.insert(_colorManagementImplWhiteList.begin(), _colorManagementImplWhiteList.end());
-}
 
 void ShaderGeneratorTester::checkImplementationUsage(const mx::StringSet& usedImpls,
                                                      const mx::GenContext& context,
@@ -450,49 +446,10 @@ void ShaderGeneratorTester::addColorManagement()
     if (!_colorManagementSystem && _shaderGenerator)
     {
         const std::string& target = _shaderGenerator->getTarget();
-
-        _colorManagementSystem = nullptr;
-#ifdef MATERIALX_BUILD_OCIO
-        if (!_colorManagementConfigFile.isEmpty())
-        {
-            mx::OCIOColorManagementSystemPtr ocio = mx::OCIOColorManagementSystem::create(target);
-            if (ocio->readConfigFile(_colorManagementConfigFile))
-            {
-                _colorManagementSystem = ocio;
-            }
-            else
-            {
-                _logFile << ">> Failed to setup OCIO color management configuration: '" + _colorManagementConfigFile.asString() + "'" << std::endl;
-            }
-        }
-#endif
+        _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
         if (!_colorManagementSystem)
         {
-            _colorManagementImplWhiteList.clear();
-            _colorManagementSystem = mx::DefaultColorManagementSystem::create(target);
-        }
-        else
-        {
-            // Ignore any implementations from the default color management system
-            _colorManagementImplWhiteList =
-            {
-                "srgb_texture_to_lin_rec709_color4",
-                "gamma22_to_lin_rec709_color3",
-                "acescg_to_lin_rec709_color3",
-                "acescg_to_lin_rec709_color4",
-                "gamma18_to_lin_rec709_color3",
-                "gamma18_to_lin_rec709_color4",
-                "gamma22_to_lin_rec709_color4",
-                "gamma24_to_lin_rec709_color3",
-                "gamma24_to_lin_rec709_color4",
-                "g22_ap1_to_lin_rec709_color3",
-                "g22_ap1_to_lin_rec709_color4",
-                "srgb_texture_to_lin_rec709_color3"
-            };
-        }
-        if (!_colorManagementSystem)
-        {
-            _logFile << ">> Failed to initialize color management system for target: " << target << std::endl;
+            _logFile << ">> Failed to create color management system for target: " << target << std::endl;
         }
         else
         {
@@ -699,8 +656,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     mx::StringMap filenameRemap;
     filenameRemap[":"] = "_";
 
-    const std::string OCIO_STRING("ocio");
-
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
@@ -764,19 +719,6 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             WARN(msg);
         }
         CHECK(docValid);
-
-#ifdef MATERIALX_BUILD_OCIO
-        // TODO: For OCIO if there is a configuration file specified on the document
-        // then this should be used instead of the default one used for testing
-        if (doc->getColorManagementSystem() == OCIO_STRING)
-        {
-            mx::FilePath configFile = doc->getColorManagementConfig();
-            if (configFile.exists())
-            {
-                setColorManagementConfigFile(configFile);                
-            }
-        }
-#endif
 
         // Traverse the renderable elements and run the validation step
         int missingNodeDefs = 0;
@@ -964,7 +906,6 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tIrradiance IBL File Path: " << irradianceIBLPath.asString() << std::endl;
     output << "\tExtra library paths: " << extraLibraryPaths.asString() << std::endl;
     output << "\tRender test paths: " << renderTestPaths.asString() << std::endl;
-    output << "\tColor management config file: " << colorManagementConfigFile.asString() << std::endl;
 }
 
 bool TestSuiteOptions::readOptions(const std::string& optionFile)
@@ -997,7 +938,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string SHADERBALL_OBJ("shaderball.obj");
     const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
     const std::string RENDER_TEST_PATHS("renderTestPaths");
-    const std::string COLORMANAGEMENT_CONFIG_FILE("colorManagementConfigFile");
     const std::string WEDGE_SETTING("wedgerender");
     const std::string BAKER_SETTINGS("baker");
 
@@ -1187,10 +1127,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                         {
                             renderTestPaths.append(mx::FilePath(l));
                         }
-                    }
-                    else if (name == COLORMANAGEMENT_CONFIG_FILE)
-                    {
-                        colorManagementConfigFile = p->getValueString();
                     }
                 }
             }

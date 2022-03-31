@@ -86,18 +86,6 @@ class MX_RENDER_API ShaderRenderer
         return _geometryHandler;
     }
 
-    /// Set color management system
-    void setColorManagementSystem(ColorManagementSystemPtr cms)
-    {
-        _colorManagementSystem = cms;
-    }
-
-    /// Get color management system
-    ColorManagementSystemPtr getColorManagementSystem() const
-    {
-        return _colorManagementSystem;
-    }
-
     /// @}
     /// @name Rendering
     /// @{
@@ -152,8 +140,6 @@ class MX_RENDER_API ShaderRenderer
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
     LightHandlerPtr _lightHandler;
-
-    ColorManagementSystemPtr _colorManagementSystem;
 };
 
 /// @class ExceptionRenderError

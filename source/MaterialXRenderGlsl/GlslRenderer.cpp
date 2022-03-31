@@ -214,12 +214,6 @@ void GlslRenderer::render()
                 _program->bindLighting(_lightHandler, _imageHandler);
                 _program->bindTimeAndFrame();
 
-
-               if (_colorManagementSystem)
-                {
-                    _program->bindColorManagement(_colorManagementSystem, _imageHandler);
-                }
-
                 // Set blend state for the given material.
                 if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
                 {
