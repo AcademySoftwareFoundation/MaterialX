@@ -130,7 +130,7 @@ function init()
         doc.importLibrary(stdlib);
 
         // Set search path.
-        const searchPath = 'Materials/Examples/';
+        const searchPath = 'Materials/Examples/StandardSurface';
 
         // Load material
         if (mtlxMaterial)
