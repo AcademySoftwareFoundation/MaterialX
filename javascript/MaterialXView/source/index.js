@@ -16,6 +16,7 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
+import { color } from 'dat.gui';
 
 let camera, scene, model, renderer, composer, controls, mx;
 
@@ -79,6 +80,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   let vShader = shader.getSourceCode("vertex");
   let fShader = shader.getSourceCode("pixel");
 
+  //let pixelUniforms = { ...getUniformValues(shader.getStage('pixel'), textureLoader) }
   let uniforms = {
     ...getUniformValues(shader.getStage('vertex'), textureLoader),
     ...getUniformValues(shader.getStage('pixel'), textureLoader),
@@ -105,6 +107,82 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     blendDst: THREE.SrcAlphaFactor
   });
   
+  console.log(threeMaterial.uniforms);
+
+  var gui = new GUI();
+  var matUI = gui.addFolder('Material');
+  const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
+  let uniformToUpdate;
+  uniformBlocks.forEach(uniforms => {
+    if (!uniforms.empty()) {
+      for (let i = 0; i < uniforms.size(); ++i) {
+        const variable = uniforms.get(i);
+        const value = variable.getValue()?.getData();
+        const name = variable.getVariable();
+        console.log("Scan uniform: " + name + ". Type: " + variable.getType().getName() + ". Value: " + value);
+        switch (variable.getType().getName())
+        {
+            case 'float':
+            case 'integer':
+              uniformToUpdate = threeMaterial.uniforms[name];
+                if (uniformToUpdate && value)
+                {
+                  matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+                }
+                break;
+            case 'boolean':
+              uniformToUpdate = threeMaterial.uniforms[name];
+              if (uniformToUpdate && value)
+              {
+                matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+              }
+                break;
+            case 'vector2':      
+                break;
+            case 'vector3':
+              break;
+            case 'color3':
+              uniformToUpdate = threeMaterial.uniforms[name];
+              if (uniformToUpdate && value)
+              {      
+                var params = {
+                    color: 0xFF0000 
+                };
+                console.log(params.color);
+                const color3 = new THREE.Color(params.color);
+                color3.fromArray(threeMaterial.uniforms[name].value);
+                params.color = color3.getHex();
+                //params.color.set( hreeMaterial.uniforms[name].value)
+                matUI.addColor(params, 'color').name(name)
+                  .onChange(function (value) {
+                    const color3 = new THREE.Color(value);
+                    //console.log("Update: " + name + ".CValue: " + value + ". Value: " + color3.toArray());
+                    threeMaterial.uniforms[name].value.set(color3.toArray());
+                  }
+                  );                          
+                //matUI.addColor(threeMaterial.uniforms[name], 'value').name(name);
+              }
+                break;
+            case 'vector4':
+            case 'color4':
+                break;
+            case 'matrix33':
+                break;
+            case 'matrix44':
+                break;
+            case 'filename':
+                break;
+            case 'samplerCube':
+            case 'string':
+                  break;        
+            default:
+              break;
+        }        
+      }
+    }
+  });  
+  matUI.open();
+
   return threeMaterial;
 }
 
@@ -228,8 +306,6 @@ function init()
             {
               if (!child.geometry.attributes.uv)
               {
-                console.log("---------- Compute uvs for mesh: " + child.name);
-                
                 const posCount = child.geometry.attributes.position.count; 
                 const uvs = [];
                 const pos = child.geometry.attributes.position.array;
@@ -271,10 +347,15 @@ function init()
         camera.updateProjectionMatrix();
 
         //
-         var gui = new GUI();
-        var matUI = gui.addFolder('Material');
-        matUI.add(threeMaterial, 'transparent').name('Transparent').listen();
-        matUI.open(); 
+/*
+        gui.add( material.uniforms.nearClipping, 'value', 1, 10000, 1.0 ).name( 'nearClipping' );
+				gui.add( material.uniforms.farClipping, 'value', 1, 10000, 1.0 ).name( 'farClipping' );
+				gui.add( material.uniforms.pointSize, 'value', 1, 10, 1.0 ).name( 'pointSize' );
+				gui.add( material.uniforms.zOffset, 'value', 0, 4000, 1.0 ).name( 'zOffset' );
+*/
+		        
+        //matUI.add(threeMaterial, 'transparent').name('Transparent').listen();
+        //matUI.open(); 
 
     }).then(() => {
         animate();
