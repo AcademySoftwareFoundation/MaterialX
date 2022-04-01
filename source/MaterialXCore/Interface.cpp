@@ -7,8 +7,6 @@
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Material.h>
-#include <MaterialXCore/Node.h>
 
 #include <stdexcept>
 

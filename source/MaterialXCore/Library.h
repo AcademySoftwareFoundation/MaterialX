@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <MaterialXCore/Generated.h>
+
 /// Platform-specific macros for declaring imported and exported symbols.
 #if defined(MATERIALX_BUILD_SHARED_LIBS)
     #if defined(_WIN32)
@@ -44,9 +46,8 @@
     #define MATERIALX_IMPORT_EXTERN_TEMPLATE(...)
 #endif
 
-#include <MaterialXCore/Generated.h>
-
 MATERIALX_NAMESPACE_BEGIN
+
 using std::string;
 using std::vector;
 using std::shared_ptr;

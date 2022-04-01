@@ -5,8 +5,6 @@
 
 #include <MaterialXCore/Property.h>
 
-#include <MaterialXCore/Document.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string PropertyAssign::PROPERTY_ATTRIBUTE = "property";
