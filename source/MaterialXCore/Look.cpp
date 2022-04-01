@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Look.h>
+
 #include <MaterialXCore/Document.h>
 
 MATERIALX_NAMESPACE_BEGIN

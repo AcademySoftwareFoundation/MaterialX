@@ -6,7 +6,6 @@
 #include <MaterialXCore/Element.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
 #include <iterator>

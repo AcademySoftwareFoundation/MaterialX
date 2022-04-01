@@ -5,8 +5,6 @@
 
 #include <MaterialXCore/Unit.h>
 
-#include <MaterialXCore/Util.h>
-
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
