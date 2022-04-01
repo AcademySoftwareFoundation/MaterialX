@@ -120,64 +120,67 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         const value = variable.getValue()?.getData();
         const name = variable.getVariable();
         console.log("Scan uniform: " + name + ". Type: " + variable.getType().getName() + ". Value: " + value);
-        switch (variable.getType().getName())
-        {
-            case 'float':
-            case 'integer':
-              uniformToUpdate = threeMaterial.uniforms[name];
-                if (uniformToUpdate && value)
-                {
-                  matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+        switch (variable.getType().getName()) {
+          case 'float':
+          case 'integer':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              matUI.add(threeMaterial.uniforms[name], 'value', 0).name(name);
+            }
+            break;
+          case 'boolean':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+            }
+            break;
+
+          case 'vector2':
+          case 'vector3':
+          case 'vector4':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              let vecFolder = matUI.addFolder(name);
+              Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
+                vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(name + "." + key);
+              })
+            }
+            break;
+
+          case 'color3':
+            // Irksome way to mape arrays to colors and back
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              var params = {
+                color: 0xFF0000
+              };
+              const color3 = new THREE.Color(params.color);
+              color3.fromArray(threeMaterial.uniforms[name].value);
+              params.color = color3.getHex();
+              matUI.addColor(params, 'color').name(name)
+                .onChange(function (value) {
+                  const color3 = new THREE.Color(value);
+                  threeMaterial.uniforms[name].value.set(color3.toArray());
                 }
-                break;
-            case 'boolean':
-              uniformToUpdate = threeMaterial.uniforms[name];
-              if (uniformToUpdate && value)
-              {
-                matUI.add(threeMaterial.uniforms[name], 'value').name(name);
-              }
-                break;
-            case 'vector2':      
-                break;
-            case 'vector3':
-              break;
-            case 'color3':
-              uniformToUpdate = threeMaterial.uniforms[name];
-              if (uniformToUpdate && value)
-              {      
-                var params = {
-                    color: 0xFF0000 
-                };
-                console.log(params.color);
-                const color3 = new THREE.Color(params.color);
-                color3.fromArray(threeMaterial.uniforms[name].value);
-                params.color = color3.getHex();
-                //params.color.set( hreeMaterial.uniforms[name].value)
-                matUI.addColor(params, 'color').name(name)
-                  .onChange(function (value) {
-                    const color3 = new THREE.Color(value);
-                    //console.log("Update: " + name + ".CValue: " + value + ". Value: " + color3.toArray());
-                    threeMaterial.uniforms[name].value.set(color3.toArray());
-                  }
-                  );                          
-                //matUI.addColor(threeMaterial.uniforms[name], 'value').name(name);
-              }
-                break;
-            case 'vector4':
-            case 'color4':
-                break;
-            case 'matrix33':
-                break;
-            case 'matrix44':
-                break;
-            case 'filename':
-                break;
-            case 'samplerCube':
-            case 'string':
-                  break;        
-            default:
-              break;
-        }        
+                );
+            }
+            break;
+
+          case 'color4':
+            break;
+
+          case 'matrix33':
+            break;
+          case 'matrix44':
+            break;
+          case 'filename':
+            break;
+          case 'samplerCube':
+          case 'string':
+            break;
+          default:
+            break;
+        }
       }
     }
   });  
