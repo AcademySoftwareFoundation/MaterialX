@@ -78,15 +78,6 @@ EMSCRIPTEN_BINDINGS(types)
         .constructor<float, float, float, float>()
             BIND_VECTOR_SUBCLASS(mx::Vector4);                
 
-    ems::class_<mx::Quaternion, ems::base<mx::VectorBase>>("Quaternion")
-        .constructor<>()
-        .constructor<float, float, float, float>()
-            BIND_VECTOR_SUBCLASS(mx::Vector4)
-        .function("multiplyQuaternion", ems::optional_override([](const mx::Quaternion &self, const mx::Quaternion &q) { return self * q; }))
-        .function("getNormalized", ems::optional_override([](mx::Quaternion &self) { return self.getNormalized(); }))
-        .class_function("createFromAxisAngle", &mx::Quaternion::createFromAxisAngle)
-        .class_property("IDENTITY", &mx::Quaternion::IDENTITY);
-
     ems::class_<mx::Color3, ems::base<mx::VectorBase>>("Color3")
         .constructor<>()
         .constructor<float, float, float>()
@@ -123,7 +114,6 @@ EMSCRIPTEN_BINDINGS(types)
         .class_function("createRotationX", &mx::Matrix44::createRotationX)
         .class_function("createRotationY", &mx::Matrix44::createRotationY)
         .class_function("createRotationZ", &mx::Matrix44::createRotationZ)
-        .class_function("createRotation", &mx::Matrix44::createRotation)
         .class_property("IDENTITY", &mx::Matrix44::IDENTITY);
 
     ems::constant("DEFAULT_TYPE_STRING", mx::DEFAULT_TYPE_STRING);
