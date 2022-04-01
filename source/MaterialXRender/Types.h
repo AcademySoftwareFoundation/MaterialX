@@ -9,10 +9,52 @@
 /// @file
 /// Data types for rendering functionality
 
-#include <MaterialXCore/Types.h>
 #include <MaterialXRender/Export.h>
 
+#include <MaterialXCore/Types.h>
+
 MATERIALX_NAMESPACE_BEGIN
+
+/// @class Quaternion
+/// A quaternion vector
+class MX_RENDER_API Quaternion : public VectorN<Vector4, float, 4>
+{
+  public:
+    using VectorN<Vector4, float, 4>::VectorN;
+    Quaternion() = default;
+    Quaternion(float x, float y, float z, float w) :
+        VectorN(Uninit{})
+    {
+        _arr = { x, y, z, w };
+    }
+
+    Quaternion operator*(const Quaternion& q) const
+    {
+        return {
+            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1],
+            _arr[1] * q._arr[3] + _arr[3] * q._arr[1] + _arr[2] * q._arr[0] - _arr[0] * q._arr[2],
+            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0],
+            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2]
+        };
+    }
+
+    Quaternion getNormalized() const
+    {
+        float l = 1.f / getMagnitude() * (_arr[3] < 0 ? -1.f : 1.f); // after normalization, real part will be non-negative
+        return { _arr[0] * l, _arr[1] * l, _arr[2] * l, _arr[3] * l };
+    }
+
+    static Quaternion createFromAxisAngle(const Vector3& v, float a)
+    {
+        float s = std::sin(a * 0.5f);
+        return Quaternion(v[0] * s, v[1] * s, v[2] * s, std::cos(a * 0.5f));
+    }
+
+    Matrix44 toMatrix() const;
+
+  public:
+    static const Quaternion IDENTITY;
+};
 
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
