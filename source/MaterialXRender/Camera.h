@@ -6,9 +6,7 @@
 #ifndef MATERIALX_CAMERA_H
 #define MATERIALX_CAMERA_H
 
-#include <MaterialXRender/Export.h>
-
-#include <MaterialXCore/Types.h>
+#include <MaterialXRender/Types.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -144,7 +142,7 @@ class MX_RENDER_API Camera
     /// Return the arcball matrix.
     Matrix44 arcballMatrix() const
     {
-        return Matrix44::createRotation(_arcballDelta * _arcballQuat);
+        return (_arcballDelta * _arcballQuat).toMatrix();
     }
 
     /// @}
