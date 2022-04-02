@@ -24,7 +24,7 @@ let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
 
-let shaderDirty = true;
+var gui;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -61,13 +61,17 @@ function loadGeometry(scene, gltfLoader, filename, resolve)
   gltfLoader.load(filename, resolve); 
 }
 
+function changeGuiOpacity(targetOpacity=1){
+	Array.from(document.getElementsByClassName('dg')).forEach(
+    function(element, index, array) {
+		element.style.opacity = targetOpacity;
+    }
+	);
+}
+
 function generateMaterial(elem, gen, genContext, lights, lightData, 
   textureLoader, radianceTexture, irradianceTexture)
-{
-  if (!shaderDirty) {
-    return;
-  }  
-
+{  
   // Perform transparency check on renderable item
   const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
   genContext.getOptions().hwTransparency = isTransparent;
@@ -80,7 +84,6 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   let vShader = shader.getSourceCode("vertex");
   let fShader = shader.getSourceCode("pixel");
 
-  //let pixelUniforms = { ...getUniformValues(shader.getStage('pixel'), textureLoader) }
   let uniforms = {
     ...getUniformValues(shader.getStage('vertex'), textureLoader),
     ...getUniformValues(shader.getStage('pixel'), textureLoader),
@@ -109,11 +112,12 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   
   console.log(threeMaterial.uniforms);
 
-  var gui = new GUI();
+  gui = new GUI();
   var matUI = gui.addFolder('Material');
   const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
   let uniformToUpdate;
   uniformBlocks.forEach(uniforms => {
+    console.log(uniforms);  
     if (!uniforms.empty()) {
       for (let i = 0; i < uniforms.size(); ++i) {
         const variable = uniforms.get(i);
@@ -121,6 +125,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         const name = variable.getVariable();
         console.log("Scan uniform: " + name + ". Type: " + variable.getType().getName() + ". Value: " + value);
         switch (variable.getType().getName()) {
+          
           case 'float':
           case 'integer':
             uniformToUpdate = threeMaterial.uniforms[name];
@@ -128,6 +133,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
               matUI.add(threeMaterial.uniforms[name], 'value', 0).name(name);
             }
             break;
+
           case 'boolean':
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
@@ -151,13 +157,13 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
             // Irksome way to mape arrays to colors and back
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
-              var params = {
+              var dummy = {
                 color: 0xFF0000
               };
-              const color3 = new THREE.Color(params.color);
+              const color3 = new THREE.Color(dummy.color);
               color3.fromArray(threeMaterial.uniforms[name].value);
-              params.color = color3.getHex();
-              matUI.addColor(params, 'color').name(name)
+              dummy.color = color3.getHex();
+              matUI.addColor(dummy, 'color').name(name)
                 .onChange(function (value) {
                   const color3 = new THREE.Color(value);
                   threeMaterial.uniforms[name].value.set(color3.toArray());
@@ -170,21 +176,27 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
             break;
 
           case 'matrix33':
-            break;
           case 'matrix44':
-            break;
-          case 'filename':
-            break;
           case 'samplerCube':
+          case 'filename':
+              break;
           case 'string':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              item = matUI.add(threeMaterial.uniforms[name], 'value');
+              item.name(name);
+              item.readonly(true);
+            }            
             break;
           default:
+            console.log("SKIP: " + variable.getType().getName());
             break;
         }
       }
     }
   });  
-  matUI.open();
+  
+  changeGuiOpacity(0.9);
 
   return threeMaterial;
 }
