@@ -16,15 +16,12 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
-import { color } from 'dat.gui';
 
 let camera, scene, model, renderer, composer, controls, mx;
 
 let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
-
-var gui;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -70,14 +67,13 @@ function changeGuiOpacity(targetOpacity=1){
 }
 
 function generateMaterial(elem, gen, genContext, lights, lightData, 
-  textureLoader, radianceTexture, irradianceTexture)
+  textureLoader, radianceTexture, irradianceTexture, gui)
 {  
   // Perform transparency check on renderable item
   const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
   genContext.getOptions().hwTransparency = isTransparent;
 
   // Generate GLES code
-  console.log('Generate shader');
   let shader = gen.generate(elem.getNamePath(), elem, genContext);
 
   // Get shaders and uniform values
@@ -110,22 +106,17 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     blendDst: THREE.SrcAlphaFactor
   });
   
-  console.log(threeMaterial.uniforms);
-
-  gui = new GUI();
   var matUI = gui.addFolder('Material');
   const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
   let uniformToUpdate;
   uniformBlocks.forEach(uniforms => {
-    console.log(uniforms);  
     if (!uniforms.empty()) {
       for (let i = 0; i < uniforms.size(); ++i) {
         const variable = uniforms.get(i);
         const value = variable.getValue()?.getData();
         const name = variable.getVariable();
-        console.log("Scan uniform: " + name + ". Type: " + variable.getType().getName() + ". Value: " + value);
         switch (variable.getType().getName()) {
-          
+
           case 'float':
           case 'integer':
             uniformToUpdate = threeMaterial.uniforms[name];
@@ -179,17 +170,16 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
           case 'matrix44':
           case 'samplerCube':
           case 'filename':
-              break;
+            break;
           case 'string':
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
               item = matUI.add(threeMaterial.uniforms[name], 'value');
               item.name(name);
               item.readonly(true);
-            }            
+            }
             break;
           default:
-            console.log("SKIP: " + variable.getType().getName());
             break;
         }
       }
@@ -252,6 +242,9 @@ function init()
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
+    // Create gui
+    var gui = new GUI();
+
     const geometryFile = 'Geometry/boombox.glb';
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
@@ -299,7 +292,7 @@ function init()
       const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);    
 
       const threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData, 
-        textureLoader, radianceTexture, irradianceTexture);
+        textureLoader, radianceTexture, irradianceTexture, gui);
 
         if (!obj) {
             const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -360,17 +353,6 @@ function init()
 
         camera.far = 5000.0;
         camera.updateProjectionMatrix();
-
-        //
-/*
-        gui.add( material.uniforms.nearClipping, 'value', 1, 10000, 1.0 ).name( 'nearClipping' );
-				gui.add( material.uniforms.farClipping, 'value', 1, 10000, 1.0 ).name( 'farClipping' );
-				gui.add( material.uniforms.pointSize, 'value', 1, 10, 1.0 ).name( 'pointSize' );
-				gui.add( material.uniforms.zOffset, 'value', 0, 4000, 1.0 ).name( 'zOffset' );
-*/
-		        
-        //matUI.add(threeMaterial, 'transparent').name('Transparent').listen();
-        //matUI.open(); 
 
     }).then(() => {
         animate();
