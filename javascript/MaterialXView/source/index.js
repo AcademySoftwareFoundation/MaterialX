@@ -14,12 +14,17 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
+import { Group } from 'three';
+import { GUI } from 'dat.gui';
+import { color } from 'dat.gui';
 
 let camera, scene, model, renderer, composer, controls, mx;
 
 let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
 let worldViewPos = new THREE.Vector3();
+
+var gui;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -54,6 +59,146 @@ function loadGeometry(scene, gltfLoader, filename, resolve)
   }
 
   gltfLoader.load(filename, resolve); 
+}
+
+function changeGuiOpacity(targetOpacity=1){
+	Array.from(document.getElementsByClassName('dg')).forEach(
+    function(element, index, array) {
+		element.style.opacity = targetOpacity;
+    }
+	);
+}
+
+function generateMaterial(elem, gen, genContext, lights, lightData, 
+  textureLoader, radianceTexture, irradianceTexture)
+{  
+  // Perform transparency check on renderable item
+  const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
+  genContext.getOptions().hwTransparency = isTransparent;
+
+  // Generate GLES code
+  console.log('Generate shader');
+  let shader = gen.generate(elem.getNamePath(), elem, genContext);
+
+  // Get shaders and uniform values
+  let vShader = shader.getSourceCode("vertex");
+  let fShader = shader.getSourceCode("pixel");
+
+  let uniforms = {
+    ...getUniformValues(shader.getStage('vertex'), textureLoader),
+    ...getUniformValues(shader.getStage('pixel'), textureLoader),
+  }
+
+  Object.assign(uniforms, {
+    u_numActiveLightSources: {value: lights.length},
+    u_lightData: {value: lightData},
+    u_envMatrix: {value: new THREE.Matrix4().makeRotationY(Math.PI)},
+    u_envRadiance: {value: radianceTexture},
+    u_envRadianceMips: {value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1},
+    u_envRadianceSamples: {value: 16},
+    u_envIrradiance: {value: irradianceTexture}
+  });
+
+  // Create Three JS Material
+  const threeMaterial = new THREE.RawShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vShader,
+    fragmentShader: fShader,
+    transparent: isTransparent,
+    blendEquation: THREE.AddEquation,
+    blendSrc: THREE.OneMinusSrcAlphaFactor,
+    blendDst: THREE.SrcAlphaFactor
+  });
+  
+  console.log(threeMaterial.uniforms);
+
+  gui = new GUI();
+  var matUI = gui.addFolder('Material');
+  const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
+  let uniformToUpdate;
+  uniformBlocks.forEach(uniforms => {
+    console.log(uniforms);  
+    if (!uniforms.empty()) {
+      for (let i = 0; i < uniforms.size(); ++i) {
+        const variable = uniforms.get(i);
+        const value = variable.getValue()?.getData();
+        const name = variable.getVariable();
+        console.log("Scan uniform: " + name + ". Type: " + variable.getType().getName() + ". Value: " + value);
+        switch (variable.getType().getName()) {
+          
+          case 'float':
+          case 'integer':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              matUI.add(threeMaterial.uniforms[name], 'value', 0).name(name);
+            }
+            break;
+
+          case 'boolean':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+            }
+            break;
+
+          case 'vector2':
+          case 'vector3':
+          case 'vector4':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              let vecFolder = matUI.addFolder(name);
+              Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
+                vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(name + "." + key);
+              })
+            }
+            break;
+
+          case 'color3':
+            // Irksome way to mape arrays to colors and back
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              var dummy = {
+                color: 0xFF0000
+              };
+              const color3 = new THREE.Color(dummy.color);
+              color3.fromArray(threeMaterial.uniforms[name].value);
+              dummy.color = color3.getHex();
+              matUI.addColor(dummy, 'color').name(name)
+                .onChange(function (value) {
+                  const color3 = new THREE.Color(value);
+                  threeMaterial.uniforms[name].value.set(color3.toArray());
+                }
+                );
+            }
+            break;
+
+          case 'color4':
+            break;
+
+          case 'matrix33':
+          case 'matrix44':
+          case 'samplerCube':
+          case 'filename':
+              break;
+          case 'string':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value) {
+              item = matUI.add(threeMaterial.uniforms[name], 'value');
+              item.name(name);
+              item.readonly(true);
+            }            
+            break;
+          default:
+            console.log("SKIP: " + variable.getType().getName());
+            break;
+        }
+      }
+    }
+  });  
+  
+  changeGuiOpacity(0.9);
+
+  return threeMaterial;
 }
 
 function init()
@@ -120,7 +265,7 @@ function init()
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
 
     ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
-
+      
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
@@ -128,72 +273,74 @@ function init()
         let genContext = new mx.GenContext(gen);
         let stdlib = mx.loadStandardLibraries(genContext);
         doc.importLibrary(stdlib);
-
+      
         // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface';
-
+        const searchPath = 'Materials/Examples/StandardSurface/';
+      
         // Load material
         if (mtlxMaterial)
             await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
         else
             fallbackMaterial(doc);
-
+      
         // Search for any renderable items
         let elem = mx.findRenderableElement(doc);
 
-        // Perform transparency check on renderable item
-        const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
-        genContext.getOptions().hwTransparency = isTransparent;
+      // Load lighting setup into document
+      const lightRigDoc = mx.createDocument();
+      await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
+      doc.importLibrary(lightRigDoc);
 
-        // Load lighting setup into document
-        const lightRigDoc = mx.createDocument();
-        await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
-        doc.importLibrary(lightRigDoc);
+      // Register lights with generation context
+      const lights = findLights(doc);
+      const lightData = registerLights(mx, lights, genContext);
 
-        // Register lights with generation context
-        const lights = findLights(doc);
-        const lightData = registerLights(mx, lights, genContext);
+      const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
+      const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);    
 
-        // Generate GLES code
-        let shader = gen.generate(elem.getNamePath(), elem, genContext);
+      const threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData, 
+        textureLoader, radianceTexture, irradianceTexture);
 
-        // Get shaders and uniform values
-        let vShader = shader.getSourceCode("vertex");
-        let fShader = shader.getSourceCode("pixel");       
-
-        let uniforms = {
-          ...getUniformValues(shader.getStage('vertex'), textureLoader),
-          ...getUniformValues(shader.getStage('pixel'), textureLoader),
+        if (!obj) {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
+            const cube = new THREE.Mesh(geometry, material);
+            obj = new Group();
+            obj.add(geometry);
         }
 
-        const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
-        const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
+        model = obj;
+        scene.add(model);
 
-        Object.assign(uniforms, {
-          u_numActiveLightSources: {value: lights.length},
-          u_lightData: {value: lightData},
-          u_envMatrix: {value: new THREE.Matrix4().makeRotationY(Math.PI)},
-          u_envRadiance: {value: radianceTexture},
-          u_envRadianceMips: {value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1},
-          u_envRadianceSamples: {value: 16},
-          u_envIrradiance: {value: irradianceTexture}
-        });
+        const bbox = new THREE.Box3().setFromObject(model);
+        const bsphere = new THREE.Sphere();
+        bbox.getBoundingSphere(bsphere);
 
-        // Create Three JS Material
-        const threeMaterial = new THREE.RawShaderMaterial({
-          uniforms: uniforms,
-          vertexShader: vShader,
-          fragmentShader: fShader,
-          transparent: isTransparent,
-          blendEquation: THREE.AddEquation,
-          blendSrc: THREE.OneMinusSrcAlphaFactor,
-          blendDst: THREE.SrcAlphaFactor
-        });
-
-        obj.traverse((child) => {
+        model.traverse((child) => {
             if (child.isMesh)
             {
-              child.geometry.computeTangents();
+              if (!child.geometry.attributes.uv)
+              {
+                const posCount = child.geometry.attributes.position.count; 
+                const uvs = [];
+                const pos = child.geometry.attributes.position.array;
+      
+                for (let i = 0; i < posCount ; i++) {
+                  uvs.push( (pos[i*3] - bsphere.center.x ) /  bsphere.radius);
+                  uvs.push( (pos[i*3+1] - bsphere.center.y) / bsphere.radius);
+                }
+                
+                child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));                
+              }
+
+              if (!child.geometry.attributes.normal)
+              {
+                  child.geometry.computeVertexNormals();
+              }
+
+              if (child.geometry.getIndex()) {
+                child.geometry.computeTangents();
+              }
              
               // Use default MaterialX naming convention.
               child.geometry.attributes.i_position = child.geometry.attributes.position;
@@ -204,14 +351,8 @@ function init()
               child.material = threeMaterial;
             }
         });
-        model = obj;
-        scene.add(model);
 
         // Fit camera to model
-        const bbox = new THREE.Box3().setFromObject(model);
-        const bsphere = new THREE.Sphere();
-        bbox.getBoundingSphere(bsphere);
-
         controls.target = bsphere.center;
         camera.position.y = bsphere.center.y;
         camera.position.z = bsphere.radius * 2.0;
@@ -219,6 +360,17 @@ function init()
 
         camera.far = 5000.0;
         camera.updateProjectionMatrix();
+
+        //
+/*
+        gui.add( material.uniforms.nearClipping, 'value', 1, 10000, 1.0 ).name( 'nearClipping' );
+				gui.add( material.uniforms.farClipping, 'value', 1, 10000, 1.0 ).name( 'farClipping' );
+				gui.add( material.uniforms.pointSize, 'value', 1, 10, 1.0 ).name( 'pointSize' );
+				gui.add( material.uniforms.zOffset, 'value', 0, 4000, 1.0 ).name( 'zOffset' );
+*/
+		        
+        //matUI.add(threeMaterial, 'transparent').name('Transparent').listen();
+        //matUI.open(); 
 
     }).then(() => {
         animate();
