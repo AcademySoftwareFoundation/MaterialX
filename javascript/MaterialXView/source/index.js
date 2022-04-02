@@ -58,12 +58,22 @@ function loadGeometry(scene, gltfLoader, filename, resolve)
   gltfLoader.load(filename, resolve); 
 }
 
-function changeGuiOpacity(targetOpacity=1){
+function changeGuiOpacity(targetOpacity=1) 
+{
 	Array.from(document.getElementsByClassName('dg')).forEach(
     function(element, index, array) {
-		element.style.opacity = targetOpacity;
+		  element.style.opacity = targetOpacity;
     }
 	);
+}
+
+function hideCloseButton()
+{
+  Array.from(document.getElementsByClassName('close-button')).forEach(
+    function(element, index, array) {
+		  element.style.display = "none";
+    }
+  );
 }
 
 function generateMaterial(elem, gen, genContext, lights, lightData, 
@@ -109,26 +119,37 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   var matUI = gui.addFolder('Material');
   const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
   let uniformToUpdate;
+  const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
+
   uniformBlocks.forEach(uniforms => {
     if (!uniforms.empty()) {
       for (let i = 0; i < uniforms.size(); ++i) {
         const variable = uniforms.get(i);
         const value = variable.getValue()?.getData();
         const name = variable.getVariable();
+        // TODO: Do more with path such as getting ui min, max etc.
+        var path = variable.getPath();
+        if (!path || path.length === 0)
+          path = name;
+
+        if (ignoreList.includes(name)) {
+          continue;
+        }
+
         switch (variable.getType().getName()) {
 
           case 'float':
           case 'integer':
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
-              matUI.add(threeMaterial.uniforms[name], 'value', 0).name(name);
+              matUI.add(threeMaterial.uniforms[name], 'value', 0).name(path);
             }
             break;
 
           case 'boolean':
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
-              matUI.add(threeMaterial.uniforms[name], 'value').name(name);
+              matUI.add(threeMaterial.uniforms[name], 'value').name(path);
             }
             break;
 
@@ -139,7 +160,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
             if (uniformToUpdate && value) {
               let vecFolder = matUI.addFolder(name);
               Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
-                vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(name + "." + key);
+                vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(path + "." + key);
               })
             }
             break;
@@ -154,7 +175,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
               const color3 = new THREE.Color(dummy.color);
               color3.fromArray(threeMaterial.uniforms[name].value);
               dummy.color = color3.getHex();
-              matUI.addColor(dummy, 'color').name(name)
+              matUI.addColor(dummy, 'color').name(path)
                 .onChange(function (value) {
                   const color3 = new THREE.Color(value);
                   threeMaterial.uniforms[name].value.set(color3.toArray());
@@ -175,7 +196,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
               item = matUI.add(threeMaterial.uniforms[name], 'value');
-              item.name(name);
+              item.name(path);
               item.readonly(true);
             }
             break;
@@ -244,6 +265,7 @@ function init()
 
     // Create gui
     var gui = new GUI();
+    hideCloseButton();
 
     const geometryFile = 'Geometry/boombox.glb';
     Promise.all([
@@ -258,7 +280,7 @@ function init()
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
 
     ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
-      
+            
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
