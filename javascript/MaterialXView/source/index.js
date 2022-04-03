@@ -34,6 +34,7 @@ if (!geometryFilename) {
 }
 
 init();
+updateGUIProperties(0.9);
 
 // If no material file is selected, we programmatically create a default material as a fallback
 function fallbackMaterial(doc)
@@ -58,26 +59,42 @@ function loadGeometry(scene, gltfLoader, filename, resolve)
   gltfLoader.load(filename, resolve); 
 }
 
-function changeGuiOpacity(targetOpacity=1) 
+function updateGUIProperties(targetOpacity = 1) 
 {
-	Array.from(document.getElementsByClassName('dg')).forEach(
-    function(element, index, array) {
-		  element.style.opacity = targetOpacity;
+  // Set opacity
+  Array.from(document.getElementsByClassName('dg')).forEach(
+    function (element, index, array) {
+      element.style.opacity = targetOpacity;
     }
-	);
-}
+  );
 
-function hideCloseButton()
-{
+  // Hide close button
   Array.from(document.getElementsByClassName('close-button')).forEach(
-    function(element, index, array) {
-		  element.style.display = "none";
+    function (element, index, array) {
+      element.style.display = "none";
     }
   );
 }
 
+function createGUI()
+{
+  // Search document to find GUI elements and remove them
+  // If not done then multiple GUIs will be created from different
+  // threads.
+  Array.from(document.getElementsByClassName('dg')).forEach(
+    function (element, index, array) {
+      if (element.className) {
+        element.remove();
+      }
+    }
+  );
+
+  // Create new GUI. 
+  return new GUI();
+}
+
 function generateMaterial(elem, gen, genContext, lights, lightData, 
-  textureLoader, radianceTexture, irradianceTexture, gui)
+                          textureLoader, radianceTexture, irradianceTexture, gui)
 {  
   // Perform transparency check on renderable item
   const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
@@ -116,7 +133,8 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     blendDst: THREE.SrcAlphaFactor
   });
   
-  var matUI = gui.addFolder('Material');
+  const elemPath = elem.getNamePath();
+  var matUI = gui.addFolder(elemPath + ' Properties');
   const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
   let uniformToUpdate;
   const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -129,6 +147,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         const name = variable.getVariable();
         // TODO: Do more with path such as getting ui min, max etc.
         var path = variable.getPath();
+        path = path.replace(elemPath + '/', '');
         if (!path || path.length === 0)
           path = name;
 
@@ -158,7 +177,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
           case 'vector4':
             uniformToUpdate = threeMaterial.uniforms[name];
             if (uniformToUpdate && value) {
-              let vecFolder = matUI.addFolder(name);
+              let vecFolder = matUI.addFolder(path);
               Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
                 vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(path + "." + key);
               })
@@ -207,7 +226,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     }
   });  
   
-  changeGuiOpacity(0.9);
+  matUI.open();
 
   return threeMaterial;
 }
@@ -263,9 +282,8 @@ function init()
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
-    // Create gui
-    var gui = new GUI();
-    hideCloseButton();
+    // Create UI
+    var gui = createGUI();
 
     const geometryFile = 'Geometry/boombox.glb';
     Promise.all([
