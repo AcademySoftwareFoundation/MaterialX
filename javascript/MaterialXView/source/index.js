@@ -106,7 +106,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   // Get shaders and uniform values
   let vShader = shader.getSourceCode("vertex");
   let fShader = shader.getSourceCode("pixel");
-
+  
   let uniforms = {
     ...getUniformValues(shader.getStage('vertex'), textureLoader),
     ...getUniformValues(shader.getStage('pixel'), textureLoader),
@@ -136,8 +136,11 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
   const elemPath = elem.getNamePath();
   var matUI = gui.addFolder(elemPath + ' Properties');
   const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
-  let uniformToUpdate;
+  var uniformToUpdate;
   const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
+
+  var folderList = new Map();
+  folderList[elemPath] = matUI;
 
   uniformBlocks.forEach(uniforms => {
     if (!uniforms.empty()) {
@@ -145,11 +148,28 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         const variable = uniforms.get(i);
         const value = variable.getValue()?.getData();
         const name = variable.getVariable();
-        // TODO: Do more with path such as getting ui min, max etc.
-        var path = variable.getPath();
-        path = path.replace(elemPath + '/', '');
+
+        let currentFolder = matUI;
+        let currentElemPath = variable.getPath();
+        if (!currentElemPath || currentElemPath.length == 0) {
+          continue;
+        }
+        let currentElem = elem.getDocument().getDescendant(currentElemPath);
+        let currentNode = currentElem ? currentElem.getParent() : null;
+        if (null == currentNode)
+        {
+          continue;
+        }
+        let currentNodePath = currentNode.getNamePath();
+        currentFolder = folderList[currentNodePath];
+        if (!currentFolder) {
+          currentFolder = matUI.addFolder(currentNodePath);
+          folderList[currentNodePath] = currentFolder;
+        }
+
+        let path = currentElemPath.replace(currentNode.getNamePath() + '/', '');
         if (!path || path.length === 0)
-          path = name;
+            path = name;
 
         if (ignoreList.includes(name)) {
           continue;
@@ -158,17 +178,23 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         switch (variable.getType().getName()) {
 
           case 'float':
-          case 'integer':
             uniformToUpdate = threeMaterial.uniforms[name];
-            if (uniformToUpdate && value) {
-              matUI.add(threeMaterial.uniforms[name], 'value', 0).name(path);
+            if (uniformToUpdate && value != null) {
+              currentFolder.add(threeMaterial.uniforms[name], 'value', 0).name(path);
+            }
+            break;
+
+            case 'integer':
+            uniformToUpdate = threeMaterial.uniforms[name];
+            if (uniformToUpdate && value != null) {
+              currentFolder.add(threeMaterial.uniforms[name], 'value', 0).name(path);
             }
             break;
 
           case 'boolean':
             uniformToUpdate = threeMaterial.uniforms[name];
-            if (uniformToUpdate && value) {
-              matUI.add(threeMaterial.uniforms[name], 'value').name(path);
+            if (uniformToUpdate && value != null) {
+              currentFolder.add(threeMaterial.uniforms[name], 'value').name(path);
             }
             break;
 
@@ -176,8 +202,8 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
           case 'vector3':
           case 'vector4':
             uniformToUpdate = threeMaterial.uniforms[name];
-            if (uniformToUpdate && value) {
-              let vecFolder = matUI.addFolder(path);
+            if (uniformToUpdate && value != null) {
+              let vecFolder = currentFolder.addFolder(path);
               Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
                 vecFolder.add(threeMaterial.uniforms[name].value, key, 0.0).name(path + "." + key);
               })
@@ -187,14 +213,14 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
           case 'color3':
             // Irksome way to mape arrays to colors and back
             uniformToUpdate = threeMaterial.uniforms[name];
-            if (uniformToUpdate && value) {
+            if (uniformToUpdate && value != null) {
               var dummy = {
                 color: 0xFF0000
               };
               const color3 = new THREE.Color(dummy.color);
               color3.fromArray(threeMaterial.uniforms[name].value);
               dummy.color = color3.getHex();
-              matUI.addColor(dummy, 'color').name(path)
+              currentFolder.addColor(dummy, 'color').name(path)
                 .onChange(function (value) {
                   const color3 = new THREE.Color(value);
                   threeMaterial.uniforms[name].value.set(color3.toArray());
@@ -213,8 +239,8 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
             break;
           case 'string':
             uniformToUpdate = threeMaterial.uniforms[name];
-            if (uniformToUpdate && value) {
-              item = matUI.add(threeMaterial.uniforms[name], 'value');
+            if (uniformToUpdate && value != null) {
+              item = currentFolder.add(threeMaterial.uniforms[name], 'value');
               item.name(path);
               item.readonly(true);
             }
@@ -226,8 +252,6 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     }
   });  
   
-  matUI.open();
-
   return threeMaterial;
 }
 
@@ -395,6 +419,7 @@ function init()
         camera.updateProjectionMatrix();
 
     }).then(() => {
+        gui.open();
         animate();
     }).catch(err => {
         console.error(Number.isInteger(err) ? mx.getExceptionMessage(err) : err);
