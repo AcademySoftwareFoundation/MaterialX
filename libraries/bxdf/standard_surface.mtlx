@@ -54,7 +54,7 @@
            doc="The mean free path. The distance which light can travel before being scattered inside the surface." />
     <input name="subsurface_scale" type="float" value="1" uimin="0.0" uisoftmax="10.0" uiname="Subsurface Scale" uifolder="Subsurface" uiadvanced="true"
            doc="Scalar weight for the subsurface radius value." />
-    <input name="subsurface_anisotropy" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
+    <input name="subsurface_anisotropy" type="float" value="0" uimin="-1.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
            doc="The direction of subsurface scattering. 0 scatters light evenly, positive values scatter forward and negative values scatter backward." />
     <input name="sheen" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Sheen" uifolder="Sheen" uiadvanced="true"
            doc="The weight of a sheen layer that can be used to approximate microfibers or fabrics such as velvet and satin." />
