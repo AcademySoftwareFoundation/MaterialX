@@ -319,20 +319,20 @@ function init()
         // Search for any renderable items
         let elem = mx.findRenderableElement(doc);
 
-      // Load lighting setup into document
-      const lightRigDoc = mx.createDocument();
-      await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
-      doc.importLibrary(lightRigDoc);
+        // Load lighting setup into document
+        const lightRigDoc = mx.createDocument();
+        await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
+        doc.importLibrary(lightRigDoc);
 
-      // Register lights with generation context
-      const lights = findLights(doc);
-      const lightData = registerLights(mx, lights, genContext);
+        // Register lights with generation context
+        const lights = findLights(doc);
+        const lightData = registerLights(mx, lights, genContext);
 
-      const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
-      const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);    
+        const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
+        const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);    
 
-      const threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData, 
-        textureLoader, radianceTexture, irradianceTexture, gui);
+        const threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData, 
+          textureLoader, radianceTexture, irradianceTexture, gui);
 
         if (!obj) {
             const geometry = new THREE.BoxGeometry(1, 1, 1);
