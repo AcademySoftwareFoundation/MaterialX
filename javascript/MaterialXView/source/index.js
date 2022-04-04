@@ -199,8 +199,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
                 if (interfaceName && interfaceName.length) {
                     path = interfaceName;
                 }
-                else
-                {
+                else {
                     if (!uiname) {
                         uiname = currentElem.getAttribute('uiname');
                     }
@@ -321,7 +320,7 @@ function init() {
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setFaceCulling (false);
+    renderer.setFaceCulling(false);
 
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
