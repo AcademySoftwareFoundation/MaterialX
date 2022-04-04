@@ -298,7 +298,7 @@ function init()
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
 
     ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, {scene: obj}, mxIn, mtlxMaterial]) => {
-            
+
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
         let doc = mx.createDocument();
@@ -306,16 +306,16 @@ function init()
         let genContext = new mx.GenContext(gen);
         let stdlib = mx.loadStandardLibraries(genContext);
         doc.importLibrary(stdlib);
-      
+
         // Set search path.
         const searchPath = 'Materials/Examples/StandardSurface/';
-      
+
         // Load material
         if (mtlxMaterial)
             await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
         else
             fallbackMaterial(doc);
-      
+
         // Search for any renderable items
         let elem = mx.findRenderableElement(doc);
 
