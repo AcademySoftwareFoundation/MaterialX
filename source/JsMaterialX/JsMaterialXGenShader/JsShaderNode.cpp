@@ -19,5 +19,9 @@ EMSCRIPTEN_BINDINGS(ShaderPort)
         .function("getVariable", &mx::ShaderPort::getVariable)
         .function("getType", &mx::ShaderPort::getType, ems::allow_raw_pointers())
         .function("getValue", &mx::ShaderPort::getValue)
+        .function("getPath", &mx::ShaderPort::getPath)
+        .function("getUnit", &mx::ShaderPort::getUnit)
+        .function("getColorSpace", &mx::ShaderPort::getColorSpace)
+        .function("setGeomProp", &mx::ShaderPort::setGeomProp)        
         ;
 }
