@@ -136,6 +136,108 @@ TEST_CASE("Node", "[node]")
     REQUIRE(doc->getOutputs().empty());
 }
 
+TEST_CASE("Flatten", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/flatten/");
+
+    // Read the example file.
+    mx::readFromXmlFile(doc, "SubGraphs.mtlx", searchPath);
+    REQUIRE(doc->validate());
+
+    // Find the example graph.
+    mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
+    REQUIRE(graph);
+
+    // Traverse the graph and count nodes.
+    int totalNodeCount = 0;
+    for (mx::ElementPtr elem : graph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+        }
+    }
+    REQUIRE(totalNodeCount == 7);
+
+    // Create a flat version of the graph.
+    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
+    flatGraph->copyContentFrom(graph);
+    flatGraph->flattenSubgraphs();
+
+    // Traverse the flat graph and count nodes.
+    totalNodeCount = 0;
+    for (mx::ElementPtr elem : flatGraph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+
+            // Make sure it's an atomic node.
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
+            REQUIRE(isAtomic);
+        }
+    }
+    REQUIRE(totalNodeCount == 15);
+
+    // Test filtered flattening. Leave one node unflattened
+    flatGraph->copyContentFrom(graph);
+    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
+    {
+        return (node->getCategory() != "color_checker");
+    });
+    totalNodeCount = 0;
+    for (mx::ElementPtr elem : flatGraph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+
+            // Make sure it's an atomic node.
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
+            if (elem->getCategory() != "color_checker")
+            {
+                REQUIRE(isAtomic);
+            }
+        }
+    }
+    REQUIRE(totalNodeCount == 16);
+
+    // Read the example with upstream nodegraphs
+    doc = mx::createDocument();
+    const mx::FilePathVec libraryFolders;
+    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    mx::loadLibraries(libraryFolders, libraryRoot, doc);
+    searchPath = mx::FileSearchPath("resources/Materials/TestSuite/stdlib/definition/");
+    mx::readFromXmlFile(doc, "definition_using_definitions.mtlx", searchPath);
+    REQUIRE(doc->validate());
+
+    doc->flattenSubgraphs(mx::EMPTY_STRING,
+        [](mx::NodePtr node)
+    {
+        // Skip standard surface
+        return (node->getCategory() != "standard_surface");
+    });
+
+    mx::NodeGraphPtr upstreamGraph = doc->getNodeGraph("layered_inputGraph");
+    if (upstreamGraph)
+    {
+        upstreamGraph->flattenSubgraphs();
+    }
+    mx::XmlWriteOptions writeOptions;
+    auto skipDefinition = [](mx::ConstElementPtr elem)
+    {
+        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
+    };
+    writeOptions.elementPredicate = skipDefinition;
+    mx::writeToXmlFile(doc, "PostFlattenedGraph.mtlx", &writeOptions);
+    REQUIRE(doc->validate());
+}
+
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();
