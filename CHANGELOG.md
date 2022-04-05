@@ -1,18 +1,20 @@
 # Change Log
 
-## [1.38.4] - Development
+## [1.38.4] - 2022-04-06
 
 ### Added
 - Added [JavaScript bindings](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/javascript) for MaterialXCore, MaterialXFormat, and MaterialXGenGlsl.
 - Added a sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/), built and deployed through GitHub Actions.
 - Added a MaterialX graph for the [glTF PBR](libraries/bxdf/gltf_pbr.mtlx) shading model.
 - Added new 'worleynoise2d' and 'worleynoise3d' nodes, with implementations in GLSL, OSL, and MDL.
+- Added new 'surface_unlit' node, with implementations in GLSL, OSL, and MDL.
 - Added support for the glTF geometry format in MaterialXRender and MaterialXView.
 
 ### Changed
 - Moved the MaterialX project to the [Academy Software Foundation GitHub](https://github.com/AcademySoftwareFoundation/MaterialX).
 - Removed hardcoded references to "libraries" in calls to GenContext::registerSourceCodeSearchPath.  (See Developer Notes below for additional details.)
 - Improved the accuracy of mx_ggx_dir_albedo_analytic and mx_fresnel_conductor in GLSL.
+- Updated the PyBind11 library to version 2.9.0.
 
 ### Fixed
 - Aligned GLSL and MDL implementations of 'fractal3d' with OSL.
