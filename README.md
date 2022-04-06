@@ -60,9 +60,9 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2019, Python 3.8)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2019_x64_Python38.zip)
-- [MacOS (Xcode 12, Python 3.7)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_12_Python37.zip)
-- [Linux (GCC 10, Python 3.7)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_10_Python37.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python39.zip)
+- [MacOS (Xcode 13, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_13_Python39.zip)
+- [Linux (GCC 11, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python39.zip)
 
 ### Additional Resources
 
