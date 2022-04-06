@@ -12,7 +12,7 @@
     <input name="alpha_gain" type="float" value="1" />
     <input name="color_offset" type="color3" value="0, 0, 0" />
     <input name="alpha_offset" type="float" value="0" />
-    <input name="color_gamma" type="color3" value="1 1, 1" />
+    <input name="color_gamma" type="color3" value="1, 1, 1" />
     <input name="alpha_gamma" type="float" value="1" />
     <input name="unpremultiply_input" type="boolean" value="false" />
     <input name="premultiply_input" type="boolean" value="false" />
