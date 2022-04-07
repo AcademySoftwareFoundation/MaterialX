@@ -32,7 +32,7 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("getMagnitude", &V::getMagnitude)                  \
 .def("getNormalized", &V::getNormalized)                \
 .def("dot", &V::dot)                                    \
-.def("__getitem__", [](V& v, size_t i)                  \
+.def("__getitem__", [](const V& v, size_t i)            \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
     { v[i] = f; } )                                     \

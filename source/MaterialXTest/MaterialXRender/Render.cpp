@@ -14,9 +14,6 @@
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
-#ifdef MATERIALX_BUILD_CONTRIB
-#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
-#endif
 
 #include <fstream>
 #include <iostream>
