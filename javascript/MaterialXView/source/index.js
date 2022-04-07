@@ -17,7 +17,7 @@ import { prepareEnvTexture, findLights, registerLights, getUniformValues } from 
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
-let camera, scene, model, renderer, composer, controls, mx;
+let camera, scene, model, renderer, composer, controls, mx, threeMaterial;
 
 let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
@@ -46,15 +46,6 @@ function fallbackMaterial(doc) {
     const shaderElement = smNode.addInput('surfaceshader');
     shaderElement.setType('surfaceshader');
     shaderElement.setNodeName(ssName);
-}
-
-function loadGeometry(scene, gltfLoader, filename, resolve) {
-    // Clear the scene first
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
-
-    gltfLoader.load(filename, resolve);
 }
 
 function updateGUIProperties(targetOpacity = 1) {
@@ -118,7 +109,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     });
 
     // Create Three JS Material
-    const threeMaterial = new THREE.RawShaderMaterial({
+    const newMaterial = new THREE.RawShaderMaterial({
         uniforms: uniforms,
         vertexShader: vShader,
         fragmentShader: fShader,
@@ -211,52 +202,52 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
                 switch (variable.getType().getName()) {
 
                     case 'float':
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
-                            currentFolder.add(threeMaterial.uniforms[name], 'value').name(path);
+                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
                         }
                         break;
 
                     case 'integer':
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
-                            currentFolder.add(threeMaterial.uniforms[name], 'value').name(path);
+                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
                         }
                         break;
 
                     case 'boolean':
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
-                            currentFolder.add(threeMaterial.uniforms[name], 'value').name(path);
+                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
                         }
                         break;
 
                     case 'vector2':
                     case 'vector3':
                     case 'vector4':
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
                             let vecFolder = currentFolder.addFolder(path);
-                            Object.keys(threeMaterial.uniforms[name].value).forEach((key) => {
-                                vecFolder.add(threeMaterial.uniforms[name].value, key).name(path + "." + key);
+                            Object.keys(newMaterial.uniforms[name].value).forEach((key) => {
+                                vecFolder.add(newMaterial.uniforms[name].value, key).name(path + "." + key);
                             })
                         }
                         break;
 
                     case 'color3':
                         // Irksome way to mape arrays to colors and back
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
                             var dummy = {
                                 color: 0xFF0000
                             };
                             const color3 = new THREE.Color(dummy.color);
-                            color3.fromArray(threeMaterial.uniforms[name].value);
+                            color3.fromArray(newMaterial.uniforms[name].value);
                             dummy.color = color3.getHex();
                             currentFolder.addColor(dummy, 'color').name(path)
                                 .onChange(function (value) {
                                     const color3 = new THREE.Color(value);
-                                    threeMaterial.uniforms[name].value.set(color3.toArray());
+                                    newMaterial.uniforms[name].value.set(color3.toArray());
                                 }
                                 );
                         }
@@ -271,9 +262,9 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
                     case 'filename':
                         break;
                     case 'string':
-                        uniformToUpdate = threeMaterial.uniforms[name];
+                        uniformToUpdate = newMaterial.uniforms[name];
                         if (uniformToUpdate && value != null) {
-                            item = currentFolder.add(threeMaterial.uniforms[name], 'value');
+                            item = currentFolder.add(newMaterial.uniforms[name], 'value');
                             item.name(path);
                             item.readonly(true);
                         }
@@ -285,7 +276,96 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         }
     });
 
-    return threeMaterial;
+    return newMaterial;
+}
+
+/* Utility to perform load */
+function loadModel(geometryFilename, loader) 
+{
+    return new Promise((resolve, reject) => {
+        loader.load(geometryFilename, data => resolve(data), null, reject);
+    });
+}
+
+/*
+    Load in geometry specified by a given file name,
+    then update the scene geometry and camera.
+*/
+async function loadGeometry(geometryFilename)
+{
+    const gltfLoader = new GLTFLoader();
+    const gltfData = await loadModel(geometryFilename, gltfLoader);
+
+    while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
+    }
+
+    const model = gltfData.scene;
+    if (!model)
+    {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
+        const cube = new THREE.Mesh(geometry, material);
+        obj = new Group();
+        obj.add(geometry);
+    } 
+    scene.add(model);
+
+    // Always reset controls based on camera for each load. 
+    controls.reset();
+    updateScene(scene, controls);
+}
+
+/*
+    Update the geometry buffer, assigned materials, and camera controls.
+ */
+function updateScene(scene, controls)
+{
+    const bbox = new THREE.Box3().setFromObject(scene);
+    const bsphere = new THREE.Sphere();
+    bbox.getBoundingSphere(bsphere);
+
+    scene.traverse((child) => {
+        if (child.isMesh) {
+            if (!child.geometry.attributes.uv) {
+                const posCount = child.geometry.attributes.position.count;
+                const uvs = [];
+                const pos = child.geometry.attributes.position.array;
+
+                for (let i = 0; i < posCount; i++) {
+                    uvs.push((pos[i * 3] - bsphere.center.x) / bsphere.radius);
+                    uvs.push((pos[i * 3 + 1] - bsphere.center.y) / bsphere.radius);
+                }
+
+                child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
+            }
+
+            if (!child.geometry.attributes.normal) {
+                child.geometry.computeVertexNormals();
+            }
+
+            if (child.geometry.getIndex()) {
+                child.geometry.computeTangents();
+            }
+
+            // Use default MaterialX naming convention.
+            child.geometry.attributes.i_position = child.geometry.attributes.position;
+            child.geometry.attributes.i_normal = child.geometry.attributes.normal;
+            child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
+            child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+
+            child.material = threeMaterial;
+        }
+    });
+
+    // Fit camera to model
+    controls.target = bsphere.center;
+    camera.position.y = bsphere.center.y;
+    camera.position.z = bsphere.radius * 2.0;
+    controls.update();
+
+    camera.far = 5000.0;
+    camera.updateProjectionMatrix();
 }
 
 function init() {
@@ -306,8 +386,7 @@ function init() {
     geometrySelect.value = geometryFilename;
     geometrySelect.addEventListener('change', (e) => {
         geometryFilename = e.target.value;
-        window.location.href =
-            `${window.location.origin}${window.location.pathname}?file=${materialFilename}&geom=${geometryFilename}`;
+        loadGeometry(geometryFilename);
     });
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
@@ -342,12 +421,11 @@ function init() {
     // Create UI
     var gui = createGUI();
 
-    const geometryFile = 'Geometry/boombox.glb';
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => loadGeometry(scene, gltfLoader, geometryFilename, resolve)),
+        /* new Promise(resolve => loadGeometry(scene, gltfLoader, geometryFilename, resolve)), */
         new Promise(function (resolve) {
             MaterialX().then((module) => {
                 resolve(module);
@@ -355,7 +433,7 @@ function init() {
         }),
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
 
-    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, { scene: obj }, mxIn, mtlxMaterial]) => {
+    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, /* { scene: obj }, */ mxIn, mtlxMaterial]) => {
 
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
@@ -389,65 +467,11 @@ function init() {
         const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
         const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
 
-        const threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
+        threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
             textureLoader, radianceTexture, irradianceTexture, gui);
 
-        if (!obj) {
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
-            const cube = new THREE.Mesh(geometry, material);
-            obj = new Group();
-            obj.add(geometry);
-        }
-
-        model = obj;
-        scene.add(model);
-
-        const bbox = new THREE.Box3().setFromObject(model);
-        const bsphere = new THREE.Sphere();
-        bbox.getBoundingSphere(bsphere);
-
-        model.traverse((child) => {
-            if (child.isMesh) {
-                if (!child.geometry.attributes.uv) {
-                    const posCount = child.geometry.attributes.position.count;
-                    const uvs = [];
-                    const pos = child.geometry.attributes.position.array;
-
-                    for (let i = 0; i < posCount; i++) {
-                        uvs.push((pos[i * 3] - bsphere.center.x) / bsphere.radius);
-                        uvs.push((pos[i * 3 + 1] - bsphere.center.y) / bsphere.radius);
-                    }
-
-                    child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
-                }
-
-                if (!child.geometry.attributes.normal) {
-                    child.geometry.computeVertexNormals();
-                }
-
-                if (child.geometry.getIndex()) {
-                    child.geometry.computeTangents();
-                }
-
-                // Use default MaterialX naming convention.
-                child.geometry.attributes.i_position = child.geometry.attributes.position;
-                child.geometry.attributes.i_normal = child.geometry.attributes.normal;
-                child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
-                child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
-
-                child.material = threeMaterial;
-            }
-        });
-
-        // Fit camera to model
-        controls.target = bsphere.center;
-        camera.position.y = bsphere.center.y;
-        camera.position.z = bsphere.radius * 2.0;
-        controls.update();
-
-        camera.far = 5000.0;
-        camera.updateProjectionMatrix();
+        // Different on initial load is that new a camera is initialized
+        loadGeometry(geometryFilename);
 
     }).then(() => {
         gui.open();
@@ -469,7 +493,7 @@ function animate() {
 
     composer.render();
 
-    model.traverse((child) => {
+    scene.traverse((child) => {
         if (child.isMesh) {
             const uniforms = child.material.uniforms;
             if (uniforms) {
