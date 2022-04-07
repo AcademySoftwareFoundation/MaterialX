@@ -17,7 +17,7 @@ import { prepareEnvTexture, findLights, registerLights, getUniformValues } from 
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
-let camera, scene, model, renderer, composer, controls, mx, threeMaterial;
+let camera, scene, model, renderer, composer, controls, mx, currentMaterial;
 
 let normalMat = new THREE.Matrix3();
 let viewProjMat = new THREE.Matrix4();
@@ -81,7 +81,8 @@ function createGUI() {
 }
 
 function generateMaterial(elem, gen, genContext, lights, lightData,
-    textureLoader, radianceTexture, irradianceTexture, gui) {
+                         textureLoader, radianceTexture, irradianceTexture, gui) 
+{
     // Perform transparency check on renderable item
     const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
     genContext.getOptions().hwTransparency = isTransparent;
@@ -118,6 +119,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
         blendSrc: THREE.OneMinusSrcAlphaFactor,
         blendDst: THREE.SrcAlphaFactor
     });
+    newMaterial.side = THREE.DoubleSide;
 
     const elemPath = elem.getNamePath();
     var matUI = gui.addFolder(elemPath + ' Properties');
@@ -354,7 +356,7 @@ function updateScene(scene, controls)
             child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
             child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
 
-            child.material = threeMaterial;
+            child.material = currentMaterial;
         }
     });
 
@@ -378,7 +380,7 @@ function init() {
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
         window.location.href =
-            `${window.location.origin}${window.location.pathname}?file=${materialFilename}&geom=${geometryFilename}`;
+            `${window.location.origin}${window.location.pathname}?file=${materialFilename}`;
     });
 
     // Geometry selection
@@ -399,7 +401,6 @@ function init() {
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setFaceCulling(false);
 
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -425,7 +426,6 @@ function init() {
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
-        /* new Promise(resolve => loadGeometry(scene, gltfLoader, geometryFilename, resolve)), */
         new Promise(function (resolve) {
             MaterialX().then((module) => {
                 resolve(module);
@@ -433,7 +433,7 @@ function init() {
         }),
         new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
 
-    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, /* { scene: obj }, */ mxIn, mtlxMaterial]) => {
+    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, mxIn, mtlxMaterial]) => {
 
         // Initialize MaterialX and the shader generation context
         mx = mxIn;
@@ -467,7 +467,7 @@ function init() {
         const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
         const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
 
-        threeMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
+        currentMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
             textureLoader, radianceTexture, irradianceTexture, gui);
 
         // Different on initial load is that new a camera is initialized
