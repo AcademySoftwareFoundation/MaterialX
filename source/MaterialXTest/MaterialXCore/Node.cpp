@@ -238,6 +238,80 @@ TEST_CASE("Flatten", "[nodegraph]")
     REQUIRE(doc->validate());
 }
 
+// Fixes https://github.com/AcademySoftwareFoundation/MaterialX/pull/890
+TEST_CASE("Flatten with Namespaces", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/flatten/");
+
+    // Read the example file.
+    mx::readFromXmlFile(doc, "FlattenWithNamespaces.mtlx", searchPath);
+    REQUIRE(doc->validate());
+
+    // Find the example graph.
+    mx::NodeGraphPtr graph = doc->getNodeGraph("my_nodegraph");
+    REQUIRE(graph);
+
+    // Traverse the graph and count nodes.
+    int totalNodeCount = 0;
+    for (mx::ElementPtr elem : graph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+        }
+    }
+    REQUIRE(totalNodeCount == 3);
+
+    // Create a flat version of the graph.
+    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
+    flatGraph->copyContentFrom(graph);
+    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [](mx::NodePtr node)
+    {
+        return (node->getCategory() != "standard_surface");
+    });
+
+
+
+    // Do we get downlstream ports? (This was the actual cause of the flattening bug)
+    auto node = flatGraph->getNode("b_image3");
+    REQUIRE(node);
+    auto xx = node->getDownstreamPorts();
+    REQUIRE(xx.size());
+
+
+
+    // Traverse the flat graph and count nodes.
+    totalNodeCount = 0;
+    for (mx::ElementPtr elem : flatGraph->traverseTree())
+    {
+        if (elem->isA<mx::Node>())
+        {
+            totalNodeCount++;
+
+            // Make sure it's an atomic node.
+            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
+            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
+            REQUIRE(isAtomic);
+        }
+    }
+    REQUIRE(totalNodeCount == 39);
+
+    // Dump output for debugging use
+    mx::XmlWriteOptions writeOptions;
+    auto skipDefinition = [](mx::ConstElementPtr elem)
+    {
+        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
+    };
+    writeOptions.elementPredicate = skipDefinition;
+    mx::writeToXmlFile(doc, "PostFlattenedGraph2.mtlx", &writeOptions);
+
+    // Validate the document. Without https://github.com/AcademySoftwareFoundation/MaterialX/pull/890 this would fail
+    REQUIRE(doc->validate());
+}
+
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();
