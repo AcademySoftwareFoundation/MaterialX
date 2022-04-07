@@ -87,4 +87,4 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     return shaderNode;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
