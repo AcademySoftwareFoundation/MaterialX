@@ -228,7 +228,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 
     /// Bake material to document in memory and write baked textures to disk.
     DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
-                                  const StringVec udimSet, std::string& documentName);
+                                  const StringVec& udimSet, std::string& documentName);
 
     /// Bake materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
