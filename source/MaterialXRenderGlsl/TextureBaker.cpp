@@ -469,7 +469,7 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
 }
 
 DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
-                                            const StringVec udimSet, string& documentName)
+                                            const StringVec& udimSet, string& documentName)
 {
     if (_outputStream)
     {

@@ -775,7 +775,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
   protected:
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
-    void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
+    void validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const;
 
   public:
     static const string NAME_ATTRIBUTE;

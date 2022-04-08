@@ -455,7 +455,7 @@ string Element::asString() const
     return res;
 }
 
-void Element::validateRequire(bool expression, bool& res, string* message, string errorDesc) const
+void Element::validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const
 {
     if (!expression)
     {

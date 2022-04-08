@@ -30,7 +30,7 @@ class MX_GENSHADER_API ShaderTranslator
 
     /// Translate each material in the input document to the destination
     /// shading model.
-    void translateAllMaterials(DocumentPtr doc, string destShader);
+    void translateAllMaterials(DocumentPtr doc, const string& destShader);
 
   protected:
     ShaderTranslator() { }
