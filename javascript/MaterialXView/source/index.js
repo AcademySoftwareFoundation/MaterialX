@@ -16,8 +16,9 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
+import { CompressedTexture } from 'three';
 
-let  renderer, composer, orbitControls, mx, currentMaterial;
+let  renderer, composer, orbitControls, currentMaterial;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -55,8 +56,8 @@ class Scene
         this.#_worldViewPos = new THREE.Vector3();
     }
 
-    /* Utility to perform load */
-    loadModel(geometryFilename, loader) 
+    /* Utility to perform geometry file load */
+    loadGeometryFile(geometryFilename, loader) 
     {
         return new Promise((resolve, reject) => {
             loader.load(geometryFilename, data => resolve(data), null, reject);
@@ -69,7 +70,7 @@ class Scene
     */
     async loadGeometry()
     {
-        const gltfData = await this.loadModel(this.getGeometryURL(), this.#_gltfLoader);
+        const gltfData = await this.loadGeometryFile(this.getGeometryURL(), this.#_gltfLoader);
 
         const scene = this.getScene(); 
         while (scene.children.length > 0) {
@@ -166,6 +167,25 @@ class Scene
         });
     }
 
+    updateMaterial(material)
+    {
+        const scene = this.getScene();
+        const camera = this.getCamera();
+        scene.traverse((child) => {
+            if (child.isMesh) {
+                child.material = material;
+                child.material.needsUpdate = true;
+            }
+        });
+    }
+
+    updateCamera()
+    {
+        const camera = this.getCamera();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    }
+
     getScene() {
         return this._scene;
     }
@@ -175,7 +195,6 @@ class Scene
     }
 
     getGeometryURL() {
-        console.log("Get geometry URL: ", this._geometryURL);
         return this._geometryURL;
     }
 
@@ -227,6 +246,7 @@ class Editor
     // Create the editor
     initialize() 
     {
+        console.log("create new gui");
         // Search document to find GUI elements and remove them
         // If not done then multiple GUIs will be created from different
         // threads.
@@ -240,6 +260,7 @@ class Editor
     
         // Create new GUI. 
         this._gui = new GUI();
+        this._gui.open();
         return this._gui;
     }
     
@@ -251,225 +272,427 @@ class Editor
     _gui = null;
 }
 
-let theScene = new Scene();
-let theEditor = new Editor();
-
-init();
-theEditor.updateProperties(0.9);
-
-// If no material file is selected, we programmatically create a default material as a fallback
-function fallbackMaterial(doc) {
-    const ssName = 'SR_default';
-    const ssNode = doc.addChildOfCategory('standard_surface', ssName);
-    ssNode.setType('surfaceshader');
-    const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
-    smNode.setType('material');
-    const shaderElement = smNode.addInput('surfaceshader');
-    shaderElement.setType('surfaceshader');
-    shaderElement.setNodeName(ssName);
-}
-
-function generateMaterial(elem, gen, genContext, lights, lightData,
-                         textureLoader, radianceTexture, irradianceTexture) 
+class Material
 {
-    // Perform transparency check on renderable item
-    const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
-    genContext.getOptions().hwTransparency = isTransparent;
-
-    // Generate GLES code
-    let shader = gen.generate(elem.getNamePath(), elem, genContext);
-
-    // Get shaders and uniform values
-    let vShader = shader.getSourceCode("vertex");
-    let fShader = shader.getSourceCode("pixel");
-
-    let uniforms = {
-        ...getUniformValues(shader.getStage('vertex'), textureLoader),
-        ...getUniformValues(shader.getStage('pixel'), textureLoader),
+    // If no material file is selected, we programmatically create a default material as a fallback
+    static createFallbackMaterial(doc) 
+    {
+        const ssName = 'SR_default';
+        const ssNode = doc.addChildOfCategory('standard_surface', ssName);
+        ssNode.setType('surfaceshader');
+        const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
+        smNode.setType('material');
+        const shaderElement = smNode.addInput('surfaceshader');
+        shaderElement.setType('surfaceshader');
+        shaderElement.setNodeName(ssName);
     }
 
-    Object.assign(uniforms, {
-        u_numActiveLightSources: { value: lights.length },
-        u_lightData: { value: lightData },
-        u_envMatrix: { value: new THREE.Matrix4().makeRotationY(Math.PI) },
-        u_envRadiance: { value: radianceTexture },
-        u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
-        u_envRadianceSamples: { value: 16 },
-        u_envIrradiance: { value: irradianceTexture }
-    });
+    async loadMaterialFile(materialFilename, loader)
+    {
+        return new Promise((resolve, reject) => {
+            loader.load(materialFilename, data => resolve(data), null, reject);
+        });
+    }
 
-    // Create Three JS Material
-    const newMaterial = new THREE.RawShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vShader,
-        fragmentShader: fShader,
-        transparent: isTransparent,
-        blendEquation: THREE.AddEquation,
-        blendSrc: THREE.OneMinusSrcAlphaFactor,
-        blendDst: THREE.SrcAlphaFactor
-    });
-    newMaterial.side = THREE.DoubleSide;
+    async loadMaterial(materialFilename, viewer)
+    {
+        const mx = viewer.getMx();
 
-    const elemPath = elem.getNamePath();
-    const gui = theEditor.getGUI();
-    var matUI = gui.addFolder(elemPath + ' Properties');
-    const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
-    var uniformToUpdate;
-    const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
+        // Re-initialize document
+        var doc = mx.createDocument();
+        doc.importLibrary(viewer.getLibrary());
+        viewer.setDocument(doc);
 
-    var folderList = new Map();
-    folderList[elemPath] = matUI;
+        const fileloader = viewer.getFileLoader(); 
+        //const radianceTexture = viewer.getRadianceTexture(); 
+        //const irradianceTexture = viewer.getIrradianceTexture();
 
-    uniformBlocks.forEach(uniforms => {
-        if (!uniforms.empty()) {
+        let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(materialFilename, fileloader);
 
-            for (let i = 0; i < uniforms.size(); ++i) {
-                const variable = uniforms.get(i);
-                const value = variable.getValue()?.getData();
-                let name = variable.getVariable();
+        // Set search path.
+        const searchPath = 'Materials/Examples/StandardSurface/';
 
-                if (ignoreList.includes(name)) {
-                    continue;
-                }
+        // Load material
+        if (mtlxMaterial)
+            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+        else
+            Material.createFallbackMaterial(doc);
 
-                let currentFolder = matUI;
-                let currentElemPath = variable.getPath();
-                if (!currentElemPath || currentElemPath.length == 0) {
-                    continue;
-                }
-                let currentElem = elem.getDocument().getDescendant(currentElemPath);
-                if (!currentElem) {
-                    continue;
-                }
+        // Search for any renderable items
+        let elem = mx.findRenderableElement(doc);
 
-                let currentNode = currentElem ? currentElem.getParent() : null;
-                let uiname;
-                if (currentNode) {
+        // Load lighting setup into document
+        doc.importLibrary(viewer.getLightRig());
 
-                    let currentNodePath = currentNode.getNamePath();
-                    var pathSplit = currentNodePath.split('/');
-                    if (pathSplit.length) {
-                        currentNodePath = pathSplit[0];
+        // Create a new material
+        currentMaterial = viewer.getMaterial().generateMaterial(elem);
+
+        if (currentMaterial)
+        {
+            viewer.getScene().updateMaterial(currentMaterial);
+        }
+    }
+
+    generateMaterial(elem) 
+    {
+        const mx = viewer.getMx();
+        const textureLoader = new THREE.TextureLoader();
+
+        const lights = viewer.getLights();
+        const lightData = viewer.getLightData();
+        const radianceTexture = viewer.getRadianceTexture();
+        const irradianceTexture = viewer.getIrradianceTexture();
+        const gen = viewer.getGenerator();
+        const genContext = viewer.getGenContext();
+
+        // Perform transparency check on renderable item
+        const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
+        genContext.getOptions().hwTransparency = isTransparent;
+
+        // Generate GLES code
+        let shader = gen.generate(elem.getNamePath(), elem, genContext);
+
+        // Get shaders and uniform values
+        let vShader = shader.getSourceCode("vertex");
+        let fShader = shader.getSourceCode("pixel");
+
+        let uniforms = {
+            ...getUniformValues(shader.getStage('vertex'), textureLoader),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader),
+        }
+
+        Object.assign(uniforms, {
+            u_numActiveLightSources: { value: lights.length },
+            u_lightData: { value: lightData },
+            u_envMatrix: { value: new THREE.Matrix4().makeRotationY(Math.PI) },
+            u_envRadiance: { value: radianceTexture },
+            u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
+            u_envRadianceSamples: { value: 16 },
+            u_envIrradiance: { value: irradianceTexture }
+        });
+
+        //console.log("uniforms", uniforms);
+        //console.log("lightData", lightData);
+        //console.log("radianceTexture", radianceTexture);
+        //console.log("irradianceTexture: ", irradianceTexture);
+
+        // Create Three JS Material
+        const newMaterial = new THREE.RawShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vShader,
+            fragmentShader: fShader,
+            transparent: isTransparent,
+            blendEquation: THREE.AddEquation,
+            blendSrc: THREE.OneMinusSrcAlphaFactor,
+            blendDst: THREE.SrcAlphaFactor
+        });
+        newMaterial.side = THREE.DoubleSide;
+
+        this.updateEditor(elem, shader, newMaterial);
+
+        return newMaterial;
+    }
+
+    updateEditor(elem, shader, newMaterial)
+    {
+        const elemPath = elem.getNamePath();
+        const gui = viewer.getEditor().getGUI();
+        var matUI = gui.addFolder(elemPath + ' Properties');
+        const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
+        var uniformToUpdate;
+        const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
+
+        var folderList = new Map();
+        folderList[elemPath] = matUI;
+
+        uniformBlocks.forEach(uniforms => 
+        {
+            if (!uniforms.empty()) 
+            {
+                for (let i = 0; i < uniforms.size(); ++i) 
+                {
+                    const variable = uniforms.get(i);
+                    const value = variable.getValue()?.getData();
+                    let name = variable.getVariable();
+
+                    if (ignoreList.includes(name)) {
+                        continue;
                     }
-                    currentFolder = folderList[currentNodePath];
-                    if (!currentFolder) {
-                        currentFolder = matUI.addFolder(currentNodePath);
-                        folderList[currentNodePath] = currentFolder;
+
+                    let currentFolder = matUI;
+                    let currentElemPath = variable.getPath();
+                    if (!currentElemPath || currentElemPath.length == 0) {
+                        continue;
+                    }
+                    let currentElem = elem.getDocument().getDescendant(currentElemPath);
+                    if (!currentElem) {
+                        continue;
                     }
 
-                    // Check for ui attributes
-                    var nodeDef = currentNode.getNodeDef();
-                    if (nodeDef) {
-                        let input = nodeDef.getActiveInput(name);
-                        if (input) {
-                            uiname = input.getAttribute('uiname');
-                            let uifolderName = input.getAttribute('uifolder');
-                            if (uifolderName && uifolderName.length) {
-                                let newFolderName = currentNodePath + '/' + uifolderName;
-                                currentFolder = folderList[newFolderName];
-                                if (!currentFolder) {
-                                    currentFolder = matUI.addFolder(uifolderName);
-                                    folderList[newFolderName] = currentFolder;
+                    let currentNode = currentElem ? currentElem.getParent() : null;
+                    let uiname;
+                    if (currentNode) {
+
+                        let currentNodePath = currentNode.getNamePath();
+                        var pathSplit = currentNodePath.split('/');
+                        if (pathSplit.length) {
+                            currentNodePath = pathSplit[0];
+                        }
+                        currentFolder = folderList[currentNodePath];
+                        if (!currentFolder) {
+                            currentFolder = matUI.addFolder(currentNodePath);
+                            folderList[currentNodePath] = currentFolder;
+                        }
+
+                        // Check for ui attributes
+                        var nodeDef = currentNode.getNodeDef();
+                        if (nodeDef) {
+                            let input = nodeDef.getActiveInput(name);
+                            if (input) {
+                                uiname = input.getAttribute('uiname');
+                                let uifolderName = input.getAttribute('uifolder');
+                                if (uifolderName && uifolderName.length) {
+                                    let newFolderName = currentNodePath + '/' + uifolderName;
+                                    currentFolder = folderList[newFolderName];
+                                    if (!currentFolder) {
+                                        currentFolder = matUI.addFolder(uifolderName);
+                                        folderList[newFolderName] = currentFolder;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                // Determine UI name to use
-                let path = name;
-                let interfaceName = currentElem.getAttribute("interfacename");
-                if (interfaceName && interfaceName.length) {
-                    path = interfaceName;
-                }
-                else {
-                    if (!uiname) {
-                        uiname = currentElem.getAttribute('uiname');
+                    // Determine UI name to use
+                    let path = name;
+                    let interfaceName = currentElem.getAttribute("interfacename");
+                    if (interfaceName && interfaceName.length) {
+                        path = interfaceName;
                     }
-                    if (uiname && uiname.length) {
-                        path = uiname;
+                    else {
+                        if (!uiname) {
+                            uiname = currentElem.getAttribute('uiname');
+                        }
+                        if (uiname && uiname.length) {
+                            path = uiname;
+                        }
                     }
-                }
 
-                switch (variable.getType().getName()) {
+                    switch (variable.getType().getName()) {
 
-                    case 'float':
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
-                        }
-                        break;
+                        case 'float':
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                            }
+                            break;
 
-                    case 'integer':
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
-                        }
-                        break;
+                        case 'integer':
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                            }
+                            break;
 
-                    case 'boolean':
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
-                        }
-                        break;
+                        case 'boolean':
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                            }
+                            break;
 
-                    case 'vector2':
-                    case 'vector3':
-                    case 'vector4':
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            let vecFolder = currentFolder.addFolder(path);
-                            Object.keys(newMaterial.uniforms[name].value).forEach((key) => {
-                                vecFolder.add(newMaterial.uniforms[name].value, key).name(path + "." + key);
-                            })
-                        }
-                        break;
+                        case 'vector2':
+                        case 'vector3':
+                        case 'vector4':
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                let vecFolder = currentFolder.addFolder(path);
+                                Object.keys(newMaterial.uniforms[name].value).forEach((key) => {
+                                    vecFolder.add(newMaterial.uniforms[name].value, key).name(path + "." + key);
+                                })
+                            }
+                            break;
 
-                    case 'color3':
-                        // Irksome way to mape arrays to colors and back
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            var dummy = {
-                                color: 0xFF0000
-                            };
-                            const color3 = new THREE.Color(dummy.color);
-                            color3.fromArray(newMaterial.uniforms[name].value);
-                            dummy.color = color3.getHex();
-                            currentFolder.addColor(dummy, 'color').name(path)
-                                .onChange(function (value) {
-                                    const color3 = new THREE.Color(value);
-                                    newMaterial.uniforms[name].value.set(color3.toArray());
-                                }
-                                );
-                        }
-                        break;
+                        case 'color3':
+                            // Irksome way to mape arrays to colors and back
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                var dummy = {
+                                    color: 0xFF0000
+                                };
+                                const color3 = new THREE.Color(dummy.color);
+                                color3.fromArray(newMaterial.uniforms[name].value);
+                                dummy.color = color3.getHex();
+                                currentFolder.addColor(dummy, 'color').name(path)
+                                    .onChange(function (value) {
+                                        const color3 = new THREE.Color(value);
+                                        newMaterial.uniforms[name].value.set(color3.toArray());
+                                    }
+                                    );
+                            }
+                            break;
 
-                    case 'color4':
-                        break;
+                        case 'color4':
+                            break;
 
-                    case 'matrix33':
-                    case 'matrix44':
-                    case 'samplerCube':
-                    case 'filename':
-                        break;
-                    case 'string':
-                        uniformToUpdate = newMaterial.uniforms[name];
-                        if (uniformToUpdate && value != null) {
-                            item = currentFolder.add(newMaterial.uniforms[name], 'value');
-                            item.name(path);
-                            item.readonly(true);
-                        }
-                        break;
-                    default:
-                        break;
+                        case 'matrix33':
+                        case 'matrix44':
+                        case 'samplerCube':
+                        case 'filename':
+                            break;
+                        case 'string':
+                            uniformToUpdate = newMaterial.uniforms[name];
+                            if (uniformToUpdate && value != null) {
+                                item = currentFolder.add(newMaterial.uniforms[name], 'value');
+                                item.name(path);
+                                item.readonly(true);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-        }
-    });
+        });
 
-    return newMaterial;
+        console.log("gui = ", gui);
+    }
+
 }
+
+class Viewer 
+{
+    constructor()
+    {
+        this.scene = new Scene();
+        this.editor = new Editor();
+        this.materials.push(new Material());
+
+        this.fileLoader = new THREE.FileLoader();
+        this.hdrLoader = new RGBELoader();    
+    }
+
+    async initialize(mtlxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    {
+        this.mx = mtlxIn;
+
+        // Initialize base document
+        this.generator = new this.mx.EsslShaderGenerator();
+        this.genContext = new this.mx.GenContext(this.generator);
+
+        this.document = this.mx.createDocument();
+        this.stdlib = this.mx.loadStandardLibraries(this.genContext);
+        this.document.importLibrary(this.stdlib);
+
+        this.initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+    }
+
+    async initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    {
+        // Load lighting setup into document
+        const mx = this.getMx();
+        this.lightRigDoc = mx.createDocument();
+        await mx.readFromXmlString(this.lightRigDoc, loadedLightSetup);
+        this.document.importLibrary(this.lightRigDoc);
+
+        // Register lights with generation context
+        this.lights = findLights(this.document);
+        this.lightData = registerLights(mx, this.lights, this.genContext);
+
+        this.radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
+        this.irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
+    }
+
+    getEditor() {
+        return this.editor;
+    }
+
+    getScene() {
+        return this.scene;
+    }
+
+    getMaterial() {
+        return this.materials[0];
+    }
+
+    getFileLoader()
+    {
+        return this.fileLoader;
+    }
+
+    getHdrLoader()
+    {
+        return this.hdrLoader;
+    }
+
+    setDocument(doc) {
+        this.doc = doc;
+    }
+    getDocument() {
+        return this.doc;
+    }
+
+    getLibrary() {
+        return this.stdlib;
+    }
+
+    getLightRig() {
+        return this.lightRigDoc;
+    }
+
+    getMx() {
+        return this.mx;
+    }
+
+    getGenerator() {
+        return this.generator;
+    }
+
+    getGenContext() {
+        return this.genContext;
+    }
+
+    getLights() {
+        return this.lights;
+    }
+
+    getLightData() {
+        return this.lightData;
+    }
+
+    getRadianceTexture() {
+        return this.radianceTexture;
+    }
+
+    getIrradianceTexture() {
+        return this.irradianceTexture;
+    }
+
+    scene = null;
+    editor = null;
+    materials = [];
+
+    fileloader = null;
+    hdrLoader = null;
+
+    // MaterialX constructs
+    mx = null;
+    doc = null;
+    stdlib = null;
+    lightRigDoc = null;
+    generator = null;
+    genContext = null;
+
+    lights = null;
+    lightData = null;
+
+    radianceTexture = null;
+    irradianceTexture = null;
+}
+
+let viewer = new Viewer();
+init();
+viewer.getEditor().updateProperties(0.9);
 
 function init() 
 {
@@ -481,27 +704,31 @@ function init()
     materialsSelect.value = materialFilename;
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
-        window.location.href =
-            `${window.location.origin}${window.location.pathname}?file=${materialFilename}`;
+        viewer.getEditor().initialize();
+        viewer.getMaterial().loadMaterial(materialFilename, viewer);
+        viewer.getEditor().updateProperties(0.9);
+        //window.location.href =
+        //    `${window.location.origin}${window.location.pathname}?file=${materialFilename}`;
     });
 
     // Geometry selection
+    const scene = viewer.getScene();
     let geometrySelect = document.getElementById('geometry');
-    geometrySelect.value = theScene.getGeometryURL();
+    geometrySelect.value = scene.getGeometryURL();
     geometrySelect.addEventListener('change', (e) => {
-        theScene.setGeometryURL(e.target.value);
-        theScene.loadGeometry();
+        scene.setGeometryURL(e.target.value);
+        scene.loadGeometry();
     });
 
     // Set up scene
-    theScene.initialize();
+    scene.initialize();
 
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(theScene.getScene(), theScene.getCamera());
+    const renderPass = new RenderPass(scene.getScene(), scene.getCamera());
     composer.addPass(renderPass);
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
     composer.addPass(gammaCorrectionPass);
@@ -509,88 +736,55 @@ function init()
     window.addEventListener('resize', onWindowResize);
 
     // Set up controls
-    orbitControls = new OrbitControls(theScene.getCamera(), renderer.domElement);
+    orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
 
     // Load model and shaders
-    const fileloader = new THREE.FileLoader();
-    const hdrloader = new RGBELoader();
-    const textureLoader = new THREE.TextureLoader();
 
     // Initialize editor
-    theEditor.initialize();
+    viewer.getEditor().initialize();
 
+    const hdrLoader = viewer.getHdrLoader();
+    const fileLooder = viewer.getFileLoader();
     Promise.all([
-        new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => fileloader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
-        new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => fileLooder.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
+        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(function (resolve) {
             MaterialX().then((module) => {
                 resolve(module);
             });
-        }),
-        new Promise(resolve => materialFilename ? fileloader.load(materialFilename, resolve) : resolve())
-
-    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, mxIn, mtlxMaterial]) => {
-
-        // Initialize MaterialX and the shader generation context
-        mx = mxIn;
-        let doc = mx.createDocument();
-        let gen = new mx.EsslShaderGenerator();
-        let genContext = new mx.GenContext(gen);
-        let stdlib = mx.loadStandardLibraries(genContext);
-        doc.importLibrary(stdlib);
-
-        // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface/';
+        }) 
+    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, mxIn]) => 
+    {
+        // Initialize viewer + lighting
+        await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
 
         // Load material
-        if (mtlxMaterial)
-            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
-        else
-            fallbackMaterial(doc);
+        viewer.getMaterial().loadMaterial(materialFilename, viewer);
 
-        // Search for any renderable items
-        let elem = mx.findRenderableElement(doc);
-
-        // Load lighting setup into document
-        const lightRigDoc = mx.createDocument();
-        await mx.readFromXmlString(lightRigDoc, loadedLightSetup);
-        doc.importLibrary(lightRigDoc);
-
-        // Register lights with generation context
-        const lights = findLights(doc);
-        const lightData = registerLights(mx, lights, genContext);
-
-        const radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
-        const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
-
-        currentMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
-            textureLoader, radianceTexture, irradianceTexture);
-
-        // Different on initial load is that new a camera is initialized
-        theScene.loadGeometry();
+        // Load geometry
+        viewer.getScene().loadGeometry();
 
     }).then(() => {
         animate();
     }).catch(err => {
-        console.error(Number.isInteger(err) ? mx.getExceptionMessage(err) : err);
+        console.error(Number.isInteger(err) ? this.getMx().getExceptionMessage(err) : err);
     })
 
 }
 
 function onWindowResize() 
 {
-    const camera = theScene.getCamera();
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    viewer.getScene().updateCamera();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate() 
 {
     requestAnimationFrame(animate);
-
-    composer.render();
-
-    theScene.updateTransforms();
+    if (currentMaterial)
+    {
+        composer.render();
+        viewer.getScene().updateTransforms();
+    }
 }
