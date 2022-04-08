@@ -17,24 +17,245 @@ import { prepareEnvTexture, findLights, registerLights, getUniformValues } from 
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
-let camera, scene, model, renderer, composer, controls, mx, currentMaterial;
-
-let normalMat = new THREE.Matrix3();
-let viewProjMat = new THREE.Matrix4();
-let worldViewPos = new THREE.Vector3();
+let  renderer, composer, orbitControls, mx, currentMaterial;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
 if (!materialFilename) {
     materialFilename = 'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
 }
-let geometryFilename = new URLSearchParams(document.location.search).get("geom");
-if (!geometryFilename) {
-    geometryFilename = 'Geometry/shaderball.glb';
+
+/*
+    Scene management
+*/
+class Scene 
+{
+    constructor() 
+    {
+        this._geometryURL = new URLSearchParams(document.location.search).get("geom");
+        if (!this._geometryURL)
+        {
+            this._geometryURL = 'Geometry/shaderball.glb'; 
+        }
+    }
+
+    initialize() 
+    {
+        this._scene = new THREE.Scene();
+        this._scene.background = new THREE.Color(this.#_backgroundColor);
+        this._scene.background.convertSRGBToLinear();
+
+        this._camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000);
+        this._camera.far = 5000.0;
+
+        this.#_gltfLoader = new GLTFLoader();
+
+        this.#_normalMat = new THREE.Matrix3();
+        this.#_viewProjMat = new THREE.Matrix4();
+        this.#_worldViewPos = new THREE.Vector3();
+    }
+
+    /* Utility to perform load */
+    loadModel(geometryFilename, loader) 
+    {
+        return new Promise((resolve, reject) => {
+            loader.load(geometryFilename, data => resolve(data), null, reject);
+        });
+    }
+
+    /*
+        Load in geometry specified by a given file name,
+        then update the scene geometry and camera.
+    */
+    async loadGeometry()
+    {
+        const gltfData = await this.loadModel(this.getGeometryURL(), this.#_gltfLoader);
+
+        const scene = this.getScene(); 
+        while (scene.children.length > 0) {
+            scene.remove(scene.children[0]);
+        }
+
+        const model = gltfData.scene;
+        if (!model)
+        {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
+            const cube = new THREE.Mesh(geometry, material);
+            obj = new Group();
+            obj.add(geometry);
+        } 
+        scene.add(model);
+
+        // Always reset controls based on camera for each load. 
+        orbitControls.reset();
+        this.updateScene();
+    }
+
+    /*
+        Update the geometry buffer, assigned materials, and camera controls.
+    */
+    updateScene()
+    {
+        const bbox = new THREE.Box3().setFromObject(this._scene);
+        const bsphere = new THREE.Sphere();
+        bbox.getBoundingSphere(bsphere);
+    
+        this._scene.traverse((child) => {
+            if (child.isMesh) {
+                if (!child.geometry.attributes.uv) {
+                    const posCount = child.geometry.attributes.position.count;
+                    const uvs = [];
+                    const pos = child.geometry.attributes.position.array;
+    
+                    for (let i = 0; i < posCount; i++) {
+                        uvs.push((pos[i * 3] - bsphere.center.x) / bsphere.radius);
+                        uvs.push((pos[i * 3 + 1] - bsphere.center.y) / bsphere.radius);
+                    }
+    
+                    child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
+                }
+    
+                if (!child.geometry.attributes.normal) {
+                    child.geometry.computeVertexNormals();
+                }
+    
+                if (child.geometry.getIndex()) {
+                    child.geometry.computeTangents();
+                }
+    
+                // Use default MaterialX naming convention.
+                child.geometry.attributes.i_position = child.geometry.attributes.position;
+                child.geometry.attributes.i_normal = child.geometry.attributes.normal;
+                child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
+                child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+    
+                child.material = currentMaterial;
+            }
+        });
+    
+        // Fit camera to model
+        const camera = this.getCamera();
+        camera.position.y = bsphere.center.y;
+        camera.position.z = bsphere.radius * 2.0;
+        camera.updateProjectionMatrix();
+    
+        orbitControls.target = bsphere.center;
+        orbitControls.update();
+    }    
+
+    updateTransforms()
+    {
+        const scene = this.getScene();
+        const camera = this.getCamera();
+        scene.traverse((child) => {
+            if (child.isMesh) {
+                const uniforms = child.material.uniforms;
+                if (uniforms) {
+                    uniforms.u_worldMatrix.value = child.matrixWorld;
+                    uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+
+                    if (uniforms.u_viewPosition)
+                        uniforms.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
+
+                    if (uniforms.u_worldInverseTransposeMatrix)
+                        uniforms.u_worldInverseTransposeMatrix.value = 
+                        new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
+                }
+            }
+        });
+    }
+
+    getScene() {
+        return this._scene;
+    }
+
+    getCamera() {
+        return this._camera;
+    }
+
+    getGeometryURL() {
+        console.log("Get geometry URL: ", this._geometryURL);
+        return this._geometryURL;
+    }
+
+    setGeometryURL(url) {
+        this._geometryURL = url;
+    }
+
+    // Geometry file
+    #_geometryURL = '';
+    // Geometry loader
+    #_gltfLoader = null;
+
+    // Scene
+    #_scene = null;
+
+    // Camera
+    #_camera = null;
+
+    // Background color
+    #_backgroundColor = 0x4c4c52;
+
+    // Transform matrices
+    #_normalMat = new THREE.Matrix3();
+    #_viewProjMat = new THREE.Matrix4();
+    #_worldViewPos = new THREE.Vector3();
 }
 
+
+class Editor
+{
+    // Update ui properties
+    updateProperties(targetOpacity = 1) 
+    {
+        // Set opacity
+        Array.from(document.getElementsByClassName('dg')).forEach(
+            function (element, index, array) {
+                element.style.opacity = targetOpacity;
+            }
+        );
+    
+        // Hide close button
+        Array.from(document.getElementsByClassName('close-button')).forEach(
+            function (element, index, array) {
+                element.style.display = "none";
+            }
+        );
+    }
+    
+    // Create the editor
+    initialize() 
+    {
+        // Search document to find GUI elements and remove them
+        // If not done then multiple GUIs will be created from different
+        // threads.
+        Array.from(document.getElementsByClassName('dg')).forEach(
+            function (element, index, array) {
+                if (element.className) {
+                    element.remove();
+                }
+            }
+        );
+    
+        // Create new GUI. 
+        this._gui = new GUI();
+        return this._gui;
+    }
+    
+    getGUI() 
+    {
+        return this._gui;
+    }
+
+    _gui = null;
+}
+
+let theScene = new Scene();
+let theEditor = new Editor();
+
 init();
-updateGUIProperties(0.9);
+theEditor.updateProperties(0.9);
 
 // If no material file is selected, we programmatically create a default material as a fallback
 function fallbackMaterial(doc) {
@@ -48,40 +269,8 @@ function fallbackMaterial(doc) {
     shaderElement.setNodeName(ssName);
 }
 
-function updateGUIProperties(targetOpacity = 1) {
-    // Set opacity
-    Array.from(document.getElementsByClassName('dg')).forEach(
-        function (element, index, array) {
-            element.style.opacity = targetOpacity;
-        }
-    );
-
-    // Hide close button
-    Array.from(document.getElementsByClassName('close-button')).forEach(
-        function (element, index, array) {
-            element.style.display = "none";
-        }
-    );
-}
-
-function createGUI() {
-    // Search document to find GUI elements and remove them
-    // If not done then multiple GUIs will be created from different
-    // threads.
-    Array.from(document.getElementsByClassName('dg')).forEach(
-        function (element, index, array) {
-            if (element.className) {
-                element.remove();
-            }
-        }
-    );
-
-    // Create new GUI. 
-    return new GUI();
-}
-
 function generateMaterial(elem, gen, genContext, lights, lightData,
-                         textureLoader, radianceTexture, irradianceTexture, gui) 
+                         textureLoader, radianceTexture, irradianceTexture) 
 {
     // Perform transparency check on renderable item
     const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
@@ -122,6 +311,7 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     newMaterial.side = THREE.DoubleSide;
 
     const elemPath = elem.getNamePath();
+    const gui = theEditor.getGUI();
     var matUI = gui.addFolder(elemPath + ' Properties');
     const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
     var uniformToUpdate;
@@ -281,96 +471,8 @@ function generateMaterial(elem, gen, genContext, lights, lightData,
     return newMaterial;
 }
 
-/* Utility to perform load */
-function loadModel(geometryFilename, loader) 
+function init() 
 {
-    return new Promise((resolve, reject) => {
-        loader.load(geometryFilename, data => resolve(data), null, reject);
-    });
-}
-
-/*
-    Load in geometry specified by a given file name,
-    then update the scene geometry and camera.
-*/
-async function loadGeometry(geometryFilename)
-{
-    const gltfLoader = new GLTFLoader();
-    const gltfData = await loadModel(geometryFilename, gltfLoader);
-
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
-
-    const model = gltfData.scene;
-    if (!model)
-    {
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0xdddddd });
-        const cube = new THREE.Mesh(geometry, material);
-        obj = new Group();
-        obj.add(geometry);
-    } 
-    scene.add(model);
-
-    // Always reset controls based on camera for each load. 
-    controls.reset();
-    updateScene(scene, controls);
-}
-
-/*
-    Update the geometry buffer, assigned materials, and camera controls.
- */
-function updateScene(scene, controls)
-{
-    const bbox = new THREE.Box3().setFromObject(scene);
-    const bsphere = new THREE.Sphere();
-    bbox.getBoundingSphere(bsphere);
-
-    scene.traverse((child) => {
-        if (child.isMesh) {
-            if (!child.geometry.attributes.uv) {
-                const posCount = child.geometry.attributes.position.count;
-                const uvs = [];
-                const pos = child.geometry.attributes.position.array;
-
-                for (let i = 0; i < posCount; i++) {
-                    uvs.push((pos[i * 3] - bsphere.center.x) / bsphere.radius);
-                    uvs.push((pos[i * 3 + 1] - bsphere.center.y) / bsphere.radius);
-                }
-
-                child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
-            }
-
-            if (!child.geometry.attributes.normal) {
-                child.geometry.computeVertexNormals();
-            }
-
-            if (child.geometry.getIndex()) {
-                child.geometry.computeTangents();
-            }
-
-            // Use default MaterialX naming convention.
-            child.geometry.attributes.i_position = child.geometry.attributes.position;
-            child.geometry.attributes.i_normal = child.geometry.attributes.normal;
-            child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
-            child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
-
-            child.material = currentMaterial;
-        }
-    });
-
-    // Fit camera to model
-    controls.target = bsphere.center;
-    camera.position.y = bsphere.center.y;
-    camera.position.z = bsphere.radius * 2.0;
-    controls.update();
-
-    camera.far = 5000.0;
-    camera.updateProjectionMatrix();
-}
-
-function init() {
     let canvas = document.getElementById('webglcanvas');
     let context = canvas.getContext('webgl2');
 
@@ -385,25 +487,21 @@ function init() {
 
     // Geometry selection
     let geometrySelect = document.getElementById('geometry');
-    geometrySelect.value = geometryFilename;
+    geometrySelect.value = theScene.getGeometryURL();
     geometrySelect.addEventListener('change', (e) => {
-        geometryFilename = e.target.value;
-        loadGeometry(geometryFilename);
+        theScene.setGeometryURL(e.target.value);
+        theScene.loadGeometry();
     });
 
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
-
     // Set up scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x4c4c52);
-    scene.background.convertSRGBToLinear();
+    theScene.initialize();
 
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     composer = new EffectComposer(renderer);
-    const renderPass = new RenderPass(scene, camera);
+    const renderPass = new RenderPass(theScene.getScene(), theScene.getCamera());
     composer.addPass(renderPass);
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
     composer.addPass(gammaCorrectionPass);
@@ -411,16 +509,15 @@ function init() {
     window.addEventListener('resize', onWindowResize);
 
     // Set up controls
-    controls = new OrbitControls(camera, renderer.domElement);
+    orbitControls = new OrbitControls(theScene.getCamera(), renderer.domElement);
 
     // Load model and shaders
     const fileloader = new THREE.FileLoader();
-    const gltfLoader = new GLTFLoader();
     const hdrloader = new RGBELoader();
     const textureLoader = new THREE.TextureLoader();
 
-    // Create UI
-    var gui = createGUI();
+    // Initialize editor
+    theEditor.initialize();
 
     Promise.all([
         new Promise(resolve => hdrloader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
@@ -468,13 +565,12 @@ function init() {
         const irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
 
         currentMaterial = generateMaterial(elem, gen, genContext, lights, lightData,
-            textureLoader, radianceTexture, irradianceTexture, gui);
+            textureLoader, radianceTexture, irradianceTexture);
 
         // Different on initial load is that new a camera is initialized
-        loadGeometry(geometryFilename);
+        theScene.loadGeometry();
 
     }).then(() => {
-        gui.open();
         animate();
     }).catch(err => {
         console.error(Number.isInteger(err) ? mx.getExceptionMessage(err) : err);
@@ -482,30 +578,19 @@ function init() {
 
 }
 
-function onWindowResize() {
+function onWindowResize() 
+{
+    const camera = theScene.getCamera();
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate() {
+function animate() 
+{
     requestAnimationFrame(animate);
 
     composer.render();
 
-    scene.traverse((child) => {
-        if (child.isMesh) {
-            const uniforms = child.material.uniforms;
-            if (uniforms) {
-                uniforms.u_worldMatrix.value = child.matrixWorld;
-                uniforms.u_viewProjectionMatrix.value = viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-
-                if (uniforms.u_viewPosition)
-                    uniforms.u_viewPosition.value = camera.getWorldPosition(worldViewPos);
-
-                if (uniforms.u_worldInverseTransposeMatrix)
-                    uniforms.u_worldInverseTransposeMatrix.value = new THREE.Matrix4().setFromMatrix3(normalMat.getNormalMatrix(child.matrixWorld));
-            }
-        }
-    });
+    theScene.updateTransforms();
 }
