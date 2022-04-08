@@ -6,21 +6,10 @@
 #include <nanogui/slider.h>
 #include <nanogui/vscrollpanel.h>
 
-namespace {
-
-class EditorFormHelper : public ng::FormHelper
+namespace
 {
-  public:
-    explicit EditorFormHelper(ng::Screen *screen) : ng::FormHelper(screen) { }
-    ~EditorFormHelper() { }
-
-    void setPreGroupSpacing(int val) { m_pre_group_spacing = val; }
-    void setPostGroupSpacing(int val) { m_post_group_spacing = val; }
-    void setVariableSpacing(int val) { m_variable_spacing = val; }
-};
 
 // Custom color picker with numeric entry and feedback.
-//
 class EditorColorPicker : public ng::ColorPicker
 {
   public:

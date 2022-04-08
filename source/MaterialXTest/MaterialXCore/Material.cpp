@@ -107,7 +107,6 @@ TEST_CASE("Material Discovery", "[material]")
     //    which are not implementations. This will return less nodes
     //    as implementation graphs exist in the document.
     foundNodes.clear();
-    std::vector<mx::InterfaceElementPtr> docNodes;
     if (doc)
     {
         for (auto documentOutput : doc->getMaterialOutputs())

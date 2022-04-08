@@ -66,6 +66,8 @@ TEST_CASE("Load content", "[xmlio]")
         mx::DocumentPtr writtenDoc = mx::createDocument();
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
+        mx::readFromXmlBuffer(writtenDoc, xmlString.c_str());
+        REQUIRE(*writtenDoc == *doc);
 
         // Flatten subgraph references.
         for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
