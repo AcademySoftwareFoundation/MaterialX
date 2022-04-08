@@ -77,6 +77,7 @@ jobs:
           compiler: xcode
           compiler_version: "13.1"
           python: 3.9
+          static_analysis: ON
 
         - name: Windows_VS2019_Win32_Python27
           os: windows-2019
@@ -202,6 +203,13 @@ jobs:
         glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+
+    - name: Static Analysis Tests
+      if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
+      run: |
+        brew install cppcheck
+        cppcheck --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs -I. .
+      working-directory: source
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
