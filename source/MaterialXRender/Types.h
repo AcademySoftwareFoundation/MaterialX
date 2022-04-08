@@ -162,7 +162,8 @@ class MX_RENDER_API Half
         v.si ^= sign;
         sign >>= shiftSign; // logical shift
         s.si = mulN;
-        s.si = (int32_t) (s.f * v.f); // correct subnormals
+        int32_t subN = (int32_t) (s.f * v.f); // correct subnormals
+        s.si = subN;
         v.si ^= (s.si ^ v.si) & -(minN > v.si);
         v.si ^= (infN ^ v.si) & -((infN > v.si) & (v.si > maxN));
         v.si ^= (nanN ^ v.si) & -((nanN > v.si) & (v.si > infN));
