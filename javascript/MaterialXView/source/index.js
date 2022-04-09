@@ -16,7 +16,6 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
-import { CompressedTexture } from 'three';
 
 let  renderer, composer, orbitControls;
 
@@ -490,7 +489,24 @@ class Material
                     let path = name;
                     let interfaceName = currentElem.getAttribute("interfacename");
                     if (interfaceName && interfaceName.length) {
-                        path = interfaceName;
+                        const graph = currentNode.getParent();
+                        if (graph)
+                        {
+                            const graphInput = graph.getInput(interfaceName);
+                            if (graphInput) {
+                                let uiname = graphInput.getAttribute('uiname');
+                                if (uiname.length) {
+                                    path = uiname;
+                                }
+                                else {
+                                    path = graphInput.getName();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            path = interfaceName;
+                        }
                     }
                     else {
                         if (!uiname) {
