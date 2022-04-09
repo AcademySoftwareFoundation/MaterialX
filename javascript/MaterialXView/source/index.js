@@ -18,7 +18,7 @@ import { Group } from 'three';
 import { GUI } from 'dat.gui';
 import { CompressedTexture } from 'three';
 
-let  renderer, composer, orbitControls, currentMaterial;
+let  renderer, composer, orbitControls;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -46,8 +46,11 @@ class Scene
         this._scene.background = new THREE.Color(this.#_backgroundColor);
         this._scene.background.convertSRGBToLinear();
 
-        this._camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.001, 1000);
-        this._camera.far = 5000.0;
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        const cameraNearDist = 0.05;
+        const cameraFarDist = 5000.0;
+        const cameraFOV = 45.0;
+        this._camera = new THREE.PerspectiveCamera(cameraFOV, aspectRatio, cameraNearDist, cameraFarDist);
 
         this.#_gltfLoader = new GLTFLoader();
 
@@ -131,7 +134,7 @@ class Scene
                 child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
                 child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
     
-                child.material = currentMaterial;
+                child.material = viewer.getMaterial().getCurrentMaterial();
             }
         });
     
@@ -167,6 +170,7 @@ class Scene
         });
     }
 
+    // For now every mesh uses the same material
     updateMaterial(material)
     {
         const scene = this.getScene();
@@ -242,11 +246,27 @@ class Editor
             }
         );
     }
-    
+
+    /*
+         Clear folders with children contain elements for any previous material
+    */
+    clearFolders()
+    {
+        Array.from(document.getElementsByClassName('folder')).forEach(
+            function (element, index, array) {
+                if (element.className) {
+                    let child = element.firstElementChild;
+                    if (child && child.className == 'dg') {
+                        element.remove();
+                    }
+                }
+            }
+        );
+    }
+
     // Create the editor
     initialize() 
     {
-        console.log("create new gui");
         // Search document to find GUI elements and remove them
         // If not done then multiple GUIs will be created from different
         // threads.
@@ -258,9 +278,10 @@ class Editor
             }
         );
     
-        // Create new GUI. 
+        // Create new GUI.
         this._gui = new GUI();
         this._gui.open();
+        
         return this._gui;
     }
     
@@ -325,14 +346,16 @@ class Material
         doc.importLibrary(viewer.getLightRig());
 
         // Create a new material
-        currentMaterial = viewer.getMaterial().generateMaterial(elem);
-
+        const currentMaterial = viewer.getMaterial().generateMaterial(elem);
         if (currentMaterial)
         {
             viewer.getScene().updateMaterial(currentMaterial);
         }
     }
 
+    /* 
+        Generate a new material for a given element
+    */
     generateMaterial(elem) 
     {
         const mx = viewer.getMx();
@@ -371,29 +394,29 @@ class Material
             u_envIrradiance: { value: irradianceTexture }
         });
 
-        //console.log("uniforms", uniforms);
-        //console.log("lightData", lightData);
-        //console.log("radianceTexture", radianceTexture);
-        //console.log("irradianceTexture: ", irradianceTexture);
-
         // Create Three JS Material
-        const newMaterial = new THREE.RawShaderMaterial({
+        this._currentMaterial  = new THREE.RawShaderMaterial({
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
             transparent: isTransparent,
             blendEquation: THREE.AddEquation,
             blendSrc: THREE.OneMinusSrcAlphaFactor,
-            blendDst: THREE.SrcAlphaFactor
+            blendDst: THREE.SrcAlphaFactor,
+            side: THREE.DoubleSide
         });
-        newMaterial.side = THREE.DoubleSide;
 
-        this.updateEditor(elem, shader, newMaterial);
+        // Update property editor
+        this.updateEditor(elem, shader, this._currentMaterial);
 
-        return newMaterial;
+        return this._currentMaterial;
     }
 
-    updateEditor(elem, shader, newMaterial)
+    /*
+        Update property editor for a given MaterialX element, it's shader, and
+        Three material
+    */ 
+    updateEditor(elem, shader, material)
     {
         const elemPath = elem.getNamePath();
         const gui = viewer.getEditor().getGUI();
@@ -481,52 +504,52 @@ class Material
                     switch (variable.getType().getName()) {
 
                         case 'float':
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                                currentFolder.add(material.uniforms[name], 'value').name(path);
                             }
                             break;
 
                         case 'integer':
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                                currentFolder.add(material.uniforms[name], 'value').name(path);
                             }
                             break;
 
                         case 'boolean':
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(newMaterial.uniforms[name], 'value').name(path);
+                                currentFolder.add(material.uniforms[name], 'value').name(path);
                             }
                             break;
 
                         case 'vector2':
                         case 'vector3':
                         case 'vector4':
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
                                 let vecFolder = currentFolder.addFolder(path);
-                                Object.keys(newMaterial.uniforms[name].value).forEach((key) => {
-                                    vecFolder.add(newMaterial.uniforms[name].value, key).name(path + "." + key);
+                                Object.keys(material.uniforms[name].value).forEach((key) => {
+                                    vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
                                 })
                             }
                             break;
 
                         case 'color3':
                             // Irksome way to mape arrays to colors and back
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
                                 var dummy = {
                                     color: 0xFF0000
                                 };
                                 const color3 = new THREE.Color(dummy.color);
-                                color3.fromArray(newMaterial.uniforms[name].value);
+                                color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
                                 currentFolder.addColor(dummy, 'color').name(path)
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
-                                        newMaterial.uniforms[name].value.set(color3.toArray());
+                                        material.uniforms[name].value.set(color3.toArray());
                                     }
                                     );
                             }
@@ -541,9 +564,9 @@ class Material
                         case 'filename':
                             break;
                         case 'string':
-                            uniformToUpdate = newMaterial.uniforms[name];
+                            uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                item = currentFolder.add(newMaterial.uniforms[name], 'value');
+                                item = currentFolder.add(material.uniforms[name], 'value');
                                 item.name(path);
                                 item.readonly(true);
                             }
@@ -554,12 +577,23 @@ class Material
                 }
             }
         });
-
-        console.log("gui = ", gui);
     }
 
+    getCurrentMaterial()
+    {
+        return this._currentMaterial;
+    }
+
+    // Three.js material
+    _currentMaterial = null;
 }
 
+/*
+    Viewer class
+
+    Contains the scene, edit and current document
+    and material, shader and lighting information.
+*/
 class Viewer 
 {
     constructor()
@@ -668,24 +702,30 @@ class Viewer
         return this.irradianceTexture;
     }
 
+    // Three scene and materials. 
     scene = null;
-    editor = null;
     materials = [];
 
+    // Property editor
+    editor = null;
+
+    // Utility loaders
     fileloader = null;
     hdrLoader = null;
 
-    // MaterialX constructs
+    // MaterialX module, current document and support documents.
     mx = null;
     doc = null;
     stdlib = null;
     lightRigDoc = null;
+
+    // MaterialX code generator and context
     generator = null;
     genContext = null;
 
+    // Lighting information
     lights = null;
     lightData = null;
-
     radianceTexture = null;
     irradianceTexture = null;
 }
@@ -704,11 +744,9 @@ function init()
     materialsSelect.value = materialFilename;
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
-        viewer.getEditor().initialize();
+        viewer.getEditor().clearFolders();
         viewer.getMaterial().loadMaterial(materialFilename, viewer);
         viewer.getEditor().updateProperties(0.9);
-        //window.location.href =
-        //    `${window.location.origin}${window.location.pathname}?file=${materialFilename}`;
     });
 
     // Geometry selection
@@ -782,7 +820,7 @@ function onWindowResize()
 function animate() 
 {
     requestAnimationFrame(animate);
-    if (currentMaterial)
+    if (viewer.getMaterial().getCurrentMaterial())
     {
         composer.render();
         viewer.getScene().updateTransforms();
