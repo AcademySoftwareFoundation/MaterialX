@@ -1380,51 +1380,42 @@ void Viewer::saveShaderSource(mx::GenContext& context)
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            const bool hasTransparency = mx::isTransparentSurface(elem, context.getShaderGenerator().getTarget());
-            mx::GenContext materialContext = context;
-            materialContext.getOptions().hwTransparency = hasTransparency;
-
-            mx::ShaderPtr shader = createShader(elem->getNamePath(), materialContext, elem);
-            if (shader)
+            mx::FilePath sourceFilename = getBaseOutputPath();
+            if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
             {
-                mx::FilePath sourceFilename = getBaseOutputPath();
-                if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
-                    writeTextFile(pixelShader, sourceFilename.asString() + "_ps.glsl");
-                    writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
-                        sourceFilename.asString() + "_*.glsl");
-                }
-#if MATERIALX_BUILD_GEN_OSL
-                else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    sourceFilename.addExtension("osl");
-                    writeTextFile(pixelShader, sourceFilename);
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
-                }
-#endif
-#if MATERIALX_BUILD_GEN_MDL
-                else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    sourceFilename.addExtension("mdl");
-                    writeTextFile(pixelShader, sourceFilename);
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
-                }
-#endif
-                else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
-                    writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
-                    writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
-                        sourceFilename.asString() + "_essl_*.glsl");
-                }
-                
+                mx::ShaderPtr shader = material->getShader();
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(pixelShader, sourceFilename.asString() + "_ps.glsl");
+                writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
+                    sourceFilename.asString() + "_*.glsl");
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
+                writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved ESSL source: ",
+                    sourceFilename.asString() + "_essl_*.glsl");
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                sourceFilename.addExtension("osl");
+                writeTextFile(pixelShader, sourceFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                sourceFilename.addExtension("mdl");
+                writeTextFile(pixelShader, sourceFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
             }
         }
     }
@@ -1782,6 +1773,7 @@ void Viewer::renderFrame()
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
@@ -1826,15 +1818,13 @@ void Viewer::renderFrame()
                 _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
 
                 // Render the environment mesh.
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_FRONT);
+                glDepthMask(GL_FALSE);
                 envMaterial->bindShader();
                 envMaterial->bindMesh(meshes[0]);
                 envMaterial->bindViewInformation(_envCamera);
                 envMaterial->bindImages(_imageHandler, _searchPath, false);
                 envMaterial->drawPartition(envPart);
-                glDisable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
+                glDepthMask(GL_TRUE);
             }
         }
         else
