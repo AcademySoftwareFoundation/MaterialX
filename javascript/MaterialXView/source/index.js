@@ -248,6 +248,7 @@ class Editor
 
     /*
          Clear folders with children contain elements for any previous material
+         and recreate top gui.
     */
     clearFolders()
     {
@@ -261,6 +262,9 @@ class Editor
                 }
             }
         );
+
+        // Create new GUI.
+        this._gui = new GUI();
     }
 
     // Create the editor
