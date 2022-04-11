@@ -44,7 +44,7 @@ export class Scene
         this.#_worldViewPos = new THREE.Vector3();
     }
 
-    /// Utility to perform geometry file load
+    // Utility to perform geometry file load
     loadGeometryFile(geometryFilename, loader) 
     {
         return new Promise((resolve, reject) => {
@@ -53,8 +53,8 @@ export class Scene
     }
 
     //
-    //  Load in geometry specified by a given file name,
-    //  then update the scene geometry and camera.
+    // Load in geometry specified by a given file name,
+    // then update the scene geometry and camera.
     //
     async loadGeometry(viewer, orbitControls)
     {
@@ -82,7 +82,7 @@ export class Scene
     }
 
     //
-    //  Update the geometry buffer, assigned materials, and camera controls.
+    // Update the geometry buffer, assigned materials, and camera controls.
     //
     updateScene(viewer, orbitControls)
     {
@@ -237,7 +237,7 @@ export class Editor
     }
 
     //
-    //  Clear folders with children contain elements for any previous material
+    // Clear folders with children contain elements for any previous material
     // and recreate top gui.
     //
     clearFolders()
@@ -345,7 +345,7 @@ export class Material
     }
 
     // 
-    //  Generate a new material for a given element
+    // Generate a new material for a given element
     //
     generateMaterial(elem, viewer) 
     {
