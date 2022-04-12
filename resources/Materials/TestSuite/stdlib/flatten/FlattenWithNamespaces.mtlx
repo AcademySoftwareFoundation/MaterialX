@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<materialx version="1.38" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.38" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude"  fileprefix="../../../../Images/">
   <surfacematerial name="node1" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="node2" />
   </surfacematerial>
@@ -11,8 +11,6 @@
     <input name="specular_color" type="color3" value="1, 1, 1" />
     <input name="specular_roughness" type="float" value="0" nodegraph="my_nodegraph" output="outputB" />
     <input name="specular_IOR" type="float" value="1.52" />
-    <input name="specular_anisotropy" type="float" value="1" />
-    <input name="specular_rotation" type="float" value="0" />
     <input name="metalness" type="float" value="0" nodegraph="my_nodegraph" output="outputC" />
     <input name="transmission" type="float" value="0" />
     <input name="transmission_color" type="color3" value="1, 1, 1" />
@@ -34,17 +32,18 @@
 
   <nodegraph name="my_nodegraph">
     <myspace:mystuff name="nodeA" type="color3">
-      <parameter name="file" type="filename" colorspace="gamma22" value="bamboo-wood-semigloss-albedo.png" />
+      <input name="file" type="filename" colorspace="gamma22" value="brick_base_gray.jpg" />
     </myspace:mystuff>
     <output name="outputA" type="color3" nodename="nodeA" />
 
     <myspace:mystuff name="nodeB" type="float">
-      <parameter name="file" type="filename" colorspace="gamma22" value="bamboo-wood-semigloss-albedo.png" />
+      <input name="file" type="filename" colorspace="gamma22" value="brick_dirt_mask.jpg" />
+	  <input name="invert" type="boolean" value="true" />
     </myspace:mystuff>
     <output name="outputB" type="float" nodename="nodeB" />
 
     <myspace:mystuff name="nodeC" type="float">
-      <parameter name="file" type="filename" colorspace="gamma22" value="bamboo-wood-semigloss-albedo.png" />
+      <input name="file" type="filename" colorspace="gamma22" value="brick_mask.jpg" />
     </myspace:mystuff>
     <output name="outputC" type="float" nodename="nodeC" />
   </nodegraph>
@@ -52,8 +51,8 @@
   <nodedef name="ND_mystuff_color3" node="mystuff" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="myspace">
     <input name="file" type="filename" />
     <!--  inputs with unit -->
-    <input name="realworld_offset" type="vector2" unittype="distance" />
-    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <input name="realworld_offset" type="vector2" unittype="distance" value="0.0, 0.0" />
+    <input name="realworld_scale" type="vector2" unittype="distance" value="1.0, 1.0" />
     <!--  inputs without unit -->
     <input name="uv_offset" type="vector2" value="0.0, 0.0" />
     <input name="uv_scale" type="vector2" value="1.0, 1.0" />
@@ -71,8 +70,8 @@
   <nodedef name="ND_mystuff_float" node="mystuff" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="myspace">
     <input name="file" type="filename" />
     <!--  inputs with unit -->
-    <input name="realworld_offset" type="vector2" unittype="distance" />
-    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <input name="realworld_offset" type="vector2" unittype="distance" value="0.0, 0.0" />
+    <input name="realworld_scale" type="vector2" unittype="distance" value="1.0, 1.0" />
     <!--  inputs without unit -->
     <input name="uv_offset" type="vector2" value="0.0, 0.0" />
     <input name="uv_scale" type="vector2" value="1.0, 1.0" />
@@ -90,7 +89,7 @@
 
   <nodegraph name="NG_mystuff_color3" nodedef="ND_mystuff_color3" namespace="myspace">
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="realworld_scale"/>
       <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
@@ -146,7 +145,7 @@
   <nodegraph name="NG_mystuff_float" nodedef="ND_mystuff_float" namespace="myspace">
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="realworld_scale"/>
       <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
     </divide>
     <!-- offset -->
