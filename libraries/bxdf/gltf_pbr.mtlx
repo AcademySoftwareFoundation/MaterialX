@@ -19,7 +19,8 @@
     <input name="clearcoat_roughness" type="float" value="0" uimin="0" uimax="1" uiname="Clearcoat Roughness" uifolder="Clearcoat" />
     <input name="clearcoat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Clearcoat Normal" uifolder="Clearcoat" />
     <input name="emissive" type="color3" value="0, 0, 0" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Emissive" uifolder="Emission" />
-    <input name="thickness" uniform="false" type="float" uimin="0" uiname="Thickness" uifolder="Volume" />
+    <input name="emissive_strength" uniform="true" type="float" value="1" uimin="0" uiname="Emissive Strength" uifolder="Emission" />
+    <input name="thickness" uniform="false" type="float" value="0" uimin="0" uiname="Thickness" uifolder="Volume" />
     <input name="attenuation_distance" uniform="true" type="float" uimin="0" uiname="Attenuation Distance" uifolder="Volume" />
     <input name="attenuation_color" uniform="true" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Attenuation Color" uifolder="Volume" />
     <output name="out" type="surfaceshader" />
@@ -224,8 +225,13 @@
 
     <!-- Emission -->
 
+    <multiply name="emission_color" type="color3">
+      <input name="in1" type="color3" interfacename="emissive" />
+      <input name="in2" type="float" interfacename="emissive_strength" />
+    </multiply>
+
     <uniform_edf name="emission" type="EDF">
-      <input name="color" type="color3" interfacename="emissive" />
+      <input name="color" type="color3" nodename="emission_color" />
     </uniform_edf>
 
     <!-- Alpha -->
