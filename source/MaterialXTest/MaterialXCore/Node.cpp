@@ -153,7 +153,7 @@ TEST_CASE("Flatten", "[nodegraph]")
     }
     for (mx::NodePtr node : doc->getNodes())
     {
-        if (node->getCategory() == "checker")
+        if (node->getImplementation())
         {
             origCustomNodes++;
         }
