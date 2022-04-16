@@ -138,178 +138,37 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
+    // Read an example containing graph-based custom nodes.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/flatten/");
-
-    // Read the example file.
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", searchPath);
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/shader/surface.mtlx");
     REQUIRE(doc->validate());
 
-    // Find the example graph.
-    mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
-    REQUIRE(graph);
-
-    // Traverse the graph and count nodes.
-    int totalNodeCount = 0;
-    for (mx::ElementPtr elem : graph->traverseTree())
+    // Count root-level, nested, and custom nodes.
+    size_t origRootNodes = doc->getNodes().size();
+    size_t origNestedNodes = 0;
+    size_t origCustomNodes = 0;
+    for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
     {
-        if (elem->isA<mx::Node>())
+        origNestedNodes += graph->getNodes().size();
+    }
+    for (mx::NodePtr node : doc->getNodes())
+    {
+        if (node->getCategory() == "checker")
         {
-            totalNodeCount++;
+            origCustomNodes++;
         }
     }
-    REQUIRE(totalNodeCount == 7);
+    REQUIRE(origRootNodes > 0);
+    REQUIRE(origNestedNodes > 0);
+    REQUIRE(origCustomNodes > 0);
 
-    // Create a flat version of the graph.
-    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs();
+    // Flatten all root-level nodes.
+    doc->flattenSubgraphs();
 
-    // Traverse the flat graph and count nodes.
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            REQUIRE(isAtomic);
-        }
-    }
-    REQUIRE(totalNodeCount == 15);
-
-    // Test filtered flattening. Leave one node unflattened
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
-    {
-        return (node->getCategory() != "color_checker");
-    });
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            if (elem->getCategory() != "color_checker")
-            {
-                REQUIRE(isAtomic);
-            }
-        }
-    }
-    REQUIRE(totalNodeCount == 16);
-
-    // Read the example with upstream nodegraphs
-    doc = mx::createDocument();
-    const mx::FilePathVec libraryFolders;
-    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::loadLibraries(libraryFolders, libraryRoot, doc);
-    searchPath = mx::FileSearchPath("resources/Materials/TestSuite/stdlib/definition/");
-    mx::readFromXmlFile(doc, "definition_using_definitions.mtlx", searchPath);
-    REQUIRE(doc->validate());
-
-    doc->flattenSubgraphs(mx::EMPTY_STRING,
-        [](mx::NodePtr node)
-    {
-        // Skip standard surface
-        return (node->getCategory() != "standard_surface");
-    });
-
-    mx::NodeGraphPtr upstreamGraph = doc->getNodeGraph("layered_inputGraph");
-    if (upstreamGraph)
-    {
-        upstreamGraph->flattenSubgraphs();
-    }
-    mx::XmlWriteOptions writeOptions;
-    auto skipDefinition = [](mx::ConstElementPtr elem)
-    {
-        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
-    };
-    writeOptions.elementPredicate = skipDefinition;
-    mx::writeToXmlFile(doc, "PostFlattenedGraph.mtlx", &writeOptions);
-    REQUIRE(doc->validate());
-}
-
-// Fixes https://github.com/AcademySoftwareFoundation/MaterialX/pull/890
-TEST_CASE("Flatten with Namespaces", "[nodegraph]")
-{
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/flatten/");
-
-    // Read the example file.
-    mx::readFromXmlFile(doc, "FlattenWithNamespaces.mtlx", searchPath);
-    REQUIRE(doc->validate());
-
-    // Find the example graph.
-    mx::NodeGraphPtr graph = doc->getNodeGraph("my_nodegraph");
-    REQUIRE(graph);
-
-    // Traverse the graph and count nodes.
-    int totalNodeCount = 0;
-    for (mx::ElementPtr elem : graph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-        }
-    }
-    REQUIRE(totalNodeCount == 3);
-
-    // Create a flat version of the graph.
-    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [](mx::NodePtr node)
-    {
-        return (node->getCategory() != "standard_surface");
-    });
-
-
-
-    // Do we get downlstream ports? (This was the actual cause of the flattening bug)
-    auto node = flatGraph->getNode("b_image3");
-    REQUIRE(node);
-    auto xx = node->getDownstreamPorts();
-    REQUIRE(xx.size());
-
-
-
-    // Traverse the flat graph and count nodes.
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            REQUIRE(isAtomic);
-        }
-    }
-    REQUIRE(totalNodeCount == 39);
-
-    // Dump output for debugging use
-    mx::XmlWriteOptions writeOptions;
-    auto skipDefinition = [](mx::ConstElementPtr elem)
-    {
-        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
-    };
-    writeOptions.elementPredicate = skipDefinition;
-    mx::writeToXmlFile(doc, "PostFlattenedGraph2.mtlx", &writeOptions);
-
-    // Validate the document. Without https://github.com/AcademySoftwareFoundation/MaterialX/pull/890 this would fail
-    REQUIRE(doc->validate());
+    // Recount root-level nodes.
+    size_t newRootNodes = doc->getNodes().size();
+    size_t expectedRootNodes = (origRootNodes - origCustomNodes) + (origNestedNodes * origCustomNodes);
+    REQUIRE(newRootNodes == expectedRootNodes);
 }
 
 TEST_CASE("Inheritance", "[nodedef]")
