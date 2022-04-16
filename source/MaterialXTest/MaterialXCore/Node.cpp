@@ -136,6 +136,41 @@ TEST_CASE("Node", "[node]")
     REQUIRE(doc->getOutputs().empty());
 }
 
+TEST_CASE("Flatten", "[nodegraph]")
+{
+    // Read an example containing graph-based custom nodes.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/shader/surface.mtlx");
+    REQUIRE(doc->validate());
+
+    // Count root-level, nested, and custom nodes.
+    size_t origRootNodes = doc->getNodes().size();
+    size_t origNestedNodes = 0;
+    size_t origCustomNodes = 0;
+    for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
+    {
+        origNestedNodes += graph->getNodes().size();
+    }
+    for (mx::NodePtr node : doc->getNodes())
+    {
+        if (node->getImplementation())
+        {
+            origCustomNodes++;
+        }
+    }
+    REQUIRE(origRootNodes > 0);
+    REQUIRE(origNestedNodes > 0);
+    REQUIRE(origCustomNodes > 0);
+
+    // Flatten all root-level nodes.
+    doc->flattenSubgraphs();
+
+    // Recount root-level nodes.
+    size_t newRootNodes = doc->getNodes().size();
+    size_t expectedRootNodes = (origRootNodes - origCustomNodes) + (origNestedNodes * origCustomNodes);
+    REQUIRE(newRootNodes == expectedRootNodes);
+}
+
 TEST_CASE("Inheritance", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();

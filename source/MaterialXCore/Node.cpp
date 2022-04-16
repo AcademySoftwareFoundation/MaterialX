@@ -197,7 +197,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 vector<PortElementPtr> Node::getDownstreamPorts() const
 {
     vector<PortElementPtr> downstreamPorts;
-    for (PortElementPtr port : getDocument()->getMatchingPorts(getName()))
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getQualifiedName(getName())))
     {
         if (port->getConnectedNode() == getSelf())
         {
