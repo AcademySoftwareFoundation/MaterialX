@@ -479,6 +479,10 @@ void Viewer::loadEnvironmentLight()
             _lightRigDoc = nullptr;
         }
     }
+
+    // Clear out the previous environment material shader
+    // so it get's recompiled when needed for 3d preview.
+    _envMaterial = nullptr;
 }
 
 void Viewer::applyDirectLights(mx::DocumentPtr doc)
