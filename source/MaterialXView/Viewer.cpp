@@ -480,8 +480,7 @@ void Viewer::loadEnvironmentLight()
         }
     }
 
-    // Clear out the previous environment material shader
-    // so it get's recompiled when needed for 3d preview.
+    // Invalidate the existing environment material, if any.
     _envMaterial = nullptr;
 }
 
