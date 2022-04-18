@@ -1,5 +1,7 @@
 #include <MaterialXView/Viewer.h>
 
+#include <MaterialXRender/Util.h>
+
 #include <MaterialXCore/Util.h>
 
 #include <iostream>
@@ -99,7 +101,7 @@ int main(int argc, char* const argv[])
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
-    mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
+    mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
     std::string captureFilename;
     int bakeWidth = 0;
     int bakeHeight = 0;

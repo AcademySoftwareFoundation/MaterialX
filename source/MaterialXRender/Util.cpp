@@ -9,6 +9,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+const Color3 DEFAULT_SCREEN_COLOR_SRGB(0.3f, 0.3f, 0.32f);
+const Color3 DEFAULT_SCREEN_COLOR_LIN_REC709(DEFAULT_SCREEN_COLOR_SRGB.srgbToLinear());
+
 ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem)
 {
     return context.getShaderGenerator().generate(shaderName, elem, context);

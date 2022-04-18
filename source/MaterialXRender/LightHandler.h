@@ -11,6 +11,7 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXCore/Document.h>
 

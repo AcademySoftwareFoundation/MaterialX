@@ -38,7 +38,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
     _objectScale(1.0f),
-    _clearColor(0.3f, 0.3f, 0.32f, 1.0f)
+    _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {
     _program = GlslProgram::create();
 
@@ -175,7 +175,7 @@ void GlslRenderer::render()
     // Set up target
     _framebuffer->bind();
 
-    glClearColor(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]);
+    glClearColor(_screenColor[0], _screenColor[1], _screenColor[2], 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -324,9 +324,9 @@ void GlslRenderer::drawScreenSpaceQuad(const Vector2& uvMin, const Vector2& uvMa
     checkGlErrors("after draw screen-space quad");
 }
 
-void GlslRenderer::setClearColor(const Color4& clearColor)
+void GlslRenderer::setScreenColor(const Color3& screenColor)
 {
-    _clearColor = clearColor;
+    _screenColor = screenColor;
 }
 
 MATERIALX_NAMESPACE_END

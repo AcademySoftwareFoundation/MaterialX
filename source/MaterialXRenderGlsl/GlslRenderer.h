@@ -102,8 +102,8 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// Submit geometry for a screen-space quad.
     void drawScreenSpaceQuad(const Vector2& uvMin = Vector2(0.0f), const Vector2& uvMax = Vector2(1.0f));
 
-    /// Sets the clear color
-    void setClearColor(const Color4& clearColor);
+    /// Set the screen background color.
+    void setScreenColor(const Color3& screenColor);
 
     /// @}
 
@@ -127,7 +127,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
 
     SimpleWindowPtr _window;
     GLContextPtr _context;
-    Color4 _clearColor;
+    Color3 _screenColor;
 };
 
 MATERIALX_NAMESPACE_END
