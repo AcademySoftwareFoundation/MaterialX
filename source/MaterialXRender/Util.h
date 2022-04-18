@@ -19,6 +19,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_SRGB;
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_LIN_REC709;
+
 /// @name Shader Utilities
 /// @{
 
