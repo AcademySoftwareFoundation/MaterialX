@@ -621,7 +621,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     if (graph)
     {
         const std::string VERSION1 = "1.0";
-        const std::string NAMESPACE = "namespace1";
         const std::string GROUP = "adjustment";
         bool isDefaultVersion = false;
         const std::string NODENAME = graph->getName();
@@ -629,12 +628,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         // Duplicate the graph and then make the duplicate a nodedef nodegraph
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, 
-                                                          GROUP, newGraphName, NAMESPACE);
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
         REQUIRE(nodeDef != nullptr);
         REQUIRE(nodeDef->getNodeGroup() == "adjustment");
         REQUIRE(nodeDef->getVersionString() == VERSION1);
-        REQUIRE(nodeDef->getNamespace() == NAMESPACE);
         REQUIRE_FALSE(nodeDef->getDefaultVersion());
 
         // Try and fail to create the same definition
@@ -642,7 +639,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         try
         {
             temp = nullptr;
-            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName, NAMESPACE);
+            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
         }
         catch (mx::Exception&)
         {
@@ -652,15 +649,11 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         // Check that the new nodegraph has the correct definition
         mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
         REQUIRE(newGraph != nullptr);
-        REQUIRE(newGraph->getNodeDefString() == NAMESPACE + ":" + newNodeDefName);
-        REQUIRE(newGraph->getNamespace() == NAMESPACE);
-
-        mx::writeToXmlFile(doc, "definition_from_nodegraph_out1.mtlx");
+        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
 
         // Check declaration was set up properly
-        // ASHWIN mx::ConstNodeDefPtr decl = newGraph->getNodeDef();
         mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
-        REQUIRE((decl && decl->getName() == nodeDef->getName()));
+        REQUIRE(decl->getName() == nodeDef->getName());
 
         // Arbitrarily add all unconnected inputs as interfaces
         mx::ValueElementPtr newInterface = nullptr;

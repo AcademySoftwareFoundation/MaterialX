@@ -6,8 +6,6 @@
 #include <MaterialXCore/Types.h>
 
 #include <cctype>
-#include <sstream>
-#include <iomanip>
 
 MATERIALX_NAMESPACE_BEGIN
 
