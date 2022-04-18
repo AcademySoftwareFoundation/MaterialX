@@ -479,6 +479,9 @@ void Viewer::loadEnvironmentLight()
             _lightRigDoc = nullptr;
         }
     }
+
+    // Invalidate the existing environment material, if any.
+    _envMaterial = nullptr;
 }
 
 void Viewer::applyDirectLights(mx::DocumentPtr doc)
