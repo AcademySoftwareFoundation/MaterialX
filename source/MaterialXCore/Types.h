@@ -345,6 +345,14 @@ class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
     {
         _arr = { r, g, b };
     }
+
+    /// Transform the given color from linear RGB to the sRGB encoding,
+    /// returning the result as a new value.
+    Color3 linearToSrgb() const;
+
+    /// Transform the given color from the sRGB encoding to linear RGB,
+    /// returning the result as a new value.
+    Color3 srgbToLinear() const;
 };
 
 /// @class Color4
