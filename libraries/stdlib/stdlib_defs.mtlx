@@ -1056,7 +1056,7 @@
   -->
   <nodedef name="ND_geompropvalue_integer" node="geompropvalue" nodegroup="geometric">
     <input name="geomprop" type="string" value="" uniform="true" />
-    <input name="default" type="integer" value="0" uniform="true" />
+    <input name="default" type="integer" value="0" />
     <output name="out" type="integer" default="0" />
   </nodedef>
   <nodedef name="ND_geompropvalue_boolean" node="geompropvalue" nodegroup="geometric">
