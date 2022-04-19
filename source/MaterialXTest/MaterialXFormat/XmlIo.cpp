@@ -228,16 +228,12 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
 }
 
-TEST_CASE("Load locale content", "[xmlio_locale]")
+TEST_CASE("Locale region testing", "[xmlio]")
 {
-    /// Test locale region
-    /// The character used as the thousands separator.
-    /// The character used as the decimal separator.
-
-    /// In the United States, this character is a comma(, ).
-    /// In Germany, it is a period(.).
-    /// Thus one thousandand twenty - five is displayed as 1, 025 in the United States and 1.025 in Germany.In Sweden, the thousands separator is a space.
-    /// mx:Vector3(1,1.5,2.0) should be interpreted as float[3] = [1.0f, 1.5f, 2.0f]
+    /// In the United States, the thousands separator is a comma, while in Germany it is a period.
+    /// Thus, one thousand twenty five is displayed as 1,025 in the United States and 1.025 in Germany.
+    ///
+    /// In a MaterialX document, a vector3 value of "1,1.5,2.0" should be interpreted as (1.0f, 1.5f, 2.0f).
     
     try
     {
@@ -286,21 +282,20 @@ TEST_CASE("Load locale content", "[xmlio_locale]")
 
         // Traverse the document tree
         int valueElementCount = 0;
-        int uiattributeCount = 0;
+        int uiAttributeCount = 0;
         for (mx::ElementPtr elem : doc->traverseTree())
         {
             if (elem->isA<mx::ValueElement>())
             {
                 valueElementCount++;
-
                 if (elem->hasAttribute("uiname"))
                 {
                     REQUIRE(!elem->getAttribute("uiname").empty());
-                    uiattributeCount++;
+                    uiAttributeCount++;
                 }
             }
         }
         REQUIRE(valueElementCount > 0);
-        REQUIRE(uiattributeCount > 0);
+        REQUIRE(uiAttributeCount > 0);
     }
 }
