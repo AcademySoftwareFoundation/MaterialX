@@ -55,11 +55,6 @@ bool isValidName(const string& name)
     return it == name.end();
 }
 
-bool hasNamespace(const string& name)
-{
-    return isValidName(name) && name.find(NAME_PREFIX_SEPARATOR) == std::string::npos;
-}
-
 string incrementName(const string& name)
 {
     size_t split = name.length();
