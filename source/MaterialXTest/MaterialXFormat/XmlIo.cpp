@@ -227,3 +227,75 @@ TEST_CASE("Load content", "[xmlio]")
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
 }
+
+TEST_CASE("Locale region testing", "[xmlio]")
+{
+    /// In the United States, the thousands separator is a comma, while in Germany it is a period.
+    /// Thus, one thousand twenty five is displayed as 1,025 in the United States and 1.025 in Germany.
+    ///
+    /// In a MaterialX document, a vector3 value of "1,1.5,2.0" should be interpreted as (1.0f, 1.5f, 2.0f).
+    
+    try
+    {
+        // Set locale to de
+        std::locale deLocale("de_DE");
+        std::locale::global(deLocale);
+    }
+    catch (const std::runtime_error& e)
+    {
+        WARN("Unable to change locale " << e.what());
+        return;
+    }
+
+    mx::FilePath libraryPath("libraries/stdlib");
+    mx::FilePath testPath("resources/Materials/TestSuite/locale");
+    mx::FileSearchPath searchPath = libraryPath.asString() +
+        mx::PATH_LIST_SEPARATOR +
+        testPath.asString();
+
+    // Read the standard library.
+    std::vector<mx::DocumentPtr> libs;
+    for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr lib = mx::createDocument();
+        mx::readFromXmlFile(lib, filename, searchPath);
+        libs.push_back(lib);
+    }
+
+    // Read and validate each example document.
+    for (const mx::FilePath& filename : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::readFromXmlFile(doc, filename, searchPath);
+        for (mx::DocumentPtr lib : libs)
+        {
+            doc->importLibrary(lib);
+        }
+        std::string message;
+
+        bool docValid = doc->validate(&message);
+        if (!docValid)
+        {
+            WARN("[" + filename.asString() + "] " + message);
+        }
+        REQUIRE(docValid);
+
+        // Traverse the document tree
+        int valueElementCount = 0;
+        int uiAttributeCount = 0;
+        for (mx::ElementPtr elem : doc->traverseTree())
+        {
+            if (elem->isA<mx::ValueElement>())
+            {
+                valueElementCount++;
+                if (elem->hasAttribute("uiname"))
+                {
+                    REQUIRE(!elem->getAttribute("uiname").empty());
+                    uiAttributeCount++;
+                }
+            }
+        }
+        REQUIRE(valueElementCount > 0);
+        REQUIRE(uiAttributeCount > 0);
+    }
+}

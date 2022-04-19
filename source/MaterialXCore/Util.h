@@ -35,6 +35,10 @@ MX_CORE_API string incrementName(const string& name);
 /// separator characters.
 MX_CORE_API StringVec splitString(const string& str, const string& sep);
 
+/// Join a vector of substrings into a single string, placing the given
+/// separator between each substring.
+MX_CORE_API string joinStrings(const StringVec& strVec, const string& sep);
+
 /// Apply the given substring substitutions to the input string.
 MX_CORE_API string replaceSubstrings(string str, const StringMap& stringMap);
 
