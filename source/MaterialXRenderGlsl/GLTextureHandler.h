@@ -9,17 +9,18 @@
 /// @file
 /// OpenGL texture handler
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an OpenGL texture handler
 using GLTextureHandlerPtr = std::shared_ptr<class GLTextureHandler>;
 
 /// @class GLTextureHandler
 /// An OpenGL texture handler class
-class GLTextureHandler : public ImageHandler
+class MX_RENDERGLSL_API GLTextureHandler : public ImageHandler
 {
   public:
     static ImageHandlerPtr create(ImageLoaderPtr imageLoader)
@@ -38,8 +39,9 @@ class GLTextureHandler : public ImageHandler
     /// Create rendering resources for the given image.
     bool createRenderResources(ImagePtr image, bool generateMipMaps) override;
 
-    // Release rendering resources for the given image.
-    void releaseRenderResources(ImagePtr image) override;
+    /// Release rendering resources for the given image, or for all cached images
+    /// if no image pointer is specified.
+    void releaseRenderResources(ImagePtr image = nullptr) override;
 
     /// Return the bound texture location for a given resource
     int getBoundTextureLocation(unsigned int resourceId);
@@ -50,6 +52,7 @@ class GLTextureHandler : public ImageHandler
     /// Utility to map a filter type enumeration to an OpenGL filter type
     static int mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps);
 
+    /// Utility to map generic texture properties to OpenGL texture formats.
     static void mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,
                                      int& glType, int& glFormat, int& glInternalFormat);
 
@@ -64,6 +67,6 @@ class GLTextureHandler : public ImageHandler
     std::vector<unsigned int> _boundTextureLocations;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

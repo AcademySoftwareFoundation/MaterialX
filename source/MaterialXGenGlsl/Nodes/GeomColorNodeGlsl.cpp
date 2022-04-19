@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr GeomColorNodeGlsl::create()
 {
@@ -28,7 +27,7 @@ void GeomColorNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
 
 void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderOutput* output = node.getOutput();
     const ShaderInput* indexInput = node.getInput(INDEX);
@@ -37,7 +36,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
 
     BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* color = vertexData[variable];
         if (!color->isEmitted())
         {
@@ -57,7 +56,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             suffix = ".rgb";
         }
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-        const string prefix = vertexData.getInstance() + ".";
+        const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* color = vertexData[variable];
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
@@ -66,4 +65,4 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

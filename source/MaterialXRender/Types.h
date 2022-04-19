@@ -9,18 +9,60 @@
 /// @file
 /// Data types for rendering functionality
 
+#include <MaterialXRender/Export.h>
+
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
+MATERIALX_NAMESPACE_BEGIN
+
+/// @class Quaternion
+/// A quaternion vector
+class MX_RENDER_API Quaternion : public VectorN<Vector4, float, 4>
 {
+  public:
+    using VectorN<Vector4, float, 4>::VectorN;
+    Quaternion() = default;
+    Quaternion(float x, float y, float z, float w) :
+        VectorN(Uninit{})
+    {
+        _arr = { x, y, z, w };
+    }
+
+    Quaternion operator*(const Quaternion& q) const
+    {
+        return {
+            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1],
+            _arr[1] * q._arr[3] + _arr[3] * q._arr[1] + _arr[2] * q._arr[0] - _arr[0] * q._arr[2],
+            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0],
+            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2]
+        };
+    }
+
+    Quaternion getNormalized() const
+    {
+        float l = 1.f / getMagnitude() * (_arr[3] < 0 ? -1.f : 1.f); // after normalization, real part will be non-negative
+        return { _arr[0] * l, _arr[1] * l, _arr[2] * l, _arr[3] * l };
+    }
+
+    static Quaternion createFromAxisAngle(const Vector3& v, float a)
+    {
+        float s = std::sin(a * 0.5f);
+        return Quaternion(v[0] * s, v[1] * s, v[2] * s, std::cos(a * 0.5f));
+    }
+
+    Matrix44 toMatrix() const;
+
+  public:
+    static const Quaternion IDENTITY;
+};
 
 /// @class Vector3d
 /// A vector of three floating-point values (double-precision)
-class Vector3d : public VectorN<Vector3d, double, 3>
+class MX_RENDER_API Vector3d : public VectorN<Vector3d, double, 3>
 {
   public:
     using VectorN<Vector3d, double, 3>::VectorN;
-    Vector3d() { }
+    Vector3d() = default;
     Vector3d(double x, double y, double z) : VectorN(Uninit{})
     {
         _arr = {x, y, z};
@@ -29,11 +71,11 @@ class Vector3d : public VectorN<Vector3d, double, 3>
 
 /// @class Vector4d
 /// A vector of four floating-point values (double-precision)
-class Vector4d : public VectorN<Vector4d, double, 4>
+class MX_RENDER_API Vector4d : public VectorN<Vector4d, double, 4>
 {
   public:
     using VectorN<Vector4d, double, 4>::VectorN;
-    Vector4d() { }
+    Vector4d() = default;
     Vector4d(double x, double y, double z, double w) : VectorN(Uninit{})
     {
         _arr = {x, y, z, w};
@@ -42,11 +84,11 @@ class Vector4d : public VectorN<Vector4d, double, 4>
 
 /// @class Color3d
 /// A three-component color value (double-precision)
-class Color3d : public VectorN<Color3d, double, 3>
+class MX_RENDER_API Color3d : public VectorN<Color3d, double, 3>
 {
   public:
     using VectorN<Color3d, double, 3>::VectorN;
-    Color3d() { }
+    Color3d() = default;
     Color3d(double r, double g, double b) : VectorN(Uninit{})
     {
         _arr = {r, g, b};
@@ -56,7 +98,7 @@ class Color3d : public VectorN<Color3d, double, 3>
 /// @class Half
 /// A lightweight 16-bit half-precision float class.  Based on the public-domain
 /// implementation by Paul Tessier.
-class Half
+class MX_RENDER_API Half
 {
   public:
     explicit Half(float value) : _data(toFloat16(value)) { }
@@ -153,6 +195,6 @@ class Half
     uint16_t _data;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -1,4 +1,4 @@
-#include "stdlib/genglsl/lib/mx_noise.glsl"
+#include "libraries/stdlib/genglsl/lib/mx_noise.glsl"
 
 void mx_noise2d_fa_vector4(float amplitude, float pivot, vec2 texcoord, out vec4 result)
 {

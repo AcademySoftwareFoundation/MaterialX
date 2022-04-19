@@ -8,21 +8,9 @@
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
-#include <MaterialXCore/Document.h>
-
-#include <MaterialXFormat/XmlIo.h>
-
-#include <MaterialXGenShader/Util.h>
-#include <MaterialXGenShader/HwShaderGenerator.h>
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/UnitSystem.h>
-
-#include <MaterialXRender/Util.h>
-#include <MaterialXRender/LightHandler.h>
 #include <MaterialXRender/ImageHandler.h>
-
-#include <chrono>
-#include <ctime>
+#include <MaterialXRender/Timer.h>
+#include <MaterialXRender/Util.h>
 
 #define LOG_TO_FILE
 
@@ -42,56 +30,6 @@ namespace mx = MaterialX;
 //
 namespace RenderUtil
 {
-
-// Scoped timer which adds a duration to a given externally reference timing duration
-//
-class AdditiveScopedTimer
-{
-  public:
-    AdditiveScopedTimer(double& durationRefence, const std::string& label)
-        : _duration(durationRefence)
-        , _debugUpdate(false)
-        , _label(label)
-    {
-        startTimer();
-    }
-
-    ~AdditiveScopedTimer()
-    {
-        endTimer();
-    }
-
-    void startTimer()
-    {
-        _startTime = std::chrono::system_clock::now();
-
-        if (_debugUpdate)
-        {
-            std::cout << "Start time for timer (" << _label << ") is: " << _duration << std::endl;
-        }
-    }
-
-    void endTimer()
-    {
-        std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now();
-        std::chrono::duration<double> timeDuration = endTime - _startTime;
-        double currentDuration = timeDuration.count();
-        _duration += currentDuration;
-        _startTime = endTime;
-
-        if (_debugUpdate)
-        {
-            std::cout << "Current duration for timer (" << _label << ") is: " << currentDuration << ". Total duration: " << _duration << std::endl;
-        }
-    }
-
-  protected:
-    double &_duration;
-    bool _debugUpdate;
-    std::string _label;
-    std::chrono::time_point<std::chrono::system_clock> _startTime;
-};
-
 
 // Per language profile times
 //
@@ -154,7 +92,12 @@ class ShaderRenderTester
     ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator);
     virtual ~ShaderRenderTester();
 
-    bool validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath);
+    bool validate(const mx::FilePath optionsFilePath);
+
+    void setEmitColorTransforms(bool val)
+    {
+        _emitColorTransforms = val;
+    }
 
   protected:
     // Check if testing should be performed based in input options
@@ -171,13 +114,7 @@ class ShaderRenderTester
 #endif
 
     // Add files to skip
-    void addSkipFiles()
-    {
-        _skipFiles.insert("_options.mtlx");
-        _skipFiles.insert("light_rig_test_1.mtlx");
-        _skipFiles.insert("light_rig_test_2.mtlx");
-        _skipFiles.insert("light_compound_test.mtlx");
-    }
+    void addSkipFiles();
 
     // Load dependencies
     void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
@@ -190,9 +127,6 @@ class ShaderRenderTester
     //
     // Code generation methods
     //
-
-    // Register any additional source code paths used by the generator
-    virtual void registerSourceCodeSearchPaths(mx::GenContext& /*context*/) {};
 
     // Register any lights used by the generation context
     virtual void registerLights(mx::DocumentPtr /*dependLib*/,
@@ -213,7 +147,7 @@ class ShaderRenderTester
         mx::DocumentPtr doc,
         std::ostream& log,
         const GenShaderUtil::TestSuiteOptions& testOptions,
-        RenderUtil::RenderProfileTimes& profileTimes,
+        RenderProfileTimes& profileTimes,
         const mx::FileSearchPath& imageSearchPath,
         const std::string& outputPath = ".",
         mx::ImageVec* imageVec = nullptr) = 0;
@@ -234,14 +168,22 @@ class ShaderRenderTester
                      mx::DocumentPtr dependLib);
 
     virtual bool canBake() const { return false; }
-    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/, const mx::FilePath& /*outputFilename*/,
-                         unsigned int /*bakeWidth*/, unsigned int /*bakeHeight*/, bool /*bakeHdr*/, std::ostream& /*log*/) {};
+    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
+                         const GenShaderUtil::TestSuiteOptions::BakeSetting& /*bakeOptions*/, std::ostream& /*log*/) {};
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
+    // Whether to resolve image file name references before code generation
+    bool _resolveImageFilenames;
+    mx::StringResolverPtr _customFilenameResolver;
 
     // Files to skip
     mx::StringSet _skipFiles;
+
+    // Color management information
+    mx::ColorManagementSystemPtr _colorManagementSystem;
+    mx::FilePath _colorManagementConfigFile;
+    bool _emitColorTransforms;
 };
 
 } // namespace RenderUtil

@@ -8,11 +8,10 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Swizzle node implementation
-class SwizzleNode : public ShaderNodeImpl
+class MX_GENSHADER_API SwizzleNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();
@@ -25,6 +24,6 @@ class SwizzleNode : public ShaderNodeImpl
     bool isEditable(const ShaderInput& input) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

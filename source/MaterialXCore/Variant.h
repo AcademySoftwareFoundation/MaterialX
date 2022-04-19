@@ -9,12 +9,11 @@
 /// @file
 /// Variant element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Interface.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Variant;
 class VariantSet;
@@ -37,7 +36,7 @@ using ConstVariantAssignPtr = shared_ptr<const VariantAssign>;
 
 /// @class Variant
 /// A variant element within a VariantSet
-class Variant : public InterfaceElement
+class MX_CORE_API Variant : public InterfaceElement
 {
   public:
     Variant(ElementPtr parent, const string& name) :
@@ -52,7 +51,7 @@ class Variant : public InterfaceElement
 
 /// @class VariantSet
 /// A variant set element within a Document.
-class VariantSet : public Element
+class MX_CORE_API VariantSet : public Element
 {
   public:
     VariantSet(ElementPtr parent, const string& name) :
@@ -102,7 +101,7 @@ class VariantSet : public Element
 /// A variant assignment element within a Look.
 /// @todo Add support for variant assignments in graph traversal and
 ///    string resolution.
-class VariantAssign : public Element
+class MX_CORE_API VariantAssign : public Element
 {
   public:
     VariantAssign(ElementPtr parent, const string& name) :
@@ -156,12 +155,12 @@ class VariantAssign : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
     static const string VARIANT_SET_ATTRIBUTE;
     static const string VARIANT_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

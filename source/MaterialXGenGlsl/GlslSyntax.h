@@ -9,13 +9,14 @@
 /// @file
 /// GLSL syntax class
 
+#include <MaterialXGenGlsl/Export.h>
+
 #include <MaterialXGenShader/Syntax.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Syntax class for GLSL (OpenGL Shading Language)
-class GlslSyntax : public Syntax
+class MX_GENGLSL_API GlslSyntax : public Syntax
 {
   public:
     GlslSyntax();
@@ -46,6 +47,6 @@ class GlslSyntax : public Syntax
     static const StringVec VEC4_MEMBERS;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

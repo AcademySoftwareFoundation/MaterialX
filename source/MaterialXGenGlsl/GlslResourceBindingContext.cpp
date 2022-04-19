@@ -5,8 +5,7 @@
 
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // GlslResourceBindingContext
@@ -31,6 +30,25 @@ void GlslResourceBindingContext::initialize()
 void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
 {
     ShaderGenerator& generator = context.getShaderGenerator();
+
+    // Write shader stage directives for Vulkan compliance if required
+    if (_separateBindingLocation)
+    {
+        std::string shaderStage;
+        if (stage.getName() == Stage::VERTEX)
+        {
+            shaderStage = "vertex";
+        }
+        else if (stage.getName() == Stage::PIXEL)
+        {
+            shaderStage = "fragment";
+        }
+
+        if (!shaderStage.empty())
+        {
+            generator.emitLine("#pragma shader_stage(" + shaderStage + ")", stage, false);
+        }
+    }
 
     for (auto& extension : _requiredExtensions)
     {
@@ -77,7 +95,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     {
         if (uniform->getType() == Type::FILENAME)
         {
-            generator.emitString("layout (binding=" + std::to_string(_hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
+            generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
             generator.emitLineEnd(stage, true);
         }
@@ -86,15 +104,15 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     generator.emitLineBreak(stage);
 }
 
-void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& context,
-    const VariableBlock& uniforms, ShaderStage& stage, const std::string& structInstanceName,
-    const std::string& arraySuffix)
+void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms, 
+                                                                ShaderStage& stage, const std::string& structInstanceName,
+                                                                const std::string& arraySuffix)
 {
     ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
-    // Glsl struct need to be aligned. We make a best effort to base align struct members and add
-    // padding if required
+    // Glsl structures need to be aligned. We make a best effort to base align struct members and add
+    // padding if required.
     // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_uniform_buffer_object.txt
 
     const size_t baseAlignment = 16;
@@ -104,7 +122,7 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
         { Type::VECTOR2, baseAlignment }, { Type::VECTOR3, baseAlignment }, { Type::VECTOR4, baseAlignment },
         { Type::MATRIX33, baseAlignment * 4 }, { Type::MATRIX44, baseAlignment * 4 } });
 
-    //Get struct alignment and size
+    // Get struct alignment and size
     // alignment, uniform member index
     vector<std::pair<size_t, size_t>> memberOrder;
     size_t structSize = 0;
@@ -155,7 +173,7 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     generator.emitScopeEnd(stage, true);
 
 
-    // emit the binding info
+    // Emit binding information
     generator.emitLineBreak(stage);
     generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
         ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
@@ -165,4 +183,4 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);
 }
-}
+MATERIALX_NAMESPACE_END

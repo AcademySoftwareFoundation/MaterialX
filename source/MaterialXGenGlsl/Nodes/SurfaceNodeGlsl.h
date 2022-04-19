@@ -6,13 +6,13 @@
 #ifndef MATERIALX_SURFACENODEGLSL_H
 #define MATERIALX_SURFACENODEGLSL_H
 
+#include <MaterialXGenGlsl/Export.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Surface node implementation for GLSL
-class SurfaceNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API SurfaceNodeGlsl : public GlslImplementation
 {
   public:
     SurfaceNodeGlsl();
@@ -23,14 +23,16 @@ class SurfaceNodeGlsl : public GlslImplementation
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-  private:
+    virtual void emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const;
+
+  protected:
     /// Closure contexts for calling closure functions.
-    HwClosureContextPtr _callReflection;
-    HwClosureContextPtr _callTransmission;
-    HwClosureContextPtr _callIndirect;
-    HwClosureContextPtr _callEmission;
+    mutable ClosureContext _callReflection;
+    mutable ClosureContext _callTransmission;
+    mutable ClosureContext _callIndirect;
+    mutable ClosureContext _callEmission;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

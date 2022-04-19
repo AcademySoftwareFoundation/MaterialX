@@ -7,123 +7,202 @@
   - fractal3d
   - noise2d
   - noise3d
+  - worleynoise2d
+  - worleynoise3d
   -->
-  <nodegraph name="cellnoise3d_object" type="" xpos="5.28754" ypos="14.9465">
-    <cellnoise3d name="cellnoise3d1" type="float" xpos="6.48276" ypos="9.94">
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+  <nodegraph name="cellnoise3d_object">
+    <cellnoise3d name="cellnoise3d1" type="float">
+      <input name="position" type="vector3" nodename="multiply1" />
     </cellnoise3d>
     <output name="out" type="float" nodename="cellnoise3d1" />
-    <position name="position1" type="vector3" xpos="3.51724" ypos="10.54">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
-    <multiply name="multiply1" type="vector3" xpos="5" ypos="10.24">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
   </nodegraph>
-  <nodegraph name="fractal3d_object" type="" xpos="5.29008" ypos="16.1884">
-    <fractal3d name="fractal3d1" type="float" xpos="6.48276" ypos="9.92">
+  <nodegraph name="fractal3d_object">
+    <fractal3d name="fractal3d1" type="float">
       <input name="amplitude" type="float" value="10.0000" />
       <input name="octaves" type="integer" value="2" />
       <input name="lacunarity" type="float" value="2.0000" />
       <input name="diminish" type="float" value="0.5000" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </fractal3d>
     <output name="out" type="float" nodename="fractal3d1" />
-    <position name="position1" type="vector3" xpos="3.51724" ypos="10.54">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
-    <multiply name="multiply1" type="vector3" xpos="5" ypos="10.24">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
   </nodegraph>
-  <nodegraph name="noise3d_object" type="" xpos="5.28762" ypos="18.6787">
-    <noise3d name="noise3d1" type="float" xpos="6.48276" ypos="9.92">
+  <nodegraph name="noise3d_object">
+    <noise3d name="noise3d1" type="float">
       <input name="amplitude" type="float" value="10.0000" />
       <input name="pivot" type="float" value="0.0000" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </noise3d>
-    <position name="position1" type="vector3" xpos="3.51724" ypos="10.54">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
-    <multiply name="multiply1" type="vector3" xpos="5" ypos="10.24">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
     <output name="out" type="float" nodename="noise3d1" />
   </nodegraph>
-  <nodegraph name="noise2d" type="" xpos="5.29254" ypos="17.4241">
-    <noise2d name="noise2d1" type="float" xpos="6.48276" ypos="9.92">
+  <nodegraph name="noise2d">
+    <noise2d name="noise2d1" type="float">
       <input name="amplitude" type="float" value="10.0000" />
       <input name="pivot" type="float" value="0.0" />
-      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
+      <input name="texcoord" type="vector2" nodename="multiply1" />
     </noise2d>
     <output name="out" type="float" nodename="noise2d1" />
-    <texcoord name="texcoord1" type="vector2" xpos="3.51724" ypos="10.58">
+    <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" value="0" />
     </texcoord>
-    <multiply name="multiply1" type="vector2" xpos="5" ypos="10.26">
-      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
       <input name="in2" type="vector2" value="100.0000, 100.0000" />
     </multiply>
   </nodegraph>
-  <nodegraph name="cellnoise2d" type="" xpos="5.28582" ypos="13.671">
-    <cellnoise2d name="cellnoise2d1" type="float" xpos="6.48276" ypos="9.94">
-      <input name="texcoord" type="vector2" value="0.0, 0.0" nodename="multiply1" />
+  <nodegraph name="cellnoise2d">
+    <cellnoise2d name="cellnoise2d1" type="float">
+      <input name="texcoord" type="vector2" nodename="multiply1" />
     </cellnoise2d>
-    <texcoord name="texcoord1" type="vector2" xpos="3.51724" ypos="10.54">
+    <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" value="0" />
     </texcoord>
-    <multiply name="multiply1" type="vector2" xpos="5" ypos="10.24">
-      <input name="in1" type="vector2" value="0.0, 0.0" nodename="texcoord1" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
       <input name="in2" type="vector2" value="100.0000, 100.0000" />
     </multiply>
     <output name="out" type="float" nodename="cellnoise2d1" />
   </nodegraph>
-  <nodegraph name="cellnoise3d_world" type="" xpos="6.34143" ypos="14.9552">
-    <position name="position1" type="vector3" xpos="2.03448" ypos="7.18">
+  <nodegraph name="cellnoise3d_world">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="world" />
     </position>
-    <cellnoise3d name="cellnoise3d1" type="float" xpos="4.96857" ypos="7.23722">
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+    <cellnoise3d name="cellnoise3d1" type="float">
+      <input name="position" type="vector3" nodename="multiply1" />
     </cellnoise3d>
-    <multiply name="multiply1" type="vector3" xpos="3.45628" ypos="7.0425">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
     <output name="out" type="float" nodename="cellnoise3d1" />
   </nodegraph>
-  <nodegraph name="fractal3d_world" type="" xpos="6.35007" ypos="16.1687">
-    <position name="position1" type="vector3" xpos="2.76552" ypos="8.98">
+  <nodegraph name="fractal3d_world">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="world" />
     </position>
-    <multiply name="multiply1" type="vector3" xpos="4.42552" ypos="9.0089">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
-    <fractal3d name="fractal3d1" type="float" xpos="5.96324" ypos="9.07604">
+    <fractal3d name="fractal3d1" type="float">
       <input name="amplitude" type="float" value="10.0000" />
       <input name="octaves" type="integer" value="2" />
       <input name="lacunarity" type="float" value="2.0" />
       <input name="diminish" type="float" value="0.5" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </fractal3d>
     <output name="out" type="float" nodename="fractal3d1" />
   </nodegraph>
-  <nodegraph name="noise3d_world" type="" xpos="6.35007" ypos="18.6762">
-    <position name="position1" type="vector3" xpos="1.81379" ypos="7.76">
+  <nodegraph name="noise3d_world">
+    <position name="position1" type="vector3">
       <input name="space" type="string" value="world" />
     </position>
-    <multiply name="multiply1" type="vector3" xpos="3.52872" ypos="7.39866">
-      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" nodename="position1" />
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
       <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
     </multiply>
-    <noise3d name="noise3d1" type="float" xpos="5.27098" ypos="7.53098">
+    <noise3d name="noise3d1" type="float">
       <input name="amplitude" type="float" value="10.0000" />
       <input name="pivot" type="float" value="0.0" />
-      <input name="position" type="vector3" value="0.0, 0.0, 0.0" nodename="multiply1" />
+      <input name="position" type="vector3" nodename="multiply1" />
     </noise3d>
     <output name="out" type="float" nodename="noise3d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise2d_float">
+    <texcoord name="texcoord1" type="vector2" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
+      <input name="in2" type="float" value="30.0000" />
+    </multiply>
+    <worleynoise2d name="noise2d1" type="float">
+      <input name="texcoord" type="vector2" nodename="multiply1" />
+    </worleynoise2d>
+    <output name="out" type="float" nodename="noise2d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise2d_vector2">
+    <texcoord name="texcoord1" type="vector2" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
+      <input name="in2" type="float" value="40.0000" />
+    </multiply>
+    <worleynoise2d name="noise2d1" type="vector2">
+      <input name="texcoord" type="vector2" nodename="multiply1" />
+      <input name="jitter" type="float" value="0.8" />
+    </worleynoise2d>
+    <output name="out" type="vector2" nodename="noise2d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise2d_vector3">
+    <texcoord name="texcoord1" type="vector2" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
+      <input name="in2" type="float" value="25.0000" />
+    </multiply>
+    <worleynoise2d name="noise2d1" type="vector3">
+      <input name="texcoord" type="vector2" nodename="multiply1" />
+      <input name="jitter" type="float" value="1.0" />
+    </worleynoise2d>
+    <output name="out" type="vector3" nodename="noise2d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise3d_float">
+    <position name="position1" type="vector3">
+      <input name="space" type="string" value="world" />
+    </position>
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
+      <input name="in2" type="float" value="7.0" />
+    </multiply>
+    <worleynoise3d name="noise3d1" type="float">
+      <input name="position" type="vector3" nodename="multiply1" />
+      <input name="jitter" type="float" value="0.6" />
+    </worleynoise3d>
+    <output name="out" type="float" nodename="noise3d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise3d_vector2">
+    <position name="position1" type="vector3">
+      <input name="space" type="string" value="world" />
+    </position>
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
+      <input name="in2" type="float" value="10.0" />
+    </multiply>
+    <worleynoise3d name="noise3d1" type="vector2">
+      <input name="position" type="vector3" nodename="multiply1" />
+      <input name="jitter" type="float" value="0.9" />
+    </worleynoise3d>
+    <output name="out" type="vector2" nodename="noise3d1" />
+  </nodegraph>
+  <nodegraph name="worleynoise3d_vector3">
+    <position name="position1" type="vector3">
+      <input name="space" type="string" value="world" />
+    </position>
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
+      <input name="in2" type="float" value="8.0" />
+    </multiply>
+    <worleynoise3d name="noise3d1" type="vector3">
+      <input name="position" type="vector3" nodename="multiply1" />
+      <input name="jitter" type="float" value="1.0" />
+    </worleynoise3d>
+    <output name="out" type="vector3" nodename="noise3d1" />
   </nodegraph>
 </materialx>

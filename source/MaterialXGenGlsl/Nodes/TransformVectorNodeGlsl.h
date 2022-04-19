@@ -8,11 +8,10 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// TransformVector node implementation for GLSL
-class TransformVectorNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API TransformVectorNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();
@@ -26,6 +25,6 @@ protected:
     virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

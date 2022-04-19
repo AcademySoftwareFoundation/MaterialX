@@ -7,6 +7,7 @@
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
 namespace mx = MaterialX;
@@ -14,7 +15,7 @@ namespace mx = MaterialX;
 TEST_CASE("Load content", "[xmlio]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
+    mx::FilePath examplesPath("resources/Materials/Examples/StandardSurface");
     mx::FileSearchPath searchPath = libraryPath.asString() +
         mx::PATH_LIST_SEPARATOR +
         examplesPath.asString();
@@ -111,7 +112,7 @@ TEST_CASE("Load content", "[xmlio]")
     // Read the same document twice and verify that duplicate elements
     // are skipped.
     mx::DocumentPtr doc = mx::createDocument();
-    std::string filename = "PostShaderComposite.mtlx";
+    std::string filename = "standard_surface_look_brass_tiled.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath);
     mx::readFromXmlFile(doc, filename, searchPath);
     REQUIRE(doc->validate());
@@ -170,7 +171,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Reconstruct and verify that the document contains no images.
     mx::DocumentPtr writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     REQUIRE(*writtenDoc != *doc);
     unsigned imageElementCount = 0;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
@@ -203,7 +204,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Verify that the document contains no XIncludes.
     writtenDoc = mx::createDocument();
-    mx::readFromXmlString(writtenDoc, xmlString, &readOptions);
+    mx::readFromXmlString(writtenDoc, xmlString, mx::FileSearchPath(), &readOptions);
     bool hasSourceUri = false;
     for (mx::ElementPtr elem : writtenDoc->traverseTree())
     {

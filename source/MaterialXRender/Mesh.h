@@ -10,9 +10,9 @@
 /// Mesh interfaces
 
 #include <MaterialXCore/Types.h>
+#include <MaterialXRender/Export.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Geometry index buffer
 using MeshIndexBuffer = vector<uint32_t>;
@@ -27,7 +27,7 @@ using MeshStreamList = vector<MeshStreamPtr>;
 
 /// @class MeshStream
 /// Class to represent a mesh data stream
-class MeshStream
+class MX_RENDER_API MeshStream
 {
   public:
     static const string POSITION_ATTRIBUTE;
@@ -139,7 +139,7 @@ using MeshPartitionPtr = shared_ptr<class MeshPartition>;
 /// @class MeshPartition
 /// Class that describes a sub-region of a mesh using vertex indexing.
 /// Note that a face is considered to be a triangle.
-class MeshPartition
+class MX_RENDER_API MeshPartition
 {
   public:
     MeshPartition() :
@@ -160,16 +160,30 @@ class MeshPartition
         _indices.resize(indexCount);
     }
 
-    /// Get geometry identifier
-    const string& getIdentifier() const
+    /// Set the name of this partition.
+    void setName(const string& val)
     {
-        return _identifier;
+        _name = val;
     }
 
-    /// Set geometry identifier
-    void setIdentifier(const string& val)
+    /// Return the name of this partition.
+    const string& getName() const
     {
-        _identifier = val;
+        return _name;
+    }
+
+    /// Add a source name, representing a partition that was processed
+    /// to generate this one.
+    void addSourceName(const string& val)
+    {
+        _sourceNames.insert(val);
+    }
+
+    /// Return the vector of source names, representing all partitions
+    /// that were processed to generate this one.
+    const StringSet& getSourceNames() const
+    {
+        return _sourceNames;
     }
 
     /// Return indexing
@@ -197,7 +211,8 @@ class MeshPartition
     }
 
   private:
-    string _identifier;
+    string _name;
+    StringSet _sourceNames;
     MeshIndexBuffer _indices;
     size_t _faceCount;
 };
@@ -213,22 +228,22 @@ using MeshMap = std::unordered_map<string, MeshPtr>;
 
 /// @class Mesh
 /// Container for mesh data
-class Mesh
+class MX_RENDER_API Mesh
 {
   public:
-    Mesh(const string& identifier);
+    Mesh(const string& name);
     ~Mesh() { }
 
     /// Create a new mesh
-    static MeshPtr create(const string& identifier)
+    static MeshPtr create(const string& name)
     {
-        return std::make_shared<Mesh>(identifier);
+        return std::make_shared<Mesh>(name);
     }
 
-    /// Get mesh identifier
-    const string& getIdentifier() const
+    /// Return the name of this mesh.
+    const string& getName() const
     {
-        return _identifier;
+        return _name;
     }
 
     /// Set the mesh's source URI.
@@ -375,6 +390,12 @@ class Mesh
         return _partitions[partIndex];
     }
 
+    /// Create texture coordinates from the given positions.
+    /// The texture coordinates are all initialize to a zero value.
+    /// @param positionStream Input position stream
+    /// @return The generated texture coordinate stream
+    MeshStreamPtr generateTextureCoordinates(MeshStreamPtr positionStream);
+
     /// Generate face normals from the given positions.
     /// @param positionStream Input position stream
     /// @return The generated normal stream
@@ -394,7 +415,7 @@ class Mesh
     void splitByUdims();
 
   private:
-    string _identifier;
+    string _name;
     string _sourceUri;
 
     Vector3 _minimumBounds;
@@ -408,6 +429,6 @@ class Mesh
     vector<MeshPartitionPtr> _partitions;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

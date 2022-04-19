@@ -1,0 +1,23 @@
+{
+  "name": "jsmaterialxview",
+  "version": "1.0.0",
+  "description": "MaterialX Web Viewer",
+  "main": "source/index.js",
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dat.gui": "^0.7.9",
+    "three": "^0.128.0",
+    "webpack": "^5.37.1"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^8.1.1",
+    "html-webpack-plugin": "^5.3.2",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^4.7.3"
+  }
+}

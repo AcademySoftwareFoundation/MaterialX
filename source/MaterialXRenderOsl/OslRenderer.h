@@ -9,11 +9,12 @@
 /// @file
 /// OSL code renderer
 
+#include <MaterialXRenderOsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 // Shared pointer to an OslRenderer
 using OslRendererPtr = std::shared_ptr<class OslRenderer>;
@@ -28,7 +29,7 @@ using OslRendererPtr = std::shared_ptr<class OslRenderer>;
 ///     - Render validation: Use of "testrender" to output rendered images. Assumes source compliation was success
 ///       as it depends on the existence of corresponding .oso files.
 ///
-class OslRenderer : public ShaderRenderer
+class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
 {
   public:
     /// Create an OSL renderer instance
@@ -89,15 +90,8 @@ class OslRenderer : public ShaderRenderer
     /// @name Utilities
     /// @{
 
-    /// Capture the current contents of rendering to an image. Note that this method
-    /// does not perform any action as render() produces images as part of it's
-    /// execution.
-    ImagePtr captureImage() override;
-
-    /// Save the current contents of rendering to disk. Note that this method
-    /// does not perform any action as render() produces images as part if it's
-    /// execution.
-    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
+    /// Capture the current rendered output as an image.
+    ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// @}
     /// @name Compilation settings
@@ -114,7 +108,7 @@ class OslRenderer : public ShaderRenderer
     /// Set the search locations for OSL include files.
     /// @param dirPath Include path(s) for the OSL compiler. This should include the
     /// path to stdosl.h.
-    void setOslIncludePath(const FilePath& dirPath)
+    void setOslIncludePath(const FileSearchPath& dirPath)
     {
         _oslIncludePath = dirPath;
     }
@@ -202,6 +196,18 @@ class OslRenderer : public ShaderRenderer
         _useTestRender = useTestRender;
     }
 
+    /// Set the number of rays per pixel to be used for lit surfaces.
+    void setRaysPerPixelLit(int rays)
+    {
+        _raysPerPixelLit = rays;
+    }
+
+    /// Set the number of rays per pixel to be used for unlit surfaces.
+    void setRaysPerPixelUnlit(int rays)
+    {
+        _raysPerPixelUnlit = rays;
+    }
+
     ///
     /// Compile OSL code stored in a file. Will throw an exception if an error occurs.
     /// @param oslFilePath OSL file path.
@@ -228,37 +234,25 @@ class OslRenderer : public ShaderRenderer
     OslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
   private:
-    /// Path to "oslc" executable`
     FilePath _oslCompilerExecutable;
-    /// OSL include path
-    FilePath _oslIncludePath;
-    /// Output file path. File name does not include an extension
+    FileSearchPath _oslIncludePath;
     FilePath _oslOutputFilePath;
-    /// Output image file name
     FilePath _oslOutputFileName;
 
-    /// Path to "testshade" executable
     FilePath _oslTestShadeExecutable;
-    /// Path to "testrender" executable
     FilePath _oslTestRenderExecutable;
-    /// Path to template scene XML file used for "testrender"
     FilePath _oslTestRenderSceneTemplateFile;
-    /// Name of shader. Used for rendering with "testrender"
     string _oslShaderName;
-    /// Set of strings containing parameter override settings for "testrender"
     StringVec _oslShaderParameterOverrides;
-    /// Set of strings containing environment parameter override settings for "testrender"
     StringVec _envOslShaderParameterOverrides;
-    /// Name of output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputName;
-    /// MaterialX type of the output on the shader. Used for rendering with "testshade" and "testrender"
     string _oslShaderOutputType;
-    /// Path for utility shaders (.oso) used when rendering with "testrender"
     FilePath _oslUtilityOSOPath;
-    /// Use "testshade" or "testender" for render validation
     bool _useTestRender;
+    int _raysPerPixelLit;
+    int _raysPerPixelUnlit;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

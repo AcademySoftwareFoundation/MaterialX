@@ -5,10 +5,10 @@
 
 #include <MaterialXRender/Mesh.h>
 
+#include <limits>
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MeshStream::POSITION_ATTRIBUTE("position");
 const string MeshStream::NORMAL_ATTRIBUTE("normal");
@@ -29,8 +29,8 @@ const size_t FACE_VERTEX_COUNT = 3;
 // Mesh methods
 //
 
-Mesh::Mesh(const string& identifier) :
-    _identifier(identifier),
+Mesh::Mesh(const string& name) :
+    _name(name),
     _minimumBounds(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT),
     _maximumBounds(-MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT),
     _sphereCenter(0.0f, 0.0f, 0.0f),
@@ -75,8 +75,34 @@ MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
     return normalStream;
 }
 
+MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
+{
+    size_t vertexCount = positionStream->getData().size() / MeshStream::STRIDE_3D;
+    MeshStreamPtr texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    texcoordStream->setStride(MeshStream::STRIDE_2D);
+    texcoordStream->resize(vertexCount);
+    std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
+
+    return texcoordStream;
+}
+
 MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
 {
+    if (!positionStream)
+    {
+        return nullptr;
+    }
+    if (!texcoordStream)
+    {
+        texcoordStream = generateTextureCoordinates(positionStream);
+        addStream(texcoordStream);
+    }
+    if (!normalStream)
+    {
+        normalStream = generateNormals(positionStream);
+        addStream(normalStream);
+    }
+
     size_t vertexCount = positionStream->getData().size() / positionStream->getStride();
     size_t normalCount = normalStream->getData().size() / normalStream->getStride();
     size_t texcoordCount = texcoordStream->getData().size() / texcoordStream->getStride();
@@ -168,7 +194,7 @@ void Mesh::mergePartitions()
     }
 
     MeshPartitionPtr merged = MeshPartition::create();
-    merged->setIdentifier("merged");
+    merged->setName("merged");
     for (size_t p = 0; p < getPartitionCount(); p++)
     {
         MeshPartitionPtr part = getPartition(p);
@@ -176,6 +202,7 @@ void Mesh::mergePartitions()
                                     part->getIndices().begin(),
                                     part->getIndices().end());
         merged->setFaceCount(merged->getFaceCount() + part->getFaceCount());
+        merged->addSourceName(part->getName());
     }
 
     _partitions.clear();
@@ -190,8 +217,7 @@ void Mesh::splitByUdims()
         return;
     }
 
-    using UdimMap = std::map<uint32_t, MeshPartitionPtr>;
-    UdimMap udimMap;
+    std::map<uint32_t, MeshPartitionPtr> udimMap;
     for (size_t p = 0; p < getPartitionCount(); p++)
     {
         MeshPartitionPtr part = getPartition(p);
@@ -208,7 +234,7 @@ void Mesh::splitByUdims()
             if (!udimMap.count(udim))
             {
                 udimMap[udim] = MeshPartition::create();
-                udimMap[udim]->setIdentifier(std::to_string(udim));
+                udimMap[udim]->setName(std::to_string(udim));
             }
 
             MeshPartitionPtr udimPart = udimMap[udim];
@@ -216,6 +242,7 @@ void Mesh::splitByUdims()
             udimPart->getIndices().push_back(i1);
             udimPart->getIndices().push_back(i2);
             udimPart->setFaceCount(udimPart->getFaceCount() + 1);
+            udimPart->addSourceName(part->getName());
         }
     }
 
@@ -275,4 +302,4 @@ void MeshStream::transform(const Matrix44 &matrix)
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

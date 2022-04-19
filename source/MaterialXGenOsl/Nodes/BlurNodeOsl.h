@@ -6,19 +6,20 @@
 #ifndef MATERIALX_BLURNODEOSL_H
 #define MATERIALX_BLURNODEOSL_H
 
+#include <MaterialXGenOsl/Export.h>
+
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Blur node implementation for OSL
-class BlurNodeOsl : public BlurNode
+class MX_GENOSL_API BlurNodeOsl : public BlurNode
 {
   public:
     static ShaderNodeImplPtr create();
     void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -8,11 +8,10 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// GeomColor node implementation for GLSL
-class GeomColorNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API GeomColorNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();
@@ -22,6 +21,6 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

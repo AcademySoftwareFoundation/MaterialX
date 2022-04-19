@@ -1,6 +1,90 @@
 # Change Log
 
-## [1.38.1] - Development
+## [1.38.4] - 2022-04-06
+
+### Added
+- Added [JavaScript bindings](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/javascript) for MaterialXCore, MaterialXFormat, and MaterialXGenGlsl.
+- Added a sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/), built and deployed through GitHub Actions.
+- Added a MaterialX graph for the [glTF PBR](libraries/bxdf/gltf_pbr.mtlx) shading model.
+- Added new 'worleynoise2d' and 'worleynoise3d' nodes, with implementations in GLSL, OSL, and MDL.
+- Added new 'surface_unlit' node, with implementations in GLSL, OSL, and MDL.
+- Added support for the glTF geometry format in MaterialXRender and MaterialXView.
+
+### Changed
+- Moved the MaterialX project to the [Academy Software Foundation GitHub](https://github.com/AcademySoftwareFoundation/MaterialX).
+- Removed hardcoded references to "libraries" in calls to GenContext::registerSourceCodeSearchPath.  (See Developer Notes below for additional details.)
+- Improved the accuracy of mx_ggx_dir_albedo_analytic and mx_fresnel_conductor in GLSL.
+- Updated the PyBind11 library to version 2.9.0.
+
+### Fixed
+- Aligned GLSL and MDL implementations of 'fractal3d' with OSL.
+- Fixed MDL implementations of 'sheen_bsdf' and 'thin_film_bsdf'.
+- Fixed an error in code generation from multi-output node graphs.
+
+### Developer Notes
+- This release removes hardcoded references to "libraries" in calls to GenContext::registerSourceCodeSearchPath within the MaterialX codebase.  Applications with their own custom code generators should make the same change, removing hardcoded references to "libraries" in calls to GenContext::registerSourceCodeSearchPath.  See pull request [877](https://github.com/AcademySoftwareFoundation/MaterialX/pull/877) for coding details.
+
+## [1.38.3] - 2021-12-14
+
+### Added
+- Added an inheritance structure for versions of Autodesk Standard Surface.
+- Added versioning and customization support to MaterialX namespaces in C++.
+- Added preprocessor definitions for the API version to MaterialXCore.
+- Added color transform methods to the Image class.
+- Added an initial ClangFormat file for the MaterialX codebase.
+- Added initial support for FreeBSD.
+- Added support for Xcode 13.
+
+### Changed
+- Refactored BSDF handling in shader generation, allowing for more flexible and efficient vertical layering.
+- Optimized GLSL implementations for GGX specular, moving common computations to tangent space.
+- Refactored the TextureBaker API for clarity and flexibility.
+- Merged the ViewHandler and viewer camera into a new Camera class in MaterialXRender.
+- Updated CMake configuration generation logic, adding handling for shared library builds.
+- Updated the PyBind11 library to version 2.7.1
+
+### Fixed
+- Fixed a performance regression in MaterialXView for multi-UDIM assets.
+- Fixed a bug that caused shader inputs to be skipped in createUIPropertyGroups.
+- Fixed the value of transmission roughness in UsdPreviewSurface.
+- Fixed Vulkan compatibility for generated GLSL code.
+
+## [1.38.2] - 2021-10-07
+
+### Added
+- Added an initial shader translation graph from Autodesk Standard Surface to UsdPreviewSurface.
+- Added example script translateshader.py with validation in GitHub Actions.
+- Added support for filename templates in texture baking.
+- Added graph definitions for the MaterialX Lama node set.
+- Added UI properties to the interface of UsdPreviewSurface.
+- Added an initial ESSL shader generator.
+- Added support for GCC 11.
+
+### Changed
+- Improved the accuracy of directional albedo computations for GGX specular and Imageworks sheen.
+- Updated default color space names to follow ACES 1.2 conventions (e.g. g22_rec709), while maintaining compatibility with legacy names (e.g. gamma22).
+
+### Fixed
+- Fixed the default value of the roughness input of UsdPreviewSurface.
+- Fixed the assignment of channel names in EXR files written through OpenImageIO.
+
+## [1.38.1] - 2021-06-18
+
+### Added
+- Added support for shared library builds on Windows.
+- Added support for 16-bit unsigned integer images in MaterialXRender.
+- Added support for compound nodegraphs with user interfaces in shader and UI generation.
+- Added headers for newly proposed MaterialX closures in OSL.
+- Added a shader translation command to the viewer, assigned to the 'T' hotkey.
+
+### Changed
+- Improved the memory efficiency of texture baking operations.
+- Improved the compatibility of generated MDL code with Omniverse.
+- Refactored image resolution logic into new methods ImageHandler\:\:getReferencedImages and MaterialX\:\:getMaxDimensions.
+- Moved the viewer hotkey for GLSL code generation from 'S' to 'G' for consistency with other languages.
+
+### Fixed
+- Fixed the Color3.asTuple and Color4.asTuple methods in Python
 
 ## [1.38.0] - 2021-03-02
 

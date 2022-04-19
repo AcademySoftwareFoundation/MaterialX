@@ -5,8 +5,6 @@ list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/catch.hpp")
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
 
-set(MATERIALX_TEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-
 # Discover all tests and allow them to be run in parallel (ctest -j20):
 function(add_tests _sources)
   foreach(src_file ${_sources})
@@ -17,7 +15,7 @@ function(add_tests _sources)
       string(REGEX REPLACE "[^A-Za-z0-9_]+" "_" test_safe_name ${test_name})
       add_test(NAME "MaterialXTest_${test_safe_name}"
           COMMAND MaterialXTest ${test_name}
-          WORKING_DIRECTORY ${MATERIALX_TEST_BINARY_DIR})
+          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
       if(MATERIALX_BUILD_OIIO AND MSVC)
         # Add path to OIIO library so it can be found for the test.
         # On windows we have to escape the semicolons, otherwise only
@@ -85,23 +83,16 @@ endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_CURRENT_BINARY_DIR}/libraries)
-
-if(MATERIALX_BUILD_GEN_OSL)
-    install(DIRECTORY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stdlib/osl/"
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libraries/stdlib/reference/osl
-        FILES_MATCHING PATTERN "*.h")
-endif()
+	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+        DESTINATION ${CMAKE_BINARY_DIR}/bin/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
 endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_CURRENT_BINARY_DIR}/resources)
+	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_BINARY_DIR}/bin/resources)
 
 set_target_properties(
     MaterialXTest PROPERTIES

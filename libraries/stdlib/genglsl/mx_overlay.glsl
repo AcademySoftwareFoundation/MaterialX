@@ -1,6 +1,6 @@
 float mx_overlay(float fg, float bg)
 {
-    return (fg < 0.5) ? (2 * fg * bg) : (1 - (1 - fg) * (1 - bg));
+    return (fg < 0.5) ? (2.0 * fg * bg) : (1.0 - (1.0 - fg) * (1.0 - bg));
 }
 
 vec2 mx_overlay(vec2 fg, vec2 bg)

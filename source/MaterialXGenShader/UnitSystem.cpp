@@ -11,8 +11,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ScalarUnitNode : public ShaderNodeImpl
 {
@@ -48,7 +47,7 @@ void ScalarUnitNode::initialize(const InterfaceElement& element, GenContext& /*c
     _hash = std::hash<string>{}(_unitRatioFunctionName);
 }
 
-void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
+void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     // Emit the helper funtion mx_<unittype>_unit_ratio that embeds a look up table for unit scale
@@ -69,12 +68,12 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
     shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
-    shadergen.emitScopeBegin(stage);
+    shadergen.emitFunctionBodyBegin(node, context, stage);  
     shadergen.emitVariableDeclarations(unitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
     shadergen.emitLine("return ("+ VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
-    shadergen.emitScopeEnd(stage);
-    shadergen.emitLineBreak(stage);
-END_SHADER_STAGE(shader, Stage::PIXEL)
+    shadergen.emitFunctionBodyEnd(node, context, stage);
+
+    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -143,23 +142,33 @@ UnitSystemPtr UnitSystem::create(const string& language)
     return UnitSystemPtr(new UnitSystem(language));
 }
 
-string UnitSystem::getImplementationName(const UnitTransform& transform, const string& unitname) const
+ImplementationPtr UnitSystem::getImplementation(const UnitTransform& transform, const string& unitname) const
 {
-    return "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + _target;
+    // Search up the targetdef derivation hierarchy for a matching implementation.
+    TargetDefPtr targetDef = _document->getTargetDef(_target);
+    const StringVec targets = targetDef->getMatchingTargets();
+    for (const string& target : targets)
+    {
+        const string implName = "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + target;
+        ImplementationPtr impl = _document->getImplementation(implName);
+        if (impl)
+        {
+            return impl;
+        }
+    }
+    return nullptr;
 }
 
 bool UnitSystem::supportsTransform(const UnitTransform& transform) const
 {
-    const string implName = getImplementationName(transform, transform.unitType);
-    ImplementationPtr impl = _document->getImplementation(implName);
+    ImplementationPtr impl = getImplementation(transform, transform.unitType);
     return impl != nullptr;
 }
 
 ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
                                      GenContext& context) const
 {
-    const string implName = getImplementationName(transform, transform.unitType);
-    ImplementationPtr impl = _document->getImplementation(implName);
+    ImplementationPtr impl = getImplementation(transform, transform.unitType);
     if (!impl)
     {
         throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
@@ -175,12 +184,12 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
 
     // Check if it's created and cached already,
     // otherwise create and cache it.
-    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(implName);
+    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(impl->getName());
     if (!nodeImpl)
     {
         nodeImpl = ScalarUnitNode::create(scalarConverter);
         nodeImpl->initialize(*impl, context);
-        context.addNodeImplementation(implName, nodeImpl);
+        context.addNodeImplementation(impl->getName(), nodeImpl);
     }
 
     // Create the node.
@@ -246,4 +255,4 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     return shaderNode;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

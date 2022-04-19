@@ -1,24 +1,24 @@
-#include "pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
 
-float mx_latlong_compute_lod(float roughness)
+float mx_latlong_compute_lod(float alpha)
 {
-    // Select a mip level based on input roughness.
-    float lodBias = roughness < 0.25 ? sqrt(roughness) : 0.5*roughness + 0.375;
-    return lodBias * $envRadianceMips;
+    // Select a mip level based on input alpha.
+    float lodBias = alpha < 0.25 ? sqrt(alpha) : 0.5*alpha + 0.375;
+    return lodBias * float($envRadianceMips);
 }
 
-vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 roughness, int distribution, FresnelData fd)
+vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     N = mx_forward_facing_normal(N, V);
     vec3 L = reflect(-V, N);
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
-    float avgRoughness = mx_average_roughness(roughness);
+    float avgAlpha = mx_average_alpha(alpha);
     vec3 F = mx_compute_fresnel(NdotV, fd);
-    float G = mx_ggx_smith_G(NdotV, NdotV, avgRoughness);
-    vec3 comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
-    vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_compute_lod(avgRoughness), $envRadiance);
+    float G = mx_ggx_smith_G2(NdotV, NdotV, avgAlpha);
+    vec3 comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
+    vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_compute_lod(avgAlpha), $envRadiance);
 
     return Li * F * G * comp;
 }

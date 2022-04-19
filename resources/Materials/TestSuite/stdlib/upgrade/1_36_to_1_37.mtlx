@@ -36,7 +36,7 @@ Upgrade path test from 1.36 to 1.37
     <input name="in" type="vector2" value="0.0, 0.0"/>
     <input name="amount" type="float" value="1.5708" unittype="angle" unit="radian" />
   </rotate>
-  <rotate name="rotate2" type="vector3" xpos="5.19248" ypos="5.306">
+  <rotate name="rotate2" type="vector3">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="amount" type="float" value="180.0000" unittype="angle" unit="degree" />
     <parameter name="axis" type="vector3" value="0.0, 1.0000, 1.0000" />
@@ -116,10 +116,6 @@ Upgrade path test from 1.36 to 1.37
   <transformnormal name="normal_transform33" type="vector3">
     <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
     <input name="mat" type="matrix33" value="0.5, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.5"/>
-  </transformnormal>
-  <transformnormal name="normal_transform34" type="vector4">
-    <input name="in" type="vector3" value="1.0, 0.5, 0.0"/>
-    <input name="mat" type="matrix44" value="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0"/>
   </transformnormal>
 
   <!-- No change to transform space variants -->

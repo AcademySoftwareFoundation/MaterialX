@@ -7,12 +7,9 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
-#include <MaterialXGenShader/ShaderNodeImpl.h>
-#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 
@@ -47,19 +44,45 @@ ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& n
 
 void ShaderInput::makeConnection(ShaderOutput* src)
 {
-    breakConnection();
-    _connection = src;
-    src->_connections.insert(this);
+    // Make sure this is a new connection.
+    if (src != _connection)
+    {
+        // Break the old connection.
+        breakConnection();
+        if (src)
+        {
+            // Make the new connection.
+            _connection = src;
+            src->_connections.push_back(this);
+        }
+    }
 }
 
 void ShaderInput::breakConnection()
 {
     if (_connection)
     {
-        _connection->_connections.erase(this);
+        // Find and erase this input from the connected output's connection vector.
+        ShaderInputVec& connected = _connection->_connections;
+        ShaderInputVec::iterator it = std::find(connected.begin(), connected.end(), this);
+        if (it != connected.end())
+        {
+            connected.erase(it);
+        }
+        // Clear the connection.
         _connection = nullptr;
     }
 }
+
+ShaderNode* ShaderInput::getConnectedSibling() const
+{
+    if (_connection && _connection->getNode()->getParent() == _node->getParent())
+    {
+        return _connection->getNode();
+    }
+    return nullptr;
+}
+
 
 //
 // ShaderOutput methods
@@ -77,7 +100,7 @@ void ShaderOutput::makeConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnection(ShaderInput* dst)
 {
-    if (!_connections.count(dst))
+    if (std::find(_connections.begin(), _connections.end(), dst) == _connections.end())
     {
         throw ExceptionShaderGenError(
             "Cannot break non-existent connection from output: " + getFullName()
@@ -88,8 +111,8 @@ void ShaderOutput::breakConnection(ShaderInput* dst)
 
 void ShaderOutput::breakConnections()
 {
-    ShaderInputSet inputSet(_connections);
-    for (ShaderInput* input : inputSet)
+    ShaderInputVec inputVec(_connections);
+    for (ShaderInput* input : inputVec)
     {
         input->breakConnection();
     }
@@ -131,7 +154,6 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
     _parent(parent),
     _name(name),
     _classification(0),
-    _flags(0),
     _impl(nullptr)
 {
 }
@@ -206,30 +228,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
     // Find the implementation for this nodedef
-    InterfaceElementPtr impl = nodeDef.getImplementation(shadergen.getTarget());
-    if (impl)
-    {
-        newNode->_impl = shadergen.getImplementation(*impl, context);
-    }
+    newNode->_impl = shadergen.getImplementation(nodeDef, context);
     if (!newNode->_impl)
     {
         throw ExceptionShaderGenError("Could not find a matching implementation for node '" + nodeDef.getNodeString() +
             "' matching target '" + shadergen.getTarget() + "'");
-    }
-
-    // Check for classification based on group name
-    unsigned int groupClassification = 0;
-    string groupName = nodeDef.getNodeGroup();
-    if (!groupName.empty())
-    {
-        if (groupName == TEXTURE2D_GROUPNAME || groupName == PROCEDURAL2D_GROUPNAME)
-        {
-            groupClassification = Classification::SAMPLE2D;
-        }
-        else if (groupName == TEXTURE3D_GROUPNAME || groupName == PROCEDURAL3D_GROUPNAME)
-        {
-            groupClassification = Classification::SAMPLE3D;
-        }
     }
 
     // Create interface from nodedef
@@ -240,7 +243,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->addOutput(port->getName(), portType);
         }
-        else
+        else if (port->isA<Input>())
         {
             ShaderInput* input;
             const string& portValue = port->getResolvedValueString();
@@ -275,6 +278,9 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         newNode->addOutput("out", TypeDesc::get(nodeDef.getType()));
     }
 
+    const string& nodeDefName = nodeDef.getName();
+    const string& groupName = nodeDef.getNodeGroup();
+
     //
     // Set node classification, defaulting to texture node
     //
@@ -284,18 +290,24 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     const ShaderOutput* primaryOutput = newNode->getOutput();
     if (primaryOutput->getType() == Type::SURFACESHADER)
     {
-        newNode->_classification = Classification::SURFACE | Classification::SHADER;
+        if (nodeDefName == "ND_surface_unlit")
+        {
+            newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::UNLIT;
+        }
+        else
+        {
+            newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::CLOSURE;
+        }
     }
     else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {
-        newNode->_classification = Classification::LIGHT | Classification::SHADER;
+        newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
     else if (primaryOutput->getType() == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
-        // Add additional classifications if the BSDF is restricted to
-        // only reflection or transmission
+        // Add additional classifications for BSDF reflection and/or transmission.
         const string& bsdfType = nodeDef.getAttribute("bsdf");
         if (bsdfType == BSDF_R)
         {
@@ -305,14 +317,18 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::BSDF_T;
         }
+        else
+        {
+            newNode->_classification |= (Classification::BSDF_R | Classification::BSDF_T);
+        }
 
         // Check specifically for the vertical layering node
-        if (nodeDef.getName() == "ND_layer_bsdf")
+        if (nodeDefName == "ND_layer_bsdf" || nodeDefName == "ND_layer_vdf")
         {
             newNode->_classification |= Classification::LAYER;
         }
         // Check specifically for the thin-film node
-        else if (nodeDef.getName() == "ND_thin_film_bsdf")
+        else if (nodeDefName == "ND_thin_film_bsdf")
         {
             newNode->_classification |= Classification::THINFILM;
         }
@@ -344,8 +360,15 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         newNode->_classification = Classification::TEXTURE | Classification::FILETEXTURE;
     }
 
-    // Add in group classification
-    newNode->_classification |= groupClassification;
+    // Add in classification based on group name
+    if (groupName == TEXTURE2D_GROUPNAME || groupName == PROCEDURAL2D_GROUPNAME)
+    {
+        newNode->_classification |= Classification::SAMPLE2D;
+    }
+    else if (groupName == TEXTURE3D_GROUPNAME || groupName == PROCEDURAL3D_GROUPNAME)
+    {
+        newNode->_classification |= Classification::SAMPLE3D;
+    }
 
     // Create any metadata.
     newNode->createMetadata(nodeDef, context);
@@ -364,13 +387,22 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext& context)
 {
     // Copy input values from the given node
-    for (const ValueElementPtr& nodeValue : node.getActiveValueElements())
+    for (InputPtr nodeInput : node.getActiveInputs())
     {
-        ShaderInput* input = getInput(nodeValue->getName());
-        ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeValue->getName());
+        ShaderInput* input = getInput(nodeInput->getName());
+        ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeInput->getName());
         if (input && nodeDefInput)
         {
-            const string& valueString = nodeValue->getResolvedValueString();
+            ValuePtr portValue = nodeInput->getResolvedValue();
+            if (!portValue)
+            {
+                InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                if (interfaceInput)
+                {
+                    portValue = interfaceInput->getValue();
+                }
+            }
+            const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<const TypeDesc*, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
@@ -380,14 +412,10 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             }
             else if (!valueString.empty())
             {
-                input->setValue(nodeValue->getResolvedValue());
+                input->setValue(portValue);
             }
 
-            InputPtr inputElem = nodeValue->asA<Input>();
-            if (inputElem)
-            {
-                input->setChannels(inputElem->getChannels());
-            }
+            input->setChannels(nodeInput->getChannels());
         }
     }
 
@@ -565,4 +593,4 @@ ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
     return output.get();
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

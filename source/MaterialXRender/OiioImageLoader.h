@@ -11,15 +11,14 @@
 
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an OiioImageLoader
 using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 
 /// @class OiioImageLoader
 /// OpenImageIO image file loader
-class OiioImageLoader : public ImageLoader
+class MX_RENDER_API OiioImageLoader : public ImageLoader
 {
   public:
     OiioImageLoader() 
@@ -55,6 +54,6 @@ class OiioImageLoader : public ImageLoader
     ImagePtr loadImage(const FilePath& filePath) override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

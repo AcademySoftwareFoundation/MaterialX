@@ -9,12 +9,11 @@
 /// @file
 /// Interface element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class PortElement;
 class Input;
@@ -49,13 +48,14 @@ using CharSet = std::set<char>;
 /// The base class for port elements such as Input and Output.
 ///
 /// Port elements support spatially-varying upstream connections to nodes.
-class PortElement : public ValueElement
+class MX_CORE_API PortElement : public ValueElement
 {
   protected:
     PortElement(ElementPtr parent, const string& category, const string& name) :
         ValueElement(parent, category, name)
     {
     }
+
   public:
     virtual ~PortElement() { }
 
@@ -154,7 +154,7 @@ class PortElement : public ValueElement
 
     /// Return true if the given channels characters are valid for the given
     /// source type string.
-    static bool validChannelsCharacters(const string &channels, const string &sourceType);
+    static bool validChannelsCharacters(const string& channels, const string& sourceType);
 
     /// Return true if the given channels string is valid for the given source
     /// and destination type strings.
@@ -198,7 +198,7 @@ class PortElement : public ValueElement
 ///
 /// An Input holds either a uniform value or a connection to a spatially-varying
 /// Output, either of which may be modified within the scope of a Material.
-class Input : public PortElement
+class MX_CORE_API Input : public PortElement
 {
   public:
     Input(ElementPtr parent, const string& name) :
@@ -267,7 +267,7 @@ class Input : public PortElement
 
 /// @class Output
 /// A spatially-varying output element within a NodeGraph or NodeDef.
-class Output : public PortElement
+class MX_CORE_API Output : public PortElement
 {
   public:
     Output(ElementPtr parent, const string& name) :
@@ -313,7 +313,7 @@ class Output : public PortElement
 ///
 /// An InterfaceElement supports a set of Input and Output elements, with an API
 /// for setting their values.
-class InterfaceElement : public TypedElement
+class MX_CORE_API InterfaceElement : public TypedElement
 {
   protected:
     InterfaceElement(ElementPtr parent, const string& category, const string& name) :
@@ -322,6 +322,7 @@ class InterfaceElement : public TypedElement
         _outputCount(0)
     {
     }
+
   public:
     virtual ~InterfaceElement() { }
 
@@ -526,9 +527,9 @@ class InterfaceElement : public TypedElement
 
     /// Set the typed value of an input by its name, creating a child element
     /// to hold the input if needed.
-    template<class T> InputPtr setInputValue(const string& name,
-                                             const T& value,
-                                             const string& type = EMPTY_STRING);
+    template <class T> InputPtr setInputValue(const string& name,
+                                              const T& value,
+                                              const string& type = EMPTY_STRING);
 
     /// Return the typed value of an input by its name, taking both the calling
     /// element and its declaration into account.
@@ -637,14 +638,13 @@ class InterfaceElement : public TypedElement
     ///    no declaration was found.
     virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
-    /// Return true if this interface instance is type compatible with the given
-    /// interface declaration.  This may be used to test, for example, whether a
-    /// Node is an instantiation of a given NodeDef.
+    /// Return true if this instance has an exact input match with the given
+    /// declaration, where each input of this the instance corresponds to a
+    /// declaration input of the same name and type.
     ///
-    /// If the type string of the instance differs from that of the declaration,
-    /// then false is returned.  If the instance possesses an Input with no Input
-    /// of matching type in the declaration, then false is returned.
-    bool isTypeCompatible(ConstInterfaceElementPtr declaration) const;
+    /// If an exact input match is not found, and the optional message argument
+    /// is provided, then an error message will be appended to the given string.
+    bool hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message = nullptr) const;
 
     /// @}
 
@@ -663,9 +663,9 @@ class InterfaceElement : public TypedElement
     size_t _outputCount;
 };
 
-template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
-                                                           const T& value,
-                                                           const string& type)
+template <class T> InputPtr InterfaceElement::setInputValue(const string& name,
+                                                            const T& value,
+                                                            const string& type)
 {
     InputPtr input = getChildOfType<Input>(name);
     if (!input)
@@ -674,6 +674,6 @@ template<class T> InputPtr InterfaceElement::setInputValue(const string& name,
     return input;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -16,40 +16,49 @@ if(APPLE)
     set_source_files_properties(${materialx_source_oc} PROPERTIES
         COMPILE_FLAGS "-x objective-c++")
     set(materialx_source ${materialx_source} ${materialx_source_oc})
-    add_compile_options(-Wno-deprecated-declarations -DGL_SILENCE_DEPRECATION)
+    add_compile_options(-DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
     find_package(X11 REQUIRED)
-    find_package(OpenGL REQUIRED)
+    # Note - can't just require the Xt component because FindX11 in cmake 3.1
+    # doesn't support it
     if(NOT X11_Xt_FOUND)
-        message("Error in building MaterialXRender: Xt was not found")
+        message(FATAL_ERROR "Error in building MaterialXRenderGlsl: Xt was not found")
     endif()
+
+    find_package(OpenGL REQUIRED)
     include_directories(${X11_INCLUDE_DIR})
+endif()
+
+# Disable deprecation warnings for GLew source on Clang.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wno-deprecated-declarations)
 endif()
 
 add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
+add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
+
+set(COMMON_LIBRARIES
+    MaterialXRenderHw
+    MaterialXGenGlsl
+    ${CMAKE_DL_LIBS})
+
 if(MSVC)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        Opengl32
-        ${CMAKE_DL_LIBS})
+        ${COMMON_LIBRARIES}
+        Opengl32)
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        ${CMAKE_DL_LIBS}
+        ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
         "-framework Cocoa")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderGlsl
-        MaterialXRenderHw
-        MaterialXGenGlsl
-        ${CMAKE_DL_LIBS}
+        ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
@@ -57,7 +66,7 @@ endif()
 
 set_target_properties(
     MaterialXRenderGlsl PROPERTIES
-    OUTPUT_NAME MaterialXRenderGlsl
+    OUTPUT_NAME MaterialXRenderGlsl${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
@@ -73,11 +82,12 @@ target_include_directories(MaterialXRenderGlsl
 install(TARGETS MaterialXRenderGlsl
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH})
+    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+    RUNTIME DESTINATION bin)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderGlsl/ MESSAGE_NEVER
+    DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderGlsl/ MESSAGE_NEVER
     FILES_MATCHING PATTERN "*.h*")
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderGlsl.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+    DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)

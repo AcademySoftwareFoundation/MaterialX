@@ -13,8 +13,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const float PI = std::acos(-1.0f);
 
@@ -35,25 +34,22 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _initialized(false),
-    _eye(0.0f, 0.0f, 4.0f),
+    _eye(0.0f, 0.0f, 3.0f),
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
     _objectScale(1.0f),
-    _clearColor(0.4f, 0.4f, 0.4f, 1.0f)
+    _clearColor(0.3f, 0.3f, 0.32f, 1.0f)
 {
     _program = GlslProgram::create();
 
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(TinyObjLoader::create());
 
-    _viewHandler = ViewHandler::create();
+    _camera = Camera::create();
 }
 
 void GlslRenderer::initialize()
 {
-    StringVec errors;
-    const string errorType("OpenGL utilities initialization.");
-
     if (!_initialized)
     {
         // Create window
@@ -61,16 +57,14 @@ void GlslRenderer::initialize()
 
         if (!_window->initialize("Renderer Window", _width, _height, nullptr))
         {
-            errors.push_back("Failed to create window for testing.");
-            throw ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionRenderError("Failed to initialize renderer window");
         }
 
         // Create offscreen context
         _context = GLContext::create(_window);
         if (!_context)
         {
-            errors.push_back("Failed to create OpenGL context for testing.");
-            throw ExceptionShaderRenderError(errorType, errors);
+            throw ExceptionRenderError("Failed to create OpenGL context for renderer");
         }
 
         if (_context->makeCurrent())
@@ -80,14 +74,12 @@ void GlslRenderer::initialize()
 #if !defined(__APPLE__)
             if (!glewIsSupported("GL_VERSION_4_0"))
             {
-                errors.push_back("OpenGL version 4.0 not supported");
-                throw ExceptionShaderRenderError(errorType, errors);
+                throw ExceptionRenderError("OpenGL version 4.0 is required");
             }
 #endif
             glClearStencil(0);
 
-            _frameBuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
-
+            _framebuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
             _initialized = true;
         }
     }
@@ -95,19 +87,9 @@ void GlslRenderer::initialize()
 
 void GlslRenderer::createProgram(ShaderPtr shader)
 {
-    StringVec errors;
-    const string errorType("GLSL program creation error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to create program with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to create program.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in createProgram");
     }
 
     _program->setStages(shader);
@@ -116,19 +98,9 @@ void GlslRenderer::createProgram(ShaderPtr shader)
 
 void GlslRenderer::createProgram(const StageMap& stages)
 {
-    StringVec errors;
-    const string errorType("GLSL program creation error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to create program with.");
-        throw ExceptionShaderRenderError(errorType, errors);
-
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to create program.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in createProgram");
     }
 
     for (const auto& it : stages)
@@ -138,32 +110,23 @@ void GlslRenderer::createProgram(const StageMap& stages)
     _program->build();
 }
 
-void GlslRenderer::renderTextureSpace()
+void GlslRenderer::renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax)
 {
     _program->bind();
     _program->bindTextures(_imageHandler);
 
-    _frameBuffer->bind();
-    drawScreenSpaceQuad();
-    _frameBuffer->unbind();
+    _framebuffer->bind();
+    drawScreenSpaceQuad(uvMin, uvMax);
+    _framebuffer->unbind();
 
     _program->unbind();
 }
 
 void GlslRenderer::validateInputs()
 {
-    StringVec errors;
-    const string errorType("GLSL program input error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to validate inputs.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to validate inputs.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in validateInputs");
     }
 
     // Check that the generated uniforms and attributes are valid
@@ -175,13 +138,13 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
     {
-        if (_frameBuffer)
+        if (_framebuffer)
         {
-            _frameBuffer->resize(width, height);
+            _framebuffer->resize(width, height);
         }
         else
         {
-            _frameBuffer = GLFramebuffer::create(width, height, 4, Image::BaseType::UINT8);
+            _framebuffer = GLFramebuffer::create(width, height, 4, _baseType);
         }
         _width = width;
         _height = height;
@@ -193,46 +156,24 @@ void GlslRenderer::updateViewInformation()
     float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
     float fW = fH * 1.0f;
 
-    _viewHandler->viewMatrix = ViewHandler::createViewMatrix(_eye, _center, _up);
-    _viewHandler->projectionMatrix = ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP);
-
-    Matrix44 invView = _viewHandler->viewMatrix.getInverse();
-    _viewHandler->viewDirection = { invView[2][0], invView[2][1], invView[2][2] };
-    _viewHandler->viewPosition = { invView[3][0], invView[3][1], invView[3][2] };
+    _camera->setViewMatrix(Camera::createViewMatrix(_eye, _center, _up));
+    _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP));
 }
 
 void GlslRenderer::updateWorldInformation()
 {
-    float aspectRatio = float(_width) / float(_height);
-    float geometryRatio = _height < _width ?  aspectRatio : (1.0f / aspectRatio);
-    Vector3 boxMin = _geometryHandler->getMinimumBounds();
-    Vector3 boxMax = _geometryHandler->getMaximumBounds();
-    Vector3 sphereCenter = (boxMax + boxMin) / 2.0;
-    float sphereRadius = (sphereCenter - boxMin).getMagnitude() * geometryRatio;
-    float meshFit = 2.0f / sphereRadius;
-    Vector3 modelTranslation = sphereCenter * -1.0f;
-    _viewHandler->worldMatrix = Matrix44::createTranslation(modelTranslation) *
-                                Matrix44::createScale(Vector3(_objectScale * meshFit));
+     _camera->setWorldMatrix(Matrix44::createScale(Vector3(_objectScale)));
 }
 
 void GlslRenderer::render()
 {
-    StringVec errors;
-    const string errorType("GLSL rendering error.");
-
-    if (!_context)
+    if (!_context || !_context->makeCurrent())
     {
-        errors.push_back("No valid OpenGL context to render to.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-    if (!_context->makeCurrent())
-    {
-        errors.push_back("Cannot make OpenGL context current to render to.");
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Invalid OpenGL context in render");
     }
 
     // Set up target
-    _frameBuffer->bind();
+    _framebuffer->bind();
 
     glClearColor(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]);
 
@@ -253,21 +194,44 @@ void GlslRenderer::render()
             // there is nothing to draw
             if (!_program->hasActiveAttributes())
             {
-                errors.push_back("Program has no input vertex data.");
-                throw ExceptionShaderRenderError(errorType, errors);
+                throw ExceptionRenderError("Program has no input vertex data");
             }
             else
             {
-                // Bind the program to use
-                _program->bind();
-                _program->bindInputs(_viewHandler, _geometryHandler, _imageHandler, _lightHandler);
-
-                // Draw all the partitions of all the meshes in the handler
-                for (const auto& mesh : _geometryHandler->getMeshes())
+                // Bind the shader program.
+                if (!_program->bind())
                 {
+                    throw ExceptionRenderError("Cannot bind inputs without a valid program");
+                }
+
+                // Update uniforms and attributes.
+                _program->getUniformsList();
+                _program->getAttributesList();
+
+                // Bind shader properties.
+                _program->bindViewInformation(_camera);
+                _program->bindTextures(_imageHandler);
+                _program->bindLighting(_lightHandler, _imageHandler);
+                _program->bindTimeAndFrame();
+
+                // Set blend state for the given material.
+                if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                }
+                else
+                {
+                    glDisable(GL_BLEND);
+                }
+
+                // Bind each mesh and draw its partitions.
+                for (MeshPtr mesh : _geometryHandler->getMeshes())
+                {
+                    _program->bindMesh(mesh);
                     for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                     {
-                        auto part = mesh->getPartition(i);
+                        MeshPartitionPtr part = mesh->getPartition(i);
                         _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
                         glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
@@ -275,80 +239,40 @@ void GlslRenderer::render()
                 }
 
                 // Unbind resources
+                _imageHandler->unbindImages();
                 _program->unbind();
-                _program->unbindInputs(_imageHandler);
-            }
-        }
-    }
-    catch (ExceptionShaderRenderError& /*e*/)
-    {
-        _frameBuffer->unbind();
-        throw;
-    }
 
-    // Unset target
-    _frameBuffer->unbind();
-}
-
-ImagePtr GlslRenderer::captureImage()
-{
-    StringVec errors;
-    const string errorType("GLSL image capture error.");
-
-    if (!_imageHandler)
-    {
-        errors.push_back("No image handler specified.");
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-
-    return _frameBuffer->createColorImage();
-}
-
-void GlslRenderer::saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip)
-{
-    StringVec errors;
-    const string errorType("GLSL image save error.");
-
-    if (!_imageHandler->saveImage(filePath, image, verticalFlip))
-    {
-        errors.push_back("Failed to save to file:" + filePath.asString());
-        throw ExceptionShaderRenderError(errorType, errors);
-    }
-}
-
-ImageVec GlslRenderer::getReferencedImages(const ShaderPtr& /*shader*/)
-{
-    ImageVec imageList;
-    const GlslProgram::InputMap& uniformList = _program->getUniformsList();
-    for (const auto& uniform : uniformList)
-    {
-        GLenum uniformType = uniform.second->gltype;
-        GLint uniformLocation = uniform.second->location;
-        if (uniformLocation >= 0 && uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
-        {
-            const string fileName(uniform.second->value ? uniform.second->value->getValueString() : "");
-            if (fileName != HW::ENV_RADIANCE &&
-                fileName != HW::ENV_IRRADIANCE)
-            {
-                ImagePtr image = _imageHandler->acquireImage(fileName);
-                if (image)
+                // Restore blend state.
+                if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
                 {
-                    imageList.push_back(image);
+                    glDisable(GL_BLEND);
                 }
             }
         }
     }
-    return imageList;
+    catch (ExceptionRenderError& e)
+    {
+        _framebuffer->unbind();
+        throw e;
+    }
+
+    // Unset target
+    _framebuffer->unbind();
 }
 
-void GlslRenderer::drawScreenSpaceQuad()
+ImagePtr GlslRenderer::captureImage(ImagePtr image)
+{
+    return _framebuffer->getColorImage(image);
+}
+
+void GlslRenderer::drawScreenSpaceQuad(const Vector2& uvMin, const Vector2& uvMax)
 {
     const float QUAD_VERTICES[] =
     {
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f, // position, texcoord
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+         1.0f,  1.0f, 0.0f, uvMax[0], uvMax[1], // position, texcoord
+         1.0f, -1.0f, 0.0f, uvMax[0], uvMin[1],
+        -1.0f, -1.0f, 0.0f, uvMin[0], uvMin[1],
+        -1.0f,  1.0f, 0.0f, uvMin[0], uvMax[1]
     };
     const unsigned int QUAD_INDICES[] =
     {
@@ -405,4 +329,4 @@ void GlslRenderer::setClearColor(const Color4& clearColor)
     _clearColor = clearColor;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

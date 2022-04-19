@@ -97,6 +97,24 @@
   </nodedef>
 
   <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <surface_unlit>
+    An unlit surface shader node. Represents a surface that can emit and transmit light, 
+    but does not receive illumination from light sources or other surfaces.
+  -->
+  <nodedef name="ND_surface_unlit" node="surface_unlit" nodegroup="shader" doc="Construct a surface shader from emission and transmission values.">
+    <input name="emission" type="float" value="1.0" doc="Surface emission amount." />
+    <input name="emission_color" type="color3" value="1,1,1" doc="Surface emission color." />
+    <input name="transmission" type="float" value="0.0" doc="Surface transmission amount." />
+    <input name="transmission_color" type="color3" value="1,1,1" doc="Surface transmission color." />
+    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity." />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
@@ -4115,7 +4133,7 @@
   <nodedef name="ND_heighttonormal_vector3" node="heighttonormal" nodegroup="convolution2d">
     <input name="in" type="float" value="0.0" />
     <input name="scale" type="float" value="1.0" />
-    <output name="out" type="vector3" default="0.0, 1.0, 0.0" />
+    <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
   </nodedef>
 
   <!-- ======================================================================== -->

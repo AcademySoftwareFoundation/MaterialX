@@ -9,13 +9,12 @@
 /// @file
 /// The top-level Document class
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Look.h>
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Document;
 
@@ -29,7 +28,7 @@ using ConstDocumentPtr = shared_ptr<const Document>;
 /// MaterialX ownership hierarchy.
 ///
 /// Use the factory function createDocument() to create a Document instance.
-class Document : public GraphElement
+class MX_CORE_API Document : public GraphElement
 {
   public:
     Document(ElementPtr parent, const string& name);
@@ -169,6 +168,13 @@ class Document : public GraphElement
     {
         removeChildOfType<GeomPropDef>(name);
     }
+
+    /// @}
+    /// @name Material Outputs
+    /// @{
+
+    /// Return material-type outputs for all nodegraphs in the document.
+    vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Look Elements
@@ -329,7 +335,7 @@ class Document : public GraphElement
 
     /// Create a NodeDef declaration which is based on a NodeGraph.
     /// @param nodeGraph NodeGraph used to create NodeDef
-    /// @param nodeDefName Declaration name 
+    /// @param nodeDefName Declaration name
     /// @param node Node type for the new declaration
     /// @param version Version for the new declaration
     /// @param isDefaultVersion If a version is specified is thie definition the default version
@@ -555,7 +561,7 @@ class Document : public GraphElement
     void removeUnitDef(const string& name)
     {
         removeChildOfType<UnitDef>(name);
-    }    
+    }
 
     /// @}
     /// @name UnitTypeDef Elements
@@ -675,8 +681,8 @@ class Document : public GraphElement
 
 /// Create a new Document.
 /// @relates Document
-DocumentPtr createDocument();
+MX_CORE_API DocumentPtr createDocument();
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

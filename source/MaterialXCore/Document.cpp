@@ -5,17 +5,15 @@
 
 #include <MaterialXCore/Document.h>
 
-#include <MaterialXCore/Util.h>
-
 #include <mutex>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Document::CMS_ATTRIBUTE = "cms";
 const string Document::CMS_CONFIG_ATTRIBUTE = "cmsconfig";
 
-namespace {
+namespace
+{
 
 NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
 {
@@ -108,9 +106,28 @@ class Document::Cache
                 if (!nodeDefString.empty())
                 {
                     InterfaceElementPtr interface = elem->asA<InterfaceElement>();
-                    if (interface && (interface->isA<Implementation>() || interface->isA<NodeGraph>()))
+                    if (interface)
                     {
-                        implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
+                        if (interface->isA<NodeGraph>())
+                        {
+                            implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
+                        }
+                        ImplementationPtr impl = interface->asA<Implementation>();
+                        if (impl)
+                        {
+                            // Check for implementation which specifies a nodegraph as the implementation
+                            const string& nodeGraphString = impl->getNodeGraph();
+                            if (!nodeGraphString.empty())
+                            {
+                                NodeGraphPtr nodeGraph = impl->getDocument()->getNodeGraph(nodeGraphString);
+                                if (nodeGraph)
+                                    implementationMap.emplace(interface->getQualifiedName(nodeDefString), nodeGraph);
+                            }
+                            else
+                            {
+                                implementationMap.emplace(interface->getQualifiedName(nodeDefString), interface);
+                            }
+                        }
                     }
                 }
             }
@@ -263,7 +280,7 @@ std::pair<int, int> Document::getVersionIntegers() const
 {
     if (!hasVersionString())
     {
-        return {MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION};
+        return { MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION };
     }
     return InterfaceElement::getVersionIntegers();
 }
@@ -303,6 +320,29 @@ ValuePtr Document::getGeomPropValue(const string& geomPropName, const string& ge
     return value;
 }
 
+vector<OutputPtr> Document::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+
+    const string documentUri = getSourceUri();
+    for (NodeGraphPtr docNodeGraph : getNodeGraphs())
+    {
+        // Skip nodegraphs which are either definitions or are from an included file.
+        const string graphUri = docNodeGraph->getSourceUri();
+        if (docNodeGraph->getNodeDef() || (!graphUri.empty() && documentUri != graphUri))
+        {
+            continue;
+        }
+
+        vector<OutputPtr> docNodeGraphOutputs = docNodeGraph->getMaterialOutputs();
+        if (!docNodeGraphOutputs.empty())
+        {
+            materialOutputs.insert(materialOutputs.end(), docNodeGraphOutputs.begin(), docNodeGraphOutputs.end());
+        }
+    }
+    return materialOutputs;
+}
+
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
     // Refresh the cache.
@@ -340,20 +380,22 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
 bool Document::validate(string* message) const
 {
     bool res = true;
-    validateRequire(hasVersionString(), res, message, "Missing version string");
+    std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
+    validateRequire(getVersionIntegers() >= expectedVersion, res, message, "Unsupported document version");
+    validateRequire(getVersionIntegers() <= expectedVersion, res, message, "Future document version");
     return GraphElement::validate(message) && res;
 }
 
 void Document::upgradeVersion()
 {
-    std::pair<int, int> versions = getVersionIntegers();
-    int majorVersion = versions.first;
-    int minorVersion = versions.second;
-    if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION)
+    std::pair<int, int> documentVersion = getVersionIntegers();
+    std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
+    if (documentVersion >= expectedVersion)
     {
         return;
     }
+    int majorVersion = documentVersion.first;
+    int minorVersion = documentVersion.second;
 
     // Upgrade from v1.22 to v1.23
     if (majorVersion == 1 && minorVersion == 22)
@@ -479,7 +521,7 @@ void Document::upgradeVersion()
                             elem->removeChild(child->getName());
                         }
                     }
-               }
+                }
             }
         }
 
@@ -549,8 +591,8 @@ void Document::upgradeVersion()
                 }
             }
 
-            std::string udimSetString;
-            for (const std::string& udim : udimSet)
+            string udimSetString;
+            for (const string& udim : udimSet)
             {
                 if (udimSetString.empty())
                 {
@@ -563,7 +605,7 @@ void Document::upgradeVersion()
             }
 
             GeomInfoPtr udimSetInfo = addGeomInfo();
-            udimSetInfo->setGeomPropValue("udimset", udimSetString, getTypeString<StringVec>());
+            udimSetInfo->setGeomPropValue(UDIM_SET_PROPERTY, udimSetString, getTypeString<StringVec>());
         }
 
         minorVersion = 34;
@@ -896,7 +938,6 @@ void Document::upgradeVersion()
         // Convert material elements to material nodes
         for (ElementPtr mat : getChildrenOfType<Element>("material"))
         {
-            string materialName = mat->getName();
             NodePtr materialNode = nullptr;
 
             for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
@@ -962,11 +1003,18 @@ void Document::upgradeVersion()
                 }
             }
 
-            // Remove the material element and transfer its name to the material node.
-            removeChild(materialName);
+            // Remove the material element, transferring its name and attributes to the material node.
+            removeChild(mat->getName());
             if (materialNode)
             {
-                materialNode->setName(materialName);
+                materialNode->setName(mat->getName());
+                for (const string& attr : mat->getAttributeNames())
+                {
+                    if (!materialNode->hasAttribute(attr))
+                    {
+                        materialNode->setAttribute(attr, mat->getAttribute(attr));
+                    }
+                }
             }
         }
 
@@ -1285,10 +1333,10 @@ void Document::upgradeVersion()
         // If they are, rename the nodes.
         for (NodeGraphPtr nodegraph : getNodeGraphs())
         {
-            // Clear out any erroneously set version 
+            // Clear out any erroneously set version
             nodegraph->removeAttribute(InterfaceElement::VERSION_ATTRIBUTE);
 
-            StringSet interfaceNames;            
+            StringSet interfaceNames;
             for (auto child : nodegraph->getChildren())
             {
                 NodePtr node = child->asA<Node>();
@@ -1321,7 +1369,7 @@ void Document::upgradeVersion()
                     node->setName(newNodeName);
                 }
             }
-        }   
+        }
 
         // Convert parameters to inputs, applying uniform markings to converted inputs
         // of nodedefs.
@@ -1343,7 +1391,11 @@ void Document::upgradeVersion()
         minorVersion = 38;
     }
 
-    setVersionIntegers(majorVersion, minorVersion);
+    std::pair<int, int> upgradedVersion(majorVersion, minorVersion);
+    if (upgradedVersion == expectedVersion)
+    {
+        setVersionIntegers(majorVersion, minorVersion);
+    }
 }
 
 void Document::invalidateCache()
@@ -1351,4 +1403,4 @@ void Document::invalidateCache()
     _cache->valid = false;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

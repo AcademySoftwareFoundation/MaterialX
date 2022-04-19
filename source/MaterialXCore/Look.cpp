@@ -7,8 +7,7 @@
 
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string MaterialAssign::MATERIAL_ATTRIBUTE = "material";
 const string MaterialAssign::EXCLUSIVE_ATTRIBUTE = "exclusive";
@@ -21,7 +20,7 @@ const string Visibility::VISIBLE_ATTRIBUTE = "visible";
 const string LookGroup::LOOKS_ATTRIBUTE = "looks";
 const string LookGroup::ACTIVE_ATTRIBUTE = "active";
 
-vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom)
+vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom)
 {
     vector<MaterialAssignPtr> matAssigns;
     for (LookPtr look : materialNode->getDocument()->getLooks())
@@ -125,6 +124,17 @@ NodePtr MaterialAssign::getReferencedMaterial() const
     return resolveRootNameReference<Node>(getMaterial());
 }
 
+vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
+    if (materialGraph)
+    {
+        return materialGraph->getMaterialOutputs();
+    }
+    return materialOutputs;
+}
+
 vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
 {
     vector<VariantAssignPtr> activeAssigns;
@@ -136,4 +146,4 @@ vector<VariantAssignPtr> MaterialAssign::getActiveVariantAssigns() const
     return activeAssigns;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

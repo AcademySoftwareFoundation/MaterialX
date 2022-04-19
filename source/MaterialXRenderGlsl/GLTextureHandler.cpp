@@ -12,8 +12,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
     ImageHandler(imageLoader)
@@ -30,6 +29,11 @@ GLTextureHandler::GLTextureHandler(ImageLoaderPtr imageLoader) :
 
 bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
 {
+    if (!image)
+    {
+        return false;
+    }
+
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -133,7 +137,18 @@ bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMap
     
 void GLTextureHandler::releaseRenderResources(ImagePtr image)
 {
-    if (!image || image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
+    if (!image)
+    {
+        for (auto iter : _imageCache)
+        {
+            if (iter.second)
+            {
+                releaseRenderResources(iter.second);
+            }
+        }
+        return;
+    }
+    if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
         return;
     }
@@ -170,7 +185,7 @@ int GLTextureHandler::getNextAvailableTextureLocation()
 
 int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode addressModeEnum)
 {
-    const vector<int> addressModes
+    const std::array<int, 4> ADDRESS_MODES
     {
         // Constant color. Use clamp to border
         // with border color to achieve this
@@ -189,19 +204,18 @@ int GLTextureHandler::mapAddressModeToGL(ImageSamplingProperties::AddressMode ad
     int addressMode = GL_REPEAT;
     if (addressModeEnum != ImageSamplingProperties::AddressMode::UNSPECIFIED)
     {
-        addressMode = addressModes[static_cast<int>(addressModeEnum)];
+        addressMode = ADDRESS_MODES[static_cast<int>(addressModeEnum)];
     }
     return addressMode;
 }
 
 int GLTextureHandler::mapFilterTypeToGL(ImageSamplingProperties::FilterType filterTypeEnum, bool enableMipmaps)
 {
-    int filterType = enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
     if (filterTypeEnum == ImageSamplingProperties::FilterType::CLOSEST)
     {
-        filterType = enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+        return enableMipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
     }
-    return filterType;
+    return enableMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
 }
 
 void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned int channelCount, bool srgb,
@@ -225,6 +239,18 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
             case 3: glInternalFormat = srgb ? GL_SRGB8 : GL_RGB8; break;
             case 2: glInternalFormat = GL_RG8; break;
             case 1: glInternalFormat = GL_R8; break;
+            default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
+        }
+    }
+    else if (baseType == Image::BaseType::UINT16)
+    {
+        glType = GL_UNSIGNED_SHORT;
+        switch (channelCount)
+        {
+            case 4: glInternalFormat = GL_RGBA16; break;
+            case 3: glInternalFormat = GL_RGB16; break;
+            case 2: glInternalFormat = GL_RG16; break;
+            case 1: glInternalFormat = GL_R16; break;
             default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
         }
     }
@@ -258,4 +284,4 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

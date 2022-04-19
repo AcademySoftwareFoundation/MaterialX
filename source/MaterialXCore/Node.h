@@ -9,12 +9,11 @@
 /// @file
 /// Node element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Definition.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Node;
 class GraphElement;
@@ -50,7 +49,7 @@ using NodePredicate = std::function<bool(NodePtr node)>;
 ///
 /// A Node represents an instance of a NodeDef within a graph, and its Input
 /// elements apply specific values and connections to that instance.
-class Node : public InterfaceElement
+class MX_CORE_API Node : public InterfaceElement
 {
   public:
     Node(ElementPtr parent, const string& name) :
@@ -96,9 +95,13 @@ class Node : public InterfaceElement
     /// by the given target name.
     /// @param target An optional target name, which will be used to filter
     ///    the nodedefs that are considered.
+    /// @param allowRoughMatch If specified, then a rough match will be allowed
+    ///    when an exact match is not found.  An exact match requires that each
+    ///    node input corresponds to a nodedef input of the same name and type.
     /// @return A NodeDef for this node, or an empty shared pointer if none
     ///    was found.
-    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING) const;
+    NodeDefPtr getNodeDef(const string& target = EMPTY_STRING,
+                          bool allowRoughMatch = false) const;
 
     /// @}
     /// @name Implementation References
@@ -133,7 +136,7 @@ class Node : public InterfaceElement
 
     /// Given a connecting element (Input or Output) return the NodeDef output
     /// corresponding to the output the element is connected to. This is only valid if
-    /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly 
+    /// the NodeDef has explicit outputs defined, e.g. multiple outputs or an explicitly
     /// named output. If this is not the case, nullptr is returned, which implies the
     /// node is a standard node with a single implicit output.
     OutputPtr getNodeDefOutput(ElementPtr connectingElement);
@@ -155,7 +158,10 @@ class Node : public InterfaceElement
 
     /// Add an input based on the corresponding input for the associated node definition.
     /// If the input already exists on the node it will just be returned.
-    ValueElementPtr addInputFromNodeDef(const string& name);
+    InputPtr addInputFromNodeDef(const string& inputName);
+
+    /// Add inputs based on the corresponding associated node definition.
+    void addInputsFromNodeDef();
 
     /// @}
     /// @name Validation
@@ -173,13 +179,14 @@ class Node : public InterfaceElement
 
 /// @class GraphElement
 /// The base class for graph elements such as NodeGraph and Document.
-class GraphElement : public InterfaceElement
+class MX_CORE_API GraphElement : public InterfaceElement
 {
   protected:
     GraphElement(ElementPtr parent, const string& category, const string& name) :
         InterfaceElement(parent, category, name)
     {
     }
+
   public:
     virtual ~GraphElement() { }
 
@@ -292,7 +299,7 @@ class GraphElement : public InterfaceElement
 
     /// Flatten any references to graph-based node definitions within this
     /// node graph, replacing each reference with the equivalent node network.
-    void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter=nullptr);
+    void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter = nullptr);
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
@@ -312,7 +319,7 @@ class GraphElement : public InterfaceElement
 
 /// @class NodeGraph
 /// A node graph element within a Document.
-class NodeGraph : public GraphElement
+class MX_CORE_API NodeGraph : public GraphElement
 {
   public:
     NodeGraph(ElementPtr parent, const string& name) :
@@ -321,6 +328,13 @@ class NodeGraph : public GraphElement
     }
     virtual ~NodeGraph() { }
 
+    /// @name Material References
+    /// @{
+
+    /// Return all material-type outputs of the nodegraph.
+    vector<OutputPtr> getMaterialOutputs() const;
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -332,7 +346,7 @@ class NodeGraph : public GraphElement
 
     /// Return the first implementation for this node graph
     /// @return An implementation for this node, or an empty shared pointer if
-    ///    none was found.  
+    ///    none was found.
     InterfaceElementPtr getImplementation() const;
 
     /// @}
@@ -373,7 +387,7 @@ class NodeGraph : public GraphElement
 
 /// @class Backdrop
 /// A layout element used to contain, group and document nodes within a graph.
-class Backdrop : public Element
+class MX_CORE_API Backdrop : public Element
 {
   public:
     Backdrop(ElementPtr parent, const string& name) :
@@ -474,6 +488,6 @@ class Backdrop : public Element
     static const string HEIGHT_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

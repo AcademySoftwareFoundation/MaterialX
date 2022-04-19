@@ -9,14 +9,14 @@
 /// @file
 /// Geometry loader interfaces
 
+#include <MaterialXRender/Export.h>
 #include <MaterialXRender/Mesh.h>
 
 #include <MaterialXFormat/File.h>
 
 #include <map>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a GeometryLoader
 using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
@@ -24,7 +24,7 @@ using GeometryLoaderPtr = std::shared_ptr<class GeometryLoader>;
 /// @class GeometryLoader
 /// Base class representing a geometry loader. A loader can be
 /// associated with one or more file extensions.
-class GeometryLoader
+class MX_RENDER_API GeometryLoader
 {
   public:
     GeometryLoader()
@@ -42,8 +42,9 @@ class GeometryLoader
     /// Load geometry from disk. Must be implemented by derived classes.
     /// @param filePath Path to file to load
     /// @param meshList List of meshes to update
+    /// @param texcoordVerticalFlip Flip texture coordinates in V when loading
     /// @return True if load was successful
-    virtual bool load(const FilePath& filePath, MeshList& meshList) = 0;
+    virtual bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) = 0;
 
   protected:
     // List of supported string extensions
@@ -59,7 +60,7 @@ using GeometryLoaderMap = std::multimap<string, GeometryLoaderPtr>;
 /// @class GeometryHandler
 /// Class which holds a set of geometry loaders. Each loader is associated with
 /// a given set of file extensions.
-class GeometryHandler
+class MX_RENDER_API GeometryHandler
 {
   public:
     GeometryHandler()
@@ -90,13 +91,19 @@ class GeometryHandler
     void getGeometry(MeshList& meshes, const string& location);
 
     /// Load geometry from a given location
-    bool loadGeometry(const FilePath& filePath);
+    /// @param filePath Path to geometry
+    /// @param texcoordVerticalFlip Flip texture coordinates in V. Default is to not flip.
+    bool loadGeometry(const FilePath& filePath, bool texcoordVerticalFlip = false);
 
     /// Get list of meshes
     const MeshList& getMeshes() const
     {
         return _meshes;
     }
+
+    /// Return the first mesh in our list containing the given partition.
+    /// If no matching mesh is found, then nullptr is returned.
+    MeshPtr findParentMesh(MeshPartitionPtr part);
 
     /// Return the minimum bounds for all meshes
     const Vector3& getMinimumBounds() const
@@ -124,6 +131,6 @@ class GeometryHandler
     Vector3 _maximumBounds;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

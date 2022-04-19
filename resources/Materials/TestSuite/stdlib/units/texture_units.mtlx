@@ -17,8 +17,6 @@
     </place2d>
     <image name="base_color_image" type="color3">
       <input name="file" type="filename" value="grid.png" colorspace="srgb_texture" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
       <input name="texcoord" type="vector2" nodename="a_place2d" />
     </image>
   </nodegraph>

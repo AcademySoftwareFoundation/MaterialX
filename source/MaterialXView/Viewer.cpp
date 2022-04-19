@@ -1,26 +1,31 @@
 #include <MaterialXView/Viewer.h>
 
-#include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/TextureBaker.h>
 
+#include <MaterialXRender/CgltfLoader.h>
 #include <MaterialXRender/Harmonics.h>
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
-#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/ShaderTranslator.h>
 
+#if MATERIALX_BUILD_GEN_MDL
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
+#endif
+#if MATERIALX_BUILD_GEN_OSL
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+#endif
+#include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <nanogui/combobox.h>
-#include <nanogui/glutil.h>
+#include <nanogui/icons.h>
 #include <nanogui/messagedialog.h>
+#include <nanogui/opengl.h>
 #include <nanogui/vscrollpanel.h>
 
 #include <fstream>
@@ -29,21 +34,17 @@
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 const float DEFAULT_CAMERA_ZOOM = 1.0f;
-const int DEFAULT_ENV_SAMPLE_COUNT = 16;
 
-namespace {
+namespace
+{
 
-const int MIN_ENV_SAMPLES = 4;
-const int MAX_ENV_SAMPLES = 1024;
+const int MIN_ENV_SAMPLE_COUNT = 4;
+const int MAX_ENV_SAMPLE_COUNT = 1024;
 
 const int SHADOW_MAP_SIZE = 2048;
-const int ALBEDO_TABLE_SIZE = 64;
+const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
-
-const int MIN_TEXTURE_RES = 256;
-const int MAX_TEXTURE_RES = 8192;
-const int DEFAULT_TEXTURE_RES = 1024;
 
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
@@ -122,6 +123,21 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
+
+    // Remap unsupported texture coordinate indices.
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        mx::NodePtr node = elem->asA<mx::Node>();
+        if (node && node->getCategory() == "texcoord")
+        {
+            mx::InputPtr index = node->getInput("index");
+            mx::ValuePtr value = index ? index->getValue() : nullptr;
+            if (value && value->isA<int>() && value->asA<int>() != 0)
+            {
+                index->setValue(0);
+            }
+        }
+    }
 }
 
 // ViewDir implementation for GLSL
@@ -183,12 +199,9 @@ Viewer::Viewer(const std::string& materialFilename,
                const mx::FilePathVec& libraryFolders,
                int screenWidth,
                int screenHeight,
-               const mx::Color3& screenColor,
-               int multiSampleCount) :
+               const mx::Color3& screenColor) :
     ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
-        true, false,
-        8, 8, 24, 8,
-        multiSampleCount),
+        true, false, true, true, false, 4, 0),
     _window(nullptr),
     _materialFilename(materialFilename),
     _meshFilename(meshFilename),
@@ -204,10 +217,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _cameraZoom(DEFAULT_CAMERA_ZOOM),
     _userCameraEnabled(true),
     _userTranslationActive(false),
-    _userTranslationPixel(0, 0),
     _lightRotation(0.0f),
-    _directLighting(true),
-    _indirectLighting(true),
     _normalizeEnvironment(false),
     _splitDirectLight(false),
     _generateReferenceIrradiance(false),
@@ -220,10 +230,12 @@ Viewer::Viewer(const std::string& materialFilename,
     _selectedMaterial(0),
     _materialLabel(nullptr),
     _materialSelectionBox(nullptr),
+    _viewCamera(mx::Camera::create()),
+    _envCamera(mx::Camera::create()),
+    _shadowCamera(mx::Camera::create()),
     _lightHandler(mx::LightHandler::create()),
-    _cameraViewHandler(mx::ViewHandler::create()),
-    _shadowViewHandler(mx::ViewHandler::create()),
     _genContext(mx::GlslShaderGenerator::create()),
+    _genContextEssl(mx::EsslShaderGenerator::create()),
 #if MATERIALX_BUILD_GEN_OSL
     _genContextOsl(mx::OslShaderGenerator::create()),
 #endif
@@ -233,11 +245,12 @@ Viewer::Viewer(const std::string& materialFilename,
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
     _mergeMaterials(false),
+    _showAllInputs(false),
     _renderTransparency(true),
     _renderDoubleSided(true),
     _outlineSelection(false),
-    _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
     _drawEnvironment(false),
+    _targetShader("standard_surface"),
     _captureRequested(false),
     _exitRequested(false),
     _wedgeRequested(false),
@@ -245,28 +258,41 @@ Viewer::Viewer(const std::string& materialFilename,
     _wedgePropertyMin(0.0f),
     _wedgePropertyMax(1.0f),
     _wedgeImageCount(8),
-    _bakeTextures(false),
     _bakeHdr(false),
     _bakeAverage(false),
     _bakeOptimize(true),
-    _bakeTextureRes(DEFAULT_TEXTURE_RES),
-    _bakeRequested(false)
+    _bakeRequested(false),
+    _bakeWidth(0),
+    _bakeHeight(0)
 {
-    // Set the requested background color.
-    setBackground(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
+    // Resolve input filenames, taking both the provided search path and
+    // current working directory into account.
+    mx::FileSearchPath localSearchPath = searchPath;
+    localSearchPath.append(mx::FilePath::getCurrentPath());
+    _materialFilename = localSearchPath.find(_materialFilename);
+    _meshFilename = localSearchPath.find(_meshFilename);
+    _envRadianceFilename = localSearchPath.find(_envRadianceFilename);
 
-    // Set default generator options.
-    _genContext.getOptions().hwDirectionalAlbedoMethod = mx::DIRECTIONAL_ALBEDO_TABLE;
-    _genContext.getOptions().hwShadowMap = true;
+    // Set the requested background color.
+    set_background(ng::Color(screenColor[0], screenColor[1], screenColor[2], 1.0f));
+
+    // Set default Glsl generator options.
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
+    _genContext.getOptions().hwShadowMap = true;
 
-    // Set OSL/MDL generator options.
+    // Set Essl generator options
+    _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
+    _genContextEssl.getOptions().fileTextureVerticalFlip = false;
+    _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
+
 #if MATERIALX_BUILD_GEN_OSL
+    // Set OSL generator options.
     _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextOsl.getOptions().fileTextureVerticalFlip = false;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
+    // Set MDL generator options.
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
@@ -278,8 +304,8 @@ Viewer::Viewer(const std::string& materialFilename,
 void Viewer::initialize()
 {
     _window = new ng::Window(this, "Viewer Options");
-    _window->setPosition(ng::Vector2i(15, 15));
-    _window->setLayout(new ng::GroupLayout());
+    _window->set_position(ng::Vector2i(15, 15));
+    _window->set_layout(new ng::GroupLayout());
 
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
@@ -301,8 +327,8 @@ void Viewer::initialize()
     // Create geometry selection box.
     _geomLabel = new ng::Label(_window, "Select Geometry");
     _geometrySelectionBox = new ng::ComboBox(_window, { "None" });
-    _geometrySelectionBox->setChevronIcon(-1);
-    _geometrySelectionBox->setCallback([this](int choice)
+    _geometrySelectionBox->set_chevron_icon(-1);
+    _geometrySelectionBox->set_callback([this](int choice)
     {
         size_t index = (size_t) choice;
         if (index < _geometryList.size())
@@ -320,8 +346,8 @@ void Viewer::initialize()
     // Create material selection box.
     _materialLabel = new ng::Label(_window, "Assigned Material");
     _materialSelectionBox = new ng::ComboBox(_window, { "None" });
-    _materialSelectionBox->setChevronIcon(-1);
-    _materialSelectionBox->setCallback([this](int choice)
+    _materialSelectionBox->set_chevron_icon(-1);
+    _materialSelectionBox->set_callback([this](int choice)
     {
         size_t index = (size_t) choice;
         if (index < _materials.size())
@@ -335,64 +361,27 @@ void Viewer::initialize()
     });
 
     // Create geometry handler.
-    mx::TinyObjLoaderPtr loader = mx::TinyObjLoader::create();
+    mx::TinyObjLoaderPtr objLoader = mx::TinyObjLoader::create();
+    mx::CgltfLoaderPtr gltfLoader = mx::CgltfLoader::create();
     _geometryHandler = mx::GeometryHandler::create();
-    _geometryHandler->addLoader(loader);
+    _geometryHandler->addLoader(objLoader);
+    _geometryHandler->addLoader(gltfLoader);
     loadMesh(_searchPath.find(_meshFilename));
 
     // Create environment geometry handler.
     _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(loader);
+    _envGeometryHandler->addLoader(objLoader);
     mx::FilePath envSphere("resources/Geometry/sphere.obj");
     _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
 
     // Initialize environment light.
     loadEnvironmentLight();
 
-    // Generate wireframe material.
-    try
-    {
-        mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
-        _wireMaterial = Material::create();
-        _wireMaterial->generateShader(hwShader);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
-        _wireMaterial = nullptr;
-    }
-
-    // Generate shadow material.
-    try
-    {
-        mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
-        _shadowMaterial = Material::create();
-        _shadowMaterial->generateShader(hwShader);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Failed to generate shadow shader: " << e.what() << std::endl;
-        _shadowMaterial = nullptr;
-    }
-
-    // Generate shadow blur material.
-    try
-    {
-        mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
-        _shadowBlurMaterial = Material::create();
-        _shadowBlurMaterial->generateShader(hwShader);
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Failed to generate shadow blur shader: " << e.what() << std::endl;
-        _shadowBlurMaterial = nullptr;
-    }
-
-    // Initialize camera
+    // Initialize camera.
     initCamera();
-    setResizeCallback([this](ng::Vector2i size)
+    set_resize_callback([this](ng::Vector2i size)
     {
-        _arcball.setSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
+        _viewCamera->setViewportSize(mx::Vector2(static_cast<float>(size[0]), static_cast<float>(size[1])));
     });
 
     // Update geometry selections.
@@ -403,8 +392,7 @@ void Viewer::initialize()
 
     // Finalize the UI.
     _propertyEditor.setVisible(false);
-    performLayout();
-    setVisible(true);
+    perform_layout();
 }
 
 void Viewer::loadEnvironmentLight()
@@ -480,7 +468,8 @@ void Viewer::loadEnvironmentLight()
         _lightRigFilename = _envRadianceFilename;
         _lightRigFilename.removeExtension();
         _lightRigFilename.addExtension(mx::MTLX_EXTENSION);
-        if (_searchPath.find(_lightRigFilename).exists())
+        _lightRigFilename = _searchPath.find(_lightRigFilename);
+        if (_lightRigFilename.exists())
         {
             _lightRigDoc = mx::createDocument();
             mx::readFromXmlFile(_lightRigDoc, _lightRigFilename, _searchPath);
@@ -488,24 +477,6 @@ void Viewer::loadEnvironmentLight()
         else
         {
             _lightRigDoc = nullptr;
-        }
-    }
-
-    const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
-    if (!meshes.empty())
-    {
-        // Create environment shader.
-        mx::FilePath envFilename = _searchPath.find(
-            mx::FilePath("resources/Lights/envmap_shader.mtlx"));
-        try
-        {
-            _envMaterial = Material::create();
-            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadianceFilename);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Failed to generate environment shader: " << e.what() << std::endl;
-            _envMaterial = nullptr;
         }
     }
 }
@@ -523,6 +494,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
         std::vector<mx::NodePtr> lights;
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
+        _lightHandler->registerLights(doc, lights, _genContextEssl);
         _lightHandler->setLightSources(lights);
     }
     catch (std::exception& e)
@@ -533,8 +505,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
 
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
 {
-    const mx::MeshList& meshes = _geometryHandler->getMeshes();
-    if (meshes.empty() || !geometry)
+    if (!geometry || _geometryHandler->getMeshes().empty())
     {
         return;
     }
@@ -552,18 +523,50 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     if (geometry == getSelectedGeometry())
     {
         setSelectedMaterial(material);
-        updateDisplayedProperties();
+        if (material)
+        {
+            updateDisplayedProperties();
+        }
     }
+}
+
+mx::FilePath Viewer::getBaseOutputPath()
+{
+    mx::FilePath baseFilename = _searchPath.find(_materialFilename);
+    baseFilename.removeExtension();
+    mx::FilePath outputPath = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
+    if (!outputPath.isEmpty())
+    {
+        baseFilename = outputPath / baseFilename.getBaseName();
+    }
+    return baseFilename;
+}
+
+mx::ElementPredicate Viewer::getElementPredicate()
+{
+    return [this](mx::ConstElementPtr elem)
+    {
+        if (elem->hasSourceUri())
+        {
+            return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+        }
+        return true;
+    };
 }
 
 void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
 {
     ng::Button* meshButton = new ng::Button(parent, label);
-    meshButton->setIcon(ENTYPO_ICON_FOLDER);
-    meshButton->setCallback([this]()
+    meshButton->set_icon(FA_FOLDER);
+    meshButton->set_callback([this]()
     {
-        mProcessEvents = false;
-        std::string filename = ng::file_dialog({ { "obj", "Wavefront OBJ" } }, false);
+        m_process_events = false;
+        std::string filename = ng::file_dialog(
+        {
+            { "obj", "Wavefront OBJ" },
+            { "gltf", "GLTF ASCII" },
+            { "glb", "GLTF Binary"} 
+        }, false);
         if (!filename.empty())
         {
             loadMesh(filename);
@@ -576,35 +579,34 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
 
             initCamera();
         }
-        mProcessEvents = true;
+        m_process_events = true;
     });
 }
 
 void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& label)
 {
     ng::Button* materialButton = new ng::Button(parent, label);
-    materialButton->setIcon(ENTYPO_ICON_FOLDER);
-    materialButton->setCallback([this]()
+    materialButton->set_icon(FA_FOLDER);
+    materialButton->set_callback([this]()
     {
-        mProcessEvents = false;
+        m_process_events = false;
         std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, false);
         if (!filename.empty())
         {
             _materialFilename = filename;
-            assignMaterial(getSelectedGeometry(), nullptr);
             loadDocument(_materialFilename, _stdLib);
         }
-        mProcessEvents = true;
+        m_process_events = true;
     });
 }
 
 void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& label)
 {
     ng::Button* envButton = new ng::Button(parent, label);
-    envButton->setIcon(ENTYPO_ICON_FOLDER);
-    envButton->setCallback([this]()
+    envButton->set_icon(FA_FOLDER);
+    envButton->set_callback([this]()
     {
-        mProcessEvents = false;
+        m_process_events = false;
         mx::StringSet extensions = _imageHandler->supportedExtensions();
         std::vector<std::pair<std::string, std::string>> filetypes;
         for (const auto& extension : extensions)
@@ -619,17 +621,17 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
             loadDocument(_materialFilename, _stdLib);
             invalidateShadowMap();
         }
-        mProcessEvents = true;
+        m_process_events = true;
     });
 }
 
 void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& label)
 {
     ng::Button* materialButton = new ng::Button(parent, label);
-    materialButton->setIcon(ENTYPO_ICON_SAVE);
-    materialButton->setCallback([this]()
+    materialButton->set_icon(FA_SAVE);
+    materialButton->set_callback([this]()
     {
-        mProcessEvents = false;
+        m_process_events = false;
         MaterialPtr material = getSelectedMaterial();
         mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
 
@@ -641,87 +643,85 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            // Add element predicate to prune out writing elements from included files
-            auto skipXincludes = [this](mx::ConstElementPtr elem)
-            {
-                if (elem->hasSourceUri())
-                {
-                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
             mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
+            writeOptions.elementPredicate = getElementPredicate();
             mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
             // Update material file name
             _materialFilename = filename;
         }
-        mProcessEvents = true;
+        m_process_events = true;
     });
 }
 
 void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& label)
 {
     ng::Button* editorButton = new ng::Button(parent, label);
-    editorButton->setFlags(ng::Button::ToggleButton);
-    editorButton->setChangeCallback([this](bool state)
+    editorButton->set_flags(ng::Button::ToggleButton);
+    editorButton->set_change_callback([this](bool state)
     {
         _propertyEditor.setVisible(state);
-        performLayout();
+        perform_layout();
     });
 }
 
 void Viewer::createAdvancedSettings(Widget* parent)
 {
     ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
-    advancedButton->setIcon(ENTYPO_ICON_TOOLS);
-    advancedButton->setChevronIcon(-1);
+    advancedButton->set_icon(FA_TOOLS);
+    advancedButton->set_chevron_icon(-1);
     ng::Popup* advancedPopupParent = advancedButton->popup();
-    advancedPopupParent->setLayout(new ng::GroupLayout());
+    advancedPopupParent->set_layout(new ng::GroupLayout());
 
     ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(advancedPopupParent);
-    scrollPanel->setFixedHeight(500);
+    scrollPanel->set_fixed_height(500);
     ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
-    advancedPopup->setLayout(new ng::GroupLayout(13));
+    advancedPopup->set_layout(new ng::GroupLayout(13));
 
     ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");
-    meshLabel->setFontSize(20);
-    meshLabel->setFont("sans-bold");
+    meshLabel->set_font_size(20);
+    meshLabel->set_font("sans-bold");
 
     ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
-    splitUdimsBox->setChecked(_splitByUdims);
-    splitUdimsBox->setCallback([this](bool enable)
+    splitUdimsBox->set_checked(_splitByUdims);
+    splitUdimsBox->set_callback([this](bool enable)
     {
         _splitByUdims = enable;
     });
 
     ng::Label* materialLabel = new ng::Label(advancedPopup, "Material Options");
-    materialLabel->setFontSize(20);
-    materialLabel->setFont("sans-bold");
+    materialLabel->set_font_size(20);
+    materialLabel->set_font("sans-bold");
 
     ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
-    mergeMaterialsBox->setChecked(_mergeMaterials);
-    mergeMaterialsBox->setCallback([this](bool enable)
+    mergeMaterialsBox->set_checked(_mergeMaterials);
+    mergeMaterialsBox->set_callback([this](bool enable)
     {
         _mergeMaterials = enable;
+    });
+
+    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
+    showInputsBox->set_checked(_showAllInputs);
+    showInputsBox->set_callback([this](bool enable)
+    {
+        _showAllInputs = enable;
     });    
 
     Widget* unitGroup = new Widget(advancedPopup);
-    unitGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(unitGroup, "Distance Unit:");
     ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
-    distanceUnitBox->setFixedSize(ng::Vector2i(100, 20));
-    distanceUnitBox->setChevronIcon(-1);
+    distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
+    distanceUnitBox->set_chevron_icon(-1);
     if (_distanceUnitConverter)
     {
-        distanceUnitBox->setSelectedIndex(_distanceUnitConverter->getUnitAsInteger("meter"));
+        distanceUnitBox->set_selected_index(_distanceUnitConverter->getUnitAsInteger("meter"));
     }
-    distanceUnitBox->setCallback([this](int index)
+    distanceUnitBox->set_callback([this](int index)
     {
-        mProcessEvents = false;
+        m_process_events = false;
         _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #if MATERIALX_BUILD_GEN_OSL
         _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
@@ -733,43 +733,43 @@ void Viewer::createAdvancedSettings(Widget* parent)
             material->bindShader();
             material->bindUnits(_unitRegistry, _genContext);
         }
-        mProcessEvents = true;
+        m_process_events = true;
     });
 
     ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
-    lightingLabel->setFontSize(20);
-    lightingLabel->setFont("sans-bold");
+    lightingLabel->set_font_size(20);
+    lightingLabel->set_font("sans-bold");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
-    directLightingBox->setChecked(_directLighting);
-    directLightingBox->setCallback([this](bool enable)
+    directLightingBox->set_checked(_lightHandler->getDirectLighting());
+    directLightingBox->set_callback([this](bool enable)
     {
-        _directLighting = enable;
+        _lightHandler->setDirectLighting(enable);
     });
 
     ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
-    indirectLightingBox->setChecked(_indirectLighting);
-    indirectLightingBox->setCallback([this](bool enable)
+    indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
+    indirectLightingBox->set_callback([this](bool enable)
     {
-        _indirectLighting = enable;
+        _lightHandler->setIndirectLighting(enable);
     });
 
     ng::CheckBox* normalizeEnvironmentBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
-    normalizeEnvironmentBox->setChecked(_normalizeEnvironment);
-    normalizeEnvironmentBox->setCallback([this](bool enable)
+    normalizeEnvironmentBox->set_checked(_normalizeEnvironment);
+    normalizeEnvironmentBox->set_callback([this](bool enable)
     {
         _normalizeEnvironment = enable;
     });
 
     ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
-    splitDirectLightBox->setChecked(_splitDirectLight);
-    splitDirectLightBox->setCallback([this](bool enable)
+    splitDirectLightBox->set_checked(_splitDirectLight);
+    splitDirectLightBox->set_callback([this](bool enable)
     {
         _splitDirectLight = enable;
     });
 
     ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
-    lightRotationRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    lightRotationRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties ui;
     ui.uiMin = mx::Value::createValue(0.0f);
     ui.uiMax = mx::Value::createValue(360.0f);
@@ -779,165 +779,169 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _lightRotation = value;
         invalidateShadowMap();
     });
-    lightRotationBox->setEditable(true);
+    lightRotationBox->set_editable(true);
 
     ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
-    shadowingLabel->setFontSize(20);
-    shadowingLabel->setFont("sans-bold");
+    shadowingLabel->set_font_size(20);
+    shadowingLabel->set_font("sans-bold");
 
     ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
-    shadowMapBox->setChecked(_genContext.getOptions().hwShadowMap);
-    shadowMapBox->setCallback([this](bool enable)
+    shadowMapBox->set_checked(_genContext.getOptions().hwShadowMap);
+    shadowMapBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwShadowMap = enable;
         reloadShaders();
     });
 
     ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
-    ambientOcclusionBox->setChecked(_genContext.getOptions().hwAmbientOcclusion);
-    ambientOcclusionBox->setCallback([this](bool enable)
+    ambientOcclusionBox->set_checked(_genContext.getOptions().hwAmbientOcclusion);
+    ambientOcclusionBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwAmbientOcclusion = enable;
         reloadShaders();
     });
 
     ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
-    ambientOcclusionGainRow->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ambientOcclusionGainRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
         _ambientOcclusionGain, nullptr, [this](float value)
     {
         _ambientOcclusionGain = value;
     });
-    ambientOcclusionGainBox->setEditable(true);
+    ambientOcclusionGainBox->set_editable(true);
 
     ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
-    renderLabel->setFontSize(20);
-    renderLabel->setFont("sans-bold");
+    renderLabel->set_font_size(20);
+    renderLabel->set_font("sans-bold");
 
     ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
-    transparencyBox->setChecked(_renderTransparency);
-    transparencyBox->setCallback([this](bool enable)
+    transparencyBox->set_checked(_renderTransparency);
+    transparencyBox->set_callback([this](bool enable)
     {
         _renderTransparency = enable;
     });
 
     ng::CheckBox* doubleSidedBox = new ng::CheckBox(advancedPopup, "Render Double-Sided");
-    doubleSidedBox->setChecked(_renderDoubleSided);
-    doubleSidedBox->setCallback([this](bool enable)
+    doubleSidedBox->set_checked(_renderDoubleSided);
+    doubleSidedBox->set_callback([this](bool enable)
     {
         _renderDoubleSided = enable;
     });
 
     ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
-    outlineSelectedGeometryBox->setChecked(_outlineSelection);
-    outlineSelectedGeometryBox->setCallback([this](bool enable)
+    outlineSelectedGeometryBox->set_checked(_outlineSelection);
+    outlineSelectedGeometryBox->set_callback([this](bool enable)
     {
         _outlineSelection = enable;
     });
 
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->setChecked(_drawEnvironment);
-    drawEnvironmentBox->setCallback([this](bool enable)
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
     {
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* referenceQualityBox = new ng::CheckBox(advancedPopup, "Reference Quality");
-    referenceQualityBox->setChecked(false);
-    referenceQualityBox->setCallback([this](bool enable)
+    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
+    importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    importanceSampleBox->set_callback([this](bool enable)
     {
-        _genContext.getOptions().hwDirectionalAlbedoMethod = enable ? mx::DIRECTIONAL_ALBEDO_IS : mx::DIRECTIONAL_ALBEDO_TABLE;
+        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
         reloadShaders();
     });
 
-    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
-    importanceSampleBox->setChecked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
-    importanceSampleBox->setCallback([this](bool enable)
+    Widget* albedoGroup = new Widget(advancedPopup);
+    albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(albedoGroup, "Albedo Method:");
+    mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
+    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
+    albedoBox->set_chevron_icon(-1);
+    albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
+    albedoBox->set_callback([this](int index)
     {
-        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
         reloadShaders();
+        updateAlbedoTable();
     });
 
     Widget* sampleGroup = new Widget(advancedPopup);
-    sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    sampleGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(sampleGroup, "Environment Samples:");
     mx::StringVec sampleOptions;
-    _genContext.getOptions().hwMaxRadianceSamples = MAX_ENV_SAMPLES;
-    for (int i = MIN_ENV_SAMPLES; i <= MAX_ENV_SAMPLES; i *= 4)
+    for (int i = MIN_ENV_SAMPLE_COUNT; i <= MAX_ENV_SAMPLE_COUNT; i *= 4)
     {
-        mProcessEvents = false;
+        m_process_events = false;
         sampleOptions.push_back(std::to_string(i));
-        mProcessEvents = true;
+        m_process_events = true;
     }
     ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
-    sampleBox->setChevronIcon(-1);
-    sampleBox->setSelectedIndex((int)std::log2(_envSampleCount / MIN_ENV_SAMPLES) / 2);
-    sampleBox->setCallback([this](int index)
+    sampleBox->set_chevron_icon(-1);
+    sampleBox->set_selected_index((int)std::log2(_lightHandler->getEnvSampleCount() / MIN_ENV_SAMPLE_COUNT) / 2);
+    sampleBox->set_callback([this](int index)
     {
-        _envSampleCount = MIN_ENV_SAMPLES * (int) std::pow(4, index);
+        _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
+    ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
+    translationLabel->set_font_size(20);
+    translationLabel->set_font("sans-bold");
+
+    ng::Widget* targetShaderGroup = new ng::Widget(advancedPopup);
+    targetShaderGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(targetShaderGroup, "Target Shader");
+    ng::TextBox* targetShaderBox = new ng::TextBox(targetShaderGroup, _targetShader);
+    targetShaderBox->set_callback([this](const std::string& choice)
+    {
+        _targetShader = choice;
+        return true;
+    });
+    targetShaderBox->set_font_size(16);
+    targetShaderBox->set_editable(true);
+
     ng::Label* textureLabel = new ng::Label(advancedPopup, "Texture Baking Options (B)");
-    textureLabel->setFontSize(20);
-    textureLabel->setFont("sans-bold");
+    textureLabel->set_font_size(20);
+    textureLabel->set_font("sans-bold");
 
     ng::CheckBox* bakeHdrBox = new ng::CheckBox(advancedPopup, "Bake HDR Textures");
-    bakeHdrBox->setChecked(_bakeTextures);
-    bakeHdrBox->setCallback([this](bool enable)
+    bakeHdrBox->set_checked(_bakeHdr);
+    bakeHdrBox->set_callback([this](bool enable)
     {
         _bakeHdr = enable;
     });
 
     ng::CheckBox* bakeAverageBox = new ng::CheckBox(advancedPopup, "Bake Averaged Textures");
-    bakeAverageBox->setChecked(_bakeAverage);
-    bakeAverageBox->setCallback([this](bool enable)
+    bakeAverageBox->set_checked(_bakeAverage);
+    bakeAverageBox->set_callback([this](bool enable)
     {
         _bakeAverage = enable;
     });
 
-    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Materials");
-    bakeOptimized->setChecked(_bakeOptimize);
-    bakeOptimized->setCallback([this](bool enable)
+    ng::CheckBox* bakeOptimized = new ng::CheckBox(advancedPopup, "Optimize Baked Constants");
+    bakeOptimized->set_checked(_bakeOptimize);
+    bakeOptimized->set_callback([this](bool enable)
     {
         _bakeOptimize = enable;
     });
 
-    Widget* textureResGroup = new Widget(advancedPopup);
-    textureResGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(textureResGroup, "Texture Res:");
-    mx::StringVec textureResOptions;
-    for (int i = MIN_TEXTURE_RES; i <= MAX_TEXTURE_RES; i *= 2)
-    {
-        mProcessEvents = false;
-        textureResOptions.push_back(std::to_string(i));
-        mProcessEvents = true;
-    }
-    ng::ComboBox* textureResBox = new ng::ComboBox(textureResGroup, textureResOptions);
-    textureResBox->setChevronIcon(-1);
-    textureResBox->setSelectedIndex((int)std::log2(DEFAULT_TEXTURE_RES / MIN_TEXTURE_RES));
-    textureResBox->setCallback([this](int index)
-    {
-        _bakeTextureRes = MIN_TEXTURE_RES * (int) std::pow(2, index);
-    });
-
     ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
-    wedgeLabel->setFontSize(20);
-    wedgeLabel->setFont("sans-bold");
+    wedgeLabel->set_font_size(20);
+    wedgeLabel->set_font("sans-bold");
 
     ng::Widget* wedgeNameGroup = new ng::Widget(advancedPopup);
-    wedgeNameGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    wedgeNameGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(wedgeNameGroup, "Property Name");
     ng::TextBox* wedgeNameBox = new ng::TextBox(wedgeNameGroup, _wedgePropertyName);
-    wedgeNameBox->setCallback([this](const std::string& choice)
+    wedgeNameBox->set_callback([this](const std::string& choice)
     {
         _wedgePropertyName = choice;
         return true;
     });
-    wedgeNameBox->setFontSize(16);
-    wedgeNameBox->setEditable(true);
+    wedgeNameBox->set_font_size(16);
+    wedgeNameBox->set_editable(true);
 
     ng::Widget* wedgeMinGroup = new ng::Widget(advancedPopup);
-    wedgeMinGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    wedgeMinGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeProp;
     wedgeProp.uiSoftMin = mx::Value::createValue(0.0f);
     wedgeProp.uiSoftMax = mx::Value::createValue(1.0f);
@@ -946,21 +950,21 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _wedgePropertyMin = value;
     });
-    wedgeMinBox->setValue(0.0);
-    wedgeMinBox->setEditable(true);
+    wedgeMinBox->set_value(0.0);
+    wedgeMinBox->set_editable(true);
 
     ng::Widget* wedgeMaxGroup = new ng::Widget(advancedPopup);
-    wedgeMaxGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    wedgeMaxGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     ng::FloatBox<float>* wedgeMaxBox = createFloatWidget(wedgeMaxGroup, "Property Max:",
         _wedgePropertyMax, &wedgeProp, [this](float value)
     {
         _wedgePropertyMax = value;
     });
-    wedgeMaxBox->setValue(1.0);
-    wedgeMaxBox->setEditable(true);
+    wedgeMaxBox->set_value(1.0);
+    wedgeMaxBox->set_editable(true);
 
     ng::Widget* wedgeCountGroup = new ng::Widget(advancedPopup);
-    wedgeCountGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    wedgeCountGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     mx::UIProperties wedgeCountProp;
     wedgeCountProp.uiMin = mx::Value::createValue(1);
     wedgeCountProp.uiSoftMax = mx::Value::createValue(8);
@@ -970,8 +974,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _wedgeImageCount = value;
     });
-    wedgeCountBox->setValue(8);
-    wedgeCountBox->setEditable(true);
+    wedgeCountBox->set_value(8);
+    wedgeCountBox->set_editable(true);
 }
 
 void Viewer::updateGeometrySelections()
@@ -981,18 +985,19 @@ void Viewer::updateGeometrySelections()
     {
         return;
     }
-    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-
-    for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
+    for (auto mesh : _geometryHandler->getMeshes())
     {
-        mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
-        _geometryList.push_back(part);
+        for (size_t partIndex = 0; partIndex < mesh->getPartitionCount(); partIndex++)
+        {
+            mx::MeshPartitionPtr part = mesh->getPartition(partIndex);
+            _geometryList.push_back(part);
+        }
     }
 
     std::vector<std::string> items;
     for (const mx::MeshPartitionPtr& part : _geometryList)
     {
-        std::string geomName = part->getIdentifier();
+        std::string geomName = part->getName();
         mx::StringVec geomSplit = mx::splitString(geomName, ":");
         if (!geomSplit.empty() && !geomSplit[geomSplit.size() - 1].empty())
         {
@@ -1000,13 +1005,13 @@ void Viewer::updateGeometrySelections()
         }
         items.push_back(geomName);
     }
-    _geometrySelectionBox->setItems(items);
+    _geometrySelectionBox->set_items(items);
 
-    _geomLabel->setVisible(items.size() > 1);
-    _geometrySelectionBox->setVisible(items.size() > 1);
+    _geomLabel->set_visible(items.size() > 1);
+    _geometrySelectionBox->set_visible(items.size() > 1);
     _selectedGeom = 0;
 
-    performLayout();
+    perform_layout();
 }
 
 void Viewer::updateMaterialSelections()
@@ -1024,12 +1029,12 @@ void Viewer::updateMaterialSelections()
         }
         items.push_back(displayName);
     }
-    _materialSelectionBox->setItems(items);
+    _materialSelectionBox->set_items(items);
 
-    _materialLabel->setVisible(items.size() > 1);
-    _materialSelectionBox->setVisible(items.size() > 1);
+    _materialLabel->set_visible(items.size() > 1);
+    _materialSelectionBox->set_visible(items.size() > 1);
 
-    performLayout();
+    perform_layout();
 }
 
 void Viewer::updateMaterialSelectionUI()
@@ -1042,13 +1047,13 @@ void Viewer::updateMaterialSelectionUI()
             {
                 if (_materials[i] == pair.second)
                 {
-                    _materialSelectionBox->setSelectedIndex((int) i);
+                    _materialSelectionBox->set_selected_index((int) i);
                     break;
                 }
             }
         }
     }
-    performLayout();
+    perform_layout();
 }
 
 void Viewer::loadMesh(const mx::FilePath& filename)
@@ -1057,12 +1062,11 @@ void Viewer::loadMesh(const mx::FilePath& filename)
     if (_geometryHandler->loadGeometry(filename))
     {
         _meshFilename = filename;
-        const mx::MeshList& meshes = _geometryHandler->getMeshes();
-        if (!meshes.empty())
-        {
-            if (_splitByUdims)
+        if (_splitByUdims)
+        { 
+            for (auto mesh : _geometryHandler->getMeshes())
             {
-                meshes[0]->splitByUdims();
+                mesh->splitByUdims();
             }
         }
 
@@ -1077,6 +1081,16 @@ void Viewer::loadMesh(const mx::FilePath& filename)
             {
                 assignMaterial(geom, material);
             }
+        }
+
+        // Unbind utility materials from the previous geometry.
+        if (_wireMaterial)
+        {
+            _wireMaterial->unbindGeometry();
+        }
+        if (_shadowMaterial)
+        {
+            _shadowMaterial->unbindGeometry();
         }
 
         invalidateShadowMap();
@@ -1107,6 +1121,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
     // Clear user data on the generator.
     _genContext.clearUserData();
+    _genContextEssl.clearUserData();
 
     // Clear materials if merging is not requested.
     if (!_mergeMaterials)
@@ -1145,6 +1160,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << message;
         }
 
+        // If requested, add implicit inputs to top-level nodes.
+        if (_showAllInputs)
+        {
+            for (mx::NodePtr node : doc->getNodes())
+            {
+                node->addInputsFromNodeDef();
+            }
+        }
+
         // Find new renderable elements.
         mx::StringVec renderablePaths;
         std::vector<mx::TypedElementPtr> elems;
@@ -1160,10 +1184,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
             {
-                std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(node, mx::SURFACE_SHADER_TYPE_STRING);
+                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(node);
                 if (!shaderNodes.empty())
                 {
-                    renderableElem = *shaderNodes.begin();
+                    renderableElem = shaderNodes[0];
                 }
                 materialNodes.push_back(node);
             }
@@ -1175,7 +1199,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         }
 
         // Check for any udim set.
-        mx::ValuePtr udimSetValue = doc->getGeomPropValue("udimset");
+        mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
         // Create new materials.
         mx::TypedElementPtr udimElement;
@@ -1228,6 +1252,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
+                _genContextEssl.clearNodeImplementations();
 
                 mx::TypedElementPtr elem = mat->getElement();
 
@@ -1261,8 +1286,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     // Apply geometric assignments specified in the document, if any.
                     for (mx::MeshPartitionPtr part : _geometryList)
                     {
-                        std::string partGeomName = part->getIdentifier();
-                        if (!getGeometryBindings(materialNode, partGeomName).empty())
+                        std::string geom = part->getName();
+                        for (const std::string& id : part->getSourceNames())
+                        {
+                            geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
+                        }
+                        if (!getGeometryBindings(materialNode, geom).empty())
                         {
                             assignMaterial(part, mat);
                         }
@@ -1273,7 +1302,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
                         {
-                            if (geom->getIdentifier() == udim)
+                            if (geom->getName() == udim)
                             {
                                 assignMaterial(geom, mat);
                             }
@@ -1296,7 +1325,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
         }
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const std::string& error : e.errorLog())
         {
@@ -1314,7 +1343,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     updateMaterialSelectionUI();
 
     invalidateShadowMap();
-    performLayout();
+    perform_layout();
 }
 
 void Viewer::reloadShaders()
@@ -1327,7 +1356,7 @@ void Viewer::reloadShaders()
         }
         return;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const std::string& error : e.errorLog())
         {
@@ -1351,35 +1380,51 @@ void Viewer::saveShaderSource(mx::GenContext& context)
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+            const bool hasTransparency = mx::isTransparentSurface(elem, context.getShaderGenerator().getTarget());
+            mx::GenContext materialContext = context;
+            materialContext.getOptions().hwTransparency = hasTransparency;
+
+            mx::ShaderPtr shader = createShader(elem->getNamePath(), materialContext, elem);
             if (shader)
             {
-                const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
-                const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
+                mx::FilePath sourceFilename = getBaseOutputPath();
                 if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
                 {
-                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    writeTextFile(vertexShader, baseName + "_vs.glsl");
-                    writeTextFile(pixelShader, baseName + "_ps.glsl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ", baseName);
+                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                    writeTextFile(pixelShader, sourceFilename.asString() + "_ps.glsl");
+                    writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
+                        sourceFilename.asString() + "_*.glsl");
                 }
 #if MATERIALX_BUILD_GEN_OSL
                 else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    writeTextFile(pixelShader, baseName + ".osl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", baseName);
+                    sourceFilename.addExtension("osl");
+                    writeTextFile(pixelShader, sourceFilename);
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
                 }
 #endif
 #if MATERIALX_BUILD_GEN_MDL
                 else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
                 {
                     const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    writeTextFile(pixelShader, baseName + ".mdl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", baseName);
+                    sourceFilename.addExtension("mdl");
+                    writeTextFile(pixelShader, sourceFilename);
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
                 }
 #endif
+                else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
+                {
+                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                    writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
+                    writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
+                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
+                        sourceFilename.asString() + "_essl_*.glsl");
+                }
+                
             }
         }
     }
@@ -1397,12 +1442,10 @@ void Viewer::loadShaderSource()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            const std::string path = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
-            const std::string baseName = (path.empty() ? _searchPath[0] : mx::FilePath(path)) / elem->getName();
-            std::string vertexShaderFile = baseName + "_vs.glsl";
-            std::string pixelShaderFile = baseName + "_ps.glsl";
-            bool hasTransparency = false;
-            if (material->loadSource(vertexShaderFile, pixelShaderFile, hasTransparency))
+            mx::FilePath sourceFilename = getBaseOutputPath();
+            mx::FilePath pixelSourceFilename = sourceFilename.asString() + "_ps.glsl";
+            mx::FilePath vertexSourceFilename = sourceFilename.asString() + "_vs.glsl";
+            if (material->loadSource(vertexSourceFilename, pixelSourceFilename, material->hasTransparency()))
             {
                 assignMaterial(getSelectedGeometry(), material);
             }
@@ -1420,33 +1463,32 @@ void Viewer::saveDotFiles()
     {
         MaterialPtr material = getSelectedMaterial();
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
-        if (elem)
+        mx::NodePtr shaderNode = elem->asA<mx::Node>();
+        if (shaderNode)
         {
-            mx::NodePtr shaderNode = elem->asA<mx::Node>();
-            if (shaderNode && material->getMaterialNode())
+            mx::FilePath baseFilename = getBaseOutputPath();
+            for (mx::InputPtr input : shaderNode->getInputs())
             {
-                for (mx::InputPtr input : shaderNode->getInputs())
-                {
-                    mx::OutputPtr output = input->getConnectedOutput();
-                    mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
-                    if (nodeGraph)
-                    {
-                        std::string dot = nodeGraph->asStringDot();
-                        std::string baseName = _searchPath[0] / nodeGraph->getName();
-                        writeTextFile(dot, baseName + ".dot");
-                    }
-                }
-
-                mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
-                mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
-                mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
+                mx::OutputPtr output = input->getConnectedOutput();
+                mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
                 if (nodeGraph)
                 {
-                    std::string dot = nodeGraph->asStringDot();
-                    std::string baseName = _searchPath[0] / nodeDef->getName();
-                    writeTextFile(dot, baseName + ".dot");
+                    std::string dotString = nodeGraph->asStringDot();
+                    std::string dotFilename = baseFilename.asString() + "_" + nodeGraph->getName() + ".dot";
+                    writeTextFile(dotString, dotFilename);
                 }
             }
+
+            mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
+            mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
+            mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
+            if (nodeGraph)
+            {
+                std::string dotString = nodeGraph->asStringDot();
+                std::string dotFilename = baseFilename.asString() + "_" + nodeDef->getName() + ".dot";
+                writeTextFile(dotString, dotFilename);
+            }
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved dot files: ", baseFilename.asString() + "_*.dot");
         }
     }
     catch (std::exception& e)
@@ -1455,13 +1497,34 @@ void Viewer::saveDotFiles()
     }
 }
 
+mx::DocumentPtr Viewer::translateMaterial()
+{
+    MaterialPtr material = getSelectedMaterial();
+    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
+    if (!doc)
+    {
+        return nullptr;
+    }
+
+    mx::DocumentPtr translatedDoc = doc->copy();
+    mx::ShaderTranslatorPtr translator = mx::ShaderTranslator::create();
+    try
+    {
+        translator->translateAllMaterials(translatedDoc, _targetShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to translate material", e.what());
+        return nullptr;
+    }
+
+    return translatedDoc;
+}
+
 void Viewer::initContext(mx::GenContext& context)
 {
-    // Initialize search paths.
-    for (const mx::FilePath& path : _searchPath)
-    {
-        context.registerSourceCodeSearchPath(path / "libraries");
-    }
+    // Initialize search path.
+    context.registerSourceCodeSearchPath(_searchPath);
 
     // Initialize color management.
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
@@ -1513,6 +1576,7 @@ void Viewer::loadStandardLibraries()
 
     // Initialize the generator contexts.
     initContext(_genContext);
+    initContext(_genContextEssl);
 #if MATERIALX_BUILD_GEN_OSL
     initContext(_genContextOsl);
 #endif
@@ -1521,9 +1585,9 @@ void Viewer::loadStandardLibraries()
 #endif
 }
 
-bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
+bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 {
-    if (Screen::keyboardEvent(key, scancode, action, modifiers))
+    if (Screen::keyboard_event(key, scancode, action, modifiers))
     {
         return true;
     }
@@ -1556,8 +1620,8 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Save the current shader source to file.
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    // Save GLSL shader source to file.
+    if (key == GLFW_KEY_G && action == GLFW_PRESS)
     {
         saveShaderSource(_genContext);
         return true;
@@ -1581,11 +1645,25 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
     }
 #endif
 
-    // Load shader source from file.  Editing the source files before loading
-    // provides a way to debug and experiment with shader source code.
+    // Save Essl shader source to file.
+    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+    {
+        saveShaderSource(_genContextEssl);
+        return true;
+    }
+
+    // Load GLSL shader source from file.  Editing the source files before
+    // loading provides a way to debug and experiment with shader source code.
     if (key == GLFW_KEY_L && action == GLFW_PRESS)
     {
         loadShaderSource();
+        return true;
+    }
+
+    // Clear the image cache, reloading all required images from the file system.
+    if (key == GLFW_KEY_I && action == GLFW_PRESS && modifiers == GLFW_MOD_SHIFT)
+    {
+        _imageHandler->clearImageCache();
         return true;
     }
 
@@ -1624,6 +1702,25 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
         }
     }
 
+    // Request shader translation for the current material.
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+    {
+        mx::DocumentPtr translatedDoc = translateMaterial();
+        if (translatedDoc)
+        {
+            mx::FilePath translatedFilename = getBaseOutputPath();
+            translatedFilename = translatedFilename.asString() + "_" + _targetShader;
+            translatedFilename.addExtension(mx::MTLX_EXTENSION);
+
+            mx::XmlWriteOptions writeOptions;
+            writeOptions.elementPredicate = getElementPredicate();
+            mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
+
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+        }
+        return true;
+    }
+
     // Request a bake of the current material.
     if (key == GLFW_KEY_B && action == GLFW_PRESS)
     {
@@ -1653,7 +1750,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
                 _selectedGeom = (_selectedGeom > 0) ? _selectedGeom - 1 : _geometryList.size() - 1;
             }
         }
-        _geometrySelectionBox->setSelectedIndex((int) _selectedGeom);
+        _geometrySelectionBox->set_selected_index((int) _selectedGeom);
         updateMaterialSelectionUI();
         return true;
     }
@@ -1673,7 +1770,7 @@ bool Viewer::keyboardEvent(int key, int scancode, int action, int modifiers)
             }
             assignMaterial(getSelectedGeometry(), getSelectedMaterial());
             updateMaterialSelectionUI();
-       }
+        }
         return true;
     }
 
@@ -1690,15 +1787,8 @@ void Viewer::renderFrame()
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
-    // Update shading tables
-    updateAlbedoTable();
-
     // Update lighting state.
-    LightingState lightingState;
-    lightingState.lightTransform = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI);
-    lightingState.directLighting = _directLighting;
-    lightingState.indirectLighting = _indirectLighting;
-    lightingState.envSamples = _envSampleCount;
+    _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
     // Update shadow state.
     ShadowState shadowState;
@@ -1706,40 +1796,50 @@ void Viewer::renderFrame()
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (_genContext.getOptions().hwShadowMap && dirLight)
     {
-        updateShadowMap();
-        shadowState.shadowMap = _shadowMap;
-        shadowState.shadowMatrix = _cameraViewHandler->worldMatrix.getInverse() *
-            _shadowViewHandler->worldMatrix *
-            _shadowViewHandler->viewMatrix *
-            _shadowViewHandler->projectionMatrix;
+        mx::ImagePtr shadowMap = getShadowMap();
+        if (shadowMap)
+        {
+            shadowState.shadowMap = shadowMap;
+            shadowState.shadowMatrix = _viewCamera->getWorldMatrix().getInverse() *
+                _shadowCamera->getWorldViewProjMatrix();
+        }
+        else
+        {
+            _genContext.getOptions().hwShadowMap = false;
+        }
     }
-
-    const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
-    const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
-    const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
 
     glEnable(GL_FRAMEBUFFER_SRGB);
 
     // Environment background
-    if (_drawEnvironment && _envMaterial)
+    if (_drawEnvironment)
     {
-        auto meshes = _envGeometryHandler->getMeshes();
-        auto envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
-        mx::Matrix44 envWorld = mx::Matrix44::createScale(mx::Vector3(300.0f));
-        float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
-        _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
-
-        if (envPart)
+        MaterialPtr envMaterial = getEnvironmentMaterial();
+        if (envMaterial)
         {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-            _envMaterial->bindShader();
-            _envMaterial->bindMesh(_envGeometryHandler->getMeshes()[0]);
-            _envMaterial->bindViewInformation(envWorld, view, proj);
-            _envMaterial->bindImages(_imageHandler, _searchPath, false);
-            _envMaterial->drawPartition(envPart);
-            glDisable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
+            const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
+            mx::MeshPartitionPtr envPart = !meshes.empty() ? meshes[0]->getPartition(0) : nullptr;
+            if (envPart)
+            {
+                // Apply rotation to the environment shader.
+                float longitudeOffset = (_lightRotation / 360.0f) + 0.5f;
+                _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+
+                // Render the environment mesh.
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_FRONT);
+                envMaterial->bindShader();
+                envMaterial->bindMesh(meshes[0]);
+                envMaterial->bindViewInformation(_envCamera);
+                envMaterial->bindImages(_imageHandler, _searchPath, false);
+                envMaterial->drawPartition(envPart);
+                glDisable(GL_CULL_FACE);
+                glCullFace(GL_BACK);
+            }
+        }
+        else
+        {
+            _drawEnvironment = false;
         }
     }
 
@@ -1761,25 +1861,17 @@ void Viewer::renderFrame()
             continue;
         }
 
-        if (material->getShader()->getName() == "__WIRE_SHADER__")
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
         material->bindShader();
-        material->bindMesh(_geometryHandler->getMeshes()[0]);
+        material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
             material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.99f));
         }
-        material->bindViewInformation(world, view, proj);
-        material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+        material->bindViewInformation(_viewCamera);
+        material->bindLighting(_lightHandler, _imageHandler, shadowState);
         material->bindImages(_imageHandler, _searchPath);
         material->drawPartition(geom);
         material->unbindImages(_imageHandler);
-        if (material->getShader()->getName() == "__WIRE_SHADER__")
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
     }
 
     // Transparent pass
@@ -1798,13 +1890,13 @@ void Viewer::renderFrame()
             }
 
             material->bindShader();
-            material->bindMesh(_geometryHandler->getMeshes()[0]);
+            material->bindMesh(_geometryHandler->findParentMesh(geom));
             if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
             {
                 material->getProgram()->bindUniform(mx::HW::ALPHA_THRESHOLD, mx::Value::createValue(0.001f));
             }
-            material->bindViewInformation(world, view, proj);
-            material->bindLights(_genContext, _lightHandler, _imageHandler, lightingState, shadowState);
+            material->bindViewInformation(_viewCamera);
+            material->bindLighting(_lightHandler, _imageHandler, shadowState);
             material->bindImages(_imageHandler, _searchPath);
             material->drawPartition(geom);
             material->unbindImages(_imageHandler);
@@ -1821,12 +1913,20 @@ void Viewer::renderFrame()
     // Wireframe pass
     if (_outlineSelection)
     {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        _wireMaterial->bindShader();
-        _wireMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
-        _wireMaterial->bindViewInformation(world, view, proj);
-        _wireMaterial->drawPartition(getSelectedGeometry());
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        MaterialPtr wireMaterial = getWireframeMaterial();
+        if (wireMaterial)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            wireMaterial->bindShader();
+            wireMaterial->bindMesh(_geometryHandler->findParentMesh(getSelectedGeometry()));
+            wireMaterial->bindViewInformation(_viewCamera);
+            wireMaterial->drawPartition(getSelectedGeometry());
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        else
+        {
+            _outlineSelection = false;
+        }
     }
 }
 
@@ -1835,8 +1935,8 @@ mx::ImagePtr Viewer::getFrameImage()
     glFlush();
 
     // Create an image with dimensions adjusted for device DPI.
-    mx::ImagePtr image = mx::Image::create((unsigned int) (mSize.x() * mPixelRatio),
-                                           (unsigned int) (mSize.y() * mPixelRatio), 3);
+    mx::ImagePtr image = mx::Image::create((unsigned int) (m_size.x() * m_pixel_ratio),
+                                           (unsigned int) (m_size.y() * m_pixel_ratio), 3);
     image->createResourceBuffer();
 
     // Read pixels into the image buffer.
@@ -1918,20 +2018,38 @@ mx::ImagePtr Viewer::renderWedge()
 void Viewer::bakeTextures()
 {
     MaterialPtr material = getSelectedMaterial();
-    mx::DocumentPtr doc = material->getDocument();
+    mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
     {
         return;
     }
 
     {
+        // Compute baking resolution.
+        mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
+        auto maxImageSize = mx::getMaxDimensions(imageVec);
+        unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
+        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
+        if (_bakeWidth)
+        {
+            bakeWidth = std::max(_bakeWidth, (unsigned int) 4);
+        }
+        if (_bakeHeight)
+        {
+            bakeHeight = std::max(_bakeHeight, (unsigned int) 4);
+        }
+
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-        mx::TextureBakerPtr baker = mx::TextureBaker::create(_bakeTextureRes, _bakeTextureRes, baseType);
+        mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
         baker->setupUnitSystem(_stdLib);
         baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
+
+        // Assign our existing image handler, releasing any existing render resources for cached images.
+        _imageHandler->releaseRenderResources();
+        baker->setImageHandler(_imageHandler);
 
         // Extend the image search path to include the source material folder.
         mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
@@ -1947,26 +2065,32 @@ void Viewer::bakeTextures()
         {
             std::cerr << "Error in texture baking: " << e.what() << std::endl;
         }
+
+        // Release any render resources generated by the baking process.
+        _imageHandler->releaseRenderResources();
     }
 
     // After the baker has been destructed, restore state for scene rendering.
-    glfwMakeContextCurrent(mGLFWWindow);
-    glfwGetFramebufferSize(mGLFWWindow, &mFBSize[0], &mFBSize[1]);
-    glViewport(0, 0, mFBSize[0], mFBSize[1]);
+    glfwMakeContextCurrent(m_glfw_window);
+    glfwGetFramebufferSize(m_glfw_window, &m_fbsize[0], &m_fbsize[1]);
+    glViewport(0, 0, m_fbsize[0], m_fbsize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 }
 
-void Viewer::drawContents()
+void Viewer::draw_contents()
 {
     if (_geometryList.empty() || _materials.empty())
     {
         return;
     }
 
-    updateViewHandlers();
+    updateCameras();
 
     mx::checkGlErrors("before viewer render");
+
+    // Clear the screen.
+    clear();
 
     // Render a wedge for the current material.
     if (_wedgeRequested)
@@ -1985,7 +2109,17 @@ void Viewer::drawContents()
     }
 
     // Render the current frame.
-    renderFrame();
+    try
+    {
+        renderFrame();
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning,
+            "Failed to render frame: ", e.what());
+        _materialAssignments.clear();
+        glDisable(GL_FRAMEBUFFER_SRGB);
+    }
 
     // Capture the current frame.
     if (_captureRequested)
@@ -2014,15 +2148,15 @@ void Viewer::drawContents()
     if (_exitRequested)
     {
         ng::leave();
-        setVisible(false);
+        set_visible(false);
     }
 
     mx::checkGlErrors("after viewer render");
 }
 
-bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
+bool Viewer::scroll_event(const ng::Vector2i& p, const ng::Vector2f& rel)
 {
-    if (Screen::scrollEvent(p, rel))
+    if (Screen::scroll_event(p, rel))
     {
         return true;
     }
@@ -2036,53 +2170,36 @@ bool Viewer::scrollEvent(const ng::Vector2i& p, const ng::Vector2f& rel)
     return false;
 }
 
-bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
-                              const ng::Vector2i& rel,
-                              int button,
-                              int modifiers)
+bool Viewer::mouse_motion_event(const ng::Vector2i& p,
+                                const ng::Vector2i& rel,
+                                int button,
+                                int modifiers)
 {
-    if (Screen::mouseMotionEvent(p, rel, button, modifiers))
+    if (Screen::mouse_motion_event(p, rel, button, modifiers))
     {
         return true;
     }
 
-    if (_arcball.applyMotion(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1]))))
+    mx::Vector2 pos((float) p.x(), (float) p.y());
+    if (_viewCamera->applyArcballMotion(pos))
     {
         return true;
     }
 
     if (_userTranslationActive)
     {
-        updateViewHandlers();
-        const mx::Matrix44& world = _cameraViewHandler->worldMatrix;
-        const mx::Matrix44& view = _cameraViewHandler->viewMatrix;
-        const mx::Matrix44& proj = _cameraViewHandler->projectionMatrix;
-        mx::Matrix44 worldView = world * view;;
+        updateCameras();
 
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        mx::Vector3 boxMin = mesh->getMinimumBounds();
-        mx::Vector3 boxMax = mesh->getMaximumBounds();
+        mx::Vector3 boxMin = _geometryHandler->getMinimumBounds();
+        mx::Vector3 boxMax = _geometryHandler->getMaximumBounds();
         mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
 
-        float zval = ng::project(ng::Vector3f(sphereCenter.data()),
-                                 ng::Matrix4f(worldView.data()),
-                                 ng::Matrix4f(proj.data()),
-                                 mSize).z();
-        ng::Vector3f pos1 = ng::unproject(ng::Vector3f((float) p.x(),
-                                                       (float) (mSize.y() - p.y()),
-                                                       (float) zval),
-                                          ng::Matrix4f(worldView.data()),
-                                          ng::Matrix4f(proj.data()),
-                                          mSize);
-        ng::Vector3f pos0 = ng::unproject(ng::Vector3f((float) _userTranslationPixel.x(),
-                                                       (float) (mSize.y() - _userTranslationPixel.y()),
-                                                       (float) zval),
-                                          ng::Matrix4f(worldView.data()),
-                                          ng::Matrix4f(proj.data()),
-                                          mSize);
-        ng::Vector3f delta = pos1 - pos0;
-        _userTranslation = _userTranslationStart +
-                            mx::Vector3(delta.data(), delta.data() + delta.size());
+        float viewZ = _viewCamera->projectToViewport(sphereCenter)[2];
+        mx::Vector3 pos1 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(pos[0], (float) m_size.y() - pos[1], viewZ));
+        mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(_userTranslationPixel[0], (float) m_size.y() - _userTranslationPixel[1], viewZ));
+        _userTranslation = _userTranslationStart + (pos1 - pos0);
 
         return true;
     }
@@ -2090,27 +2207,28 @@ bool Viewer::mouseMotionEvent(const ng::Vector2i& p,
     return false;
 }
 
-bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int modifiers)
+bool Viewer::mouse_button_event(const ng::Vector2i& p, int button, bool down, int modifiers)
 {
-    if (Screen::mouseButtonEvent(p, button, down, modifiers))
+    if (Screen::mouse_button_event(p, button, down, modifiers))
     {
         return true;
     }
 
+    mx::Vector2 pos((float) p.x(), (float) p.y());
     if (button == GLFW_MOUSE_BUTTON_1 && !modifiers)
     {
-        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), down);
+        _viewCamera->arcballButtonEvent(pos, down);
     }
     else if (button == GLFW_MOUSE_BUTTON_2 ||
             (button == GLFW_MOUSE_BUTTON_1 && modifiers == GLFW_MOD_SHIFT))
     {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
-        _userTranslationPixel = p;
+        _userTranslationPixel = pos;
     }
     if (button == GLFW_MOUSE_BUTTON_1 && !down)
     {
-        _arcball.buttonEvent(mx::Vector2(static_cast<float>(p[0]), static_cast<float>(p[1])), false);
+        _viewCamera->arcballButtonEvent(pos, false);
     }
     if (!down)
     {
@@ -2121,33 +2239,32 @@ bool Viewer::mouseButtonEvent(const ng::Vector2i& p, int button, bool down, int 
 
 void Viewer::initCamera()
 {
-    _arcball = Camera();
-    _arcball.setSize(mx::Vector2(static_cast<float>(mSize[0]), static_cast<float>(mSize[1])));
+    _viewCamera->setViewportSize(mx::Vector2(static_cast<float>(m_size[0]), static_cast<float>(m_size[1])));
 
     // Disable user camera controls when non-centered views are requested.
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
                          _meshScale == 1.0f;
 
-    if (_geometryHandler->getMeshes().empty())
+    if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
     {
         return;
     }
-    mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
+
+    const mx::Vector3& boxMax = _geometryHandler->getMaximumBounds();
+    const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
+    mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
+
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
-
-    if (_userCameraEnabled)
-    {
-        _meshTranslation = -meshRotation.transformPoint(mesh->getSphereCenter());
-        _meshScale = IDEAL_MESH_SPHERE_RADIUS / mesh->getSphereRadius();
-    }
+    _meshTranslation = -meshRotation.transformPoint(sphereCenter);
+    _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
 }
 
-void Viewer::updateViewHandlers()
+void Viewer::updateCameras()
 {
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
-    float fW = fH * (float) mSize.x() / (float) mSize.y();
+    float fW = fH * (float) m_size.x() / (float) m_size.y();
 
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
@@ -2156,28 +2273,32 @@ void Viewer::updateViewHandlers()
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
     if (_userCameraEnabled)
     {
-        arcball = _arcball.matrix();
+        arcball = _viewCamera->arcballMatrix();
     }
 
-    _cameraViewHandler->worldMatrix = meshRotation *
-                                      mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
-                                      mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom));
-    _cameraViewHandler->viewMatrix = arcball * mx::ViewHandler::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
-    _cameraViewHandler->projectionMatrix = mx::ViewHandler::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
+    _viewCamera->setWorldMatrix(meshRotation *
+                                mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
+                                mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom)));
+    _viewCamera->setViewMatrix(arcball * mx::Camera::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp));
+    _viewCamera->setProjectionMatrix(mx::Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist));
+
+    _envCamera->setWorldMatrix(mx::Matrix44::createScale(mx::Vector3(300.0f)));
+    _envCamera->setViewMatrix(_viewCamera->getViewMatrix());
+    _envCamera->setProjectionMatrix(_viewCamera->getProjectionMatrix());
 
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
         mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
         float r = mesh->getSphereRadius();
-        _shadowViewHandler->worldMatrix = meshRotation *
-                                          mx::Matrix44::createTranslation(-mesh->getSphereCenter());
-        _shadowViewHandler->projectionMatrix = mx::ViewHandler::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f);
+        _shadowCamera->setWorldMatrix(meshRotation *
+                                      mx::Matrix44::createTranslation(-mesh->getSphereCenter()));
+        _shadowCamera->setProjectionMatrix(mx::Camera::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f));
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
         {
             mx::Vector3 dir = mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI).transformVector(value->asA<mx::Vector3>());
-            _shadowViewHandler->viewMatrix = mx::ViewHandler::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp);
+            _shadowCamera->setViewMatrix(mx::Camera::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp));
         }
     }
 }
@@ -2186,7 +2307,7 @@ void Viewer::updateDisplayedProperties()
 {
     _propertyEditor.updateContents(this);
     createSaveMaterialsInterface(_propertyEditor.getWindow(), "Save Material");
-    performLayout();
+    perform_layout();
 }
 
 mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
@@ -2228,64 +2349,134 @@ void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirec
     indirectMap = imagePair.first;
 }
 
-void Viewer::updateShadowMap()
+MaterialPtr Viewer::getEnvironmentMaterial()
 {
-    if (_shadowMap || !_shadowMaterial)
+    if (!_envMaterial)
     {
-        return;
-    }
-
-    const mx::Matrix44& world = _shadowViewHandler->worldMatrix;
-    const mx::Matrix44& view = _shadowViewHandler->viewMatrix;
-    const mx::Matrix44& proj = _shadowViewHandler->projectionMatrix;
-
-    mx::ImageSamplingProperties blurSamplingProperties;
-    blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-    blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-    blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
-
-    // Create framebuffer.
-    mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
-    framebuffer->bind();
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    // Render shadow geometry.
-    _shadowMaterial->unbindGeometry();
-    _shadowMaterial->bindShader();
-    _shadowMaterial->bindMesh(_geometryHandler->getMeshes()[0]);
-    _shadowMaterial->bindViewInformation(world, view, proj);
-    for (const auto& assignment : _materialAssignments)
-    {
-        mx::MeshPartitionPtr geom = assignment.first;
-        _shadowMaterial->drawPartition(geom);
-    }
-    _shadowMap = framebuffer->createColorImage();
-
-    // Apply Gaussian blurring.
-    for (unsigned int i = 0; i < _shadowSoftness; i++)
-    {
-        framebuffer->bind();
-        _shadowBlurMaterial->bindShader();
-        if (_imageHandler->bindImage(_shadowMap, blurSamplingProperties))
+        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/envmap_shader.mtlx"));
+        try
         {
-            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(_imageHandler);
-            int textureLocation = textureHandler->getBoundTextureLocation(_shadowMap->getResourceId());
-            if (textureLocation >= 0)
+            _envMaterial = Material::create();
+            _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadianceFilename);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Failed to generate environment shader: " << e.what() << std::endl;
+            _envMaterial = nullptr;
+        }
+    }
+
+    return _envMaterial;
+}
+
+MaterialPtr Viewer::getWireframeMaterial()
+{
+    if (!_wireMaterial)
+    {
+        try
+        {
+            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
+            _wireMaterial = Material::create();
+            _wireMaterial->generateShader(hwShader);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
+            _wireMaterial = nullptr;
+        }
+    }
+
+    return _wireMaterial;
+}
+
+mx::ImagePtr Viewer::getShadowMap()
+{
+    if (!_shadowMap)
+    {
+        // Generate shaders for shadow rendering.
+        if (!_shadowMaterial)
+        {
+            try
             {
-                _shadowBlurMaterial->getProgram()->bindUniform("image_file", mx::Value::createValue(textureLocation));
+                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
+                _shadowMaterial = Material::create();
+                _shadowMaterial->generateShader(hwShader);
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << "Failed to generate shadow shader: " << e.what() << std::endl;
+                _shadowMaterial = nullptr;
             }
         }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        renderScreenSpaceQuad(_shadowBlurMaterial);
-        _imageHandler->releaseRenderResources(_shadowMap);
-        _shadowMap = framebuffer->createColorImage();
+        if (!_shadowBlurMaterial)
+        {
+            try
+            {
+                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+                _shadowBlurMaterial = Material::create();
+                _shadowBlurMaterial->generateShader(hwShader);
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << "Failed to generate shadow blur shader: " << e.what() << std::endl;
+                _shadowBlurMaterial = nullptr;
+            }
+        }
+
+        if (_shadowMaterial && _shadowBlurMaterial)
+        {
+            // Create framebuffer.
+            mx::GLFramebufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
+            framebuffer->bind();
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+            // Render shadow geometry.
+            _shadowMaterial->bindShader();
+            for (auto mesh : _geometryHandler->getMeshes())
+            {
+                _shadowMaterial->bindMesh(mesh);
+                _shadowMaterial->bindViewInformation(_shadowCamera);
+                for (size_t i = 0; i < mesh->getPartitionCount(); i++)
+                {
+                    mx::MeshPartitionPtr geom = mesh->getPartition(i);
+                    _shadowMaterial->drawPartition(geom);
+                }
+            }
+            _shadowMap = framebuffer->getColorImage();
+
+            // Apply Gaussian blurring.
+            mx::ImageSamplingProperties blurSamplingProperties;
+            blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
+            for (unsigned int i = 0; i < _shadowSoftness; i++)
+            {
+                framebuffer->bind();
+                _shadowBlurMaterial->bindShader();
+                if (_imageHandler->bindImage(_shadowMap, blurSamplingProperties))
+                {
+                    mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(_imageHandler);
+                    int textureLocation = textureHandler->getBoundTextureLocation(_shadowMap->getResourceId());
+                    if (textureLocation >= 0)
+                    {
+                        _shadowBlurMaterial->getProgram()->bindUniform("image_file", mx::Value::createValue(textureLocation));
+                    }
+                }
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                renderScreenSpaceQuad(_shadowBlurMaterial);
+                _imageHandler->releaseRenderResources(_shadowMap);
+                _shadowMap = framebuffer->getColorImage();
+            }
+
+            // Restore state for scene rendering.
+            glViewport(0, 0, m_fbsize[0], m_fbsize[1]);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            glDrawBuffer(GL_BACK);
+        }
     }
 
-    // Restore state for scene rendering.
-    glViewport(0, 0, mFBSize[0], mFBSize[1]);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glDrawBuffer(GL_BACK);
+    return _shadowMap;
 }
 
 void Viewer::invalidateShadowMap()
@@ -2305,7 +2496,7 @@ void Viewer::updateAlbedoTable()
     }
 
     // Create framebuffer.
-    mx::GLFrameBufferPtr framebuffer = mx::GLFramebuffer::create(ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE, 2, mx::Image::BaseType::FLOAT);
+    mx::GLFramebufferPtr framebuffer = mx::GLFramebuffer::create(ALBEDO_TABLE_SIZE, ALBEDO_TABLE_SIZE, 3, mx::Image::BaseType::FLOAT);
     framebuffer->bind();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -2333,14 +2524,14 @@ void Viewer::updateAlbedoTable()
 
     // Store albedo table image.
     _imageHandler->releaseRenderResources(_lightHandler->getAlbedoTable());
-    _lightHandler->setAlbedoTable(framebuffer->createColorImage());
+    _lightHandler->setAlbedoTable(framebuffer->getColorImage());
     if (_saveGeneratedLights)
     {
         _imageHandler->saveImage("AlbedoTable.exr", _lightHandler->getAlbedoTable());
     }
 
     // Restore state for scene rendering.
-    glViewport(0, 0, mFBSize[0], mFBSize[1]);
+    glViewport(0, 0, m_fbsize[0], m_fbsize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 }

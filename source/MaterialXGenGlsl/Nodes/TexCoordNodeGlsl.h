@@ -8,11 +8,10 @@
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// TexCoord node implementation for GLSL
-class TexCoordNodeGlsl : public GlslImplementation
+class MX_GENGLSL_API TexCoordNodeGlsl : public GlslImplementation
 {
 public:
     static ShaderNodeImplPtr create();
@@ -22,6 +21,6 @@ public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

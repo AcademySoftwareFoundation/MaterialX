@@ -18,14 +18,15 @@ class PyGeometryLoader : public mx::GeometryLoader
     {
     }
 
-    bool load(const mx::FilePath& filePath, mx::MeshList& meshList) override
+    bool load(const mx::FilePath& filePath, mx::MeshList& meshList, bool texcoordVerticalFlip = false) override
     {
         PYBIND11_OVERLOAD_PURE(
             bool,
             mx::GeometryLoader,
             load,
             filePath,
-            meshList
+            meshList,
+            texcoordVerticalFlip
         );
     }
 };
@@ -46,6 +47,7 @@ void bindPyGeometryHandler(py::module& mod)
         .def("getGeometry", &mx::GeometryHandler::getGeometry)
         .def("loadGeometry", &mx::GeometryHandler::loadGeometry)
         .def("getMeshes", &mx::GeometryHandler::getMeshes)
+        .def("findParentMesh", &mx::GeometryHandler::findParentMesh)
         .def("getMinimumBounds", &mx::GeometryHandler::getMinimumBounds)
         .def("getMaximumBounds", &mx::GeometryHandler::getMaximumBounds);
 }

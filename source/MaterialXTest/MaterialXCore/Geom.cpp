@@ -56,9 +56,9 @@ TEST_CASE("Geom elements", "[geom]")
     // Create a geominfo with an attribute.
     mx::GeomInfoPtr geominfo4 = doc->addGeomInfo("geominfo4", "/robot1");
     mx::StringVec udimSet = {"1001", "1002", "1003", "1004"};
-    geominfo4->setGeomPropValue("udimset", udimSet);
-    REQUIRE(doc->getGeomPropValue("udimset", "/robot1")->asA<mx::StringVec>() == udimSet);
-    REQUIRE(doc->getGeomPropValue("udimset", "/robot2") == nullptr);
+    geominfo4->setGeomPropValue(mx::UDIM_SET_PROPERTY, udimSet);
+    REQUIRE(doc->getGeomPropValue(mx::UDIM_SET_PROPERTY, "/robot1")->asA<mx::StringVec>() == udimSet);
+    REQUIRE(doc->getGeomPropValue(mx::UDIM_SET_PROPERTY, "/robot2") == nullptr);
 
     // Create a base collection.
     mx::CollectionPtr collection1 = doc->addCollection("collection1");

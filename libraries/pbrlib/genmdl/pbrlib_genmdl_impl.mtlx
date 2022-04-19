@@ -47,7 +47,7 @@
   <implementation name="IM_surface_genmdl" nodedef="ND_surface" target="genmdl" />
 
   <!-- <thin_surface> -->
-  <implementation name="IM_thin_surface_genmdl" nodedef="ND_thin_surface" sourcecode="mx::pbrlib::mx_thin_surface(mxp_front_bsdf:{{front_bsdf}}, mxp_front_edf:{{front_edf}}, (mxp_back_bsdf:{{back_bsdf}}, mxp_back_edf:{{back_edf}}, mxp_opacity:{{opacity}})" target="genmdl" />
+  <implementation name="IM_thin_surface_genmdl" nodedef="ND_thin_surface" sourcecode="mx::pbrlib::mx_thin_surface(mxp_front_bsdf:{{front_bsdf}}, mxp_front_edf:{{front_edf}}, mxp_back_bsdf:{{back_bsdf}}, mxp_back_edf:{{back_edf}}, mxp_opacity:{{opacity}})" target="genmdl" />
 
   <!-- <volume> -->
   <implementation name="IM_volume_genmdl" nodedef="ND_volume" sourcecode="mx::pbrlib::mx_volume(mxp_vdf:{{vdf}}, mxp_edf:{{edf}})" target="genmdl" />
@@ -61,6 +61,7 @@
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genmdl" nodedef="ND_layer_bsdf" target="genmdl" />
+  <implementation name="IM_layer_vdf_genmdl" nodedef="ND_layer_vdf" target="genmdl" />
 
   <!-- <mix> -->
   <implementation name="IM_mix_bsdf_genmdl" nodedef="ND_mix_bsdf" sourcecode="mx::pbrlib::mx_mix_bsdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" target="genmdl" />

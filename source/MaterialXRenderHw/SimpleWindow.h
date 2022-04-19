@@ -6,10 +6,12 @@
 #ifndef MATERIALX_SIMPLEWINDOW_H
 #define MATERIALX_SIMPLEWINDOW_H
 
+#include <MaterialXCore/Library.h>
+
+#include <MaterialXRenderHw/Export.h>
 #include <MaterialXRenderHw/WindowWrapper.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// SimpleWindow shared pointer
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
@@ -18,7 +20,7 @@ using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
 /// A platform-independent window class.
 /// 
 /// Plaform-specific resources are encapsulated by a WindowWrapper instance.
-class SimpleWindow
+class MX_RENDERHW_API SimpleWindow
 {
   public:
     /// Static instance create function
@@ -81,6 +83,6 @@ class SimpleWindow
 #endif
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

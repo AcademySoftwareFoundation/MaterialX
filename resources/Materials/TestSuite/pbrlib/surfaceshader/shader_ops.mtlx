@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodegraph name="nodegraph1" type="">
+  <nodegraph name="nodegraph1">
     <add name="add_surface_shader" type="surfaceshader">
       <input name="in1" type="surfaceshader" value="" nodename="multiply_surface_shaderFloat" />
       <input name="in2" type="surfaceshader" value="" nodename="multiply_surface_shaderColor" />

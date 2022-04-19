@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // ColorSpaceTransform methods

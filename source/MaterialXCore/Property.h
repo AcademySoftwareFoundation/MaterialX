@@ -9,12 +9,11 @@
 /// @file
 /// Property element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Geom.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Property;
 class PropertyAssign;
@@ -43,7 +42,7 @@ using ConstPropertySetAssignPtr = shared_ptr<const PropertySetAssign>;
 
 /// @class Property
 /// A property element within a PropertySet.
-class Property : public ValueElement
+class MX_CORE_API Property : public ValueElement
 {
   public:
     Property(ElementPtr parent, const string& name) :
@@ -58,7 +57,7 @@ class Property : public ValueElement
 
 /// @class PropertyAssign
 /// A property assignment element within a Look.
-class PropertyAssign : public ValueElement
+class MX_CORE_API PropertyAssign : public ValueElement
 {
   public:
     PropertyAssign(ElementPtr parent, const string& name) :
@@ -149,7 +148,7 @@ class PropertyAssign : public ValueElement
 
 /// @class PropertySet
 /// A property set element within a Document.
-class PropertySet : public Element
+class MX_CORE_API PropertySet : public Element
 {
   public:
     PropertySet(ElementPtr parent, const string& name) :
@@ -195,9 +194,9 @@ class PropertySet : public Element
 
     /// Set the typed value of a property by its name, creating a child element
     /// to hold the property if needed.
-    template<class T> PropertyPtr setPropertyValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING)
+    template <class T> PropertyPtr setPropertyValue(const string& name,
+                                                    const T& value,
+                                                    const string& type = EMPTY_STRING)
     {
         PropertyPtr property = getChildOfType<Property>(name);
         if (!property)
@@ -218,13 +217,13 @@ class PropertySet : public Element
 
     /// @}
 
-public:
+  public:
     static const string CATEGORY;
 };
 
 /// @class PropertySetAssign
 /// A property set assignment element within a Look.
-class PropertySetAssign : public GeomElement
+class MX_CORE_API PropertySetAssign : public GeomElement
 {
   public:
     PropertySetAssign(ElementPtr parent, const string& name) :
@@ -267,6 +266,6 @@ class PropertySetAssign : public GeomElement
     static const string PROPERTY_SET_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -110,20 +110,11 @@ class TestSuiteOptions
     // Shaded geometry file
     MaterialX::FilePath shadedGeometry;
 
-    // Amount to scale geometry. 
-    float geometryScale;
-
     // Enable direct lighting. Default is true. 
     bool enableDirectLighting;
 
     // Enable indirect lighting. Default is true. 
     bool enableIndirectLighting;
-
-    // Method for specular environment sampling (only used for HW rendering):
-    //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
-    //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
-    // Default value is 1.
-    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod;
 
     // Radiance IBL file.
     mx::FilePath radianceIBLPath;
@@ -131,26 +122,35 @@ class TestSuiteOptions
     // Irradiance IBL file.
     mx::FilePath irradianceIBLPath;
 
-    // Transforms UVs of loaded geometry
-    mx::Matrix44 transformUVs;
+    // Extra library paths
+    mx::FileSearchPath extraLibraryPaths;
 
-    // Additional library paths
-    mx::FileSearchPath externalLibraryPaths;
+    // Render test paths
+    mx::FileSearchPath renderTestPaths;
 
-    // Additional testPaths paths
-    mx::FileSearchPath externalTestPaths;
+    // Enable reference quality rendering. Default is false.
+    bool enableReferenceQuality;
 
     // Wedge parameters
-    mx::StringVec wedgeFiles;
-    mx::StringVec wedgeParameters;
-    mx::FloatVec wedgeRangeMin;
-    mx::FloatVec wedgeRangeMax;
-    mx::IntVec wedgeSteps;
-
+    struct WedgeSetting
+    {
+        std::string wedgeFile;
+        std::string parameter;
+        mx::Vector2 range;
+        int steps;
+    };
+    std::vector <WedgeSetting> wedgeSettings;
+    
     // Bake parameters
-    mx::StringVec bakeFiles;
-    mx::BoolVec bakeHdrs;
-    mx::IntVec bakeResolutions;
+    struct BakeSetting
+    {
+        std::string bakeFile;
+        bool hdr = false; 
+        unsigned int resolution = 512;
+        mx::Vector2 uvmin = mx::Vector2(0.0f);
+        mx::Vector2 uvmax = mx::Vector2(1.0f);
+    };
+    std::vector<BakeSetting> bakeSettings;
 };
 
 // Utility class to handle testing of shader generators.
@@ -238,7 +238,7 @@ class ShaderGeneratorTester
 
     // Get implementation "whitelist" for those implementations that have
     // been skipped for checking
-    virtual void getImplementationWhiteList(mx::StringSet& whiteList) = 0;
+    virtual void getImplementationWhiteList(mx::StringSet& /*whiteList*/) {};
 
     mx::ShaderGeneratorPtr _shaderGenerator;
     const std::string _targetString;
@@ -265,7 +265,7 @@ class ShaderGeneratorTester
     mx::StringVec _testStages;
 
     std::vector<mx::NodePtr> _lights;
-    std::unordered_map<std::string, unsigned int> _lightIdentifierMap;
+    std::unordered_map<std::string, unsigned int> _lightIdMap;
 
     std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;

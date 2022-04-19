@@ -17,6 +17,7 @@ void bindPyXmlIo(py::module& mod)
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
         .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
+        .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
@@ -27,7 +28,7 @@ void bindPyXmlIo(py::module& mod)
     mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
     mod.def("readFromXmlString", &mx::readFromXmlString,
-        py::arg("doc"), py::arg("str"), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
+        py::arg("doc"), py::arg("str"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
     mod.def("writeToXmlFile", mx::writeToXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("writeOptions") = (mx::XmlWriteOptions*) nullptr);
     mod.def("writeToXmlString", mx::writeToXmlString,

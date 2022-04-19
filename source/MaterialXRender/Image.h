@@ -9,10 +9,13 @@
 /// @file
 /// Image class
 
+#include <MaterialXRender/Export.h>
+
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Types.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Image;
 
@@ -36,14 +39,15 @@ using ImageBufferDeallocator = std::function<void(void*)>;
 
 /// @class Image
 /// Class representing an image in system memory
-class Image
+class MX_RENDER_API Image
 {
   public:
     enum class BaseType
     {
         UINT8 = 0,
-        HALF = 1,
-        FLOAT = 2
+        UINT16 = 1,
+        HALF = 2,
+        FLOAT = 3
     };
 
   public:
@@ -121,6 +125,18 @@ class Image
     /// @name Image Processing
     /// @{
 
+    /// Set all texels of this image to a uniform color.
+    void setUniformColor(const Color4& color);
+
+    /// Apply the given matrix transform to all texels of this image.
+    void applyMatrixTransform(const Matrix33& mat);
+
+    /// Apply the given gamma transform to all texels of this image.
+    void applyGammaTransform(float gamma);
+
+    /// Create a copy of this image with the given channel count and base type.
+    ImagePtr copy(unsigned int channelCount, BaseType baseType) const;
+
     /// Apply a 3x3 box blur to this image, returning a new blurred image.
     ImagePtr applyBoxBlur();
 
@@ -130,6 +146,10 @@ class Image
     /// Split this image by the given luminance threshold, returning the
     /// resulting underflow and overflow images.
     ImagePair splitByLuminance(float luminance);
+
+    /// Save a channel of this image to disk as a text table, in a format
+    /// that can be used for curve and surface fitting.
+    void writeTable(const FilePath& filePath, unsigned int channel);
 
     /// @}
     /// @name Resource Buffers
@@ -198,11 +218,14 @@ class Image
 };
 
 /// Create a uniform-color image with the given properties.
-ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
+MX_RENDER_API ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType, const Color4& color);
 
 /// Create a horizontal image strip from a vector of images with identical resolutions and formats.
-ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
+MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 
-} // namespace MaterialX
+/// Compute the maximum width and height of all images in the given vector.
+MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
+
+MATERIALX_NAMESPACE_END
 
 #endif

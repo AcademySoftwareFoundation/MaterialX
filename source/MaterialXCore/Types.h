@@ -9,35 +9,34 @@
 /// @file
 /// Data type classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Util.h>
 
 #include <array>
 #include <cmath>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
-extern const string DEFAULT_TYPE_STRING;
-extern const string FILENAME_TYPE_STRING;
-extern const string GEOMNAME_TYPE_STRING;
-extern const string STRING_TYPE_STRING;
-extern const string SURFACE_SHADER_TYPE_STRING;
-extern const string DISPLACEMENT_SHADER_TYPE_STRING;
-extern const string VOLUME_SHADER_TYPE_STRING;
-extern const string LIGHT_SHADER_TYPE_STRING;
-extern const string MATERIAL_TYPE_STRING;
-extern const string SURFACE_MATERIAL_NODE_STRING;
-extern const string VOLUME_MATERIAL_NODE_STRING;
-extern const string MULTI_OUTPUT_TYPE_STRING;
-extern const string NONE_TYPE_STRING;
-extern const string VALUE_STRING_TRUE;
-extern const string VALUE_STRING_FALSE;
-extern const string NAME_PREFIX_SEPARATOR;
-extern const string NAME_PATH_SEPARATOR;
-extern const string ARRAY_VALID_SEPARATORS;
-extern const string ARRAY_PREFERRED_SEPARATOR;
+extern MX_CORE_API const string DEFAULT_TYPE_STRING;
+extern MX_CORE_API const string FILENAME_TYPE_STRING;
+extern MX_CORE_API const string GEOMNAME_TYPE_STRING;
+extern MX_CORE_API const string STRING_TYPE_STRING;
+extern MX_CORE_API const string SURFACE_SHADER_TYPE_STRING;
+extern MX_CORE_API const string DISPLACEMENT_SHADER_TYPE_STRING;
+extern MX_CORE_API const string VOLUME_SHADER_TYPE_STRING;
+extern MX_CORE_API const string LIGHT_SHADER_TYPE_STRING;
+extern MX_CORE_API const string MATERIAL_TYPE_STRING;
+extern MX_CORE_API const string SURFACE_MATERIAL_NODE_STRING;
+extern MX_CORE_API const string VOLUME_MATERIAL_NODE_STRING;
+extern MX_CORE_API const string MULTI_OUTPUT_TYPE_STRING;
+extern MX_CORE_API const string NONE_TYPE_STRING;
+extern MX_CORE_API const string VALUE_STRING_TRUE;
+extern MX_CORE_API const string VALUE_STRING_FALSE;
+extern MX_CORE_API const string NAME_PREFIX_SEPARATOR;
+extern MX_CORE_API const string NAME_PATH_SEPARATOR;
+extern MX_CORE_API const string ARRAY_VALID_SEPARATORS;
+extern MX_CORE_API const string ARRAY_PREFERRED_SEPARATOR;
 
 /// The base class for vectors of scalar values
 class VectorBase { };
@@ -280,14 +279,15 @@ template <class V, class S, size_t N> class VectorN : public VectorBase
 
 /// @class Vector2
 /// A vector of two floating-point values
-class Vector2 : public VectorN<Vector2, float, 2>
+class MX_CORE_API Vector2 : public VectorN<Vector2, float, 2>
 {
   public:
     using VectorN<Vector2, float, 2>::VectorN;
-    Vector2() { }
-    Vector2(float x, float y) : VectorN(Uninit{})
+    Vector2() = default;
+    Vector2(float x, float y) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y};
+        _arr = { x, y };
     }
 
     /// Return the cross product of two vectors.
@@ -299,14 +299,15 @@ class Vector2 : public VectorN<Vector2, float, 2>
 
 /// @class Vector3
 /// A vector of three floating-point values
-class Vector3 : public VectorN<Vector3, float, 3>
+class MX_CORE_API Vector3 : public VectorN<Vector3, float, 3>
 {
   public:
     using VectorN<Vector3, float, 3>::VectorN;
-    Vector3() { }
-    Vector3(float x, float y, float z) : VectorN(Uninit{})
+    Vector3() = default;
+    Vector3(float x, float y, float z) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y, z};
+        _arr = { x, y, z };
     }
 
     /// Return the cross product of two vectors.
@@ -320,79 +321,43 @@ class Vector3 : public VectorN<Vector3, float, 3>
 
 /// @class Vector4
 /// A vector of four floating-point values
-class Vector4 : public VectorN<Vector4, float, 4>
+class MX_CORE_API Vector4 : public VectorN<Vector4, float, 4>
 {
   public:
     using VectorN<Vector4, float, 4>::VectorN;
-    Vector4() { }
-    Vector4(float x, float y, float z, float w) : VectorN(Uninit{})
+    Vector4() = default;
+    Vector4(float x, float y, float z, float w) :
+        VectorN(Uninit{})
     {
-        _arr = {x, y, z, w};
+        _arr = { x, y, z, w };
     }
-};
-
-/// @class Quaternion
-/// A quaternion vector
-class Quaternion : public VectorN<Vector4, float, 4>
-{
-  public:
-    using VectorN<Vector4, float, 4>::VectorN;
-    Quaternion() { }
-    Quaternion(float x, float y, float z, float w) : VectorN(Uninit{})
-    {
-        _arr = {x, y, z, w};
-    }
-
-    Quaternion operator*(const Quaternion& q) const
-    {
-        return 
-        { 
-            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1], 
-            _arr[1] * q._arr[3] + _arr[3] * q._arr[1] + _arr[2] * q._arr[0] - _arr[0] * q._arr[2],
-            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0], 
-            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2] 
-        };
-    }
-
-    Quaternion getNormalized() const
-    {
-        float l = 1.f / getMagnitude() * (_arr[3] < 0 ? -1.f : 1.f); // after normalization, real part will be non-negative
-        return { _arr[0] * l, _arr[1] * l, _arr[2] * l, _arr[3] * l };
-    }
-
-    static Quaternion createFromAxisAngle(const Vector3& v, float a)
-    {
-        float s = std::sin(a * 0.5f);
-        return Quaternion(v[0] * s, v[1] * s, v[2] * s, std::cos(a * 0.5f));
-    }
-
-  public:
-    static const Quaternion IDENTITY;
 };
 
 /// @class Color3
 /// A three-component color value
-class Color3 : public VectorN<Color3, float, 3>
+class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
 {
   public:
     using VectorN<Color3, float, 3>::VectorN;
-    Color3() { }
-    Color3(float r, float g, float b) : VectorN(Uninit{})
+    Color3() = default;
+    Color3(float r, float g, float b) :
+        VectorN(Uninit{})
     {
-        _arr = {r, g, b};
+        _arr = { r, g, b };
     }
 };
 
 /// @class Color4
 /// A four-component color value
-class Color4 : public VectorN<Color4, float, 4>
+class MX_CORE_API Color4 : public VectorN<Color4, float, 4>
 {
   public:
     using VectorN<Color4, float, 4>::VectorN;
-    Color4() { }
-    Color4(float r, float g, float b, float a) : VectorN(Uninit{})
+    Color4() = default;
+    Color4(float r, float g, float b, float a) :
+        VectorN(Uninit{})
     {
-        _arr = {r, g, b, a};
+        _arr = { r, g, b, a };
     }
 };
 
@@ -621,19 +586,19 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
 ///
 /// Vector transformation methods follow the row-vector convention,
 /// with matrix-vector multiplication computed as v' = vM.
-class Matrix33 : public MatrixN<Matrix33, float, 3>
+class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
 {
   public:
     using MatrixN<Matrix33, float, 3>::MatrixN;
-    Matrix33() { }
+    Matrix33() = default;
     Matrix33(float m00, float m01, float m02,
              float m10, float m11, float m12,
              float m20, float m21, float m22) :
         MatrixN(Uninit{})
     {
-        _arr = {m00, m01, m02,
-                m10, m11, m12,
-                m20, m21, m22};
+        _arr = { m00, m01, m02,
+                 m10, m11, m12,
+                 m20, m21, m22 };
     }
 
     /// @name Vector Transformations
@@ -672,21 +637,21 @@ class Matrix33 : public MatrixN<Matrix33, float, 3>
 ///
 /// Vector transformation methods follow the row-vector convention,
 /// with matrix-vector multiplication computed as v' = vM.
-class Matrix44 : public MatrixN<Matrix44, float, 4>
+class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
 {
   public:
     using MatrixN<Matrix44, float, 4>::MatrixN;
-    Matrix44() { }
+    Matrix44() = default;
     Matrix44(float m00, float m01, float m02, float m03,
              float m10, float m11, float m12, float m13,
              float m20, float m21, float m22, float m23,
              float m30, float m31, float m32, float m33) :
         MatrixN(Uninit{})
     {
-        _arr = {m00, m01, m02, m03,
-                m10, m11, m12, m13,
-                m20, m21, m22, m23,
-                m30, m31, m32, m33};
+        _arr = { m00, m01, m02, m03,
+                 m10, m11, m12, m13,
+                 m20, m21, m22, m23,
+                 m30, m31, m32, m33 };
     }
 
     /// @name Vector Transformations
@@ -722,17 +687,12 @@ class Matrix44 : public MatrixN<Matrix44, float, 4>
     /// @param angle Angle in radians
     static Matrix44 createRotationZ(float angle);
 
-    /// Create a rotation matrix using a quaternion whose imaginary component is in the
-    /// the supplied vectors xyz, and whose real component is in the fourth component, w.
-    /// @param quaternion
-    static Matrix44 createRotation(const Quaternion& quaternion);
-
     /// @}
 
   public:
     static const Matrix44 IDENTITY;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

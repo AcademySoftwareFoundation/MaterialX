@@ -6,7 +6,7 @@
       <input name="uvtiling" type="vector2" value="4.0, 4.0" />
     </tiledimage>
     <tiledimage name="image_roughness" type="float">
-      <input name="file" type="filename" value="wood_roughness.jpg" colorspace="srgb_texture" />
+      <input name="file" type="filename" value="wood_roughness.jpg" />
       <input name="uvtiling" type="vector2" value="4.0, 4.0" />
     </tiledimage>
     <output name="out_color" type="color3" nodename="image_color" />

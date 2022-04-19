@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
 
 // Based on the OSL implementation of Oren-Nayar diffuse, which is in turn
 // based on https://mimosa-pudica.net/improved-oren-nayar.html.
@@ -16,7 +16,7 @@ float mx_oren_nayar_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness
     return A + B * stinv;
 }
 
-// https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
 float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 {
@@ -32,10 +32,10 @@ float mx_burley_diffuse(vec3 L, vec3 V, vec3 N, float NdotL, float roughness)
 
 // Compute the directional albedo component of Burley diffuse for the given
 // view angle and roughness.  Curve fit provided by Stephen Hill.
-float mx_burley_diffuse_directional_albedo(float NdotV, float roughness)
+float mx_burley_diffuse_dir_albedo(float NdotV, float roughness)
 {
     float x = NdotV;
-    float fit0 = 0.97619 - 0.488095 * mx_pow5(1 - x);
+    float fit0 = 0.97619 - 0.488095 * mx_pow5(1.0 - x);
     float fit1 = 1.55754 + (-2.02221 + (2.56283 - 1.06244 * x) * x) * x;
     return mix(fit0, fit1, roughness);
 }
@@ -63,10 +63,10 @@ vec3 mx_integrate_burley_diffusion(vec3 N, vec3 L, float radius, vec3 mfp)
     vec3 sumD = vec3(0.0);
     vec3 sumR = vec3(0.0);
     const int SAMPLE_COUNT = 32;
-    const float SAMPLE_WIDTH = (2.0 * M_PI) / SAMPLE_COUNT;
+    const float SAMPLE_WIDTH = (2.0 * M_PI) / float(SAMPLE_COUNT);
     for (int i = 0; i < SAMPLE_COUNT; i++)
     {
-        float x = -M_PI + (i + 0.5) * SAMPLE_WIDTH;
+        float x = -M_PI + (float(i) + 0.5) * SAMPLE_WIDTH;
         float dist = radius * abs(2.0 * sin(x * 0.5));
         vec3 R = mx_burley_diffusion_profile(dist, shape);
         sumD += R * max(cos(theta + x), 0.0);

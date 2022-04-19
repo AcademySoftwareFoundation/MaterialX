@@ -9,8 +9,7 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const StringVec SwitchNode::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "which" };
 
@@ -52,9 +51,9 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             // input may be float, integer or boolean.
             shadergen.emitString("if (float(", stage); 
             shadergen.emitInput(which, context, stage);
-            shadergen.emitString(") < ", stage);
+            shadergen.emitString(") < float(", stage);
             shadergen.emitValue(float(branch + 1), stage);
-            shadergen.emitString(")", stage);
+            shadergen.emitString("))", stage);
             shadergen.emitLineEnd(stage, false);
 
             shadergen.emitScopeBegin(stage);
@@ -80,4 +79,4 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

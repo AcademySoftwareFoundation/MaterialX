@@ -9,15 +9,14 @@
 /// @file
 /// Definition element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Interface.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
-extern const string COLOR_SEMANTIC;
-extern const string SHADER_SEMANTIC;
+extern MX_CORE_API const string COLOR_SEMANTIC;
+extern MX_CORE_API const string SHADER_SEMANTIC;
 
 class NodeDef;
 class Implementation;
@@ -79,7 +78,7 @@ using AttributeDefDefPtr = shared_ptr<const AttributeDef>;
 ///
 /// A NodeDef provides the declaration of a node interface, which may then
 /// be instantiated as a Node.
-class NodeDef : public InterfaceElement
+class MX_CORE_API NodeDef : public InterfaceElement
 {
   public:
     NodeDef(ElementPtr parent, const string& name) :
@@ -190,7 +189,7 @@ class NodeDef : public InterfaceElement
 /// An Implementation is used to associate external source code with a specific
 /// NodeDef, providing a definition for the node that may either be universal or
 /// restricted to a specific target.
-class Implementation : public InterfaceElement
+class MX_CORE_API Implementation : public InterfaceElement
 {
   public:
     Implementation(ElementPtr parent, const string& name) :
@@ -243,6 +242,28 @@ class Implementation : public InterfaceElement
     }
 
     /// @}
+    /// @name Nodegraph String
+    /// @{
+
+    /// Set the nodegraph string for the Implementation.
+    void setNodeGraph(const string& nodegraph)
+    {
+        setAttribute(NODE_GRAPH_ATTRIBUTE, nodegraph);
+    }
+
+    /// Return true if the given Implementation has a nodegraph string.
+    bool hasNodeGraph() const
+    {
+        return hasAttribute(NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// Return the nodegraph string for the Implementation.
+    const string& getNodeGraph() const
+    {
+        return getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+    }
+
+    /// @}
     /// @name NodeDef References
     /// @{
 
@@ -274,11 +295,12 @@ class Implementation : public InterfaceElement
     static const string CATEGORY;
     static const string FILE_ATTRIBUTE;
     static const string FUNCTION_ATTRIBUTE;
+    static const string NODE_GRAPH_ATTRIBUTE;
 };
 
 /// @class TypeDef
 /// A type definition element within a Document.
-class TypeDef : public Element
+class MX_CORE_API TypeDef : public Element
 {
   public:
     TypeDef(ElementPtr parent, const string& name) :
@@ -372,7 +394,7 @@ class TypeDef : public Element
 
 /// @class TargetDef
 /// A definition of an implementation target.
-class TargetDef : public TypedElement
+class MX_CORE_API TargetDef : public TypedElement
 {
   public:
     TargetDef(ElementPtr parent, const string& name) :
@@ -393,7 +415,7 @@ class TargetDef : public TypedElement
 
 /// @class Member
 /// A member element within a TypeDef.
-class Member : public TypedElement
+class MX_CORE_API Member : public TypedElement
 {
   public:
     Member(ElementPtr parent, const string& name) :
@@ -408,14 +430,14 @@ class Member : public TypedElement
 
 /// @class Unit
 /// A unit declaration within a UnitDef.
-class Unit : public Element
+class MX_CORE_API Unit : public Element
 {
   public:
-      Unit(ElementPtr parent, const string& name) :
-          Element(parent, CATEGORY, name)
-      {
-      }
-      virtual ~Unit() { }
+    Unit(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~Unit() { }
 
   public:
     static const string CATEGORY;
@@ -423,7 +445,7 @@ class Unit : public Element
 
 /// @class UnitDef
 /// A unit definition element within a Document.
-class UnitDef : public Element
+class MX_CORE_API UnitDef : public Element
 {
   public:
     UnitDef(ElementPtr parent, const string& name) :
@@ -497,7 +519,7 @@ class UnitDef : public Element
 
 /// @class UnitTypeDef
 /// A unit type definition element within a Document.
-class UnitTypeDef : public Element
+class MX_CORE_API UnitTypeDef : public Element
 {
   public:
     UnitTypeDef(ElementPtr parent, const string& name) :
@@ -515,7 +537,7 @@ class UnitTypeDef : public Element
 
 /// @class AttributeDef
 /// An attribute definition element within a Document.
-class AttributeDef : public TypedElement
+class MX_CORE_API AttributeDef : public TypedElement
 {
   public:
     AttributeDef(ElementPtr parent, const string& name) :
@@ -572,7 +594,7 @@ class AttributeDef : public TypedElement
     /// @{
 
     /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    template <class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
         setType(!type.empty() ? type : getTypeString<T>());
         setValueString(toValueString(value));
@@ -651,6 +673,6 @@ class AttributeDef : public TypedElement
     static const string EXPORTABLE_ATTRIBUTE;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

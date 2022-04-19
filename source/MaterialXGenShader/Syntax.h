@@ -9,18 +9,18 @@
 /// @file
 /// Base class for syntax handling for shader generators
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Library.h>
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Syntax;
 class TypeSyntax;
 class TypeDesc;
+class ShaderPort;
 
 /// Shared pointer to a Syntax
 using SyntaxPtr = shared_ptr<Syntax>;
@@ -36,7 +36,7 @@ using IdentifierMap = std::unordered_map<string, size_t>;
 /// @class Syntax
 /// Base class for syntax objects used by shader generators
 /// to emit code with correct syntax for each language.
-class Syntax
+class MX_GENSHADER_API Syntax
 {
   public:
     /// Punctuation types
@@ -101,6 +101,9 @@ class Syntax
 
     /// Returns the value string for a given type and value object
     virtual string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const;
+
+    /// Returns the value string for a given shader port object
+    virtual string getValue(const ShaderPort* port, bool uniform = false) const;
 
     /// Get syntax for a swizzled variable
     virtual string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const;
@@ -212,7 +215,7 @@ class Syntax
 
 /// @class TypeSyntax
 /// Base class for syntax handling of types.
-class TypeSyntax
+class MX_GENSHADER_API TypeSyntax
 {
   public:
     virtual ~TypeSyntax() { }
@@ -232,6 +235,10 @@ class TypeSyntax
     /// Returns the syntax for accessing type members if the type 
     /// can be swizzled.
     const StringVec& getMembers() const { return _members; }
+
+    /// Returns a value formatted according to this type syntax.
+    /// The value is constructed from the given shader port object.
+    virtual string getValue(const ShaderPort* port, bool uniform) const;
 
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.
@@ -258,7 +265,7 @@ class TypeSyntax
 };
 
 /// Specialization of TypeSyntax for scalar types.
-class ScalarTypeSyntax : public TypeSyntax
+class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
 {
   public:
     ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue, 
@@ -269,7 +276,7 @@ class ScalarTypeSyntax : public TypeSyntax
 };
 
 /// Specialization of TypeSyntax for string types.
-class StringTypeSyntax : public ScalarTypeSyntax
+class MX_GENSHADER_API StringTypeSyntax : public ScalarTypeSyntax
 {
   public:
     StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -279,7 +286,7 @@ class StringTypeSyntax : public ScalarTypeSyntax
 };
 
 /// Specialization of TypeSyntax for aggregate types.
-class AggregateTypeSyntax : public TypeSyntax
+class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
 {
   public:
     AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -290,6 +297,6 @@ class AggregateTypeSyntax : public TypeSyntax
     string getValue(const StringVec& values, bool uniform) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

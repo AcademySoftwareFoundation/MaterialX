@@ -9,13 +9,14 @@
 /// @file
 /// GLSL code renderer
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 using GLContextPtr = std::shared_ptr<class GLContext>;
 using SimpleWindowPtr = std::shared_ptr<class SimpleWindow>;
@@ -37,14 +38,14 @@ using GlslRendererPtr = std::shared_ptr<class GlslRenderer>;
 ///     - Rendering: The program with bound inputs will be used to drawing geometry to an offscreen buffer.
 ///     An interface is provided to save this offscreen buffer to disk using an externally defined image handler.
 ///
-class GlslRenderer : public ShaderRenderer
+class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
 {
   public:
     /// Create a GLSL renderer instance
     static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
     /// Destructor
-    virtual ~GlslRenderer() { };
+    virtual ~GlslRenderer() { }
 
     /// @name Setup
     /// @{
@@ -77,25 +78,19 @@ class GlslRenderer : public ShaderRenderer
     void render() override;
 
     /// Render the current program in texture space to an off-screen buffer.
-    void renderTextureSpace();
+    void renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax);
 
     /// @}
     /// @name Utilities
     /// @{
 
     /// Capture the current contents of the off-screen hardware buffer as an image.
-    ImagePtr captureImage() override;
-
-    /// Save the current contents of the off-screen hardware buffer to disk.
-    void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) override;
-
-    /// Load images referenced by shader program and return list of images loaded
-    ImageVec getReferencedImages(const ShaderPtr& shader) override;
+    ImagePtr captureImage(ImagePtr image = nullptr) override;
 
     /// Return the GL frame buffer.
-    GLFrameBufferPtr getFrameBuffer() const
+    GLFramebufferPtr getFramebuffer() const
     {
-        return _frameBuffer;
+        return _framebuffer;
     }
 
     /// Return the GLSL program.
@@ -105,7 +100,7 @@ class GlslRenderer : public ShaderRenderer
     }
 
     /// Submit geometry for a screen-space quad.
-    void drawScreenSpaceQuad();
+    void drawScreenSpaceQuad(const Vector2& uvMin = Vector2(0.0f), const Vector2& uvMax = Vector2(1.0f));
 
     /// Sets the clear color
     void setClearColor(const Color4& clearColor);
@@ -121,7 +116,7 @@ class GlslRenderer : public ShaderRenderer
   private:
     GlslProgramPtr _program;
 
-    GLFrameBufferPtr _frameBuffer;
+    GLFramebufferPtr _framebuffer;
 
     bool _initialized;
 
@@ -135,6 +130,6 @@ class GlslRenderer : public ShaderRenderer
     Color4 _clearColor;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

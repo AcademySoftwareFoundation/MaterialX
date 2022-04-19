@@ -8,12 +8,11 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class IfNode
 /// Abstract base class for implementions which handle if conditions.
-class IfNode : public ShaderNodeImpl
+class MX_GENSHADER_API IfNode : public ShaderNodeImpl
 {
   public:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
@@ -27,7 +26,7 @@ class IfNode : public ShaderNodeImpl
 
 /// @class IfGreaterNode
 /// "ifgreater" node implementation
-class IfGreaterNode : public IfNode
+class MX_GENSHADER_API IfGreaterNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -41,7 +40,7 @@ class IfGreaterNode : public IfNode
 
 /// @class IfGreaterEqNode 
 /// "ifgreatereq" node implementation
-class IfGreaterEqNode : public IfNode
+class MX_GENSHADER_API IfGreaterEqNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -55,7 +54,7 @@ class IfGreaterEqNode : public IfNode
 
 /// @class IfEqualNode 
 /// "ifequal" node implementation
-class IfEqualNode : public IfNode
+class MX_GENSHADER_API IfEqualNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -67,6 +66,6 @@ class IfEqualNode : public IfNode
     static string EQUALITY_STRING;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

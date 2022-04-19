@@ -9,15 +9,16 @@
 /// @file
 /// GLSL Program interfaces
 
+#include <MaterialXRenderGlsl/Export.h>
+
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 // Shared pointer to a GlslProgram
 using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
@@ -27,7 +28,7 @@ using GlslProgramPtr = std::shared_ptr<class GlslProgram>;
 ///
 /// There are two main interfaces which can be used.  One which takes in a HwShader and one which
 /// allows for explicit setting of shader stage code.
-class GlslProgram
+class MX_RENDERGLSL_API GlslProgram
 {
   public:
     /// Create a GLSL program instance
@@ -59,6 +60,12 @@ class GlslProgram
     /// Clear out any existing stages
     void clearStages();
 
+    /// Return the shader, if any, used to generate this program.
+    ShaderPtr getShader() const
+    {
+        return _shader;
+    }
+
     /// @}
     /// @name Program validation and introspection
     /// @{
@@ -73,7 +80,7 @@ class GlslProgram
     /// The structure is populated by directly scanning the program so may not contain
     /// some inputs listed on any associated HwShader as those inputs may have been
     /// optimized out if they are unused.
-    struct Input
+    struct MX_RENDERGLSL_API Input
     {
         static int INVALID_OPENGL_TYPE;
 
@@ -94,6 +101,8 @@ class GlslProgram
         string path;
         /// Unit
         string unit;
+        /// Colorspace 
+        string colorspace;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize, string inputPath)
@@ -139,15 +148,6 @@ class GlslProgram
     /// @return False if failed
     bool bind();
 
-    /// Bind inputs
-    void bindInputs(ViewHandlerPtr viewHandler,
-                    GeometryHandlerPtr geometryHandler,
-                    ImageHandlerPtr imageHandler,
-                    LightHandlerPtr lightHandler);
-
-    /// Unbind inputs
-    void unbindInputs(ImageHandlerPtr imageHandler);
-
     /// Return true if the program has active attributes.
     bool hasActiveAttributes() const;
 
@@ -180,10 +180,10 @@ class GlslProgram
     void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler);
 
     /// Bind view information
-    void bindViewInformation(ViewHandlerPtr viewHandler);
+    void bindViewInformation(CameraPtr camera);
 
     /// Bind time and frame
-    void bindTimeAndFrame();
+    void bindTimeAndFrame(float time = 1.0f, float frame = 1.0f);
 
     /// Unbind the program.  Equivalent to binding no program
     void unbind() const;
@@ -264,10 +264,8 @@ class GlslProgram
 
     // Enabled vertex stream program locations
     std::set<int> _enabledStreamLocations;
-
-    std::string _lastGeometryName;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

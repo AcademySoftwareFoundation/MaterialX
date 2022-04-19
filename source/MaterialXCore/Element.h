@@ -9,14 +9,13 @@
 /// @file
 /// Base and generic element classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Traversal.h>
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Element;
 class TypedElement;
@@ -71,7 +70,7 @@ using ElementPredicate = std::function<bool(ConstElementPtr)>;
 ///
 /// An Element is a named object within a Document, which may possess any
 /// number of child elements and attributes.
-class Element : public std::enable_shared_from_this<Element>
+class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 {
   protected:
     Element(ElementPtr parent, const string& category, const string& name) :
@@ -81,6 +80,7 @@ class Element : public std::enable_shared_from_this<Element>
         _root(parent ? parent->getRoot() : nullptr)
     {
     }
+
   public:
     virtual ~Element() { }
     Element(const Element&) = delete;
@@ -372,7 +372,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return true if this element belongs to the given subclass.
     /// If a category string is specified, then both subclass and category
     /// matches are required.
-    template<class T> bool isA(const string& category = EMPTY_STRING) const
+    template <class T> bool isA(const string& category = EMPTY_STRING) const
     {
         if (!asA<T>())
             return false;
@@ -382,10 +382,10 @@ class Element : public std::enable_shared_from_this<Element>
     }
 
     /// Dynamic cast to an instance of the given subclass.
-    template<class T> shared_ptr<T> asA();
+    template <class T> shared_ptr<T> asA();
 
     /// Dynamic cast to a const instance of the given subclass.
-    template<class T> shared_ptr<const T> asA() const;
+    template <class T> shared_ptr<const T> asA() const;
 
     /// @}
     /// @name Child Elements
@@ -398,7 +398,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// @throws Exception if a child of this element already possesses the
     ///     given name.
     /// @return A shared pointer to the new child element.
-    template<class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
+    template <class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
     /// Add a child element of the given category and name.
     /// @param category The category string of the new child element.
@@ -429,7 +429,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then an empty shared pointer is returned.
-    template<class T> shared_ptr<T> getChildOfType(const string& name) const
+    template <class T> shared_ptr<T> getChildOfType(const string& name) const
     {
         ElementPtr child = getChild(name);
         return child ? child->asA<T>() : shared_ptr<T>();
@@ -445,9 +445,9 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return a vector of all child elements that are instances of the given
     /// subclass, optionally filtered by the given category string.  The returned
     /// vector maintains the order in which children were added.
-    template<class T> vector< shared_ptr<T> > getChildrenOfType(const string& category = EMPTY_STRING) const
+    template <class T> vector<shared_ptr<T>> getChildrenOfType(const string& category = EMPTY_STRING) const
     {
-        vector< shared_ptr<T> > children;
+        vector<shared_ptr<T>> children;
         for (ElementPtr child : _childOrder)
         {
             shared_ptr<T> instance = child->asA<T>();
@@ -474,7 +474,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Remove the child element, if any, with the given name and subclass.
     /// If a child with the given name exists, but belongs to a different
     /// subclass, then this method has no effect.
-    template<class T> void removeChildOfType(const string& name)
+    template <class T> void removeChildOfType(const string& name)
     {
         if (getChildOfType<T>(name))
             removeChild(name);
@@ -510,7 +510,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Set the value of an implicitly typed attribute.  Since an attribute
     /// stores no explicit type, the same type argument must be used in
     /// corresponding calls to getTypedAttribute.
-    template<class T> void setTypedAttribute(const string& attrib, const T& data)
+    template <class T> void setTypedAttribute(const string& attrib, const T& data)
     {
         setAttribute(attrib, toValueString(data));
     }
@@ -518,7 +518,7 @@ class Element : public std::enable_shared_from_this<Element>
     /// Return the value of an implicitly typed attribute. If the given
     /// attribute is not present, or cannot be converted to the given data
     /// type, then the zero value for the data type is returned.
-    template<class T> T getTypedAttribute(const string& attrib) const
+    template <class T> T getTypedAttribute(const string& attrib) const
     {
         if (hasAttribute(attrib))
         {
@@ -571,20 +571,14 @@ class Element : public std::enable_shared_from_this<Element>
     ConstElementPtr getRoot() const;
 
     /// Return the root document of our tree.
-    DocumentPtr getDocument()
-    {
-        return getRoot()->asA<Document>();
-    }
+    DocumentPtr getDocument();
 
     /// Return the root document of our tree.
-    ConstDocumentPtr getDocument() const
-    {
-        return getRoot()->asA<Document>();
-    }
+    ConstDocumentPtr getDocument() const;
 
     /// Return the first ancestor of the given subclass, or an empty shared
     /// pointer if no ancestor of this subclass is found.
-    template<class T> shared_ptr<const T> getAncestorOfType() const
+    template <class T> shared_ptr<const T> getAncestorOfType() const
     {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
         {
@@ -769,7 +763,7 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Resolve a reference to a named element at the root scope of this document,
     /// taking the namespace at the scope of this element into account.
-    template<class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    template <class T> shared_ptr<T> resolveRootNameReference(const string& name) const
     {
         ConstElementPtr root = getRoot();
         shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
@@ -832,13 +826,14 @@ class Element : public std::enable_shared_from_this<Element>
 
 /// @class TypedElement
 /// The base class for typed elements.
-class TypedElement : public Element
+class MX_CORE_API TypedElement : public Element
 {
   protected:
     TypedElement(ElementPtr parent, const string& category, const string& name) :
         Element(parent, category, name)
     {
     }
+
   public:
     virtual ~TypedElement() { }
 
@@ -883,19 +878,20 @@ class TypedElement : public Element
 
     /// @}
 
-public:
+  public:
     static const string TYPE_ATTRIBUTE;
 };
 
 /// @class ValueElement
 /// The base class for elements that support typed values.
-class ValueElement : public TypedElement
+class MX_CORE_API ValueElement : public TypedElement
 {
   protected:
     ValueElement(ElementPtr parent, const string& category, const string& name) :
         TypedElement(parent, category, name)
     {
     }
+
   public:
     virtual ~ValueElement() { }
 
@@ -976,7 +972,7 @@ class ValueElement : public TypedElement
     /// @{
 
     /// Set the typed value of an element.
-    template<class T> void setValue(const T& value, const string& type = EMPTY_STRING)
+    template <class T> void setValue(const T& value, const string& type = EMPTY_STRING)
     {
         setType(!type.empty() ? type : getTypeString<T>());
         setValueString(toValueString(value));
@@ -1123,7 +1119,7 @@ class ValueElement : public TypedElement
 ///
 /// Token elements are used to define input and output values for string
 /// substitutions in image filenames.
-class Token : public ValueElement
+class MX_CORE_API Token : public ValueElement
 {
   public:
     Token(ElementPtr parent, const string& name) :
@@ -1142,8 +1138,8 @@ class Token : public ValueElement
 ///
 /// The comment text may be accessed with the methods Element::setDocString and
 /// Element::getDocString.
-/// 
-class CommentElement : public Element
+///
+class MX_CORE_API CommentElement : public Element
 {
   public:
     CommentElement(ElementPtr parent, const string& name) :
@@ -1158,7 +1154,7 @@ class CommentElement : public Element
 
 /// @class GenericElement
 /// A generic element subclass, for instantiating elements with unrecognized categories.
-class GenericElement : public Element
+class MX_CORE_API GenericElement : public Element
 {
   public:
     GenericElement(ElementPtr parent, const string& name) :
@@ -1184,7 +1180,7 @@ class GenericElement : public Element
 ///
 /// Methods such as StringResolver::setFilePrefix may be used to edit the
 /// stored string modifiers before calling StringResolver::resolve.
-class StringResolver
+class MX_CORE_API StringResolver
 {
   public:
     /// Create a new string resolver.
@@ -1244,6 +1240,9 @@ class StringResolver
         _filenameMap[key] = value;
     }
 
+    /// Add filename token substitutions for a given element
+    void addTokenSubstitutions(ConstElementPtr element);
+
     /// Return the map of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const
     {
@@ -1295,13 +1294,13 @@ class StringResolver
 /// @class ExceptionOrphanedElement
 /// An exception that is thrown when an ElementPtr is used after its owning
 /// Document has gone out of scope.
-class ExceptionOrphanedElement : public Exception
+class MX_CORE_API ExceptionOrphanedElement : public Exception
 {
   public:
     using Exception::Exception;
 };
 
-template<class T> shared_ptr<T> Element::addChild(const string& name)
+template <class T> shared_ptr<T> Element::addChild(const string& name)
 {
     string childName = name;
     if (childName.empty())
@@ -1321,12 +1320,12 @@ template<class T> shared_ptr<T> Element::addChild(const string& name)
 /// Given two target strings, each containing a string array of target names,
 /// return true if they have any targets in common.  An empty target string
 /// matches all targets.
-bool targetStringsMatch(const string& target1, const string& target2);
+MX_CORE_API bool targetStringsMatch(const string& target1, const string& target2);
 
 /// Pretty print the given element tree, calling asString recursively on each
 /// element in depth-first order.
-string prettyPrint(ConstElementPtr elem);
+MX_CORE_API string prettyPrint(ConstElementPtr elem);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -18,23 +18,21 @@
     #pragma warning(pop)
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 bool OiioImageLoader::saveImage(const FilePath& filePath,
                                 ConstImagePtr image,
                                 bool verticalFlip)
 {
-    OIIO::ImageSpec imageSpec;
-    imageSpec.width = image->getWidth();
-    imageSpec.height = image->getHeight();
-    imageSpec.nchannels = image->getChannelCount();
-
+    OIIO::ImageSpec imageSpec(image->getWidth(), image->getHeight(), image->getChannelCount());
     OIIO::TypeDesc format;
     switch (image->getBaseType())
     {
         case Image::BaseType::UINT8:
             format = OIIO::TypeDesc::UINT8;
+            break;
+        case Image::BaseType::UINT16:
+            format = OIIO::TypeDesc::UINT16;
             break;
         case Image::BaseType::HALF:
             format = OIIO::TypeDesc::HALF;
@@ -92,6 +90,9 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
         case OIIO::TypeDesc::UINT8:
             baseType = Image::BaseType::UINT8;
             break;
+        case OIIO::TypeDesc::UINT16:
+            baseType = Image::BaseType::UINT16;
+            break;
         case OIIO::TypeDesc::HALF:
             baseType = Image::BaseType::HALF;
             break;
@@ -119,4 +120,4 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
     return image;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

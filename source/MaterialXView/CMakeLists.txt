@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 17)
+
 option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
 if (MATERIALX_NANOGUI_EXTERNAL)
@@ -26,7 +28,8 @@ else()
             "git submodule update --init --recursive")
     endif()
 
-    set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+    set(NANOGUI_BACKEND OpenGL CACHE STRING " " FORCE)
+    set(NANOGUI_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_SHARED OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_PYTHON OFF CACHE BOOL " " FORCE)
     set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
@@ -35,17 +38,21 @@ else()
     set(PREV_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
     set(PREV_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     if(MSVC)
-        add_compile_options(-wd4389 -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DEIGEN_DONT_VECTORIZE)
-    elseif(APPLE)
-        add_compile_options(-Wno-objc-multiple-method-names -DGL_SILENCE_DEPRECATION)
-    elseif(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation -Wno-implicit-fallthrough -Wno-int-in-bool-context
-                            -Wno-maybe-uninitialized -Wno-misleading-indentation)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
+        add_compile_options(-wd4389)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options(-Wno-deprecated)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        add_compile_options(-Wno-format-truncation)
+    endif()
+
+    # Disable NanoGUI compiler modifications for Clang
+    set(PREV_COMPILER_ID CMAKE_CXX_COMPILER_ID)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT APPLE)
+        set(CMAKE_CXX_COMPILER_ID "None")
     endif()
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI external/NanoGUI)
-    set_property(TARGET nanogui nanogui-obj glfw glfw_objects PROPERTY FOLDER "External")
+    set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "External")
 
     set(NANOGUI_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../;${CMAKE_CURRENT_SOURCE_DIR}/NanoGUI/include")
     set(NANOGUI_LIBRARIES "nanogui")
@@ -53,6 +60,9 @@ else()
     # Restore warnings for MaterialXView
     set(CMAKE_C_FLAGS ${PREV_CMAKE_C_FLAGS})
     set(CMAKE_CXX_FLAGS ${PREV_CMAKE_CXX_FLAGS})
+
+    # Restore compiler ID for MaterialXView
+    set(CMAKE_CXX_COMPILER_ID PREV_COMPILER_ID)
 endif()
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
@@ -62,21 +72,21 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 
 add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
-set(LIBS
-    MaterialXView
+set(MATERIALX_LIBRARIES
     MaterialXFormat
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
 if (MATERIALX_BUILD_GEN_OSL)
-    LIST(APPEND LIBS MaterialXGenOsl)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenOsl)
 endif()
 if (MATERIALX_BUILD_GEN_MDL)
-    LIST(APPEND LIBS MaterialXGenMdl)
+    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
 endif()
 
 target_link_libraries(
-    ${LIBS}
+    MaterialXView
+    ${MATERIALX_LIBRARIES}
     ${NANOGUI_LIBRARIES}
     ${NANOGUI_EXTRA_LIBS})
 
@@ -89,11 +99,11 @@ target_include_directories(
 if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
     add_custom_command(TARGET MaterialXView POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_CURRENT_BINARY_DIR})
+        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
 endif()
 
 install(TARGETS MaterialXView
     EXPORT MaterialX
     RUNTIME DESTINATION bin)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXView.pdb"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/" OPTIONAL)
+    DESTINATION "bin" OPTIONAL)

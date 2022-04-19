@@ -10,8 +10,7 @@
 
 #include <deque>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
 const string Backdrop::WIDTH_ATTRIBUTE = "width";
@@ -42,7 +41,7 @@ NodePtr Node::getConnectedNode(const string& inputName) const
     {
         return NodePtr();
     }
-    return input->getConnectedNode();    
+    return input->getConnectedNode();
 }
 
 void Node::setConnectedNodeName(const string& inputName, const string& nodeName)
@@ -86,10 +85,10 @@ OutputPtr Node::getConnectedOutput(const string& inputName) const
     {
         return OutputPtr();
     }
-    return input->getConnectedOutput();    
+    return input->getConnectedOutput();
 }
 
-NodeDefPtr Node::getNodeDef(const string& target) const
+NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
     {
@@ -97,15 +96,29 @@ NodeDefPtr Node::getNodeDef(const string& target) const
     }
     vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getCategory()));
     vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getCategory());
+    vector<NodeDefPtr> roughMatches;
     nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
     for (NodeDefPtr nodeDef : nodeDefs)
     {
-        if (targetStringsMatch(nodeDef->getTarget(), target) &&
-            nodeDef->isVersionCompatible(getVersionString()) &&
-            isTypeCompatible(nodeDef))
+        if (!targetStringsMatch(nodeDef->getTarget(), target) ||
+            !nodeDef->isVersionCompatible(getVersionString()) ||
+            nodeDef->getType() != getType())
         {
-            return nodeDef;
+            continue;
         }
+        if (!hasExactInputMatch(nodeDef))
+        {
+            if (allowRoughMatch)
+            {
+                roughMatches.push_back(nodeDef);
+            }
+            continue;
+        }
+        return nodeDef;
+    }
+    if (!roughMatches.empty())
+    {
+        return roughMatches[0];
     }
     return NodeDefPtr();
 }
@@ -127,19 +140,19 @@ Edge Node::getUpstreamEdge(size_t index) const
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const string* outputName = nullptr;
+    string outputName;
     const PortElementPtr port = connectingElement->asA<PortElement>();
     if (port)
     {
         // The connecting element is an input/output port,
-        // so get the name of the output connected to this 
+        // so get the name of the output connected to this
         // port. If no explicit output is specified this will
         // return an empty string which is handled below.
-        outputName = &port->getOutputString();
+        outputName = port->getOutputString();
 
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
-        OutputPtr output = OutputPtr();
+        OutputPtr output;
         if (connectedInput)
         {
             InputPtr interfaceInput = nullptr;
@@ -148,7 +161,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
                 interfaceInput = connectedInput->getInterfaceInput();
                 if (interfaceInput)
                 {
-                    outputName = &(interfaceInput->getOutputString());
+                    outputName = interfaceInput->getOutputString();
                     output = interfaceInput->getConnectedOutput();
                 }
             }
@@ -159,19 +172,23 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            if (output->getParent() == output->getDocument())
+            if (connectedInput || 
+                output->getParent() == output->getDocument())
             {
-                outputName = &output->getOutputString();
+                if (!output->getOutputString().empty())
+                {
+                    outputName = output->getOutputString();
+                }
             }
         }
     }
-    if (outputName && !outputName->empty())
+    if (!outputName.empty())
     {
         // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(*outputName);
+            return nodeDef->getActiveOutput(outputName);
         }
     }
     return OutputPtr();
@@ -199,6 +216,15 @@ bool Node::validate(string* message) const
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
     validateRequire(hasType(), res, message, "Node element is missing a type");
+
+    NodeDefPtr nodeDef = getNodeDef(EMPTY_STRING, true);
+    if (nodeDef)
+    {
+        string matchMessage;
+        bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
+        validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
+    }
+
     return InterfaceElement::validate(message) && res;
 }
 
@@ -271,8 +297,10 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             // Create a new instance of each original subnode.
             for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
             {
-                string destName = createValidChildName(sourceSubGraph->getName() + "_" + sourceSubNode->getName());
+                string origName = sourceSubNode->getName();
+                string destName = createValidChildName(origName);
                 NodePtr destSubNode = addNode(sourceSubNode->getCategory(), destName);
+
                 destSubNode->copyContentFrom(sourceSubNode);
                 setChildIndex(destSubNode->getName(), getChildIndex(processNode->getName()));
 
@@ -310,6 +338,10 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                             {
                                 newInput->setOutputString(refInput->getOutputString());
                             }
+                            if (refInput->hasNodeGraphString())
+                            {
+                                newInput->setNodeGraphString(refInput->getNodeGraphString());
+                            }
                         }
                     }
                     destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
@@ -345,6 +377,77 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         }
                     }
                 }
+            }
+
+            // Connect any nodegraph outputs within the graph which point to another
+            // flatten node within the nodegraph. As it's been flattened the previous
+            // reference is incorrect and needs to be updated.
+            if (sourceSubGraph->getOutputCount())
+            {
+                for (OutputPtr sourceOutput : getOutputs())
+                {
+                    const string& nodeNameString = sourceOutput->getNodeName();
+                    const string& outputString = sourceOutput->getOutputString();
+
+                    if (nodeNameString != processNode->getName())
+                    {
+                        continue;
+                    }
+
+                    // Look for what the original output pointed to.
+                    OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
+                    if (!sourceSubGraphOutput)
+                    {
+                        continue;
+                    }
+
+                    string destName = sourceSubGraphOutput->getNodeName();
+                    if (destName.empty())
+                    {
+                        destName = sourceSubGraphOutput->getNodeGraphString();
+                    }
+                    NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
+                    NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
+                    if (destNode)
+                    {
+                        destName = destNode->getName();
+                    }
+
+                    // Point original output to this one
+                    sourceOutput->setNodeName(destName);
+                }
+            }
+
+            // If the node was flattened then any downstream references
+            // need to be updated to point to the new root of the flatten node.
+            PortElementVec downstreamPorts = downstreamPortMap[processNode];
+            for (auto downstreamPort : downstreamPorts)
+            {
+                const string& outputString = downstreamPort->getOutputString();
+
+                // Look for an output on the flattened graph
+                OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
+                if (!sourceSubGraphOutput)
+                {
+                    continue;
+                }
+
+                // Find connected node to the output
+                string destName = sourceSubGraphOutput->getNodeName();
+                if (destName.empty())
+                {
+                    destName = sourceSubGraphOutput->getNodeGraphString();
+                }
+                NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
+                NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
+                if (destNode)
+                {
+                    destName = destNode->getName();
+                }
+
+                // Use that node to overwrite downstream port connection
+                downstreamPort->setNodeName(destName);
+                downstreamPort->setOutputString(EMPTY_STRING);
             }
 
             // The processed node has been replaced, so remove it from the graph.
@@ -395,7 +498,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         childQueue.pop_front();
         result.push_back(child);
 
-        // Find connected nodes and decrease their in-degree, 
+        // Find connected nodes and decrease their in-degree,
         // adding node to the queue if in-degrees becomes 0.
         if (child->isA<Node>())
         {
@@ -437,7 +540,7 @@ string GraphElement::asStringDot() const
     for (ElementPtr elem : children)
     {
         string uniqueName = elem->getCategory();
-        while(nameSet.count(uniqueName))
+        while (nameSet.count(uniqueName))
         {
             uniqueName = incrementName(uniqueName);
         }
@@ -515,6 +618,23 @@ string GraphElement::asStringDot() const
 // NodeGraph methods
 //
 
+vector<OutputPtr> NodeGraph::getMaterialOutputs() const
+{
+    vector<OutputPtr> materialOutputs;
+    for (auto graphOutput : getActiveOutputs())
+    {
+        if (graphOutput->getType() == MATERIAL_TYPE_STRING)
+        {
+            NodePtr node = graphOutput->getConnectedNode();
+            if (node && node->getType() == MATERIAL_TYPE_STRING)
+            {
+                materialOutputs.push_back(graphOutput);
+            }
+        }
+    }
+    return materialOutputs;
+}
+
 void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
 {
     if (nodeDef)
@@ -527,30 +647,44 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-ValueElementPtr Node::addInputFromNodeDef(const string& name)
+InputPtr Node::addInputFromNodeDef(const string& inputName)
 {
-    ValueElementPtr newChild = nullptr;
-    NodeDefPtr elemNodeDef = getNodeDef();
-    if (elemNodeDef)
+    InputPtr nodeInput = getInput(inputName);
+    if (!nodeInput)
     {
-        ValueElementPtr nodeDefElem = elemNodeDef->getChildOfType<ValueElement>(name);
-        const string& inputName = nodeDefElem->getName();
-        ElementPtr existingElement = getChild(inputName);
-        if (existingElement && existingElement->isA<ValueElement>())
+        NodeDefPtr nodeDef = getNodeDef();
+        InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(inputName) : nullptr;
+        if (nodeDefInput)
         {
-            return existingElement->asA<ValueElement>();
-        }
-
-        if (nodeDefElem->isA<Input>())
-        {
-            newChild = addInput(inputName, nodeDefElem->getType());
-        }
-        if (newChild)
-        {
-            newChild->copyContentFrom(nodeDefElem);
+            nodeInput = addInput(nodeDefInput->getName(), nodeDefInput->getType());
+            if (nodeDefInput->hasValueString())
+            {
+                nodeInput->setValueString(nodeDefInput->getValueString());
+            }
         }
     }
-    return newChild;
+    return nodeInput;
+}
+
+void Node::addInputsFromNodeDef()
+{
+    NodeDefPtr nodeDef = getNodeDef();
+    if (nodeDef)
+    {
+        for (InputPtr nodeDefInput : nodeDef->getActiveInputs())
+        {
+            const string& inputName = nodeDefInput->getName();
+            InputPtr nodeInput = getInput(inputName);
+            if (!nodeInput)
+            {
+                nodeInput = addInput(inputName, nodeDefInput->getType());
+                if (nodeDefInput->hasValueString())
+                {
+                    nodeInput->setValueString(nodeDefInput->getValueString());
+                }
+            }
+        }
+    }
 }
 
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
@@ -588,7 +722,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
         const string& interfaceName = input->getInterfaceName();
         getNodeDef()->removeChild(interfaceName);
         input->setInterfaceName(EMPTY_STRING);
-    }   
+    }
 }
 
 void NodeGraph::modifyInterfaceName(const string& inputPath, const string& interfaceName)
@@ -609,7 +743,19 @@ void NodeGraph::modifyInterfaceName(const string& inputPath, const string& inter
 
 NodeDefPtr NodeGraph::getNodeDef() const
 {
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
+    NodeDefPtr nodedef = resolveRootNameReference<NodeDef>(getNodeDefString());
+    // If not directly defined look for an implementation which has a nodedef association
+    if (!nodedef)
+    {
+        for (auto impl : getDocument()->getImplementations())
+        {
+            if (impl->getNodeGraph() == getQualifiedName(getName()))
+            {
+                nodedef = impl->getNodeDef();
+            }
+        }
+    }
+    return nodedef;
 }
 
 InterfaceElementPtr NodeGraph::getImplementation() const
@@ -632,33 +778,7 @@ bool NodeGraph::validate(string* message) const
             validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
         }
     }
-    // Check interfaces on nodegraphs which are not definitions
-    if (!hasNodeDefString())
-    {
-        for (NodePtr node : getNodes())
-        {
-            for (InputPtr input : node->getInputs())
-            {
-                const string& interfaceName = input->getInterfaceName();
-                if (!interfaceName.empty())
-                {
-                    InputPtr interfaceInput = input->getInterfaceInput();
-                    validateRequire(interfaceInput != nullptr, res, message, "NodeGraph interface input: \"" + interfaceName + "\" does not exist on nodegraph");
-                    string connectedNodeName = interfaceInput ? interfaceInput->getNodeName() : EMPTY_STRING;
-                    if (connectedNodeName.empty())
-                    {
-                        connectedNodeName = interfaceInput->getNodeGraphString();
-                    }
-                    if (interfaceInput && !connectedNodeName.empty())
-                    {
-                        NodePtr connectedNode = input->getConnectedNode();
-                        validateRequire(connectedNode != nullptr, res, message, "Nodegraph input: \"" + interfaceInput->getNamePath() +
-                            "\" specifies connection to non existent node: \"" + connectedNodeName + "\"");
-                    }
-                }
-            }
-        }
-    }
+
     return GraphElement::validate(message) && res;
 }
 
@@ -718,4 +838,4 @@ bool Backdrop::validate(string* message) const
     return Element::validate(message) && res;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

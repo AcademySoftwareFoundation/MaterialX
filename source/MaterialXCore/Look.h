@@ -9,14 +9,13 @@
 /// @file
 /// Look element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Material.h>
 #include <MaterialXCore/Property.h>
 #include <MaterialXCore/Variant.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Look;
 class LookGroup;
@@ -46,7 +45,7 @@ using ConstVisibilityPtr = shared_ptr<const Visibility>;
 
 /// @class Look
 /// A look element within a Document.
-class Look : public Element
+class MX_CORE_API Look : public Element
 {
   public:
     Look(ElementPtr parent, const string& name) :
@@ -242,7 +241,7 @@ class Look : public Element
 
 /// @class LookGroup
 /// A look group element within a Document.
-class LookGroup : public Element
+class MX_CORE_API LookGroup : public Element
 {
   public:
     LookGroup(ElementPtr parent, const string& name) :
@@ -283,7 +282,7 @@ class LookGroup : public Element
 
 /// @class MaterialAssign
 /// A material assignment element within a Look.
-class MaterialAssign : public GeomElement
+class MX_CORE_API MaterialAssign : public GeomElement
 {
   public:
     MaterialAssign(ElementPtr parent, const string& name) :
@@ -312,6 +311,9 @@ class MaterialAssign : public GeomElement
     {
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
+
+    ///  Return the outputs on any referenced material
+    vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Exclusive
@@ -371,6 +373,7 @@ class MaterialAssign : public GeomElement
     {
         removeChildOfType<VariantAssign>(name);
     }
+
   public:
     static const string CATEGORY;
     static const string MATERIAL_ATTRIBUTE;
@@ -385,7 +388,7 @@ class MaterialAssign : public GeomElement
 ///
 /// @todo Add a Look::geomIsVisible method that computes the visibility between
 ///     two geometries in the context of a specific Look.
-class Visibility : public GeomElement
+class MX_CORE_API Visibility : public GeomElement
 {
   public:
     Visibility(ElementPtr parent, const string& name) :
@@ -492,8 +495,8 @@ class Visibility : public GeomElement
 ///             By default, this argument is the universal geometry string "/",
 ///             and all material bindings are returned.
 /// @return Vector of MaterialAssign elements
-vector<MaterialAssignPtr> getGeometryBindings(const NodePtr& materialNode, const string& geom);
+MX_CORE_API vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const string& geom = UNIVERSAL_GEOM_NAME);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

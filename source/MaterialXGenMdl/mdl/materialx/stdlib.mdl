@@ -23,6 +23,7 @@ import ::math::*;
 import ::tex::*;
 import ::state::*;
 import ::anno::*;
+import ::df::*;
 
 // NOTE: To insulate MaterialX names from MDL names, in particular 
 //       conflicts with MDL reserved names, all node names, type names 
@@ -31,6 +32,30 @@ import ::anno::*;
 
 // NOTE: We use the ::anno::unused() annotation to mark unsupported parameters
 
+
+// Shader Nodes
+
+export material mx_surface_unlit(
+    float mxp_emission = 0.0,
+    color mxp_emission_color = color(1.0, 1.0, 1.0),
+    float mxp_transmission = 0.0,
+    color mxp_transmission_color = color(1.0, 1.0, 1.0),
+    float mxp_opacity = 1.0
+)
+= let {
+    float trans = math::clamp(mxp_transmission, 0.0, 1.0);
+    bsdf bsdf_node = df::specular_bsdf(trans * mxp_transmission_color, df::scatter_transmit);
+    material_emission edf_node = material_emission(df::diffuse_edf(), (1.0 - trans) * mxp_emission * mxp_emission_color * math::PI);
+} in material(
+    thin_walled: true,
+    surface: material_surface(
+        scattering: bsdf_node,
+        emission: edf_node
+    ),
+    geometry: material_geometry(
+        cutout_opacity: mxp_opacity
+    )
+);
 
 // Texture Nodes
 
@@ -4528,8 +4553,8 @@ export float2 mx_fractal3d_float2(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float3 v = noise::mx_fractal_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
-    return swizzle::xy(v) * mxp_amplitude;
+    float2 v = noise::mx_fractal_noise_float2(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
 }
 
 export float3 mx_fractal3d_float3(
@@ -4552,9 +4577,8 @@ export float4 mx_fractal3d_float4(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    float3 v = noise::mx_fractal_noise_float3(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
-    float w = noise::mx_fractal_noise_float(mxp_position + float3(19.0, 193.0, 17.0), mxp_octaves, mxp_lacunarity, mxp_diminish);
-    return float4(v.x, v.y, v.z, w) * mxp_amplitude;
+    float4 v = noise::mx_fractal_noise_float4(mxp_position, mxp_octaves, mxp_lacunarity, mxp_diminish);
+    return v * mxp_amplitude;
 }
 
 export color mx_fractal3d_color3(
@@ -4647,4 +4671,52 @@ export float mx_cellnoise3d_float(
 )
 {
     return noise::mx_cell_noise_float(mxp_position);
+}
+
+export float mx_worleynoise2d_float(
+  float2 mxp_texcoord = swizzle::xy( ::state::texture_coordinate(0)),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float(mxp_texcoord, mxp_jitter, 0);
+}
+
+export float2 mx_worleynoise2d_float2(
+  float2 mxp_texcoord = swizzle::xy( ::state::texture_coordinate(0)),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float2(mxp_texcoord, mxp_jitter, 0);
+}
+
+export float3 mx_worleynoise2d_float3(
+  float2 mxp_texcoord = swizzle::xy( ::state::texture_coordinate(0)),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float3(mxp_texcoord, mxp_jitter, 0);
+}
+
+export float mx_worleynoise3d_float(
+  float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float(mxp_position, mxp_jitter, 0);
+}
+
+export float2 mx_worleynoise3d_float2(
+  float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float2(mxp_position, mxp_jitter, 0);
+}
+
+export float3 mx_worleynoise3d_float3(
+  float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position()),
+  float mxp_jitter = 1.0
+)
+{
+    return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
 }

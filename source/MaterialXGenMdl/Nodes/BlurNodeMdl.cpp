@@ -10,17 +10,11 @@
 
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
 
-namespace MaterialX
-{
-
-BlurNodeMdl::BlurNodeMdl() :
-    BlurNode()
-{
-}
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr BlurNodeMdl::create()
 {
-    return std::shared_ptr<BlurNodeMdl>(new BlurNodeMdl());
+    return std::make_shared<BlurNodeMdl>();
 }
 
 void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType, 
@@ -194,4 +188,4 @@ void BlurNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

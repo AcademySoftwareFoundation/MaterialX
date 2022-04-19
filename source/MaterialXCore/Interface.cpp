@@ -7,13 +7,10 @@
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Material.h>
-#include <MaterialXCore/Node.h>
 
 #include <stdexcept>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::NODE_GRAPH_ATTRIBUTE = "nodegraph";
@@ -27,8 +24,7 @@ const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
 
 // Map from type strings to swizzle pattern character sets.
-const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
-{
+const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET = {
     { "float", { '0', '1', 'r', 'x' } },
     { "color3", { '0', '1', 'r', 'g', 'b' } },
     { "color4", { '0', '1', 'r', 'g', 'b', 'a' } },
@@ -38,8 +34,7 @@ const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET =
 };
 
 // Map from type strings to swizzle pattern lengths.
-const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH =
-{
+const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH = {
     { "float", 1 },
     { "color3", 3 },
     { "color4", 4 },
@@ -88,7 +83,7 @@ bool PortElement::validate(string* message) const
         const string& outputString = getOutputString();
         if (!outputString.empty())
         {
-            OutputPtr output = OutputPtr();
+            OutputPtr output;
             if (hasNodeName())
             {
                 NodeDefPtr nodeDef = connectedNode->getNodeDef();
@@ -96,7 +91,7 @@ bool PortElement::validate(string* message) const
                 if (output)
                 {
                     validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message,
-                        "Multi-output type expected in port connection");
+                                    "Multi-output type expected in port connection");
                 }
             }
             else if (hasNodeGraphString())
@@ -108,7 +103,7 @@ bool PortElement::validate(string* message) const
                     if (nodeGraph->getNodeDef())
                     {
                         validateRequire(nodeGraph->getOutputCount() > 1, res, message,
-                            "Multi-output type expected in port connection");
+                                        "Multi-output type expected in port connection");
                     }
                 }
             }
@@ -137,7 +132,7 @@ bool PortElement::validate(string* message) const
             bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
             validateRequire(valid, res, message, "Invalid channels string in port connection");
         }
-        else
+        else if (connectedNode->getType() != MULTI_OUTPUT_TYPE_STRING)
         {
             validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
         }
@@ -335,10 +330,31 @@ bool Input::validate(string* message) const
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    InputPtr interfaceInput = getInterfaceInput();
-    if (interfaceInput)
+    if (hasInterfaceName())
     {
-        return interfaceInput->validate() && res;
+        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
+        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
+        if (nodeDef)
+        {
+            InputPtr interfaceInput = nodeDef->getActiveInput(getInterfaceName());
+            validateRequire(interfaceInput != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            if (interfaceInput)
+            {
+                if (hasChannels())
+                {
+                    bool valid = validChannelsString(getChannels(), interfaceInput->getType(), getType());
+                    validateRequire(valid, res, message, "Invalid channels string for interface name");
+                }
+                else
+                {
+                    validateRequire(getType() == interfaceInput->getType(), res, message, "Interface name refers to input of a different type");
+                }
+            }
+        }
+        else
+        {
+            validateRequire(getInterfaceInput() != nullptr, res, message, "Interface name not found in containing NodeGraph");
+        }
     }
     return PortElement::validate(message) && res;
 }
@@ -425,7 +441,6 @@ OutputPtr InterfaceElement::getActiveOutput(const string& name) const
     return nullptr;
 }
 
-
 vector<OutputPtr> InterfaceElement::getActiveOutputs() const
 {
     vector<OutputPtr> activeOutputs;
@@ -465,7 +480,7 @@ OutputPtr InterfaceElement::getConnectedOutput(const string& inputName) const
     {
         return OutputPtr();
     }
-    return input->getConnectedOutput();    
+    return input->getConnectedOutput();
 }
 
 TokenPtr InterfaceElement::getActiveToken(const string& name) const
@@ -560,11 +575,11 @@ std::pair<int, int> InterfaceElement::getVersionIntegers() const
     {
         if (splitVersion.size() == 2)
         {
-            return {std::stoi(splitVersion[0]), std::stoi(splitVersion[1])};
+            return { std::stoi(splitVersion[0]), std::stoi(splitVersion[1]) };
         }
         else if (splitVersion.size() == 1)
         {
-            return {std::stoi(splitVersion[0]), 0};
+            return { std::stoi(splitVersion[0]), 0 };
         }
     }
     catch (std::invalid_argument&)
@@ -573,7 +588,7 @@ std::pair<int, int> InterfaceElement::getVersionIntegers() const
     catch (std::out_of_range&)
     {
     }
-    return {0, 0};
+    return { 0, 0 };
 }
 
 void InterfaceElement::registerChildElement(ElementPtr child)
@@ -607,23 +622,22 @@ ConstNodeDefPtr InterfaceElement::getDeclaration(const string&) const
     return NodeDefPtr();
 }
 
-bool InterfaceElement::isTypeCompatible(ConstInterfaceElementPtr declaration) const
+bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message) const
 {
-    if (getType() != declaration->getType())
+    for (InputPtr input : getActiveInputs())
     {
-        return false;
-    }
-    for (ValueElementPtr value : getActiveValueElements())
-    {
-        ValueElementPtr declarationValue = declaration->getActiveValueElement(value->getName());
-        if (!declarationValue ||
-            declarationValue->getCategory() != value->getCategory() ||
-            declarationValue->getType() != value->getType())
+        InputPtr declarationInput = declaration->getActiveInput(input->getName());
+        if (!declarationInput ||
+            declarationInput->getType() != input->getType())
         {
+            if (message)
+            {
+                *message += "Input '" + input->getName() + "' doesn't match declaration";
+            }
             return false;
         }
     }
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

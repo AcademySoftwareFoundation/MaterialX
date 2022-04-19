@@ -1,10 +1,12 @@
-#include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
+#include "libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, thinfilm tf, output BSDF result)
+void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, output BSDF bsdf)
 {
+    bsdf.throughput = color(0.0);
+
     if (weight < M_FLOAT_EPS)
     {
-        result = 0;
+        bsdf.response = 0;
         return;
     }
 
@@ -21,9 +23,10 @@ void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness
     // This should normally be done inside the closure
     // but since vanilla OSL doesen't support this we
     // add it here in shader code instead.
-    float avgRoughness = mx_average_roughness(roughness);
-    color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
+    vector2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
+    float avgAlpha = mx_average_alpha(safeAlpha);
+    color comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, false);
+    bsdf.response = F * comp * weight * microfacet(distribution, N, U, safeAlpha.x, safeAlpha.y, 0.0, false);
 }

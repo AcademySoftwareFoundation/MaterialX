@@ -84,15 +84,15 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 62);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 54);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
 
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    context.registerSourceCodeSearchPath(searchPath);
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    context.registerSourceCodeSearchPath(currentPath);
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
@@ -102,8 +102,8 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     mx::DocumentPtr doc = mx::createDocument();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    loadLibraries({ "targets", "stdlib", "pbrlib", "lights" }, searchPath, doc);
+    searchPath.append(mx::FilePath::getCurrentPath());
+    loadLibraries({ "libraries" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
     mx::NodeDefPtr spotLightShader = doc->getNodeDef("ND_spot_light");
@@ -111,7 +111,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE(spotLightShader != nullptr);
 
     mx::GenContext context(mx::GlslShaderGenerator::create());
-    context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    context.registerSourceCodeSearchPath(searchPath);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));
@@ -124,19 +124,15 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 
 static void generateGlslCode(bool generateLayout = false)
 {
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     bool writeShadersToDisk = false;
 
     const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
     const mx::FilePath logPath(generateLayout ? "genglsl_glsl420_layout_generate_test.txt" : "genglsl_glsl400_generate_test.txt");
 
@@ -145,7 +141,9 @@ static void generateGlslCode(bool generateLayout = false)
     if (generateLayout)
     {
         // Set binding context to handle resource binding layouts
-        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, mx::GlslResourceBindingContext::create());
+        mx::GlslResourceBindingContextPtr glslresourceBinding(mx::GlslResourceBindingContext::create());
+        glslresourceBinding->enableSeparateBindingLocations(true);
+        tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
     tester.validate(genOptions, optionsFilePath);

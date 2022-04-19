@@ -1,5 +1,6 @@
+<!-- Template for a lit scene in testrender -->
 <World>
-  <Camera eye="0, 0, 4"  dir="0,0,-1"  fov="70" />
+   <Camera eye="0, 0, 3" dir="0, 0, -1" fov="79.3" />
 
    <!-- Background environment map. -->
    <ShaderGroup>
@@ -15,7 +16,7 @@
       color Cin %background_color%;
       shader constant_color layer1;
    </ShaderGroup>
-   <Quad corner="-400,-400,-800" edge_x="800,0,0" edge_y="0,800,0" />
+   <Quad corner="-400, -400, -800" edge_x="800, 0, 0" edge_y="0, 800, 0" />
 
    <!-- Shader graph for routing to output layer:
    input_shader_parameter_overrides : are parameter overrides for the input shader
@@ -30,5 +31,6 @@
       shader %output_shader_type% outputShader;
       connect inputShader.%input_shader_output% outputShader.%output_shader_input%;
    </ShaderGroup>
-   <Sphere center="0,0,0" radius="1.0" />
+
+   <Sphere center="0, 0, 0" radius="1" />
 </World>

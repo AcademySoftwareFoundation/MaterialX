@@ -9,18 +9,17 @@
 /// @file
 /// Geometric element subclasses
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
 #include <MaterialXCore/Element.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
-extern const string GEOM_PATH_SEPARATOR;
-extern const string UNIVERSAL_GEOM_NAME;
-extern const string UDIM_TOKEN;
-extern const string UDIMSET;
-extern const string UV_TILE_TOKEN;
+extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
+extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
+extern MX_CORE_API const string UDIM_TOKEN;
+extern MX_CORE_API const string UV_TILE_TOKEN;
+extern MX_CORE_API const string UDIM_SET_PROPERTY;
 
 class GeomElement;
 class GeomInfo;
@@ -58,7 +57,7 @@ using ConstCollectionPtr = shared_ptr<const Collection>;
 /// @class GeomPath
 /// A MaterialX geometry path, representing the hierarchical location
 /// expressed by a geometry name.
-class GeomPath
+class MX_CORE_API GeomPath
 {
   public:
     GeomPath() :
@@ -66,7 +65,7 @@ class GeomPath
     {
     }
     ~GeomPath() { }
-    
+
     bool operator==(const GeomPath& rhs) const
     {
         return _vec == rhs._vec &&
@@ -150,13 +149,14 @@ class GeomPath
 /// @class GeomElement
 /// The base class for geometric elements, which support bindings to geometries
 /// and geometric collections.
-class GeomElement : public Element
+class MX_CORE_API GeomElement : public Element
 {
   protected:
     GeomElement(ElementPtr parent, const string& category, const string& name) :
         Element(parent, category, name)
     {
     }
+
   public:
     virtual ~GeomElement() { }
 
@@ -235,7 +235,7 @@ class GeomElement : public Element
 
 /// @class GeomInfo
 /// A geometry info element within a Document.
-class GeomInfo : public GeomElement
+class MX_CORE_API GeomInfo : public GeomElement
 {
   public:
     GeomInfo(ElementPtr parent, const string& name) :
@@ -313,9 +313,9 @@ class GeomInfo : public GeomElement
 
     /// Set the value of a GeomProp by its name, creating a child element
     /// to hold the GeomProp if needed.
-    template<class T> GeomPropPtr setGeomPropValue(const string& name,
-                                                   const T& value,
-                                                   const string& type = EMPTY_STRING);
+    template <class T> GeomPropPtr setGeomPropValue(const string& name,
+                                                    const T& value,
+                                                    const string& type = EMPTY_STRING);
 
     /// Set the string value of a Token by its name, creating a child element
     /// to hold the Token if needed.
@@ -336,7 +336,7 @@ class GeomInfo : public GeomElement
 
 /// @class GeomProp
 /// A geometric property element within a GeomInfo.
-class GeomProp : public ValueElement
+class MX_CORE_API GeomProp : public ValueElement
 {
   public:
     GeomProp(ElementPtr parent, const string& name) :
@@ -357,11 +357,11 @@ class GeomProp : public ValueElement
 /// as a reference to the "normal" geometric node with a space setting of
 /// "world", or a specific set of texture coordinates can be declared as a
 /// reference to the "texcoord" geometric node with an index setting of "1".
-class GeomPropDef : public Element
+class MX_CORE_API GeomPropDef : public Element
 {
   public:
-      GeomPropDef(ElementPtr parent, const string& name) :
-          Element(parent, CATEGORY, name)
+    GeomPropDef(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
     {
     }
     virtual ~GeomPropDef() { }
@@ -442,7 +442,7 @@ class GeomPropDef : public Element
 
 /// @class Collection
 /// A collection element within a Document.
-class Collection : public Element
+class MX_CORE_API Collection : public Element
 {
   public:
     Collection(ElementPtr parent, const string& name) :
@@ -574,9 +574,9 @@ class Collection : public Element
     static const string INCLUDE_COLLECTION_ATTRIBUTE;
 };
 
-template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
-                                                         const T& value,
-                                                         const string& type)
+template <class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
+                                                          const T& value,
+                                                          const string& type)
 {
     GeomPropPtr geomProp = getChildOfType<GeomProp>(name);
     if (!geomProp)
@@ -595,8 +595,8 @@ template<class T> GeomPropPtr GeomInfo::setGeomPropValue(const string& name,
 /// in the first string completely contains a geom path in the second string.
 ///
 /// @todo Geometry name expressions are not yet supported.
-bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
+MX_CORE_API bool geomStringsMatch(const string& geom1, const string& geom2, bool contains = false);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

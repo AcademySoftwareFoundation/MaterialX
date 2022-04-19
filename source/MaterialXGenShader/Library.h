@@ -10,10 +10,9 @@
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialXGenShader library.
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Exception.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class Shader;
 class ShaderStage;
@@ -25,6 +24,7 @@ class ShaderOutput;
 class ShaderNodeImpl;
 class GenOptions;
 class GenContext;
+class ClosureContext;
 class TypeDesc;
 
 /// A string stream
@@ -43,14 +43,6 @@ using GenContextPtr = shared_ptr<GenContext>;
 
 template<class T> using CreatorFunction = shared_ptr<T>(*)();
 
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
-};
-
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif // MATERIALX_GENSHADERLIBRARY_H

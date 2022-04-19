@@ -12,8 +12,6 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
-
 namespace mx = MaterialX;
 
 bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
@@ -138,75 +136,24 @@ TEST_CASE("Node", "[node]")
     REQUIRE(doc->getOutputs().empty());
 }
 
-TEST_CASE("Flatten", "[nodegraph]")
+TEST_CASE("Inheritance", "[nodedef]")
 {
-    mx::FileSearchPath searchPath = "resources/Materials/Examples/Syntax" +
-                                    mx::PATH_LIST_SEPARATOR +
-                                    "libraries/stdlib";
-
-    // Read the example file.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", searchPath);
-
-    // Find the example graph.
-    mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
-    REQUIRE(graph);
-
-    // Traverse the graph and count nodes.
-    int totalNodeCount = 0;
-    for (mx::ElementPtr elem : graph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-        }
-    }
-    REQUIRE(totalNodeCount == 7);
-
-    // Create a flat version of the graph.
-    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs();
-
-    // Traverse the flat graph and count nodes.
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            REQUIRE(isAtomic);
-        }
-    }
-    REQUIRE(totalNodeCount == 15);
-
-    // Test filtered flattening. Leave one node unflattened
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
-    {
-        return (node->getCategory() != "color_checker");
-    });
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            if (elem->getCategory() != "color_checker")
-            {
-                REQUIRE(isAtomic);
-            }
-        }
-    }
-    REQUIRE(totalNodeCount == 16);
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+    REQUIRE(doc->validate());
+    auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
+    REQUIRE(nodedef);
+    mx::NodePtr surfaceNode = doc->addNodeInstance(nodedef);
+    REQUIRE(surfaceNode);
+    mx::InputPtr nodedefSpecularInput = nodedef->getActiveInput("specular");
+    REQUIRE(nodedefSpecularInput);
+    mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular");
+    REQUIRE(specularInput);
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
@@ -574,6 +521,56 @@ TEST_CASE("Organization", "[nodegraph]")
     CHECK(nodeGraph->getBackdrops().empty());
 }
 
+TEST_CASE("Tokens", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/texture/");
+
+    mx::readFromXmlFile(doc, "tokenGraph.mtlx", searchPath);
+    doc->validate();
+
+    mx::StringVec graphNames = { "Tokenized_Image_2k_png", "Tokenized_Image_4k_jpg" };
+    mx::StringVec resolutionStrings = { "2k", "4k" };
+    mx::StringVec extensionStrings = { "png", "jpg" };
+    for (size_t i=0; i<graphNames.size(); i++)
+    {
+        mx::NodeGraphPtr graph = doc->getNodeGraph(graphNames[i]);
+        REQUIRE(graph);
+        std::vector<mx::TokenPtr> tokens = graph->getActiveTokens();
+
+        mx::NodePtr imagePtr = graph->getNode("tiledimage");
+        REQUIRE(imagePtr);
+
+        mx::InputPtr input = imagePtr->getInput("file");
+        REQUIRE(input);
+
+        // Test file name substitution creation.
+        mx::StringResolverPtr resolver = input->createStringResolver();
+        const mx::StringMap& substitutions = resolver->getFilenameSubstitutions();
+        const std::string DELIMITER_PREFIX("[");
+        const std::string DELIMITER_POSTFIX("]");
+        for (auto token : tokens)
+        {
+            const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
+            REQUIRE(substitutions.count(tokenString));
+        }
+
+        // Test that one of the tokens was used
+        REQUIRE(input->getValueString() == std::string("resources/images/cloth.[Image_Extension]"));
+        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth." + extensionStrings[i]));
+
+        // Modify and test that both of the tokens was used
+        input->setValueString("resources/images/cloth_[Image_Resolution].[Image_Extension]");
+        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth_" + resolutionStrings[i] + "." + extensionStrings[i]));
+
+        // Modify and test without proper delimiters
+        input->setValueString("resources/images/cloth_<Image_Resolution>.<Image_Extension>");
+        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth_<Image_Resolution>.<Image_Extension>"));
+    }
+}
+
 TEST_CASE("Node Definition Creation", "[nodedef]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -640,6 +637,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                     {
                         continue;
                     }
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
                 }
 
                 mx::InputPtr input = valueElem->asA<mx::Input>();

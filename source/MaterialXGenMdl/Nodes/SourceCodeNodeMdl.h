@@ -6,15 +6,16 @@
 #ifndef MATERIALX_SOURCECODEMDL_H
 #define MATERIALX_SOURCECODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Node implementation using data-driven static source code.
 /// This is the default implementation used for all nodes that 
 /// do not have a custom ShaderNodeImpl class.
-class SourceCodeNodeMdl : public SourceCodeNode
+class MX_GENMDL_API SourceCodeNodeMdl : public SourceCodeNode
 {
 public:
     static ShaderNodeImplPtr create();
@@ -27,6 +28,6 @@ protected:
     string _returnStruct;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -9,23 +9,24 @@
 /// @file
 /// OpenGL framebuffer handling
 
+#include <MaterialXRenderGlsl/Export.h>
+
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class GLFramebuffer;
 
 /// Shared pointer to a GLFramebuffer
-using GLFrameBufferPtr = std::shared_ptr<GLFramebuffer>;
+using GLFramebufferPtr = std::shared_ptr<GLFramebuffer>;
 
 /// @class GLFramebuffer
 /// Wrapper for an OpenGL framebuffer
-class GLFramebuffer
+class MX_RENDERGLSL_API GLFramebuffer
 {
   public:
     /// Create a new framebuffer
-    static GLFrameBufferPtr create(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType);
+    static GLFramebufferPtr create(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType);
 
     /// Destructor
     virtual ~GLFramebuffer();
@@ -64,8 +65,10 @@ class GLFramebuffer
         return _depthTexture;
     }
 
-    /// Create an image from our color texture.
-    ImagePtr createColorImage();
+    /// Return the color data of this framebuffer as an image.
+    /// If an input image is provided, it will be used to store the color data;
+    /// otherwise a new image of the required format will be created.
+    ImagePtr getColorImage(ImagePtr image = nullptr);
 
     /// Blit our color texture to the back buffer.
     void blit();
@@ -80,11 +83,11 @@ class GLFramebuffer
     Image::BaseType _baseType;
     bool _encodeSrgb;
 
-    unsigned int _frameBuffer;
+    unsigned int _framebuffer;
     unsigned int _colorTexture;
     unsigned int _depthTexture;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

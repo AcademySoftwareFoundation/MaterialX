@@ -5,12 +5,10 @@
 
 #include <MaterialXCore/Unit.h>
 
-#include <MaterialXCore/Util.h>
+MATERIALX_NAMESPACE_BEGIN
 
-namespace MaterialX
+namespace
 {
-
-namespace {
 
 const string SCALE_ATTRIBUTE = "scale";
 
@@ -243,4 +241,4 @@ void UnitConverterRegistry::write(DocumentPtr doc) const
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

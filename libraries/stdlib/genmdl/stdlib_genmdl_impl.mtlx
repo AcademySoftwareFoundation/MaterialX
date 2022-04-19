@@ -8,6 +8,13 @@
   -->
 
   <!-- ======================================================================== -->
+  <!-- Shader nodes                                                             -->
+  <!-- ======================================================================== -->
+
+  <!-- <surface_unlit> -->
+  <implementation name="IM_surface_unlit_genmdl" nodedef="ND_surface_unlit" sourcecode="mx::stdlib::mx_surface_unlit({{emission}}, {{emission_color}}, {{transmission}}, {{transmission_color}}, {{opacity}})" target="genmdl" />
+
+  <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
@@ -130,6 +137,16 @@
 
   <!-- <cellnoise3d> -->
   <implementation name="IM_cellnoise3d_float_genmdl" nodedef="ND_cellnoise3d_float" sourcecode="mx::stdlib::mx_cellnoise3d_float(mxp_position:{{position}})" target="genmdl" />
+
+  <!-- <worleynoise2d> -->
+  <implementation name="IM_worleynoise2d_float_genmdl" nodedef="ND_worleynoise2d_float" sourcecode="mx::stdlib::mx_worleynoise2d_float(mxp_texcoord:{{texcoord}}, mxp_jitter:{{jitter}})" target="genmdl" />
+  <implementation name="IM_worleynoise2d_vector2_genmdl" nodedef="ND_worleynoise2d_vector2" sourcecode="mx::stdlib::mx_worleynoise2d_float2(mxp_texcoord:{{texcoord}}, mxp_jitter:{{jitter}})" target="genmdl" />
+  <implementation name="IM_worleynoise2d_vector3_genmdl" nodedef="ND_worleynoise2d_vector3" sourcecode="mx::stdlib::mx_worleynoise2d_float3(mxp_texcoord:{{texcoord}}, mxp_jitter:{{jitter}})" target="genmdl" />
+
+  <!-- <worleynoise3d> -->
+  <implementation name="IM_worleynoise3d_float_genmdl" nodedef="ND_worleynoise3d_float" sourcecode="mx::stdlib::mx_worleynoise3d_float(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
+  <implementation name="IM_worleynoise3d_vector2_genmdl" nodedef="ND_worleynoise3d_vector2" sourcecode="mx::stdlib::mx_worleynoise3d_float2(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
+  <implementation name="IM_worleynoise3d_vector3_genmdl" nodedef="ND_worleynoise3d_vector3" sourcecode="mx::stdlib::mx_worleynoise3d_float3(mxp_position:{{position}}, mxp_jitter:{{jitter}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Global nodes                                                             -->

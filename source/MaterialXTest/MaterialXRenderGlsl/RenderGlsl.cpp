@@ -3,21 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#if defined(__linux__)
-#define NonePrev None
-#undef None
-#endif
 #include <MaterialXTest/Catch/catch.hpp>
-#if defined(__linux__)
-#define None NonePrev
-#endif
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
-#include <MaterialXCore/Types.h>
-
-#include <MaterialXFormat/Util.h>
-
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -25,10 +14,7 @@
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
 
-#include <MaterialXRenderGlsl/GlslRenderer.h>
-#include <MaterialXRenderGlsl/TextureBaker.h>
-
-#include <cmath>
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
@@ -52,8 +38,6 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& log) override;
 
-    void transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const;
-
     bool runRenderer(const std::string& shaderName,
                      mx::TypedElementPtr element,
                      mx::GenContext& context,
@@ -73,7 +57,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
     void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
-                 unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log) override;
+                 const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;
@@ -115,6 +99,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     REQUIRE(envIrradiance);
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
+    _lightHandler->setEnvSampleCount(1024);
 }
 
 //
@@ -145,7 +130,7 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
 
         initialized = true;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -384,30 +369,6 @@ void addAdditionalTestStreams(mx::MeshPtr mesh)
     }
 }
 
-void GlslShaderRenderTester::transformUVs(const mx::MeshList& meshes, const mx::Matrix44& matrixTransform) const
-{
-    for(mx::MeshPtr mesh : meshes)
-    {
-        // Transform texture coordinates.
-        mx::MeshStreamPtr uvStream = mesh->getStream(mx::MeshStream::TEXCOORD_ATTRIBUTE, 0);
-        uvStream->transform(matrixTransform);
-
-        // Regenerate tangents
-        mx::MeshStreamPtr tangentStream = mesh->getStream(mx::MeshStream::TANGENT_ATTRIBUTE, 0);
-        if (tangentStream)
-        {
-            mesh->removeStream(tangentStream);
-            tangentStream = mesh->generateTangents(mesh->getStream(mx::MeshStream::POSITION_ATTRIBUTE, 0),
-                                                   mesh->getStream(mx::MeshStream::NORMAL_ATTRIBUTE, 0),
-                                                   uvStream);
-            if (tangentStream)
-            {
-                mesh->addStream(tangentStream);
-            }
-        }
-    }
-}
-
 bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           mx::TypedElementPtr element,
                                           mx::GenContext& context,
@@ -419,7 +380,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                                           const std::string& outputPath,
                                           mx::ImageVec* imageVec)
 {
-    RenderUtil::AdditiveScopedTimer totalGLSLTime(profileTimes.languageTimes.totalTime, "GLSL total time");
+    std::cout << "Validating GLSL rendering for: " << doc->getSourceUri() << std::endl;
+
+    mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -454,7 +417,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             // Note: mkdir will fail if the directory already exists which is ok.
             {
-                RenderUtil::AdditiveScopedTimer ioDir(profileTimes.languageTimes.ioTime, "GLSL dir time");
+                mx::ScopedTimer ioDir(&profileTimes.languageTimes.ioTime);
                 outputFilePath.createDirectory();
             }
 
@@ -462,15 +425,14 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             mx::ShaderPtr shader;
             try
             {
-                RenderUtil::AdditiveScopedTimer transpTimer(profileTimes.languageTimes.transparencyTime, "GLSL transparency time");
-                options.hwTransparency = mx::isTransparentSurface(element, shadergen);
+                mx::ScopedTimer transpTimer(&profileTimes.languageTimes.transparencyTime);
+                options.hwTransparency = mx::isTransparentSurface(element, shadergen.getTarget());
                 transpTimer.endTimer();
 
-                RenderUtil::AdditiveScopedTimer generationTimer(profileTimes.languageTimes.generationTime, "GLSL generation time");
+                mx::ScopedTimer generationTimer(&profileTimes.languageTimes.generationTime);
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -493,7 +455,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
             if (testOptions.dumpGeneratedCode)
             {
-                RenderUtil::AdditiveScopedTimer dumpTimer(profileTimes.languageTimes.ioTime, "GLSL I/O time");
+                mx::ScopedTimer dumpTimer(&profileTimes.languageTimes.ioTime);
                 std::ofstream file;
                 file.open(shaderPath + "_vs.glsl");
                 file << vertexSourceCode;
@@ -513,87 +475,50 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
             bool validated = false;
             try
             {
+                // Set geometry
                 mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
-
-                bool isShader = mx::elementRequiresShading(element);
-                if (isShader)
+                mx::FilePath geomPath;
+                if (!testOptions.shadedGeometry.isEmpty())
                 {
-                    // Set shaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.shadedGeometry.isEmpty())
+                    if (!testOptions.shadedGeometry.isAbsolute())
                     {
-                        if (!testOptions.shadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.shadedGeometry;
-                        }
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
                     }
                     else
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/shaderball.obj");
+                        geomPath = testOptions.shadedGeometry;
                     }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
-                        }
-                    }
-
-                    // Set shaded element lights
-                    _renderer->setLightHandler(_lightHandler);
                 }
                 else
                 {
-                    // Set unshaded element geometry
-                    mx::FilePath geomPath;
-                    if (!testOptions.unShadedGeometry.isEmpty())
-                    {
-                        if (!testOptions.unShadedGeometry.isAbsolute())
-                        {
-                            geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.unShadedGeometry;
-                        }
-                        else
-                        {
-                            geomPath = testOptions.unShadedGeometry;
-                        }
-                    }
-                    else
-                    {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
-                    }
-                    if (!geomHandler->hasGeometry(geomPath))
-                    {
-                        geomHandler->clearGeometry();
-                        geomHandler->loadGeometry(geomPath);
-                        const mx::MeshList& meshes = geomHandler->getMeshes();
-                        if (!meshes.empty())
-                        {
-                            addAdditionalTestStreams(meshes[0]);
-                            transformUVs(meshes, testOptions.transformUVs);
-                        }
-                    }
-
-                    // Clear lights for unshaded element
-                    _renderer->setLightHandler(nullptr);
+                    geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
                 }
 
+                if (!geomHandler->hasGeometry(geomPath))
                 {
-                    RenderUtil::AdditiveScopedTimer compileTimer(profileTimes.languageTimes.compileTime, "GLSL compile time");
+                    // For test sphere and plane geometry perform a V-flip of texture coordinates.
+                    const std::string baseName = geomPath.getBaseName();
+                    bool texcoordVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
+                    geomHandler->clearGeometry();
+                    geomHandler->loadGeometry(geomPath, texcoordVerticalFlip);
+                    for (mx::MeshPtr mesh : geomHandler->getMeshes())
+                    {
+                        addAdditionalTestStreams(mesh);
+                    }
+                }
+
+                bool isShader = mx::elementRequiresShading(element);
+                _renderer->setLightHandler(isShader ? _lightHandler : nullptr);
+
+                {
+                    mx::ScopedTimer compileTimer(&profileTimes.languageTimes.compileTime);
                     _renderer->createProgram(shader);
                     _renderer->validateInputs();
                 }
 
                 if (testOptions.dumpUniformsAndAttributes)
                 {
-                    RenderUtil::AdditiveScopedTimer printTimer(profileTimes.languageTimes.ioTime, "GLSL io time");
+                    mx::ScopedTimer printTimer(&profileTimes.languageTimes.ioTime);
                     log << "* Uniform:" << std::endl;
                     program->printUniforms(log);
                     log << "* Attributes:" << std::endl;
@@ -611,7 +536,9 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                         }
 
                         mx::UIProperties uiProperties;
-                        if (getUIProperties(path, doc, target, uiProperties) > 0)
+                        mx::ElementPtr pathElement = doc->getDescendant(path);
+                        mx::InputPtr input = pathElement ? pathElement->asA<mx::Input>() : nullptr;
+                        if (getUIProperties(input, target, uiProperties) > 0)
                         {
                             log << "Program Uniform: " << uniform.first << ". Path: " << path;
                             if (!uiProperties.uiName.empty())
@@ -650,7 +577,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 if (testOptions.renderImages)
                 {
                     {
-                        RenderUtil::AdditiveScopedTimer renderTimer(profileTimes.languageTimes.renderTime, "GLSL render time");
+                        mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
                         _renderer->getImageHandler()->setSearchPath(imageSearchPath);
                         _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
                         _renderer->render();
@@ -658,12 +585,12 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                     if (testOptions.saveImages)
                     {
-                        RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.languageTimes.imageSaveTime, "GLSL image save time");
+                        mx::ScopedTimer ioTimer(&profileTimes.languageTimes.imageSaveTime);
                         std::string fileName = shaderPath + "_glsl.png";
                         mx::ImagePtr image = _renderer->captureImage();
                         if (image)
                         {
-                            _renderer->saveImage(fileName, image, true);
+                            _renderer->getImageHandler()->saveImage(fileName, image, true);
                             if (imageVec)
                             {
                                 imageVec->push_back(image);
@@ -674,7 +601,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                 validated = true;
             }
-            catch (mx::ExceptionShaderRenderError& e)
+            catch (mx::ExceptionRenderError& e)
             {
                 // Always dump shader stages on error
                 std::ofstream file;
@@ -690,10 +617,12 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                     log << e.what() << " " << error << std::endl;
                 }
                 log << ">> Refer to shader code in dump files: " << shaderPath << "_ps.glsl and _vs.glsl files" << std::endl;
+                WARN(std::string(e.what()) + " in " + shaderPath);
             }
             catch (mx::Exception& e)
             {
                 log << e.what() << std::endl;
+                WARN(std::string(e.what()) + " in " + shaderPath);
             }
             CHECK(validated);
         }
@@ -702,19 +631,22 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
 }
 
 void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
-                                      unsigned int bakeWidth, unsigned int bakeHeight, bool bakeHdr, std::ostream& log)
+                                     const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log)
 {
-    bakeWidth = std::max(bakeWidth, (unsigned int) 2);
-    bakeHeight = std::max(bakeHeight, (unsigned int) 2);
+    mx::ImageVec imageVec = _renderer->getImageHandler()->getReferencedImages(doc);
+    auto maxImageSize = mx::getMaxDimensions(imageVec);
+    const unsigned bakeWidth = std::max(bakeOptions.resolution, maxImageSize.first);
+    const unsigned bakeHeight = std::max(bakeOptions.resolution, maxImageSize.second);
 
-    mx::Image::BaseType baseType = bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
+    mx::Image::BaseType baseType = bakeOptions.hdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
     baker->setupUnitSystem(doc);
     baker->setImageHandler(_renderer->getImageHandler());
     baker->setOptimizeConstants(true);
-    baker->setAutoTextureResolution(true);
     baker->setHashImageNames(true);
-    
+    baker->setTextureSpaceMin(bakeOptions.uvmin);
+    baker->setTextureSpaceMax(bakeOptions.uvmax);
+
     try
     {
         baker->setOutputStream(&log);
@@ -731,15 +663,7 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
 
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-
-    renderTester.validate(testRootPaths, optionsFilePath);
+    renderTester.validate(optionsFilePath);
 }

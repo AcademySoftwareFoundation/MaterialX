@@ -8,11 +8,10 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Combine node implementation
-class CombineNode : public ShaderNodeImpl
+class MX_GENSHADER_API CombineNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();
@@ -20,6 +19,6 @@ class CombineNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

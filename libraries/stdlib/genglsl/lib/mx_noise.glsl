@@ -51,15 +51,14 @@ float mx_negate_if(float val, bool b)
 
 int mx_floor(float x)
 {
-    // return the greatest integer <= x
-    return x < 0.0 ? int(x) - 1 : int(x);
+    return int(floor(x));
 }
 
 // return mx_floor as well as the fractional remainder
 float mx_floorfrac(float x, out int i)
 {
     i = mx_floor(x);
-    return x - i;
+    return x - float(i);
 }
 
 float mx_bilerp(float v0, float v1, float v2, float v3, float s, float t)
@@ -133,6 +132,16 @@ uint mx_rotl32(uint x, int k)
     return (x<<k) | (x>>(32-k));
 }
 
+void mx_bjmix(inout uint a, inout uint b, inout uint c)
+{
+    a -= c; a ^= mx_rotl32(c, 4); c += b;
+    b -= a; b ^= mx_rotl32(a, 6); a += c;
+    c -= b; c ^= mx_rotl32(b, 8); b += a;
+    a -= c; a ^= mx_rotl32(c,16); c += b;
+    b -= a; b ^= mx_rotl32(a,19); a += c;
+    c -= b; c ^= mx_rotl32(b, 4); b += a;
+}
+
 // Mix up and combine the bits of a, b, and c (doesn't change them, but
 // returns a hash of those three original values).
 uint mx_bjfinal(uint a, uint b, uint c)
@@ -158,6 +167,13 @@ float mx_fade(float t)
    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
+uint mx_hash_int(int x)
+{
+    uint len = 1u;
+    uint seed = uint(0xdeadbeef) + (len << 2u) + 13u;
+    return mx_bjfinal(seed+uint(x), seed, seed);
+}
+
 uint mx_hash_int(int x, int y)
 {
     uint len = 2u;
@@ -176,6 +192,33 @@ uint mx_hash_int(int x, int y, int z)
     a += uint(x);
     b += uint(y);
     c += uint(z);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx)
+{
+    uint len = 4u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx, int yy)
+{
+    uint len = 5u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    b += uint(yy);
     return mx_bjfinal(a, b, c);
 }
 
@@ -279,6 +322,12 @@ vec3 mx_perlin_noise_vec3(vec3 p)
     return mx_gradient_scale3d(result);
 }
 
+float mx_cell_noise_float(float p)
+{
+    int ix = mx_floor(p);
+    return mx_bits_to_01(mx_hash_int(ix));
+}
+
 float mx_cell_noise_float(vec2 p)
 {
     int ix = mx_floor(p.x);
@@ -292,6 +341,61 @@ float mx_cell_noise_float(vec3 p)
     int iy = mx_floor(p.y);
     int iz = mx_floor(p.z);
     return mx_bits_to_01(mx_hash_int(ix, iy, iz));
+}
+
+float mx_cell_noise_float(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    return mx_bits_to_01(mx_hash_int(ix, iy, iz, iw));
+}
+
+vec3 mx_cell_noise_vec3(float p)
+{
+    int ix = mx_floor(p);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, 0)),
+            mx_bits_to_01(mx_hash_int(ix, 1)),
+            mx_bits_to_01(mx_hash_int(ix, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec2 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec3 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, iz, iw, 2))
+    );
 }
 
 float mx_fractal_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
@@ -318,4 +422,215 @@ vec3 mx_fractal_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish
         p *= lacunarity;
     }
     return result;
+}
+
+vec2 mx_fractal_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+}
+
+vec4 mx_fractal_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
+float mx_worley_distance(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
+{
+    vec3  tmp = mx_cell_noise_vec3(vec2(x+xoff, y+yoff));
+    vec2  off = vec2(tmp.x, tmp.y);
+
+    off -= 0.5f;
+    off *= jitter;
+    off += 0.5f;
+
+    vec2 cellpos = vec2(float(x), float(y)) + off;
+    vec2 diff = cellpos - p;
+    if (metric == 2)
+        return abs(diff.x) + abs(diff.y);       // Manhattan distance
+    if (metric == 3)
+        return max(abs(diff.x), abs(diff.y));   // Chebyshev distance
+    // Either Euclidian or Distance^2
+    return dot(diff, diff);
+}
+
+float mx_worley_distance(vec3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
+{
+    vec3  off = mx_cell_noise_vec3(vec3(x+xoff, y+yoff, z+zoff));
+
+    off -= 0.5f;
+    off *= jitter;
+    off += 0.5f;
+
+    vec3 cellpos = vec3(float(x), float(y), float(z)) + off;
+    vec3 diff = cellpos - p;
+    if (metric == 2)
+        return abs(diff.x) + abs(diff.y) + abs(diff.z); // Manhattan distance
+    if (metric == 3)
+        return max(max(abs(diff.x), abs(diff.y)), abs(diff.z)); // Chebyshev distance
+    // Either Euclidian or Distance^2
+    return dot(diff, diff);
+}
+
+float mx_worley_noise_float(vec2 p, float jitter, int metric)
+{
+    int X, Y;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    float sqdist = 1e6f;        // Some big number for jitter > 1 (not all GPUs may be IEEE)
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            sqdist = min(sqdist, dist);
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
+}
+
+vec2 mx_worley_noise_vec2(vec2 p, float jitter, int metric)
+{
+    int X, Y;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    vec2 sqdist = vec2(1e6f, 1e6f);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            if (dist < sqdist.x)
+            {
+                sqdist.y = sqdist.x;
+                sqdist.x = dist;
+            }
+            else if (dist < sqdist.y)
+            {
+                sqdist.y = dist;
+            }
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
+}
+
+vec3 mx_worley_noise_vec3(vec2 p, float jitter, int metric)
+{
+    int X, Y;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    vec3 sqdist = vec3(1e6f, 1e6f, 1e6f);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            if (dist < sqdist.x)
+            {
+                sqdist.z = sqdist.y;
+                sqdist.y = sqdist.x;
+                sqdist.x = dist;
+            }
+            else if (dist < sqdist.y)
+            {
+                sqdist.z = sqdist.y;
+                sqdist.y = dist;
+            }
+            else if (dist < sqdist.z)
+            {
+                sqdist.z = dist;
+            }
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
+}
+
+float mx_worley_noise_float(vec3 p, float jitter, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    float sqdist = 1e6f;
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                sqdist = min(sqdist, dist);
+            }
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
+}
+
+vec2 mx_worley_noise_vec2(vec3 p, float jitter, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    vec2 sqdist = vec2(1e6f, 1e6f);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                if (dist < sqdist.x)
+                {
+                    sqdist.y = sqdist.x;
+                    sqdist.x = dist;
+                }
+                else if (dist < sqdist.y)
+                {
+                    sqdist.y = dist;
+                }
+            }
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
+}
+
+vec3 mx_worley_noise_vec3(vec3 p, float jitter, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    vec3 sqdist = vec3(1e6f, 1e6f, 1e6f);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                if (dist < sqdist.x)
+                {
+                    sqdist.z = sqdist.y;
+                    sqdist.y = sqdist.x;
+                    sqdist.x = dist;
+                }
+                else if (dist < sqdist.y)
+                {
+                    sqdist.z = sqdist.y;
+                    sqdist.y = dist;
+                }
+                else if (dist < sqdist.z)
+                {
+                    sqdist.z = dist;
+                }
+            }
+        }
+    }
+    if (metric == 0)
+        sqdist = sqrt(sqdist);
+    return sqdist;
 }

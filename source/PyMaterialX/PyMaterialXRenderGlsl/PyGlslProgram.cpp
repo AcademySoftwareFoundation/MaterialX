@@ -25,8 +25,6 @@ void bindPyGlslProgram(py::module& mod)
         .def("getAttributesList", &mx::GlslProgram::getAttributesList)
         .def("findInputs", &mx::GlslProgram::findInputs)
         .def("bind", &mx::GlslProgram::bind)
-        .def("bindInputs", &mx::GlslProgram::bindInputs)
-        .def("unbindInputs", &mx::GlslProgram::unbindInputs)
         .def("hasActiveAttributes", &mx::GlslProgram::hasActiveAttributes)
         .def("bindUniform", &mx::GlslProgram::bindUniform)
         .def("bindAttribute", &mx::GlslProgram::bindAttribute)
@@ -36,7 +34,8 @@ void bindPyGlslProgram(py::module& mod)
         .def("bindTextures", &mx::GlslProgram::bindTextures)
         .def("bindLighting", &mx::GlslProgram::bindLighting)
         .def("bindViewInformation", &mx::GlslProgram::bindViewInformation)
-        .def("bindTimeAndFrame", &mx::GlslProgram::bindTimeAndFrame)
+        .def("bindTimeAndFrame", &mx::GlslProgram::bindTimeAndFrame,
+            py::arg("time") = 1.0f, py::arg("frame") = 1.0f)
         .def("unbind", &mx::GlslProgram::unbind);
 
     py::class_<mx::GlslProgram::Input>(mod, "Input")

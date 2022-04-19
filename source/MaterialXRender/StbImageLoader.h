@@ -11,15 +11,14 @@
 
 #include <MaterialXRender/ImageHandler.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to an StbImageLoader
 using StbImageLoaderPtr = std::shared_ptr<class StbImageLoader>;
 
 /// @class StbImageLoader
 /// Stb image file loader
-class StbImageLoader : public ImageLoader
+class MX_RENDER_API StbImageLoader : public ImageLoader
 {
   public:
     StbImageLoader()
@@ -49,6 +48,6 @@ class StbImageLoader : public ImageLoader
     ImagePtr loadImage(const FilePath& filePath) override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

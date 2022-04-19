@@ -8,8 +8,9 @@
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/GenContext.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
+
+const int DEFAULT_ENV_SAMPLE_COUNT = 16;
 
 void LightHandler::addLightSource(NodePtr node)
 {
@@ -58,8 +59,8 @@ void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights
     if (!lights.empty())
     {
         // Create a list of unique nodedefs and ids for them
-        _lightIdentifierMap = computeLightIdMap(lights);
-        for (const auto& id : _lightIdentifierMap)
+        _lightIdMap = computeLightIdMap(lights);
+        for (const auto& id : _lightIdMap)
         {
             NodeDefPtr nodeDef = doc->getNodeDef(id.first);
             if (nodeDef)
@@ -77,4 +78,4 @@ void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

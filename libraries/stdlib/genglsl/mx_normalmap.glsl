@@ -1,16 +1,16 @@
 void mx_normalmap(vec3 value, int map_space, float normal_scale, vec3 N, vec3 T,  out vec3 result)
 {
-    // Tangent space
+    // Decode the normal map.
+    value = (value == vec3(0.0f)) ? vec3(0.0, 0.0, 1.0) : value * 2.0 - 1.0;
+
+    // Transform from tangent space if needed.
     if (map_space == 0)
     {
-        vec3 v = value * 2.0 - 1.0;
         vec3 B = normalize(cross(N, T));
-        result = normalize(T * v.x * normal_scale + B * v.y * normal_scale + N * v.z);
+        value.xy *= normal_scale;
+        value = T * value.x + B * value.y + N * value.z;
     }
-    // Object space
-    else
-    {
-        vec3 n = value * 2.0 - 1.0;
-        result = normalize(n);
-    }
+
+    // Normalize the result.
+    result = normalize(value);
 }

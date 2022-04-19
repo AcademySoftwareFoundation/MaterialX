@@ -7,20 +7,20 @@
 
   <!-- Node: UsdPreviewSurface -->
   <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="USD preview surface shader" version="2.3" isdefaultversion="true">
-    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" />
-    <input name="emissiveColor" type="color3" value="0, 0, 0" />
+    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" />
+    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" />
     <input name="useSpecularWorkflow" type="integer" value="0" />
-    <input name="specularColor" type="color3" value="0, 0, 0" />
-    <input name="metallic" type="float" value="0" />
-    <input name="roughness" type="float" value="0.01" />
-    <input name="clearcoat" type="float" value="0" />
-    <input name="clearcoatRoughness" type="float" value="0.01" />
-    <input name="opacity" type="float" value="1" />
-    <input name="opacityThreshold" type="float" value="0" />
-    <input name="ior" type="float" value="1.5" />
+    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" />
+    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" />
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" />
+    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" />
+    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
+    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" />
     <input name="normal" type="vector3" value="0, 0, 1" />
     <input name="displacement" type="float" value="0" />
-    <input name="occlusion" type="float" value="1" />
+    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -127,6 +127,7 @@
       <input name="weight" type="float" value="1" />
       <input name="tint" type="color3" value="1, 1, 1" />
       <input name="ior" type="float" interfacename="ior" />
+      <input name="roughness" type="vector2" value="0.0, 0.0" />
       <input name="normal" type="vector3" nodename="surface_normal" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>

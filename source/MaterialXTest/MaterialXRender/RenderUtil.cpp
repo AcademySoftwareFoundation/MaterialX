@@ -6,11 +6,7 @@
 #include <MaterialXTest/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
-#include <MaterialXCore/Unit.h>
-
 #include <MaterialXFormat/Util.h>
-
-#include <MaterialXRender/Image.h>
 
 namespace mx = MaterialX;
 
@@ -18,7 +14,9 @@ namespace RenderUtil
 {
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
-    _shaderGenerator(shaderGenerator)
+    _shaderGenerator(shaderGenerator),
+    _resolveImageFilenames(false),
+    _emitColorTransforms(true)
 {
 }
 
@@ -57,25 +55,16 @@ void ShaderRenderTester::printRunLog(const RenderProfileTimes &profileTimes,
 
     stream << "---------------------------------------" << std::endl;
     options.print(stream);
-
-    //if (options.checkImplCount)
-    //{
-    //    stream << "---------------------------------------" << std::endl;
-    //    mx::StringSet whiteList;
-    //    getImplementationWhiteList(whiteList);
-    //    GenShaderUtil::checkImplementationUsage(language, usedImpls, whiteList, dependLib, context, stream);
-    //}
 }
 
 void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath, mx::DocumentPtr& dependLib)
 {
     dependLib = mx::createDocument();
 
-    const mx::FilePathVec libraries = { "targets", "adsk", "stdlib", "pbrlib", "lights" };
-    mx::loadLibraries(libraries, searchPath, dependLib);
-    for (size_t i = 0; i < options.externalLibraryPaths.size(); i++)
+    mx::loadLibraries({ "libraries" }, searchPath, dependLib);
+    for (size_t i = 0; i < options.extraLibraryPaths.size(); i++)
     {
-        const mx::FilePath& libraryPath = options.externalLibraryPaths[i];
+        const mx::FilePath& libraryPath = options.extraLibraryPaths[i];
         for (const mx::FilePath& libraryFile : libraryPath.getFilesInDirectory("mtlx"))
         {
             std::cout << "Extra library path: " << (libraryPath / libraryFile).asString() << std::endl;
@@ -83,15 +72,24 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
         }
     }
 
-    // Load shader definitions used in the test suite.
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/standard_surface.mtlx"), dependLib);
-    loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/bxdf/usd_preview_surface.mtlx"), dependLib);
-
     // Load any addition per renderer libraries
     loadAdditionalLibraries(dependLib, options);
 }
 
-bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx::FilePath optionsFilePath)
+void ShaderRenderTester::addSkipFiles()
+{
+    _skipFiles.insert("_options.mtlx");
+    _skipFiles.insert("light_rig_test_1.mtlx");
+    _skipFiles.insert("light_rig_test_2.mtlx");
+    _skipFiles.insert("light_compound_test.mtlx");
+    _skipFiles.insert("xinclude_search_path.mtlx");
+    _skipFiles.insert("1_38_parameter_to_input.mtlx");
+    _skipFiles.insert("1_36_to_1_37.mtlx");
+    _skipFiles.insert("1_37_to_1_38.mtlx");
+    _skipFiles.insert("material_element_to_surface_material.mtlx");
+}
+
+bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
 #ifdef LOG_TO_FILE
     std::ofstream logfile(_shaderGenerator->getTarget() + "_render_log.txt");
@@ -99,7 +97,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     std::string docValidLogFilename = _shaderGenerator->getTarget() + "_render_doc_validation_log.txt";
     std::ofstream docValidLogFile(docValidLogFilename);
     std::ostream& docValidLog(docValidLogFile);
-    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "__render_profiling_log.txt");
+    std::ofstream profilingLogfile(_shaderGenerator->getTarget() + "_render_profiling_log.txt");
     std::ostream& profilingLog(profilingLogfile);
 #else
     std::ostream& log(std::cout);
@@ -125,7 +123,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     // Profiling times
     RenderUtil::RenderProfileTimes profileTimes;
     // Global setup timer
-    RenderUtil::AdditiveScopedTimer totalTime(profileTimes.totalTime, "Global total time");
+    mx::ScopedTimer totalTime(&profileTimes.totalTime);
 
     // Add files to override the files in the test suite to be tested.
     mx::StringSet testfileOverride;
@@ -134,34 +132,22 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
         testfileOverride.insert(filterFile);
     }
 
-    RenderUtil::AdditiveScopedTimer ioTimer(profileTimes.ioTime, "Global I/O time");
+    mx::ScopedTimer ioTimer(&profileTimes.ioTime);
     mx::FilePathVec dirs;
-    if (options.externalTestPaths.size() == 0)
+    for (const auto& root : options.renderTestPaths)
     {
-        for (const auto& testRoot : testRootPaths)
-        {
-            mx::FilePathVec testRootDirs = testRoot.getSubDirectories();
-            dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
-        }
+        mx::FilePathVec testRootDirs = root.getSubDirectories();
+        dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
     }
-    else
-    {
-        // Use test roots from options file
-        for (size_t i = 0; i < options.externalTestPaths.size(); i++)
-        {
-            std::cout << "Test root: " << options.externalTestPaths[i].asString() << std::endl;
-            dirs.push_back(options.externalTestPaths[i]);
-        }
-    }
-
     ioTimer.endTimer();
 
     // Add files to skip
     addSkipFiles();
 
     // Library search path
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    searchPath.append(currentPath);
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -171,7 +157,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     ioTimer.endTimer();
 
     // Create renderers and generators
-    RenderUtil::AdditiveScopedTimer setupTime(profileTimes.languageTimes.setupTime, "Setup time");
+    mx::ScopedTimer setupTime(&profileTimes.languageTimes.setupTime);
 
     createRenderer(log);
 
@@ -191,11 +177,14 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
     mx::GenContext context(_shaderGenerator);
-    context.registerSourceCodeSearchPath(searchPath);
-    registerSourceCodeSearchPaths(context);
+    context.registerSourceCodeSearchPath(currentPath);
+    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Set whether to emit colorspace transforms
+    context.getOptions().emitColorTransforms = _emitColorTransforms;
 
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(dependLib, context);
@@ -209,14 +198,10 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
     pathMap["/"] = "_";
     pathMap[":"] = "_";
 
-    RenderUtil::AdditiveScopedTimer validateTimer(profileTimes.validateTime, "Global validation time");
-    RenderUtil::AdditiveScopedTimer renderableSearchTimer(profileTimes.renderableSearchTime, "Global renderable search time");
+    mx::ScopedTimer validateTimer(&profileTimes.validateTime);
+    mx::ScopedTimer renderableSearchTimer(&profileTimes.renderableSearchTime);
 
     mx::StringSet usedImpls;
-
-    const mx::StringVec& bakeFiles = options.bakeFiles;
-    const mx::IntVec& bakeResolution = options.bakeResolutions;
-    const mx::BoolVec& bakeHdr = options.bakeHdrs;
 
     const std::string MTLX_EXTENSION("mtlx");
     for (const auto& dir : dirs)
@@ -265,7 +250,6 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
             ioTimer.endTimer();
 
             validateTimer.startTimer();
-            std::cout << "- Validating rendering for: " << filename.asString() << std::endl;
             log << "MTLX Filename: " << filename.asString() << std::endl;
 
             // Validate the test document
@@ -281,22 +265,27 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
 
             mx::FileSearchPath imageSearchPath(dir);
             imageSearchPath.append(searchPath);
+            
+            // Resolve file names if specified
+            if (_resolveImageFilenames)
+            {
+                mx::flattenFilenames(doc, imageSearchPath, _customFilenameResolver);
+            }
 
             mx::FilePath outputPath = mx::FilePath(dir) / file;
             outputPath.removeExtension();
 
             // Perform bake and use that file for rendering
-            if (canBake() && (bakeFiles.size() == bakeResolution.size()) && 
-                (bakeFiles.size() == bakeHdr.size()))
+            if (canBake())
             {
-                for (size_t i = 0; i < bakeFiles.size(); i++)
+                for (auto& doctoBake : options.bakeSettings)
                 {
                     mx::FilePath outputBakeFile = file;
-                    if (bakeFiles[i] == outputBakeFile.asString())
+                    if (doctoBake.bakeFile == outputBakeFile.asString())
                     {
                         outputBakeFile.removeExtension();
                         outputBakeFile = outputPath / (outputBakeFile.asString() + "_baked.mtlx");
-                        runBake(doc, imageSearchPath, outputBakeFile, bakeResolution[i], bakeResolution[i], bakeHdr[i], log);
+                        runBake(doc, imageSearchPath, outputBakeFile, doctoBake, log);
                         break;
                     }
                 }
@@ -341,8 +330,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                 // Get connected shader nodes if a material node.
                 if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    std::unordered_set<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
-                    for (auto node : shaderNodes)
+                    for (mx::NodePtr node : getShaderNodes(outputNode))
                     {
                         mx::NodeDefPtr nodeDef = node->getNodeDef();
                         if (nodeDef)
@@ -353,7 +341,7 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                     }
                 }
 
-                for (size_t i=0; i < nodeDefs.size(); ++i)
+                for (size_t i=0; i < targetElements.size(); ++i)
                 {
                     const mx::NodeDefPtr& nodeDef = nodeDefs[i];
                     const mx::TypedElementPtr& targetElement = targetElements[i];
@@ -371,38 +359,30 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                 usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
                             }
 
-                            const mx::StringVec& wedgeParameters = options.wedgeParameters;
-                            const mx::FloatVec& wedgeRangeMin = options.wedgeRangeMin;
-                            const mx::FloatVec& wedgeRangeMax = options.wedgeRangeMax;
-                            const mx::IntVec& wedgeSteps = options.wedgeSteps;
-                            const mx::StringVec& wedgeFiles = options.wedgeFiles;
-                            mx::StringSet wedgeFileSet(wedgeFiles.begin(), wedgeFiles.end());
+                            auto it = std::find_if(options.wedgeSettings.begin(), options.wedgeSettings.end(),
+                                [&file] (const GenShaderUtil::TestSuiteOptions::WedgeSetting& setting) {
+                                    return (file.asString() == setting.wedgeFile);
+                                });
 
-                            bool performWedge = (!wedgeFiles.empty()) &&
-                                wedgeFileSet.count(file) &&
-                                wedgeFiles.size() == wedgeParameters.size() &&
-                                wedgeFiles.size() == wedgeRangeMin.size() &&
-                                wedgeFiles.size() == wedgeRangeMax.size() &&
-                                wedgeFiles.size() == wedgeSteps.size();
-
+                            bool performWedge = (it != options.wedgeSettings.end()) ? true : false;
                             if (!performWedge)
                             {
                                 runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
                             }
                             else
                             {
-                                for (size_t f = 0; f < wedgeFiles.size(); f++)
+                                for (auto &wedgesetting: options.wedgeSettings)
                                 {
                                     mx::ImageVec imageVec;
 
-                                    const std::string& wedgeFile = wedgeFiles[f];
+                                    const std::string& wedgeFile = wedgesetting.wedgeFile;
                                     if (wedgeFile != file.asString())
                                     {
                                         continue;
                                     }
 
                                     // Make this a utility
-                                    std::string parameterPath = wedgeParameters[f];
+                                    std::string parameterPath = wedgesetting.parameter;
                                     mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
                                     if (!uniformElement)
                                     {
@@ -428,9 +408,9 @@ bool ShaderRenderTester::validate(const mx::FilePathVec& testRootPaths, const mx
                                     mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
                                     mx::ValuePtr newValue = valueElement->getValue();
 
-                                    float wedgePropertyMin = wedgeRangeMin[f];
-                                    float wedgePropertyMax = wedgeRangeMax[f];
-                                    int wedgeImageCount = std::max(wedgeSteps[f], 2);
+                                    float wedgePropertyMin = wedgesetting.range[0];
+                                    float wedgePropertyMax = wedgesetting.range[1];
+                                    int wedgeImageCount = std::max(wedgesetting.steps, 2);
 
                                     float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
                                     for (int w = 0; w < wedgeImageCount; w++)

@@ -20,14 +20,17 @@ const std::string options =
 "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
+"    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
 "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
 "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
 "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
-"    --msaa [INTEGER]               Specify the multisampling count for screen anti-aliasing (defaults to 0)\n"
-"    --refresh [INTEGER]            Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
+"    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
+"    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
+"    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
+"    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
@@ -54,11 +57,17 @@ mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
     mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath().getParentPath();
+    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(installRootPath);
-    searchPath.append(devRootPath);
+    if ((devRootPath / "libraries").exists())
+    {
+        searchPath.append(devRootPath);
+    }
+    else
+    {
+        searchPath.append(installRootPath);
+    }
 
     return searchPath;
 }
@@ -75,7 +84,7 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.obj";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
-    mx::FilePathVec libraryFolders = { "libraries" };
+    mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
@@ -84,15 +93,18 @@ int main(int argc, char* const argv[])
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
-    int envSampleCount = DEFAULT_ENV_SAMPLE_COUNT;
+    int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
     float lightRotation = 0.0f;
+    bool shadowMap = true;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
     mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
     std::string captureFilename;
-    int multiSampleCount = 0;
-    int refresh = 50;
+    int bakeWidth = 0;
+    int bakeHeight = 0;
+    std::string bakeFilename;
+    float refresh = 50.0f;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -149,6 +161,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "float", lightRotation);
         }
+        else if (token == "--shadowMap")
+        {
+            parseToken(nextToken, "boolean", shadowMap);
+        }
         else if (token == "--path")
         {
             searchPath.append(mx::FileSearchPath(nextToken));
@@ -173,13 +189,21 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "string", captureFilename);
         }
-        else if (token == "--msaa")
+        else if (token == "--bakeWidth")
         {
-            parseToken(nextToken, "integer", multiSampleCount);
+            parseToken(nextToken, "integer", bakeWidth);
+        }
+        else if (token == "--bakeHeight")
+        {
+            parseToken(nextToken, "integer", bakeHeight);
+        }
+        else if (token == "--bakeFilename")
+        {
+            parseToken(nextToken, "string", bakeFilename);
         }
         else if (token == "--refresh")
         {
-            parseToken(nextToken, "integer", refresh);
+            parseToken(nextToken, "float", refresh);
         }
         else if (token == "--remap")
         {
@@ -224,6 +248,9 @@ int main(int argc, char* const argv[])
         }
     }
 
+    // Append the standard library folder, giving it a lower precedence than user-supplied libraries.
+    libraryFolders.push_back("libraries");
+
     ng::init();
     {
         ng::ref<Viewer> viewer = new Viewer(materialFilename,
@@ -233,8 +260,7 @@ int main(int argc, char* const argv[])
                                             libraryFolders,
                                             screenWidth,
                                             screenHeight,
-                                            screenColor,
-                                            multiSampleCount);
+                                            screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
         viewer->setCameraPosition(cameraPosition);
@@ -244,13 +270,26 @@ int main(int argc, char* const argv[])
         viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
+        viewer->setShadowMapEnable(shadowMap);
         viewer->setDocumentModifiers(modifiers);
+        viewer->setBakeWidth(bakeWidth);
+        viewer->setBakeHeight(bakeHeight);
+        viewer->setBakeFilename(bakeFilename);
+        viewer->initialize();
+        if (!bakeFilename.empty()) 
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        } 
+        else 
+        {            
+            viewer->set_visible(true);
+        }
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
             viewer->requestExit();
         }
-        viewer->initialize();
         ng::mainloop(refresh);
     }
     ng::shutdown();

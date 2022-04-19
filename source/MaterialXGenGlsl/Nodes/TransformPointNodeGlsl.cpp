@@ -7,8 +7,7 @@
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr TransformPointNodeGlsl::create()
 {
@@ -21,4 +20,4 @@ string TransformPointNodeGlsl::getHomogeneousCoordinate(const ShaderInput* in, G
     return "vec4(" + shadergen.getUpstreamResult(in, context) + ", 1.0)";
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

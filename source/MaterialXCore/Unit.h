@@ -9,13 +9,11 @@
 /// @file
 /// Unit classes
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXCore/Export.h>
 
-#include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class UnitConverter;
 class LinearUnitConverter;
@@ -39,7 +37,7 @@ using ConstUnitConverterRegistryPtr = shared_ptr<const UnitConverterRegistry>;
 /// @class UnitConverter
 /// An abstract base class for unit converters.
 /// Each unit converter instance is responsible for a single unit type.
-class UnitConverter
+class MX_CORE_API UnitConverter
 {
   public:
     UnitConverter() { }
@@ -83,12 +81,12 @@ class UnitConverter
 
 /// @class LinearUnitConverter
 /// A converter class for linear units that require only a scalar multiplication.
-class LinearUnitConverter : public UnitConverter
+class MX_CORE_API LinearUnitConverter : public UnitConverter
 {
   public:
     virtual ~LinearUnitConverter() { }
 
-    /// Creator 
+    /// Creator
     static LinearUnitConverterPtr create(UnitTypeDefPtr UnitDef);
 
     /// Return the unit type string
@@ -104,7 +102,7 @@ class LinearUnitConverter : public UnitConverter
     /// @{
 
     /// Return the mappings from unit names to the scale value
-    /// defined by a linear converter. 
+    /// defined by a linear converter.
     const std::unordered_map<string, float>& getUnitScale() const
     {
         return _unitScale;
@@ -167,24 +165,24 @@ using UnitConverterPtrMap = std::unordered_map<string, UnitConverterPtr>;
 
 /// @class UnitConverterRegistry
 /// A registry for unit converters.
-class UnitConverterRegistry
+class MX_CORE_API UnitConverterRegistry
 {
   public:
     virtual ~UnitConverterRegistry() { }
 
-    /// Creator 
+    /// Creator
     static UnitConverterRegistryPtr create();
 
     /// Add a unit converter for a given UnitDef.
-    /// Returns false if a converter has already been registered for the given UnitDef 
+    /// Returns false if a converter has already been registered for the given UnitDef
     bool addUnitConverter(UnitTypeDefPtr def, UnitConverterPtr converter);
 
     /// Remove a unit converter for a given UnitDef.
-    /// Returns false if a converter does not exist for the given UnitDef 
+    /// Returns false if a converter does not exist for the given UnitDef
     bool removeUnitConverter(UnitTypeDefPtr def);
 
     /// Get a unit converter for a given UnitDef
-    /// Returns any empty pointer if a converter does not exist for the given UnitDef 
+    /// Returns any empty pointer if a converter does not exist for the given UnitDef
     UnitConverterPtr getUnitConverter(UnitTypeDefPtr def);
 
     /// Clear all unit converters from the registry.
@@ -207,6 +205,6 @@ class UnitConverterRegistry
     UnitConverterPtrMap _unitConverters;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

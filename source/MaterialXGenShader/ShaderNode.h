@@ -9,7 +9,7 @@
 /// @file
 /// Classes for nodes created during shader generation
 
-#include <MaterialXGenShader/Library.h>
+#include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/TypeDesc.h>
@@ -17,8 +17,7 @@
 
 #include <MaterialXCore/Node.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class ShaderNode;
 class ShaderPort;
@@ -34,12 +33,12 @@ using ShaderInputPtr = shared_ptr<class ShaderInput>;
 using ShaderOutputPtr = shared_ptr<class ShaderOutput>;
 /// Shared pointer to a ShaderNode
 using ShaderNodePtr = shared_ptr<class ShaderNode>;
-/// Shared pointer to a ShaderInput
-using ShaderInputSet = std::set<ShaderInput*>;
+/// A vector of ShaderInput pointers
+using ShaderInputVec = vector<ShaderInput*>;
 
 
 /// Metadata to be exported to generated shader.
-struct ShaderMetadata
+struct MX_GENSHADER_API ShaderMetadata
 {
     string name;
     const TypeDesc* type;
@@ -56,7 +55,7 @@ using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 /// @class ShaderMetadataRegistry 
 /// A registry for metadata that will be exported to the generated shader
 /// if found on nodes and inputs during shader generation.
-class ShaderMetadataRegistry : public GenUserData
+class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
 {
   public:
     static const string USER_DATA_NAME;
@@ -111,7 +110,7 @@ using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
 
 
 /// Flags set on shader ports.
-class ShaderPortFlag
+class MX_GENSHADER_API ShaderPortFlag
 {
   public:
     static const uint32_t UNIFORM    = 1u << 0;
@@ -121,7 +120,7 @@ class ShaderPortFlag
 
 /// @class ShaderPort
 /// An input or output port on a ShaderNode
-class ShaderPort : public std::enable_shared_from_this<ShaderPort>
+class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPort>
 {
   public:
     /// Constructor.
@@ -171,6 +170,12 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 
     /// Return the value set on this port.
     ValuePtr getValue() const { return _value; }
+
+    /// Set a source color space for the value on this port.
+    void setColorSpace(const string& colorspace) { _colorspace = colorspace; }
+
+    /// Return the source color space for the value on this port.
+    const string& getColorSpace() const { return _colorspace; }
 
     /// Set a unit type for the value on this port.
     void setUnit(const string& unit) { _unit = unit; }
@@ -245,6 +250,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
     string _variable;
     ValuePtr _value;
     string _unit;
+    string _colorspace;
     string _geomprop;
     ShaderMetadataVecPtr _metadata;
     uint32_t _flags;
@@ -252,7 +258,7 @@ class ShaderPort : public std::enable_shared_from_this<ShaderPort>
 
 /// @class ShaderInput
 /// An input on a ShaderNode
-class ShaderInput : public ShaderPort
+class MX_GENSHADER_API ShaderInput : public ShaderPort
 {
   public:
     ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name);
@@ -277,6 +283,10 @@ class ShaderInput : public ShaderPort
     /// Get optional channels value
     const string& getChannels() const { return _channels; }
 
+    /// Return the sibling node connected upstream,
+    /// or nullptr if there is no sibling upstream.
+    ShaderNode* getConnectedSibling() const;
+
   protected:
     ShaderOutput* _connection;
     string _channels;
@@ -285,18 +295,14 @@ class ShaderInput : public ShaderPort
 
 /// @class ShaderOutput
 /// An output on a ShaderNode
-class ShaderOutput : public ShaderPort
+class MX_GENSHADER_API ShaderOutput : public ShaderPort
 {
   public:
     ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name);
 
     /// Return a set of connections to downstream node inputs,
     /// empty if not connected.
-    ShaderInputSet& getConnections() { return _connections; }
-
-    /// Return a set of connections to downstream node inputs,
-    /// empty if not connected.
-    const ShaderInputSet& getConnections() const { return _connections; }
+    const ShaderInputVec& getConnections() const { return _connections; }
 
     /// Make a connection from this output to the given input
     void makeConnection(ShaderInput* dst);
@@ -308,21 +314,13 @@ class ShaderOutput : public ShaderPort
     void breakConnections();
 
   protected:
-    ShaderInputSet _connections;
+    ShaderInputVec _connections;
     friend class ShaderInput;
-};
-
-
-/// Flags for tagging shader nodes.
-enum class ShaderNodeFlag
-{
-    /// Omit the function call for this node.
-    EXCLUDE_FUNCTION_CALL = 1 << 0,
 };
 
 /// @class ShaderNode
 /// Class representing a node in the shader generation DAG
-class ShaderNode
+class MX_GENSHADER_API ShaderNode
 {
   public:
     virtual ~ShaderNode() { }
@@ -341,8 +339,8 @@ class ShaderNode
         static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
         // Specific closure types
         static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
-        static const uint32_t BSDF_R        = 1 << 7;  /// A BSDF node only for reflection
-        static const uint32_t BSDF_T        = 1 << 8;  /// A BSDF node only for transmission
+        static const uint32_t BSDF_R        = 1 << 7;  /// A reflection BSDF node
+        static const uint32_t BSDF_T        = 1 << 8;  /// A transmission BSDF node
         static const uint32_t EDF           = 1 << 9;  /// A EDF node
         static const uint32_t VDF           = 1 << 10; /// A VDF node
         static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
@@ -351,12 +349,13 @@ class ShaderNode
         static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
         static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
         static const uint32_t LIGHT         = 1 << 15; /// A light shader node
+        static const uint32_t UNLIT         = 1 << 16; /// An unlit surface shader node
         // Specific conditional types
-        static const uint32_t IFELSE        = 1 << 16; /// An if-else statement
-        static const uint32_t SWITCH        = 1 << 17; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 17; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 18; /// A switch statement
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 18; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 19; /// Can be sampled in 3D (position)
+        static const uint32_t SAMPLE2D      = 1 << 19; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 20; /// Can be sampled in 3D (position)
     };
 
     /// @struct ScopeInfo
@@ -459,12 +458,6 @@ class ShaderNode
     /// Returns true if this node is only referenced by a conditional.
     bool referencedConditionally() const;
 
-    /// Returns true if the given node is a closure used by this node.
-    bool isUsedClosure(const ShaderNode* node) const
-    {
-        return _usedClosures.count(node) > 0;
-    }
-
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
@@ -518,18 +511,6 @@ class ShaderNode
         return (!_impl || _impl->isEditable(input));
     }
 
-    /// Set the on|off state of a given flag.
-    void setFlag(ShaderNodeFlag flag, bool value)
-    {
-        _flags = value ? (_flags | uint32_t(flag)) : (_flags & ~uint32_t(flag));
-    }
-
-    /// Return the on|off state of a given flag.
-    bool getFlag(ShaderNodeFlag flag) const
-    {
-        return ((_flags & uint32_t(flag)) != 0);
-    }
-
   protected:
     /// Create metadata from the nodedef according to registered metadata.
     void createMetadata(const NodeDef& nodeDef, GenContext& context);
@@ -537,7 +518,6 @@ class ShaderNode
     const ShaderGraph* _parent;
     string _name;
     uint32_t _classification;
-    uint32_t _flags;
 
     std::unordered_map<string, ShaderInputPtr> _inputMap;
     vector<ShaderInput*> _inputOrder;
@@ -548,11 +528,10 @@ class ShaderNode
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
     ScopeInfo _scopeInfo;
-    std::set<const ShaderNode*> _usedClosures;
 
     friend class ShaderGraph;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

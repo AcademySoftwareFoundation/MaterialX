@@ -14,6 +14,7 @@ void bindPyImage(py::module& mod)
 {
     py::enum_<mx::Image::BaseType>(mod, "BaseType")
         .value("UINT8", mx::Image::BaseType::UINT8)
+        .value("UINT16", mx::Image::BaseType::UINT16)
         .value("HALF", mx::Image::BaseType::HALF)
         .value("FLOAT", mx::Image::BaseType::FLOAT)
         .export_values();
@@ -31,6 +32,10 @@ void bindPyImage(py::module& mod)
         .def("setTexelColor", &mx::Image::setTexelColor)
         .def("getTexelColor", &mx::Image::getTexelColor)
         .def("isUniformColor", &mx::Image::isUniformColor)
+        .def("setUniformColor", &mx::Image::setUniformColor)
+        .def("applyMatrixTransform", &mx::Image::applyMatrixTransform)
+        .def("applyGammaTransform", &mx::Image::applyGammaTransform)
+        .def("copy", &mx::Image::copy)
         .def("applyBoxBlur", &mx::Image::applyBoxBlur)
         .def("applyGaussianBlur", &mx::Image::applyGaussianBlur)
         .def("splitByLuminance", &mx::Image::splitByLuminance)
@@ -43,4 +48,5 @@ void bindPyImage(py::module& mod)
 
         mod.def("createUniformImage", &mx::createUniformImage);
         mod.def("createImageStrip", &mx::createImageStrip);
+        mod.def("getMaxDimensions", &mx::getMaxDimensions);
 }

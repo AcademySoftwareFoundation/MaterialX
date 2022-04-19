@@ -6,13 +6,14 @@
 #ifndef MATERIALX_BLURNODEMDL_H
 #define MATERIALX_BLURNODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/BlurNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Blur node MDL implementation
-class BlurNodeMdl : public BlurNode
+class MX_GENMDL_API BlurNodeMdl : public BlurNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -20,8 +21,6 @@ class BlurNodeMdl : public BlurNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    /// Constructor
-    BlurNodeMdl();
     void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// Output sample array
@@ -29,6 +28,6 @@ class BlurNodeMdl : public BlurNode
                            const string& sampleName, const StringVec& sampleStrings) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

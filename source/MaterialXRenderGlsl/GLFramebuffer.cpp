@@ -11,16 +11,15 @@
 
 #include <MaterialXRenderGlsl/External/GLew/glew.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // GLFramebuffer methods
 //
 
-GLFrameBufferPtr GLFramebuffer::create(unsigned int width, unsigned int height, unsigned channelCount, Image::BaseType baseType)
+GLFramebufferPtr GLFramebuffer::create(unsigned int width, unsigned int height, unsigned channelCount, Image::BaseType baseType)
 {
-    return GLFrameBufferPtr(new GLFramebuffer(width, height, channelCount, baseType));
+    return GLFramebufferPtr(new GLFramebuffer(width, height, channelCount, baseType));
 }
 
 GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType) :
@@ -29,13 +28,10 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     _channelCount(channelCount),
     _baseType(baseType),
     _encodeSrgb(false),
-    _frameBuffer(0),
+    _framebuffer(0),
     _colorTexture(0),
     _depthTexture(0)
 {
-    StringVec errors;
-    const string errorType("OpenGL target creation failure.");
-
     if (!glGenFramebuffers)
     {
         glewInit();
@@ -46,8 +42,8 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     GLTextureHandler::mapTextureFormatToGL(baseType, channelCount, true, glType, glFormat, glInternalFormat);
 
     // Create and bind framebuffer.
-    glGenFramebuffers(1, &_frameBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    glGenFramebuffers(1, &_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
     // Create the offscreen color target and attach to the framebuffer.
     glGenTextures(1, &_colorTexture);
@@ -73,43 +69,42 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDeleteFramebuffers(1, &_frameBuffer);
-        _frameBuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
+        glDeleteFramebuffers(1, &_framebuffer);
+        _framebuffer = GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID;
 
-        string errorMessage("Frame buffer object setup failed: ");
+        string errorMessage;
         switch (status)
         {
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
             break;
         case GL_FRAMEBUFFER_UNSUPPORTED:
-            errorMessage += "GL_FRAMEBUFFER_UNSUPPORTED";
+            errorMessage = "GL_FRAMEBUFFER_UNSUPPORTED";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
             break;
         case GL_FRAMEBUFFER_UNDEFINED:
-            errorMessage += "GL_FRAMEBUFFER_UNDEFINED";
+            errorMessage = "GL_FRAMEBUFFER_UNDEFINED";
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            errorMessage += "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
             break;
         default:
-            errorMessage += std::to_string(status);
+            errorMessage = std::to_string(status);
             break;
         }
 
-        errors.push_back(errorMessage);
-        throw ExceptionShaderRenderError(errorType, errors);
+        throw ExceptionRenderError("Frame buffer object setup failed: " + errorMessage);
     }
 
     // Unbind on cleanup
@@ -118,12 +113,12 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
 
 GLFramebuffer::~GLFramebuffer()
 {
-    if (_frameBuffer)
+    if (_framebuffer)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
         glDeleteTextures(1, &_colorTexture);
         glDeleteTextures(1, &_depthTexture);
-        glDeleteFramebuffers(1, &_frameBuffer);
+        glDeleteFramebuffers(1, &_framebuffer);
     }
 }
 
@@ -156,14 +151,12 @@ void GLFramebuffer::resize(unsigned int width, unsigned int height)
 
 void GLFramebuffer::bind()
 {
-    if (!_frameBuffer)
+    if (!_framebuffer)
     {
-        StringVec errors;
-        errors.push_back("No framebuffer exists to bind.");
-        throw ExceptionShaderRenderError("OpenGL target bind failure.", errors);
+        throw ExceptionRenderError("No framebuffer exists to bind");
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     GLenum colorList[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, colorList);
 
@@ -185,10 +178,13 @@ void GLFramebuffer::unbind()
     glDrawBuffer(GL_NONE);
 }
 
-ImagePtr GLFramebuffer::createColorImage()
+ImagePtr GLFramebuffer::getColorImage(ImagePtr image)
 {
-    ImagePtr image = Image::create(_width, _height, _channelCount, _baseType);
-    image->createResourceBuffer();
+    if (!image)
+    {
+        image = Image::create(_width, _height, _channelCount, _baseType);
+        image->createResourceBuffer();
+    }
 
     int glType, glFormat, glInternalFormat;
     GLTextureHandler::mapTextureFormatToGL(_baseType, _channelCount, false, glType, glFormat, glInternalFormat);
@@ -204,7 +200,7 @@ ImagePtr GLFramebuffer::createColorImage()
 
 void GLFramebuffer::blit()
 {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, _frameBuffer);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 
@@ -214,4 +210,4 @@ void GLFramebuffer::blit()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -9,20 +9,21 @@
 /// @file
 /// Cross-platform support for file and search paths
 
+#include <MaterialXFormat/Export.h>
+
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class FilePath;
 using FilePathVec = vector<FilePath>;
 
-extern const string PATH_LIST_SEPARATOR;
-extern const string MATERIALX_SEARCH_PATH_ENV_VAR;
+extern MX_FORMAT_API const string PATH_LIST_SEPARATOR;
+extern MX_FORMAT_API const string MATERIALX_SEARCH_PATH_ENV_VAR;
 
 /// @class FilePath
 /// A generic file path, supporting both syntactic and file system operations.
-class FilePath
+class MX_FORMAT_API FilePath
 {
   public:
     enum Type
@@ -36,11 +37,11 @@ class FilePath
     {
         FormatWindows = 0,
         FormatPosix = 1,
-    #if defined(_WIN32)
+#if defined(_WIN32)
         FormatNative = FormatWindows
-    #else
+#else
         FormatNative = FormatPosix
-    #endif
+#endif
     };
 
   public:
@@ -49,7 +50,7 @@ class FilePath
     {
     }
     ~FilePath() { }
-    
+
     bool operator==(const FilePath& rhs) const
     {
         return _vec == rhs._vec &&
@@ -191,6 +192,9 @@ class FilePath
     /// Create a directory on the file system at the given path.
     void createDirectory() const;
 
+    /// Set the current working directory of the file system.
+    bool setCurrentPath();
+
     /// @}
 
     /// Return the current working directory of the file system.
@@ -207,7 +211,7 @@ class FilePath
 /// @class FileSearchPath
 /// A sequence of file paths, which may be queried to find the first instance
 /// of a given filename on the file system.
-class FileSearchPath
+class MX_FORMAT_API FileSearchPath
 {
   public:
     using Iterator = FilePathVec::iterator;
@@ -270,7 +274,7 @@ class FileSearchPath
     {
         _paths.insert(_paths.begin(), path);
     }
-    
+
     /// Clear all paths from the sequence.
     void clear()
     {
@@ -294,7 +298,7 @@ class FileSearchPath
     {
         return _paths[index];
     }
-    
+
     /// Return the const path at the given index.
     const FilePath& operator[](size_t index) const
     {
@@ -307,7 +311,7 @@ class FileSearchPath
     /// filename is returned unmodified.
     FilePath find(const FilePath& filename) const
     {
-        if (_paths.empty() || filename.isEmpty()) 
+        if (_paths.empty() || filename.isEmpty())
         {
             return filename;
         }
@@ -341,8 +345,8 @@ class FileSearchPath
 };
 
 /// Return a FileSearchPath object from search path environment variable.
-FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
+MX_FORMAT_API FileSearchPath getEnvironmentPath(const string& sep = PATH_LIST_SEPARATOR);
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

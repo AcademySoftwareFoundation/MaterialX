@@ -6,13 +6,14 @@
 #ifndef MATERIALX_HEIGHTTONORMALNODEMDL_H
 #define MATERIALX_HEIGHTTONORMALNODEMDL_H
 
+#include <MaterialXGenMdl/Export.h>
+
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// HeightToNormal node implementation for MDL
-class HeightToNormalNodeMdl : public ConvolutionNode
+class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
 {
   public:
     static ShaderNodeImplPtr create();
@@ -30,6 +31,6 @@ class HeightToNormalNodeMdl : public ConvolutionNode
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

@@ -5,10 +5,7 @@
 
 #include <MaterialXCore/Property.h>
 
-#include <MaterialXCore/Document.h>
-
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 const string PropertyAssign::PROPERTY_ATTRIBUTE = "property";
 const string PropertyAssign::GEOM_ATTRIBUTE = "geom";
@@ -57,4 +54,4 @@ PropertySetPtr PropertySetAssign::getPropertySet() const
     return resolveRootNameReference<PropertySet>(getPropertySetString());
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

@@ -9,14 +9,15 @@
 /// @file
 /// OSL syntax class
 
+#include <MaterialXGenOsl/Export.h>
+
 #include <MaterialXGenShader/Syntax.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// @class OslSyntax
 /// Syntax class for OSL (Open Shading Language)
-class OslSyntax : public Syntax
+class MX_GENOSL_API OslSyntax : public Syntax
 {
 public:
     OslSyntax();
@@ -35,6 +36,6 @@ public:
     static const StringVec COLOR4_MEMBERS;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

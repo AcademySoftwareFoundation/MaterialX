@@ -114,7 +114,7 @@ TEST_CASE("Render: Geometry Handler Load", "[rendercore]")
 
         geomLoaded = true;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {
@@ -209,7 +209,7 @@ TEST_CASE("Render: Image Handler Load", "[rendercore]")
 #endif
         imagesLoaded = true;
     }
-    catch (mx::ExceptionShaderRenderError& e)
+    catch (mx::ExceptionRenderError& e)
     {
         for (const auto& error : e.errorLog())
         {

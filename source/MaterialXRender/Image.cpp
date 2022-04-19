@@ -10,9 +10,10 @@
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
 
 #include <cstring>
+#include <fstream>
+#include <limits>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 //
 // Global functions
@@ -22,13 +23,7 @@ ImagePtr createUniformImage(unsigned int width, unsigned int height, unsigned in
 {
     ImagePtr image = Image::create(width, height, channelCount, baseType);
     image->createResourceBuffer();
-    for (unsigned int y = 0; y < image->getHeight(); y++)
-    {
-        for (unsigned int x = 0; x < image->getWidth(); x++)
-        {
-            image->setTexelColor(x, y, color);
-        }
-    }
+    image->setUniformColor(color);
     return image;
 }
 
@@ -79,6 +74,17 @@ ImagePtr createImageStrip(const vector<ImagePtr>& imageVec)
     return imageStrip;
 }
 
+std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec)
+{
+    std::pair<unsigned int, unsigned int> maxSize(0, 0);
+    for (ImagePtr image : imageVec)
+    {
+        maxSize.first = std::max(maxSize.first, image->getWidth());
+        maxSize.second = std::max(maxSize.second, image->getHeight());
+    }
+    return maxSize;
+}
+
 //
 // Image methods
 //
@@ -105,7 +111,8 @@ unsigned int Image::getBaseStride() const
     {
         return 4;
     }
-    if (_baseType == BaseType::HALF)
+    if (_baseType == BaseType::HALF ||
+        _baseType == BaseType::UINT16)
     {
         return 2;
     }
@@ -149,12 +156,20 @@ void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
             data[c] = (Half) color[c];
         }
     }
+    else if (_baseType == BaseType::UINT16)
+    {
+        uint16_t* data = static_cast<uint16_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = (uint16_t) std::round(color[c] * (float) std::numeric_limits<uint16_t>::max());
+        }
+    }
     else if (_baseType == BaseType::UINT8)
     {
         uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
         for (unsigned int c = 0; c < writeChannels; c++)
         {
-            data[c] = (uint8_t) std::round(color[c] * 255.0f);
+            data[c] = (uint8_t) std::round(color[c] * (float) std::numeric_limits<uint8_t>::max());
         }
     }
     else
@@ -222,24 +237,51 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
             throw Exception("Unsupported channel count in getTexelColor");
         }
     }
-    else if (_baseType == BaseType::UINT8)
+    else if (_baseType == BaseType::UINT16)
     {
-        uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        uint16_t* data = static_cast<uint16_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        const float MAX_VALUE = (float) std::numeric_limits<uint16_t>::max();
         if (_channelCount == 4)
         {
-            return Color4(data[0] / 255.0f, data[1] / 255.0f, data[2] / 255.0f, data[3] / 255.0f);
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, data[3] / MAX_VALUE);
         }
         else if (_channelCount == 3)
         {
-            return Color4(data[0] / 255.0f, data[1] / 255.0f, data[2] / 255.0f, 1.0f);
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, 1.0f);
         }
         else if (_channelCount == 2)
         {
-            return Color4(data[0] / 255.0f, data[1] / 255.0f, 0.0f, 1.0f);
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, 0.0f, 1.0f);
         }
         else if (_channelCount == 1)
         {
-            float scalar = data[0] / 255.0f;
+            float scalar = data[0] / MAX_VALUE;
+            return Color4(scalar, scalar, scalar, 1.0f);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in getTexelColor");
+        }
+    }
+    else if (_baseType == BaseType::UINT8)
+    {
+        uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        const float MAX_VALUE = (float) std::numeric_limits<uint8_t>::max();
+        if (_channelCount == 4)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, data[3] / MAX_VALUE);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, 1.0f);
+        }
+        else if (_channelCount == 2)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, 0.0f, 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            float scalar = data[0] / MAX_VALUE;
             return Color4(scalar, scalar, scalar, 1.0f);
         }
         else
@@ -290,6 +332,63 @@ bool Image::isUniformColor(Color4* uniformColor)
         *uniformColor = refColor;
     }
     return true;
+}
+
+void Image::setUniformColor(const Color4& color)
+{
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            setTexelColor(x, y, color);
+        }
+    }
+}
+
+void Image::applyMatrixTransform(const Matrix33& mat)
+{
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            Color4 color = getTexelColor(x, y);
+            Vector3 vec(color[0], color[1], color[2]);
+            vec = mat.multiply(vec);
+            setTexelColor(x, y, Color4(vec[0], vec[1], vec[2], color[3]));
+        }
+    }
+}
+
+void Image::applyGammaTransform(float gamma)
+{
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            Color4 color = getTexelColor(x, y);
+            Vector3 vec(color[0], color[1], color[2]);
+            vec[0] = std::pow(std::max(vec[0], 0.0f), gamma);
+            vec[1] = std::pow(std::max(vec[1], 0.0f), gamma);
+            vec[2] = std::pow(std::max(vec[2], 0.0f), gamma);
+            setTexelColor(x, y, Color4(vec[0], vec[1], vec[2], color[3]));
+        }
+    }
+}
+
+ImagePtr Image::copy(unsigned int channelCount, BaseType baseType) const
+{
+    ImagePtr newImage = Image::create(getWidth(), getHeight(), channelCount, baseType);
+    newImage->createResourceBuffer();
+
+    for (int y = 0; y < (int) getHeight(); y++)
+    {
+        for (int x = 0; x < (int) getWidth(); x++)
+        {
+            newImage->setTexelColor(x, y, getTexelColor(x, y));
+        }
+    }
+
+    return newImage;
 }
 
 ImagePtr Image::applyBoxBlur()
@@ -387,6 +486,22 @@ ImagePair Image::splitByLuminance(float luminance)
     return std::make_pair(underflowImage, overflowImage);
 }
 
+void Image::writeTable(const FilePath& filePath, unsigned int channel)
+{
+    std::ofstream ofs(filePath.asString());
+    ofs << "X Y Z" << std::endl;
+    for (unsigned int y = 0; y < getHeight(); y++)
+    {
+        for (unsigned int x = 0; x < getWidth(); x++)
+        {
+            double dx = ((double) x + 0.5) / (double) getWidth();
+            double dy = ((double) y + 0.5) / (double) getHeight();
+            double dz = getTexelColor(x, y)[channel];
+            ofs << dx << " " << dy << " " << dz << std::endl;
+        }
+    }
+}
+
 void Image::createResourceBuffer()
 {
     releaseResourceBuffer();
@@ -410,4 +525,4 @@ void Image::releaseResourceBuffer()
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

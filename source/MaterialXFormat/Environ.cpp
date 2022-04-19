@@ -8,12 +8,11 @@
 #include <MaterialXCore/Util.h>
 
 #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
 #endif
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 string getEnviron(const string& name)
 {
@@ -51,4 +50,4 @@ bool removeEnviron(const string& name)
 #endif
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

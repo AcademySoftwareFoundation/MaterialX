@@ -192,7 +192,7 @@ class PyShaderGenerator : public mx::ShaderGenerator
         );
     }
 
-    void emitFunctionCalls(const mx::ShaderGraph& graph, mx::GenContext& context, mx::ShaderStage& stage) const override
+    void emitFunctionCalls(const mx::ShaderGraph& graph, mx::GenContext& context, mx::ShaderStage& stage, uint32_t classification = 0u) const override
     {
         PYBIND11_OVERLOAD(
             void,
@@ -200,7 +200,8 @@ class PyShaderGenerator : public mx::ShaderGenerator
             emitFunctionCalls,
             graph,
             context,
-            stage
+            stage,
+            classification
         );
     }
 
@@ -290,26 +291,6 @@ class PyShaderGenerator : public mx::ShaderGenerator
             createStage,
             name,
             shader
-        );
-    }
-
-    mx::ShaderNodeImplPtr createSourceCodeImplementation(const mx::Implementation& impl) const override
-    {
-        PYBIND11_OVERLOAD(
-            mx::ShaderNodeImplPtr,
-            mx::ShaderGenerator,
-            createSourceCodeImplementation,
-            impl
-        );
-    }
-
-    mx::ShaderNodeImplPtr createCompoundImplementation(const mx::NodeGraph& impl) const override
-    {
-        PYBIND11_OVERLOAD(
-            mx::ShaderNodeImplPtr,
-            mx::ShaderGenerator,
-            createCompoundImplementation,
-            impl
         );
     }
 };

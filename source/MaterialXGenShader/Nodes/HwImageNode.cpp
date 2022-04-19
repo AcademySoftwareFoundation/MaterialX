@@ -3,15 +3,13 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXGenShader/Nodes/HwSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 // Additional implementaton arguments for image nodes
 const string UV_SCALE = "uv_scale";
 const string UV_OFFSET = "uv_offset";
@@ -43,7 +41,7 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
             const string& fileName = file->getValueString();
             if (fileName.find(UDIM_TOKEN) != string::npos)
             {
-                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIMSET);
+                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIM_SET_PROPERTY);
                 if (udimSetValue && udimSetValue->isA<StringVec>())
                 {
                     const StringVec& udimIdentifiers = udimSetValue->asA<StringVec>();
@@ -69,4 +67,4 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
     }
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

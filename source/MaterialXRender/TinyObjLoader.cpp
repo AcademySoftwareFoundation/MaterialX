@@ -21,8 +21,7 @@
 
 #include <iostream>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 namespace {
 
@@ -47,7 +46,7 @@ using VertexIndexMap = std::unordered_map<VertexVector, uint32_t, VertexVector::
 // TinyObjLoader methods
 //
 
-bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
+bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
 {
     tinyobj::attrib_t attrib;
     vector<tinyobj::shape_t> shapes;
@@ -90,7 +89,7 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
         size_t faceCount = indexCount / FACE_VERTEX_COUNT;
 
         MeshPartitionPtr part = MeshPartition::create();
-        part->setIdentifier(shape.name);
+        part->setName(shape.name);
         part->setFaceCount(faceCount);
         mesh->addPartition(part);
 
@@ -115,6 +114,10 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
                 if (indexObj.texcoord_index >= 0 && k < MeshStream::STRIDE_2D)
                 {
                     texcoord[k] = attrib.texcoords[indexObj.texcoord_index * MeshStream::STRIDE_2D + k];
+                }
+                if (texcoordVerticalFlip && k == 1)
+                {
+                    texcoord[k] = 1.0f - texcoord[k];
                 }
             }
 
@@ -148,25 +151,8 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
         }
     }
 
-    // Generate normals if needed.
-    if (!normalsFound)
-    {
-        normalStream = mesh->generateNormals(positionStream);
-    }
-
-    // Generate tangents.
-    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
-
-    // Assign streams to mesh.
+    // Update positional information.
     mesh->addStream(positionStream);
-    mesh->addStream(normalStream);
-    mesh->addStream(texcoordStream);
-    if (tangentStream)
-    {
-        mesh->addStream(tangentStream);
-    }
-
-    // Assign properties to mesh.
     mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
     mesh->setMinimumBounds(boxMin);
     mesh->setMaximumBounds(boxMax);
@@ -174,7 +160,23 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
     mesh->setSphereCenter(sphereCenter);
     mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
+    if (normalsFound)
+    {
+        mesh->addStream(normalStream);
+    }
+    if (texcoordStream)
+    {
+        mesh->addStream(texcoordStream);
+    }
+
+    // Generate tangents, normals and texture coordinates as needed
+    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+    if (tangentStream)
+    {
+        mesh->addStream(tangentStream);
+    }
+
     return true;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

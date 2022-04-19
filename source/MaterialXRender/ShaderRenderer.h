@@ -9,22 +9,21 @@
 /// @file
 /// Base class for shader rendering
 
+#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/ViewHandler.h>
 
 #include <MaterialXGenShader/Shader.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
 
 /// @class ShaderRenderer
-/// Helper class for rendering generated shader code to produce images.
-class ShaderRenderer
+/// Base class for renderers that generate shader code to produce images.
+class MX_RENDER_API ShaderRenderer
 {
   public:
     /// A map with name and source code for each shader stage.
@@ -36,96 +35,90 @@ class ShaderRenderer
     /// @name Setup
     /// @{
 
-    /// Renderer initialization 
-    virtual void initialize() = 0;
+    /// Initialize the renderer.
+    virtual void initialize() { }
 
-    /// Set image handler to use for image load and save
-    /// @param imageHandler Handler used to save image
+    /// Set the camera.
+    void setCamera(CameraPtr camera)
+    {
+        _camera = camera;
+    }
+
+    /// Return the camera.
+    CameraPtr getCamera() const
+    {
+        return _camera;
+    }
+
+    /// Set the image handler used by this renderer for image I/O.
     void setImageHandler(ImageHandlerPtr imageHandler)
     {
         _imageHandler = imageHandler;
     }
 
-    /// Get image handler
-    /// @return Shared pointer to an image handler
+    /// Return the image handler.
     ImageHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }
 
-    /// Set light handler to use for light bindings
-    /// @param lightHandler Handler used for lights
+    /// Set the light handler used by this renderer for light bindings.
     void setLightHandler(LightHandlerPtr lightHandler)
     {
         _lightHandler = lightHandler;
     }
 
-    /// Get light handler
-    /// @return Shared pointer to a light handler
+    /// Return the light handler.
     LightHandlerPtr getLightHandler() const
     {
         return _lightHandler;
     }
 
-    /// Get geometry handler
-    /// @return Reference to a geometry handler
+    /// Set the geometry handler.
+    void setGeometryHandler(GeometryHandlerPtr geometryHandler)
+    {
+        _geometryHandler = geometryHandler;
+    }
+
+    /// Return the geometry handler.
     GeometryHandlerPtr getGeometryHandler() const
     {
         return _geometryHandler;
-    }
-
-    /// Set viewing utilities handler.
-    /// @param viewHandler Handler to use
-    void setViewHandler(ViewHandlerPtr viewHandler)
-    {
-        _viewHandler = viewHandler;
-    }
-
-    /// Get viewing utilities handler
-    /// @return Shared pointer to a view utilities handler
-    ViewHandlerPtr getViewHandler() const
-    {
-        return _viewHandler;
     }
 
     /// @}
     /// @name Rendering
     /// @{
 
-    /// Create program based on an input shader
-    /// @param shader Input Shader
-    virtual void createProgram(ShaderPtr shader) = 0;
+    /// Create program based on an input shader.
+    virtual void createProgram(ShaderPtr shader);
 
     /// Create program based on shader stage source code.
     /// @param stages Map of name and source code for the shader stages.
-    virtual void createProgram(const StageMap& stages) = 0;
+    virtual void createProgram(const StageMap& stages);
 
-    /// Validate inputs for the program 
-    virtual void validateInputs() = 0;
+    /// Validate inputs for the program.
+    virtual void validateInputs() { }
 
-    /// Set the size of the rendered image
-    virtual void setSize(unsigned int /*width*/, unsigned int /*height*/) = 0;
+    /// Set the size of the rendered image.
+    virtual void setSize(unsigned int width, unsigned int height);
 
-    /// Render the current program to produce an image
-    virtual void render() = 0;
+    /// Render the current program to produce an image.
+    virtual void render() { }
 
     /// @}
     /// @name Utilities
     /// @{
 
-    /// Capture the current contents of the off-screen hardware buffer as an image.
-    virtual ImagePtr captureImage() = 0;
-
-    /// Save the current contents of the off-screen hardware buffer to disk.
-    virtual void saveImage(const FilePath& filePath, ConstImagePtr image, bool verticalFlip) = 0;
-
-    /// Load images referenced by shader program and return list of images loaded
-    virtual ImageVec getReferencedImages (const ShaderPtr& shader);
+    /// Capture the current rendered output as an image.
+    virtual ImagePtr captureImage(ImagePtr image = nullptr)
+    {
+        return nullptr;
+    }
 
     /// @}
 
   protected:
-    // Protected constructor
     ShaderRenderer() :
         _width(0),
         _height(0),
@@ -143,32 +136,32 @@ class ShaderRenderer
     unsigned int _height;
     Image::BaseType _baseType;
 
+    CameraPtr _camera;
     ImageHandlerPtr _imageHandler;
     GeometryHandlerPtr _geometryHandler;
     LightHandlerPtr _lightHandler;
-    ViewHandlerPtr _viewHandler;
 };
 
-/// @class ExceptionShaderRenderError
-/// An exception that is thrown when shader rendering fails.
-/// An error log of shader errors is cached as part of the exception.
-/// For example, if shader compilation fails, then a list of compilation errors is cached.
-class ExceptionShaderRenderError : public Exception
+/// @class ExceptionRenderError
+/// An exception that is thrown when a rendering operation fails.
+/// Optionally stores an additional error log, which can be used to
+/// store and retrieve shader compilation errors.
+class MX_RENDER_API ExceptionRenderError : public Exception
 {
   public:
-    ExceptionShaderRenderError(const string& msg, const StringVec& errorList) :
+    ExceptionRenderError(const string& msg, const StringVec& errorLog = StringVec()) :
         Exception(msg),
-        _errorLog(errorList)
+        _errorLog(errorLog)
     {
     }
 
-    ExceptionShaderRenderError(const ExceptionShaderRenderError& e) :
+    ExceptionRenderError(const ExceptionRenderError& e) :
         Exception(e),
         _errorLog(e._errorLog)
     {
     }
 
-    ExceptionShaderRenderError& operator=(const ExceptionShaderRenderError& e)         
+    ExceptionRenderError& operator=(const ExceptionRenderError& e)         
     {
         Exception::operator=(e);
         _errorLog = e._errorLog;
@@ -184,6 +177,6 @@ class ExceptionShaderRenderError : public Exception
     StringVec _errorLog;
 };
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END
 
 #endif

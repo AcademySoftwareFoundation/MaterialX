@@ -1,32 +1,34 @@
-#include "pbrlib/genosl/lib/mx_microfacet_specular.osl"
+#include "libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl"
 
-void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, BSDF base, thinfilm tf, output BSDF result)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
     //
     // TODO: We need handling of transmission for generalized schlick
     //
     if (weight < M_FLOAT_EPS || scatter_mode == "T")
     {
-        result = base;
+        bsdf.response = 0;
+        bsdf.throughput = color(1.0);
         return;
     }
 
     float NdotV = fabs(dot(N,-I));
     color F = mx_fresnel_schlick(NdotV, color0, color90, exponent);
-    float avgRoughness = mx_average_roughness(roughness);
+    vector2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
+    float avgAlpha = mx_average_alpha(safeAlpha);
 
     // Calculate compensation for multiple scattering.
     // This should normally be done inside the closure
     // but since vanilla OSL doesen't support this we
     // add it here in shader code instead.
-    color comp = mx_ggx_energy_compensation(NdotV, avgRoughness, F);
+    color comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
 
     // Calculate directional albedo since we need
     // to attenuate the base layer according to this.
-    color dirAlbedo = mx_ggx_directional_albedo(NdotV, avgRoughness, color0, color90) * comp;
+    color dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, color0, color90) * comp;
     float avgDirAlbedo = dot(dirAlbedo, color(1.0 / 3.0));
+    bsdf.throughput = color(1.0 - avgDirAlbedo * weight);
 
     // Set ior to 0.0 to disable the internal dielectric fresnel
-    result = F * comp * weight * microfacet(distribution, N, U, roughness.x, roughness.y, 0.0, 0)
-             + base * (1.0 - avgDirAlbedo * weight);
+    bsdf.response = F * comp * weight * microfacet(distribution, N, U, safeAlpha.x, safeAlpha.y, 0.0, 0);
 }

@@ -11,10 +11,10 @@
 
 #include <MaterialXGenShader/Library.h>
 
+#include <MaterialXGenShader/Export.h>
 #include <MaterialXCore/Util.h>
 
-namespace MaterialX
-{
+MATERIALX_NAMESPACE_BEGIN
 
 class InterfaceElement;
 class Node;
@@ -27,7 +27,7 @@ using ShaderNodeImplPtr = shared_ptr<class ShaderNodeImpl>;
 /// Class handling the shader generation implementation for a node.
 /// Responsible for emitting the function definition and function call 
 /// that is the node implementation.
-class ShaderNodeImpl
+class MX_GENSHADER_API ShaderNodeImpl
 {
   public:
     virtual ~ShaderNodeImpl() { }
@@ -74,6 +74,9 @@ class ShaderNodeImpl
     /// Emit the function call or inline source code for given node instance in the given context.
     virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
+    /// Emit declaration and initialization of output variables to use in a function call.
+    virtual void emitOutputVariables(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+
     /// Return a pointer to the graph if this implementation is using a graph,
     /// or returns nullptr otherwise.
     virtual ShaderGraph* getGraph() const;
@@ -105,6 +108,13 @@ class ShaderNodeImpl
     size_t _hash;
 };
 
-} // namespace MaterialX
+/// A no operation node, to be used for organizational nodes that has no code to execute.
+class MX_GENSHADER_API NopNode : public ShaderNodeImpl
+{
+public:
+    static ShaderNodeImplPtr create();
+};
+
+MATERIALX_NAMESPACE_END
 
 #endif
