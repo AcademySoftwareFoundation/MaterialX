@@ -239,12 +239,14 @@ TEST_CASE("Load locale content", "[xmlio_locale]")
     /// Thus one thousandand twenty - five is displayed as 1, 025 in the United States and 1.025 in Germany.In Sweden, the thousands separator is a space.
     /// mx:Vector3(1,1.5,2.0) should be interpreted as float[3] = [1.0f, 1.5f, 2.0f]
     
-    try {
-        //Set locale to de
+    try
+    {
+        // Set locale to de
         std::locale deLocale("de_DE");
         std::locale::global(deLocale);
     }
-    catch (const std::runtime_error& e) {
+    catch (const std::runtime_error& e)
+    {
         WARN("Unable to change locale " << e.what());
         return;
     }
@@ -287,10 +289,8 @@ TEST_CASE("Load locale content", "[xmlio_locale]")
         int uiattributeCount = 0;
         for (mx::ElementPtr elem : doc->traverseTree())
         {
-         
             if (elem->isA<mx::ValueElement>())
             {
-                
                 valueElementCount++;
 
                 if (elem->hasAttribute("uiname"))
@@ -304,4 +304,3 @@ TEST_CASE("Load locale content", "[xmlio_locale]")
         REQUIRE(uiattributeCount > 0);
     }
 }
-
