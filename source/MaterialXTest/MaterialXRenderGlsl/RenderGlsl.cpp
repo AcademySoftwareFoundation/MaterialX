@@ -97,9 +97,13 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath);
     REQUIRE(envRadiance);
     REQUIRE(envIrradiance);
+
+    // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
     _lightHandler->setEnvSampleCount(1024);
+    _lightHandler->setRefractionEnv(false);
+    _lightHandler->setRefractionColor(_renderer->getScreenColor().srgbToLinear());
 }
 
 //

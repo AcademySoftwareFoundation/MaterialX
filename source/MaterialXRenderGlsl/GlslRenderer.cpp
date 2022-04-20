@@ -324,9 +324,4 @@ void GlslRenderer::drawScreenSpaceQuad(const Vector2& uvMin, const Vector2& uvMa
     checkGlErrors("after draw screen-space quad");
 }
 
-void GlslRenderer::setScreenColor(const Color3& screenColor)
-{
-    _screenColor = screenColor;
-}
-
 MATERIALX_NAMESPACE_END

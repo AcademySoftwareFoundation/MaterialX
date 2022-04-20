@@ -103,7 +103,16 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     void drawScreenSpaceQuad(const Vector2& uvMin = Vector2(0.0f), const Vector2& uvMax = Vector2(1.0f));
 
     /// Set the screen background color.
-    void setScreenColor(const Color3& screenColor);
+    void setScreenColor(const Color3& screenColor)
+    {
+        _screenColor = screenColor;
+    }
+
+    /// Return the screen background color.
+    Color3 getScreenColor() const
+    {
+        return _screenColor;
+    }
 
     /// @}
 

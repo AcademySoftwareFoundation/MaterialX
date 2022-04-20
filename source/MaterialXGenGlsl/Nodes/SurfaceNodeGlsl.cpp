@@ -196,28 +196,30 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         }
 
         //
-        // Handle surface transparency
+        // Handle surface transmission.
         //
-        if (bsdf && context.getOptions().hwTransparency)
+        if (bsdf)
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
             shadergen.emitScopeBegin(stage);
-  
             context.pushClosureContext(&_callTransmission);
             shadergen.emitFunctionCall(*bsdf, context, stage);
-            context.popClosureContext();
-
-            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".response", stage);
+            shadergen.emitLine(outColor + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
             shadergen.emitScopeEnd(stage);
-            shadergen.emitLineBreak(stage);
+            context.popClosureContext();
+        }
 
-            shadergen.emitComment("Mix in opacity which affect the total result", stage);
+        //
+        // Handle surface opacity.
+        //
+        if (bsdf && context.getOptions().hwTransparency)
+        {
+            shadergen.emitComment("Compute and apply surface opacity", stage);
+            shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
             shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
-        }
-        else
-        {
-            shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
+            shadergen.emitScopeEnd(stage);
+            shadergen.emitLineBreak(stage);
         }
 
         shadergen.emitScopeEnd(stage);

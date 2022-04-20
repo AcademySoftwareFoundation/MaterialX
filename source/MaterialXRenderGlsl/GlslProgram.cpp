@@ -600,6 +600,8 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
             }
         }
     }
+    bindUniform(HW::REFRACTION_ENV, Value::createValue(lightHandler->getRefractionEnv()), false);
+    bindUniform(HW::REFRACTION_COLOR, Value::createValue(lightHandler->getRefractionColor()), false);
 
     // Bind direct lighting properties.
     if (hasUniform(HW::NUM_ACTIVE_LIGHT_SOURCES))
