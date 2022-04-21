@@ -103,7 +103,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler->setEnvIrradianceMap(envIrradiance);
     _lightHandler->setEnvSampleCount(1024);
     _lightHandler->setRefractionEnv(false);
-    _lightHandler->setRefractionColor(_renderer->getScreenColor().srgbToLinear());
+    _lightHandler->setRefractionColor(_renderer->getScreenColor());
 }
 
 //
