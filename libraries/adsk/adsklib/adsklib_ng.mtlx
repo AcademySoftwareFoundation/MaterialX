@@ -64,6 +64,62 @@
     <output name="out" type="color3" nodename="image_convert" />
   </nodegraph>
 
+  <!--adsk:bitmap color4-->
+  <nodegraph name="NG_adsk_bitmap_color4" nodedef="adsk:ND_adsk_bitmap_color4" namespace="adsk">
+    <divide name="total_scale" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_scale"/>
+      <input name="in2" type="vector2" value="1.0, 1.0" interfacename="uv_scale"/>
+    </divide>
+    <!-- offset -->
+    <add name="total_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="realworld_offset"/>
+      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset"/>
+    </add>
+
+    <!-- rotation angle - positive angle rotate counterclockwise -->
+    <multiply name="rotation_angle_param" type="float">
+      <input name="in1" type="float" interfacename="rotation_angle"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+
+    <!-- use placement node to transform uv -->
+    <texcoord name="texcoord1" type="vector2" />
+    <place2d name="a_place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="offset" type="vector2" nodename="total_offset" />
+      <input name="scale" type="vector2" nodename="total_scale" />
+      <input name="pivot" type="vector2" value="0.0, 0.0" />
+      <input name="rotate" type="float" value="0" nodename="rotation_angle_param" />
+    </place2d>
+    <image name="b_image" type="color4">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="uaddressmode" type="string" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" interfacename="vaddressmode" />
+      <input name="texcoord" type="vector2" nodename="a_place2d" />
+    </image>
+
+    <!-- apply rgbaamount -->
+    <multiply name="image_brightness" type="color4">
+      <input name="in1" type="color4" nodename="b_image" />
+      <input name="in2" type="float" interfacename="rgbamount" />
+    </multiply>
+
+    <!-- invert -->
+    <invert name="image_invert" type="color4">
+      <input name="in" type="color4" nodename="image_brightness" />
+    </invert>
+
+    <!-- apply invert if desired -->
+    <ifequal name="image_convert" type="color4">
+      <input name="in1" type="color4" nodename="image_invert" />
+      <input name="in2" type="color4" nodename="image_brightness" />
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+    </ifequal>
+
+    <output name="out" type="color4" nodename="image_convert" />
+  </nodegraph>
+
   <nodegraph name="NG_adsk_bitmap_float" nodedef="adsk:ND_adsk_bitmap_float" namespace="adsk">
     <!-- divide unit converted realworldscale by scale -->
     <divide name="total_scale" type="vector2">

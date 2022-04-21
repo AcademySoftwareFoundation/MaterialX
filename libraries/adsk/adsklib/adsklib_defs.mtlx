@@ -26,6 +26,25 @@
     <output name="out" type="color3"/>
   </nodedef>
 
+  <nodedef name="ND_adsk_bitmap_color4" node="bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
+    <input name="file" type="filename" />
+    <!--  inputs with unit -->
+    <input name="realworld_offset" type="vector2" unittype="distance" />
+    <input name="realworld_scale" type="vector2" unittype="distance"/>
+    <!--  inputs without unit -->
+    <input name="uv_offset" type="vector2" value="0.0, 0.0" />
+    <input name="uv_scale" type="vector2" value="1.0, 1.0" />
+    <!-- wAngle - rotation -->
+    <input name="rotation_angle" type="float" value="0" />
+    <!-- rgbamount -->
+    <input name="rgbamount" type="float" value="1.0" />
+    <!-- invert -->
+    <input name="invert" type="boolean" value="false" />
+    <input name="uaddressmode" type="string" value="periodic"/>
+    <input name="vaddressmode" type="string" value="periodic"/>
+    <output name="out" type="color4"/>
+  </nodedef>
+  
   <nodedef name="ND_adsk_bitmap_float" node="bitmap" nodegroup="texture2d" version="1.0.1" isdefaultversion="true" namespace="adsk">
     <input name="file" type="filename" />
     <!--  inputs with unit -->
