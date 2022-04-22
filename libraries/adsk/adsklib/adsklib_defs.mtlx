@@ -21,8 +21,8 @@
     <input name="rgbamount" type="float" value="1.0" />
     <!-- invert -->
     <input name="invert" type="boolean" value="false" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="color3"/>
   </nodedef>
 
@@ -40,8 +40,8 @@
     <input name="rgbamount" type="float" value="1.0" />
     <!-- invert -->
     <input name="invert" type="boolean" value="false" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="color4"/>
   </nodedef>
   
@@ -59,8 +59,8 @@
     <input name="rgbamount" type="float" value="1.0" />
     <!-- invert -->
     <input name="invert" type="boolean" value="false" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>    
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -81,8 +81,8 @@
     <!-- remap -->
     <input name="outlow"  type="float" value="0.0" />
     <input name="outhigh" type="float" value="1.0" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -99,8 +99,8 @@
     <input name="rotation_angle" type="float" value="0" unittype="angle" />
     <!-- normal scale -->
     <input name="normal_scale" type="float" value="1.0" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="vector3" />
   </nodedef>
 
@@ -113,8 +113,8 @@
     <input name="uv_scale" type="vector2" value="1.0, 1.0" />
     <input name="rotation_angle" type="float" value="0" unittype="angle" />
     <input name="depth" type="float" unittype="distance" />
-    <input name="uaddressmode" type="string" value="periodic"/>
-    <input name="vaddressmode" type="string" value="periodic"/>
+    <input name="uaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode U" uniform="true" />
+    <input name="vaddressmode" type="string" value="periodic" enum="constant,clamp,periodic,mirror" uiname="Address Mode V" uniform="true" />
     <output name="out" type="vector3" />
   </nodedef>
   
