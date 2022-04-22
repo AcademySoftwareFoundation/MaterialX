@@ -37,8 +37,8 @@
 <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" version="2.3" isdefaultversion="true">
     <input name="file" type="filename" uniform="true" />
     <input name="st" type="vector2" defaultgeomprop="UV0" />
-    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
-    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
     <input name="fallback" type="color4" value="0, 0, 0, 1" />
     <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" />
     <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" />
