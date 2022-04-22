@@ -31,7 +31,7 @@
     <output name="b" type="float" />
     <output name="a" type="float" />
     <output name="rgb" type="color3" />  
-	<output name="rgba" type="color4" />
+    <output name="rgba" type="color4" />
   </nodedef>
 
 <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" version="2.3" isdefaultversion="true">
