@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <UsdUVTexture name="UsdUVTexture22" type="multioutput" version="2.2" >
+    <input name="file" type="filename" uniform="true" value="../../../Images/brass_color.jpg" />
+  </UsdUVTexture>
+  <UsdUVTexture name="UsdUVTexture23_rough" type="multioutput" version="2.3" >
+    <input name="file" type="filename" uniform="true" value="../../../Images/brass_roughness.jpg" />
+  </UsdUVTexture>
+  <UsdUVTexture name="UsdUVTexture22_rough" type="multioutput" nodedef="ND_UsdUVTexture" version="2.2" >
+    <input name="file" type="filename" uniform="true" value="../../../Images/brass_roughness.jpg" />
+  </UsdUVTexture>
+  <UsdUVTexture name="UsdUVTexture23" type="multioutput" nodedef="ND_UsdUVTexture_23" version="2.3" >
+    <input name="file" type="filename" uniform="true" value="../../../Images/brass_color.jpg" />
+  </UsdUVTexture>
+  <UsdPreviewSurface name="UsdPreviewSurface22" type="surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader" version="2.3">
+    <input name="diffuseColor" type="color3" nodename="UsdUVTexture22" output="rgb" />
+    <input name="roughness" type="float" nodename="UsdUVTexture22_rough" output="r" />
+    <input name="metallic" type="float" value="1" />
+  </UsdPreviewSurface>
+  <UsdPreviewSurface name="UsdPreviewSurface23" type="surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader" version="2.3">
+    <input name="diffuseColor" type="color3" nodename="UsdUVTexture23" output="rgb" />
+    <input name="roughness" type="float" nodename="UsdUVTexture23_rough" output="r" />
+	<input name="metallic" type="float" value="1" />
+  </UsdPreviewSurface>
+  <surfacematerial name="USDTexture_Tiled_Brass22" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="UsdPreviewSurface22" />
+  </surfacematerial>
+  <surfacematerial name="USDTexture_Tiled_Brass23" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="UsdPreviewSurface23" />
+  </surfacematerial>
+	
+</materialx>

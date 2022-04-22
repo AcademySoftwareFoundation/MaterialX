@@ -25,20 +25,13 @@
   </nodedef>
 
   <!-- Node: UsdUVTexture -->
-  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" version="2.2">
-    <input name="file" type="filename" uniform="true" />
-    <input name="st" type="vector2" defaultgeomprop="UV0" />
-    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
-    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
-    <input name="fallback" type="color4" value="0, 0, 0, 1" />
-    <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" />
-    <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" />
+  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" version="2.2" inherit="ND_UsdUVTexture_23">
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
     <output name="a" type="float" />
-    <output name="rgb" type="color3" />
-    <output name="rgba" type="color4" />
+    <output name="rgb" type="color3" />  
+	<output name="rgba" type="color4" />
   </nodedef>
 
 <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" version="2.3" isdefaultversion="true">
