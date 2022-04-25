@@ -20,7 +20,7 @@ MATERIALX_NAMESPACE_BEGIN
 class ShaderGenerator;
 
 /// Returns true if the given element is a surface shader with the potential
-/// of beeing transparent. This can be used by HW shader generators to determine
+/// of being transparent. This can be used by HW shader generators to determine
 /// if a shader will require transparency handling.
 ///
 /// Note: This function will check some common cases for how a surface

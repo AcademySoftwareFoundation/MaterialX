@@ -45,10 +45,6 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
             shadergen.emitLine(outColor + " *= " + surfaceOpacity, stage);
             shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")", stage);
         }
-        else
-        {
-            shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
-        }
 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
