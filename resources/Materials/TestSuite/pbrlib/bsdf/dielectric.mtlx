@@ -1,122 +1,43 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <!-- Test dielectric_bsdf in various scatter modes -->
-  <nodegraph name="dielectric_bsdf_R">
-    <dielectric_bsdf name="bsdf1" type="BSDF">
+  <nodegraph name="dielectric_bsdf">
+    <dielectric_bsdf name="dielectric_R" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="ior" type="float" value="1.7" />
       <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
+    <surface name="surface_R" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="dielectric_R" />
     </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="dielectric_bsdf_T">
-    <dielectric_bsdf name="bsdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="ior" type="float" value="1.7" />
-      <input name="scatter_mode" type="string" value="T" />
-    </dielectric_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="dielectric_bsdf_RT">
-    <dielectric_bsdf name="bsdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="ior" type="float" value="1.7" />
-      <input name="scatter_mode" type="string" value="RT" />
-    </dielectric_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="dielectric_bsdf_layeredRT">
-    <dielectric_bsdf name="bsdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="ior" type="float" value="1.7" />
-      <input name="scatter_mode" type="string" value="R" />
-    </dielectric_bsdf>
-    <dielectric_bsdf name="bsdf2" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="ior" type="float" value="1.7" />
-      <input name="scatter_mode" type="string" value="T" />
-    </dielectric_bsdf>
-    <layer name="layer1" type="BSDF">
-      <input name="top" type="BSDF" nodename="bsdf1" />
-      <input name="base" type="BSDF" nodename="bsdf2" />
-    </layer>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="layer1" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
+    <output name="R_out" type="surfaceshader" nodename="surface_R" />
 
-  <!-- Test generalized_schlick_bsdf in various scatter modes -->
-  <nodegraph name="generalized_schlick_bsdf_R">
-    <generalized_schlick_bsdf name="bsdf1" type="BSDF">
+    <dielectric_bsdf name="dielectric_T" type="BSDF">
       <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="scatter_mode" type="string" value="R" />
-    </generalized_schlick_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="generalized_schlick_bsdf_T">
-    <generalized_schlick_bsdf name="bsdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="scatter_mode" type="string" value="T" />
-    </generalized_schlick_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
+    </dielectric_bsdf>
+    <surface name="surface_T" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="dielectric_T" />
     </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="generalized_schlick_bsdf_RT">
-    <generalized_schlick_bsdf name="bsdf1" type="BSDF">
+    <output name="T_out" type="surfaceshader" nodename="surface_T" />
+
+    <dielectric_bsdf name="dielectric_RT" type="BSDF">
       <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="tint" type="color3" value="0.7, 0.7, 0.7" />
       <input name="scatter_mode" type="string" value="RT" />
-    </generalized_schlick_bsdf>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="bsdf1" />
+    </dielectric_bsdf>
+    <surface name="surface_RT" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="dielectric_RT" />
     </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-  <nodegraph name="generalized_schlick_bsdf_layeredRT">
-    <generalized_schlick_bsdf name="bsdf1" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
-      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="scatter_mode" type="string" value="R" />
-    </generalized_schlick_bsdf>
-    <generalized_schlick_bsdf name="bsdf2" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="scatter_mode" type="string" value="T" />
-    </generalized_schlick_bsdf>
-    <layer name="layer1" type="BSDF">
-      <input name="top" type="BSDF" nodename="bsdf1" />
-      <input name="base" type="BSDF" nodename="bsdf2" />
+    <output name="RT_out" type="surfaceshader" nodename="surface_RT" />
+
+    <layer name="layer_RT" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_R" />
+      <input name="base" type="BSDF" nodename="dielectric_T" />
     </layer>
-    <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="layer1" />
+    <surface name="surface_layer_RT" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer_RT" />
     </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
+    <output name="layer_RT_out" type="surfaceshader" nodename="surface_layer_RT" />
   </nodegraph>
 </materialx>

@@ -57,6 +57,8 @@ namespace HW
     const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
     const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
     const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+    const string T_REFRACTION_ENV                 = "$refractionEnv";
+    const string T_REFRACTION_COLOR               = "$refractionColor";
     const string T_ALBEDO_TABLE                   = "$albedoTable";
     const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
     const string T_AMB_OCC_MAP                    = "$ambOccMap";
@@ -109,6 +111,8 @@ namespace HW
     const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
     const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
     const string ENV_IRRADIANCE                   = "u_envIrradiance";
+    const string REFRACTION_ENV                   = "u_refractionEnv";
+    const string REFRACTION_COLOR                 = "u_refractionColor";
     const string ALBEDO_TABLE                     = "u_albedoTable";
     const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
     const string AMB_OCC_MAP                      = "u_ambOccMap";
@@ -204,6 +208,8 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
+    _tokenSubstitutions[HW::T_REFRACTION_ENV] = HW::REFRACTION_ENV;
+    _tokenSubstitutions[HW::T_REFRACTION_COLOR] = HW::REFRACTION_COLOR;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE] = HW::ALBEDO_TABLE;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = HW::ALBEDO_TABLE_SIZE;
     _tokenSubstitutions[HW::T_SHADOW_MAP] = HW::SHADOW_MAP;
@@ -306,6 +312,8 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
+        psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_ENV);
+        psPrivateUniforms->add(Type::COLOR3, HW::T_REFRACTION_COLOR);
     }
 
     // Add uniforms for the directional albedo table.

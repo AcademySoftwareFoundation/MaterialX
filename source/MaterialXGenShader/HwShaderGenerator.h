@@ -125,6 +125,8 @@ namespace HW
     extern MX_GENSHADER_API const string T_ENV_RADIANCE_MIPS;
     extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLES;
     extern MX_GENSHADER_API const string T_ENV_IRRADIANCE;
+    extern MX_GENSHADER_API const string T_REFRACTION_ENV;
+    extern MX_GENSHADER_API const string T_REFRACTION_COLOR;
     extern MX_GENSHADER_API const string T_ALBEDO_TABLE;
     extern MX_GENSHADER_API const string T_ALBEDO_TABLE_SIZE;
     extern MX_GENSHADER_API const string T_AMB_OCC_MAP;
@@ -179,6 +181,8 @@ namespace HW
     extern MX_GENSHADER_API const string ENV_RADIANCE_MIPS;
     extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLES;
     extern MX_GENSHADER_API const string ENV_IRRADIANCE;
+    extern MX_GENSHADER_API const string REFRACTION_ENV;
+    extern MX_GENSHADER_API const string REFRACTION_COLOR;
     extern MX_GENSHADER_API const string ALBEDO_TABLE;
     extern MX_GENSHADER_API const string ALBEDO_TABLE_SIZE;
     extern MX_GENSHADER_API const string AMB_OCC_MAP;

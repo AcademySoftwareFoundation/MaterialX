@@ -382,7 +382,8 @@ export class Material
             u_envRadiance: { value: radianceTexture },
             u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
             u_envRadianceSamples: { value: 16 },
-            u_envIrradiance: { value: irradianceTexture }
+            u_envIrradiance: { value: irradianceTexture },
+            u_refractionEnv: { value: true }
         });
 
         // Create Three JS Material
