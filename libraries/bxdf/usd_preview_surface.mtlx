@@ -25,7 +25,7 @@
   </nodedef>
 
   <!-- Node: UsdUVTexture -->
-  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" version="2.2" inherit="ND_UsdUVTexture_23">
+  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23">
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -34,7 +34,7 @@
     <output name="rgba" type="color4" />
   </nodedef>
 
-<nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" version="2.3" isdefaultversion="true">
+<nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
     <input name="file" type="filename" uniform="true" />
     <input name="st" type="vector2" defaultgeomprop="UV0" />
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
@@ -50,37 +50,37 @@
   </nodedef>
 
   <!-- Node: UsdPrimvarReader -->
-  <nodedef name="ND_UsdPrimvarReader_integer" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_integer" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="integer" value="0" />
     <output name="out" type="integer" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_boolean" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_boolean" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="boolean" value="false" />
     <output name="out" type="boolean" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_string" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_string" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="string" value="" />
     <output name="out" type="string" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_float" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_float" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector2" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_vector2" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="vector2" value="0, 0" />
     <output name="out" type="vector2" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector3" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_vector3" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="vector3" value="0, 0, 0" />
     <output name="out" type="vector3" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector4" node="UsdPrimvarReader">
+  <nodedef name="ND_UsdPrimvarReader_vector4" nodegroup="geometric" node="UsdPrimvarReader">
     <input name="varname" type="string" uniform="true" />
     <input name="fallback" type="vector4" value="0, 0, 0, 0" />
     <output name="out" type="vector4" />
@@ -94,7 +94,7 @@
   -->
 
   <!-- Node: UsdTransform2d -->
-  <nodedef name="ND_UsdTransform2d" node="UsdTransform2d">
+  <nodedef name="ND_UsdTransform2d" nodegroup="math" node="UsdTransform2d">
     <input name="in" type="vector2" />
     <input name="rotation" type="float" value="0" />
     <input name="scale" type="vector2" value="1, 1" />
