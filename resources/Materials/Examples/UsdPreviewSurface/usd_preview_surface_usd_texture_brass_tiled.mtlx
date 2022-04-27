@@ -37,7 +37,7 @@
   <UsdPreviewSurface name="UsdPreviewSurface23" type="surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader" version="2.3">
     <input name="diffuseColor" type="color3" nodename="UsdUVTexture23" output="rgb" />
     <input name="roughness" type="float" nodename="UsdUVTexture23_rough" output="r" />
-	<input name="metallic" type="float" value="1" />
+    <input name="metallic" type="float" value="1" />
   </UsdPreviewSurface>
   <surfacematerial name="USDTexture_Tiled_Brass23" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="UsdPreviewSurface23" />
