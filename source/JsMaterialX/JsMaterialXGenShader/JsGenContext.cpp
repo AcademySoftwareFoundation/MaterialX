@@ -19,13 +19,12 @@ namespace ems = emscripten;
 namespace mx = MaterialX;
 
 /// Initialize the given generation context
-void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::DocumentPtr stdLib, mx::UnitConverterRegistryPtr unitRegistry) {
-    // Initialize search paths.
-    for (const mx::FilePath& path : searchPath)
-    {
-        context.registerSourceCodeSearchPath(path / "libraries");
-    }
+void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::DocumentPtr stdLib, mx::UnitConverterRegistryPtr unitRegistry)
+{
+    // Register the search path for shader source code.
+    context.registerSourceCodeSearchPath(searchPath);
 
+    // Set shader generation options.
     context.getOptions().targetColorSpaceOverride = "lin_rec709";
     context.getOptions().fileTextureVerticalFlip = false;
     context.getOptions().hwMaxActiveLightSources = 1;
