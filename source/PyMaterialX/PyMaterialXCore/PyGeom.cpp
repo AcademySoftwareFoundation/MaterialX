@@ -36,7 +36,6 @@ void bindPyGeom(py::module& mod)
         .def("getTokens", &mx::GeomInfo::getTokens)
         .def("removeToken", &mx::GeomInfo::removeToken)
         .def("setTokenValue", &mx::GeomInfo::setTokenValue)
-        .def("addTokens", &mx::Element::addTokens)
         BIND_GEOMINFO_FUNC_INSTANCE(integer, int)
         BIND_GEOMINFO_FUNC_INSTANCE(boolean, bool)
         BIND_GEOMINFO_FUNC_INSTANCE(float, float)
@@ -90,4 +89,10 @@ void bindPyGeom(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY);
 
     mod.def("geomStringsMatch", &mx::geomStringsMatch);
+
+    mod.attr("GEOM_PATH_SEPARATOR") = mx::GEOM_PATH_SEPARATOR;
+    mod.attr("UNIVERSAL_GEOM_NAME") = mx::UNIVERSAL_GEOM_NAME;
+    mod.attr("UDIM_TOKEN") = mx::UDIM_TOKEN;
+    mod.attr("UV_TILE_TOKEN") = mx::UV_TILE_TOKEN;
+    mod.attr("UDIM_SET_PROPERTY") = mx::UDIM_SET_PROPERTY;
 }

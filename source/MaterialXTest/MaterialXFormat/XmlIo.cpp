@@ -15,7 +15,7 @@ namespace mx = MaterialX;
 TEST_CASE("Load content", "[xmlio]")
 {
     mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples/Syntax");
+    mx::FilePath examplesPath("resources/Materials/Examples/StandardSurface");
     mx::FileSearchPath searchPath = libraryPath.asString() +
         mx::PATH_LIST_SEPARATOR +
         examplesPath.asString();
@@ -66,6 +66,8 @@ TEST_CASE("Load content", "[xmlio]")
         mx::DocumentPtr writtenDoc = mx::createDocument();
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
+        mx::readFromXmlBuffer(writtenDoc, xmlString.c_str());
+        REQUIRE(*writtenDoc == *doc);
 
         // Flatten subgraph references.
         for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
@@ -112,7 +114,7 @@ TEST_CASE("Load content", "[xmlio]")
     // Read the same document twice and verify that duplicate elements
     // are skipped.
     mx::DocumentPtr doc = mx::createDocument();
-    std::string filename = "PostShaderComposite.mtlx";
+    std::string filename = "standard_surface_look_brass_tiled.mtlx";
     mx::readFromXmlFile(doc, filename, searchPath);
     mx::readFromXmlFile(doc, filename, searchPath);
     REQUIRE(doc->validate());
@@ -226,80 +228,45 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
 }
 
-TEST_CASE("Load locale content", "[xmlio_locale]")
+TEST_CASE("Locale region testing", "[xmlio]")
 {
-    /// Test locale region
-    /// The character used as the thousands separator.
-    /// The character used as the decimal separator.
+    // In the United States, the thousands separator is a comma, while in Germany it is a period.
+    // Thus, one thousand twenty five is displayed as 1,025 in the United States and 1.025 in Germany.
+    //
+    // In a MaterialX document, a vector3 value of "1,1.5,2.0" should be interpreted as (1.0f, 1.5f, 2.0f).
 
-    /// In the United States, this character is a comma(, ).
-    /// In Germany, it is a period(.).
-    /// Thus one thousandand twenty - five is displayed as 1, 025 in the United States and 1.025 in Germany.In Sweden, the thousands separator is a space.
-    /// mx:Vector3(1,1.5,2.0) should be interpreted as float[3] = [1.0f, 1.5f, 2.0f]
-    
-    try {
-        //Set locale to de
-        std::locale deLocale("de_DE");
-        std::locale::global(deLocale);
+    // Set the locale to Germany, if supported on this platform, and note the original locale.
+    std::locale origLocale;
+    try
+    {
+        origLocale = std::locale::global(std::locale("de_DE"));
     }
-    catch (const std::runtime_error& e) {
+    catch (const std::runtime_error& e)
+    {
         WARN("Unable to change locale " << e.what());
         return;
     }
 
-    mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath testPath("resources/Materials/TestSuite/locale");
-    mx::FileSearchPath searchPath = libraryPath.asString() +
-        mx::PATH_LIST_SEPARATOR +
-        testPath.asString();
-
-    // Read the standard library.
-    std::vector<mx::DocumentPtr> libs;
-    for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
-    {
-        mx::DocumentPtr lib = mx::createDocument();
-        mx::readFromXmlFile(lib, filename, searchPath);
-        libs.push_back(lib);
-    }
-
     // Read and validate each example document.
+    mx::FilePath testPath("resources/Materials/TestSuite/locale");
     for (const mx::FilePath& filename : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
     {
         mx::DocumentPtr doc = mx::createDocument();
-        mx::readFromXmlFile(doc, filename, searchPath);
-        for (mx::DocumentPtr lib : libs)
-        {
-            doc->importLibrary(lib);
-        }
-        std::string message;
+        mx::readFromXmlFile(doc, testPath / filename);
+        REQUIRE(doc->validate());
 
-        bool docValid = doc->validate(&message);
-        if (!docValid)
-        {
-            WARN("[" + filename.asString() + "] " + message);
-        }
-        REQUIRE(docValid);
-
-        // Traverse the document tree
-        int valueElementCount = 0;
-        int uiattributeCount = 0;
         for (mx::ElementPtr elem : doc->traverseTree())
         {
-         
             if (elem->isA<mx::ValueElement>())
             {
-                
-                valueElementCount++;
-
                 if (elem->hasAttribute("uiname"))
                 {
                     REQUIRE(!elem->getAttribute("uiname").empty());
-                    uiattributeCount++;
                 }
             }
         }
-        REQUIRE(valueElementCount > 0);
-        REQUIRE(uiattributeCount > 0);
     }
-}
 
+    // Restore the original locale.
+    std::locale::global(origLocale);
+}

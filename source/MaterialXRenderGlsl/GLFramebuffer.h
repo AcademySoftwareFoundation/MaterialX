@@ -18,7 +18,7 @@ MATERIALX_NAMESPACE_BEGIN
 class GLFramebuffer;
 
 /// Shared pointer to a GLFramebuffer
-using GLFrameBufferPtr = std::shared_ptr<GLFramebuffer>;
+using GLFramebufferPtr = std::shared_ptr<GLFramebuffer>;
 
 /// @class GLFramebuffer
 /// Wrapper for an OpenGL framebuffer
@@ -26,7 +26,7 @@ class MX_RENDERGLSL_API GLFramebuffer
 {
   public:
     /// Create a new framebuffer
-    static GLFrameBufferPtr create(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType);
+    static GLFramebufferPtr create(unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType);
 
     /// Destructor
     virtual ~GLFramebuffer();
@@ -83,7 +83,7 @@ class MX_RENDERGLSL_API GLFramebuffer
     Image::BaseType _baseType;
     bool _encodeSrgb;
 
-    unsigned int _frameBuffer;
+    unsigned int _framebuffer;
     unsigned int _colorTexture;
     unsigned int _depthTexture;
 };

@@ -6,5 +6,5 @@
   SHA: $Id$
   -->
   <!-- <backface_util> -->
-  <implementation name="IM_backface_util_genglsl" nodedef="adsk:ND_backface_util" file="adsk/adsklib/genglsl/mx_backface_util.glsl" function="mx_backface_util" target="genglsl"/>
+  <implementation name="IM_backface_util_genglsl" nodedef="adsk:ND_backface_util" file="libraries/adsk/adsklib/genglsl/mx_backface_util.glsl" function="mx_backface_util" target="genglsl"/>
 </materialx>

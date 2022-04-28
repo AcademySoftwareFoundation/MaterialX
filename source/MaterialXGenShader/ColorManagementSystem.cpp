@@ -70,11 +70,11 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
 
     // Create ports on the node.
     ShaderInput* input = shaderNode->addInput("in", transform.type);
-    if (transform.type->getName() == Type::COLOR3->getName())
+    if (transform.type == Type::COLOR3)
     {
         input->setValue(Value::createValue(Color3(0.0f, 0.0f, 0.0f)));
     }
-    else if (transform.type->getName() == Type::COLOR4->getName())
+    else if (transform.type == Type::COLOR4)
     {
         input->setValue(Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0)));
     }
@@ -87,4 +87,4 @@ ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const
     return shaderNode;
 }
 
-} // namespace MaterialX
+MATERIALX_NAMESPACE_END

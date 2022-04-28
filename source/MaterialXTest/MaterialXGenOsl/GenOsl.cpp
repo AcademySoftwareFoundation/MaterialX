@@ -95,11 +95,9 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    context.registerSourceCodeSearchPath(searchPath);
-    // Add path to find OSL include files
-    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/genosl/include"));
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    context.registerSourceCodeSearchPath(currentPath);
+    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
 
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
@@ -107,10 +105,10 @@ TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 {
     mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
+    searchPath.append(mx::FilePath::getCurrentPath());
 
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibraries({ "targets", "stdlib", "pbrlib", "bxdf" }, searchPath, doc);
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
 
     //
     // Define custom attributes to be exported as shader metadata
@@ -191,12 +189,11 @@ static void generateOslCode()
 {
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
-    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
+    testRootPaths.push_back("resources/Materials/Examples");
 
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/genosl/include"));
+    srcSearchPath.append(libSearchPath / mx::FilePath("libraries/stdlib/genosl/include"));
     srcSearchPath.append(mx::FilePath::getCurrentPath());
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 

@@ -47,11 +47,9 @@ const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetyp
         throw Exception("A type with name '" + name + "' is already registered");
     }
 
-    std::unique_ptr<TypeDesc> uniquePtr(new TypeDesc(name, basetype, semantic, size, editable, channelMapping));
-    TypeDesc* rawPtr = uniquePtr.get();
-    map[name] = std::move(uniquePtr);
-
-    return rawPtr;
+    TypeDesc* typeDesc = new TypeDesc(name, basetype, semantic, size, editable, channelMapping);
+    map[name] = std::unique_ptr<TypeDesc>(typeDesc);
+    return typeDesc;
 }
 
 int TypeDesc::getChannelIndex(char channel) const

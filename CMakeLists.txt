@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 4)
+set(MATERIALX_BUILD_VERSION 5)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -34,7 +34,7 @@ endif()
 project(MaterialX)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
-option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." ON)
+option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
@@ -43,7 +43,6 @@ option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
-option(MATERIALX_BUILD_OCIO "Build OpenColorIO support for shader generators." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
@@ -61,8 +60,6 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
-
-set(MATERIALX_OCIO_DIR "" CACHE PATH "Path to the root folder of the OpenColorIO installation.")
 
 if (MATERIALX_BUILD_JS)
     set(MATERIALX_BUILD_GEN_GLSL ON)
@@ -132,6 +129,14 @@ mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
+if (MATERIALX_BUILD_GEN_MDL)
+    mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
+    mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
+    mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
+    mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
+    mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
+endif()
+
 
 mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_ARNOLD_EXECUTABLE)
@@ -205,9 +210,7 @@ add_definitions(-DMATERIALX_ARNOLD_EXECUTABLE=\"${MATERIALX_ARNOLD_EXECUTABLE}\"
 if(MATERIALX_BUILD_OIIO)
     add_definitions(-DMATERIALX_BUILD_OIIO)
 endif()
-if(MATERIALX_BUILD_OCIO)
-    add_definitions(-DMATERIALX_BUILD_OCIO)
-endif()
+
 if(MATERIALX_TEST_RENDER)
     add_definitions(-DMATERIALX_TEST_RENDER)
 endif()
@@ -288,9 +291,6 @@ else()
 endif()
 
 # Add core subdirectories
-if (MATERIALX_BUILD_GEN_ARNOLD)
-    add_definitions(-DSUPPORT_ARNOLD_CONTEXT_STRING)
-endif()
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
@@ -391,7 +391,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
 endif()
 
 # Install root-level documents
-install(FILES CHANGELOG.md README.md
+install(FILES LICENSE CHANGELOG.md README.md THIRD-PARTY.md
         DESTINATION .)
 
 set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")

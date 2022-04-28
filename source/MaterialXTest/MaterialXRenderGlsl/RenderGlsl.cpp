@@ -55,8 +55,9 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
     {
         return true;
     }
-    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FileSearchPath& codeSearchPath,
-                 const mx::FilePath& outputFilename, const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log) override;
+
+    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
+                 const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;
@@ -96,19 +97,20 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     mx::ImagePtr envIrradiance = _renderer->getImageHandler()->acquireImage(options.irradianceIBLPath);
     REQUIRE(envRadiance);
     REQUIRE(envIrradiance);
+
+    // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSamples(256);
+    _lightHandler->setEnvSampleCount(1024);
+    _lightHandler->setRefractionEnv(false);
+    _lightHandler->setRefractionColor(_renderer->getScreenColor());
 }
 
 //
-// Create a renderer with the apporpriate image, geometry and light handlers.
+// Create a renderer with the apporpraite image, geometry and light handlers.
 // The light handler on the renderer is cleared on initialization to indicate no lighting
 // is required. During code generation, if the element to validate requires lighting then
 // the handler _lightHandler will be used.
-//
-// Additionally set an color management system in case any additional uniforms
-// which are created during code generation need to be bound during rendering.
 //
 void GlslShaderRenderTester::createRenderer(std::ostream& log)
 {
@@ -435,7 +437,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 mx::GenOptions& contextOptions = context.getOptions();
                 contextOptions = options;
                 contextOptions.targetColorSpaceOverride = "lin_rec709";
-                contextOptions.hwSpecularEnvironmentMethod = testOptions.specularEnvironmentMethod;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -633,22 +634,22 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
     return true;
 }
 
-void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FileSearchPath& codeSearchPath, 
-                                     const mx::FilePath& outputFileName, const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions,
-                                     std::ostream& log)
+void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
+                                     const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log)
 {
-    const unsigned int bakeWidth = std::max(bakeOptions.resolution, (unsigned int) 2);
-    const unsigned int bakeHeight = std::max(bakeOptions.resolution, (unsigned int) 2);
-
     mx::ImageVec imageVec = _renderer->getImageHandler()->getReferencedImages(doc);
+    auto maxImageSize = mx::getMaxDimensions(imageVec);
+    const unsigned bakeWidth = std::max(bakeOptions.resolution, maxImageSize.first);
+    const unsigned bakeHeight = std::max(bakeOptions.resolution, maxImageSize.second);
+
     mx::Image::BaseType baseType = bakeOptions.hdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
     mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
     baker->setupUnitSystem(doc);
     baker->setImageHandler(_renderer->getImageHandler());
     baker->setOptimizeConstants(true);
     baker->setHashImageNames(true);
-    baker->setCodeSearchPath(codeSearchPath);
-    baker->setTextureSpace(bakeOptions.uvmin, bakeOptions.uvmax);
+    baker->setTextureSpaceMin(bakeOptions.uvmin);
+    baker->setTextureSpaceMax(bakeOptions.uvmax);
 
     try
     {

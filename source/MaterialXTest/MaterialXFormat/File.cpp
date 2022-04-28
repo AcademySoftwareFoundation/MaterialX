@@ -35,8 +35,8 @@ TEST_CASE("File system operations", "[file]")
     mx::StringVec filenames =
     {
         "libraries/stdlib/stdlib_defs.mtlx",
-        "resources/Materials/Examples/Syntax/MaterialBasic.mtlx",
-        "resources/Materials/Examples/Syntax/PaintMaterials.mtlx",
+        "resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx",
+        "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx",
     };
 
     for (const std::string& filename : filenames)
@@ -48,35 +48,22 @@ TEST_CASE("File system operations", "[file]")
 
     mx::FilePath currentPath = mx::FilePath::getCurrentPath();
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-
-    // We expect currentPath == ${BUILD}/source/MaterialXTest
-    // We expect modulePath == ${BUILD}/bin
-
-    // BUT... Results vary by platform.
-
-    // Check that there is a common prefix
-    const size_t minPathSize = (modulePath.size() < currentPath.size()) ?
-                               modulePath.size() :
-                               currentPath.size();
-    size_t i = 0;
-    for (; i < minPathSize && currentPath[i] == modulePath[i]; ++i) {
-        // Empty body.
-    }
-
-    REQUIRE(i > 0);
+    bool expectedPaths = currentPath == modulePath ||
+                         currentPath == modulePath.getParentPath();
+    REQUIRE(expectedPaths);
 }
 
 TEST_CASE("File search path operations", "[file]")
 {
     mx::FileSearchPath searchPath = "libraries/stdlib" + 
                                     mx::PATH_LIST_SEPARATOR + 
-                                    "resources/Materials/Examples/Syntax";
+                                    "resources/Materials/Examples/StandardSurface";
 
     mx::FilePathVec filenames =
     {
         "stdlib_defs.mtlx",
-        "MaterialBasic.mtlx",
-        "PaintMaterials.mtlx",
+        "standard_surface_brass_tiled.mtlx",
+        "standard_surface_marble_solid.mtlx",
     };
 
     for (const mx::FilePath& filename : filenames)

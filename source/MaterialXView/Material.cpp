@@ -153,7 +153,7 @@ void Material::bindShader()
     }
 }
 
-void Material::bindMesh(mx::MeshPtr mesh) const
+void Material::bindMesh(mx::MeshPtr mesh)
 {
     if (!mesh || !_glProgram)
     {
@@ -161,7 +161,12 @@ void Material::bindMesh(mx::MeshPtr mesh) const
     }
 
     _glProgram->bind();
+    if (_boundMesh && mesh->getName() != _boundMesh->getName())
+    {
+        _glProgram->unbindGeometry();
+    }
     _glProgram->bindMesh(mesh);
+    _boundMesh = mesh;
 }
 
 bool Material::bindPartition(mx::MeshPartitionPtr part) const
@@ -237,28 +242,6 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     }
 }
 
-mx::ImagePtr Material::bindImage(const mx::ImagePtr image, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                                 const mx::ImageSamplingProperties& samplingProperties)
-{
-    if (!_glProgram || !image)
-    {
-        return nullptr;
-    }
-
-    // Bind the image and set its sampling properties.
-    if (imageHandler->bindImage(image, samplingProperties))
-    {
-        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
-        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
-        if (textureLocation >= 0)
-        {
-            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
-            return image;
-        }
-    }
-    return nullptr;
-}
-
 mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
                                  const mx::ImageSamplingProperties& samplingProperties)
 {
@@ -282,7 +265,18 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
         return nullptr;
     }
 
-    return bindImage(image, uniformName, imageHandler, samplingProperties);   
+    // Bind the image and set its sampling properties.
+    if (imageHandler->bindImage(image, samplingProperties))
+    {
+        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+        int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
+        if (textureLocation >= 0)
+        {
+            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
+            return image;
+        }
+    }
+    return nullptr;
 }
 
 void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState)
@@ -387,13 +381,14 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
     mx::checkGlErrors("after draw partition");
 }
 
-void Material::unbindGeometry() const
+void Material::unbindGeometry()
 {
     if (_glProgram)
     {
         _glProgram->bind();
         _glProgram->unbindGeometry();
     }
+    _boundMesh = nullptr;
 }
 
 mx::VariableBlock* Material::getPublicUniforms() const

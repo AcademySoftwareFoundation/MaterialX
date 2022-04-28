@@ -1,4 +1,4 @@
-#include "pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
 
 // http://www.aconty.com/pdf/s2017_pbs_imageworks_sheen.pdf
 // Equation 2
@@ -39,8 +39,7 @@ float mx_imageworks_sheen_dir_albedo_analytic(float NdotV, float roughness)
 float mx_imageworks_sheen_dir_albedo_table_lookup(float NdotV, float roughness)
 {
 #if DIRECTIONAL_ALBEDO_METHOD == 1
-    vec2 res = textureSize($albedoTable, 0);
-    if (res.x > 1)
+    if (textureSize($albedoTable, 0).x > 1)
     {
         return texture($albedoTable, vec2(NdotV, roughness)).b;
     }

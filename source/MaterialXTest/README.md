@@ -1,4 +1,4 @@
-# Unit tests
+# MaterialX Unit Tests
 
 Unit tests can be run using the `MaterialXTest` executable. This can be performed using ctest or directly running the executable with the desired test tag(s). The default build options executes all tags except the ones using for shader compilation and rendering.
 
@@ -64,7 +64,7 @@ Note that it is possible to directly run the MaterialXTest executable with the t
 
 If rendering tests are enabled via the build options then code for each Element tested will be compiled and rendered if the appropriate backend support is available.
 - `GLSL`:
-    - Will execute on a machine which supports OpenGL 4.0 or above.
+    - Will execute on a Windows machine which supports OpenGL 4.0 or above.
 - `OSL`: Uses utilities from the
     [OSL distribution](https://github.com/imageworks/OpenShadingLanguage).
     - The utilities are not generated as part of the MaterialX build.

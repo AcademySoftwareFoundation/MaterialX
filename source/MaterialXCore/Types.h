@@ -333,45 +333,6 @@ class MX_CORE_API Vector4 : public VectorN<Vector4, float, 4>
     }
 };
 
-/// @class Quaternion
-/// A quaternion vector
-class MX_CORE_API Quaternion : public VectorN<Vector4, float, 4>
-{
-  public:
-    using VectorN<Vector4, float, 4>::VectorN;
-    Quaternion() = default;
-    Quaternion(float x, float y, float z, float w) :
-        VectorN(Uninit{})
-    {
-        _arr = { x, y, z, w };
-    }
-
-    Quaternion operator*(const Quaternion& q) const
-    {
-        return {
-            _arr[0] * q._arr[3] + _arr[3] * q._arr[0] + _arr[1] * q._arr[2] - _arr[2] * q._arr[1],
-            _arr[1] * q._arr[3] + _arr[3] * q._arr[1] + _arr[2] * q._arr[0] - _arr[0] * q._arr[2],
-            _arr[2] * q._arr[3] + _arr[3] * q._arr[2] + _arr[0] * q._arr[1] - _arr[1] * q._arr[0],
-            _arr[3] * q._arr[3] - _arr[0] * q._arr[0] - _arr[1] * q._arr[1] - _arr[2] * q._arr[2]
-        };
-    }
-
-    Quaternion getNormalized() const
-    {
-        float l = 1.f / getMagnitude() * (_arr[3] < 0 ? -1.f : 1.f); // after normalization, real part will be non-negative
-        return { _arr[0] * l, _arr[1] * l, _arr[2] * l, _arr[3] * l };
-    }
-
-    static Quaternion createFromAxisAngle(const Vector3& v, float a)
-    {
-        float s = std::sin(a * 0.5f);
-        return Quaternion(v[0] * s, v[1] * s, v[2] * s, std::cos(a * 0.5f));
-    }
-
-  public:
-    static const Quaternion IDENTITY;
-};
-
 /// @class Color3
 /// A three-component color value
 class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
@@ -384,6 +345,14 @@ class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
     {
         _arr = { r, g, b };
     }
+
+    /// Transform the given color from linear RGB to the sRGB encoding,
+    /// returning the result as a new value.
+    Color3 linearToSrgb() const;
+
+    /// Transform the given color from the sRGB encoding to linear RGB,
+    /// returning the result as a new value.
+    Color3 srgbToLinear() const;
 };
 
 /// @class Color4
@@ -725,11 +694,6 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
     /// Create a rotation matrix about the Z-axis.
     /// @param angle Angle in radians
     static Matrix44 createRotationZ(float angle);
-
-    /// Create a rotation matrix using a quaternion whose imaginary component is in the
-    /// the supplied vectors xyz, and whose real component is in the fourth component, w.
-    /// @param quaternion
-    static Matrix44 createRotation(const Quaternion& quaternion);
 
     /// @}
 

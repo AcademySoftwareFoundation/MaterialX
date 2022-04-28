@@ -6,7 +6,6 @@
 #include <MaterialXCore/Element.h>
 
 #include <MaterialXCore/Document.h>
-#include <MaterialXCore/Node.h>
 #include <MaterialXCore/Util.h>
 
 #include <iterator>
@@ -262,15 +261,6 @@ ElementPtr Element::addChildOfCategory(const string& category, string name)
     return child;
 }
 
-void Element::addChild(ElementPtr child)
-{
-    if (_childMap.count(child->getName()))
-    {
-        throw Exception("Child name is not unique: " + child->getName());
-    }
-    registerChildElement(child);
-}
-
 ElementPtr Element::changeChildCategory(ElementPtr child, const string& category)
 {
     int childIndex = getChildIndex(child->getName());
@@ -435,24 +425,19 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
         {
             if (!geomStringsMatch(geom, geomInfo->getActiveGeom()))
                 continue;
-            geomInfo->addTokens(resolver);
+            for (TokenPtr token : geomInfo->getTokens())
+            {
+                string key = "<" + token->getName() + ">";
+                string value = token->getResolvedValueString();
+                resolver->setFilenameSubstitution(key, value);
+            }
         }
     }
-
-    // Add element tokens
-    addTokens(resolver);
-
+    
+    // Add in token substitutions
+    resolver->addTokenSubstitutions(getSelf());
+  
     return resolver;
-}
-
-void Element::addTokens(StringResolverPtr& resolver) const
-{
-    // Check for any sibling token Elements
-    ConstElementPtr parent = getParent();
-    if (parent)
-    {
-        parent->addTokens(resolver);
-    }
 }
 
 string Element::asString() const
@@ -470,7 +455,7 @@ string Element::asString() const
     return res;
 }
 
-void Element::validateRequire(bool expression, bool& res, string* message, string errorDesc) const
+void Element::validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const
 {
     if (!expression)
     {
@@ -622,6 +607,34 @@ void StringResolver::setUdimString(const string& udim)
 void StringResolver::setUvTileString(const string& uvTile)
 {
     setFilenameSubstitution(UV_TILE_TOKEN, uvTile);
+}
+
+void StringResolver::addTokenSubstitutions(ConstElementPtr element)
+{
+    const string DELIMITER_PREFIX = "[";
+    const string DELIMITER_POSTFIX = "]";
+
+    // Travese from sibliings up until root is reached.
+    // Child tokens override any parent tokens.
+    ConstElementPtr parent = element->getParent();
+    while (parent)
+    {
+        ConstInterfaceElementPtr interfaceElem = parent->asA<InterfaceElement>();
+        if (interfaceElem)
+        {       
+            vector<TokenPtr> tokens = interfaceElem->getActiveTokens();
+            for (auto token : tokens)
+            {
+                string key = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
+                string value = token->getResolvedValueString();
+                if (!_filenameMap.count(key))
+                { 
+                    setFilenameSubstitution(key, value);
+                }
+            }
+        }
+        parent = parent->getParent();
+    }
 }
 
 string StringResolver::resolve(const string& str, const string& type) const

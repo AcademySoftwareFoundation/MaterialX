@@ -11,8 +11,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 // Additional implementaton arguments for image nodes
-string HwImageNode::UV_SCALE = "uv_scale";
-string HwImageNode::UV_OFFSET = "uv_offset";
+const string UV_SCALE = "uv_scale";
+const string UV_OFFSET = "uv_offset";
 
 ShaderNodeImplPtr HwImageNode::create()
 {
@@ -41,7 +41,7 @@ void HwImageNode::setValues(const Node& node, ShaderNode& shaderNode, GenContext
             const string& fileName = file->getValueString();
             if (fileName.find(UDIM_TOKEN) != string::npos)
             {
-                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIMSET);
+                ValuePtr udimSetValue = node.getDocument()->getGeomPropValue(UDIM_SET_PROPERTY);
                 if (udimSetValue && udimSetValue->isA<StringVec>())
                 {
                     const StringVec& udimIdentifiers = udimSetValue->asA<StringVec>();

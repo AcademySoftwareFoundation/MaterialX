@@ -7,5 +7,5 @@
   SHA: $Id$
   -->
   <!-- <backface_util> -->
-  <implementation name="IM_backface_util_genosl" nodedef="adsk:ND_backface_util" file="adsk/adsklib/genosl/mx_backface_util.osl" function="mx_backface_util" target="genosl"/>
+  <implementation name="IM_backface_util_genosl" nodedef="adsk:ND_backface_util" file="libraries/adsk/adsklib/genosl/mx_backface_util.osl" function="mx_backface_util" target="genosl"/>
 </materialx>

@@ -75,12 +75,9 @@ TEST_CASE("GenShader: Arnold Implementation Check", "[genosl]")
 TEST_CASE("GenShader: Arnold Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::ArnoldShaderGenerator::create());
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    context.registerSourceCodeSearchPath(searchPath);
-    // Add path to find OSL include files
-    context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
+    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
+    context.registerSourceCodeSearchPath(currentPath);
+    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/osl"));
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 

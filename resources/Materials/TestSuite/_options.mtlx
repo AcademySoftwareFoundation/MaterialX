@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
- <!--
-     Test suite options file which is parsed when the "render" category units tests are executed.
+  <!--
+    Test suite options file which is parsed when the "render" category units tests are executed.
 
      Execution uses existing code generator instances to produce the code and corresponding validator
      instance to check the validity of the generated code by compiling and/or rendering
@@ -10,7 +10,6 @@
      Input uniform and stream checking as well as node implementation coverage and profiling
      can also be performed depending on the options enabled.
   -->
-    
 
   <!-- nodedefs for custom test settings -->
   <nodedef name="ND_BakingSettings" node="baker" >
@@ -80,9 +79,6 @@
          File path is relative to the "/resources/Geometry/" folder -->
     <input name="shadedGeometry" type="string" value="sphere.obj" />
 
-    <!-- Amount to scale geometry. -->
-    <input name="geometryScale" type="float" value="1.0" />
-
     <!-- Enable direct lighting. Default is true. -->
     <input name="enableDirectLighting" type="boolean" value="false" />
 
@@ -110,7 +106,10 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/Examples/UsdPreviewSurface,resources/Materials/TestSuite" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples,resources/Materials/TestSuite" />
+
+    <!-- Enable reference quality rendering. Default is false. -->
+    <input name="enableReferenceQuality" type="boolean" value="false" />
 
     <!-- Wedge rendering options -->
     <wedgerender name="wedge_conductor">

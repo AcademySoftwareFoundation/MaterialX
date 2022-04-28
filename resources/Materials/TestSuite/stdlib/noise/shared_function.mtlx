@@ -4,7 +4,7 @@
       Test using noise2d for both color3 and vector3 in the same graph,
       since these share the same node implementation for GLSL.
   -->
-  <nodegraph name="shared_function_test" type="">
+  <nodegraph name="shared_function_test">
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" value="0" />
     </texcoord>

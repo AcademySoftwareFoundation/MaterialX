@@ -282,42 +282,49 @@
   <nodegraph name="IMP_UsdPrimvarReader_integer" nodedef="ND_UsdPrimvarReader_integer">
     <geompropvalue name="primvar" type="integer">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="integer" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="integer" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_boolean" nodedef="ND_UsdPrimvarReader_boolean">
     <geompropvalue name="primvar" type="boolean">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="boolean" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="boolean" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
     <geompropvalue name="primvar" type="string">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="string" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="string" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">
     <geompropvalue name="primvar" type="float">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="float" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="float" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector2" nodedef="ND_UsdPrimvarReader_vector2">
     <geompropvalue name="primvar" type="vector2">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector2" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector2" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector3" nodedef="ND_UsdPrimvarReader_vector3">
     <geompropvalue name="primvar" type="vector3">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector3" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector3" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector4" nodedef="ND_UsdPrimvarReader_vector4">
     <geompropvalue name="primvar" type="vector4">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector4" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector4" nodename="primvar" />
   </nodegraph>

@@ -144,13 +144,9 @@ class Material
     /// Unbbind all images for this material.
     void unbindImages(mx::ImageHandlerPtr imageHandler);
 
-    /// Bind a single image from memory.
-    mx::ImagePtr bindImage(const mx::ImagePtr image, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                           const mx::ImageSamplingProperties& samplingProperties);
-
-    /// Bind a single image from file.
+    /// Bind a single image.
     mx::ImagePtr bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-        const mx::ImageSamplingProperties& samplingProperties);
+                           const mx::ImageSamplingProperties& samplingProperties);
 
     /// Bind lights to shader.
     void bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState);
@@ -159,7 +155,7 @@ class Material
     void bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context);
 
     /// Bind the given mesh to this material.
-    void bindMesh(mx::MeshPtr mesh) const;
+    void bindMesh(mx::MeshPtr mesh);
 
     /// Bind a mesh partition to this material.
     bool bindPartition(mx::MeshPartitionPtr part) const;
@@ -168,7 +164,7 @@ class Material
     void drawPartition(mx::MeshPartitionPtr part) const;
 
     /// Unbind all geometry from this material.
-    void unbindGeometry() const;
+    void unbindGeometry();
 
     /// Return the block of public uniforms for this material.
     mx::VariableBlock* getPublicUniforms() const;
@@ -186,6 +182,8 @@ class Material
   protected:
     mx::ShaderPtr _hwShader;
     mx::GlslProgramPtr _glProgram;
+
+    mx::MeshPtr _boundMesh;
 
     mx::DocumentPtr _doc;
     mx::TypedElementPtr _elem;

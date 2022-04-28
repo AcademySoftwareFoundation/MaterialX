@@ -11,12 +11,13 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXCore/Document.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-extern MX_RENDER_API const int DEFAULT_ENV_SAMPLES;
+extern MX_RENDER_API const int DEFAULT_ENV_SAMPLE_COUNT;
 
 class GenContext;
 
@@ -36,7 +37,8 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envSamples(DEFAULT_ENV_SAMPLES)
+        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
+        _refractionEnv(true)
     {
     }
     virtual ~LightHandler() { }
@@ -111,6 +113,46 @@ class MX_RENDER_API LightHandler
         return _envIrradianceMap;
     }
 
+    /// Set the environment lighting sample count.
+    void setEnvSampleCount(int count)
+    {
+        _envSampleCount = count;
+    }
+
+    /// Return the environment lighting sample count.
+    int getEnvSampleCount() const
+    {
+        return _envSampleCount;
+    }
+
+    /// Set environment visibility in refractions.
+    void setRefractionEnv(bool enable)
+    {
+        _refractionEnv = enable;
+    }
+
+    /// Return environment visibility in refractions.
+    int getRefractionEnv() const
+    {
+        return _refractionEnv;
+    }
+
+    /// Set the uniform refraction color.
+    void setRefractionColor(const Color3& color)
+    {
+        _refractionColor = color;
+    }
+
+    /// Return the uniform refraction color.
+    Color3 getRefractionColor() const
+    {
+        return _refractionColor;
+    }
+
+    /// @}
+    /// @name Albedo Table
+    /// @{
+
     /// Set the directional albedo table
     void setAlbedoTable(ImagePtr table)
     {
@@ -121,18 +163,6 @@ class MX_RENDER_API LightHandler
     ImagePtr getAlbedoTable() const
     {
         return _albedoTable;
-    }
-
-    /// Set the number of environment lighting samples.
-    void setEnvSamples(int samples)
-    {
-        _envSamples = samples;
-    }
-
-    /// Return the number of environment lighting samples.
-    int getEnvSamples() const
-    {
-        return _envSamples;
     }
 
     /// @}
@@ -201,8 +231,12 @@ class MX_RENDER_API LightHandler
 
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
+    int _envSampleCount;
+
+    bool _refractionEnv;
+    Color3 _refractionColor;
+
     ImagePtr _albedoTable;
-    int _envSamples;
 
     vector<NodePtr> _lightSources;
     std::unordered_map<string, unsigned int> _lightIdMap;

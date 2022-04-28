@@ -151,31 +151,30 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
         }
     }
 
-    // Generate normals if needed.
-    if (!normalsFound)
-    {
-        normalStream = mesh->generateNormals(positionStream);
-    }
-
-    // Generate tangents.
-    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
-
-    // Assign streams to mesh.
+    // Update positional information.
     mesh->addStream(positionStream);
-    mesh->addStream(normalStream);
-    mesh->addStream(texcoordStream);
-    if (tangentStream)
-    {
-        mesh->addStream(tangentStream);
-    }
-
-    // Assign properties to mesh.
     mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
     mesh->setMinimumBounds(boxMin);
     mesh->setMaximumBounds(boxMax);
     Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
     mesh->setSphereCenter(sphereCenter);
     mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
+
+    if (normalsFound)
+    {
+        mesh->addStream(normalStream);
+    }
+    if (texcoordStream)
+    {
+        mesh->addStream(texcoordStream);
+    }
+
+    // Generate tangents, normals and texture coordinates as needed
+    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+    if (tangentStream)
+    {
+        mesh->addStream(tangentStream);
+    }
 
     return true;
 }

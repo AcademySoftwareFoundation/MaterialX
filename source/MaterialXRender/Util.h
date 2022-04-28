@@ -19,6 +19,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_SRGB;
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_LIN_REC709;
+
 /// @name Shader Utilities
 /// @{
 
@@ -31,14 +34,6 @@ MX_RENDER_API ShaderPtr createConstantShader(GenContext& context,
                                DocumentPtr stdLib,
                                const string& shaderName,
                                const Color3& color);
-
-/// Create a shader to perform simple gamma correction, using the given standard libraries
-/// for code generation.
-MX_RENDER_API ShaderPtr createGammaShader(GenContext& context,
-                            DocumentPtr stdLib,
-                            const string& shaderName,
-                            const Color3& gamma,
-                            bool verticalFlip=true);
 
 /// Create a shader with depth value output, using the given standard libraries
 /// for code generation.
@@ -115,7 +110,7 @@ using UIPropertyGroup = std::multimap<string, UIPropertyItem>;
 /// Utility to group UI properties items based on Element group name from a VariableBlock.
 /// Returns a list of named and unnamed groups.
 MX_RENDER_API void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
-                                          UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs);
+                                          UIPropertyGroup& unnamedGroups, const string& pathSeparator);
 
 /// @}
 

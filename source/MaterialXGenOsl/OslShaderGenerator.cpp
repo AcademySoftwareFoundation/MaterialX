@@ -204,11 +204,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
     }
 
     // Emit function definitions for all nodes
@@ -236,11 +236,18 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
 
-    // Add any metadata if set on the graph.
     const ShaderMetadataVecPtr& metadata = graph.getMetadata();
-    if (metadata && metadata->size())
+    bool haveShaderMetaData = metadata && metadata->size();
+
+    // Always emit node information
+    emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+    emitLine("string mtlx_category = \"" + element->getCategory() + "\"" + Syntax::COMMA, stage, false);
+    emitLine("string mtlx_name = \"" + element->getQualifiedName(element->getName())+ "\"" + 
+            (haveShaderMetaData ? Syntax::COMMA : EMPTY_STRING), stage, false);
+
+    // Add any metadata if set on the graph.
+    if (haveShaderMetaData)
     {
-        emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
         for (size_t j = 0; j < metadata->size(); ++j)
         {
             const ShaderMetadata& data = metadata->at(j);
@@ -249,9 +256,9 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
             const string dataValue = _syntax->getValue(data.type, *data.value, true);
             emitLine(dataType + " " + data.name + " = " + dataValue + delim, stage, false);
         }
-        emitScopeEnd(stage, false, false);
-        emitLineEnd(stage, false);
     }
+    emitScopeEnd(stage, false, false);
+    emitLineEnd(stage, false);
 
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
@@ -415,7 +422,7 @@ void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContex
 {
     emitScopeBegin(stage, punc);
 
-    if (node.hasClassification(ShaderNode::Classification::CLOSURE))
+    if (node.hasClassification(ShaderNode::Classification::SHADER) || node.hasClassification(ShaderNode::Classification::CLOSURE))
     {
         emitLine("closure color null_closure = 0", stage);
     }

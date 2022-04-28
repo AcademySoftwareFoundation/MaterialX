@@ -32,7 +32,7 @@ using IndexPair = std::pair<size_t, size_t>;
 .def("getMagnitude", &V::getMagnitude)                  \
 .def("getNormalized", &V::getNormalized)                \
 .def("dot", &V::dot)                                    \
-.def("__getitem__", [](V& v, size_t i)                  \
+.def("__getitem__", [](const V& v, size_t i)            \
     { return v[i]; } )                                  \
 .def("__setitem__", [](V& v, size_t i, float f)         \
     { v[i] = f; } )                                     \
@@ -95,6 +95,8 @@ void bindPyTypes(py::module& mod)
     py::class_<mx::Color3, mx::VectorBase>(mod, "Color3")
         BIND_VECTOR_SUBCLASS(mx::Color3, 3)
         .def(py::init<float, float, float>())
+        .def("linearToSrgb", &mx::Color3::linearToSrgb)
+        .def("srgbToLinear", &mx::Color3::srgbToLinear)
         .def("asTuple", [](const mx::Color3& v) { return std::make_tuple(v[0], v[1], v[2]); });
 
     py::class_<mx::Color4, mx::VectorBase>(mod, "Color4")

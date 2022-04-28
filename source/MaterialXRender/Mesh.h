@@ -390,6 +390,12 @@ class MX_RENDER_API Mesh
         return _partitions[partIndex];
     }
 
+    /// Create texture coordinates from the given positions.
+    /// The texture coordinates are all initialize to a zero value.
+    /// @param positionStream Input position stream
+    /// @return The generated texture coordinate stream
+    MeshStreamPtr generateTextureCoordinates(MeshStreamPtr positionStream);
+
     /// Generate face normals from the given positions.
     /// @param positionStream Input position stream
     /// @return The generated normal stream

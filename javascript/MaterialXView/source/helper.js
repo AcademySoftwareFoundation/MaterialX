@@ -157,7 +157,8 @@ function toThreeUniform(type, value, name, uniforms, textureLoader)
         case 'filename':
             if (value)
             {
-                const mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX)
+                let  mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX);
+                mappedValue = mappedValue.replace('boombox', TARGET_FILE_PREFIX);
                 const texture = textureLoader.load(mappedValue);
                 // Set address & filtering mode
                 setTextureParameters(texture, name, uniforms);
@@ -239,6 +240,8 @@ function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
     const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = getMinFilter(filterType, generateMipmaps);
+
+    texture.flipY = false;
 }
 
 /**

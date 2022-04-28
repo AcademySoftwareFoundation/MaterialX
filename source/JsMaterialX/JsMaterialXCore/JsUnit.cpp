@@ -66,6 +66,5 @@ EMSCRIPTEN_BINDINGS(unit)
         .function("getUnitConverter", &UnitConverterRegistryGetUnitConverter)
         .function("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters)
         .function("getUnitAsInteger", &mx::UnitConverterRegistry::getUnitAsInteger)
-        .function("write", &mx::UnitConverterRegistry::write)
-        .function("convertToUnit", &mx::UnitConverterRegistry::convertToUnit);        
+        .function("write", &mx::UnitConverterRegistry::write);
 }

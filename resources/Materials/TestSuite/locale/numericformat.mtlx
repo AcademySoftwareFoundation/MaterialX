@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
-<materialx version="1.38" cms="ocio" colorspace="lin_rec709">
-  <nodedef name="ND_simple_srf_surface" node="simple_srf">
-    <input name="diffColor" type="color3" value="0.18,0.18, 0.18"/>
-    <input name="specColor" type="color3" value="0.05, 0.05,0.05" />
+<materialx version="1.38">
+  <standard_surface name="SR_numberformats" type="surfaceshader">
+    <input name="base_color" type="color3" value="0.18,0.18, 0.18"/>
+    <input name="specular_color" type="color3" value="0.05, 0.05,0.05" />
     <input name="normal" type="vector3" value="1,0.5,1" />
-    <input name="specRoughness" type="float" value="0.25" />
-    <input name="intensity" type="integer" value="-1" />
-    <output name="out" type="surfaceshader" />
-  </nodedef>
-  <implementation name="IM_simple_srf" nodedef="ND_simple_srf_surface" />
+    <input name="specular_roughness" type="float" value="0.25" />
+    <input name="coat" type="float" value="1" />
+  </standard_surface>
+  <surfacematerial name="Number_formats" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_numberformats" />
+  </surfacematerial>
 </materialx>

@@ -110,9 +110,6 @@ class TestSuiteOptions
     // Shaded geometry file
     MaterialX::FilePath shadedGeometry;
 
-    // Amount to scale geometry. 
-    float geometryScale;
-
     // Enable direct lighting. Default is true. 
     bool enableDirectLighting;
 
@@ -137,23 +134,27 @@ class TestSuiteOptions
     // Render test paths
     mx::FileSearchPath renderTestPaths;
 
+    // Enable reference quality rendering. Default is false.
+    bool enableReferenceQuality;
 
     // Wedge parameters
-    struct WedgeSetting {
-        std::string wedgeFile = mx::EMPTY_STRING;
-        std::string parameter = mx::EMPTY_STRING;
+    struct WedgeSetting
+    {
+        std::string wedgeFile;
+        std::string parameter;
         mx::Vector2 range;
-        int         steps;
+        int steps;
     };
     std::vector <WedgeSetting> wedgeSettings;
     
     // Bake parameters
-    struct BakeSetting {
-        std::string bakeFile = mx::EMPTY_STRING;
+    struct BakeSetting
+    {
+        std::string bakeFile;
         bool hdr = false; 
         unsigned int resolution = 512;
-        mx::Vector2 uvmin = mx::Vector2(0.0f,0.0f);
-        mx::Vector2 uvmax = mx::Vector2(1.0f,1.0f);
+        mx::Vector2 uvmin = mx::Vector2(0.0f);
+        mx::Vector2 uvmax = mx::Vector2(1.0f);
     };
     std::vector<BakeSetting> bakeSettings;
 };

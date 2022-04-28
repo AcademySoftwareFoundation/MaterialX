@@ -21,8 +21,8 @@ EMSCRIPTEN_BINDINGS(geom)
     ems::constant("GEOM_PATH_SEPARATOR", mx::GEOM_PATH_SEPARATOR);
     ems::constant("UNIVERSAL_GEOM_NAME", mx::UNIVERSAL_GEOM_NAME);
     ems::constant("UDIM_TOKEN", mx::UDIM_TOKEN);
-    ems::constant("UDIMSET", mx::UDIMSET);
     ems::constant("UV_TILE_TOKEN", mx::UV_TILE_TOKEN);       
+    ems::constant("UDIM_SET_PROPERTY", mx::UDIM_SET_PROPERTY);
 
     ems::class_<mx::GeomElement, ems::base<mx::Element>>("GeomElement")
         .smart_ptr<std::shared_ptr<mx::GeomElement>>("GeomElement")
@@ -46,11 +46,9 @@ EMSCRIPTEN_BINDINGS(geom)
         .function("getGeomProp", &mx::GeomInfo::getGeomProp)
         .function("getGeomProps", &mx::GeomInfo::getGeomProps)
         .function("removeGeomProp", &mx::GeomInfo::removeGeomProp)
-        BIND_MEMBER_FUNC("addToken", mx::GeomInfo, addToken, 0, 1, stRef)
         .function("getToken", &mx::GeomInfo::getToken)
         .function("getTokens", &mx::GeomInfo::getTokens)
         .function("removeToken", &mx::GeomInfo::removeToken)
-        .function("addTokens", &mx::GeomInfo::addTokens)
         BIND_GEOMINFO_FUNC_INSTANCE(Integer, int)
         BIND_GEOMINFO_FUNC_INSTANCE(Boolean, bool)
         BIND_GEOMINFO_FUNC_INSTANCE(Float, float)

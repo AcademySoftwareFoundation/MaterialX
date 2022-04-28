@@ -10,6 +10,10 @@
 #include <maya/MPxNode.h>
 #include <maya/MObject.h>
 
+#ifndef CHECK_MSTATUS
+  #define CHECK_MSTATUS(x)
+#endif
+
 namespace mx = MaterialX;
 
 namespace MaterialXMaya

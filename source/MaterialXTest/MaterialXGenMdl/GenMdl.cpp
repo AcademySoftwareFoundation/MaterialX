@@ -95,20 +95,6 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 55);
 }
 
-/*
-TEST_CASE("GenShader: MDL Unique Names", "[genmdl]")
-{
-    mx::GenContext context(mx::MdlShaderGenerator::create());
-
-    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    context.registerSourceCodeSearchPath(searchPath);
-    // TODO: Add path to find MDL module files
-    // context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/mdl"));
-
-    GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
-}
-*/
-
 void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& sourceCodePaths)
 {
     if (sourceCodePaths.empty() || sourceCodePaths[0].isEmpty())
@@ -238,12 +224,11 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 {
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
-    testRootPaths.push_back("resources/Materials/Examples/UsdPreviewSurface");
+    testRootPaths.push_back("resources/Materials/Examples");
 
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
     mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    srcSearchPath.append(libSearchPath / mx::FilePath("stdlib/genmdl"));
+    srcSearchPath.append(libSearchPath / mx::FilePath("libraries/stdlib/genmdl"));
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 

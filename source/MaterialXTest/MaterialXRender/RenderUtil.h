@@ -128,9 +128,6 @@ class ShaderRenderTester
     // Code generation methods
     //
 
-    // Register any additional source code paths used by the generator
-    virtual void registerSourceCodeSearchPaths(mx::GenContext& /*context*/) {};
-
     // Register any lights used by the generation context
     virtual void registerLights(mx::DocumentPtr /*dependLib*/,
                                 const GenShaderUtil::TestSuiteOptions &/*options*/,
@@ -171,12 +168,14 @@ class ShaderRenderTester
                      mx::DocumentPtr dependLib);
 
     virtual bool canBake() const { return false; }
-    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*imageSearchPath*/,
-                         const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
+    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
                          const GenShaderUtil::TestSuiteOptions::BakeSetting& /*bakeOptions*/, std::ostream& /*log*/) {};
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;
+    // Whether to resolve image file name references before code generation
+    bool _resolveImageFilenames;
+    mx::StringResolverPtr _customFilenameResolver;
 
     // Files to skip
     mx::StringSet _skipFiles;

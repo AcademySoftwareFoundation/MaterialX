@@ -11,7 +11,6 @@
 
 #include <MaterialXCore/Export.h>
 
-#include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
 
 MATERIALX_NAMESPACE_BEGIN

@@ -5,67 +5,37 @@
     Output test
 
     -->
-  <nodegraph name="image4_to_color2_ra_out" type="">
+  <nodegraph name="image4_to_color3_bgr_out">
     <image name="image4" type="color4">
       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
-    </image>
-    <output name="out" type="vector2" nodename="image4" channels="rr" />
-  </nodegraph>
-  <nodegraph name="image4_to_color3_bgr_out" type="">
-    <image name="image4" type="color4">
-      <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
     </image>
     <output name="out" type="color3" nodename="image4" channels="bbb" />
   </nodegraph>
-  <nodegraph name="image4_to_float_g_out" type="">
+  <nodegraph name="image4_to_float_g_out">
     <image name="image4" type="color4">
       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-      <input name="uaddressmode" type="string" value="periodic" />
-      <input name="vaddressmode" type="string" value="periodic" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
     </image>
     <output name="out" type="float" nodename="image4" channels="g" />
   </nodegraph>
-  <nodegraph name="float_to_color4_rrrr_out" type="">
+  <nodegraph name="float_to_color4_rrrr_out">
     <constant name="constant1" type="float">
       <input name="value" type="float" value="1.0" />
     </constant>
     <output name="out" type="color4" nodename="constant1" channels="rrrr" />
   </nodegraph>
-  <nodegraph name="color2_to_color4_arar_out" type="">
-    <constant name="constant1" type="vector2">
-      <input name="value" type="vector2" value="1.0, 0.5" />
-    </constant>
-    <output name="out" type="color4" nodename="constant1" channels="yxyx" />
-  </nodegraph>
-  <nodegraph name="color3_to_color4_bgr1_out" type="">
+  <nodegraph name="color3_to_color4_bgr1_out">
     <constant name="constant1" type="color3">
       <input name="value" type="color3" value="0.5, 0.7, 1.0" />
     </constant>
     <output name="out" type="color4" nodename="constant1" channels="bgr1" />
   </nodegraph>
-  <nodegraph name="color4_to_color3_bgr_out" type="">
+  <nodegraph name="color4_to_color3_bgr_out">
     <constant name="constant1" type="color4">
       <input name="value" type="color4" value="0.5, 0.7, 0.9, 1.0" />
     </constant>
     <output name="out" type="color3" nodename="constant1" channels="bgr" />
   </nodegraph>
-  <nodegraph name="color4_to_color2_bg_out" type="">
-    <constant name="constant1" type="color4">
-      <input name="value" type="color4" value="0.5, 0.7, 0.9, 1.0" />
-    </constant>
-    <output name="out" type="vector2" nodename="constant1" channels="bg" />
-  </nodegraph>
-  <nodegraph name="color4_to_float_g_out" type="">
+  <nodegraph name="color4_to_float_g_out">
     <constant name="constant1" type="color4">
       <input name="value" type="color4" value="0.0, 0.5, 0.75, 1.0" />
     </constant>
@@ -76,13 +46,11 @@
    Input tests
 
     -->
-  <nodegraph name="image4_to_color3_bga_in" type="">
+  <nodegraph name="image4_to_color3_bga_in">
     <image name="image4" type="color4">
       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
       <input name="uaddressmode" type="string" value="constant" />
       <input name="vaddressmode" type="string" value="clamp" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
     </image>
     <add name="add1" type="color3">
       <input name="in1" type="color3" nodename="image4" channels="bgr" />
@@ -90,27 +58,11 @@
     </add>
     <output name="out" type="color3" nodename="add1" />
   </nodegraph>
-  <nodegraph name="image4_to_color2_ga_in" type="">
+  <nodegraph name="image4_to_float_g_in">
     <image name="image4" type="color4">
       <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
       <input name="uaddressmode" type="string" value="constant" />
       <input name="vaddressmode" type="string" value="clamp" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
-    </image>
-    <add name="add1" type="vector2">
-      <input name="in1" type="vector2" nodename="image4" channels="gg" />
-      <input name="in2" type="vector2" value="0.5, 0.0" />
-    </add>
-    <output name="out" type="vector2" nodename="add1" />
-  </nodegraph>
-  <nodegraph name="image4_to_float_g_in" type="">
-    <image name="image4" type="color4">
-      <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
-      <input name="uaddressmode" type="string" value="constant" />
-      <input name="vaddressmode" type="string" value="clamp" />
-      <input name="filtertype" type="string" value="linear" />
-      <input name="frameendaction" type="string" value="periodic" />
     </image>
     <add name="add1" type="float">
       <input name="in1" type="float" nodename="image4" channels="g" />
@@ -118,7 +70,7 @@
     </add>
     <output name="out" type="float" nodename="add1" />
   </nodegraph>
-  <nodegraph name="float_to_color4_rrrr_in" type="">
+  <nodegraph name="float_to_color4_rrrr_in">
     <constant name="constant1" type="float">
       <input name="value" type="float" value="1.0" />
     </constant>
@@ -128,17 +80,7 @@
     </add>
     <output name="out" type="color4" nodename="add1" />
   </nodegraph>
-  <nodegraph name="color2_to_color4_arar_in" type="">
-    <constant name="constant1" type="vector2">
-      <input name="value" type="vector2" value="1.0, 0.5" />
-    </constant>
-    <add name="add1" type="color4">
-      <input name="in1" type="color4" nodename="constant1" channels="yxyx" />
-      <input name="in2" type="color4" value="0.1, 0.1, 0.1, 0.0" />
-    </add>
-    <output name="out" type="color4" nodename="add1" />
-  </nodegraph>
-  <nodegraph name="color3_to_color4_bgr1_in" type="">
+  <nodegraph name="color3_to_color4_bgr1_in">
     <constant name="constant1" type="color3">
       <input name="value" type="color3" value="0.5, 0.7, 1.0" />
     </constant>
@@ -148,7 +90,7 @@
     </add>
     <output name="out" type="color4" nodename="add1" />
   </nodegraph>
-  <nodegraph name="color4_to_color3_rga_in" type="">
+  <nodegraph name="color4_to_color3_rga_in">
     <constant name="constant1" type="color4">
       <input name="value" type="color4" value="0.0, 0.5, 0.75, 1.0" />
     </constant>
@@ -158,17 +100,7 @@
     </add>
     <output name="out" type="color3" nodename="add1" />
   </nodegraph>
-  <nodegraph name="color4_to_color2_rg_in" type="">
-    <constant name="constant1" type="color4">
-      <input name="value" type="color4" value="0.0, 0.5, 0.75, 1.0" />
-    </constant>
-    <add name="add1" type="vector2">
-      <input name="in1" type="vector2" nodename="constant1" channels="rg" />
-      <input name="in2" type="vector2" value="0.5, 0.5" />
-    </add>
-    <output name="out" type="vector2" nodename="add1" />
-  </nodegraph>
-  <nodegraph name="color4_to_float_g_in" type="">
+  <nodegraph name="color4_to_float_g_in">
     <constant name="constant1" type="color4">
       <input name="value" type="color4" value="0.0, 0.5, 0.75, 1.0" />
     </constant>

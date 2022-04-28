@@ -42,7 +42,6 @@ EMSCRIPTEN_BINDINGS(util)
     }));
 
     ems::function("isValidName", &mx::isValidName);
-    ems::function("isValidNamespace", &mx::isValidNamespace);
     ems::function("incrementName", &mx::incrementName);
 
     ems::function("splitNamePath", &mx::splitNamePath);

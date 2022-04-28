@@ -1,72 +1,61 @@
-#include "pbrlib/genosl/lib/mx_microfacet.osl"
+#include "libraries/pbrlib/genosl/lib/mx_microfacet.osl"
 
-// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
-// Appendix B.2 Equation 15
-vector mx_ggx_importance_sample_NDF(vector2 Xi, vector X, vector Y, vector N, float alphaX, float alphaY)
+// Compute the average of an anisotropic alpha pair.
+float mx_average_alpha(vector2 alpha)
 {
-    float phi = 2.0 * M_PI * Xi.x;
-    float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
-    vector H = X * (tanTheta * alphaX * cos(phi)) +
-               Y * (tanTheta * alphaY * sin(phi)) +
-               N;
-    return normalize(H);
+    return sqrt(alpha.x * alpha.y);
 }
 
-// Height-correlated Smith masking-shadowing
-// http://jcgt.org/published/0003/02/03/paper.pdf
-// Equations 72 and 99
-float mx_ggx_smith_G2(float NdotL, float NdotV, float alpha)
+// Convert a real-valued index of refraction to normal-incidence reflectivity.
+float mx_ior_to_f0(float ior)
 {
-    float alpha2 = mx_square(alpha);
-    float lambdaL = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotL));
-    float lambdaV = sqrt(alpha2 + (1.0 - alpha2) * mx_square(NdotV));
-    return 2.0 / (lambdaL / NdotL + lambdaV / NdotV);
+    return mx_square((ior - 1.0) / (ior + 1.0));
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.
-color mx_ggx_dir_albedo(float NdotV, float roughness, color F0, color F90)
+color mx_ggx_dir_albedo(float NdotV, float alpha, color F0, color F90)
 {
     float x = NdotV;
-    float y = roughness;
-    float x2 = mx_square(NdotV);
-    float y2 = mx_square(roughness);
-    vector4 r = vector4(0.10031, 0.93450, 1.0, 1.0) +
-                vector4(-0.63301, -2.32352, -1.76427, 0.22797) * x +
-                vector4(9.74995, 2.22823, 8.26501, 15.93688) * y +
-                vector4(-2.02075, -3.74584, 11.54840, -55.82466) * x * y +
-                vector4(29.38247, 1.42450, 28.99991, 13.07919) * x2 +
-                vector4(-8.24713, -0.76829, -7.50867, 41.25882) * y2 +
-                vector4(-26.51510, 1.43366, -36.16186, 54.86775) * x2 * y +
-                vector4(19.98406, 0.29060, 15.85408, 300.10923) * x * y2 +
-                vector4(-5.41717, 0.62933, 33.41550, -284.73288) * x2 * y2;
+    float y = alpha;
+    float x2 = mx_square(x);
+    float y2 = mx_square(y);
+    vector4 r = vector4(0.1003, 0.9345, 1.0, 1.0) +
+                vector4(-0.6303, -2.323, -1.765, 0.2281) * x +
+                vector4(9.748, 2.229, 8.263, 15.94) * y +
+                vector4(-2.038, -3.748, 11.53, -55.83) * x * y +
+                vector4(29.34, 1.424, 28.96, 13.08) * x2 +
+                vector4(-8.245, -0.7684, -7.507, 41.26) * y2 +
+                vector4(-26.44, 1.436, -36.11, 54.9) * x2 * y +
+                vector4(19.99, 0.2913, 15.86, 300.2) * x * y2 +
+                vector4(-5.448, 0.6286, 33.37, -285.1) * x2 * y2;
     vector2 AB = vector2(r.x, r.y) / vector2(r.z, r.w);
     AB.x = clamp(AB.x, 0.0, 1.0);
     AB.y = clamp(AB.y, 0.0, 1.0);
     return F0 * AB.x + F90 * AB.y;
 }
 
-float mx_ggx_dir_albedo(float NdotV, float roughness, float F0, float F90)
+float mx_ggx_dir_albedo(float NdotV, float alpha, float F0, float F90)
 {
-    color result = mx_ggx_dir_albedo(NdotV, roughness, color(F0), color(F90));
+    color result = mx_ggx_dir_albedo(NdotV, alpha, color(F0), color(F90));
     return result[0];
 }
 
-float mx_ggx_dir_albedo(float NdotV, float roughness, float ior)
+float mx_ggx_dir_albedo(float NdotV, float alpha, float ior)
 {
-    color result = mx_ggx_dir_albedo(NdotV, roughness, color(mx_ior_to_f0(ior)), color(1.0));
+    color result = mx_ggx_dir_albedo(NdotV, alpha, color(mx_ior_to_f0(ior)), color(1.0));
     return result[0];
 }
 
 // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 // Equations 14 and 16
-color mx_ggx_energy_compensation(float NdotV, float roughness, color Fss)
+color mx_ggx_energy_compensation(float NdotV, float alpha, color Fss)
 {
-    float Ess = mx_ggx_dir_albedo(NdotV, roughness, 1.0, 1.0);
+    float Ess = mx_ggx_dir_albedo(NdotV, alpha, 1.0, 1.0);
     return 1.0 + Fss * (1.0 - Ess) / Ess;
 }
 
-float mx_ggx_energy_compensation(float NdotV, float roughness, float Fss)
+float mx_ggx_energy_compensation(float NdotV, float alpha, float Fss)
 {
-    color result = mx_ggx_energy_compensation(NdotV, roughness, color(Fss));
+    color result = mx_ggx_energy_compensation(NdotV, alpha, color(Fss));
     return result[0];
 }

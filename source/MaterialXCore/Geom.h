@@ -18,8 +18,8 @@ MATERIALX_NAMESPACE_BEGIN
 extern MX_CORE_API const string GEOM_PATH_SEPARATOR;
 extern MX_CORE_API const string UNIVERSAL_GEOM_NAME;
 extern MX_CORE_API const string UDIM_TOKEN;
-extern MX_CORE_API const string UDIMSET;
 extern MX_CORE_API const string UV_TILE_TOKEN;
+extern MX_CORE_API const string UDIM_SET_PROPERTY;
 
 class GeomElement;
 class GeomInfo;
@@ -305,17 +305,6 @@ class MX_CORE_API GeomInfo : public GeomElement
     void removeToken(const string& name)
     {
         removeChildOfType<Token>(name);
-    }
-
-    /// Add tokens to a given string resolver
-    void addTokens(StringResolverPtr& resolver) const override
-    {
-        for (TokenPtr token : getTokens())
-        {
-            string key = "<" + token->getName() + ">";
-            string value = token->getResolvedValueString();
-            resolver->setFilenameSubstitution(key, value);
-        }
     }
 
     /// @}

@@ -78,7 +78,7 @@ class Viewer : public ng::Screen
     // Set the number of environment samples.
     void setEnvSampleCount(int count)
     {
-        _envSampleCount = count;
+        _lightHandler->setEnvSampleCount(count);
     }
 
     // Set the rotation of the lighting environment about the Y axis.
@@ -87,15 +87,16 @@ class Viewer : public ng::Screen
         _lightRotation = rotation;
     }
 
+    // Enable or disable shadow maps.
+    void setShadowMapEnable(bool enable)
+    {
+        _genContext.getOptions().hwShadowMap = enable;
+    }
+
     // Set the modifiers to be applied to loaded documents.
     void setDocumentModifiers(const DocumentModifiers& modifiers)
     {
         _modifiers = modifiers;
-    }
-
-    void setSRGBBuffer(bool val)
-    {
-        _srgbFrameBuffer = val;
     }
 
     // Set the target width for texture baking.
@@ -234,7 +235,10 @@ class Viewer : public ng::Screen
     // returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    void updateShadowMap();
+    MaterialPtr getEnvironmentMaterial();
+    MaterialPtr getWireframeMaterial();
+
+    mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
 
     void renderFrame();
@@ -282,8 +286,6 @@ class Viewer : public ng::Screen
     mx::FilePath _lightRigFilename;
     mx::DocumentPtr _lightRigDoc;
     float _lightRotation;
-    bool _directLighting;
-    bool _indirectLighting;
 
     // Light processing options
     bool _normalizeEnvironment;
@@ -299,12 +301,6 @@ class Viewer : public ng::Screen
 
     // Ambient occlusion
     float _ambientOcclusionGain;
-
-    // Gamma correction shader used if not using SRGB framebuffer
-    MaterialPtr _gammaMaterial;
-    float _gammaValue;
-    bool _srgbFrameBuffer;
-    mx::Color3 _screenColor;
 
     // Geometry selections
     std::vector<mx::MeshPartitionPtr> _geometryList;
@@ -369,7 +365,6 @@ class Viewer : public ng::Screen
     bool _renderTransparency;
     bool _renderDoubleSided;
     bool _outlineSelection;
-    int _envSampleCount;
     bool _drawEnvironment;
 
     // Shader translation
@@ -389,7 +384,6 @@ class Viewer : public ng::Screen
     unsigned int _wedgeImageCount;
 
     // Texture baking
-    bool _bakeTextures;
     bool _bakeHdr;
     bool _bakeAverage;
     bool _bakeOptimize;

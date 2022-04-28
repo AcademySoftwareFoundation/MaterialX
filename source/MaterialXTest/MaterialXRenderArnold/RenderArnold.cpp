@@ -29,16 +29,6 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
   protected:
-    void registerSourceCodeSearchPaths(mx::GenContext& context) override
-    {
-        // Include extra OSL implementation files
-        mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-        context.registerSourceCodeSearchPath(searchPath / mx::FilePath("stdlib/osl"));
-
-        // Include current path to find resources.
-        context.registerSourceCodeSearchPath(mx::FilePath::getCurrentPath());
-    }
-
     void createRenderer(std::ostream& log) override;
 
     bool runRenderer(const std::string& shaderName,
@@ -52,6 +42,10 @@ class ArnoldShaderRenderTester : public RenderUtil::ShaderRenderTester
                       const std::string& outputPath = ".",
                       mx::ImageVec* imageVec = nullptr) override;
 
+    bool preConvertDocumentUnits(mx::UnitConverterRegistryPtr unitRegistry, 
+                      mx::DocumentPtr doc, 
+                      const std::string& unitType, 
+                      const std::string& targetUnit);
     mx::ImageHandlerPtr _imageHandler;
 };
 
@@ -64,6 +58,72 @@ void ArnoldShaderRenderTester::createRenderer(std::ostream& /*log*/)
     _imageHandler->addLoader(oiioLoader);
 #endif
 
+}
+
+bool ArnoldShaderRenderTester::preConvertDocumentUnits(mx::UnitConverterRegistryPtr unitRegistry, mx::DocumentPtr doc, const std::string& unitType, const std::string& targetUnit)
+{
+    mx::UnitTypeDefPtr unitTypeDef = doc->getUnitTypeDef(unitType);
+    mx::UnitConverterPtr unitConverter = unitRegistry->getUnitConverter(unitTypeDef);
+
+    if (!unitTypeDef || !unitConverter)
+    {
+        return false;
+    }
+
+    bool convertedUnits = false;
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        mx::NodePtr pNode = elem->asA<mx::Node>();
+        if (!pNode || !pNode->getInputCount())
+        {
+            continue;
+        }
+        for (mx::InputPtr input : pNode->getInputs())
+        {
+            const std::string type = input->getType();
+            const mx::ValuePtr value = input->getValue();
+            if (value && input->hasUnit() && (input->getUnitType() == unitType) && value)
+            {
+                if (type == mx::getTypeString<float>())
+                {
+                    float originalval = value->asA<float>();
+                    float convertedValue = unitConverter->convert(originalval, input->getUnit(), targetUnit);
+                    input->setValue<float>(convertedValue);
+                    input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
+                    input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
+                    convertedUnits = true;
+                }
+                else if (type == mx::getTypeString<mx::Vector2>())
+                {
+                    mx::Vector2 originalval = value->asA<mx::Vector2>();
+                    mx::Vector2 convertedValue = unitConverter->convert(originalval, input->getUnit(), targetUnit);
+                    input->setValue<mx::Vector2>(convertedValue);
+                    input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
+                    input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
+                    convertedUnits = true;
+                }
+                else if (type == mx::getTypeString<mx::Vector3>())
+                {
+                    mx::Vector3 originalval = value->asA<mx::Vector3>();
+                    mx::Vector3 convertedValue = unitConverter->convert(originalval, input->getUnit(), targetUnit);
+                    input->setValue<mx::Vector3>(convertedValue);
+                    input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
+                    input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
+                    convertedUnits = true;
+                }
+                else if (type == mx::getTypeString<mx::Vector4>())
+                {
+                    mx::Vector4 originalval = value->asA<mx::Vector4>();
+                    mx::Vector4 convertedValue = unitConverter->convert(originalval, input->getUnit(), targetUnit);
+                    input->setValue<mx::Vector4>(convertedValue);
+                    input->removeAttribute(mx::ValueElement::UNIT_ATTRIBUTE);
+                    input->removeAttribute(mx::ValueElement::UNITTYPE_ATTRIBUTE);
+                    convertedUnits = true;
+                }
+            }
+        }
+    }
+    return convertedUnits;
 }
 
 bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
@@ -115,7 +175,7 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
         mx::UnitConverterRegistryPtr unitRegistry = unitSystem->getUnitConverterRegistry();
         if (unitRegistry)
         {
-            if (unitRegistry->convertToUnit(doc, DISTANCE_TYPE_STRING, targetDistanceUnit))
+            if (preConvertDocumentUnits(unitRegistry, doc, DISTANCE_TYPE_STRING, targetDistanceUnit))
             {
                 log << "- Performed inlined unit converstion" << std::endl;
             }
@@ -154,11 +214,11 @@ bool ArnoldShaderRenderTester::runRenderer(const std::string& shaderName,
         mx::OutputPtr outputPtr = element->asA<mx::Output>();
         if (outputPtr)
         {
-            mx::NodePtr renderShader = doc->addNode("unlit_surface", doc->createValidChildName(shaderName + "shader"), mx::SURFACE_SHADER_TYPE_STRING);
+            mx::NodePtr renderShader = doc->addNode("surface_unlit", doc->createValidChildName(shaderName + "shader"), mx::SURFACE_SHADER_TYPE_STRING);
             std::cout << "--- Create dummy unlit shader: " << renderShader->getName() << std::endl;
             log << "--- Create dummy unlit shader: " << renderShader->getName() << std::endl;
             renderShader->setVersionString("1.0");
-            mx::InputPtr input = renderShader->addInput("color", outputPtr->getType());
+            mx::InputPtr input = renderShader->addInput("emission_color", outputPtr->getType());
             mx::ElementPtr outputParent = outputPtr->getParent();                       
             if (outputParent->isA<mx::NodeGraph>())
             {

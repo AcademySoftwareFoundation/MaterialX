@@ -140,7 +140,7 @@ Edge Node::getUpstreamEdge(size_t index) const
 
 OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 {
-    const string* outputName = nullptr;
+    string outputName;
     const PortElementPtr port = connectingElement->asA<PortElement>();
     if (port)
     {
@@ -148,7 +148,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         // so get the name of the output connected to this
         // port. If no explicit output is specified this will
         // return an empty string which is handled below.
-        outputName = &port->getOutputString();
+        outputName = port->getOutputString();
 
         // Handle case where it's an input to a top level output
         InputPtr connectedInput = connectingElement->asA<Input>();
@@ -161,7 +161,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
                 interfaceInput = connectedInput->getInterfaceInput();
                 if (interfaceInput)
                 {
-                    outputName = &(interfaceInput->getOutputString());
+                    outputName = interfaceInput->getOutputString();
                     output = interfaceInput->getConnectedOutput();
                 }
             }
@@ -172,19 +172,23 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            if (output->getParent() == output->getDocument())
+            if (connectedInput || 
+                output->getParent() == output->getDocument())
             {
-                outputName = &output->getOutputString();
+                if (!output->getOutputString().empty())
+                {
+                    outputName = output->getOutputString();
+                }
             }
         }
     }
-    if (outputName && !outputName->empty())
+    if (!outputName.empty())
     {
         // Find this output on our nodedef.
         NodeDefPtr nodeDef = getNodeDef();
         if (nodeDef)
         {
-            return nodeDef->getActiveOutput(*outputName);
+            return nodeDef->getActiveOutput(outputName);
         }
     }
     return OutputPtr();
@@ -193,7 +197,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
 vector<PortElementPtr> Node::getDownstreamPorts() const
 {
     vector<PortElementPtr> downstreamPorts;
-    for (PortElementPtr port : getDocument()->getMatchingPorts(getName()))
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getQualifiedName(getName())))
     {
         if (port->getConnectedNode() == getSelf())
         {
@@ -643,20 +647,44 @@ void NodeGraph::setNodeDef(ConstNodeDefPtr nodeDef)
     }
 }
 
-InputPtr Node::addInputFromNodeDef(const string& name)
+InputPtr Node::addInputFromNodeDef(const string& inputName)
 {
-    InputPtr nodeInput = getInput(name);
+    InputPtr nodeInput = getInput(inputName);
     if (!nodeInput)
     {
         NodeDefPtr nodeDef = getNodeDef();
-        InputPtr nodeDefInput = nodeDef ? nodeDef->getInput(name) : nullptr;
+        InputPtr nodeDefInput = nodeDef ? nodeDef->getActiveInput(inputName) : nullptr;
         if (nodeDefInput)
         {
-            nodeInput = addInput(nodeDefInput->getName());
-            nodeInput->copyContentFrom(nodeDefInput);
+            nodeInput = addInput(nodeDefInput->getName(), nodeDefInput->getType());
+            if (nodeDefInput->hasValueString())
+            {
+                nodeInput->setValueString(nodeDefInput->getValueString());
+            }
         }
     }
     return nodeInput;
+}
+
+void Node::addInputsFromNodeDef()
+{
+    NodeDefPtr nodeDef = getNodeDef();
+    if (nodeDef)
+    {
+        for (InputPtr nodeDefInput : nodeDef->getActiveInputs())
+        {
+            const string& inputName = nodeDefInput->getName();
+            InputPtr nodeInput = getInput(inputName);
+            if (!nodeInput)
+            {
+                nodeInput = addInput(inputName, nodeDefInput->getType());
+                if (nodeDefInput->hasValueString())
+                {
+                    nodeInput->setValueString(nodeDefInput->getValueString());
+                }
+            }
+        }
+    }
 }
 
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)

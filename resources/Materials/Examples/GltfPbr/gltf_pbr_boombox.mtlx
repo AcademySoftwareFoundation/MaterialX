@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709" fileprefix="boombox/">
+  <nodegraph name="NG_boombox">
+    <tiledimage name="image_basecolor" type="color3">
+      <input name="file" type="filename" value="BoomBox_baseColor.png" colorspace="srgb_texture" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    </tiledimage>
+    <tiledimage name="image_emission" type="color3">
+      <input name="file" type="filename" value="BoomBox_emissive.png" colorspace="srgb_texture" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    </tiledimage>
+    <tiledimage name="image_normal" type="vector3">
+      <input name="file" type="filename" value="BoomBox_normal.png" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    </tiledimage>
+    <tiledimage name="image_orm" type="vector3">
+      <input name="file" type="filename" value="BoomBox_occlusionRoughnessMetallic.png" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    </tiledimage>
+    <normalmap name="normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="image_normal" />
+      <input name="scale" type="float" value="1.0" />
+      <input name="space" type="string" value="tangent" />
+    </normalmap>
+    <extract name="extract_occlusion" type="float">
+      <input name="in" type="vector3" nodename="image_orm" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="extract_roughness" type="float">
+      <input name="in" type="vector3" nodename="image_orm" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="extract_metallic" type="float">
+      <input name="in" type="vector3" nodename="image_orm" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <output name="out_basecolor" type="color3" nodename="image_basecolor" />
+    <output name="out_emission" type="color3" nodename="image_emission" />
+    <output name="out_normal" type="vector3" nodename="normalmap" />
+    <output name="out_occlusion" type="float" nodename="extract_occlusion" />
+    <output name="out_roughness" type="float" nodename="extract_roughness" />
+    <output name="out_metallic" type="float" nodename="extract_metallic" />
+  </nodegraph>
+  <gltf_pbr name="SR_boombox" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="NG_boombox" output="out_basecolor" />
+    <input name="metallic" type="float" nodegraph="NG_boombox" output="out_metallic" />
+    <input name="roughness" type="float" nodegraph="NG_boombox" output="out_roughness" />
+    <input name="normal" type="vector3" nodegraph="NG_boombox" output="out_normal" />
+    <input name="occlusion" type="float" nodegraph="NG_boombox" output="out_occlusion" />	  
+    <input name="transmission" type="float" value="0" />
+    <input name="ior" type="float" value="1.5" />
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="sheen_color" type="color3" value="0, 0, 0" />
+    <input name="sheen_roughness" type="float" value="0" />
+    <input name="clearcoat" type="float" value="0" />
+    <input name="clearcoat_roughness" type="float" value="0" />
+    <input name="clearcoat_normal" type="vector3" value="0, 0, 1" />
+    <input name="emissive" type="color3" nodegraph="NG_boombox" output="out_emission" />
+    <input name="emissive_strength" type="float" value="1" />
+    <input name="alpha" type="float" value="1" />
+    <input name="alpha_mode" type="integer" value="0" />
+    <input name="alpha_cutoff" type="float" value="0.5" />
+  </gltf_pbr>
+  <surfacematerial name="Material_boombox" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_boombox" />
+  </surfacematerial>
+</materialx>

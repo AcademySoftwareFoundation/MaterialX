@@ -400,12 +400,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @return A shared pointer to the new child element.
     template <class T> shared_ptr<T> addChild(const string& name = EMPTY_STRING);
 
-    /// Add a child element.
-    /// @param child A shared pointer to the child element.
-    /// @throws Exception if a child of this element already possesses the
-    ///     given name.
-    void addChild(ElementPtr child);
-
     /// Add a child element of the given category and name.
     /// @param category The category string of the new child element.
     ///     If the category string is recognized, then the correponding Element
@@ -763,11 +757,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @return A shared pointer to a StringResolver.
     StringResolverPtr createStringResolver(const string& geom = EMPTY_STRING) const;
 
-    /// Add tokens to string resolver. Derived classes can override this
-    /// method to add per-class type tokens as desired. The default is to not
-    /// add any tokens.
-    virtual void addTokens(StringResolverPtr& resolver) const;
-
     /// Return a single-line description of this element, including its category,
     /// name, and attributes.
     string asString() const;
@@ -786,7 +775,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
   protected:
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
-    void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
+    void validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const;
 
   public:
     static const string NAME_ATTRIBUTE;
@@ -1250,6 +1239,9 @@ class MX_CORE_API StringResolver
     {
         _filenameMap[key] = value;
     }
+
+    /// Add filename token substitutions for a given element
+    void addTokenSubstitutions(ConstElementPtr element);
 
     /// Return the map of filename substring substitutions.
     const StringMap& getFilenameSubstitutions() const

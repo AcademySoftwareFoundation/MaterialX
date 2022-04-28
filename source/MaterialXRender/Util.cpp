@@ -9,6 +9,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+const Color3 DEFAULT_SCREEN_COLOR_SRGB(0.3f, 0.3f, 0.32f);
+const Color3 DEFAULT_SCREEN_COLOR_LIN_REC709(DEFAULT_SCREEN_COLOR_SRGB.srgbToLinear());
+
 ShaderPtr createShader(const string& shaderName, GenContext& context, ElementPtr elem)
 {
     return context.getShaderGenerator().generate(shaderName, elem, context);
@@ -27,48 +30,6 @@ ShaderPtr createConstantShader(GenContext& context,
     constant->setInputValue("value", color);
     OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
-
-    // Generate the shader
-    return createShader(shaderName, context, output);
-}
-
-ShaderPtr createGammaShader(GenContext& context,
-                            DocumentPtr stdLib,
-                            const string& shaderName,
-                            const Color3& gamma,
-                            bool verticalFlip)
-{
-    DocumentPtr doc = createDocument();
-    doc->importLibrary(stdLib);
-
-    // Construct a nodegraph which performs gamma correction on an input image.
-    // This graph reuses the range node which has gamma correction as
-    // part of the node. Additional scale+offset nodes which act on the input
-    // texture coordinates can the math required to perform a flip in V coordiates
-    // if desired.
-    NodeGraphPtr nodeGraph = doc->addNodeGraph();
-    NodePtr texcoordNode = nodeGraph->addNode("texcoord", "texcoord", "vector2");
-    NodePtr multiplyNode = nodeGraph->addNode("multiply", "multiply", "vector2");
-    multiplyNode->setNodeDefString("ND_multiply_vector2");
-    multiplyNode->setConnectedNode("in1", texcoordNode);
-    NodePtr addNode = nodeGraph->addNode("add", "add", "vector2");
-    addNode->setNodeDefString("ND_add_vector2");
-    addNode->setConnectedNode("in1", multiplyNode);
-    NodePtr imageNode = nodeGraph->addNode("image", "image", "color3");
-    imageNode->setConnectedNode("texcoord", addNode);
-    NodePtr rangeNode = nodeGraph->addNode("range", EMPTY_STRING, "color3");
-    rangeNode->setConnectedNode("in", imageNode);
-    rangeNode->setInputValue("gamma", gamma);
-    OutputPtr output = nodeGraph->addOutput();
-    output->setConnectedNode(rangeNode);
-
-    // Optional vertical flip settings. Note thta the default scale and offset values
-    // will not change any of the texture coordinates (i.e. scale by identify and offsets by zero).
-    if (verticalFlip)
-    {
-        multiplyNode->setInputValue("in2", "1.0, -1.0");
-        addNode->setInputValue("in2", "0.0, 1.0");
-    }
 
     // Generate the shader
     return createShader(shaderName, context, output);
@@ -281,7 +242,7 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
 }
 
 void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPropertyGroup& groups,
-                            UIPropertyGroup& unnamedGroups, const string& pathSeparator, bool showAllInputs)
+                            UIPropertyGroup& unnamedGroups, const string& pathSeparator)
 {
     // Assign a depth-first index to each element in the document.
     std::unordered_map<ConstElementPtr, int> indexMap;
@@ -312,22 +273,6 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
             if (interfaceInput)
             {
                 input = interfaceInput;
-            }
-        }
-
-        // If requested, add missing inputs from the associated nodedef.
-        if (showAllInputs && !input)
-        {
-            string nodePath = parentNamePath(variable->getPath());
-            ElementPtr parent = doc->getDescendant(nodePath);
-            if (parent)
-            {
-                NodePtr parentNode = parent->asA<Node>();
-                if (parentNode)
-                {
-                    StringVec pathVec = splitNamePath(variable->getPath());
-                    input = parentNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
-                }
             }
         }
 

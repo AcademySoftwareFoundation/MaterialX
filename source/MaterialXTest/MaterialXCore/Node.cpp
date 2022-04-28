@@ -138,103 +138,57 @@ TEST_CASE("Node", "[node]")
 
 TEST_CASE("Flatten", "[nodegraph]")
 {
-    mx::FileSearchPath searchPath = "resources/Materials/Examples/Syntax" +
-                                    mx::PATH_LIST_SEPARATOR +
-                                    "libraries/stdlib";
-
-    // Read the example file.
+    // Read an example containing graph-based custom nodes.
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "SubGraphs.mtlx", searchPath);
-
-    // Find the example graph.
-    mx::NodeGraphPtr graph = doc->getNodeGraph("subgraph_ex1");
-    REQUIRE(graph);
-
-    // Traverse the graph and count nodes.
-    int totalNodeCount = 0;
-    for (mx::ElementPtr elem : graph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-        }
-    }
-    REQUIRE(totalNodeCount == 7);
-
-    // Create a flat version of the graph.
-    mx::NodeGraphPtr flatGraph = doc->addNodeGraph();
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs();
-
-    // Traverse the flat graph and count nodes.
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            REQUIRE(isAtomic);
-        }
-    }
-    REQUIRE(totalNodeCount == 15);
-
-    // Test filtered flattening. Leave one node unflattened
-    flatGraph->copyContentFrom(graph);
-    flatGraph->flattenSubgraphs(mx::EMPTY_STRING, [] (mx::NodePtr node)
-    {
-        return (node->getCategory() != "color_checker");
-    });
-    totalNodeCount = 0;
-    for (mx::ElementPtr elem : flatGraph->traverseTree())
-    {
-        if (elem->isA<mx::Node>())
-        {
-            totalNodeCount++;
-
-            // Make sure it's an atomic node.
-            mx::InterfaceElementPtr implement = elem->asA<mx::Node>()->getImplementation();
-            bool isAtomic = !implement || !implement->isA<mx::NodeGraph>();
-            if (elem->getCategory() != "color_checker")
-            {
-                REQUIRE(isAtomic);
-            }
-        }
-    }
-    REQUIRE(totalNodeCount == 16);
-
-    // Read the example with upstream nodegraphs
-    doc = mx::createDocument();
-    const mx::FilePathVec libraryFolders;
-    mx::FileSearchPath libraryRoot(mx::FilePath::getCurrentPath() / mx::FilePath("libraries"));
-    mx::loadLibraries(libraryFolders, libraryRoot, doc);
-    searchPath = mx::FileSearchPath("resources/Materials/TestSuite/stdlib/definition/");
-    mx::readFromXmlFile(doc, "definition_using_definitions.mtlx", searchPath);
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/shader/surface.mtlx");
     REQUIRE(doc->validate());
 
-    doc->flattenSubgraphs(mx::EMPTY_STRING,
-        [](mx::NodePtr node)
+    // Count root-level, nested, and custom nodes.
+    size_t origRootNodes = doc->getNodes().size();
+    size_t origNestedNodes = 0;
+    size_t origCustomNodes = 0;
+    for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
     {
-        // Skip standard surface
-        return (node->getCategory() != "standard_surface");
-    });
-
-    mx::NodeGraphPtr upstreamGraph = doc->getNodeGraph("layered_inputGraph");
-    if (upstreamGraph)
-    {
-        upstreamGraph->flattenSubgraphs();
+        origNestedNodes += graph->getNodes().size();
     }
-    mx::XmlWriteOptions writeOptions;
-    auto skipDefinition = [](mx::ConstElementPtr elem)
+    for (mx::NodePtr node : doc->getNodes())
     {
-        return !elem->isA<mx::NodeDef>() && elem->getAttribute("nodedef").empty();
-    };
-    writeOptions.elementPredicate = skipDefinition;
-    mx::writeToXmlFile(doc, "PostFlattenedGraph.mtlx", &writeOptions);
+        if (node->getImplementation())
+        {
+            origCustomNodes++;
+        }
+    }
+    REQUIRE(origRootNodes > 0);
+    REQUIRE(origNestedNodes > 0);
+    REQUIRE(origCustomNodes > 0);
+
+    // Flatten all root-level nodes.
+    doc->flattenSubgraphs();
+
+    // Recount root-level nodes.
+    size_t newRootNodes = doc->getNodes().size();
+    size_t expectedRootNodes = (origRootNodes - origCustomNodes) + (origNestedNodes * origCustomNodes);
+    REQUIRE(newRootNodes == expectedRootNodes);
+}
+
+TEST_CASE("Inheritance", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
     REQUIRE(doc->validate());
+    auto nodedef = doc->getNodeDef("ND_standard_surface_surfaceshader");
+    REQUIRE(nodedef);
+    mx::NodePtr surfaceNode = doc->addNodeInstance(nodedef);
+    REQUIRE(surfaceNode);
+    mx::InputPtr nodedefSpecularInput = nodedef->getActiveInput("specular");
+    REQUIRE(nodedefSpecularInput);
+    mx::InputPtr specularInput = surfaceNode->addInputFromNodeDef("specular");
+    REQUIRE(specularInput);
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+    REQUIRE(specularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) ==
+        nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
 TEST_CASE("Topological sort", "[nodegraph]")
@@ -636,7 +590,6 @@ TEST_CASE("Tokens", "[nodegraph]")
         {
             const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
             REQUIRE(substitutions.count(tokenString));
-            REQUIRE(substitutions.find(tokenString)->second == token->getValueString());
         }
 
         // Test that one of the tokens was used
@@ -668,7 +621,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     if (graph)
     {
         const std::string VERSION1 = "1.0";
-        const std::string NAMESPACE = "namespace1";
         const std::string GROUP = "adjustment";
         bool isDefaultVersion = false;
         const std::string NODENAME = graph->getName();
@@ -676,12 +628,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         // Duplicate the graph and then make the duplicate a nodedef nodegraph
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, 
-                                                          GROUP, newGraphName, NAMESPACE);
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
         REQUIRE(nodeDef != nullptr);
         REQUIRE(nodeDef->getNodeGroup() == "adjustment");
         REQUIRE(nodeDef->getVersionString() == VERSION1);
-        REQUIRE(nodeDef->getNamespace() == NAMESPACE);
         REQUIRE_FALSE(nodeDef->getDefaultVersion());
 
         // Try and fail to create the same definition
@@ -689,7 +639,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         try
         {
             temp = nullptr;
-            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName, NAMESPACE);
+            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
         }
         catch (mx::Exception&)
         {
@@ -699,14 +649,11 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         // Check that the new nodegraph has the correct definition
         mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
         REQUIRE(newGraph != nullptr);
-        REQUIRE(newGraph->getNodeDefString() == NAMESPACE + ":" + newNodeDefName);
-        REQUIRE(newGraph->getNamespace() == NAMESPACE);
-
-        mx::writeToXmlFile(doc, "definition_from_nodegraph_out1.mtlx");
+        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
 
         // Check declaration was set up properly
-        mx::ConstNodeDefPtr decl = newGraph->getNodeDef();
-        REQUIRE((decl && decl->getName() == nodeDef->getName()));
+        mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
+        REQUIRE(decl->getName() == nodeDef->getName());
 
         // Arbitrarily add all unconnected inputs as interfaces
         mx::ValueElementPtr newInterface = nullptr;
@@ -725,6 +672,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                     {
                         continue;
                     }
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
+                    REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
+                            nodeDefValueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
                 }
 
                 mx::InputPtr input = valueElem->asA<mx::Input>();
@@ -783,5 +734,5 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     }
 
     REQUIRE(doc->validate());
-    mx::writeToXmlFile(doc, "definition_from_nodegraph_out2.mtlx");
+    mx::writeToXmlFile(doc, "definition_from_nodegraph_out.mtlx");
 }

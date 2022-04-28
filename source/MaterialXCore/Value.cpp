@@ -96,6 +96,7 @@ template <class T> void dataToString(const T& data, string& str)
 {
     std::stringstream ss;
     ss.imbue(std::locale::classic());
+
     // Set float format and precision for the stream
     const Value::FloatFormat fmt = Value::getFloatFormat();
     ss.setf(std::ios_base::fmtflags(
