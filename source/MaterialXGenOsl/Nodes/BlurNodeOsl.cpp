@@ -20,7 +20,7 @@ ShaderNodeImplPtr BlurNodeOsl::create()
 void BlurNodeOsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    shadergen.emitInclude("libraries/stdlib/genosl/lib/mx_sampling" + shadergen.getSyntax().getSourceFileExtension(), context, stage);
+    shadergen.emitLibraryInclude("stdlib/genosl/lib/mx_sampling.osl", context, stage);
     shadergen.emitLineBreak(stage);
 }
 

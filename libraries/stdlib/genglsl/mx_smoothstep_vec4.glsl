@@ -1,4 +1,4 @@
-#include "libraries/stdlib/genglsl/mx_smoothstep_float.glsl"
+#include "mx_smoothstep_float.glsl"
 
 void mx_smoothstep_vec4(vec4 val, vec4 low, vec4 high, out vec4 result)
 {

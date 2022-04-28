@@ -1,4 +1,4 @@
-#include "libraries/stdlib/genglsl/lib/mx_noise.glsl"
+#include "lib/mx_noise.glsl"
 
 void mx_worleynoise2d_vector3(vec2 texcoord, float jitter, out vec3 result)
 {

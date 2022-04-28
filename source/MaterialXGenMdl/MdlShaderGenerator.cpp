@@ -275,7 +275,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             "        )\n"
             "    )\n"
             ");";
-        emitBlock(textureMaterial, context, stage);
+        emitBlock(textureMaterial, FilePath(), context, stage);
     }
     else if (graph.hasClassification(ShaderNode::Classification::SHADER))
     {
@@ -285,7 +285,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitScopeEnd(stage);
 
         static const string shaderMaterial = "in material(finalOutput__);";
-        emitBlock(shaderMaterial, context, stage);
+        emitBlock(shaderMaterial, FilePath(), context, stage);
     }
     else
     {

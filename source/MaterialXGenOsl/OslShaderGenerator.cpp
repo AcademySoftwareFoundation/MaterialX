@@ -193,7 +193,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
-    emitIncludes(stage, context);
+    emitLibraryIncludes(stage, context);
 
     // Add global constants and type definitions
     emitTypeDefinitions(context, stage);
@@ -204,11 +204,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv_vflip.osl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + OslShaderGenerator::TARGET + "/lib/mx_transform_uv.osl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.osl";
     }
 
     // Emit function definitions for all nodes
@@ -428,7 +428,7 @@ void OslShaderGenerator::emitFunctionBodyBegin(const ShaderNode& node, GenContex
     }
 }
 
-void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) const
+void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& context) const
 {
     static const string INCLUDE_PREFIX = "#include \"";
     static const string INCLUDE_SUFFIX = "\"";
@@ -439,7 +439,7 @@ void OslShaderGenerator::emitIncludes(ShaderStage& stage, GenContext& context) c
 
     for (const string& file : INCLUDE_FILES)
     {
-        FilePath path = context.resolveSourceFile(file);
+        FilePath path = context.resolveSourceFile(file, FilePath());
 
         // Force path to use slash since backslash even if escaped 
         // gives problems when saving the source code to file.
