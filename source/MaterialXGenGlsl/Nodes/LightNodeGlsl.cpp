@@ -50,7 +50,7 @@ void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, context, stage);
+        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, FilePath(), context, stage);
         shadergen.emitLineBreak(stage);
 
         context.pushClosureContext(&_callEmission);

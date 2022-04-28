@@ -55,7 +55,8 @@ bool getShaderSource(mx::GenContext& context,
             return true;
         }
         sourcePath = implementation->getFile();
-        mx::FilePath resolvedPath = context.resolveSourceFile(sourcePath);
+        mx::FilePath localPath = mx::FilePath(implementation->getSourceUri()).getParentPath();
+        mx::FilePath resolvedPath = context.resolveSourceFile(sourcePath, localPath);
         sourceContents = mx::readFile(resolvedPath);
         resolvedSource = resolvedPath.asString();
         return !sourceContents.empty();

@@ -15,6 +15,8 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Syntax.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Node.h>
 
 #include <sstream>
@@ -222,11 +224,10 @@ public:
     void addComment(const string& str);
 
     /// Add a block of code.
-    void addBlock(const string& str, GenContext& context);
+    void addBlock(const string& str, const FilePath& sourceFilename, GenContext& context);
 
-    /// Add the contents of an include file. Making sure it is 
-    /// only included once for the shader stage.
-    void addInclude(const string& file, GenContext& context);
+    /// Add the contents of an include file if not already present.
+    void addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context);
 
     /// Add a value.
     template<typename T>

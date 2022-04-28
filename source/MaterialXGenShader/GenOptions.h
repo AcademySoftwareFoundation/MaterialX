@@ -11,6 +11,8 @@
 
 #include <MaterialXGenShader/Export.h>
 
+#include <MaterialXFormat/File.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /// Type of shader interface to be generated
@@ -67,6 +69,7 @@ class MX_GENSHADER_API GenOptions
         shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
         fileTextureVerticalFlip(false),
         addUpstreamDependencies(true),
+        libraryPrefix("libraries"),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
@@ -107,6 +110,11 @@ class MX_GENSHADER_API GenOptions
     /// Sets whether to include upstream dependencies 
     /// for the element to generate a shader for.
     bool addUpstreamDependencies;
+
+    /// The standard library prefix, which will be applied to
+    /// calls to emitLibraryInclude during code generation.
+    /// Defaults to "libraries".
+    FilePath libraryPrefix;
 
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
