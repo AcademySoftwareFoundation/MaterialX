@@ -344,15 +344,15 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     int specularMethod = context.getOptions().hwSpecularEnvironmentMethod;
     if (specularMethod == SPECULAR_ENVIRONMENT_FIS)
     {
-        emitInclude("libraries/pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_environment_fis.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_fis.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
     {
-        emitInclude("libraries/pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_environment_prefilter.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_prefilter.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
     {
-        emitInclude("libraries/pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_environment_none.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_none.glsl", context, stage);
     }
     else
     {
@@ -522,7 +522,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     emitOutputs(context, stage);
 
     // Add common math functions
-    emitInclude("libraries/stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_math.glsl", context, stage);
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, stage);
     emitLineBreak(stage);
 
     // Determine whether lighting is required
@@ -547,7 +547,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
         if (context.getOptions().hwMaxActiveLightSources > 0)
         {
-          emitLightData(context, stage);
+            emitLightData(context, stage);
         }
     }
 
@@ -556,13 +556,13 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
                      context.getOptions().hwWriteDepthMoments;
     if (shadowing)
     {
-        emitInclude("libraries/pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_shadow.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
     }
 
     // Emit directional albedo table code.
     if (context.getOptions().hwWriteAlbedoTable)
     {
-        emitInclude("libraries/pbrlib/" + GlslShaderGenerator::TARGET + "/lib/mx_table.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_table.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -570,17 +570,17 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_transform_uv_vflip.glsl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv_vflip.glsl";
     }
     else
     {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "libraries/stdlib/" + GlslShaderGenerator::TARGET + "/lib/mx_transform_uv.glsl";
+        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
     }
 
     // Emit uv transform code globally if needed.
     if (context.getOptions().hwAmbientOcclusion)
     {
-        emitInclude(ShaderGenerator::T_FILE_TRANSFORM_UV, context, stage);
+        emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
     }
 
     emitLightFunctionDefinitions(graph, context, stage);

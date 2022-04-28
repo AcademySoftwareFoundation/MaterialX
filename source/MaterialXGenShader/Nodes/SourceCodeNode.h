@@ -8,6 +8,8 @@
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 
+#include <MaterialXFormat/File.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /// Node implementation using data-driven static source code.
@@ -26,6 +28,7 @@ protected:
     bool _inlined;
     string _functionName;
     string _functionSource;
+    FilePath _sourceFilename;
 };
 
 MATERIALX_NAMESPACE_END

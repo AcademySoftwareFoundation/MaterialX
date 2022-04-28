@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genosl/lib/mx_microfacet.osl"
+#include "mx_microfacet.osl"
 
 // Compute the average of an anisotropic alpha pair.
 float mx_average_alpha(vector2 alpha)

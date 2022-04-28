@@ -1,4 +1,4 @@
-#include "$fileTransformUv"
+#include "lib/$fileTransformUv"
 
 void mx_image_vector4(textureresource file, string layer, vector4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output vector4 out)
 {
