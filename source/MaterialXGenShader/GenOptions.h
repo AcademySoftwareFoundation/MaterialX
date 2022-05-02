@@ -60,6 +60,16 @@ enum HwDirectionalAlbedoMethod
     DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
+/// Method to use for transmission rendering
+enum HwTransmissionRenderMethod
+{
+    /// Use a refraction approximation for transmission rendering
+    TRANSMISSION_REFRACTION,
+
+    /// Use opacity for transmission rendering
+    TRANSMISSION_OPACITY,
+};
+
 /// @class GenOptions 
 /// Class holding options to configure shader generation.
 class MX_GENSHADER_API GenOptions
@@ -73,6 +83,7 @@ class MX_GENSHADER_API GenOptions
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
+        hwTransmissionRenderMethod(TRANSMISSION_REFRACTION),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),
@@ -130,6 +141,10 @@ class MX_GENSHADER_API GenOptions
     /// Sets the method to use for directional albedo evaluation
     /// for HW shader targets.
     HwDirectionalAlbedoMethod hwDirectionalAlbedoMethod;
+
+    /// Sets the method to use for transmission rendering
+    /// for HW shader targets.
+    HwTransmissionRenderMethod hwTransmissionRenderMethod;
 
     /// Enables the writing of depth moments for HW shader targets.
     /// Defaults to false.
