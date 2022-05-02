@@ -216,7 +216,7 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
         "Materials/TestSuite/pbrlib/surfaceshader/transparency_nodedef_test.mtlx",
         "Materials/TestSuite/pbrlib/surfaceshader/transparency_test.mtlx",
     };
-    std::vector<bool> transparencyTest = { false, false, true, true, true };
+    std::vector<bool> transparencyTest = { false, true, true, true, true };
     for (size_t i=0; i<testFiles.size(); i++)
     {
         const mx::FilePath& testFile = resourcePath / testFiles[i];
