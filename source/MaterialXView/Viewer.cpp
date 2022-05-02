@@ -854,6 +854,15 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
+    ng::CheckBox* refractionBox = new ng::CheckBox(advancedPopup, "Transmission Refraction");
+    refractionBox->set_checked(_genContext.getOptions().hwTransmissionRenderMethod == mx::TRANSMISSION_REFRACTION);
+    refractionBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
+        _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
+        reloadShaders();
+    });
+
     Widget* albedoGroup = new Widget(advancedPopup);
     albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(albedoGroup, "Albedo Method:");
