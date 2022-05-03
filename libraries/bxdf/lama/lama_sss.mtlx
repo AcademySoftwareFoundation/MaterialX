@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="acescg">
-  <nodedef name="ND_lama_sss" node="LamaSSS" doc="Lama SSS" version="1.0" isdefaultversion="true">
+  <nodedef name="ND_lama_sss" node="LamaSSS" nodegroup="pbr" doc="Lama SSS" version="1.0" isdefaultversion="true">
     <input name="color" type="color3" value="0.18, 0.18, 0.18" uiname="Color" uifolder="Main"
            doc="Diffuse color (aka albedo), defining what ratio of light is reflected -- or transmitted -- for each color channel." />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Main"

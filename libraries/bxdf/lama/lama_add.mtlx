@@ -2,7 +2,7 @@
 <materialx version="1.38" colorspace="acescg">
 
   <!-- LamaAdd for BSDFs -->
-  <nodedef name="ND_lama_add_bsdf" node="LamaAdd" version="1.0" isdefaultversion="true">
+  <nodedef name="ND_lama_add_bsdf" node="LamaAdd" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="material1" uiname="Material 1" type="BSDF" doc="First material to add." />
     <input name="material2" uiname="Material 2" type="BSDF" doc="Second material to add." />
     <input name="weight1" uiname="Weight 1" type="float" uimin="0.0" uimax="1.0" value="1.0" doc="Weight of the first material." />
@@ -26,7 +26,7 @@
   </nodegraph>
 
   <!-- LamaAdd for EDFs -->
-  <nodedef name="ND_lama_add_edf" node="LamaAdd" version="1.0" isdefaultversion="true">
+  <nodedef name="ND_lama_add_edf" node="LamaAdd" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="material1" uiname="Material 1" type="EDF" doc="First material to add." />
     <input name="material2" uiname="Material 2" type="EDF" doc="Second material to add." />
     <input name="weight1" uiname="Weight 1" type="float" uimin="0.0" uimax="1.0" value="1.0" doc="Weight of the first material." />
