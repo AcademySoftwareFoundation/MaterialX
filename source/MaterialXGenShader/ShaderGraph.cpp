@@ -444,7 +444,6 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     ElementPtr& root)
 {
     NodeDefPtr nodeDef = node->getNodeDef(EMPTY_STRING, true);
-    string message;
     if (!nodeDef)
     {
         throw ExceptionShaderGenError("Could not find a nodedef for shader node '" + node->getName() +

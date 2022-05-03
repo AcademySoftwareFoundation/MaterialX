@@ -263,7 +263,7 @@ bool UnitConverterRegistry::convertToUnit(DocumentPtr doc, const string& unitTyp
         {
             const std::string type = input->getType();
             const ValuePtr value = input->getValue();
-            if (value && input->hasUnit() && (input->getUnitType() == unitType) && value)
+            if (value && input->hasUnit() && (input->getUnitType() == unitType))
             {
                 if (type == getTypeString<float>())
                 {

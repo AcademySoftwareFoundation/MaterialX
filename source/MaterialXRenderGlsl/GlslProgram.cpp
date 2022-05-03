@@ -478,7 +478,6 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        string error;
         ImagePtr image = imageHandler->acquireImage(filePath);
         if (imageHandler->bindImage(image, samplingProperties))
         {

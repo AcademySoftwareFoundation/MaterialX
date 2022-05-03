@@ -138,7 +138,7 @@ bool stringEndsWith(const string& str, const string& suffix)
 
 string trimSpaces(const string& str)
 {
-    const string SPACE(" ");
+    const char SPACE(' ');
 
     size_t start = str.find_first_not_of(SPACE);
     string result = (start == std::string::npos) ? EMPTY_STRING : str.substr(start);

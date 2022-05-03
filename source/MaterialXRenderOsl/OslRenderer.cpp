@@ -240,7 +240,6 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
     // modifies this then this hard-coded string must also be modified.
     // The formatted string is "Output <outputName> to <outputFileName>".
     std::ifstream errorStream(errorFile);
-    string result;
     StringVec results;
     string line;
     string successfulOutputSubString("Output " + outputName + " to " +
