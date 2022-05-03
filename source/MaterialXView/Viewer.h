@@ -156,7 +156,7 @@ class Viewer : public ng::Screen
     }
 
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath filename)
+    void requestFrameCapture(const mx::FilePath& filename)
     {
         _captureRequested = true;
         _captureFilename = filename;
