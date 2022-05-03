@@ -36,6 +36,8 @@ def main():
             print('<ul>')
             print('<li> <em>Nodedef</em>: %s' % nd.getName())
             print('<li> <em>Type</em>: %s' % nd.getType())
+            if len(nd.getNodeGroup()) > 0:
+                print('<li> <em>Node Group</em>: %s' % nd.getNodeGroup())
             if len(nd.getVersionString()) > 0:
                 print('<li> <em>Version</em>: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
             if len(nd.getInheritString()) > 0:
@@ -75,6 +77,8 @@ def main():
         else:
             print('- *Nodedef*: %s' % nd.getName())
             print('- *Type*: %s' % nd.getType())
+            if len(nd.getNodeGroup()) > 0:
+                print('- *Node Group*: %s' % nd.getNodeGroup())
             if len(nd.getVersionString()) > 0:
                 print('- *Version*: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
             if len(nd.getInheritString()) > 0:
