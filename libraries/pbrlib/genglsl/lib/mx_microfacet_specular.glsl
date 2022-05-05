@@ -223,7 +223,7 @@ float mx_ior_to_f0(float ior)
 // Convert normal-incidence reflectivity to real-valued index of refraction.
 float mx_f0_to_ior(float F0)
 {
-    float sqrtF0 = sqrt(F0);
+    float sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
     return (1.0 + sqrtF0) / (1.0 - sqrtF0);
 }
 
