@@ -136,6 +136,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
+            const Matrix44 normalMatrix = positionMatrix.getInverse().getTranspose();
             
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
@@ -309,7 +310,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     normal[v] = floatValue;
                                 }
-                                normal = positionMatrix.transformNormal(normal);
+                                normal = normalMatrix.transformVector(normal);
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     buffer.push_back(normal[v]);
