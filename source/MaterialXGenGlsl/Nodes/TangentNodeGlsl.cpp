@@ -50,7 +50,7 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = (" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ",0.0)).xyz", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
             }
         }
         else
