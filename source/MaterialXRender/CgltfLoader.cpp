@@ -310,7 +310,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     normal[v] = floatValue;
                                 }
-                                normal = normalMatrix.transformVector(normal);
+                                normal = normalMatrix.transformVector(normal).getNormalized();
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     buffer.push_back(normal[v]);

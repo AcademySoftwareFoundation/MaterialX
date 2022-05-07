@@ -295,7 +295,7 @@ void MeshStream::transform(const Matrix44 &matrix)
             {
                 vec[j] = _data[i*stride + j];
             }
-            vec = normalMatrix.transformVector(vec);
+            vec = normalMatrix.transformVector(vec).getNormalized();
             for (size_t k=0; k<stride; k++)
             {
                 _data[i*stride + k] = vec[k];
