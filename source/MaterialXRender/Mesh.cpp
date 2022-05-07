@@ -286,7 +286,8 @@ void MeshStream::transform(const Matrix44 &matrix)
              getType() == MeshStream::TANGENT_ATTRIBUTE ||
              getType() == MeshStream::BITANGENT_ATTRIBUTE)
     {
-        Matrix44 normalMatrix = matrix.getInverse().getTranspose();
+        bool isNormalStream = (getType() == MeshStream::NORMAL_ATTRIBUTE);
+        Matrix44 transformMatrix = isNormalStream ? matrix.getInverse().getTranspose() : matrix;
 
         for (size_t i=0; i<numElements; i++)
         {
@@ -295,7 +296,7 @@ void MeshStream::transform(const Matrix44 &matrix)
             {
                 vec[j] = _data[i*stride + j];
             }
-            vec = normalMatrix.transformVector(vec).getNormalized();
+            vec = transformMatrix.transformVector(vec).getNormalized();
             for (size_t k=0; k<stride; k++)
             {
                 _data[i*stride + k] = vec[k];
