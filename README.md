@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/AcademySoftwareFoundation/MaterialX)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest)
 [![Build Status](https://github.com/AcademySoftwareFoundation/MaterialX/workflows/main/badge.svg?branch=main)](https://github.com/AcademySoftwareFoundation/MaterialX/actions?query=branch%3Amain)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6025/badge)](https://bestpractices.coreinfrastructure.org/projects/6025)
 
 ### Introduction
 
