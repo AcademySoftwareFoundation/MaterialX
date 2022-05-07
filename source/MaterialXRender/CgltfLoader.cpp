@@ -221,7 +221,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
                     bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
                     bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
-                    bool isTexCoordSteram = (attribute->type == cgltf_attribute_type_texcoord);
+                    bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
                     if (isPositionStream)
                     {
                         // Create position stream
@@ -321,7 +321,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                 {
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     // Perform v-flip
-                                    if (isTexCoordSteram && v == 1)
+                                    if (isTexCoordStream && v == 1)
                                     {
                                         if (!texcoordVerticalFlip)
                                         {
