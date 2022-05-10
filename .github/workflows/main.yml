@@ -275,7 +275,7 @@ jobs:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
-   - name: Upload Web Installed Package
+    - name: Upload Web Installed Package
       if: matrix.build_javascript == 'ON'
       uses: actions/upload-artifact@v2
       with:
