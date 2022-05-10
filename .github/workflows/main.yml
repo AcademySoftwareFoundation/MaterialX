@@ -173,7 +173,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       run: cmake --build . --target install --config Release --parallel 2
@@ -208,8 +208,7 @@ jobs:
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
       run: |
         brew install cppcheck
-        cppcheck --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs -I. .
-      working-directory: source
+        cppcheck --project=build/compile_commands.json --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
