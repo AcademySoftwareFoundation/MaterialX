@@ -280,8 +280,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: JS_MaterialX_${{ matrix.name }}
-        path: |
-          javascript/build/installed/JavaScript/MaterialX        
+        path: javascript/build/installed/JavaScript/MaterialX        
         if-no-files-found: ignore   
 
     - name: Upload Reference Shaders
