@@ -269,17 +269,17 @@ jobs:
         folder: javascript/MaterialXView/dist
         single-commit: true
 
-    - name: Upload Desktop Installed Package
+    - name: Upload Installed Package
       uses: actions/upload-artifact@v2
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
-    - name: Upload Web Installed Package
+    - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
       uses: actions/upload-artifact@v2
       with:
-        name: JS_MaterialX_${{ matrix.name }}
+        name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
         if-no-files-found: ignore   
 
