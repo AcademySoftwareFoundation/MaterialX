@@ -191,6 +191,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 MeshStreamPtr colorStream = nullptr;
                 MeshStreamPtr texcoordStream = nullptr;
                 MeshStreamPtr tangentStream = nullptr;
+                int colorAttrIndex = 0;
 
                 // Read in vertex streams
                 for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
@@ -243,12 +244,15 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                     else if (attribute->type == cgltf_attribute_type_color)
                     {
-                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE, MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE + "_" + std::to_string(colorAttrIndex), MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        mesh->addStream(colorStream);
                         geomStream = colorStream;
                         if (vectorSize == 4)
                         {
+                            colorStream->setStride(MeshStream::STRIDE_4D);
                             desiredVectorSize = 4;
                         }
+                        colorAttrIndex++;
                     }
                     else if (attribute->type == cgltf_attribute_type_texcoord)
                     {
