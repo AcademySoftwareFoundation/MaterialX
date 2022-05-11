@@ -14,6 +14,8 @@ const std::string options =
 "    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
 "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
+"    --turntableAmount [FLOAT]      Specify whether to roate the mesh every referesh. The amount is specified in degrees. The default is 1 degree.\n"
+"    --enableTurntable[BOOLEAN]     Specify whether to roate the mesh every referesh. The amount is specified in degrees. The default is 1 degree.\n"
 "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
 "    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
@@ -90,6 +92,8 @@ int main(int argc, char* const argv[])
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
+    float meshTurntable = 1.0f;
+    bool meshTurntableEnabled = false;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
@@ -124,13 +128,17 @@ int main(int argc, char* const argv[])
         {
             envRadianceFilename = nextToken;
         }
-        else if (token == "--meshRotation")
+        else if (token == "--turntableAmount")
         {
-            parseToken(nextToken, "vector3", meshRotation);
+            parseToken(nextToken, "float", meshTurntable);
         }
         else if (token == "--meshScale")
         {
             parseToken(nextToken, "float", meshScale);
+        }
+        else if (token == "--enableTurntable")
+        {
+            parseToken(nextToken, "boolean", meshTurntableEnabled);
         }
         else if (token == "--cameraPosition")
         {
@@ -265,6 +273,8 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
+        viewer->setMeshTurntable(meshTurntable);
+        viewer->setMeshTurntableEnabled(meshTurntableEnabled);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
         viewer->setCameraViewAngle(cameraViewAngle);

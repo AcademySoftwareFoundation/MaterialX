@@ -45,6 +45,18 @@ class Viewer : public ng::Screen
         _meshScale = scale;
     }
 
+    // Set the amount to turn the mesh each refresh
+    void setMeshTurntable(float angle)
+    {
+        _meshTurntable = angle;
+    }
+
+    // Set the to turn the mesh each refresh
+    void setMeshTurntableEnabled(bool val)
+    {
+        _meshTurntableEnabled = val;
+    }
+
     // Set the world-space position of the camera.
     void setCameraPosition(const mx::Vector3& position)
     {
@@ -262,6 +274,8 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
     float _meshScale;
+    float _meshTurntable;
+    bool _meshTurntableEnabled;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;

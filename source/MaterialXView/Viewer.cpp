@@ -209,6 +209,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _meshScale(1.0f),
+    _meshTurntable(0.0f),
+    _meshTurntableEnabled(false),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
     _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
@@ -831,20 +833,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _renderDoubleSided = enable;
     });
 
-    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
-    outlineSelectedGeometryBox->set_checked(_outlineSelection);
-    outlineSelectedGeometryBox->set_callback([this](bool enable)
-    {
-        _outlineSelection = enable;
-    });
-
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->set_checked(_drawEnvironment);
-    drawEnvironmentBox->set_callback([this](bool enable)
-    {
-        _drawEnvironment = enable;
-    });
-
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
@@ -894,6 +882,42 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
+
+    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
+    viewLabel->set_font_size(20);
+    viewLabel->set_font("sans-bold");
+
+    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
+    outlineSelectedGeometryBox->set_checked(_outlineSelection);
+    outlineSelectedGeometryBox->set_callback([this](bool enable)
+    {
+        _outlineSelection = enable;
+    });
+
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
+    {
+        _drawEnvironment = enable;
+    });
+
+    ng::CheckBox* meshTurntableEnabled = new ng::CheckBox(advancedPopup, "Enable Turntable");
+    meshTurntableEnabled->set_checked(_meshTurntableEnabled);
+    meshTurntableEnabled->set_callback([this](bool enable)
+    {
+        _meshTurntableEnabled = enable;
+    });
+
+    ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
+    meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ui.uiMin = mx::Value::createValue(-180.0f);
+    ui.uiMax = mx::Value::createValue(180.0f);
+    ng::FloatBox<float>* meshTurntableBox = createFloatWidget(meshTurntableRow, "Turntable Rotation:",
+        _meshTurntable, &ui, [this](float value)
+    {
+        _meshTurntable = value;
+    });
+    meshTurntableBox->set_editable(true);
 
     ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
     translationLabel->set_font_size(20);
@@ -2087,6 +2111,11 @@ void Viewer::draw_contents()
         return;
     }
 
+    if (_meshTurntableEnabled)
+    {
+        _meshRotation[1] += this->_meshTurntable;
+        invalidateShadowMap();
+    }
     updateCameras();
 
     mx::checkGlErrors("before viewer render");
@@ -2452,7 +2481,10 @@ mx::ImagePtr Viewer::getShadowMap()
             blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
-            for (unsigned int i = 0; i < _shadowSoftness; i++)
+
+            // This is expensive to compute every frame for a turntable render.
+            unsigned int softness = _meshTurntableEnabled ? 0 : _shadowSoftness;
+            for (unsigned int i = 0; i < softness; i++)
             {
                 framebuffer->bind();
                 _shadowBlurMaterial->bindShader();
