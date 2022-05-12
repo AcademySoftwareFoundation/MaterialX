@@ -209,7 +209,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _meshScale(1.0f),
-    _meshTurntable(0.0f),
+    _meshTurntableIncrement(0.0f),
+    _meshTurntableRotation(0.0f),
     _meshTurntableEnabled(false),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
@@ -397,7 +398,7 @@ void Viewer::initialize()
     _propertyEditor.setVisible(false);
     perform_layout();
 
-    _elapsedTime.startTimer();
+    _meshTurntableTime.startTimer();
 }
 
 void Viewer::loadEnvironmentLight()
@@ -909,14 +910,16 @@ void Viewer::createAdvancedSettings(Widget* parent)
     meshTurntableEnabled->set_callback([this](bool enable)
     {
         _meshTurntableEnabled = enable;
+        _meshTurntableRotation= 0.0f;
         if (enable)
         {
-            _elapsedTime.startTimer();
+            _meshTurntableTime.startTimer();
         }
         else
         {
-            _elapsedTime.endTimer();
+            _meshTurntableTime.endTimer();
         }
+        invalidateShadowMap();
     });
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
@@ -924,9 +927,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ui.uiMin = mx::Value::createValue(-180.0f);
     ui.uiMax = mx::Value::createValue(180.0f);
     ng::FloatBox<float>* meshTurntableBox = createFloatWidget(meshTurntableRow, "Turntable Rotation:",
-        _meshTurntable, &ui, [this](float value)
+        _meshTurntableIncrement, &ui, [this](float value)
     {
-        _meshTurntable = value;
+        _meshTurntableIncrement = value;
     });
     meshTurntableBox->set_editable(true);
 
@@ -2128,13 +2131,12 @@ void Viewer::draw_contents()
     if (_meshTurntableEnabled)
     {
         const double updateTime = 1.0 / 24.0;
-        if (_elapsedTime.elapsedTime() > updateTime)
+        if (_captureRequested || _meshTurntableTime.elapsedTime() > updateTime)
         {
-            _meshRotation[1] += _meshTurntable;
+            _meshTurntableRotation = fmod(_meshTurntableRotation + _meshTurntableIncrement, 360.0f);
             invalidateShadowMap();
 
-            _elapsedTime.endTimer();
-            _elapsedTime.startTimer();
+            _meshTurntableTime.startTimer();
         }
     }
     updateCameras();
@@ -2309,8 +2311,9 @@ void Viewer::initCamera()
     const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
 
+    float yRotation = _meshRotation[1] + (_meshTurntableEnabled ? _meshTurntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
-                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
     _meshTranslation = -meshRotation.transformPoint(sphereCenter);
     _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
@@ -2321,8 +2324,9 @@ void Viewer::updateCameras()
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) m_size.x() / (float) m_size.y();
 
+    float yRotation = _meshRotation[1] + (_meshTurntableEnabled ? _meshTurntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
-                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
@@ -2507,7 +2511,8 @@ mx::ImagePtr Viewer::getShadowMap()
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
 
             // This is expensive to compute every frame for a turntable render.
-            unsigned int softness = _meshTurntableEnabled ? 0 : _shadowSoftness;
+            // Compute this however if a capture is requisted.
+            unsigned int softness = (_meshTurntableEnabled && !_captureRequested) ? 0 : _shadowSoftness;
             for (unsigned int i = 0; i < softness; i++)
             {
                 framebuffer->bind();

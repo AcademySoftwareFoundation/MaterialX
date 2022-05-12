@@ -47,9 +47,9 @@ class Viewer : public ng::Screen
     }
 
     // Set the amount to turn the mesh each refresh
-    void setMeshTurntable(float angle)
+    void setMeshTurntableIncrement(float angle)
     {
-        _meshTurntable = angle;
+        _meshTurntableIncrement = angle;
     }
 
     // Set the to turn the mesh each refresh
@@ -275,8 +275,11 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
     float _meshScale;
-    float _meshTurntable;
+
+    float _meshTurntableIncrement;
     bool _meshTurntableEnabled;
+    float _meshTurntableRotation;
+    mx::ScopedTimer _meshTurntableTime;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;
@@ -405,7 +408,6 @@ class Viewer : public ng::Screen
 
     // Timing
     double _frameTime;
-    mx::ScopedTimer _elapsedTime;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
