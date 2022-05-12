@@ -265,7 +265,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeOptimize(true),
     _bakeRequested(false),
     _bakeWidth(0),
-    _bakeHeight(0)
+    _bakeHeight(0),
+    _frameTime(0.0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -395,6 +396,8 @@ void Viewer::initialize()
     // Finalize the UI.
     _propertyEditor.setVisible(false);
     perform_layout();
+
+    _elapsedTime.startTimer();
 }
 
 void Viewer::loadEnvironmentLight()
@@ -906,6 +909,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
     meshTurntableEnabled->set_callback([this](bool enable)
     {
         _meshTurntableEnabled = enable;
+        if (enable)
+        {
+            _elapsedTime.startTimer();
+        }
+        else
+        {
+            _elapsedTime.endTimer();
+        }
     });
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
@@ -2105,7 +2116,10 @@ void Viewer::bakeTextures()
 }
 
 void Viewer::draw_contents()
-{
+{    
+    mx::ScopedTimer frameTime;
+    frameTime.startTimer();
+
     if (_geometryList.empty() || _materials.empty())
     {
         return;
@@ -2113,8 +2127,15 @@ void Viewer::draw_contents()
 
     if (_meshTurntableEnabled)
     {
-        _meshRotation[1] += this->_meshTurntable;
-        invalidateShadowMap();
+        const double updateTime = 1.0 / 24.0;
+        if (_elapsedTime.elapsedTime() > updateTime)
+        {
+            _meshRotation[1] += _meshTurntable;
+            invalidateShadowMap();
+
+            _elapsedTime.endTimer();
+            _elapsedTime.startTimer();
+        }
     }
     updateCameras();
 
@@ -2174,6 +2195,9 @@ void Viewer::draw_contents()
         _bakeRequested = false;
         bakeTextures();
     }
+
+    frameTime.endTimer();
+    _frameTime = frameTime.elapsedTime();
 
     // Handle exit requests.
     if (_exitRequested)

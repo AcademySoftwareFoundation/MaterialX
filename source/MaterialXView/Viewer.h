@@ -9,6 +9,7 @@
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/Timer.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -401,6 +402,10 @@ class Viewer : public ng::Screen
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
+
+    // Timing
+    double _frameTime;
+    mx::ScopedTimer _elapsedTime;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
