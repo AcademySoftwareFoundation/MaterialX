@@ -274,6 +274,14 @@ jobs:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
+    - name: Upload JavaScript Package
+      if: matrix.build_javascript == 'ON'
+      uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_JavaScript
+        path: javascript/build/installed/JavaScript/MaterialX        
+        if-no-files-found: ignore   
+
     - name: Upload Reference Shaders
       uses: actions/upload-artifact@v2
       if: matrix.upload_shaders == 'ON'
