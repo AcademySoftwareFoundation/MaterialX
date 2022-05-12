@@ -30,6 +30,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -209,9 +210,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _meshScale(1.0f),
-    _meshTurntableIncrement(0.0f),
-    _meshTurntableRotation(0.0f),
-    _meshTurntableEnabled(false),
+    _turntableIncrement(1.0f),
+    _turntableRotation(0.0f),
+    _resetTurntableRotation(false),
+    _turntableEnabled(false),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
     _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
@@ -398,7 +400,7 @@ void Viewer::initialize()
     _propertyEditor.setVisible(false);
     perform_layout();
 
-    _meshTurntableTime.startTimer();
+    _turntableTimer.startTimer();
 }
 
 void Viewer::loadEnvironmentLight()
@@ -905,21 +907,26 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* meshTurntableEnabled = new ng::CheckBox(advancedPopup, "Enable Turntable");
-    meshTurntableEnabled->set_checked(_meshTurntableEnabled);
-    meshTurntableEnabled->set_callback([this](bool enable)
+    ng::CheckBox* turntableEnabled = new ng::CheckBox(advancedPopup, "Enable Turntable");
+    turntableEnabled->set_checked(_turntableEnabled);
+    turntableEnabled->set_callback([this](bool enable)
     {
-        _meshTurntableEnabled = enable;
-        _meshTurntableRotation= 0.0f;
+        _turntableEnabled = enable;
+        
         if (enable)
         {
-            _meshTurntableTime.startTimer();
+            _turntableTimer.startTimer();
         }
         else
         {
-            _meshTurntableTime.endTimer();
+            if (!_resetTurntableRotation)
+            {
+                _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
+            }
+            _turntableTimer.endTimer();
         }
         invalidateShadowMap();
+        _turntableRotation = 0.0f;
     });
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
@@ -927,9 +934,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ui.uiMin = mx::Value::createValue(-180.0f);
     ui.uiMax = mx::Value::createValue(180.0f);
     ng::FloatBox<float>* meshTurntableBox = createFloatWidget(meshTurntableRow, "Turntable Rotation:",
-        _meshTurntableIncrement, &ui, [this](float value)
+        _turntableIncrement, &ui, [this](float value)
     {
-        _meshTurntableIncrement = value;
+        _turntableIncrement = value;
     });
     meshTurntableBox->set_editable(true);
 
@@ -1725,6 +1732,7 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
             {
                 _captureFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
+
             _captureRequested = true;
         }
     }
@@ -2118,6 +2126,43 @@ void Viewer::bakeTextures()
     glDrawBuffer(GL_BACK);
 }
 
+void Viewer::renderTurnable()
+{
+    unsigned int frameCount = static_cast<unsigned int>(360.0f / _turntableIncrement);
+
+    float currentRotation = _meshRotation[1];
+    _meshRotation[1] = 0.0f;
+
+    mx::FilePath turnableFileName = _captureFilename;
+    const std::string extension = turnableFileName.getExtension();
+    turnableFileName.removeExtension();
+
+    _turntableRotation = 0.0f;
+    for (unsigned int i = 0; i < frameCount; i++)
+    {
+        updateCameras();
+        clear();
+        invalidateShadowMap();
+        renderFrame();
+
+        mx::ImagePtr frameImage = getFrameImage();
+        if (frameImage)
+        {
+            std::stringstream intfmt;
+            intfmt << std::setfill('0') << std::setw(4) << i;
+            std::string saveName = turnableFileName.asString() + "_" + intfmt.str() + "." + extension;
+            if (_imageHandler->saveImage(saveName, frameImage, true))
+            {
+                std::cout << "Wrote turntable frame at angle: " << std::to_string(_turntableRotation) << " to file: " << saveName << std::endl;
+            }
+        }
+
+        _turntableRotation = fmod(_turntableRotation + _turntableIncrement, 360.0f);
+    }
+
+    _meshRotation[1] = currentRotation;
+}
+
 void Viewer::draw_contents()
 {    
     mx::ScopedTimer frameTime;
@@ -2128,23 +2173,31 @@ void Viewer::draw_contents()
         return;
     }
 
-    if (_meshTurntableEnabled)
-    {
-        const double updateTime = 1.0 / 24.0;
-        if (_captureRequested || _meshTurntableTime.elapsedTime() > updateTime)
-        {
-            _meshTurntableRotation = fmod(_meshTurntableRotation + _meshTurntableIncrement, 360.0f);
-            invalidateShadowMap();
-
-            _meshTurntableTime.startTimer();
-        }
-    }
     updateCameras();
 
     mx::checkGlErrors("before viewer render");
 
     // Clear the screen.
     clear();
+
+    if (_turntableEnabled)
+    {
+        if (!_captureRequested)
+        {
+            const double updateTime = 1.0 / 24.0;
+            if (_turntableTimer.elapsedTime() > updateTime)
+            {
+                _turntableRotation = fmod(_turntableRotation + _turntableIncrement, 360.0f);
+                _turntableTimer.startTimer();
+                invalidateShadowMap();
+            }
+        }
+        else
+        {
+            _captureRequested = false;
+            renderTurnable();
+        }
+    }
 
     // Render a wedge for the current material.
     if (_wedgeRequested)
@@ -2311,7 +2364,7 @@ void Viewer::initCamera()
     const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
 
-    float yRotation = _meshRotation[1] + (_meshTurntableEnabled ? _meshTurntableRotation : 0.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? _turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
@@ -2324,7 +2377,7 @@ void Viewer::updateCameras()
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) m_size.x() / (float) m_size.y();
 
-    float yRotation = _meshRotation[1] + (_meshTurntableEnabled ? _meshTurntableRotation : 0.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? _turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
@@ -2512,7 +2565,7 @@ mx::ImagePtr Viewer::getShadowMap()
 
             // This is expensive to compute every frame for a turntable render.
             // Compute this however if a capture is requisted.
-            unsigned int softness = (_meshTurntableEnabled && !_captureRequested) ? 0 : _shadowSoftness;
+            unsigned int softness = (_turntableEnabled && !_captureRequested) ? 0 : _shadowSoftness;
             for (unsigned int i = 0; i < softness; i++)
             {
                 framebuffer->bind();

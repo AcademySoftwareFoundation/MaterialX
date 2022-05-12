@@ -47,15 +47,15 @@ class Viewer : public ng::Screen
     }
 
     // Set the amount to turn the mesh each refresh
-    void setMeshTurntableIncrement(float angle)
+    void setTurntableIncrement(float angle)
     {
-        _meshTurntableIncrement = angle;
+        _turntableIncrement = angle;
     }
 
     // Set the to turn the mesh each refresh
-    void setMeshTurntableEnabled(bool val)
+    void setTurntableEnabled(bool val)
     {
-        _meshTurntableEnabled = val;
+        _turntableEnabled = val;
     }
 
     // Set the world-space position of the camera.
@@ -257,6 +257,7 @@ class Viewer : public ng::Screen
     void renderFrame();
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
+    void renderTurnable();
     void renderScreenSpaceQuad(MaterialPtr material);
 
     // Update the directional albedo table.
@@ -276,10 +277,11 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshRotation;
     float _meshScale;
 
-    float _meshTurntableIncrement;
-    bool _meshTurntableEnabled;
-    float _meshTurntableRotation;
-    mx::ScopedTimer _meshTurntableTime;
+    float _turntableIncrement;
+    bool _turntableEnabled;
+    float _turntableRotation;
+    bool _resetTurntableRotation;
+    mx::ScopedTimer _turntableTimer;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;

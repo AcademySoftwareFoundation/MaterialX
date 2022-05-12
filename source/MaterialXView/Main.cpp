@@ -92,8 +92,8 @@ int main(int argc, char* const argv[])
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
-    float meshTurntableIncrement = 1.0f;
-    bool meshTurntableEnabled = false;
+    float turntableIncrement = 1.0f;
+    bool turntableEnabled = false;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
@@ -128,17 +128,21 @@ int main(int argc, char* const argv[])
         {
             envRadianceFilename = nextToken;
         }
-        else if (token == "--turntableAmount")
-        {
-            parseToken(nextToken, "float", meshTurntableIncrement);
-        }
         else if (token == "--meshScale")
         {
             parseToken(nextToken, "float", meshScale);
         }
+        else if (token == "--meshRotation")
+        {
+            parseToken(nextToken, "vector3", meshRotation);
+        }
+        else if (token == "--turntableAmount")
+        {
+            parseToken(nextToken, "float", turntableIncrement);
+        }
         else if (token == "--enableTurntable")
         {
-            parseToken(nextToken, "boolean", meshTurntableEnabled);
+            parseToken(nextToken, "boolean", turntableEnabled);
         }
         else if (token == "--cameraPosition")
         {
@@ -273,8 +277,8 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
-        viewer->setMeshTurntableIncrement(meshTurntableIncrement);
-        viewer->setMeshTurntableEnabled(meshTurntableEnabled);
+        viewer->setTurntableIncrement(turntableIncrement);
+        viewer->setTurntableEnabled(turntableEnabled);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
         viewer->setCameraViewAngle(cameraViewAngle);
