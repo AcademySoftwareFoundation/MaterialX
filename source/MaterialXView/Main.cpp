@@ -15,7 +15,7 @@ const std::string options =
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
 "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
 "    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
-"    --turntableAmount [FLOAT]      Specify the amount to incrementatlly rotate the scene when turntable rendering is enabled (defaults to 1 degree)\n"
+"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Positive values increment clockwise. Defaults to 360\n"
 "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
 "    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
@@ -92,7 +92,7 @@ int main(int argc, char* const argv[])
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
-    float turntableIncrement = 1.0f;
+    int turntableSteps = 360;
     bool turntableEnabled = false;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
@@ -136,9 +136,13 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "vector3", meshRotation);
         }
-        else if (token == "--turntableAmount")
+        else if (token == "--turntableSteps")
         {
-            parseToken(nextToken, "float", turntableIncrement);
+            parseToken(nextToken, "integer", turntableSteps);
+            if (turntableSteps == 0)
+            {
+                turntableSteps = 1;
+            }
         }
         else if (token == "--enableTurntable")
         {
@@ -277,7 +281,7 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
-        viewer->setTurntableIncrement(turntableIncrement);
+        viewer->setTurntableIncrement(360.0f / static_cast<float>(turntableSteps));
         viewer->setTurntableEnabled(turntableEnabled);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
