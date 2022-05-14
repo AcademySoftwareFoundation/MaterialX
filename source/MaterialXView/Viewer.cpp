@@ -2563,10 +2563,7 @@ mx::ImagePtr Viewer::getShadowMap()
             blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
 
-            // This is expensive to compute every frame for a turntable render.
-            // Compute this however if a capture is requisted.
-            unsigned int softness = (_turntableEnabled && !_captureRequested) ? 0 : _shadowSoftness;
-            for (unsigned int i = 0; i < softness; i++)
+            for (unsigned int i = 0; i < _shadowSoftness; i++)
             {
                 framebuffer->bind();
                 _shadowBlurMaterial->bindShader();
