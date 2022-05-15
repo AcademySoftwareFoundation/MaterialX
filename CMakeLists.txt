@@ -207,8 +207,8 @@ add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
 
 # Add shader generation subdirectories
+add_subdirectory(source/MaterialXGenShader)
 if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL)
-    add_subdirectory(source/MaterialXGenShader)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_definitions(-DMATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXGenGlsl)
@@ -221,20 +221,23 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
         add_definitions(-DMATERIALX_BUILD_GEN_MDL)
         add_subdirectory(source/MaterialXGenMdl)
     endif()
-    # TODO: Add only those libraries that are required for enabled generators
     add_subdirectory(libraries)
 endif()
 
 # Add rendering and viewer subdirectories
 if(MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRender)
-    add_subdirectory(source/MaterialXRenderOsl)
     add_subdirectory(source/MaterialXRenderHw)
-    add_subdirectory(source/MaterialXRenderGlsl)
-    add_subdirectory(resources)
+    if (MATERIALX_BUILD_GEN_GLSL)
+        add_subdirectory(source/MaterialXRenderGlsl)
+    endif()
+    if (MATERIALX_BUILD_GEN_OSL)
+        add_subdirectory(source/MaterialXRenderOsl)
+    endif()
     if(MATERIALX_BUILD_VIEWER)
         add_subdirectory(source/MaterialXView)
     endif()
+    add_subdirectory(resources)
 endif()
 
 # Add test subdirectory
