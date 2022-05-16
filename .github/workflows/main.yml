@@ -58,6 +58,8 @@ jobs:
           compiler: clang
           compiler_version: "12"
           python: 3.9
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
@@ -184,6 +186,7 @@ jobs:
       working-directory: build
 
     - name: Python Tests
+      if: matrix.dynamic_analysis != 'ON'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
@@ -234,6 +237,7 @@ jobs:
       working-directory: build/render
 
     - name: Upload Installed Package
+      if: matrix.dynamic_analysis != 'ON'
       uses: actions/upload-artifact@v2
       with:
         name: MaterialX_${{ matrix.name }}
