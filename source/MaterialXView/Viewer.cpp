@@ -1458,6 +1458,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved ESSL source: ",
                     sourceFilename.asString() + "_essl_*.glsl");
             }
+#if MATERIALX_BUILD_GEN_OSL
             else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
             {
                 mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
@@ -1466,6 +1467,8 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 writeTextFile(pixelShader, sourceFilename);
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
             }
+#endif
+#if MATERIALX_BUILD_GEN_MDL
             else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
             {
                 mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
@@ -1474,6 +1477,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
                 writeTextFile(pixelShader, sourceFilename);
                 new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
             }
+#endif
         }
     }
     catch (std::exception& e)

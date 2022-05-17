@@ -17,7 +17,9 @@ public:
     static ShaderNodeImplPtr create();
 
 protected:
-    virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+
+    const string& getMatrix(const string& fromSpace, const string& toSpace) const override;
 };
 
 MATERIALX_NAMESPACE_END
