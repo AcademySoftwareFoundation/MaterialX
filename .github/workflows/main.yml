@@ -37,7 +37,7 @@ jobs:
           compiler: gcc
           compiler_version: "11"
           python: 3.9
-          test_render: ON
+          build_javascript: ON
 
         - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
@@ -51,15 +51,15 @@ jobs:
           compiler: clang
           compiler_version: "11"
           python: 3.7
-          build_javascript: ON
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
 
         - name: Linux_Clang_12_Python39
           os: ubuntu-20.04
           compiler: clang
           compiler_version: "12"
           python: 3.9
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-          dynamic_analysis: ON
+          test_render: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
