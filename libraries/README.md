@@ -18,12 +18,10 @@ This folder contains the standard data libraries for MaterialX, providing declar
         - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
         - [stdlib_genosl_unit_impl.mtlx](stdlib/genosl/stdlib_genosl_unit_impl.mtlx) : Real world unit support implementations.
         -  OSL implementation files.
-    - [osl](stdlib/osl): OSL reference implementations.
-        - These are the original OSL reference implementations from MaterialX v1.35, and will be replaced with generated OSL code in the future.
     - [genmdl](stdlib/genmdl): MDL language support.
-        - [stdlib_genmdl_impl.mtlx](stdlib/genosl/stdlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genmdl_cm_impl.mtlx](stdlib/genosl/stdlib_genmdl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
-        - [stdlib_genmdl_unit_impl.mtlx](stdlib/genosl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
+        - [stdlib_genmdl_impl.mtlx](stdlib/genmdl/stdlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
+        - [stdlib_genmdl_cm_impl.mtlx](stdlib/genmdl/stdlib_genmdl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
+        - [stdlib_genmdl_unit_impl.mtlx](stdlib/genmdl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
 
 ## Physically Based Shading Library
 - [pbrlib](pbrlib)
@@ -38,7 +36,7 @@ This folder contains the standard data libraries for MaterialX, providing declar
         - [pbrlib_genosl_impl.mtlx](pbrlib/genosl/pbrlib_genosl_impl.mtlx) : Mapping from declarations to implementations.
         - OSL implementation files.
     - [genmdl](pbrlib/genmdl) : MDL language support
-        - [pbrlib_genmdl_impl.mtlx](pbrlib/genosl/pbrlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
+        - [pbrlib_genmdl_impl.mtlx](pbrlib/genmdl/pbrlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
         - Note: MDL implementation files are in a "package" folder found under [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx)
 
 ## BxDF Graph Library
