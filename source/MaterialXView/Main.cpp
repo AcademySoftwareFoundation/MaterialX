@@ -281,7 +281,7 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
-        viewer->setTurntableIncrement(360.0f / static_cast<float>(turntableSteps));
+        viewer->setTurntableSteps(turntableSteps);
         viewer->setTurntableEnabled(turntableEnabled);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);

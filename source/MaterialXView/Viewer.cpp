@@ -210,10 +210,10 @@ Viewer::Viewer(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _meshScale(1.0f),
-    _turntableIncrement(1.0f),
+    _turntableSteps(360),
     _turntableEnabled(false),
+    _turntableStep(0),
     _turntableRotation(0.0f),
-    _resetTurntableRotation(false),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
     _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
@@ -268,8 +268,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeOptimize(true),
     _bakeRequested(false),
     _bakeWidth(0),
-    _bakeHeight(0),
-    _frameTime(0.0)
+    _bakeHeight(0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -919,24 +918,22 @@ void Viewer::createAdvancedSettings(Widget* parent)
         }
         else
         {
-            if (!_resetTurntableRotation)
-            {
-                _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
-            }
+            _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
             _turntableTimer.endTimer();
         }
         invalidateShadowMap();
+        _turntableStep = 0;
         _turntableRotation = 0.0f;
     });
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
     meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ui.uiMin = mx::Value::createValue(-180.0f);
-    ui.uiMax = mx::Value::createValue(180.0f);
-    ng::FloatBox<float>* meshTurntableBox = createFloatWidget(meshTurntableRow, "Turntable Rotation:",
-        _turntableIncrement, &ui, [this](float value)
+    ui.uiMin = mx::Value::createValue(-360);
+    ui.uiMax = mx::Value::createValue(360);
+    ng::IntBox<int>* meshTurntableBox = createIntWidget(meshTurntableRow, "Turntable Steps:",
+        _turntableSteps, &ui, [this](int value)
     {
-        _turntableIncrement = value;
+        _turntableSteps = value;
     });
     meshTurntableBox->set_editable(true);
 
@@ -1736,7 +1733,6 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
             {
                 _captureFilename.addExtension(mx::ImageLoader::PNG_EXTENSION);
             }
-
             _captureRequested = true;
         }
     }
@@ -2132,16 +2128,18 @@ void Viewer::bakeTextures()
 
 void Viewer::renderTurnable()
 {
-    unsigned int frameCount = static_cast<unsigned int>(360.0f / _turntableIncrement);
+    unsigned int frameCount = abs(_turntableSteps);
 
     float currentRotation = _meshRotation[1];
     _meshRotation[1] = 0.0f;
+    int currentTurntableStep = _turntableStep;
 
     mx::FilePath turnableFileName = _captureFilename;
     const std::string extension = turnableFileName.getExtension();
     turnableFileName.removeExtension();
 
     _turntableRotation = 0.0f;
+    float turntableAngle = (360.0f / static_cast<float>(_turntableSteps));
     for (unsigned int i = 0; i < frameCount; i++)
     {
         updateCameras();
@@ -2161,17 +2159,15 @@ void Viewer::renderTurnable()
             }
         }
 
-        _turntableRotation = fmod(_turntableRotation + _turntableIncrement, 360.0f);
+        _turntableRotation = fmod(turntableAngle * static_cast<float>(i), 360.0f);
     }
 
+    _turntableStep = currentTurntableStep;
     _meshRotation[1] = currentRotation;
 }
 
 void Viewer::draw_contents()
 {    
-    mx::ScopedTimer frameTime;
-    frameTime.startTimer();
-
     if (_geometryList.empty() || _materials.empty())
     {
         return;
@@ -2184,14 +2180,15 @@ void Viewer::draw_contents()
     // Clear the screen.
     clear();
 
-    if (_turntableEnabled)
+    if (_turntableEnabled && _turntableSteps)
     {
         if (!_captureRequested)
         {
             const double updateTime = 1.0 / 24.0;
             if (_turntableTimer.elapsedTime() > updateTime)
             {
-                _turntableRotation = fmod(_turntableRotation + _turntableIncrement, 360.0f);
+                _turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+                _turntableStep++;
                 _turntableTimer.startTimer();
                 invalidateShadowMap();
             }
@@ -2233,7 +2230,7 @@ void Viewer::draw_contents()
     }
 
     // Capture the current frame.
-    if (_captureRequested)
+    if (_captureRequested && !_turntableEnabled)
     {
         _captureRequested = false;
         mx::ImagePtr frameImage = getFrameImage();
@@ -2254,9 +2251,6 @@ void Viewer::draw_contents()
         _bakeRequested = false;
         bakeTextures();
     }
-
-    frameTime.endTimer();
-    _frameTime = frameTime.elapsedTime();
 
     // Handle exit requests.
     if (_exitRequested)

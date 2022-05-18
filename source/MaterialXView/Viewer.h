@@ -46,10 +46,11 @@ class Viewer : public ng::Screen
         _meshScale = scale;
     }
 
-    // Set the amount to turn the mesh each refresh
-    void setTurntableIncrement(float angle)
+    // Set the total number of steps for one 360 degree rotation.
+    // Negative numbers means to reverse the rotation.
+    void setTurntableSteps(int steps)
     {
-        _turntableIncrement = angle;
+        _turntableSteps = steps;
     }
 
     // Set the to turn the mesh each refresh
@@ -277,10 +278,10 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshRotation;
     float _meshScale;
 
-    float _turntableIncrement;
+    int _turntableSteps;
     bool _turntableEnabled;
     float _turntableRotation;
-    bool _resetTurntableRotation;
+    int _turntableStep;
     mx::ScopedTimer _turntableTimer;
 
     mx::Vector3 _cameraPosition;
