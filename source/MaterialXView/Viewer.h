@@ -414,9 +414,6 @@ class Viewer : public ng::Screen
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
-
-    // Timing
-    double _frameTime;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
