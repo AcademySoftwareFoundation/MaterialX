@@ -2142,6 +2142,8 @@ void Viewer::renderTurnable()
     float turntableAngle = (360.0f / static_cast<float>(_turntableSteps));
     for (unsigned int i = 0; i < frameCount; i++)
     {
+        _turntableRotation = fmod(turntableAngle * static_cast<float>(i), 360.0f);
+
         updateCameras();
         clear();
         invalidateShadowMap();
@@ -2158,8 +2160,6 @@ void Viewer::renderTurnable()
                 std::cout << "Wrote turntable frame at angle: " << std::to_string(_turntableRotation) << " to file: " << saveName << std::endl;
             }
         }
-
-        _turntableRotation = fmod(turntableAngle * static_cast<float>(i), 360.0f);
     }
 
     _turntableStep = currentTurntableStep;
