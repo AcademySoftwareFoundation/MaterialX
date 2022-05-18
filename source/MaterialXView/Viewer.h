@@ -107,6 +107,12 @@ class Viewer : public ng::Screen
         _genContext.getOptions().hwShadowMap = enable;
     }
 
+    // Enable or disable drawing environment as the background.
+    void setDrawEnvironment(bool enable)
+    {
+        _drawEnvironment = enable;
+    }
+
     // Set the modifiers to be applied to loaded documents.
     void setDocumentModifiers(const DocumentModifiers& modifiers)
     {

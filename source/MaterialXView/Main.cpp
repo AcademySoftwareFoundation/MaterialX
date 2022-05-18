@@ -30,6 +30,7 @@ const std::string options =
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+"    --drawEnvironment [BOOLEAN]    Specify whether to render the environment as the background (defaults to false)\n"
 "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
 "    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
 "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
@@ -106,6 +107,7 @@ int main(int argc, char* const argv[])
     int screenWidth = 1280;
     int screenHeight = 960;
     mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    bool drawEnvironment = false;
     std::string captureFilename;
     int bakeWidth = 0;
     int bakeHeight = 0;
@@ -203,6 +205,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "color3", screenColor);
         }
+        else if (token == "--drawEnvironment")
+        {
+            parseToken(nextToken, "boolean", drawEnvironment);
+        }
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
@@ -291,6 +297,7 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
+        viewer->setDrawEnvironment(drawEnvironment);
         viewer->setDocumentModifiers(modifiers);
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
