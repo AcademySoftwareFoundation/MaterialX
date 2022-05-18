@@ -93,8 +93,8 @@ int main(int argc, char* const argv[])
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
-    int turntableSteps = 360;
     bool turntableEnabled = false;
+    int turntableSteps = 360;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
@@ -138,6 +138,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "vector3", meshRotation);
         }
+        else if (token == "--enableTurntable")
+        {
+            parseToken(nextToken, "boolean", turntableEnabled);
+        }
         else if (token == "--turntableSteps")
         {
             parseToken(nextToken, "integer", turntableSteps);
@@ -145,10 +149,6 @@ int main(int argc, char* const argv[])
             {
                 turntableSteps = 1;
             }
-        }
-        else if (token == "--enableTurntable")
-        {
-            parseToken(nextToken, "boolean", turntableEnabled);
         }
         else if (token == "--cameraPosition")
         {
@@ -287,8 +287,8 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
-        viewer->setTurntableSteps(turntableSteps);
         viewer->setTurntableEnabled(turntableEnabled);
+        viewer->setTurntableSteps(turntableSteps);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
         viewer->setCameraViewAngle(cameraViewAngle);
