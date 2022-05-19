@@ -37,7 +37,7 @@ jobs:
           compiler: gcc
           compiler_version: "11"
           python: 3.9
-          test_render: ON
+          build_javascript: ON
 
         - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
@@ -51,13 +51,15 @@ jobs:
           compiler: clang
           compiler_version: "11"
           python: 3.7
-          build_javascript: ON
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
 
         - name: Linux_Clang_12_Python39
           os: ubuntu-20.04
           compiler: clang
           compiler_version: "12"
           python: 3.9
+          test_render: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
@@ -73,9 +75,9 @@ jobs:
           python: 3.7
 
         - name: MacOS_Xcode_13_Python39
-          os: macos-11
+          os: macos-12
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "13.3"
           python: 3.9
           static_analysis: ON
 
@@ -184,6 +186,7 @@ jobs:
       working-directory: build
 
     - name: Python Tests
+      if: matrix.dynamic_analysis != 'ON'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
@@ -233,6 +236,27 @@ jobs:
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 100 --screenHeight 100 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
+    - name: Upload Installed Package
+      if: matrix.dynamic_analysis != 'ON'
+      uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_${{ matrix.name }}
+        path: build/installed/
+
+    - name: Upload Reference Shaders
+      uses: actions/upload-artifact@v2
+      if: matrix.upload_shaders == 'ON'
+      with:
+        name: Reference_Shaders_${{ matrix.name }}
+        path: build/bin/reference/
+
+    - name: Upload Renders
+      uses: actions/upload-artifact@v2
+      if: matrix.test_render == 'ON'
+      with:
+        name: Renders_${{ matrix.name }}
+        path: build/render/
+
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
       run: |
@@ -268,12 +292,6 @@ jobs:
         folder: javascript/MaterialXView/dist
         single-commit: true
 
-    - name: Upload Installed Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: MaterialX_${{ matrix.name }}
-        path: build/installed/
-
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
       uses: actions/upload-artifact@v2
@@ -281,17 +299,3 @@ jobs:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
         if-no-files-found: ignore   
-
-    - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v2
-      if: matrix.upload_shaders == 'ON'
-      with:
-        name: Reference_Shaders_${{ matrix.name }}
-        path: build/bin/reference/
-
-    - name: Upload Renders
-      uses: actions/upload-artifact@v2
-      if: matrix.test_render == 'ON'
-      with:
-        name: Renders_${{ matrix.name }}
-        path: build/render/
