@@ -27,7 +27,9 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
@@ -83,7 +85,9 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
@@ -139,7 +143,9 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
@@ -201,7 +207,9 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
@@ -274,7 +282,9 @@
     </multiply>
 
     <!-- use placement node to transform uv -->
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
@@ -328,7 +338,9 @@
       <input name="in2" type="float" value="-1.0"/>
     </multiply>
 
-    <texcoord name="texcoord1" type="vector2" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" interfacename="uv_index"/>
+    </texcoord>
     <place2d name="a_place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1"/>
       <input name="offset" type="vector2" nodename="total_offset" />
