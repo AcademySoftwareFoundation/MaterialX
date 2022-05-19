@@ -16,6 +16,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
 
 namespace mx = MaterialX;
 
@@ -149,6 +150,25 @@ static void generateGlslCode(bool generateLayout = false)
     tester.validate(genOptions, optionsFilePath);
 }
 
+static void generateVulkanGlslCode()
+{
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples");
+    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
+    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
+    bool writeShadersToDisk = false;
+
+    const mx::GenOptions genOptions;
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+
+    const mx::FilePath logPath("genvulkan_glsl450_generate_test.txt");
+
+    GlslShaderGeneratorTester tester(mx::VkShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
+
+    tester.validate(genOptions, optionsFilePath);
+}
+
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
 {
     // Generate with standard GLSL i.e version 400
@@ -159,4 +179,10 @@ TEST_CASE("GenShader: GLSL Shader with Layout Generation", "[genglsl]")
 {
     // Generate GLSL with layout i.e version 400 + layout extension
     generateGlslCode(true);
+}
+
+TEST_CASE("GenShader: Vulkan GLSL Shader", "[genvulkan]")
+{
+    // Generate GLSL for Vulkan API
+    generateVulkanGlslCode();
 }
