@@ -269,6 +269,9 @@ class Viewer : public ng::Screen
     // Update the directional albedo table.
     void updateAlbedoTable();
 
+    // Toggle turntable
+    void toggleTurntable(bool enable);
+
   private:
     ng::Window* _window;
 
@@ -288,6 +291,7 @@ class Viewer : public ng::Screen
     float _turntableRotation;
     int _turntableStep;
     mx::ScopedTimer _turntableTimer;
+    ng::CheckBox* _turntableEnabledCheckBox;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;
@@ -388,6 +392,7 @@ class Viewer : public ng::Screen
     bool _renderDoubleSided;
     bool _outlineSelection;
     bool _drawEnvironment;
+    ng::CheckBox* _drawEnvironmentBox;
 
     // Shader translation
     std::string _targetShader;

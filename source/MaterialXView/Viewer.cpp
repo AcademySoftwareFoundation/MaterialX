@@ -899,31 +899,18 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->set_checked(_drawEnvironment);
-    drawEnvironmentBox->set_callback([this](bool enable)
+    _drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
+    _drawEnvironmentBox->set_checked(_drawEnvironment);
+    _drawEnvironmentBox->set_callback([this](bool enable)
     {
         _drawEnvironment = enable;
     });
 
-    ng::CheckBox* turntableEnabled = new ng::CheckBox(advancedPopup, "Enable Turntable");
-    turntableEnabled->set_checked(_turntableEnabled);
-    turntableEnabled->set_callback([this](bool enable)
+    _turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
+    _turntableEnabledCheckBox->set_checked(_turntableEnabled);
+    _turntableEnabledCheckBox->set_callback([this](bool enable)
     {
-        _turntableEnabled = enable;
-        
-        if (enable)
-        {
-            _turntableTimer.startTimer();
-        }
-        else
-        {
-            _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
-            _turntableTimer.endTimer();
-        }
-        invalidateShadowMap();
-        _turntableStep = 0;
-        _turntableRotation = 0.0f;
+        toggleTurntable(enable);
     });
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
@@ -1823,6 +1810,24 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
         return true;
     }
 
+    if (key == GLFW_KEY_P  && action == GLFW_PRESS)
+    {
+        toggleTurntable(!_turntableEnabled);
+        _turntableEnabledCheckBox->set_checked(_turntableEnabled);
+        return true;
+    }
+
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+    {
+        _drawEnvironment = !_drawEnvironment;
+        _drawEnvironmentBox->set_checked(_drawEnvironment);
+    }
+
+    if (key == GLFW_KEY_U && action == GLFW_PRESS)
+    {
+        _window->set_visible(!_window->visible());
+    }
+
     return false;
 }
 
@@ -2654,4 +2659,22 @@ void Viewer::renderScreenSpaceQuad(MaterialPtr material)
     
     material->bindMesh(_quadMesh);
     material->drawPartition(_quadMesh->getPartition(0));
+}
+
+void Viewer::toggleTurntable(bool enable)
+{
+    _turntableEnabled = enable;
+
+    if (enable)
+    {
+        _turntableTimer.startTimer();
+    }
+    else
+    {
+        _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
+        _turntableTimer.endTimer();
+    }
+    invalidateShadowMap();
+    _turntableStep = 0;
+    _turntableRotation = 0.0f;
 }

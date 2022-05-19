@@ -123,6 +123,9 @@ export class Scene
             }
         });
     
+        // Update the background
+        this._scene.background = this.getBackground();
+
         // Fit camera to model
         const camera = this.getCamera();
         camera.position.y = bsphere.center.y;
@@ -135,6 +138,7 @@ export class Scene
 
     updateTransforms()
     {
+        //console.log("update transforms");
         const scene = this.getScene();
         const camera = this.getCamera();
         scene.traverse((child) => {
@@ -191,6 +195,38 @@ export class Scene
         this._geometryURL = url;
     }
 
+    setBackgroundTexture(texture)
+    {
+        this.#_backgroundTexture = texture;
+    }
+
+    getShowBackgroundTexture()
+    {
+        return this.#_showBackgroundTexture;
+    }
+
+    setShowBackgroundTexture(enable)
+    {
+        this.#_showBackgroundTexture = enable;
+    }
+
+    getBackground() 
+    {
+        if (this.#_backgroundTexture && this.#_showBackgroundTexture)
+        {
+            return this.#_backgroundTexture;
+        }
+        var color = new THREE.Color(this.#_backgroundColor);
+        color.convertSRGBToLinear();
+        return color;
+    }
+
+    toggleBackgroundTexture()
+    {
+        this.#_showBackgroundTexture = !this.#_showBackgroundTexture;
+        this._scene.background = this.getBackground();
+    }
+
     // Geometry file
     #_geometryURL = '';
     // Geometry loader
@@ -204,6 +240,10 @@ export class Scene
 
     // Background color
     #_backgroundColor = 0x4c4c52;
+
+    // Background texture
+    #_backgroundTexture = null;
+    #_showBackgroundTexture = true;
 
     // Transform matrices
     #_normalMat = new THREE.Matrix3();
@@ -412,7 +452,6 @@ export class Material
     updateEditor(elem, shader, material, gui)
     {
         const elemPath = elem.getNamePath();
-        //const gui = viewer.getEditor().getGUI();
         var matUI = gui.addFolder(elemPath + ' Properties');
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
@@ -638,11 +677,14 @@ export class Viewer
         this.document.importLibrary(this.stdlib);
 
         this.initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+
+        loadedRadianceTexture.mapping = THREE.EquirectangularReflectionMapping;
+        this.getScene().setBackgroundTexture(loadedRadianceTexture);
     }
 
     //
     // Load in lighting rig document and register lights with generation context
-    // Initialize environent lighting (IBLs).
+    // Initialize environment lighting (IBLs).
     //
     async initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
     {
