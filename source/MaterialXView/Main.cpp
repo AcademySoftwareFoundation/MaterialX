@@ -15,7 +15,7 @@ const std::string options =
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
 "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
 "    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
-"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Positive values increment clockwise. Defaults to 360\n"
+"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Defaults to 360\n"
 "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
 "    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
@@ -145,10 +145,7 @@ int main(int argc, char* const argv[])
         else if (token == "--turntableSteps")
         {
             parseToken(nextToken, "integer", turntableSteps);
-            if (turntableSteps == 0)
-            {
-                turntableSteps = 1;
-            }
+            turntableSteps = std::clamp(turntableSteps, 2, 360);;
         }
         else if (token == "--cameraPosition")
         {

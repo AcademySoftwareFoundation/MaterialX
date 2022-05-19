@@ -47,7 +47,6 @@ class Viewer : public ng::Screen
     }
 
     // Set the total number of steps for one 360 degree rotation.
-    // Negative numbers means to reverse the rotation.
     void setTurntableSteps(int steps)
     {
         _turntableSteps = steps;

@@ -928,12 +928,12 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
     meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ui.uiMin = mx::Value::createValue(-360);
+    ui.uiMin = mx::Value::createValue(2);
     ui.uiMax = mx::Value::createValue(360);
     ng::IntBox<int>* meshTurntableBox = createIntWidget(meshTurntableRow, "Turntable Steps:",
         _turntableSteps, &ui, [this](int value)
     {
-        _turntableSteps = value;
+        _turntableSteps = std::clamp(value, 2, 360);
     });
     meshTurntableBox->set_editable(true);
 
