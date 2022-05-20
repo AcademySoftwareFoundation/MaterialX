@@ -286,10 +286,10 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshRotation;
     float _meshScale;
 
-    int _turntableSteps;
     bool _turntableEnabled;
-    float _turntableRotation;
+    int _turntableSteps;
     int _turntableStep;
+    float _turntableRotation;
     mx::ScopedTimer _turntableTimer;
     ng::CheckBox* _turntableEnabledCheckBox;
 
