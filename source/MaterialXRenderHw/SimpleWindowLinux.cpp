@@ -14,10 +14,10 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-SimpleWindow::SimpleWindow()
+SimpleWindow::SimpleWindow() :
+    _width(0),
+    _height(0)
 {
-    clearInternalState();
-
     // Give a unique ID to this window.
     static unsigned int windowCount = 1;
     _id = windowCount;

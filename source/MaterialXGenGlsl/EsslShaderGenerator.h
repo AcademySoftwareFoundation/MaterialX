@@ -30,7 +30,7 @@ class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
     /// Return the version string for the ESSL version this generator is for
     const string& getVersion() const override { return VERSION; }
 
-    const string getVertexDataPrefix(const VariableBlock& vertexData) const override;
+    string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
     /// Unique identifier for this generator target
     static const string TARGET;

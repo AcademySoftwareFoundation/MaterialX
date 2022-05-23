@@ -211,7 +211,7 @@ jobs:
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
       run: |
         brew install cppcheck
-        cppcheck --project=build/compile_commands.json --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'

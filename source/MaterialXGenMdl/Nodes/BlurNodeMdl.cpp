@@ -129,10 +129,8 @@ void BlurNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
         if (sampleCount > 1)
         {
-            const string MX_WEIGHT_ARRAY_SIZE_STRING("MX_WEIGHT_ARRAY_SIZE");
             const string MX_CONVOLUTION_PREFIX_STRING("mx_convolution_");
             const string SAMPLES_POSTFIX_STRING("_samples");
-            const string WEIGHT_POSTFIX_STRING("_weights");
 
             // Set up sample array
             string sampleName(output->getVariable() + SAMPLES_POSTFIX_STRING);
