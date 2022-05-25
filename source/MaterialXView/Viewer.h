@@ -46,16 +46,16 @@ class Viewer : public ng::Screen
         _meshScale = scale;
     }
 
+    // Set whether turntable rendering is enabled.
+    void setTurntableEnabled(bool val)
+    {
+        _turntableEnabled = val;
+    }
+
     // Set the total number of steps for one 360 degree rotation.
     void setTurntableSteps(int steps)
     {
         _turntableSteps = steps;
-    }
-
-    // Set the to turn the mesh each refresh
-    void setTurntableEnabled(bool val)
-    {
-        _turntableEnabled = val;
     }
 
     // Set the world-space position of the camera.
