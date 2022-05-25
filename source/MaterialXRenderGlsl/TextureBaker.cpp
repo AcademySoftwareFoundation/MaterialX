@@ -129,6 +129,7 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
     {
         std::stringstream hashStream;
         hashStream << std::hash<std::string>{}(bakedImageName);
+        hashStream << "." + getExtension();
         bakedImageName = hashStream.str();
     }
     return _outputImagePath / bakedImageName;
