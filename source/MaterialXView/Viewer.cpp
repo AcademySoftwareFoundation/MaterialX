@@ -2565,7 +2565,6 @@ mx::ImagePtr Viewer::getShadowMap()
             blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             blurSamplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
-
             for (unsigned int i = 0; i < _shadowSoftness; i++)
             {
                 framebuffer->bind();
