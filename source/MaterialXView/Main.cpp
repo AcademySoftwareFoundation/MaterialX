@@ -130,13 +130,13 @@ int main(int argc, char* const argv[])
         {
             envRadianceFilename = nextToken;
         }
-        else if (token == "--meshScale")
-        {
-            parseToken(nextToken, "float", meshScale);
-        }
         else if (token == "--meshRotation")
         {
             parseToken(nextToken, "vector3", meshRotation);
+        }
+        else if (token == "--meshScale")
+        {
+            parseToken(nextToken, "float", meshScale);
         }
         else if (token == "--enableTurntable")
         {
