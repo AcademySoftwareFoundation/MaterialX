@@ -138,7 +138,6 @@ export class Scene
 
     updateTransforms()
     {
-        //console.log("update transforms");
         const scene = this.getScene();
         const camera = this.getCamera();
         scene.traverse((child) => {
