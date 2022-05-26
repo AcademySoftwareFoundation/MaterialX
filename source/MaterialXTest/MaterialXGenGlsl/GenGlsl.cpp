@@ -153,8 +153,8 @@ static void generateGlslCode(bool generateLayout = false)
 static void generateVulkanGlslCode()
 {
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples");
+    //testRootPaths.push_back("resources/Materials/TestSuite");
+    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     bool writeShadersToDisk = false;
@@ -183,6 +183,7 @@ TEST_CASE("GenShader: GLSL Shader with Layout Generation", "[genglsl]")
 
 TEST_CASE("GenShader: Vulkan GLSL Shader", "[genvulkan]")
 {
+    generateGlslCode();
     // Generate GLSL for Vulkan API
-    generateVulkanGlslCode();
+    //generateVulkanGlslCode();
 }

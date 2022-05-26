@@ -7,6 +7,7 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -666,6 +667,15 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
 TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
+
+    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+
+    renderTester.validate(optionsFilePath);
+}
+
+TEST_CASE("Render: Vulkan TestSuite", "[rendervulkan]")
+{
+    GlslShaderRenderTester renderTester(mx::VkShaderGenerator::create());
 
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
