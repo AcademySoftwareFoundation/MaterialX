@@ -17,7 +17,7 @@ public:
     static ShaderNodeImplPtr create();
 
 protected:
-    virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
+    virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const override;
 };
 
 MATERIALX_NAMESPACE_END

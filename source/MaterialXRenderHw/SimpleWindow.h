@@ -60,13 +60,6 @@ class MX_RENDERHW_API SimpleWindow
     // Default constructor
     SimpleWindow();
 
-    // Clear internal state information
-    void clearInternalState()
-    {
-        _width = _height = 0;
-        _id = 0;
-    }
-
     // Wrapper for platform specific window resources
     WindowWrapperPtr _windowWrapper;
 

@@ -479,7 +479,7 @@ HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenCo
     return context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
 }
 
-const string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
+string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData) const
 {
     return vertexData.getInstance() + ".";
 }
