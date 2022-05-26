@@ -289,7 +289,6 @@ class Viewer : public ng::Screen
     bool _turntableEnabled;
     int _turntableSteps;
     int _turntableStep;
-    float _turntableRotation;
     mx::ScopedTimer _turntableTimer;
     ng::CheckBox* _turntableEnabledCheckBox;
 

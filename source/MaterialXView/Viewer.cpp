@@ -213,7 +213,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _turntableEnabled(false),
     _turntableSteps(360),
     _turntableStep(0),
-    _turntableRotation(0.0f),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
     _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
@@ -2133,7 +2132,7 @@ void Viewer::bakeTextures()
 
 void Viewer::renderTurnable()
 {
-    unsigned int frameCount = abs(_turntableSteps);
+    int frameCount = abs(_turntableSteps);
 
     float currentRotation = _meshRotation[1];
     _meshRotation[1] = 0.0f;
@@ -2143,12 +2142,8 @@ void Viewer::renderTurnable()
     const std::string extension = turnableFileName.getExtension();
     turnableFileName.removeExtension();
 
-    _turntableRotation = 0.0f;
-    float turntableAngle = (360.0f / static_cast<float>(_turntableSteps));
-    for (unsigned int i = 0; i < frameCount; i++)
+    for (_turntableStep = 0; _turntableStep < frameCount; _turntableStep++)
     {
-        _turntableRotation = fmod(turntableAngle * static_cast<float>(i), 360.0f);
-
         updateCameras();
         clear();
         invalidateShadowMap();
@@ -2158,11 +2153,11 @@ void Viewer::renderTurnable()
         if (frameImage)
         {
             std::stringstream intfmt;
-            intfmt << std::setfill('0') << std::setw(4) << i;
+            intfmt << std::setfill('0') << std::setw(4) << _turntableStep;
             std::string saveName = turnableFileName.asString() + "_" + intfmt.str() + "." + extension;
             if (_imageHandler->saveImage(saveName, frameImage, true))
             {
-                std::cout << "Wrote turntable frame at angle: " << std::to_string(_turntableRotation) << " to file: " << saveName << std::endl;
+                std::cout << "Wrote turntable frame to file: " << saveName << std::endl;
             }
         }
     }
@@ -2192,7 +2187,6 @@ void Viewer::draw_contents()
             const double updateTime = 1.0 / 24.0;
             if (_turntableTimer.elapsedTime() > updateTime)
             {
-                _turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
                 _turntableStep++;
                 _turntableTimer.startTimer();
                 invalidateShadowMap();
@@ -2367,7 +2361,8 @@ void Viewer::initCamera()
     const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
 
-    float yRotation = _meshRotation[1] + (_turntableEnabled ? _turntableRotation : 0.0f);
+    float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
@@ -2380,7 +2375,8 @@ void Viewer::updateCameras()
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) m_size.x() / (float) m_size.y();
 
-    float yRotation = _meshRotation[1] + (_turntableEnabled ? _turntableRotation : 0.0f);
+    float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
@@ -2670,10 +2666,10 @@ void Viewer::toggleTurntable(bool enable)
     }
     else
     {
-        _meshRotation[1] = fmod(_meshRotation[1] + _turntableRotation, 360.0f);
+        float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+        _meshRotation[1] = fmod(_meshRotation[1] + turntableRotation, 360.0f);
         _turntableTimer.endTimer();
     }
     invalidateShadowMap();
     _turntableStep = 0;
-    _turntableRotation = 0.0f;
 }
