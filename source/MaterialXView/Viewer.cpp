@@ -2295,10 +2295,9 @@ void Viewer::updateCameras()
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        float r = mesh->getSphereRadius();
-        _shadowCamera->setWorldMatrix(meshRotation *
-                                      mx::Matrix44::createTranslation(-mesh->getSphereCenter()));
+        mx::Vector3 sphereCenter = (_geometryHandler->getMaximumBounds() + _geometryHandler->getMinimumBounds()) * 0.5;
+        float r = (sphereCenter - _geometryHandler->getMinimumBounds()).getMagnitude();
+        _shadowCamera->setWorldMatrix(meshRotation * mx::Matrix44::createTranslation(-sphereCenter));
         _shadowCamera->setProjectionMatrix(mx::Camera::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f));
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
