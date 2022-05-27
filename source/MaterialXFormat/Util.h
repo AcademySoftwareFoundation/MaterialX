@@ -57,6 +57,9 @@ MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
 /// @param customResolver An optional custom resolver to apply.
 MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
 
+/// Return a file search path containing the parent folder of each source URI in the given document.
+MX_FORMAT_API FileSearchPath getSourceSearchPath(ConstDocumentPtr doc);
+
 MATERIALX_NAMESPACE_END
 
 #endif

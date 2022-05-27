@@ -276,6 +276,7 @@ class Viewer : public ng::Screen
     ng::Window* _window;
 
     mx::FilePath _materialFilename;
+    mx::FileSearchPath _materialSearchPath;
     mx::FilePath _meshFilename;
     mx::FilePath _envRadianceFilename;
 
