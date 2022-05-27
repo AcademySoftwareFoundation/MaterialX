@@ -9,6 +9,7 @@
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/Timer.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -43,6 +44,18 @@ class Viewer : public ng::Screen
     void setMeshScale(float scale)
     {
         _meshScale = scale;
+    }
+
+    // Set whether turntable rendering is enabled.
+    void setTurntableEnabled(bool val)
+    {
+        _turntableEnabled = val;
+    }
+
+    // Set the total number of steps for one 360 degree rotation.
+    void setTurntableSteps(int steps)
+    {
+        _turntableSteps = steps;
     }
 
     // Set the world-space position of the camera.
@@ -91,6 +104,12 @@ class Viewer : public ng::Screen
     void setShadowMapEnable(bool enable)
     {
         _genContext.getOptions().hwShadowMap = enable;
+    }
+
+    // Enable or disable drawing environment as the background.
+    void setDrawEnvironment(bool enable)
+    {
+        _drawEnvironment = enable;
     }
 
     // Set the modifiers to be applied to loaded documents.
@@ -244,10 +263,14 @@ class Viewer : public ng::Screen
     void renderFrame();
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
+    void renderTurnable();
     void renderScreenSpaceQuad(MaterialPtr material);
 
     // Update the directional albedo table.
     void updateAlbedoTable();
+
+    // Toggle turntable
+    void toggleTurntable(bool enable);
 
   private:
     ng::Window* _window;
@@ -262,6 +285,12 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
     float _meshScale;
+
+    bool _turntableEnabled;
+    int _turntableSteps;
+    int _turntableStep;
+    mx::ScopedTimer _turntableTimer;
+    ng::CheckBox* _turntableEnabledCheckBox;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;
@@ -362,6 +391,7 @@ class Viewer : public ng::Screen
     bool _renderDoubleSided;
     bool _outlineSelection;
     bool _drawEnvironment;
+    ng::CheckBox* _drawEnvironmentBox;
 
     // Shader translation
     std::string _targetShader;
