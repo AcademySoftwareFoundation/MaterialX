@@ -1182,6 +1182,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+        _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Import libraries.
         doc->importLibrary(libraries);
@@ -1278,11 +1279,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         if (!newMaterials.empty())
         {
-            // Extend the image search path to include this material folder.
-            mx::FilePath materialFolder = _materialFilename.getParentPath();
-            mx::FileSearchPath materialSearchPath = _searchPath;
-            materialSearchPath.append(materialFolder);
-            _imageHandler->setSearchPath(materialSearchPath);
+            // Extend the image search path to include material source folders.
+            mx::FileSearchPath extendedSearchPath = _searchPath;
+            extendedSearchPath.append(_materialSearchPath);
+            _imageHandler->setSearchPath(extendedSearchPath);
 
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
@@ -2103,15 +2103,14 @@ void Viewer::bakeTextures()
         _imageHandler->releaseRenderResources();
         baker->setImageHandler(_imageHandler);
 
-        // Extend the image search path to include the source material folder.
-        mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
-        mx::FileSearchPath materialSearchPath = _searchPath;
-        materialSearchPath.append(materialFilename.getParentPath());
+        // Extend the image search path to include material source folders.
+        mx::FileSearchPath extendedSearchPath = _searchPath;
+        extendedSearchPath.append(_materialSearchPath);
 
         // Bake all materials in the active document.
         try
         {
-            baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
+            baker->bakeAllMaterials(doc, extendedSearchPath, _bakeFilename);
         }
         catch (std::exception& e)
         {

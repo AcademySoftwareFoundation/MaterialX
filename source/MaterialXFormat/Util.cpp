@@ -200,4 +200,25 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
     }
 }
 
+FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
+{
+    StringSet pathSet;
+    for (ConstElementPtr elem : doc->traverseTree())
+    {
+        if (elem->hasSourceUri())
+        {
+            FilePath sourceFilename = FilePath(elem->getSourceUri());
+            pathSet.insert(sourceFilename.getParentPath());
+        }
+    }
+
+    FileSearchPath searchPath;
+    for (FilePath path : pathSet)
+    {
+        searchPath.append(path);
+    }
+
+    return searchPath;
+}
+
 MATERIALX_NAMESPACE_END
