@@ -327,6 +327,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
                     }
                 }
 
+#if 0
                 // Get connected shader nodes if a material node.
                 if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
                 {
@@ -340,6 +341,17 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
                         }
                     }
                 }
+#else
+                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+                {
+                    mx::NodeDefPtr nodeDef = outputNode->getNodeDef();
+                    if (nodeDef)
+                    {
+                        nodeDefs.push_back(nodeDef);
+                        targetElements.push_back(outputNode);
+                    }
+                }
+#endif
 
                 for (size_t i=0; i < targetElements.size(); ++i)
                 {

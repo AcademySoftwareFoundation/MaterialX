@@ -144,6 +144,7 @@ namespace Type
     extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
     extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
     extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
+    extern MX_GENSHADER_API const TypeDesc* MATERIAL;
 } // namespace Type
 
 MATERIALX_NAMESPACE_END

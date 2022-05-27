@@ -325,7 +325,7 @@ bool elementRequiresShading(ConstTypedElementPtr element)
     string elementType(element->getType());
     static StringSet colorClosures =
     {
-        "surfaceshader", "volumeshader", "lightshader",
+        "material", "surfaceshader", "volumeshader", "lightshader",
         "BSDF", "EDF", "VDF"
     };
     return colorClosures.count(elementType) > 0;

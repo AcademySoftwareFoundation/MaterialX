@@ -778,6 +778,21 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->addUpstreamDependencies(*root, context);
     }
 
+    for (ShaderNode* node : graph->getNodes())
+    {
+        // For material nodes see if there is a shader connected,
+        // and update the classification accordingly.
+        if (node->hasClassification(Classification::MATERIAL))
+        {
+            const ShaderInput* surfaceshaderInput = node->getInput(SURFACESHADER);
+            if (surfaceshaderInput && surfaceshaderInput->getConnection())
+            {
+                const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
+                node->_classification |= surfaceshaderNode->_classification;
+            }
+        }
+    }
+
     // Add classification according to root node
     ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
     graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
