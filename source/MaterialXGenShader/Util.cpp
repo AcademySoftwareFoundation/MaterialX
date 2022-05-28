@@ -91,6 +91,7 @@ namespace
         // Inputs on a surface shader which are checked for transparency
         const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
                                                    {"existence", 1.0f},
+                                                   {"alpha", 0.0f},
                                                    {"transmission", 0.0f} };
 
 
