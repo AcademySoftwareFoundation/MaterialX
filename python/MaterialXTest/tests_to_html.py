@@ -94,7 +94,6 @@ def main(args=None):
 
             fullsourcePath = os.path.join(sourcePath, sourceFile) if sourceFile else None
             fulldestPath = os.path.join(destPath, destFile) if destFile else None
-            #print("fulldestPath: ", fulldestPath)
 
             if curPath != sourcePath:
                 if curPath != "":
