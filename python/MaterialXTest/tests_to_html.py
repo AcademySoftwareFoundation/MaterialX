@@ -92,8 +92,8 @@ def main(args=None):
         curPath = ""
         for sourceFile, destFile, sourcePath, destPath in zip(sourceFiles, destFiles, sourcePaths, destPaths):
 
-            fullsourcePath = os.path.join(sourcePath, sourceFile) if sourceFile else None
-            fulldestPath = os.path.join(destPath, destFile) if destFile else None
+            fullSourcePath = os.path.join(sourcePath, sourceFile) if sourceFile else None
+            fullDestPath = os.path.join(destPath, destFile) if destFile else None
 
             if curPath != sourcePath:
                 if curPath != "":
@@ -103,30 +103,30 @@ def main(args=None):
                 curPath = sourcePath
 
             if sourceFile and destFile and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath = fullsourcePath[0:-8] + "diff.png"
-                createDiff(fullsourcePath, fulldestPath, diffPath)
+                diffPath = fullSourcePath[0:-8] + "diff.png"
+                createDiff(fullSourcePath, fullDestPath, diffPath)
             else:
                 diffPath = None
 
             fh.write("<tr>\n")
-            if fullsourcePath:
-                fh.write("<td class='td_image'><img src='" + fullsourcePath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
-            if fulldestPath:
-                fh.write("<td class='td_image'><img src='" + fulldestPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+            if fullSourcePath:
+                fh.write("<td class='td_image'><img src='" + fullSourcePath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+            if fullDestPath:
+                fh.write("<td class='td_image'><img src='" + fullDestPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if diffPath:
                 fh.write("<td class='td_image'><img src='" + diffPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             fh.write("</tr>\n")
 
             fh.write("<tr>\n")
-            if fullsourcePath:
+            if fullSourcePath:
                     fh.write("<td align='center'>" + sourceFile)
-            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullsourcePath):
-                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullsourcePath))) + ")")
+            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullSourcePath):
+                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullSourcePath))) + ")")
             fh.write("</td>\n")
-            if fulldestPath:
+            if fullDestPath:
                     fh.write("<td align='center'>" + destFile)
-            if args.ENABLE_TIMESTAMPS and os.path.isfile(fulldestPath):
-                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fulldestPath))) + ")")
+            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullDestPath):
+                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullDestPath))) + ")")
             fh.write("</td>\n")
             if diffPath:
                 fh.write("<td align='center'>Difference</td>\n")
