@@ -154,7 +154,7 @@ class MX_RENDER_API Half
     static constexpr int32_t const maxD = infC - maxC - 1;
     static constexpr int32_t const minD = minC - subC - 1;
 
-    static constexpr float const maxF = (float) 0x7FFFFFBF; // max int32 expressible as a flt32
+    static constexpr int32_t const maxF = 0x7FFFFFBF; // max int32 expressible as a flt32
 
     static uint16_t toFloat16(float value)
     {
@@ -164,7 +164,7 @@ class MX_RENDER_API Half
         v.si ^= sign;
         sign >>= shiftSign; // logical shift
         s.si = mulN;
-        int32_t subN = (int32_t) std::min(s.f * v.f, maxF); // correct subnormals
+        int32_t subN = (int32_t) std::min(s.f * v.f, (float) maxF); // correct subnormals
         s.si = subN;
         v.si ^= (s.si ^ v.si) & -(minN > v.si);
         v.si ^= (infN ^ v.si) & -((infN > v.si) & (v.si > maxN));
