@@ -4,20 +4,13 @@ import sys
 import os
 import datetime
 import argparse
-import itertools
 
 try:
     # Use pip to install Pillow and Image to enable image diffs
-    from PIL import Image
-    from PIL import ImageChops
+    from PIL import Image, ImageChops
     DIFF_ENABLED = True
 except Exception:
     DIFF_ENABLED = False
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
 
 def createDiff(image1Path, image2Path, imageDiffPath):
     try:
@@ -32,6 +25,7 @@ def main(args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--inputdir', dest='inputdir', action='store', help='Input directory', default=".")
+    parser.add_argument('-i2', '--inputdir2', dest='inputdir2', action='store', help='Second input directory', default=".")
     parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', help='Output file name', default="tests.html")
     parser.add_argument('-d', '--diff', dest='CREATE_DIFF', action='store_true', help='Perform image diff', default=False)
     parser.add_argument('-t', '--timestamp', dest='ENABLE_TIMESTAMPS', action='store_true', help='Write image timestamps', default=False)
@@ -58,62 +52,87 @@ def main(args=None):
     fh.write("}")
     fh.write("</style>")
     fh.write("<body>\n")
+    dir1 = os.getcwd() if args.inputdir == "." else args.inputdir
+    dir2 = os.getcwd() if args.inputdir2 == "." else args.inputdir2
+    fh.write("<h3>" + args.sourcelang + " (in: " + dir1 + ") vs "+ args.destlang + " (in: " + dir2 + ")</h3>\n")
 
-    # Iterate over subdirectories
+    if not DIFF_ENABLED and args.CREATE_DIFF:
+        print("--diff argument ignored. Diff utility not installed.")
+
+    if not args.inputdir2:
+        args.inputdir2 = args.inputdir
+
+    # Get all source files
+    sourceFiles = []
+    sourcePaths = []
     for subdir, _, files in os.walk(args.inputdir):
-        sourceFiles = []
-        destFiles = []
-        sourceCount = 0
-        destCount = 0
         for curFile in files:
             if curFile.endswith(args.sourcelang + ".png"):
                 sourceFiles.append(curFile)
-                sourceCount += 1
-                # Allow for just one language to be shown if source and dest are the same.
-                # Otherwise add in equivalent name with dest language replacement 
-                if args.sourcelang != args.destlang:
-                    destFile = curFile.replace(args.sourcelang, args.destlang)
-                    destFiles.append(destFile)
-                else:
-                    destFiles.append("")
+                sourcePaths.append(subdir) 
 
-        if sourceFiles:
-            fh.write("<p>" + subdir + ":</p>\n")
-            fh.write("<table>\n")
-            for sourceFile, destFile in zip(sourceFiles, destFiles):
-                fullsourcePath = os.path.join(subdir, sourceFile) if sourceFile else None
-                fulldestPath = os.path.join(subdir, destFile) if destFile else None
-                if sourceFile and destFile and DIFF_ENABLED and args.CREATE_DIFF:
-                    diffPath = fullsourcePath[0:-8] + "diff.png"
-                    createDiff(fullsourcePath, fulldestPath, diffPath)
-                else:
-                    diffPath = None
+    # Get all destination files, matching source files
+    destFiles = []
+    destPaths = []
+    postFix = args.sourcelang + ".png"
+    for sourceFile, sourcePath in zip(sourceFiles, sourcePaths):
+        # Allow for just one language to be shown if source and dest are the same.
+        # Otherwise add in equivalent name with dest language replacement if
+        # pointing to the same directory 
+        if args.inputdir != args.inputdir2 or args.sourcelang != args.destlang:
+            destFile = sourceFile[:-len(postFix)] + args.destlang + ".png"
+            destPath = os.path.join(args.inputdir2, sourcePath)
+        else:
+            destFile = ""
+            destPath = None
+        destFiles.append(destFile)
+        destPaths.append(destPath)
 
-                fh.write("<tr>\n")
-                if fullsourcePath:
-                    fh.write("<td class='td_image'><img src='" + fullsourcePath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
-                if fulldestPath:
-                    fh.write("<td class='td_image'><img src='" + fulldestPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
-                if diffPath:
-                    fh.write("<td class='td_image'><img src='" + diffPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
-                fh.write("</tr>\n")
+    if sourceFiles:
+        curPath = ""
+        for sourceFile, destFile, sourcePath, destPath in zip(sourceFiles, destFiles, sourcePaths, destPaths):
 
-                fh.write("<tr>\n")
-                if fullsourcePath:
+            fullSourcePath = os.path.join(sourcePath, sourceFile) if sourceFile else None
+            fullDestPath = os.path.join(destPath, destFile) if destFile else None
+
+            if curPath != sourcePath:
+                if curPath != "":
+                    fh.write("</table>\n")
+                fh.write("<p>" + sourcePath + ":</p>\n")
+                fh.write("<table>\n")
+                curPath = sourcePath
+
+            if sourceFile and destFile and DIFF_ENABLED and args.CREATE_DIFF:
+                diffPath = fullSourcePath[0:-8] + "diff.png"
+                createDiff(fullSourcePath, fullDestPath, diffPath)
+            else:
+                diffPath = None
+
+            fh.write("<tr>\n")
+            if fullSourcePath:
+                fh.write("<td class='td_image'><img src='" + fullSourcePath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+            if fullDestPath:
+                fh.write("<td class='td_image'><img src='" + fullDestPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+            if diffPath:
+                fh.write("<td class='td_image'><img src='" + diffPath + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+            fh.write("</tr>\n")
+
+            fh.write("<tr>\n")
+            if fullSourcePath:
                     fh.write("<td align='center'>" + sourceFile)
-                    if args.ENABLE_TIMESTAMPS and os.path.isfile(fullsourcePath):
-                        fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullsourcePath))) + ")")
-                    fh.write("</td>\n")
-                if fulldestPath:
+            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullSourcePath):
+                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullSourcePath))) + ")")
+            fh.write("</td>\n")
+            if fullDestPath:
                     fh.write("<td align='center'>" + destFile)
-                    if args.ENABLE_TIMESTAMPS and os.path.isfile(fulldestPath):
-                        fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fulldestPath))) + ")")
-                    fh.write("</td>\n")
-                if diffPath:
-                    fh.write("<td align='center'>" + sourceFile[0:-8] + "diff.png" + "</td>\n")
-                fh.write("</tr>\n")
-            fh.write("</table>\n")
+            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullDestPath):
+                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullDestPath))) + ")")
+            fh.write("</td>\n")
+            if diffPath:
+                fh.write("<td align='center'>Difference</td>\n")
+            fh.write("</tr>\n")
 
+    fh.write("</table>\n")
     fh.write("</body>\n")
     fh.write("</html>\n")
 
