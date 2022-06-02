@@ -18,6 +18,7 @@ class MX_GENOSL_API MaterialNode : public ShaderNodeImpl
   public:
     static ShaderNodeImplPtr create();
 
+    void addClassification(ShaderNode& node) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 

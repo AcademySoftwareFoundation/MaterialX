@@ -425,11 +425,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const NodeGraph& n
         graph->addUpstreamDependencies(*graphOutput, context);
     }
 
-    // Add classification according to last node
-    // TODO: What if the graph has multiple outputs?
-    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-    graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
-
     // Finalize the graph
     graph->finalize(context);
 
@@ -595,8 +590,8 @@ ShaderGraphPtr ShaderGraph::createSurfaceShader(
     }
 
     // Start traversal from this shader node
-    root = node;    
-    
+    root = node;
+
     return graph;
 }
 
@@ -778,25 +773,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         graph->addUpstreamDependencies(*root, context);
     }
 
-    for (ShaderNode* node : graph->getNodes())
-    {
-        // For material nodes see if there is a shader connected,
-        // and update the classification accordingly.
-        if (node->hasClassification(Classification::MATERIAL))
-        {
-            const ShaderInput* surfaceshaderInput = node->getInput(SURFACESHADER);
-            if (surfaceshaderInput && surfaceshaderInput->getConnection())
-            {
-                const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
-                node->_classification |= surfaceshaderNode->_classification;
-            }
-        }
-    }
-
-    // Add classification according to root node
-    ShaderGraphOutputSocket* outputSocket = graph->getOutputSocket();
-    graph->_classification |= outputSocket->getConnection() ? outputSocket->getConnection()->getNode()->_classification : 0;
-
     graph->finalize(context);
 
     return graph;
@@ -923,6 +899,20 @@ const ShaderNode* ShaderGraph::getNode(const string& name) const
 
 void ShaderGraph::finalize(GenContext& context)
 {
+    // Allow node implementations to update the classification on 
+    // its corresponding nodes.
+    for (ShaderNode* node : getNodes())
+    {
+        node->getImplementation().addClassification(*node);
+    }
+
+    // Add classification according to root node
+    ShaderGraphOutputSocket* outputSocket = getOutputSocket();
+    if (outputSocket->getConnection())
+    {
+        addClassification(outputSocket->getConnection()->getNode()->getClassification());
+    }
+
     // Insert color transformation nodes where needed
     if (context.getOptions().emitColorTransforms)
     { 

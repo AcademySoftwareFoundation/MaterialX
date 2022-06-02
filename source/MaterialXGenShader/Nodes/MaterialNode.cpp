@@ -17,6 +17,18 @@ ShaderNodeImplPtr MaterialNode::create()
     return std::make_shared<MaterialNode>();
 }
 
+void MaterialNode::addClassification(ShaderNode& node) const
+{
+    const ShaderInput* surfaceshaderInput = node.getInput(ShaderNode::SURFACESHADER);
+    if (surfaceshaderInput && surfaceshaderInput->getConnection())
+    {
+        // This is a material node with a surfaceshader connected.
+        // Add the classification from this shader.
+        const ShaderNode* surfaceshaderNode = surfaceshaderInput->getConnection()->getNode();
+        node.addClassification(surfaceshaderNode->getClassification());
+    }
+}
+
 void MaterialNode::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)

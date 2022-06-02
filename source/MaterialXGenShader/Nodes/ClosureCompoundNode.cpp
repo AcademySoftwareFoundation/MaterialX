@@ -15,6 +15,12 @@ ShaderNodeImplPtr ClosureCompoundNode::create()
     return std::make_shared<ClosureCompoundNode>();
 }
 
+void ClosureCompoundNode::addClassification(ShaderNode& node) const
+{
+    // Add classification from the graph implementation.
+    node.addClassification(_rootGraph->getClassification());
+}
+
 void ClosureCompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
 BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
