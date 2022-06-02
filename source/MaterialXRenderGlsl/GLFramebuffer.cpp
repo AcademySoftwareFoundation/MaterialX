@@ -124,7 +124,7 @@ GLFramebuffer::~GLFramebuffer()
 
 void GLFramebuffer::resize(unsigned int width, unsigned int height)
 {
-    if (width * height <= 0)
+    if (width * height == 0)
     {
         return;
     }

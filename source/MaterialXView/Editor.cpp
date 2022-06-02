@@ -730,7 +730,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     return box;
 }
 
-ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
+ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
     const mx::UIProperties* ui, std::function<void(int)> callback)
 {
     new ng::Label(parent, label);

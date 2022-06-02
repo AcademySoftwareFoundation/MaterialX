@@ -13,7 +13,12 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 
 import { Viewer } from './viewer.js'
 
-let  renderer, composer, orbitControls;
+let renderer, composer, orbitControls;
+
+// Turntable option. For now the step size is fixed.
+let turntableEnabled = false;
+let turntableSteps = 360;
+let turntableStep = 0;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -94,6 +99,8 @@ function init()
         // Load geometry
         viewer.getScene().loadGeometry(viewer, orbitControls);
 
+        canvas.addEventListener("keydown", handleKeyEvents, true);
+        
     }).then(() => {
         animate();
     }).catch(err => {
@@ -111,9 +118,33 @@ function onWindowResize()
 function animate() 
 {
     requestAnimationFrame(animate);
+
+    if (turntableEnabled)
+    {
+        turntableStep = (turntableStep + 1) % 360;
+        var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
+        viewer.getScene()._scene.rotation.y = turntableAngle ;
+    }
+
     if (viewer.getMaterial().getCurrentMaterial())
     {
         composer.render();
         viewer.getScene().updateTransforms();
+    }
+}
+
+function handleKeyEvents(event)
+{
+    const V_KEY = 86;
+    const P_KEY = 80;
+
+    console.log(event.keyCode);
+    if (event.keyCode == V_KEY)
+    {
+        viewer.getScene().toggleBackgroundTexture();
+    }
+    else if (event.keyCode == P_KEY)
+    {
+        turntableEnabled = !turntableEnabled;
     }
 }
