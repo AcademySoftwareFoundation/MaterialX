@@ -898,16 +898,16 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _outlineSelection = enable;
     });
 
-    _drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    _drawEnvironmentBox->set_checked(_drawEnvironment);
-    _drawEnvironmentBox->set_callback([this](bool enable)
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
     {
         _drawEnvironment = enable;
     });
 
-    _turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
-    _turntableEnabledCheckBox->set_checked(_turntableEnabled);
-    _turntableEnabledCheckBox->set_callback([this](bool enable)
+    ng::CheckBox* turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
+    turntableEnabledCheckBox->set_checked(_turntableEnabled);
+    turntableEnabledCheckBox->set_callback([this](bool enable)
     {
         toggleTurntable(enable);
     });
@@ -1063,6 +1063,10 @@ void Viewer::updateMaterialSelections()
                                      material->getMaterialNode() :
                                      material->getElement();
         std::string displayName = displayElem->getName();
+        if (displayName == "out")
+        {
+            displayName = displayElem->getParent()->getName();
+        }
         if (!material->getUdim().empty())
         {
             displayName += " (" + material->getUdim() + ")";
@@ -1807,19 +1811,6 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
             updateMaterialSelectionUI();
         }
         return true;
-    }
-
-    if (key == GLFW_KEY_P  && action == GLFW_PRESS)
-    {
-        toggleTurntable(!_turntableEnabled);
-        _turntableEnabledCheckBox->set_checked(_turntableEnabled);
-        return true;
-    }
-
-    if (key == GLFW_KEY_V && action == GLFW_PRESS)
-    {
-        _drawEnvironment = !_drawEnvironment;
-        _drawEnvironmentBox->set_checked(_drawEnvironment);
     }
 
     if (key == GLFW_KEY_U && action == GLFW_PRESS)
