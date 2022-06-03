@@ -25,12 +25,12 @@ jobs:
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_VIEWER=OFF
 
-        - name: Linux_GCC_10_Python37
-          os: ubuntu-20.04
+        - name: Linux_GCC_7_Python37
+          os: ubuntu-18.04
           compiler: gcc
-          compiler_version: "10"
+          compiler_version: "7"
           python: 3.7
-          upload_shaders: ON
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
@@ -39,6 +39,13 @@ jobs:
           python: 3.9
           build_javascript: ON
 
+        - name: Linux_GCC_12_Python39
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.9
+          upload_shaders: ON
+
         - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
           compiler: clang
@@ -46,18 +53,24 @@ jobs:
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_11_Python37
+        - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
-          compiler_version: "11"
+          compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
 
         - name: Linux_Clang_12_Python39
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           compiler: clang
           compiler_version: "12"
+          python: 3.9
+
+        - name: Linux_Clang_13_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "13"
           python: 3.9
           test_render: ON
 
