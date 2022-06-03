@@ -29,9 +29,11 @@ elseif(UNIX)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 
-# Disable deprecation warnings for GLew source on Clang.
+# Disable warnings for GLew source.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-deprecated-declarations)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_options(-Wno-address)
 endif()
 
 add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
