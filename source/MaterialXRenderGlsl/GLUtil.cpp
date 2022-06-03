@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 #include <MaterialXRenderGlsl/GLUtil.h>
 
