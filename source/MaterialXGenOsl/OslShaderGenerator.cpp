@@ -501,18 +501,23 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         string value = _syntax->getValue((ShaderPort*)input, true);
 
         emitLineBegin(stage);
+        emitString(type + " " + input->getVariable(), stage);
 
         const string& geomprop = input->getGeomProp();
         if (!geomprop.empty())
         {
             auto it = GEOMPROP_DEFINITIONS.find(geomprop);
-            const string& v = it != GEOMPROP_DEFINITIONS.end() ? it->second : value;
-            emitString(type + " " + input->getVariable() + " = " + v, stage);
+            if (it != GEOMPROP_DEFINITIONS.end())
+            {
+                value = it->second;
+            }
         }
-        else
+
+        if (value.empty())
         {
-            emitString(type + " " + input->getVariable() + " = " + value, stage);
+            value = _syntax->getDefaultValue(input->getType());
         }
+        emitString(" = " + value, stage);
 
         //
         // Add shader input metadata.
