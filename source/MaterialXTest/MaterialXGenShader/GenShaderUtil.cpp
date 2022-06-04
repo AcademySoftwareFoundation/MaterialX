@@ -721,32 +721,15 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         int codeGenerationFailures = 0;
         for (const auto& element : elements)
         {
-            mx::TypedElementPtr targetElement = element;
-            mx::OutputPtr output = targetElement->asA<mx::Output>();
-            mx::NodePtr outputNode = targetElement->asA<mx::Node>();
-            mx::NodeDefPtr nodeDef = nullptr;
+            const std::string namePath(element->getNamePath());
+            mx::OutputPtr output = element->asA<mx::Output>();
+            mx::NodePtr outputNode = element->asA<mx::Node>();
             if (output)
             {
                 outputNode = output->getConnectedNode();
-                // Handle connected upstream material nodes later on.
-                if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
-                {
-                    nodeDef = outputNode->getNodeDef();
-                }
             }
 
-            // Handle material node checking. For now only check first surface shader if any
-            if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
-            {
-                std::vector<mx::NodePtr> shaderNodes = getShaderNodes(outputNode);
-                if (!shaderNodes.empty())
-                {
-                    nodeDef = shaderNodes[0]->getNodeDef();
-                    targetElement = shaderNodes[0];
-                }
-            }
-
-            const std::string namePath(targetElement->getNamePath());
+            mx::NodeDefPtr nodeDef = outputNode->getNodeDef();
             if (nodeDef)
             {
                 // Allow to skip nodedefs to test if specified
@@ -767,7 +750,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     _logFile << "------------ Run validation with element: " << namePath << "------------" << std::endl;
 
                     mx::StringVec sourceCode;
-                    bool generatedCode = generateCode(context, elementName, targetElement, _logFile, _testStages, sourceCode);
+                    const bool generatedCode = generateCode(context, elementName, element, _logFile, _testStages, sourceCode);
 
                     // Record implementations tested
                     if (options.checkImplCount)
