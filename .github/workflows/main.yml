@@ -58,14 +58,6 @@ jobs:
           compiler: clang
           compiler_version: "10"
           python: 3.7
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-          dynamic_analysis: ON
-
-        - name: Linux_Clang_12_Python39
-          os: ubuntu-22.04
-          compiler: clang
-          compiler_version: "12"
-          python: 3.9
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -73,6 +65,14 @@ jobs:
           compiler_version: "13"
           python: 3.9
           test_render: ON
+
+        - name: Linux_Clang_14_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
+          python: 3.9
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
@@ -245,8 +245,8 @@ jobs:
     - name: Viewer Tests
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 100 --screenHeight 100 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 100 --screenHeight 100 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
     - name: Upload Installed Package
