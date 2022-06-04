@@ -926,8 +926,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string ENABLE_INDIRECT_LIGHTING("enableIndirectLighting");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
     const std::string IRRADIANCE_IBL_PATH_STRING("irradianceIBLPath");
-    const std::string SPHERE_OBJ("sphere.obj");
-    const std::string SHADERBALL_OBJ("shaderball.obj");
+    const std::string SPHERE_GEOMETRY("sphere.obj");
     const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
     const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string ENABLE_REFERENCE_QUALITY("enableReferenceQuality");
@@ -936,8 +935,8 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
-    unShadedGeometry = SPHERE_OBJ;
-    shadedGeometry = SHADERBALL_OBJ;
+    unShadedGeometry = SPHERE_GEOMETRY;
+    shadedGeometry = SPHERE_GEOMETRY;
     enableDirectLighting = true;
     enableIndirectLighting = true;
     enableReferenceQuality = false;
