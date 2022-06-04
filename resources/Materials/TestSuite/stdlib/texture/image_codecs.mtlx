@@ -20,10 +20,6 @@
     <input name="file" type="filename" value="resources/Images/cloth.tga" />
   </image>
   <output name="image4_output_tga" type="color4" nodename="image4_tga" />
-  <image name="image4_clothexr1" type="color4">
-    <input name="file" type="filename" value="resources/Images/cloth.exr" />
-  </image>
-  <output name="image4_output_exr" type="color4" nodename="image4_clothexr1" />
   <image name="image4_wood1" type="color4">
     <input name="file" type="filename" value="resources/Images/wood_color.jpg" />
   </image>
