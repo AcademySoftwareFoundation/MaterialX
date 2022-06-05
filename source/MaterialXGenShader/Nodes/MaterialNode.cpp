@@ -8,8 +8,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
 
-#include <iostream>
-
 MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr MaterialNode::create()

@@ -3,22 +3,21 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_MATERIALNODE_H
-#define MATERIALX_MATERIALNODE_H
+#ifndef MATERIALX_MATERIALNODEMDL_H
+#define MATERIALX_MATERIALNODEMDL_H
 
-#include <MaterialXGenShader/Export.h>
+#include <MaterialXGenMdl/Export.h>
 
-#include <MaterialXGenShader/ShaderNodeImpl.h>
+#include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Material node implementation
-class MX_GENSHADER_API MaterialNode : public ShaderNodeImpl
+/// Material node implementation for MDL
+class MX_GENMDL_API MaterialNodeMdl : public MaterialNode
 {
   public:
     static ShaderNodeImplPtr create();
 
-    void addClassification(ShaderNode& node) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
 
