@@ -328,8 +328,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        if (outputType->isClosure())
         {
             impl = ClosureCompoundNodeMdl::create();
         }
@@ -345,8 +344,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            if (outputType->isClosure())
             {
                 impl = ClosureSourceCodeNodeMdl::create();
             }
