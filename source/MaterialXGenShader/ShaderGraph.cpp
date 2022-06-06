@@ -899,8 +899,8 @@ const ShaderNode* ShaderGraph::getNode(const string& name) const
 
 void ShaderGraph::finalize(GenContext& context)
 {
-    // Allow node implementations to update the classification on 
-    // its corresponding nodes.
+    // Allow node implementations to update the classification
+    // on its node instances
     for (ShaderNode* node : getNodes())
     {
         node->getImplementation().addClassification(*node);
