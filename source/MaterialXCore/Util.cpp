@@ -91,6 +91,16 @@ StringVec splitString(const string& str, const string& sep)
     return split;
 }
 
+string joinStrings(const StringVec& stringVec, const string& sep)
+{
+    string res;
+    for (const string& name : stringVec)
+    {
+        res = res.empty() ? name : res + sep + name;
+    }
+    return res;
+}
+
 string replaceSubstrings(string str, const StringMap& stringMap)
 {
     for (const auto& pair : stringMap)
@@ -128,7 +138,7 @@ bool stringEndsWith(const string& str, const string& suffix)
 
 string trimSpaces(const string& str)
 {
-    const string SPACE(" ");
+    const char SPACE(' ');
 
     size_t start = str.find_first_not_of(SPACE);
     string result = (start == std::string::npos) ? EMPTY_STRING : str.substr(start);
@@ -145,11 +155,7 @@ StringVec splitNamePath(const string& namePath)
 
 string createNamePath(const StringVec& nameVec)
 {
-    string res;
-    for (const string& name : nameVec)
-    {
-        res = res.empty() ? name : res + NAME_PATH_SEPARATOR + name;
-    }
+    string res = joinStrings(nameVec, NAME_PATH_SEPARATOR);
     return res;
 }
 

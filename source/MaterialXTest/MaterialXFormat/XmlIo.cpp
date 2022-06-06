@@ -66,6 +66,8 @@ TEST_CASE("Load content", "[xmlio]")
         mx::DocumentPtr writtenDoc = mx::createDocument();
         mx::readFromXmlString(writtenDoc, xmlString);
         REQUIRE(*writtenDoc == *doc);
+        mx::readFromXmlBuffer(writtenDoc, xmlString.c_str());
+        REQUIRE(*writtenDoc == *doc);
 
         // Flatten subgraph references.
         for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
@@ -224,4 +226,47 @@ TEST_CASE("Load content", "[xmlio]")
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
+}
+
+TEST_CASE("Locale region testing", "[xmlio]")
+{
+    // In the United States, the thousands separator is a comma, while in Germany it is a period.
+    // Thus, one thousand twenty five is displayed as 1,025 in the United States and 1.025 in Germany.
+    //
+    // In a MaterialX document, a vector3 value of "1,1.5,2.0" should be interpreted as (1.0f, 1.5f, 2.0f).
+
+    // Set the locale to Germany, if supported on this platform, and note the original locale.
+    std::locale origLocale;
+    try
+    {
+        origLocale = std::locale::global(std::locale("de_DE"));
+    }
+    catch (const std::runtime_error& e)
+    {
+        WARN("Unable to change locale " << e.what());
+        return;
+    }
+
+    // Read and validate each example document.
+    mx::FilePath testPath("resources/Materials/TestSuite/locale");
+    for (const mx::FilePath& filename : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        mx::DocumentPtr doc = mx::createDocument();
+        mx::readFromXmlFile(doc, testPath / filename);
+        REQUIRE(doc->validate());
+
+        for (mx::ElementPtr elem : doc->traverseTree())
+        {
+            if (elem->isA<mx::ValueElement>())
+            {
+                if (elem->hasAttribute("uiname"))
+                {
+                    REQUIRE(!elem->getAttribute("uiname").empty());
+                }
+            }
+        }
+    }
+
+    // Restore the original locale.
+    std::locale::global(origLocale);
 }

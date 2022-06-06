@@ -74,14 +74,17 @@ void ShaderGenerator::emitComment(const string& str, ShaderStage& stage) const
     stage.addComment(str);
 }
 
-void ShaderGenerator::emitBlock(const string& str, GenContext& context, ShaderStage& stage) const
+void ShaderGenerator::emitBlock(const string& str, const FilePath& sourceFilename, GenContext& context, ShaderStage& stage) const
 {
-    stage.addBlock(str, context);
+    stage.addBlock(str, sourceFilename, context);
 }
 
-void ShaderGenerator::emitInclude(const string& file, GenContext& context, ShaderStage& stage) const
+void ShaderGenerator::emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const
 {
-    stage.addInclude(file, context);
+    FilePath libraryPrefix = context.getOptions().libraryPrefix;
+    FilePath fullFilename = libraryPrefix.isEmpty() ? filename : libraryPrefix / filename;
+    FilePath resolvedFilename = context.resolveSourceFile(fullFilename, FilePath());
+    stage.addInclude(fullFilename, resolvedFilename, context);
 }
 
 void ShaderGenerator::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

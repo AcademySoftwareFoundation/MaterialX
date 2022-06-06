@@ -55,7 +55,7 @@ protected:
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Emit include headers needed by the generated shader code.
-    virtual void emitIncludes(ShaderStage& stage, GenContext& context) const;
+    virtual void emitLibraryIncludes(ShaderStage& stage, GenContext& context) const;
 
     /// Emit a block of shader inputs.
     virtual void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;

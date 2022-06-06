@@ -30,6 +30,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -209,6 +210,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
     _meshScale(1.0f),
+    _turntableEnabled(false),
+    _turntableSteps(360),
+    _turntableStep(0),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
     _cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE),
@@ -393,6 +397,8 @@ void Viewer::initialize()
     // Finalize the UI.
     _propertyEditor.setVisible(false);
     perform_layout();
+
+    _turntableTimer.startTimer();
 }
 
 void Viewer::loadEnvironmentLight()
@@ -479,6 +485,9 @@ void Viewer::loadEnvironmentLight()
             _lightRigDoc = nullptr;
         }
     }
+
+    // Invalidate the existing environment material, if any.
+    _envMaterial = nullptr;
 }
 
 void Viewer::applyDirectLights(mx::DocumentPtr doc)
@@ -828,26 +837,21 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _renderDoubleSided = enable;
     });
 
-    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
-    outlineSelectedGeometryBox->set_checked(_outlineSelection);
-    outlineSelectedGeometryBox->set_callback([this](bool enable)
-    {
-        _outlineSelection = enable;
-    });
-
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->set_checked(_drawEnvironment);
-    drawEnvironmentBox->set_callback([this](bool enable)
-    {
-        _drawEnvironment = enable;
-    });
-
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
+        reloadShaders();
+    });
+
+    ng::CheckBox* refractionBox = new ng::CheckBox(advancedPopup, "Transmission Refraction");
+    refractionBox->set_checked(_genContext.getOptions().hwTransmissionRenderMethod == mx::TRANSMISSION_REFRACTION);
+    refractionBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
+        _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
         reloadShaders();
     });
 
@@ -882,6 +886,42 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
+
+    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
+    viewLabel->set_font_size(20);
+    viewLabel->set_font("sans-bold");
+
+    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
+    outlineSelectedGeometryBox->set_checked(_outlineSelection);
+    outlineSelectedGeometryBox->set_callback([this](bool enable)
+    {
+        _outlineSelection = enable;
+    });
+
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
+    {
+        _drawEnvironment = enable;
+    });
+
+    ng::CheckBox* turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
+    turntableEnabledCheckBox->set_checked(_turntableEnabled);
+    turntableEnabledCheckBox->set_callback([this](bool enable)
+    {
+        toggleTurntable(enable);
+    });
+
+    ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
+    meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ui.uiMin = mx::Value::createValue(2);
+    ui.uiMax = mx::Value::createValue(360);
+    ng::IntBox<int>* meshTurntableBox = createIntWidget(meshTurntableRow, "Turntable Steps:",
+        _turntableSteps, &ui, [this](int value)
+    {
+        _turntableSteps = std::clamp(value, 2, 360);
+    });
+    meshTurntableBox->set_editable(true);
 
     ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
     translationLabel->set_font_size(20);
@@ -1023,6 +1063,10 @@ void Viewer::updateMaterialSelections()
                                      material->getMaterialNode() :
                                      material->getElement();
         std::string displayName = displayElem->getName();
+        if (displayName == "out")
+        {
+            displayName = displayElem->getParent()->getName();
+        }
         if (!material->getUdim().empty())
         {
             displayName += " (" + material->getUdim() + ")";
@@ -1142,6 +1186,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+        _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Import libraries.
         doc->importLibrary(libraries);
@@ -1238,11 +1283,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         if (!newMaterials.empty())
         {
-            // Extend the image search path to include this material folder.
-            mx::FilePath materialFolder = _materialFilename.getParentPath();
-            mx::FileSearchPath materialSearchPath = _searchPath;
-            materialSearchPath.append(materialFolder);
-            _imageHandler->setSearchPath(materialSearchPath);
+            // Extend the image search path to include material source folders.
+            mx::FileSearchPath extendedSearchPath = _searchPath;
+            extendedSearchPath.append(_materialSearchPath);
+            _imageHandler->setSearchPath(extendedSearchPath);
 
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
@@ -1380,52 +1424,47 @@ void Viewer::saveShaderSource(mx::GenContext& context)
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
-            const bool hasTransparency = mx::isTransparentSurface(elem, context.getShaderGenerator().getTarget());
-            mx::GenContext materialContext = context;
-            materialContext.getOptions().hwTransparency = hasTransparency;
-
-            mx::ShaderPtr shader = createShader(elem->getNamePath(), materialContext, elem);
-            if (shader)
+            mx::FilePath sourceFilename = getBaseOutputPath();
+            if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
             {
-                mx::FilePath sourceFilename = getBaseOutputPath();
-                if (context.getShaderGenerator().getTarget() == mx::GlslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
-                    writeTextFile(pixelShader, sourceFilename.asString() + "_ps.glsl");
-                    writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
-                        sourceFilename.asString() + "_*.glsl");
-                }
+                mx::ShaderPtr shader = material->getShader();
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(pixelShader, sourceFilename.asString() + "_ps.glsl");
+                writeTextFile(vertexShader, sourceFilename.asString() + "_vs.glsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved GLSL source: ",
+                    sourceFilename.asString() + "_*.glsl");
+            }
+            else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
+                writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
+                writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved ESSL source: ",
+                    sourceFilename.asString() + "_essl_*.glsl");
+            }
 #if MATERIALX_BUILD_GEN_OSL
-                else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    sourceFilename.addExtension("osl");
-                    writeTextFile(pixelShader, sourceFilename);
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
-                }
+            else if (context.getShaderGenerator().getTarget() == mx::OslShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                sourceFilename.addExtension("osl");
+                writeTextFile(pixelShader, sourceFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved OSL source: ", sourceFilename);
+            }
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-                else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    sourceFilename.addExtension("mdl");
-                    writeTextFile(pixelShader, sourceFilename);
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
-                }
-#endif
-                else if (context.getShaderGenerator().getTarget() == mx::EsslShaderGenerator::TARGET)
-                {
-                    const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
-                    const std::string& vertexShader = shader->getSourceCode(mx::Stage::VERTEX);
-                    writeTextFile(vertexShader, sourceFilename.asString() + "_essl_vs.glsl");
-                    writeTextFile(pixelShader, sourceFilename.asString() + "_essl_ps.glsl");
-                    new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved Essl source: ",
-                        sourceFilename.asString() + "_essl_*.glsl");
-                }
-                
+            else if (context.getShaderGenerator().getTarget() == mx::MdlShaderGenerator::TARGET)
+            {
+                mx::ShaderPtr shader = createShader(elem->getNamePath(), context, elem);
+                const std::string& pixelShader = shader->getSourceCode(mx::Stage::PIXEL);
+                sourceFilename.addExtension("mdl");
+                writeTextFile(pixelShader, sourceFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved MDL source: ", sourceFilename);
             }
+#endif
         }
     }
     catch (std::exception& e)
@@ -1774,6 +1813,11 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
         return true;
     }
 
+    if (key == GLFW_KEY_U && action == GLFW_PRESS)
+    {
+        _window->set_visible(!_window->visible());
+    }
+
     return false;
 }
 
@@ -1782,6 +1826,7 @@ void Viewer::renderFrame()
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
@@ -1826,15 +1871,13 @@ void Viewer::renderFrame()
                 _envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
 
                 // Render the environment mesh.
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_FRONT);
+                glDepthMask(GL_FALSE);
                 envMaterial->bindShader();
                 envMaterial->bindMesh(meshes[0]);
                 envMaterial->bindViewInformation(_envCamera);
                 envMaterial->bindImages(_imageHandler, _searchPath, false);
                 envMaterial->drawPartition(envPart);
-                glDisable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
+                glDepthMask(GL_TRUE);
             }
         }
         else
@@ -2051,15 +2094,14 @@ void Viewer::bakeTextures()
         _imageHandler->releaseRenderResources();
         baker->setImageHandler(_imageHandler);
 
-        // Extend the image search path to include the source material folder.
-        mx::FilePath materialFilename = mx::FilePath(doc->getSourceUri());
-        mx::FileSearchPath materialSearchPath = _searchPath;
-        materialSearchPath.append(materialFilename.getParentPath());
+        // Extend the image search path to include material source folders.
+        mx::FileSearchPath extendedSearchPath = _searchPath;
+        extendedSearchPath.append(_materialSearchPath);
 
         // Bake all materials in the active document.
         try
         {
-            baker->bakeAllMaterials(doc, materialSearchPath, _bakeFilename);
+            baker->bakeAllMaterials(doc, extendedSearchPath, _bakeFilename);
         }
         catch (std::exception& e)
         {
@@ -2078,8 +2120,44 @@ void Viewer::bakeTextures()
     glDrawBuffer(GL_BACK);
 }
 
-void Viewer::draw_contents()
+void Viewer::renderTurnable()
 {
+    int frameCount = abs(_turntableSteps);
+
+    float currentRotation = _meshRotation[1];
+    _meshRotation[1] = 0.0f;
+    int currentTurntableStep = _turntableStep;
+
+    mx::FilePath turnableFileName = _captureFilename;
+    const std::string extension = turnableFileName.getExtension();
+    turnableFileName.removeExtension();
+
+    for (_turntableStep = 0; _turntableStep < frameCount; _turntableStep++)
+    {
+        updateCameras();
+        clear();
+        invalidateShadowMap();
+        renderFrame();
+
+        mx::ImagePtr frameImage = getFrameImage();
+        if (frameImage)
+        {
+            std::stringstream intfmt;
+            intfmt << std::setfill('0') << std::setw(4) << _turntableStep;
+            std::string saveName = turnableFileName.asString() + "_" + intfmt.str() + "." + extension;
+            if (_imageHandler->saveImage(saveName, frameImage, true))
+            {
+                std::cout << "Wrote turntable frame to file: " << saveName << std::endl;
+            }
+        }
+    }
+
+    _turntableStep = currentTurntableStep;
+    _meshRotation[1] = currentRotation;
+}
+
+void Viewer::draw_contents()
+{    
     if (_geometryList.empty() || _materials.empty())
     {
         return;
@@ -2091,6 +2169,25 @@ void Viewer::draw_contents()
 
     // Clear the screen.
     clear();
+
+    if (_turntableEnabled && _turntableSteps)
+    {
+        if (!_captureRequested)
+        {
+            const double updateTime = 1.0 / 24.0;
+            if (_turntableTimer.elapsedTime() > updateTime)
+            {
+                _turntableStep++;
+                _turntableTimer.startTimer();
+                invalidateShadowMap();
+            }
+        }
+        else
+        {
+            _captureRequested = false;
+            renderTurnable();
+        }
+    }
 
     // Render a wedge for the current material.
     if (_wedgeRequested)
@@ -2122,7 +2219,7 @@ void Viewer::draw_contents()
     }
 
     // Capture the current frame.
-    if (_captureRequested)
+    if (_captureRequested && !_turntableEnabled)
     {
         _captureRequested = false;
         mx::ImagePtr frameImage = getFrameImage();
@@ -2254,8 +2351,10 @@ void Viewer::initCamera()
     const mx::Vector3& boxMin = _geometryHandler->getMinimumBounds();
     mx::Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
 
+    float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
-                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
     _meshTranslation = -meshRotation.transformPoint(sphereCenter);
     _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
@@ -2266,8 +2365,10 @@ void Viewer::updateCameras()
     float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
     float fW = fH * (float) m_size.x() / (float) m_size.y();
 
+    float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+    float yRotation = _meshRotation[1] + (_turntableEnabled ? turntableRotation : 0.0f);
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
-                                mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
+                                mx::Matrix44::createRotationY(yRotation / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
 
     mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
@@ -2289,10 +2390,9 @@ void Viewer::updateCameras()
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (dirLight)
     {
-        mx::MeshPtr mesh = _geometryHandler->getMeshes()[0];
-        float r = mesh->getSphereRadius();
-        _shadowCamera->setWorldMatrix(meshRotation *
-                                      mx::Matrix44::createTranslation(-mesh->getSphereCenter()));
+        mx::Vector3 sphereCenter = (_geometryHandler->getMaximumBounds() + _geometryHandler->getMinimumBounds()) * 0.5;
+        float r = (sphereCenter - _geometryHandler->getMinimumBounds()).getMagnitude();
+        _shadowCamera->setWorldMatrix(meshRotation * mx::Matrix44::createTranslation(-sphereCenter));
         _shadowCamera->setProjectionMatrix(mx::Camera::createOrthographicMatrix(-r, r, -r, r, 0.0f, r * 2.0f));
         mx::ValuePtr value = dirLight->getInputValue("direction");
         if (value->isA<mx::Vector3>())
@@ -2543,4 +2643,22 @@ void Viewer::renderScreenSpaceQuad(MaterialPtr material)
     
     material->bindMesh(_quadMesh);
     material->drawPartition(_quadMesh->getPartition(0));
+}
+
+void Viewer::toggleTurntable(bool enable)
+{
+    _turntableEnabled = enable;
+
+    if (enable)
+    {
+        _turntableTimer.startTimer();
+    }
+    else
+    {
+        float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
+        _meshRotation[1] = fmod(_meshRotation[1] + turntableRotation, 360.0f);
+        _turntableTimer.endTimer();
+    }
+    invalidateShadowMap();
+    _turntableStep = 0;
 }

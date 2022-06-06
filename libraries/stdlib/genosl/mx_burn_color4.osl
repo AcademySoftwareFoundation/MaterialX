@@ -1,4 +1,4 @@
-#include "libraries/stdlib/genosl/mx_burn_float.osl"
+#include "mx_burn_float.osl"
 
 void mx_burn_color4(color4 fg, color4 bg, float mix, output color4 result)
 {

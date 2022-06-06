@@ -1,4 +1,4 @@
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.c*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 assign_source_group("Source Files" ${materialx_source})
@@ -29,7 +29,7 @@ elseif(UNIX)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 
-# Disable deprecation warnings for GLew source on Clang.
+# Disable OpenGL deprecation warnings on Clang.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-deprecated-declarations)
 endif()

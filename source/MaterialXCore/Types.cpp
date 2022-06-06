@@ -37,6 +37,44 @@ const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 0, 0, 1);
 
 //
+// Color3 methods
+//
+
+Color3 Color3::linearToSrgb() const
+{
+    Color3 res;
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (_arr[i] <= 0.0031308f)
+        {
+            res[i] = _arr[i] * 12.92f;
+        }
+        else
+        {
+            res[i] = 1.055f * std::pow(_arr[i], 1.0f / 2.4f) - 0.055f;
+        }
+    }
+    return res;
+}
+
+Color3 Color3::srgbToLinear() const
+{
+    Color3 res;
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (_arr[i] <= 0.04045f)
+        {
+            res[i] = _arr[i] / 12.92f;
+        }
+        else
+        {
+            res[i] = std::pow((_arr[i] + 0.055f) / 1.055f, 2.4f);
+        }
+    }
+    return res;
+}
+
+//
 // Matrix33 methods
 //
 

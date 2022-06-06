@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "mx_microfacet_specular.glsl"
 
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13
@@ -34,7 +34,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
 
         // Compute the half vector and incoming light direction.
         vec3 H = mx_ggx_importance_sample_NDF(Xi, alpha);
-        vec3 L = -reflect(V, H);
+        vec3 L = fd.refraction ? mx_refraction_solid_sphere(-V, H, fd.ior.x) : -reflect(V, H);
         
         // Compute dot products for this sample.
         float NdotH = clamp(H.z, M_FLOAT_EPS, 1.0);
@@ -54,13 +54,16 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         // Compute the geometric term.
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
+        // Compute the combined FG term, which is inverted for refraction.
+        vec3 FG = fd.refraction ? vec3(1.0) - (F * G) : F * G;
+
         // Add the radiance contribution of this sample.
         // From https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
         //   incidentLight = sampleColor * NdotL
         //   microfacetSpecular = D * F * G / (4 * NdotL * NdotV)
         //   pdf = D * NdotH / (4 * VdotH)
         //   radiance = incidentLight * microfacetSpecular / pdf
-        radiance += sampleColor * F * G * VdotH / (NdotV * NdotH);
+        radiance += sampleColor * FG * VdotH / (NdotV * NdotH);
     }
 
     // Normalize and return the final radiance.

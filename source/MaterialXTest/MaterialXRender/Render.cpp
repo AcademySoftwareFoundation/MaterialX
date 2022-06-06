@@ -14,9 +14,6 @@
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
-#ifdef MATERIALX_BUILD_CONTRIB
-#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
-#endif
 
 #include <fstream>
 #include <iostream>
@@ -27,15 +24,21 @@ namespace mx = MaterialX;
 
 TEST_CASE("Render: Half Float", "[rendercore]")
 {
-    const std::vector<float> values =
+    const std::vector<float> exactValues =
     {
         0.0f, 0.25f, 0.5f, 0.75f,
         1.0f, 8.0f, 64.0f, 512.0f,
         std::numeric_limits<float>::infinity()
     };
+    const std::vector<float> nearValues =
+    {
+        1.0f / 3.0f, 1.0f / 5.0f, 1.0f / 7.0f,
+        std::numeric_limits<float>::denorm_min()
+    };
     const std::vector<float> signs = { 1.0f, -1.0f };
 
-    for (float value : values)
+    // Test values with exact equivalence as float and half.
+    for (float value : exactValues)
     {
         for (float sign : signs)
         {
@@ -51,6 +54,19 @@ TEST_CASE("Render: Half Float", "[rendercore]")
             REQUIRE((h *= mx::Half(4.0f)) == (f *= 4.0f));
             REQUIRE((h /= mx::Half(4.0f)) == (f /= 4.0f));
             REQUIRE(-h == -f);
+        }
+    }
+
+    // Test values with near equivalence as float and half.
+    const float EPSILON = 0.001f;
+    for (float value : nearValues)
+    {
+        for (float sign : signs)
+        {
+            float f(value * sign);
+            mx::Half h(f);
+            REQUIRE(h != f);
+            REQUIRE(std::abs(h - f) < EPSILON);
         }
     }
 }

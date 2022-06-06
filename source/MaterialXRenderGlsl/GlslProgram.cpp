@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
@@ -478,7 +478,6 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        string error;
         ImagePtr image = imageHandler->acquireImage(filePath);
         if (imageHandler->bindImage(image, samplingProperties))
         {
@@ -600,6 +599,8 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
             }
         }
     }
+    bindUniform(HW::REFRACTION_ENV, Value::createValue(lightHandler->getRefractionEnv()), false);
+    bindUniform(HW::REFRACTION_COLOR, Value::createValue(lightHandler->getRefractionColor()), false);
 
     // Bind direct lighting properties.
     if (hasUniform(HW::NUM_ACTIVE_LIGHT_SOURCES))

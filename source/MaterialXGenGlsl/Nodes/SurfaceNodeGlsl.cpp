@@ -119,14 +119,11 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
         if (bsdf)
         {
-            if (context.getOptions().hwTransparency)
-            {
-                shadergen.emitLineBegin(stage);
-                shadergen.emitString("float surfaceOpacity = ", stage);
-                shadergen.emitInput(node.getInput("opacity"), context, stage);
-                shadergen.emitLineEnd(stage);
-                shadergen.emitLineBreak(stage);
-            }
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString("float surfaceOpacity = ", stage);
+            shadergen.emitInput(node.getInput("opacity"), context, stage);
+            shadergen.emitLineEnd(stage);
+            shadergen.emitLineBreak(stage);
 
             //
             // Handle direct lighting
@@ -196,28 +193,31 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         }
 
         //
-        // Handle surface transparency
+        // Handle surface transmission and opacity.
         //
-        if (bsdf && context.getOptions().hwTransparency)
+        if (bsdf)
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
             shadergen.emitScopeBegin(stage);
-  
             context.pushClosureContext(&_callTransmission);
             shadergen.emitFunctionCall(*bsdf, context, stage);
+            if (context.getOptions().hwTransmissionRenderMethod == TRANSMISSION_REFRACTION)
+            {
+                shadergen.emitLine(outColor + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
+            }
+            else
+            {
+                shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".throughput", stage);
+            }
+            shadergen.emitScopeEnd(stage);
             context.popClosureContext();
 
-            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".response", stage);
-            shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Mix in opacity which affect the total result", stage);
+            shadergen.emitComment("Compute and apply surface opacity", stage);
+            shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
             shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
-        }
-        else
-        {
-            shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
+            shadergen.emitScopeEnd(stage);
         }
 
         shadergen.emitScopeEnd(stage);

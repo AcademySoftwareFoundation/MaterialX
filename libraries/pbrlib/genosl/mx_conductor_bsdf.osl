@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl"
+#include "lib/mx_microfacet_specular.osl"
 
 void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, output BSDF bsdf)
 {

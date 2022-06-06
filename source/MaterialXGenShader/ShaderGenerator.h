@@ -16,6 +16,8 @@
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Exception.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -32,11 +34,17 @@ class MX_GENSHADER_API ShaderGenerator
     virtual ~ShaderGenerator() { }
 
     /// Return the name of the target this generator is for.
-    virtual const string& getTarget() const = 0;
+    virtual const string& getTarget() const
+    {
+        return EMPTY_STRING;
+    }
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
+    virtual ShaderPtr generate(const string&, ElementPtr, GenContext&) const
+    {
+        return nullptr;
+    }
 
     /// Start a new scope using the given bracket type.
     virtual void emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
@@ -63,11 +71,12 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitComment(const string& str, ShaderStage& stage) const;
 
     /// Add a block of code.
-    virtual void emitBlock(const string& str, GenContext& context, ShaderStage& stage) const;
+    virtual void emitBlock(const string& str, const FilePath& sourceFilename, GenContext& context, ShaderStage& stage) const;
 
-    /// Add the contents of an include file. Making sure it is 
-    /// only included once for the shader stage.
-    virtual void emitInclude(const string& file, GenContext& context, ShaderStage& stage) const;
+    /// Add the contents of a standard library include file if not already present.
+    /// The library file prefix of the given context, if any, will be prepended
+    /// to the given filename.
+    virtual void emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const;
 
     /// Add a value.
     template<typename T>

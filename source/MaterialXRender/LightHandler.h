@@ -11,6 +11,7 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXCore/Document.h>
 
@@ -36,7 +37,8 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT)
+        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
+        _refractionEnv(true)
     {
     }
     virtual ~LightHandler() { }
@@ -111,18 +113,6 @@ class MX_RENDER_API LightHandler
         return _envIrradianceMap;
     }
 
-    /// Set the directional albedo table
-    void setAlbedoTable(ImagePtr table)
-    {
-        _albedoTable = table;
-    }
-
-    /// Return the directional albedo table
-    ImagePtr getAlbedoTable() const
-    {
-        return _albedoTable;
-    }
-
     /// Set the environment lighting sample count.
     void setEnvSampleCount(int count)
     {
@@ -133,6 +123,46 @@ class MX_RENDER_API LightHandler
     int getEnvSampleCount() const
     {
         return _envSampleCount;
+    }
+
+    /// Set environment visibility in refractions.
+    void setRefractionEnv(bool enable)
+    {
+        _refractionEnv = enable;
+    }
+
+    /// Return environment visibility in refractions.
+    int getRefractionEnv() const
+    {
+        return _refractionEnv;
+    }
+
+    /// Set the uniform refraction color.
+    void setRefractionColor(const Color3& color)
+    {
+        _refractionColor = color;
+    }
+
+    /// Return the uniform refraction color.
+    Color3 getRefractionColor() const
+    {
+        return _refractionColor;
+    }
+
+    /// @}
+    /// @name Albedo Table
+    /// @{
+
+    /// Set the directional albedo table
+    void setAlbedoTable(ImagePtr table)
+    {
+        _albedoTable = table;
+    }
+
+    /// Return the directional albedo table
+    ImagePtr getAlbedoTable() const
+    {
+        return _albedoTable;
     }
 
     /// @}
@@ -201,8 +231,12 @@ class MX_RENDER_API LightHandler
 
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
-    ImagePtr _albedoTable;
     int _envSampleCount;
+
+    bool _refractionEnv;
+    Color3 _refractionColor;
+
+    ImagePtr _albedoTable;
 
     vector<NodePtr> _lightSources;
     std::unordered_map<string, unsigned int> _lightIdMap;

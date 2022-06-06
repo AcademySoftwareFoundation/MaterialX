@@ -184,7 +184,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     _translationNode = nullptr;
 }
 
-void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destCategory)
+void ShaderTranslator::translateAllMaterials(DocumentPtr doc, const string& destCategory)
 {
     vector<TypedElementPtr> materialNodes;
     std::unordered_set<ElementPtr> shaderOutputs;

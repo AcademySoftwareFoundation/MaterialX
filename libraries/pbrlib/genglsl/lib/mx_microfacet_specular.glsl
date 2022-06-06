@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "mx_microfacet.glsl"
 
 // Fresnel model options.
 const int FRESNEL_MODEL_DIELECTRIC = 0;
@@ -26,6 +26,9 @@ struct FresnelData
     // Thin film
     float tf_thickness;
     float tf_ior;
+
+    // Refraction
+    bool refraction;
 };
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
@@ -217,6 +220,13 @@ float mx_ior_to_f0(float ior)
     return mx_square((ior - 1.0) / (ior + 1.0));
 }
 
+// Convert normal-incidence reflectivity to real-valued index of refraction.
+float mx_f0_to_ior(float F0)
+{
+    float sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
+    return (1.0 + sqrtF0) / (1.0 - sqrtF0);
+}
+
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 float mx_fresnel_dielectric(float cosTheta, float ior)
 {
@@ -387,7 +397,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
 FresnelData mx_init_fresnel_data(int model)
 {
-    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0);
+    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, false);
 }
 
 FresnelData mx_init_fresnel_dielectric(float ior)
@@ -460,6 +470,14 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior);
     }
+}
+
+// Compute the refraction of a ray through a solid sphere.
+vec3 mx_refraction_solid_sphere(vec3 R, vec3 N, float ior)
+{
+    R = refract(R, N, 1.0 / ior);
+    vec3 N1 = normalize(R * dot(R, N) - N * 0.5);
+    return refract(R, N1, ior);
 }
 
 vec2 mx_latlong_projection(vec3 dir)

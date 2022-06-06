@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl"
+#include "lib/mx_microfacet_specular.osl"
 
 void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
@@ -21,17 +21,16 @@ void mx_dielectric_bsdf(float weight, color tint, float ior, vector2 roughness, 
     float avgAlpha = mx_average_alpha(safeAlpha);
     float comp = mx_ggx_energy_compensation(NdotV, avgAlpha, F);
 
+    // Calculate throughput from directional albedo.
+    float dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, ior) * comp;
+    bsdf.throughput = 1.0 - dirAlbedo * weight;
+
     if (scatter_mode == "R")
     {
         bsdf.response = tint * weight * comp * microfacet(distribution, N, U, safeAlpha.x, safeAlpha.y, ior, 0);
-
-        // Calculate throughput from directional albedo.
-        float dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, ior) * comp;
-        bsdf.throughput = 1.0 - dirAlbedo * weight;
     }
     else
     {
         bsdf.response = tint * weight * comp * microfacet(distribution, N, U, safeAlpha.x, safeAlpha.y, ior, 2);
-        bsdf.throughput = color(1.0);
     }
 }

@@ -6,21 +6,10 @@
 #include <nanogui/slider.h>
 #include <nanogui/vscrollpanel.h>
 
-namespace {
-
-class EditorFormHelper : public ng::FormHelper
+namespace
 {
-  public:
-    explicit EditorFormHelper(ng::Screen *screen) : ng::FormHelper(screen) { }
-    ~EditorFormHelper() { }
-
-    void setPreGroupSpacing(int val) { m_pre_group_spacing = val; }
-    void setPostGroupSpacing(int val) { m_post_group_spacing = val; }
-    void setVariableSpacing(int val) { m_variable_spacing = val; }
-};
 
 // Custom color picker with numeric entry and feedback.
-//
 class EditorColorPicker : public ng::ColorPicker
 {
   public:
@@ -741,7 +730,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     return box;
 }
 
-ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
+ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
     const mx::UIProperties* ui, std::function<void(int)> callback)
 {
     new ng::Label(parent, label);

@@ -1,5 +1,23 @@
 # Change Log
 
+## [1.38.5] - Development
+
+### Added
+- Added a [refraction approximation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/918) for transmissive surfaces in GLSL, selected by the hwTransmissionRenderMethod generator option.
+- Added support for generalized Schlick transmission in GLSL and OSL.
+- Added static and dynamic analysis tests to GitHub Actions builds.
+
+### Changed
+- Switched to [relative shader includes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/926) within the MaterialX data libraries, enabling custom folder names in distributions.
+- Improved and extended the sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/).
+
+### Fixed
+- Fixed math for normalizing normal and tangent vectors in GLSL.
+- Fixed math for transforming a vector4 by a matrix in OSL.
+- Fixed compatibility of OSL Worley noise with OSL 1.9.10.
+- Fixed layering of thin-film effects in the Standard Surface shading model.
+- Fixed input default values in the glTF PBR shading model.
+
 ## [1.38.4] - 2022-04-06
 
 ### Added

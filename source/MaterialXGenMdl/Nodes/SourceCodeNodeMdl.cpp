@@ -34,7 +34,7 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
     {
         if (_functionName.empty())
         {
-            size_t pos = _functionSource.find_first_of("(");
+            size_t pos = _functionSource.find_first_of('(');
             string functionName = _functionSource.substr(0, pos);
             _returnStruct = functionName + "__result";
         }

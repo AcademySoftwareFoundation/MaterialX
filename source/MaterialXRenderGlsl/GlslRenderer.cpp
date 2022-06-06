@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLContext.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
@@ -38,7 +38,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _center(0.0f, 0.0f, 0.0f),
     _up(0.0f, 1.0f, 0.0f),
     _objectScale(1.0f),
-    _clearColor(0.3f, 0.3f, 0.32f, 1.0f)
+    _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {
     _program = GlslProgram::create();
 
@@ -69,14 +69,12 @@ void GlslRenderer::initialize()
 
         if (_context->makeCurrent())
         {
-            // Initialize glew
-            glewInit();
-#if !defined(__APPLE__)
-            if (!glewIsSupported("GL_VERSION_4_0"))
+            // Initialize glad
+            if (!gladLoadGL())
             {
-                throw ExceptionRenderError("OpenGL version 4.0 is required");
+                throw ExceptionRenderError("OpenGL support is required");
             }
-#endif
+
             glClearStencil(0);
 
             _framebuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
@@ -175,7 +173,7 @@ void GlslRenderer::render()
     // Set up target
     _framebuffer->bind();
 
-    glClearColor(_clearColor[0], _clearColor[1], _clearColor[2], _clearColor[3]);
+    glClearColor(_screenColor[0], _screenColor[1], _screenColor[2], 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -322,11 +320,6 @@ void GlslRenderer::drawScreenSpaceQuad(const Vector2& uvMin, const Vector2& uvMa
     glDeleteVertexArrays(1, &vao);
 
     checkGlErrors("after draw screen-space quad");
-}
-
-void GlslRenderer::setClearColor(const Color4& clearColor)
-{
-    _clearColor = clearColor;
 }
 
 MATERIALX_NAMESPACE_END

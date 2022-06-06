@@ -21,6 +21,7 @@ void bindPyUtil(py::module& mod)
     mod.def("isValidName", &mx::isValidName);
     mod.def("incrementName", &mx::incrementName);
     mod.def("splitString", &mx::splitString);
+    mod.def("joinStrings", &mx::joinStrings);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
     mod.def("stringEndsWith", &mx::stringEndsWith);
     mod.def("splitNamePath", &mx::splitNamePath);
