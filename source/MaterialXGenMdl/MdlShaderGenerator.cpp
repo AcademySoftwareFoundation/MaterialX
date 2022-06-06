@@ -628,23 +628,24 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         const string& qualifier = input->isUniform() || input->getType()==Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = _syntax->getTypeName(input->getType());
-        const string value = (input->getValue() ?
-            _syntax->getValue(input->getType(), *input->getValue(), true) :
-            _syntax->getDefaultValue(input->getType(), true));
 
-        emitLineBegin(stage);
-
+        string value = input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;
         const string& geomprop = input->getGeomProp();
         if (!geomprop.empty())
         {
             auto it = GEOMPROP_DEFINITIONS.find(geomprop);
-            const string& v = it != GEOMPROP_DEFINITIONS.end() ? it->second : value;
-            emitString(type + " " + input->getVariable() + " = " + v, stage);
+            if (it != GEOMPROP_DEFINITIONS.end())
+            {
+                value = it->second;
+            }
         }
-        else
+        if (value.empty())
         {
-            emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
+            value = _syntax->getDefaultValue(input->getType(), true);
         }
+
+        emitLineBegin(stage);
+        emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
 
         if (i < inputs.size() - 1)
         {
