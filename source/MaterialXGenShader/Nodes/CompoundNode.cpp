@@ -45,6 +45,12 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     _hash = std::hash<string>{}(_functionName);
 }
 
+void CompoundNode::addClassification(ShaderNode& node) const
+{
+    // Add classification from the graph implementation.
+    node.addClassification(_rootGraph->getClassification());
+}
+
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Gather shader inputs from all child nodes
