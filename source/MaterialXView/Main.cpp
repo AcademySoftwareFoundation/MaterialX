@@ -86,7 +86,7 @@ int main(int argc, char* const argv[])
     }
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string meshFilename = "resources/Geometry/shaderball.obj";
+    std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders;

@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLContext.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
@@ -69,14 +69,12 @@ void GlslRenderer::initialize()
 
         if (_context->makeCurrent())
         {
-            // Initialize glew
-            glewInit();
-#if !defined(__APPLE__)
-            if (!glewIsSupported("GL_VERSION_4_0"))
+            // Initialize glad
+            if (!gladLoadGL())
             {
-                throw ExceptionRenderError("OpenGL version 4.0 is required");
+                throw ExceptionRenderError("OpenGL support is required");
             }
-#endif
+
             glClearStencil(0);
 
             _framebuffer = GLFramebuffer::create(_width, _height, 4, _baseType);
