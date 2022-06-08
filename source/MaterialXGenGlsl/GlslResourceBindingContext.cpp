@@ -29,7 +29,7 @@ void GlslResourceBindingContext::initialize()
 
 void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     // Write shader stage directives for Vulkan compliance if required
     if (_separateBindingLocation)

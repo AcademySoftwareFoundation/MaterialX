@@ -344,7 +344,7 @@ class MX_CORE_API Document : public GraphElement
     /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
     /// @return New declaration if successful.
     NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, string& newGraphName);
+                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
