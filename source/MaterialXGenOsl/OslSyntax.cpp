@@ -212,14 +212,14 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
         AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
 
-    string getValue(const Value& value, bool uniform) const
+    string getValue(const Value& value, bool uniform) const override
     {
         ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
         StringVec values = splitString(value.getValueString(), ",");
         return getValue(values, uniform);
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const
+    string getValue(const StringVec& values, bool /*uniform*/) const override
     {
         if (values.empty())
         {
