@@ -509,7 +509,7 @@ void HwShaderGenerator::bindLightShader(const NodeDef& nodeDef, unsigned int lig
     {
         for (ShaderGraphInputSocket* inputSockets : graph->getInputSockets())
         {
-            inputSockets->setVariable("light." + inputSockets->getVariable());
+            inputSockets->setVariable("light." + inputSockets->getName());
         }
     }
 
