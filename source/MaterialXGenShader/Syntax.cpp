@@ -402,7 +402,8 @@ AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defau
 
 string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
-    return getName() + "(" + value.getValueString() + ")";
+    const string valueString = value.getValueString();
+    return valueString.empty() ? valueString : getName() + "(" + valueString + ")";
 }
 
 string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const

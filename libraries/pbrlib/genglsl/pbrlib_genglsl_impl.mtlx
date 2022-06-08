@@ -55,6 +55,10 @@
   <!-- <surface> -->
   <implementation name="IM_surface_genglsl" nodedef="ND_surface" target="genglsl" />
 
+  <!-- <displacement> -->
+  <implementation name="IM_displacement_float_genglsl" nodedef="ND_displacement_float" file="mx_displacement_float.glsl" function="mx_displacement_float" target="genglsl" />
+  <implementation name="IM_displacement_vector3_genglsl" nodedef="ND_displacement_vector3" file="mx_displacement_vector3.glsl" function="mx_displacement_vector3" target="genglsl" />
+
   <!-- <light> -->
   <implementation name="IM_light_genglsl" nodedef="ND_light" target="genglsl" />
 

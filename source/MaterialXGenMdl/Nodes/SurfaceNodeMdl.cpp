@@ -69,7 +69,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         shadergen.emitLineBegin(stage);
 
         // Emit the output and funtion name.
-        shadergen.emitOutput(node.getOutput(0), true, false, context, stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = mx::pbrlib::mx_surface(", stage);
 
         // Emit all inputs on the node.
