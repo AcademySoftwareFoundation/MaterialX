@@ -426,6 +426,15 @@ MdlSyntax::MdlSyntax()
 
     registerTypeSyntax
     (
+        Type::MATERIAL,
+        std::make_shared<ScalarTypeSyntax>(
+            "material",
+            "material()",
+            "material()")
+    );
+
+    registerTypeSyntax
+    (
         Type::MDL_ADDRESSMODE,
         std::make_shared<MdlEnumSyntax>(
             "mx_addressmode_type",

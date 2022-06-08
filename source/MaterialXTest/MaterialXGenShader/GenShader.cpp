@@ -237,12 +237,6 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
                 {
                     continue;
                 }
-                if (node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING)
-                {
-                    std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
-                    if (!shaderNodes.empty())
-                        node = shaderNodes[0];
-                }
                 if (testValue != mx::isTransparentSurface(node))
                 {
                     failedTests.push_back(std::string("File: ") + testFile.asString() + std::string(". Element: ")

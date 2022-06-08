@@ -376,6 +376,16 @@ GlslSyntax::GlslSyntax()
             EMPTY_STRING,
             "struct lightshader { vec3 intensity; vec3 direction; };")
     );
+
+    registerTypeSyntax
+    (
+        Type::MATERIAL,
+        std::make_shared<AggregateTypeSyntax>(
+            "material",
+            "material(vec3(0.0),vec3(0.0))",
+            EMPTY_STRING,
+            "surfaceshader")
+    );
 }
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const

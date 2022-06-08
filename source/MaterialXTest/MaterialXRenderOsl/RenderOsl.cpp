@@ -40,7 +40,7 @@ class TangentOsl : public mx::ShaderNodeImpl
         BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(vector(N.z, 0, -N.x))", stage);
+            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
             shadergen.emitLineEnd(stage);
         END_SHADER_STAGE(stage, mx::Stage::PIXEL)
     }
@@ -61,7 +61,7 @@ class BitangentOsl : public mx::ShaderNodeImpl
         BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(cross(N, vector(N.z, 0, -N.x)))", stage);
+            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
             shadergen.emitLineEnd(stage);
         END_SHADER_STAGE(stage, mx::Stage::PIXEL)
     }

@@ -28,6 +28,7 @@
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
+#include <MaterialXGenShader/Nodes/MaterialNode.h>
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
@@ -264,6 +265,9 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
 
+    // <!-- <surfacematerial> -->
+    registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
+
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", NumLightsNodeGlsl::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", LightSamplerNodeGlsl::create()));
 }
@@ -486,8 +490,8 @@ string GlslShaderGenerator::getVertexDataPrefix(const VariableBlock& vertexData)
 
 bool GlslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 {
-    bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
-    bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
+    const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
+    const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
                               graph.hasClassification(ShaderNode::Classification::SURFACE) &&
                               !graph.hasClassification(ShaderNode::Classification::UNLIT);
     return isBsdf || isLitSurfaceShader;
@@ -622,9 +626,21 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             // closure/shader nodes and need to be emitted first.
             emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
 
-            // Emit function calls for all surface shader nodes.
-            // These will internally emit their closure function calls.
-            emitFunctionCalls(graph, context, stage, ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE);
+            // Emit function calls for "root" closure/shader nodes.
+            // These will internally emit function calls for any dependent closure nodes upstream.
+            for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
+            {
+                if (socket->getConnection())
+                {
+                    const ShaderNode* upstream = socket->getConnection()->getNode();
+                    if (upstream->getParent() == &graph &&
+                        (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || 
+                            upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                    {
+                        emitFunctionCall(*upstream, context, stage);
+                    }
+                }
+            }
         }
         else
         {
@@ -820,8 +836,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         {
             impl = LightCompoundNodeGlsl::create();
         }
-        else if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                 outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        else if (outputType->isClosure())
         {
             impl = ClosureCompoundNode::create();
         }
@@ -837,8 +852,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            if (outputType->isClosure())
             {
                 impl = ClosureSourceCodeNode::create();
             }

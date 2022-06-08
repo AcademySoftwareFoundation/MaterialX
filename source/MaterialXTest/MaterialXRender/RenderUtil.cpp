@@ -306,166 +306,112 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
             for (const auto& element : elements)
             {
-                std::vector<mx::TypedElementPtr> targetElements;
-                std::vector<mx::NodeDefPtr> nodeDefs;
+                const mx::string elementName = mx::createValidName(mx::replaceSubstrings(element->getNamePath(), pathMap));
 
-                mx::OutputPtr output = element->asA<mx::Output>();
-                mx::NodePtr outputNode = element->asA<mx::Node>();
+                auto it = std::find_if(options.wedgeSettings.begin(), options.wedgeSettings.end(),
+                    [&file] (const GenShaderUtil::TestSuiteOptions::WedgeSetting& setting) {
+                        return (file.asString() == setting.wedgeFile);
+                    });
 
-                if (output)
+                const bool performWedge = (it != options.wedgeSettings.end()) ? true : false;
+                if (!performWedge)
                 {
-                    outputNode = output->getConnectedNode();
-                    // Handle connected upstream material nodes later on.
-                    if (outputNode->getType() != mx::MATERIAL_TYPE_STRING)
-                    {
-                        mx::NodeDefPtr nodeDef = outputNode->getNodeDef();
-                        if (nodeDef)
-                        {
-                            nodeDefs.push_back(nodeDef);
-                            targetElements.push_back(output);
-                        }
-                    }
+                    runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
                 }
-
-                // Get connected shader nodes if a material node.
-                if (outputNode && outputNode->getType() == mx::MATERIAL_TYPE_STRING)
+                else
                 {
-                    for (mx::NodePtr node : getShaderNodes(outputNode))
+                    for (auto &wedgesetting: options.wedgeSettings)
                     {
-                        mx::NodeDefPtr nodeDef = node->getNodeDef();
-                        if (nodeDef)
+                        mx::ImageVec imageVec;
+
+                        const std::string& wedgeFile = wedgesetting.wedgeFile;
+                        if (wedgeFile != file.asString())
                         {
-                            nodeDefs.push_back(nodeDef);
-                            targetElements.push_back(node);
+                            continue;
                         }
-                    }
-                }
 
-                for (size_t i=0; i < targetElements.size(); ++i)
-                {
-                    const mx::NodeDefPtr& nodeDef = nodeDefs[i];
-                    const mx::TypedElementPtr& targetElement = targetElements[i];
-                    const mx::string elementName = mx::createValidName(mx::replaceSubstrings(targetElement->getNamePath(), pathMap));
-                    {
-                        renderableSearchTimer.startTimer();
-                        mx::InterfaceElementPtr impl = nodeDef->getImplementation(_shaderGenerator->getTarget());
-                        renderableSearchTimer.endTimer();
-                        if (impl)
+                        // Make this a utility
+                        std::string parameterPath = wedgesetting.parameter;
+                        mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
+                        if (!uniformElement)
                         {
-                            if (options.checkImplCount)
+                            std::string nodePath = mx::parentNamePath(parameterPath);
+                            mx::ElementPtr uniformParent = doc->getDescendant(nodePath);
+                            if (uniformParent)
                             {
-                                mx::NodeGraphPtr nodeGraph = impl->asA<mx::NodeGraph>();
-                                mx::InterfaceElementPtr nodeGraphImpl = nodeGraph ? nodeGraph->getImplementation() : nullptr;
-                                usedImpls.insert(nodeGraphImpl ? nodeGraphImpl->getName() : impl->getName());
-                            }
-
-                            auto it = std::find_if(options.wedgeSettings.begin(), options.wedgeSettings.end(),
-                                [&file] (const GenShaderUtil::TestSuiteOptions::WedgeSetting& setting) {
-                                    return (file.asString() == setting.wedgeFile);
-                                });
-
-                            bool performWedge = (it != options.wedgeSettings.end()) ? true : false;
-                            if (!performWedge)
-                            {
-                                runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, nullptr);
-                            }
-                            else
-                            {
-                                for (auto &wedgesetting: options.wedgeSettings)
+                                mx::NodePtr uniformNode = uniformParent->asA<mx::Node>();
+                                if (uniformNode)
                                 {
-                                    mx::ImageVec imageVec;
-
-                                    const std::string& wedgeFile = wedgesetting.wedgeFile;
-                                    if (wedgeFile != file.asString())
-                                    {
-                                        continue;
-                                    }
-
-                                    // Make this a utility
-                                    std::string parameterPath = wedgesetting.parameter;
-                                    mx::ElementPtr uniformElement = doc->getDescendant(parameterPath);
-                                    if (!uniformElement)
-                                    {
-                                        std::string nodePath = mx::parentNamePath(parameterPath);
-                                        mx::ElementPtr uniformParent = doc->getDescendant(nodePath);
-                                        if (uniformParent)
-                                        {
-                                            mx::NodePtr uniformNode = uniformParent->asA<mx::Node>();
-                                            if (uniformNode)
-                                            {
-                                                mx::StringVec pathVec = mx::splitNamePath(parameterPath);
-                                                uniformNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
-                                            }
-                                        }
-                                    }
-                                    uniformElement = doc->getDescendant(parameterPath);
-                                    mx::ValueElementPtr valueElement = uniformElement ? uniformElement->asA<mx::ValueElement>() : nullptr;
-                                    if (!valueElement)
-                                    {
-                                        continue;
-                                    }
-
-                                    mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
-                                    mx::ValuePtr newValue = valueElement->getValue();
-
-                                    float wedgePropertyMin = wedgesetting.range[0];
-                                    float wedgePropertyMax = wedgesetting.range[1];
-                                    int wedgeImageCount = std::max(wedgesetting.steps, 2);
-
-                                    float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
-                                    for (int w = 0; w < wedgeImageCount; w++)
-                                    {
-                                        bool setValue = false;
-                                        float propertyValue = (w == wedgeImageCount - 1) ? wedgePropertyMax : wedgePropertyMin + wedgePropertyStep * w;
-                                        if (origPropertyValue->isA<int>())
-                                        {
-                                            valueElement->setValue(static_cast<int>(propertyValue));
-                                            setValue = true;
-                                        }
-                                        else if (origPropertyValue->isA<float>())
-                                        {
-                                            valueElement->setValue(propertyValue);
-                                            setValue = true;
-                                        }
-                                        else if (origPropertyValue->isA<mx::Vector2>())
-                                        {
-                                            mx::Vector2 val(propertyValue, propertyValue);
-                                            valueElement->setValue(val);
-                                            setValue = true;
-                                        }
-                                        else if (origPropertyValue->isA<mx::Color3>() ||
-                                            origPropertyValue->isA<mx::Vector3>())
-                                        {
-                                            mx::Vector3 val(propertyValue, propertyValue, propertyValue);
-                                            valueElement->setValue(val);
-                                            setValue = true;
-                                        }
-                                        else if (origPropertyValue->isA<mx::Color4>() ||
-                                            origPropertyValue->isA<mx::Vector4>())
-                                        {
-                                            mx::Vector4 val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
-                                            valueElement->setValue(val);
-                                            setValue = true;
-                                        }
-
-                                        if (setValue)
-                                        {
-                                            runRenderer(elementName, targetElement, context, doc, log, options, profileTimes, imageSearchPath, outputPath, &imageVec);
-                                        }
-                                    }
-
-                                    if (!imageVec.empty())
-                                    {
-                                        mx::ImagePtr wedgeImage = mx::createImageStrip(imageVec);
-                                        if (wedgeImage)
-                                        {
-                                            std::string wedgeFileName = mx::createValidName(mx::replaceSubstrings(parameterPath, pathMap));
-                                            wedgeFileName += "_" + _shaderGenerator->getTarget() + ".bmp";
-                                            mx::FilePath wedgePath = outputPath / wedgeFileName;
-                                            saveImage(wedgePath, wedgeImage, true);
-                                        }
-                                    }
+                                    mx::StringVec pathVec = mx::splitNamePath(parameterPath);
+                                    uniformNode->addInputFromNodeDef(pathVec[pathVec.size() - 1]);
                                 }
+                            }
+                        }
+                        uniformElement = doc->getDescendant(parameterPath);
+                        mx::ValueElementPtr valueElement = uniformElement ? uniformElement->asA<mx::ValueElement>() : nullptr;
+                        if (!valueElement)
+                        {
+                            continue;
+                        }
+
+                        mx::ValuePtr origPropertyValue(valueElement ? valueElement->getValue() : nullptr);
+                        mx::ValuePtr newValue = valueElement->getValue();
+
+                        float wedgePropertyMin = wedgesetting.range[0];
+                        float wedgePropertyMax = wedgesetting.range[1];
+                        int wedgeImageCount = std::max(wedgesetting.steps, 2);
+
+                        float wedgePropertyStep = (wedgePropertyMax - wedgePropertyMin) / (wedgeImageCount - 1);
+                        for (int w = 0; w < wedgeImageCount; w++)
+                        {
+                            bool setValue = false;
+                            float propertyValue = (w == wedgeImageCount - 1) ? wedgePropertyMax : wedgePropertyMin + wedgePropertyStep * w;
+                            if (origPropertyValue->isA<int>())
+                            {
+                                valueElement->setValue(static_cast<int>(propertyValue));
+                                setValue = true;
+                            }
+                            else if (origPropertyValue->isA<float>())
+                            {
+                                valueElement->setValue(propertyValue);
+                                setValue = true;
+                            }
+                            else if (origPropertyValue->isA<mx::Vector2>())
+                            {
+                                mx::Vector2 val(propertyValue, propertyValue);
+                                valueElement->setValue(val);
+                                setValue = true;
+                            }
+                            else if (origPropertyValue->isA<mx::Color3>() ||
+                                origPropertyValue->isA<mx::Vector3>())
+                            {
+                                mx::Vector3 val(propertyValue, propertyValue, propertyValue);
+                                valueElement->setValue(val);
+                                setValue = true;
+                            }
+                            else if (origPropertyValue->isA<mx::Color4>() ||
+                                origPropertyValue->isA<mx::Vector4>())
+                            {
+                                mx::Vector4 val(propertyValue, propertyValue, propertyValue, origPropertyValue->isA<mx::Color4>() ? 1.0f : propertyValue);
+                                valueElement->setValue(val);
+                                setValue = true;
+                            }
+
+                            if (setValue)
+                            {
+                                runRenderer(elementName, element, context, doc, log, options, profileTimes, imageSearchPath, outputPath, &imageVec);
+                            }
+                        }
+
+                        if (!imageVec.empty())
+                        {
+                            mx::ImagePtr wedgeImage = mx::createImageStrip(imageVec);
+                            if (wedgeImage)
+                            {
+                                std::string wedgeFileName = mx::createValidName(mx::replaceSubstrings(parameterPath, pathMap));
+                                wedgeFileName += "_" + _shaderGenerator->getTarget() + ".bmp";
+                                mx::FilePath wedgePath = outputPath / wedgeFileName;
+                                saveImage(wedgePath, wedgeImage, true);
                             }
                         }
                     }

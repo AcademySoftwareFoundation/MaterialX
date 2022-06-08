@@ -333,29 +333,30 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t TEXTURE       = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
         static const uint32_t CLOSURE       = 1 << 1;  /// Any node that represents light integration
         static const uint32_t SHADER        = 1 << 2;  /// Any node that outputs a shader
+        static const uint32_t MATERIAL      = 1 << 3;  /// Any node that outputs a material
         // Specific texture node types
-        static const uint32_t FILETEXTURE   = 1 << 3;  /// A file texture node
-        static const uint32_t CONDITIONAL   = 1 << 4;  /// A conditional node
-        static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
+        static const uint32_t FILETEXTURE   = 1 << 4;  /// A file texture node
+        static const uint32_t CONDITIONAL   = 1 << 5;  /// A conditional node
+        static const uint32_t CONSTANT      = 1 << 6;  /// A constant node
         // Specific closure types
-        static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
-        static const uint32_t BSDF_R        = 1 << 7;  /// A reflection BSDF node
-        static const uint32_t BSDF_T        = 1 << 8;  /// A transmission BSDF node
-        static const uint32_t EDF           = 1 << 9;  /// A EDF node
-        static const uint32_t VDF           = 1 << 10; /// A VDF node
-        static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
-        static const uint32_t THINFILM      = 1 << 12; /// A node for adding thin-film over microfacet BSDF nodes
+        static const uint32_t BSDF          = 1 << 7;  /// A BSDF node
+        static const uint32_t BSDF_R        = 1 << 8;  /// A reflection BSDF node
+        static const uint32_t BSDF_T        = 1 << 9;  /// A transmission BSDF node
+        static const uint32_t EDF           = 1 << 10; /// A EDF node
+        static const uint32_t VDF           = 1 << 11; /// A VDF node
+        static const uint32_t LAYER         = 1 << 12; /// A node for vertical layering of other closure nodes
+        static const uint32_t THINFILM      = 1 << 13; /// A node for adding thin-film over microfacet BSDF nodes
         // Specific shader types
-        static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
-        static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
-        static const uint32_t LIGHT         = 1 << 15; /// A light shader node
-        static const uint32_t UNLIT         = 1 << 16; /// An unlit surface shader node
+        static const uint32_t SURFACE       = 1 << 14; /// A surface shader node
+        static const uint32_t VOLUME        = 1 << 15; /// A volume shader node
+        static const uint32_t LIGHT         = 1 << 16; /// A light shader node
+        static const uint32_t UNLIT         = 1 << 17; /// An unlit surface shader node
         // Specific conditional types
-        static const uint32_t IFELSE        = 1 << 17; /// An if-else statement
-        static const uint32_t SWITCH        = 1 << 18; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 18; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 19; /// A switch statement
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 19; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 20; /// Can be sampled in 3D (position)
+        static const uint32_t SAMPLE2D      = 1 << 20; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 21; /// Can be sampled in 3D (position)
     };
 
     /// @struct ScopeInfo
@@ -391,6 +392,7 @@ class MX_GENSHADER_API ShaderNode
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string SURFACESHADER;
     static const string SCATTER_MODE;
     static const string BSDF_R;
     static const string BSDF_T;
@@ -423,6 +425,25 @@ class MX_GENSHADER_API ShaderNode
     const ShaderGraph* getParent() const
     {
         return _parent;
+    }
+
+    /// Set classification bits for this node,
+    /// replacing any previous set bits.
+    void setClassification(uint32_t c)
+    {
+        _classification = c;
+    }
+
+    /// Get classification bits set for this node.
+    uint32_t getClassification() const
+    {
+        return _classification;
+    }
+
+    /// Add classification bits to this node.
+    void addClassification(uint32_t c)
+    {
+        _classification |= c;
     }
 
     /// Return true if this node matches the given classification.
