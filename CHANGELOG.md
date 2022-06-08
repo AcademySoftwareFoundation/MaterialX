@@ -5,7 +5,10 @@
 ### Added
 - Added a [refraction approximation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/918) for transmissive surfaces in GLSL, selected by the hwTransmissionRenderMethod generator option.
 - Added support for generalized Schlick transmission in GLSL and OSL.
+- Added support for code generation from material nodes.
+- Added the [Chess Set](https://github.com/AcademySoftwareFoundation/MaterialX/pull/982) example from the [Karma: A Beautiful Game](https://www.sidefx.com/tutorials/karma-a-beautiful-game/) tutorial.  Contributed to the MaterialX project by SideFX, original artwork by Moeen and Mujtaba Sayed.
 - Added static and dynamic analysis tests to GitHub Actions builds.
+- Added support for GCC 12, Clang 13, and Clang 14.
 
 ### Changed
 - Switched to [relative shader includes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/926) within the MaterialX data libraries, enabling custom folder names in distributions.
