@@ -169,7 +169,7 @@ void Document::initialize()
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
-                                         const string& version, bool isDefaultVersion, const string& group, string& newGraphName)
+                                         const string& version, bool isDefaultVersion, const string& group, const string& newGraphName)
 {
     if (getNodeDef(nodeDefName))
     {
