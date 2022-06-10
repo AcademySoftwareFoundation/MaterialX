@@ -83,8 +83,8 @@ The following are common command-line options for MaterialXView, and a complete 
 - `--meshScale [FLOAT]` : Specify the uniform scale of the displayed mesh
 - `--cameraPosition [VECTOR3]` : Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)
 - `--cameraTarget [VECTOR3]` : Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)
-- `--cameraViewAngle [FLOAT]` : Specify the view angle of the camera (defaults to 45)
-- `--cameraZoom [FLOAT]` : Specify the amount to zoom the camera. (defaults to 1.0)
+- `--cameraViewAngle [FLOAT]` : Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)
+- `--cameraZoom [FLOAT]` : Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)
 - `--envRad [FILENAME]` : Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format
 - `--envMethod [INTEGER]` : Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)
 - `--envSampleCount [INTEGER]` :  Specify the environment sample count (defaults to 16)
