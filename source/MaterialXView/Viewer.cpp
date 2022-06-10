@@ -47,6 +47,9 @@ const int ALBEDO_TABLE_SIZE = 128;
 const int IRRADIANCE_MAP_WIDTH = 256;
 const int IRRADIANCE_MAP_HEIGHT = 128;
 
+const float ORTHO_VIEW_DISTANCE = 1000.0f;
+const float ORTHO_PROJECTION_HEIGHT = 1.8f;
+
 const std::string DIR_LIGHT_NODE_CATEGORY = "directional_light";
 const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
 
@@ -2350,8 +2353,22 @@ void Viewer::initCamera()
 
 void Viewer::updateCameras()
 {
-    float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
-    float fW = fH * (float) m_size.x() / (float) m_size.y();
+    mx::Matrix44 viewMatrix, projectionMatrix;
+    float aspectRatio = (float) m_size.x() / (float) m_size.y();
+    if (_cameraViewAngle != 0.0f)
+    {
+        viewMatrix = mx::Camera::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
+        float fH = std::tan(_cameraViewAngle / 360.0f * PI) * _cameraNearDist;
+        float fW = fH * aspectRatio;
+        projectionMatrix = mx::Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist);
+    }
+    else
+    {
+        viewMatrix = mx::Matrix44::createTranslation(mx::Vector3(0.0f, 0.0f, -ORTHO_VIEW_DISTANCE));
+        float fH = ORTHO_PROJECTION_HEIGHT;
+        float fW = fH * aspectRatio;
+        projectionMatrix = mx::Camera::createOrthographicMatrix(-fW, fW, -fH, fH, 0.0f, ORTHO_VIEW_DISTANCE + _cameraFarDist);
+    }
 
     float turntableRotation = fmod((360.0f / _turntableSteps) * _turntableStep, 360.0f);
     float yRotation = _meshRotation[1] + (_turntableEnabled ? turntableRotation : 0.0f);
@@ -2368,8 +2385,8 @@ void Viewer::updateCameras()
     _viewCamera->setWorldMatrix(meshRotation *
                                 mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
                                 mx::Matrix44::createScale(mx::Vector3(_meshScale * _cameraZoom)));
-    _viewCamera->setViewMatrix(arcball * mx::Camera::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp));
-    _viewCamera->setProjectionMatrix(mx::Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, _cameraNearDist, _cameraFarDist));
+    _viewCamera->setViewMatrix(arcball * viewMatrix);
+    _viewCamera->setProjectionMatrix(projectionMatrix);
 
     _envCamera->setWorldMatrix(mx::Matrix44::createScale(mx::Vector3(300.0f)));
     _envCamera->setViewMatrix(_viewCamera->getViewMatrix());
