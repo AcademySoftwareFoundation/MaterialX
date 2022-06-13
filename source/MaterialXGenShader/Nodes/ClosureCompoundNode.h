@@ -17,6 +17,8 @@ class MX_GENSHADER_API ClosureCompoundNode : public CompoundNode
 public:
     static ShaderNodeImplPtr create();
 
+    void addClassification(ShaderNode& node) const override;
+
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;

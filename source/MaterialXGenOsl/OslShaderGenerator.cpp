@@ -18,6 +18,7 @@
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
+#include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
@@ -182,6 +183,9 @@ OslShaderGenerator::OslShaderGenerator() :
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
+    // <!-- <surfacematerial> -->
+    registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNode::create);
+
     // Extra arguments for texture lookups.
     _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
@@ -288,15 +292,16 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // closure/shader nodes and need to be emitted first.
     emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
 
-    // Emit function calls for internal closures nodes connected to the graph sockets.
-    // These will in turn emit function calls for any dependent closure nodes upstream.
-    for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
+    // Emit function calls for "root" closure/shader nodes.
+    // These will internally emit function calls for any dependent closure nodes upstream.
+    for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
-        if (outputSocket->getConnection())
+        if (socket->getConnection())
         {
-            const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+            const ShaderNode* upstream = socket->getConnection()->getNode();
             if (upstream->getParent() == &graph &&
-                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || 
+                    upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 emitFunctionCall(*upstream, context, stage);
             }
@@ -496,18 +501,23 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         string value = _syntax->getValue((ShaderPort*)input, true);
 
         emitLineBegin(stage);
+        emitString(type + " " + input->getVariable(), stage);
 
         const string& geomprop = input->getGeomProp();
         if (!geomprop.empty())
         {
             auto it = GEOMPROP_DEFINITIONS.find(geomprop);
-            const string& v = it != GEOMPROP_DEFINITIONS.end() ? it->second : value;
-            emitString(type + " " + input->getVariable() + " = " + v, stage);
+            if (it != GEOMPROP_DEFINITIONS.end())
+            {
+                value = it->second;
+            }
         }
-        else
+
+        if (value.empty())
         {
-            emitString(type + " " + input->getVariable() + " = " + value, stage);
+            value = _syntax->getDefaultValue(input->getType());
         }
+        emitString(" = " + value, stage);
 
         //
         // Add shader input metadata.

@@ -224,7 +224,7 @@ void documentFromXml(DocumentPtr doc,
     }
 }
 
-void validateParseResult(xml_parse_result& result, const FilePath& filename = FilePath())
+void validateParseResult(const xml_parse_result& result, const FilePath& filename = FilePath())
 {
     if (result)
     {

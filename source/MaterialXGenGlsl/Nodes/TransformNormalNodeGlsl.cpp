@@ -20,7 +20,7 @@ void TransformNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContex
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const ShaderOutput* output = node.getOutput();
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(output, true, false, context, stage);
+        shadergen.emitOutput(output, false, false, context, stage);
         shadergen.emitString(" = normalize(" + output->getVariable() + ")", stage);
         shadergen.emitLineEnd(stage);
     END_SHADER_STAGE(stage, Stage::PIXEL)

@@ -478,8 +478,8 @@ float mx_worley_distance(vector2 p, int x, int y, int X, int Y, float jitter, in
 {
     vector o = cellnoise(x+X, y+Y);
     o = (o - .5)*jitter + .5;
-    float cposx = x + o.x;
-    float cposy = y + o.y;
+    float cposx = x + o[0];
+    float cposy = y + o[1];
     float diffx = cposx - p.x;
     float diffy = cposy - p.y;
 
@@ -498,10 +498,10 @@ float mx_worley_distance(vector p, int x, int y, int z, int X, int Y, int Z, flo
     vector diff = cpos - p;
 
     if (metric == 2)
-        return abs(diff.x) + abs(diff.y);     // Manhattan distance
+        return abs(diff[0]) + abs(diff[1]);     // Manhattan distance
     if (metric == 3)
-        return max(abs(diff.x), abs(diff.y)); // Chebyshev distance
-    return dot(diff, diff);                   // Eucldean or distance^2
+        return max(abs(diff[0]), abs(diff[1])); // Chebyshev distance
+    return dot(diff, diff);                     // Eucldean or distance^2
 }
 
 void mx_sort_distance(float dist, output vector2 result)
@@ -519,20 +519,20 @@ void mx_sort_distance(float dist, output vector2 result)
 
 void mx_sort_distance(float dist, output vector result)
 {
-    if (dist < result.x)
+    if (dist < result[0])
     {
-        result.z = result.y;
-        result.y = result.x;
-        result.x = dist;
+        result[2] = result[1];
+        result[1] = result[0];
+        result[0] = dist;
     }
-    else if (dist < result.y)
+    else if (dist < result[1])
     {
-        result.z = result.y;
-        result.y = dist;
+        result[2] = result[1];
+        result[1] = dist;
     }
-    else if (dist < result.z)
+    else if (dist < result[2])
     {
-        result.z = dist;
+        result[2] = dist;
     }
 }
 
@@ -605,9 +605,9 @@ float mx_worley_noise_float(vector p, float jitter, int metric)
     vector seed = p;
     float result = 1e6;
 
-    mx_split_float(seed.x, X);
-    mx_split_float(seed.y, Y);
-    mx_split_float(seed.z, Z);
+    mx_split_float(seed[0], X);
+    mx_split_float(seed[1], Y);
+    mx_split_float(seed[2], Z);
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
@@ -630,9 +630,9 @@ vector2 mx_worley_noise_vector2(vector p, float jitter, int metric)
     vector seed = p;
     vector2 result = vector2(1e6, 1e6);
 
-    mx_split_float(seed.x, X);
-    mx_split_float(seed.y, Y);
-    mx_split_float(seed.z, Z);
+    mx_split_float(seed[0], X);
+    mx_split_float(seed[1], Y);
+    mx_split_float(seed[2], Z);
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
@@ -655,9 +655,9 @@ vector mx_worley_noise_vector3(vector p, float jitter, int metric)
     vector result = 1e6;
     vector seed = p;
 
-    mx_split_float(seed.x, X);
-    mx_split_float(seed.y, Y);
-    mx_split_float(seed.z, Z);
+    mx_split_float(seed[0], X);
+    mx_split_float(seed[1], Y);
+    mx_split_float(seed[2], Z);
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)

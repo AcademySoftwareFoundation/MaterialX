@@ -70,6 +70,7 @@ The current Stakeholders of the MaterialX TSC are:
 - Jonathan Litt - Epic Games
 - André Mazzone - ILM
 - Magnus Pettersson - IKEA
+- Brian Savery - AMD
 
 ### TSC Nomination and Succession
 

@@ -86,7 +86,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-const string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
+string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
 {
     return EMPTY_STRING;
 }
@@ -96,9 +96,9 @@ HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenCo
     HwResourceBindingContextPtr resoureBindingCtx = GlslShaderGenerator::getResourceBindingContext(context);
     if (resoureBindingCtx) 
     {
-      throw ExceptionShaderGenError("The EsslShaderGenerator does not support resource binding.");
+        throw ExceptionShaderGenError("The EsslShaderGenerator does not support resource binding.");
     }
-    return resoureBindingCtx;
+    return nullptr;
 }
 
 MATERIALX_NAMESPACE_END

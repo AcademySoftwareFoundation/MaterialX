@@ -18,26 +18,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_7_Python27
+        - name: Linux_GCC_6_Python27
+          os: ubuntu-18.04
+          compiler: gcc
+          compiler_version: "6"
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_VIEWER=OFF
+
+        - name: Linux_GCC_7_Python37
           os: ubuntu-18.04
           compiler: gcc
           compiler_version: "7"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Linux_GCC_10_Python37
-          os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: "10"
           python: 3.7
-          upload_shaders: ON
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
           compiler: gcc
           compiler_version: "11"
           python: 3.9
-          test_render: ON
+          build_javascript: ON
+
+        - name: Linux_GCC_12_Python39
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.9
+          upload_shaders: ON
 
         - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
@@ -46,17 +53,23 @@ jobs:
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_11_Python37
+        - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
-          compiler_version: "11"
+          compiler_version: "10"
           python: 3.7
-          build_javascript: ON
 
-        - name: Linux_Clang_12_Python39
-          os: ubuntu-20.04
+        - name: Linux_Clang_13_Python39
+          os: ubuntu-22.04
           compiler: clang
-          compiler_version: "12"
+          compiler_version: "13"
+          python: 3.9
+          test_render: ON
+
+        - name: Linux_Clang_14_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
           python: 3.9
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
@@ -211,7 +224,7 @@ jobs:
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
       run: |
         brew install cppcheck
-        cppcheck --project=build/compile_commands.json --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -232,8 +245,8 @@ jobs:
     - name: Viewer Tests
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 100 --screenHeight 100 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 100 --screenHeight 100 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
     - name: Upload Installed Package

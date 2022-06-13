@@ -42,6 +42,10 @@ void ShaderNodeImpl::setValues(const Node&, ShaderNode&, GenContext&) const
 {
 }
 
+void ShaderNodeImpl::addClassification(ShaderNode&) const
+{
+}
+
 void ShaderNodeImpl::createVariables(const ShaderNode&, GenContext&, Shader&) const
 {
 }

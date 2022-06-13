@@ -16,7 +16,7 @@
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #elif defined(__linux__) || defined(__FreeBSD__)
-#include <MaterialXRenderGlsl/External/GLew/glxew.h>
+#include <GL/glx.h>
 #endif
 
 MATERIALX_NAMESPACE_BEGIN

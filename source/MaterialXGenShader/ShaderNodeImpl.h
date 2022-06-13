@@ -58,11 +58,14 @@ class MX_GENSHADER_API ShaderNodeImpl
         return _hash;
     }
 
-    /// Add additional inputs on the node
+    /// Add additional inputs on a node.
     virtual void addInputs(ShaderNode& node, GenContext& context) const;
 
-    /// Set values for additional inputs on the node 
+    /// Set values for additional inputs on a node.
     virtual void setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const;
+
+    /// Add additional classifications on a node.
+    virtual void addClassification(ShaderNode& node) const;
 
     /// Create shader variables needed for the implementation of this node (e.g. uniforms, inputs and outputs).
     /// Used if the node requires input data from the application.
