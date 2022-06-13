@@ -50,5 +50,6 @@ EMSCRIPTEN_BINDINGS(Util)
 {
     BIND_FUNC("isTransparentSurface", mx::isTransparentSurface, 1, 2, mx::ElementPtr, const std::string&);
 
+    ems::function("findRenderableElements", &mx::findRenderableElements);
     ems::function("findRenderableElement", &findRenderableElement);
 }

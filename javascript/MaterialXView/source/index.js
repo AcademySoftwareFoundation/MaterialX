@@ -41,7 +41,7 @@ function init()
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
         viewer.getEditor().clearFolders();
-        viewer.getMaterial().loadMaterial(viewer, materialFilename);
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
     });
 
@@ -93,8 +93,8 @@ function init()
         // Initialize viewer + lighting
         await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
 
-        // Load material
-        viewer.getMaterial().loadMaterial(viewer, materialFilename);
+        // Load materials
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
 
         // Load geometry
         viewer.getScene().loadGeometry(viewer, orbitControls);
@@ -138,7 +138,6 @@ function handleKeyEvents(event)
     const V_KEY = 86;
     const P_KEY = 80;
 
-    console.log(event.keyCode);
     if (event.keyCode == V_KEY)
     {
         viewer.getScene().toggleBackgroundTexture();

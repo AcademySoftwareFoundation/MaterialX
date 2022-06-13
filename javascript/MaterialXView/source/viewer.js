@@ -159,14 +159,19 @@ export class Scene
     }
 
     // For now every mesh uses the same material
-    updateMaterial(material)
+    updateMaterial(shader, material, geometry)
     {
         const scene = this.getScene();
         const camera = this.getCamera();
         scene.traverse((child) => {
-            if (child.isMesh) {
-                child.material = material;
-                child.material.needsUpdate = true;
+            if (child.isMesh) 
+            {
+                if (geometry == "*" || (child.name == geometry))
+                {
+                    console.log("Assign material: ", material, " to: ", child.name, " ", geometry);
+                    child.material = shader;
+                    child.material.needsUpdate = true;
+                }
             }
         });
     }
@@ -327,6 +332,13 @@ export class Editor
 
 export class Material
 {
+    constructor()
+    {
+        console.log("Create material...");
+        this._currentMaterial = null;
+        this._materialMap = new Map();
+    }
+
     // If no material file is selected, we programmatically create a default material as a fallback
     static createFallbackMaterial(doc) 
     {
@@ -342,12 +354,13 @@ export class Material
 
     async loadMaterialFile(loader, materialFilename)
     {
+        console.log("Load material file: ", materialFilename);
         return new Promise((resolve, reject) => {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
     }
 
-    async loadMaterial(viewer, materialFilename)
+    async loadMaterials(viewer, materialFilename)
     {
         const mx = viewer.getMx();
 
@@ -361,7 +374,7 @@ export class Material
         let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
 
         // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface/';
+        const searchPath = 'Materials/Examples/StandardSurface';
 
         // Load material
         if (mtlxMaterial)
@@ -369,17 +382,69 @@ export class Material
         else
             Material.createFallbackMaterial(doc);
 
-        // Search for any renderable items
-        let elem = mx.findRenderableElement(doc);
+        this._materialMap.clear();
+        var looks = doc.getLooks();
+        if (looks.length)
+        {
+            for (let look of looks)
+            {
+                const materialAssigns = look.getMaterialAssigns();
+                for (let materialAssign of materialAssigns) 
+                {
+                    let matName = materialAssign.getMaterial();
+                    if (matName)
+                    {   
+                        let mat = doc.getChild(matName);
+                        var shader;
+                        if (mat)
+                        {
+                            var shaders = mx.getShaderNodes(mat);
+                            if (shaders.length)
+                            {
+                                shader = shaders[0];
+                            }
+                        }
+                        let collection = materialAssign.getCollection();
+                        let geom = materialAssign.getGeom();
+                        if (collection)
+                        {
+                            this._materialMap.set(shader, collection);
+                        }
+                        else if (geom)
+                        {
+                            this._materialMap.set(shader, geom);
+                        }
+                        else
+                        {
+                            this._materialMap.set(shader, "");
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Search for any renderable items
+            let elem = mx.findRenderableElement(doc);
+            if (elem)
+            {
+                this._materialMap.set(elem, "*");
+            }
+        }
 
+        console.log("*************", this._materialMap);
+        
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
         // Create a new material
-        const currentMaterial = viewer.getMaterial().generateMaterial(elem, viewer);
-        if (currentMaterial)
+        for (let elem of this._materialMap)
         {
-            viewer.getScene().updateMaterial(currentMaterial);
+            console.log("Generate shader: ", elem[0].getName(), "geom: ", elem[1]);       
+            const currentMaterial = viewer.getMaterial().generateMaterial(elem[0], viewer);
+            if (currentMaterial) {
+                viewer.getScene().updateMaterial(currentMaterial, elem[0].getName(), elem[1]);
+            }
         }
     }
 
@@ -634,6 +699,9 @@ export class Material
 
     // Three.js material
     _currentMaterial = null;
+
+    // MaterialX map of material node name to array of geometry paths
+    _materialMap;
 }
 
 /*
