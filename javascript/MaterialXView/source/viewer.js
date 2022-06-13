@@ -440,8 +440,8 @@ export class Material
         // Create a new material
         for (let elem of this._materialMap)
         {
-            console.log("Generate shader: ", elem[0].getName(), "geom: ", elem[1]);       
-            const currentMaterial = viewer.getMaterial().generateMaterial(elem[0], viewer);
+            console.log("Generate shader: ", elem[0].getName(), "geom: ", elem[1]);
+            const currentMaterial = viewer.getMaterial().generateMaterial(elem[0], viewer, searchPath);
             if (currentMaterial) {
                 viewer.getScene().updateMaterial(currentMaterial, elem[0].getName(), elem[1]);
             }
@@ -451,7 +451,7 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer) 
+    generateMaterial(elem, viewer, searchPath) 
     {
         const mx = viewer.getMx();
         const textureLoader = new THREE.TextureLoader();
@@ -475,8 +475,8 @@ export class Material
         let fShader = shader.getSourceCode("pixel");
 
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader),
+            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath),
         }
 
         Object.assign(uniforms, {
