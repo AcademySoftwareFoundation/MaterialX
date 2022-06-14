@@ -190,8 +190,10 @@ export class Scene
         scene.traverse((child) => {
             if (child.isMesh) 
             {
-                const dagPath = this.getDagPath(child);
-                //console.log(dagPath.join('/'));
+                // TODO: Use path matching. This does not currently
+                // work since the sample glTF files have pathing which
+                // differs from the material assignment path identifiers.                
+                const dagPath = this.getDagPath(child);                
 
                 // Note that this is a very simplistic
                 // assignment resolve and assumes basic

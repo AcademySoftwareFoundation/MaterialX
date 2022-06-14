@@ -234,10 +234,6 @@ TEST_CASE("Load content", "[xmlio]")
     mx::readFromXmlString(parentDoc, includeTest, searchPath);
     REQUIRE(parentDoc->getNodeGraph("NG_brass1") != nullptr);
     REQUIRE(parentDoc->getNodeGraph("NG_Greysphere_Calibration") != nullptr);
-    //includeTest = mx::writeToXmlString(parentDoc);
-    //parentDoc = mx::createDocument();
-    //mx::readFromXmlString(parentDoc, includeTest, searchPath);
-    //mx::writeToXmlFile(parentDoc, "blah.mtlx");
 
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
