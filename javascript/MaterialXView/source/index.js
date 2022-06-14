@@ -93,11 +93,14 @@ function init()
         // Initialize viewer + lighting
         await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
 
+        // Load geometry
+        viewer.getScene().loadGeometry(viewer, orbitControls);
+
         // Load materials
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
 
-        // Load geometry
-        viewer.getScene().loadGeometry(viewer, orbitControls);
+        // Update assignments
+        viewer.getMaterial().updateMaterialAssignments(viewer);
 
         canvas.addEventListener("keydown", handleKeyEvents, true);
         
@@ -126,11 +129,8 @@ function animate()
         viewer.getScene()._scene.rotation.y = turntableAngle ;
     }
 
-    if (viewer.getMaterial().getCurrentMaterial())
-    {
-        composer.render();
-        viewer.getScene().updateTransforms();
-    }
+    composer.render();
+    viewer.getScene().updateTransforms();
 }
 
 function handleKeyEvents(event)

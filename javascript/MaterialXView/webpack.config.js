@@ -51,12 +51,7 @@ module.exports = {
       patterns: [
         { 
           context: "../../resources/Images",
-          from: "*.jpg", 
-          to: "Images",
-        },
-        { 
-          context: "../../resources/Materials/Examples/GltfPbr/boombox",
-          from: "*.png", 
+          from: "*.*", 
           to: "Images",
         },
         { 

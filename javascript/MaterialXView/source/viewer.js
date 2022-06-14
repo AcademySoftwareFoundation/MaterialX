@@ -79,6 +79,7 @@ export class Scene
         // Always reset controls based on camera for each load. 
         orbitControls.reset();
         this.updateScene(viewer, orbitControls);
+        viewer.getMaterial().updateMaterialAssignments(viewer);
     }
 
     //
@@ -118,8 +119,6 @@ export class Scene
                 child.geometry.attributes.i_normal = child.geometry.attributes.normal;
                 child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
                 child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
-    
-                child.material = viewer.getMaterial().getCurrentMaterial();
             }
         });
     
@@ -174,15 +173,19 @@ export class Scene
     }
 
     // Assign material shader to associated geometry
-    updateMaterial(shader, material, geometry)
+    updateMaterial(matassign)
     {
+        const shader = matassign.getShader();
+        const material = matassign.getMaterial().getName();
+        const geometry = matassign.getGeometry();
+
         const scene = this.getScene();
         const camera = this.getCamera();
         scene.traverse((child) => {
             if (child.isMesh) 
             {
                 const dagPath = this.getDagPath(child);
-                console.log(dagPath.join('/'));
+                //console.log(dagPath.join('/'));
 
                 // Note that this is a very simplistic
                 // assignment resolve and assumes basic
@@ -364,12 +367,51 @@ export class Editor
     _gui = null;
 }
 
+class MaterialAssign
+{
+    constructor(material, geometry)
+    {
+        this._material = material;
+        this._geometry = geometry;
+        this._shader = null;
+    }
+
+    setShader(shader)
+    {
+        this._shader = shader;
+    }
+
+    getShader()
+    {
+        return this._shader;
+    }
+
+    getMaterial()
+    {
+        return this._material;
+    }
+    
+    getGeometry()
+    {
+        return this._geometry;
+    }
+
+
+    // MaterialX material node name
+    _material;
+
+    // MaterialX geometry assignment string
+    _geometry;
+
+    // THREE.JS shader
+    _shader;
+}
+
 export class Material
 {
     constructor()
     {
-        this._currentMaterial = null;
-        this._materialMap = new Map();
+        this._materials = [];
     }
 
     // If no material file is selected, we programmatically create a default material as a fallback
@@ -423,7 +465,7 @@ export class Material
         // and assign to the associatged geometry. If there are no looks
         // then the first material is found and assignment to all the
         // geometry. 
-        this._materialMap.clear();
+        this._materials = [];
         var looks = doc.getLooks();
         if (looks.length)
         {
@@ -447,17 +489,23 @@ export class Material
                         }
                         let collection = materialAssign.getCollection();
                         let geom = materialAssign.getGeom();
+                        let newAssignment;
                         if (collection)
-                        {
-                            this._materialMap.set(shader, collection);
+                        {                            
+                            newAssignment = new MaterialAssign(shader, collection);
                         }
                         else if (geom)
                         {
-                            this._materialMap.set(shader, geom);
+                            newAssignment = new MaterialAssign(shader, geom);
                         }
                         else
                         {
-                            this._materialMap.set(shader, "");
+                            newAssignment = new MaterialAssign(shader, "");
+                        }
+
+                        if (newAssignment)
+                        {
+                            this._materials.push(newAssignment);
                         }
                     }
                 }
@@ -471,19 +519,31 @@ export class Material
             let elem = mx.findRenderableElement(doc);
             if (elem)
             {
-                this._materialMap.set(elem, "*");
+                this._materials.push(new MaterialAssign(elem, "*"));
             }
         }
+
+        console.log("_materials: ", this._materials);
         
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
         // Create a new material
-        for (let elem of this._materialMap)
+        for (let matassign of this._materials)
         {
-            const currentMaterial = viewer.getMaterial().generateMaterial(elem[0], viewer, searchPath);
-            if (currentMaterial) {
-                viewer.getScene().updateMaterial(currentMaterial, elem[0].getName(), elem[1]);
+            const newShader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+            matassign.setShader(newShader);
+            this.updateMaterialAssignments(viewer);
+        }
+    }
+
+    updateMaterialAssignments(viewer)
+    {
+        for (let matassign of this._materials)
+        {
+            if (matassign.getShader())
+            {
+                viewer.getScene().updateMaterial(matassign);
             }
         }
     }
@@ -531,7 +591,7 @@ export class Material
         });
 
         // Create Three JS Material
-        this._currentMaterial  = new THREE.RawShaderMaterial({
+        let newMaterial  = new THREE.RawShaderMaterial({
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
@@ -544,9 +604,9 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, this._currentMaterial, gui);
+        this.updateEditor(elem, shader, newMaterial, gui);
 
-        return this._currentMaterial;
+        return newMaterial;
     }
 
     //
@@ -732,16 +792,8 @@ export class Material
         });
     }
 
-    getCurrentMaterial()
-    {
-        return this._currentMaterial;
-    }
-
-    // Three.js material
-    _currentMaterial = null;
-
-    // MaterialX map of material node name to array of geometry paths
-    _materialMap;
+    // List of material assignments: { MaterialX node, geometry assignment string, and hardware shader }
+    _materials;
 }
 
 /*
