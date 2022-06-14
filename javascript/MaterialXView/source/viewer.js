@@ -11,6 +11,10 @@ import { prepareEnvTexture, findLights, registerLights, getUniformValues } from 
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
+const ALL_GEOMETRY_SPECIFIER = "*";
+const NO_GEOMETRY_SPECIFIER = "";
+const DAG_PATH_SEPERATOR = "/";
+
 /*
     Scene management
 */
@@ -166,7 +170,7 @@ export class Scene
             node = node.parent;
             if (node)
             {
-                path.unshift(node.name + "/");
+                path.unshift(node.name + DAG_PATH_SEPERATOR);
             }
         }
         return path;
@@ -175,6 +179,8 @@ export class Scene
     // Assign material shader to associated geometry
     updateMaterial(matassign)
     {
+        let assigned = 0;
+
         const shader = matassign.getShader();
         const material = matassign.getMaterial().getName();
         const geometry = matassign.getGeometry();
@@ -190,7 +196,7 @@ export class Scene
                 // Note that this is a very simplistic
                 // assignment resolve and assumes basic
                 // regular expression name match.
-                let matches = geometry == "*";
+                let matches = (geometry == ALL_GEOMETRY_SPECIFIER);
                 if (!matches)
                 {
                     const paths = geometry.split(',');
@@ -208,9 +214,12 @@ export class Scene
                     console.log('Assign material: ', material, ' to geometry: ', child.name);
                     child.material = shader;
                     child.material.needsUpdate = true;
+                    assigned++;
                 }
             }
         });
+
+        return assigned;
     }
 
     updateCamera()
@@ -310,11 +319,14 @@ export class Editor
         );
     
         // Hide close button
-        Array.from(document.getElementsByClassName('close-button')).forEach(
-            function (element, index, array) {
-                element.style.display = "none";
-            }
-        );
+        if (this._hideCloseControl)
+        {
+            Array.from(document.getElementsByClassName('close-button')).forEach(
+                function (element, index, array) {
+                    element.style.display = "none";
+                }
+            );
+        }
     }
 
     //
@@ -365,6 +377,7 @@ export class Editor
     }
 
     _gui = null;
+    _hideCloseControl = false;
 }
 
 class MaterialAssign
@@ -412,6 +425,7 @@ export class Material
     constructor()
     {
         this._materials = [];
+        this._defaultMaterial = null;
     }
 
     // If no material file is selected, we programmatically create a default material as a fallback
@@ -466,6 +480,7 @@ export class Material
         // then the first material is found and assignment to all the
         // geometry. 
         this._materials = [];
+        this._defaultMaterial = null;
         var looks = doc.getLooks();
         if (looks.length)
         {
@@ -500,7 +515,7 @@ export class Material
                         }
                         else
                         {
-                            newAssignment = new MaterialAssign(shader, "");
+                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER);
                         }
 
                         if (newAssignment)
@@ -514,37 +529,52 @@ export class Material
         else
         {
             // Search for any surface shader. It
-            // is assumed to be assigned to the enture scene
+            // is assumed to be assigned to the entire scene
             // The identifier used is "*" to mean the entire scene. 
             let elem = mx.findRenderableElement(doc);
             if (elem)
             {
-                this._materials.push(new MaterialAssign(elem, "*"));
+                this._materials.push(new MaterialAssign(elem, ALL_GEOMETRY_SPECIFIER));
             }
         }
-
-        console.log("_materials: ", this._materials);
         
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
-        // Create a new material
+        // Create a new shader for each material node
+        let assigned = 0;
         for (let matassign of this._materials)
         {
             const newShader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
             matassign.setShader(newShader);
-            this.updateMaterialAssignments(viewer);
         }
+
+        // Update scene shader assignments
+        this.updateMaterialAssignments(viewer);
     }
 
+    //
+    // Update the assignments for scene objects based on the
+    // material assignment information stored in the viewer.
+    // Note: If none of the MaterialX assignments match the geometry
+    // in the scene, then the first material assignment shader is assigned
+    // to the entire scene.
+    //
     updateMaterialAssignments(viewer)
     {
+        let assigned = 0;
         for (let matassign of this._materials)
         {
             if (matassign.getShader())
             {
-                viewer.getScene().updateMaterial(matassign);
+                assigned += viewer.getScene().updateMaterial(matassign);
             }
+        }
+        if (assigned == 0 && this._materials.length)
+        {
+            this._defaultMaterial = new MaterialAssign(this._materials[0].getMaterial(), ALL_GEOMETRY_SPECIFIER);
+            this._defaultMaterial.setShader(this._materials[0].getShader());
+            viewer.getScene().updateMaterial(this._defaultMaterial);
         }
     }
 
@@ -794,6 +824,9 @@ export class Material
 
     // List of material assignments: { MaterialX node, geometry assignment string, and hardware shader }
     _materials;
+
+    // Fallback material if nothing was assigned explicitly
+    _defaultMaterial;
 }
 
 /*
