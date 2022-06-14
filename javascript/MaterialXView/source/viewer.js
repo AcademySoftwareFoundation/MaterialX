@@ -69,6 +69,7 @@ export class Scene
             scene.remove(scene.children[0]);
         }
 
+        this.#_rootNode = null;
         const model = gltfData.scene;
         if (!model)
         {
@@ -77,6 +78,11 @@ export class Scene
             const cube = new THREE.Mesh(geometry, material);
             obj = new Group();
             obj.add(geometry);
+        }
+        else
+        {
+            this.#_rootNode = model;
+            console.log(model);
         } 
         scene.add(model);
 
@@ -164,13 +170,20 @@ export class Scene
     // Determine string DAG path based on individual node names.
     getDagPath(node)
     {
+        const rootNode = this.#_rootNode;
+
         let path = [node.name];
         while (node.parent)
         {
             node = node.parent;
             if (node)
             {
-                path.unshift(node.name + DAG_PATH_SEPERATOR);
+                // Stop at the root of the scene read in.
+                if (node == rootNode)
+                {
+                    break;
+                }
+                path.unshift(node.name);
             }
         }
         return path;
@@ -188,12 +201,10 @@ export class Scene
         const scene = this.getScene();
         const camera = this.getCamera();
         scene.traverse((child) => {
+            //console.log("Traverse node: ", child);
             if (child.isMesh) 
             {
-                // TODO: Use path matching. This does not currently
-                // work since the sample glTF files have pathing which
-                // differs from the material assignment path identifiers.                
-                const dagPath = this.getDagPath(child);                
+                const dagPath = this.getDagPath(child).join('/');
 
                 // Note that this is a very simplistic
                 // assignment resolve and assumes basic
@@ -204,7 +215,7 @@ export class Scene
                     const paths = geometry.split(',');
                     for (let path of paths)
                     {
-                        if (child.name.match(path))
+                        if (dagPath.match(path))
                         {
                             matches = true;
                             break;
@@ -213,7 +224,7 @@ export class Scene
                 }
                 if (matches)
                 {
-                    console.log('Assign material: ', material, ' to geometry: ', child.name);
+                    console.log('Assign material: ', material, ' to geometry: ', dagPath);
                     child.material = shader;
                     child.material.needsUpdate = true;
                     assigned++;
@@ -301,6 +312,9 @@ export class Scene
     #_normalMat = new THREE.Matrix3();
     #_viewProjMat = new THREE.Matrix4();
     #_worldViewPos = new THREE.Vector3();
+
+    // Root node of imported scene
+    #_rootNode = null;
 }
 
 /* 

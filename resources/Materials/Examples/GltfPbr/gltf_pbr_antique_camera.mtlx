@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <gltf_pbr name="camera" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
+    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_camera_BaseColor" />
+    <input name="alpha" type="float" value="1" />
+    <input name="metallic" type="float" value="1" nodename="extract_metallic" />
+    <input name="roughness" type="float" value="1" nodename="extract_roughness" />
+    <input name="occlusion" type="float" value="0" nodename="extract_occlusion" />
+    <input name="normal" type="vector3" nodename="pbr_normalmap" />
+    <input name="emissive" type="color3" value="0, 0, 0" />
+  </gltf_pbr>
+  <surfacematerial name="MATERIAL_camera" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="camera" />
+  </surfacematerial>
+  <tiledimage name="camera_camera_BaseColor" type="color3" nodedef="ND_image_color3">
+    <input name="file" type="filename" value="antique_camera/camera_camera_BaseColor.png" colorspace="srgb_texture" />
+  </tiledimage>
+  <tiledimage name="camera_camera_Roughness" type="vector3" nodedef="ND_image_vector3">
+    <input name="file" type="filename" value="antique_camera/camera_camera_Roughness.png" />
+  </tiledimage>
+  <extract name="extract_occlusion" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_camera_Roughness" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <extract name="extract_roughness" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_camera_Roughness" />
+    <input name="index" type="integer" value="1" />
+  </extract>
+  <extract name="extract_metallic" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_camera_Roughness" />
+    <input name="index" type="integer" value="2" />
+  </extract>
+  <tiledimage name="camera_camera_Normal" type="vector3" nodedef="ND_image_vector3">
+    <input name="file" type="filename" value="antique_camera/camera_camera_Normal.png" />
+  </tiledimage>
+  <normalmap name="pbr_normalmap" type="vector3" nodedef="ND_normalmap">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0" nodename="camera_camera_Normal" />
+  </normalmap>
+  <gltf_pbr name="tripod" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
+    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_tripod_BaseColor" />
+    <input name="alpha" type="float" value="1" />
+    <input name="metallic" type="float" value="1" nodename="extract_metallic2" />
+    <input name="roughness" type="float" value="1" nodename="extract_roughness2" />
+    <input name="occlusion" type="float" value="0" nodename="extract_occlusion2" />
+    <input name="normal" type="vector3" nodename="pbr_normalmap2" />
+    <input name="emissive" type="color3" value="0, 0, 0" />
+  </gltf_pbr>
+  <surfacematerial name="MATERIAL_tripod" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="tripod" />
+  </surfacematerial>
+  <tiledimage name="camera_tripod_BaseColor" type="color3" nodedef="ND_image_color3">
+    <input name="file" type="filename" value="antique_camera/camera_tripod_BaseColor.png" colorspace="srgb_texture" />
+  </tiledimage>
+  <tiledimage name="camera_tripod_Roughness" type="vector3" nodedef="ND_image_vector3">
+    <input name="file" type="filename" value="antique_camera/camera_tripod_Roughness.png" />
+  </tiledimage>
+  <extract name="extract_occlusion2" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_tripod_Roughness" />
+    <input name="index" type="integer" value="0" />
+  </extract>
+  <extract name="extract_roughness2" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_tripod_Roughness" />
+    <input name="index" type="integer" value="1" />
+  </extract>
+  <extract name="extract_metallic2" type="float" nodedef="ND_extract_vector3">
+    <input name="in" type="vector3" value="1.0, 1.0, 1.0" nodename="camera_tripod_Roughness" />
+    <input name="index" type="integer" value="2" />
+  </extract>
+  <tiledimage name="camera_tripod_Normal" type="vector3" nodedef="ND_image_vector3">
+    <input name="file" type="filename" value="antique_camera/camera_tripod_Normal.png" />
+  </tiledimage>
+  <normalmap name="pbr_normalmap2" type="vector3" nodedef="ND_normalmap">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0" nodename="camera_tripod_Normal" />
+  </normalmap>
+  <look name="look1">
+    <materialassign name="materialassign1" material="MATERIAL_camera" collection="collection1" />
+    <materialassign name="materialassign2" material="MATERIAL_tripod" collection="collection2" />
+  </look>
+  <collection name="collection1" includegeom="/camera" />
+  <collection name="collection2" includegeom="/tripod" />
+</materialx>
