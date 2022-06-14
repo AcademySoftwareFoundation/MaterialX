@@ -32,7 +32,7 @@ export class Scene
         this._scene.background.convertSRGBToLinear();
 
         const aspectRatio = window.innerWidth / window.innerHeight;
-        const cameraNearDist = 0.05;
+        const cameraNearDist = 0.01;
         const cameraFarDist = 5000.0;
         const cameraFOV = 45.0;
         this._camera = new THREE.PerspectiveCamera(cameraFOV, aspectRatio, cameraNearDist, cameraFarDist);
@@ -158,7 +158,22 @@ export class Scene
         });
     }
 
-    // For now every mesh uses the same material
+    // Determine string DAG path based on individual node names.
+    getDagPath(node)
+    {
+        let path = [node.name];
+        while (node.parent)
+        {
+            node = node.parent;
+            if (node)
+            {
+                path.unshift(node.name + "/");
+            }
+        }
+        return path;
+    }
+
+    // Assign material shader to associated geometry
     updateMaterial(shader, material, geometry)
     {
         const scene = this.getScene();
@@ -166,9 +181,28 @@ export class Scene
         scene.traverse((child) => {
             if (child.isMesh) 
             {
-                if (geometry == "*" || (child.name == geometry))
+                const dagPath = this.getDagPath(child);
+                console.log(dagPath.join('/'));
+
+                // Note that this is a very simplistic
+                // assignment resolve and assumes basic
+                // regular expression name match.
+                let matches = geometry == "*";
+                if (!matches)
                 {
-                    console.log("Assign material: ", material, " to: ", child.name, " ", geometry);
+                    const paths = geometry.split(',');
+                    for (let path of paths)
+                    {
+                        if (child.name.match(path))
+                        {
+                            matches = true;
+                            break;
+                        }
+                    }
+                }
+                if (matches)
+                {
+                    console.log('Assign material: ', material, ' to geometry: ', child.name);
                     child.material = shader;
                     child.material.needsUpdate = true;
                 }
@@ -334,7 +368,6 @@ export class Material
 {
     constructor()
     {
-        console.log("Create material...");
         this._currentMaterial = null;
         this._materialMap = new Map();
     }
@@ -354,7 +387,6 @@ export class Material
 
     async loadMaterialFile(loader, materialFilename)
     {
-        console.log("Load material file: ", materialFilename);
         return new Promise((resolve, reject) => {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
@@ -373,8 +405,11 @@ export class Material
 
         let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
 
-        // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface';
+        // Set search path. Assumes images are relative to current file
+        // location.
+        const paths = materialFilename.split('/');
+        paths.pop(); 
+        const searchPath = paths.join('/');
 
         // Load material
         if (mtlxMaterial)
@@ -382,6 +417,12 @@ export class Material
         else
             Material.createFallbackMaterial(doc);
 
+        // Check if there are any looks defined in the document
+        // If so then traverse the looks for all material assignments.
+        // Generate code and compile for any associated surface shader
+        // and assign to the associatged geometry. If there are no looks
+        // then the first material is found and assignment to all the
+        // geometry. 
         this._materialMap.clear();
         var looks = doc.getLooks();
         if (looks.length)
@@ -424,15 +465,15 @@ export class Material
         }
         else
         {
-            // Search for any renderable items
+            // Search for any surface shader. It
+            // is assumed to be assigned to the enture scene
+            // The identifier used is "*" to mean the entire scene. 
             let elem = mx.findRenderableElement(doc);
             if (elem)
             {
                 this._materialMap.set(elem, "*");
             }
         }
-
-        console.log("*************", this._materialMap);
         
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
@@ -440,7 +481,6 @@ export class Material
         // Create a new material
         for (let elem of this._materialMap)
         {
-            console.log("Generate shader: ", elem[0].getName(), "geom: ", elem[1]);
             const currentMaterial = viewer.getMaterial().generateMaterial(elem[0], viewer, searchPath);
             if (currentMaterial) {
                 viewer.getScene().updateMaterial(currentMaterial, elem[0].getName(), elem[1]);

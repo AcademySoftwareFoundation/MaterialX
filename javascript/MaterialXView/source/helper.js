@@ -9,8 +9,7 @@ const IMAGE_PROPERTY_SEPARATOR = "_";
 const UADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "uaddressmode";
 const VADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "vaddressmode";
 const FILTER_TYPE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "filtertype";
-const FILE_PREFIX = '../../../Images/';
-const TARGET_FILE_PREFIX = 'Images/';
+const IMAGE_PATH_SEPARATOR = "/";
 
 /**
  * Initialized the environment texture as MaterialX expects it
@@ -157,12 +156,7 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath)
         case 'filename':
             if (value)
             {
-                let  mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX);
-                mappedValue = mappedValue.replace('boombox', TARGET_FILE_PREFIX);
-                let fullPath = searchPath + "/" + value;
-                console.log("Search path: ", searchPath);
-                console.log("Texture: ", value);
-                console.log("Full path: ", fullPath);
+                let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
                 const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
                 setTextureParameters(texture, name, uniforms);
