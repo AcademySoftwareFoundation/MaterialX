@@ -541,12 +541,20 @@ export class Material
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
-        // Create a new shader for each material node
+        // Create a new shader for each material node.
+        // Only create the shader once even if assigned more than once.
+        let shaderMap = new Map();
         let assigned = 0;
         for (let matassign of this._materials)
         {
-            const newShader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
-            matassign.setShader(newShader);
+            let materialName = matassign.getMaterial().getName();
+            let shader = shaderMap[materialName];
+            if (!shader)
+            {
+                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+                shaderMap[materialName] = shader;
+            }
+            matassign.setShader(shader);
         }
 
         // Update scene shader assignments
