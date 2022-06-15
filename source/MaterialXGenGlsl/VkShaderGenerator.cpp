@@ -87,7 +87,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
 END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
-const string VkShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
+string VkShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
 {
     return EMPTY_STRING;
 }

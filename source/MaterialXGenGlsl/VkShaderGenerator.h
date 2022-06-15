@@ -31,7 +31,7 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
     /// Return the version string for the ESSL version this generator is for
     const string& getVersion() const override { return VERSION; }
 
-    //const string getVertexDataPrefix(const VariableBlock& vertexData) const override;
+    string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
     /// Unique identifier for this generator target
     static const string TARGET;
@@ -42,8 +42,6 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
     //void emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator,
     //                              GenContext& context, ShaderStage& stage,
     //                              bool assignValue) const override;
-
-    const string getVertexDataPrefix(const VariableBlock&) const override;
 
     void emitInputs(GenContext& context, ShaderStage& stage) const override;
     
