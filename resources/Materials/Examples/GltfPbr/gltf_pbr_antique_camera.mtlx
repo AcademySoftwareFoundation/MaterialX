@@ -1,17 +1,5 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <gltf_pbr name="camera" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
-    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_camera_BaseColor" />
-    <input name="alpha" type="float" value="1" />
-    <input name="metallic" type="float" value="1" nodename="extract_metallic" />
-    <input name="roughness" type="float" value="1" nodename="extract_roughness" />
-    <input name="occlusion" type="float" value="0" nodename="extract_occlusion" />
-    <input name="normal" type="vector3" nodename="pbr_normalmap" />
-    <input name="emissive" type="color3" value="0, 0, 0" />
-  </gltf_pbr>
-  <surfacematerial name="MATERIAL_camera" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="camera" />
-  </surfacematerial>
   <tiledimage name="camera_camera_BaseColor" type="color3" nodedef="ND_image_color3">
     <input name="file" type="filename" value="antique_camera/camera_camera_BaseColor.png" colorspace="srgb_texture" />
   </tiledimage>
@@ -36,17 +24,17 @@
   <normalmap name="pbr_normalmap" type="vector3" nodedef="ND_normalmap">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0" nodename="camera_camera_Normal" />
   </normalmap>
-  <gltf_pbr name="tripod" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
-    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_tripod_BaseColor" />
+  <gltf_pbr name="camera" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
+    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_camera_BaseColor" />
     <input name="alpha" type="float" value="1" />
-    <input name="metallic" type="float" value="1" nodename="extract_metallic2" />
-    <input name="roughness" type="float" value="1" nodename="extract_roughness2" />
-    <input name="occlusion" type="float" value="0" nodename="extract_occlusion2" />
-    <input name="normal" type="vector3" nodename="pbr_normalmap2" />
+    <input name="metallic" type="float" value="1" nodename="extract_metallic" />
+    <input name="roughness" type="float" value="1" nodename="extract_roughness" />
+    <input name="occlusion" type="float" value="0" nodename="extract_occlusion" />
+    <input name="normal" type="vector3" nodename="pbr_normalmap" />
     <input name="emissive" type="color3" value="0, 0, 0" />
   </gltf_pbr>
-  <surfacematerial name="MATERIAL_tripod" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="tripod" />
+  <surfacematerial name="MATERIAL_camera" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="camera" />
   </surfacematerial>
   <tiledimage name="camera_tripod_BaseColor" type="color3" nodedef="ND_image_color3">
     <input name="file" type="filename" value="antique_camera/camera_tripod_BaseColor.png" colorspace="srgb_texture" />
@@ -72,6 +60,18 @@
   <normalmap name="pbr_normalmap2" type="vector3" nodedef="ND_normalmap">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0" nodename="camera_tripod_Normal" />
   </normalmap>
+  <gltf_pbr name="tripod" type="surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
+    <input name="base_color" type="color3" value="1, 1, 1" nodename="camera_tripod_BaseColor" />
+    <input name="alpha" type="float" value="1" />
+    <input name="metallic" type="float" value="1" nodename="extract_metallic2" />
+    <input name="roughness" type="float" value="1" nodename="extract_roughness2" />
+    <input name="occlusion" type="float" value="0" nodename="extract_occlusion2" />
+    <input name="normal" type="vector3" nodename="pbr_normalmap2" />
+    <input name="emissive" type="color3" value="0, 0, 0" />
+  </gltf_pbr>
+  <surfacematerial name="MATERIAL_tripod" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="tripod" />
+  </surfacematerial>
   <look name="look1">
     <materialassign name="materialassign1" material="MATERIAL_camera" collection="collection1" />
     <materialassign name="materialassign2" material="MATERIAL_tripod" collection="collection2" />
