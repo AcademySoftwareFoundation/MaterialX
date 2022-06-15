@@ -5,17 +5,23 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const stdSurfaceMaterials = "../../resources/Materials/Examples/StandardSurface";
 const stdSurfaceMaterialsBaseURL = "Materials/Examples/StandardSurface";
-let materials = fs.readdirSync(stdSurfaceMaterials)
+let dirent = fs.readdirSync(stdSurfaceMaterials).filter(
+  function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let materials = dirent
   .map((fileName) => ({name: fileName, value: `${stdSurfaceMaterialsBaseURL}/${fileName}`}));
 
 const usdSurfaceMaterials = "../../resources/Materials/Examples/UsdPreviewSurface";
 const usdSurfaceMaterialsBaseURL = "Materials/Examples/UsdPreviewSurface";
-let usdMaterials = fs.readdirSync(usdSurfaceMaterials)
+dirent = fs.readdirSync(usdSurfaceMaterials).filter(
+  function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let usdMaterials = dirent
   .map((fileName) => ({name: fileName, value: `${usdSurfaceMaterialsBaseURL}/${fileName}`}));  
 
 const gltfSurfaceMaterials = "../../resources/Materials/Examples/GltfPbr";
 const gltfSurfaceMaterialsBaseURL = "Materials/Examples/GltfPbr";
-let dirent = fs.readdirSync(gltfSurfaceMaterials).filter(
+dirent = fs.readdirSync(gltfSurfaceMaterials).filter(
   function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
 )
 let gltfMaterials = dirent
@@ -60,7 +66,6 @@ module.exports = {
           to: "Geometry",
         },
         { from: "./public", to: 'public' },
-        { from: "../../resources/Images/greysphere_calibration.png", to: "Images" },
         { context: "../../resources/Lights", from: "*.*", to: "Lights" },
         { context: "../../resources/Lights/irradiance", from: "*.*", to: "Lights/irradiance" },
         { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
