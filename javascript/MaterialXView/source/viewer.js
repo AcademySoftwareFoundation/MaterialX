@@ -82,7 +82,6 @@ export class Scene
         else
         {
             this.#_rootNode = model;
-            console.log(model);
         } 
         scene.add(model);
 
@@ -197,11 +196,12 @@ export class Scene
         const shader = matassign.getShader();
         const material = matassign.getMaterial().getName();
         const geometry = matassign.getGeometry();
+        const collection = matassign.getCollection();
 
         const scene = this.getScene();
         const camera = this.getCamera();
-        scene.traverse((child) => {
-            //console.log("Traverse node: ", child);
+        scene.traverse((child) => 
+        {
             if (child.isMesh) 
             {
                 const dagPath = this.getDagPath(child).join('/');
@@ -212,13 +212,23 @@ export class Scene
                 let matches = (geometry == ALL_GEOMETRY_SPECIFIER);
                 if (!matches)
                 {
-                    const paths = geometry.split(',');
-                    for (let path of paths)
+                    if (collection)
                     {
-                        if (dagPath.match(path))
+                        if (collection.matchesGeomString(dagPath))
                         {
                             matches = true;
-                            break;
+                        }
+                    }
+                    else
+                    {
+                        const paths = geometry.split(',');
+                        for (let path of paths)
+                        {
+                            if (dagPath.match(path))
+                            {
+                                matches = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -398,10 +408,11 @@ export class Editor
 
 class MaterialAssign
 {
-    constructor(material, geometry)
+    constructor(material, geometry, collection)
     {
         this._material = material;
         this._geometry = geometry;
+        this._collection = collection;
         this._shader = null;
     }
 
@@ -425,12 +436,19 @@ class MaterialAssign
         return this._geometry;
     }
 
+    getCollection()
+    {
+        return this._collection;
+    }
 
     // MaterialX material node name
     _material;
 
-    // MaterialX geometry assignment string
+    // MaterialX assignment geometry string
     _geometry;
+
+    // MaterialX assignment collection
+    _collection;
 
     // THREE.JS shader
     _shader;
@@ -521,13 +539,9 @@ export class Material
                         let collection = materialAssign.getCollection();
                         let geom = materialAssign.getGeom();
                         let newAssignment;
-                        if (collection)
-                        {                            
-                            newAssignment = new MaterialAssign(shader, collection);
-                        }
-                        else if (geom)
+                        if (collection || geom)
                         {
-                            newAssignment = new MaterialAssign(shader, geom);
+                            newAssignment = new MaterialAssign(shader, geom, collection);
                         }
                         else
                         {
@@ -560,7 +574,6 @@ export class Material
         // Create a new shader for each material node.
         // Only create the shader once even if assigned more than once.
         let shaderMap = new Map();
-        let assigned = 0;
         for (let matassign of this._materials)
         {
             let materialName = matassign.getMaterial().getName();
