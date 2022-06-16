@@ -96,21 +96,29 @@ describe('Document', () => {
         expect(doc.getLooks().length).to.equal(1);
 
         // Bind the material to a geometry string
-        const matAssing1 = look.addMaterialAssign('matAssing1', materialNode.getName());
-        matAssing1.setGeom('/robot1');
-        expect(matAssing1.getReferencedMaterial().equals(materialNode)).to.be.true;
+        let matAssign1 = look.addMaterialAssign('matAssign1', materialNode.getName());
+        matAssign1 = look.getMaterialAssign('matAssign1');
+        expect(matAssign1);
+        matAssign1.setGeom('/robot1');
+        expect(matAssign1.getReferencedMaterial().equals(materialNode)).to.be.true;
         expect(mx.getGeometryBindings(materialNode, '/robot1').length).to.equal(1);
         expect(mx.getGeometryBindings(materialNode, '/robot2').length).to.equal(0);
 
         // Bind the material to a collection
-        const matAssing2 = look.addMaterialAssign('matAssign2', materialNode.getName());
+        let matAssign2 = look.addMaterialAssign('matAssign2', materialNode.getName());
+        matAssign2 = look.getMaterialAssign('matAssign1');
+        expect(matAssign2);
         const collection = doc.addCollection();
         collection.setIncludeGeom('/robot2');
         collection.setExcludeGeom('/robot2/left_arm');
-        matAssing2.setCollection(collection);
+        matAssign2.setCollection(collection);
+        expect(matAssign2.getReferencedMaterial().equals(materialNode)).to.be.true;
         expect(mx.getGeometryBindings(materialNode, '/robot2').length).to.equal(1);
         expect(mx.getGeometryBindings(materialNode, '/robot2/right_arm').length).to.equal(1);
         expect(mx.getGeometryBindings(materialNode, '/robot2/left_arm').length).to.equal(0);
+
+        const materialAssigns = look.getMaterialAssigns();
+        expect(materialAssigns.length).to.equal(2);
 
         // Create a property assignment
         const propertyAssign = look.addPropertyAssign();
@@ -120,6 +128,8 @@ describe('Document', () => {
         expect(propertyAssign.getProperty()).to.equal('twosided');
         expect(propertyAssign.getGeom()).to.equal('/robot1');
         expect(propertyAssign.getValue().getData()).to.equal(true);
+        let propertyAssigns = look.getPropertyAssigns();
+        expect(propertyAssigns.length).to.equal(1);
 
         // Create a property set assignment
         const propertySet = doc.addPropertySet();

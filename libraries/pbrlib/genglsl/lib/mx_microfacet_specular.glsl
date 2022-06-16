@@ -340,7 +340,7 @@ vec3 mx_eval_sensitivity(float opd, float shift)
 }
 
 // A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
-// https://belcour.github.io/blog/research/2017/05/01/brdf-thin-film.html
+// https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
 vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
     // Convert nm -> m
@@ -357,7 +357,6 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     // First interface
     vec2 R12, phi12;
     mx_fresnel_dielectric_polarized(cosTheta, eta1, eta2, R12, phi12);
-    vec2 R21  = R12;
     vec2 T121 = vec2(1.0) - R12;
     vec2 phi21 = vec2(M_PI) - phi12;
 

@@ -2,12 +2,8 @@
 
 vec3 mx_srgb_texture_to_lin_rec709(vec3 color)
 {
-    vec3 breakPnt = vec3(0.03928571566939354, 0.03928571566939354, 0.03928571566939354);
-    vec3 slope = vec3(0.07738015800714493, 0.07738015800714493, 0.07738015800714493);
-    vec3 scale = vec3(0.9478672742843628, 0.9478672742843628, 0.9478672742843628);
-    vec3 offset = vec3(0.05213269963860512, 0.05213269963860512, 0.05213269963860512);
-    vec3 isAboveBreak = vec3(greaterThan(color, breakPnt));
-    vec3 powSeg = pow(max(vec3(0.0), scale * color + offset), vec3(2.4));
-    vec3 linSeg = color * slope;
-    return isAboveBreak * powSeg + (vec3(1.0) - isAboveBreak) * linSeg;
+    bvec3 isAbove = greaterThan(color, vec3(0.04045));
+    vec3 linSeg = color / 12.92;
+    vec3 powSeg = pow(max(color + vec3(0.055), vec3(0.0)) / 1.055, vec3(2.4));
+    return mix(linSeg, powSeg, isAbove);
 }
