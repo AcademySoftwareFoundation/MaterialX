@@ -223,6 +223,18 @@ TEST_CASE("Load content", "[xmlio]")
     mx::readFromXmlFile(parentDoc, "resources/Materials/TestSuite/libraries/metal/brass_wire_mesh.mtlx", searchPath);
     REQUIRE(parentDoc->getNodeDef("ND_TestMetal") != nullptr);
 
+    // Read a string with a relative Xinclude
+    parentDoc = mx::createDocument();
+    std::string includeTest = 
+        "<?xml version=\"1.0\"?> " 
+        "<materialx version=\"1.38\">" 
+        "<xi:include href=\"standard_surface_brass_tiled.mtlx\" />"  
+        "<xi:include href=\"standard_surface_greysphere_calibration.mtlx\" />" 
+        "</materialx>";
+    mx::readFromXmlString(parentDoc, includeTest, searchPath);
+    REQUIRE(parentDoc->getNodeGraph("NG_brass1") != nullptr);
+    REQUIRE(parentDoc->getNodeGraph("NG_Greysphere_Calibration") != nullptr);
+
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
