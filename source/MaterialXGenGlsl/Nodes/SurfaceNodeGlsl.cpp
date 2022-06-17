@@ -207,7 +207,7 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             }
             else
             {
-                shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".throughput", stage);
+                shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
             }
             shadergen.emitScopeEnd(stage);
             context.popClosureContext();
