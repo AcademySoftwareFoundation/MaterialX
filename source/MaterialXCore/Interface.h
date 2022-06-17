@@ -123,6 +123,13 @@ class MX_CORE_API PortElement : public ValueElement
         return hasAttribute(OUTPUT_ATTRIBUTE);
     }
 
+    /// Set the output to which this input is connected.  If the output
+    /// argument is null, then any existing output connection will be cleared.
+    void setConnectedOutput(ConstOutputPtr output);
+
+    /// Return the output, if any, to which this input is connected.
+    virtual OutputPtr getConnectedOutput() const;
+
     /// Return the output string of this element.
     const string& getOutputString() const
     {
@@ -238,13 +245,6 @@ class MX_CORE_API Input : public PortElement
 
     /// Return the node, if any, to which this input is connected.
     NodePtr getConnectedNode() const override;
-
-    /// Set the output to which this input is connected.  If the output
-    /// argument is null, then any existing output connection will be cleared.
-    void setConnectedOutput(ConstOutputPtr output);
-
-    /// Return the output, if any, to which this input is connected.
-    virtual OutputPtr getConnectedOutput() const;
 
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
