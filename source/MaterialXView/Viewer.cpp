@@ -585,9 +585,7 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
 
             _meshRotation = mx::Vector3();
             _meshScale = 1.0f;
-            _cameraPosition = DEFAULT_CAMERA_POSITION;
             _cameraTarget = mx::Vector3();
-            _cameraViewAngle = DEFAULT_CAMERA_VIEW_ANGLE;
 
             initCamera();
         }
