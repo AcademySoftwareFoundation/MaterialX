@@ -50,8 +50,8 @@ class MX_RENDERGLSL_API GlslProgram
     /// Set the code stages based on a list of stage strings.
     /// Refer to the ordering of stages as defined by a HwShader.
     /// @param stage Name of the shader stage.
-    /// @param sourcCode Source code of the shader stage.
-    void addStage(const string& stage, const string& sourcCode);
+    /// @param sourceCode Source code of the shader stage.
+    void addStage(const string& stage, const string& sourceCode);
 
     /// Get source code string for a given stage.
     /// @return Shader stage string. String is empty if not found.
