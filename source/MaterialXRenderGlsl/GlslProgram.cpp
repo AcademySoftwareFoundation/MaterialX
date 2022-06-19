@@ -68,9 +68,9 @@ void GlslProgram::setStages(ShaderPtr shader)
     clearInputLists();
 }
 
-void GlslProgram::addStage(const string& stage, const string& sourcCode)
+void GlslProgram::addStage(const string& stage, const string& sourceCode)
 {
-    _stages[stage] = sourcCode;
+    _stages[stage] = sourceCode;
 }
 
 const string& GlslProgram::getStageSourceCode(const string& stage) const
