@@ -25,6 +25,5 @@ if NOT ["%errorlevel%"]==["0"] pause
 cd ../MaterialXView
 call npm install
 call npm run build
-call npm install http-server -g
-call http-server . -p 8000
+call npm run start
 if NOT ["%errorlevel%"]==["0"] pause
