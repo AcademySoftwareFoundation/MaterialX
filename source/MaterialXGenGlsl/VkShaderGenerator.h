@@ -1,5 +1,5 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -16,8 +16,8 @@ MATERIALX_NAMESPACE_BEGIN
 
 using VkShaderGeneratorPtr = shared_ptr<class VkShaderGenerator>;
 
-/// @class VkShaderGenerator 
-/// A Vulkan GLSL shader generator 
+/// @class VkShaderGenerator
+/// A Vulkan GLSL shader generator
 class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 {
   public:
@@ -39,36 +39,13 @@ class MX_GENGLSL_API VkShaderGenerator : public GlslShaderGenerator
 
     // Emit directives for stage
     void emitDirectives(GenContext& context, ShaderStage& stage) const override;
-    //void emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator,
-    //                              GenContext& context, ShaderStage& stage,
-    //                              bool assignValue) const override;
 
     void emitInputs(GenContext& context, ShaderStage& stage) const override;
-    
+
     void emitOutputs(GenContext& context, ShaderStage& stage) const override;
-    
-    /*
-    // Emit uniforms with binding information
-    void emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage) const;
-
-    // Emit structured uniforms with binding information and align members where possible
-    void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
-                                        ShaderStage& stage, const std::string& structInstanceName,
-                                        const std::string& arraySuffix);
-
-    // Emit separate binding locations for sampler and uniform table
-    void enableSeparateBindingLocations(bool separateBindingLocation) { _separateBindingLocation = separateBindingLocation; };
-    */
 
   protected:
-
-    
-    HwResourceBindingContextPtr getResourceBindingContext(GenContext& ) const override;
-
-    // Separate binding locations flag
-    // Indicates whether to use a shared binding counter for samplers and uniforms or separate ones.
-    // By default a shader counter is used.
-    bool _separateBindingLocation = false;
+    HwResourceBindingContextPtr getResourceBindingContext(GenContext&) const override;
 
     VkResourceBindingContextPtr _resourceBindingCtx = nullptr;
 };

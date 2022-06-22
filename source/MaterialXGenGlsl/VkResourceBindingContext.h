@@ -1,5 +1,5 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -7,7 +7,7 @@
 #define MATERIALX_VKRESOURCEBINDING_H
 
 /// @file
-/// GLSL resource binding context
+/// Vulkan GLSL resource binding context
 
 #include <MaterialXGenGlsl/Export.h>
 
@@ -19,17 +19,15 @@ MATERIALX_NAMESPACE_BEGIN
 using VkResourceBindingContextPtr = shared_ptr<class VkResourceBindingContext>;
 
 /// @class VkResourceBindingContext
-/// Class representing a resource binding for Glsl shader resources.
+/// Class representing a resource binding for Vulkan Glsl shader resources.
 class MX_GENGLSL_API VkResourceBindingContext : public HwResourceBindingContext
 {
   public:
-    VkResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
+    VkResourceBindingContext(size_t uniformBindingLocation);
 
-    static VkResourceBindingContextPtr create(
-        size_t uniformBindingLocation=0, size_t samplerBindingLocation=0)
+    static VkResourceBindingContextPtr create(size_t uniformBindingLocation = 0)
     {
-        return std::make_shared<VkResourceBindingContext>(
-            uniformBindingLocation, samplerBindingLocation);
+        return std::make_shared<VkResourceBindingContext>(uniformBindingLocation);
     }
 
     // Initialize the context before generation starts.
@@ -46,29 +44,12 @@ class MX_GENGLSL_API VkResourceBindingContext : public HwResourceBindingContext
                                         ShaderStage& stage, const std::string& structInstanceName,
                                         const std::string& arraySuffix) override;
 
-    // Emit separate binding locations for sampler and uniform table
-    void enableSeparateBindingLocations(bool separateBindingLocation) { _separateBindingLocation = separateBindingLocation; };
-
   protected:
-    // List of required extensions
-    StringSet _requiredExtensions;
-
     // Binding location for uniform blocks
     size_t _hwUniformBindLocation = 0;
 
     // Initial value of uniform binding location
     size_t _hwInitUniformBindLocation = 0;
-
-    // Binding location for sampler blocks
-    size_t _hwSamplerBindLocation = 0;
-
-    // Initial value of sampler binding location
-    size_t _hwInitSamplerBindLocation = 0;
-
-    // Separate binding locations flag
-    // Indicates whether to use a shared binding counter for samplers and uniforms or separate ones.
-    // By default a shader counter is used.
-    bool _separateBindingLocation = false;
 };
 
 MATERIALX_NAMESPACE_END

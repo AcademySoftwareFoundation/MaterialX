@@ -1,5 +1,5 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -10,44 +10,35 @@ MATERIALX_NAMESPACE_BEGIN
 //
 // VkResourceBindingContext
 //
-VkResourceBindingContext::VkResourceBindingContext(
-    size_t uniformBindingLocation, size_t samplerBindingLocation) :
-    _hwInitUniformBindLocation(uniformBindingLocation),
-    _hwInitSamplerBindLocation(samplerBindingLocation)
+VkResourceBindingContext::VkResourceBindingContext(size_t uniformBindingLocation) :
+    _hwInitUniformBindLocation(uniformBindingLocation)
 {
-    _requiredExtensions.insert("GL_ARB_shading_language_420pack");
 }
 
 void VkResourceBindingContext::initialize()
 {
     // Reset bind location counter.
     _hwUniformBindLocation = _hwInitUniformBindLocation;
-
-    // Reset sampler bind location counter.
-    _hwSamplerBindLocation = _hwInitSamplerBindLocation;
 }
 
 void VkResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
 {
     ShaderGenerator& generator = context.getShaderGenerator();
 
-    // Write shader stage directives for Vulkan compliance if required
-    if (_separateBindingLocation)
+    // Write shader stage directives for Vulkan compliance
+    std::string shaderStage;
+    if (stage.getName() == Stage::VERTEX)
     {
-        std::string shaderStage;
-        if (stage.getName() == Stage::VERTEX)
-        {
-            shaderStage = "vertex";
-        }
-        else if (stage.getName() == Stage::PIXEL)
-        {
-            shaderStage = "fragment";
-        }
+        shaderStage = "vertex";
+    }
+    else if (stage.getName() == Stage::PIXEL)
+    {
+        shaderStage = "fragment";
+    }
 
-        if (!shaderStage.empty())
-        {
-            generator.emitLine("#pragma shader_stage(" + shaderStage + ")", stage, false);
-        }
+    if (!shaderStage.empty())
+    {
+        generator.emitLine("#pragma shader_stage(" + shaderStage + ")", stage, false);
     }
 }
 
@@ -68,8 +59,8 @@ void VkResourceBindingContext::emitResourceBindings(GenContext& context, const V
     }
     if (hasValueUniforms)
     {
-        generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) + ") " + 
-                           syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + stage.getName(), 
+        generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) + ") " +
+                               syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + stage.getName(),
                            stage, false);
         generator.emitScopeBegin(stage);
         for (auto uniform : uniforms.getVariableOrder())
@@ -90,7 +81,7 @@ void VkResourceBindingContext::emitResourceBindings(GenContext& context, const V
     {
         if (uniform->getType() == Type::FILENAME)
         {
-            generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
+            generator.emitString("layout (binding=" + std::to_string(_hwUniformBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
             generator.emitLineEnd(stage, true);
         }
@@ -99,9 +90,9 @@ void VkResourceBindingContext::emitResourceBindings(GenContext& context, const V
     generator.emitLineBreak(stage);
 }
 
-void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms, 
-                                                                ShaderStage& stage, const std::string& structInstanceName,
-                                                                const std::string& arraySuffix)
+void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
+                                                              ShaderStage& stage, const std::string& structInstanceName,
+                                                              const std::string& arraySuffix)
 {
     ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
@@ -112,10 +103,15 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
 
     const size_t baseAlignment = 16;
     std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
-        { Type::INTEGER, baseAlignment / 4 }, { Type::BOOLEAN, baseAlignment / 4 },
-        { Type::COLOR3, baseAlignment }, { Type::COLOR4, baseAlignment },
-        { Type::VECTOR2, baseAlignment }, { Type::VECTOR3, baseAlignment }, { Type::VECTOR4, baseAlignment },
-        { Type::MATRIX33, baseAlignment * 4 }, { Type::MATRIX44, baseAlignment * 4 } });
+                                                               { Type::INTEGER, baseAlignment / 4 },
+                                                               { Type::BOOLEAN, baseAlignment / 4 },
+                                                               { Type::COLOR3, baseAlignment },
+                                                               { Type::COLOR4, baseAlignment },
+                                                               { Type::VECTOR2, baseAlignment },
+                                                               { Type::VECTOR3, baseAlignment },
+                                                               { Type::VECTOR4, baseAlignment },
+                                                               { Type::MATRIX33, baseAlignment * 4 },
+                                                               { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index
@@ -142,9 +138,10 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
 
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
-        [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b) {
-            return a.first > b.first;
-        });
+              [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
+              {
+        return a.first > b.first;
+    });
 
     // Emit the struct
     generator.emitLine("struct " + uniforms.getName(), stage, false);
@@ -167,13 +164,13 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
     }
     generator.emitScopeEnd(stage, true);
 
-
     // Emit binding information
     generator.emitLineBreak(stage);
-    generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
-        ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
-        stage.getName(),
-    stage, false);
+    generator.emitLine("layout (std140, binding=" +
+                           std::to_string(_hwUniformBindLocation++) + ") " +
+                           syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
+                           stage.getName(),
+                       stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);

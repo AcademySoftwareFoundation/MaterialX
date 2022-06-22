@@ -673,11 +673,3 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
     renderTester.validate(optionsFilePath);
 }
 
-TEST_CASE("Render: Vulkan TestSuite", "[rendervulkan]")
-{
-    GlslShaderRenderTester renderTester(mx::VkShaderGenerator::create());
-
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
-    renderTester.validate(optionsFilePath);
-}

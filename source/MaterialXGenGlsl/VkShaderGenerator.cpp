@@ -1,5 +1,5 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
+// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
 // All rights reserved.  See LICENSE.txt for license.
 //
 
@@ -9,11 +9,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string VkShaderGenerator::TARGET = "genglsl"; //"genglslvk";
-const string VkShaderGenerator::VERSION = "450"; 
+const string VkShaderGenerator::TARGET = "genglsl";
+const string VkShaderGenerator::VERSION = "450";
 
-VkShaderGenerator::VkShaderGenerator()
-    : GlslShaderGenerator()
+VkShaderGenerator::VkShaderGenerator() :
+    GlslShaderGenerator()
 {
     _syntax = VkSyntax::create();
     // Add in ESSL specific keywords
@@ -21,8 +21,7 @@ VkShaderGenerator::VkShaderGenerator()
     _syntax->registerReservedWords(reservedWords);
 
     // Set binding context to handle resource binding layouts
-    _resourceBindingCtx = std::make_shared<MaterialX::VkResourceBindingContext>(0, 0);
-    _resourceBindingCtx->enableSeparateBindingLocations(true);
+    _resourceBindingCtx = std::make_shared<MaterialX::VkResourceBindingContext>(0);
 }
 
 void VkShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
@@ -30,24 +29,6 @@ void VkShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
     emitLine("#version " + getVersion(), stage, false);
     emitLineBreak(stage);
 }
-
-#if 0
-void VkShaderGenerator::emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator,
-    GenContext& context, ShaderStage& stage,
-    bool assignValue) const
-{
-    for (size_t i=0; i<block.size(); ++i)
-    {
-        emitLineBegin(stage);
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-        emitString("layout (location = " + std::to_string(i) + ") ", stage);
-END_SHADER_STAGE(stage, Stage::VERTEX)
-        emitVariableDeclaration(block[i], qualifier, context, stage, assignValue);
-        emitString(separator, stage);
-        emitLineEnd(stage, false);
-    }
-}
-#endif 
 
 void VkShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const
 {
@@ -68,7 +49,7 @@ void VkShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) cons
     }
     END_SHADER_STAGE(stage, Stage::VERTEX)
 
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
     const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
     if (!vertexData.empty())
     {
@@ -84,7 +65,7 @@ BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         }
         emitLineBreak(stage);
     }
-END_SHADER_STAGE(stage, Stage::PIXEL)
+    END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 string VkShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
@@ -126,7 +107,6 @@ void VkShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) con
 
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }
-
 
 HwResourceBindingContextPtr VkShaderGenerator::getResourceBindingContext(GenContext& /*context*/) const
 {
