@@ -367,6 +367,24 @@ void GlslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderSta
     emitLineBreak(stage);
 }
 
+void GlslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStage& stage) const
+{
+    int transmissionMethod = context.getOptions().hwTransmissionRenderMethod;
+    if (transmissionMethod == TRANSMISSION_REFRACTION)
+    {
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_transmission_refract.glsl", context, stage);
+    }
+    else if (transmissionMethod == TRANSMISSION_OPACITY)
+    {
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_transmission_opacity.glsl", context, stage);
+    }
+    else
+    {
+        throw ExceptionShaderGenError("Invalid transmission render specified: '" + std::to_string(transmissionMethod) + "'");
+    }
+    emitLineBreak(stage);
+}
+
 void GlslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     emitLine("#version " + getVersion(), stage, false);
@@ -553,6 +571,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
         }
         emitSpecularEnvironment(context, stage);
+        emitTransmissionRender(context, stage);
 
         if (context.getOptions().hwMaxActiveLightSources > 0)
         {
