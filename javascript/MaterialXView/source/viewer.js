@@ -328,8 +328,9 @@ export class Scene
     #_geometryURL = '';
     // Geometry loader
     #_gltfLoader = null;
-    // Flip V coordinate of texture coordinates
-    #_flipV = false;
+    // Flip V coordinate of texture coordinates.
+    // Set to true to be consistent with desktop viewer.
+    #_flipV = true;
 
     // Scene
     #_scene = null;
@@ -667,9 +668,11 @@ export class Material
         let vShader = shader.getSourceCode("vertex");
         let fShader = shader.getSourceCode("pixel");
 
+        let theScene = viewer.getScene();
+        let flipV = theScene.getFlipGeometryV();
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath),
+            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
         }
 
         Object.assign(uniforms, {

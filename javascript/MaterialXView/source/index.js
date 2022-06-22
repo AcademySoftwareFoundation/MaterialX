@@ -50,7 +50,6 @@ function init()
     let geometrySelect = document.getElementById('geometry');
     geometrySelect.value = scene.getGeometryURL();
     geometrySelect.addEventListener('change', (e) => {
-        scene.setFlipGeometryV(e.target.value == "Geometry/shaderball.glb"); 
         scene.setGeometryURL(e.target.value);
         scene.loadGeometry(viewer, orbitControls);
     });
@@ -96,7 +95,6 @@ function init()
 
         // Load geometry  
         let scene = viewer.getScene();
-        scene.setFlipGeometryV(scene.getGeometryURL() == "Geometry/shaderball.glb"); 
         scene.loadGeometry(viewer, orbitControls);
 
         // Load materials
