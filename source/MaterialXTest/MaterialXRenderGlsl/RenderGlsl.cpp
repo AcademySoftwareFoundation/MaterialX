@@ -7,7 +7,6 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
-#include <MaterialXGenGlsl/VkShaderGenerator.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -672,4 +671,3 @@ TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 
     renderTester.validate(optionsFilePath);
 }
-

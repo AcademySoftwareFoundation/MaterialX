@@ -303,11 +303,9 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 
 void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-    //Todo remove:
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
 
     emitDirectives(context, stage);
-    //Todo remove:
     if (resourceBindingCtx)
     {
         resourceBindingCtx->emitDirectives(context, stage);
@@ -410,7 +408,6 @@ void GlslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) 
         if (!uniforms.empty() && uniforms.getName() != HW::LIGHT_DATA)
         {
             emitComment("Uniform block: " + uniforms.getName(), stage);
-            
             HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
             if (resourceBindingCtx)
             {
@@ -430,8 +427,6 @@ void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage)
     const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
     const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
     const string structName        = lightData.getInstance();
-
-
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
