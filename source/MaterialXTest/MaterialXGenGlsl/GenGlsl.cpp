@@ -130,7 +130,7 @@ enum class GlslType
     glslvulkan
 };
 
-constexpr const char* GlslTypeToString(GlslType e) throw()
+const std::string GlslTypeToString(GlslType e) throw()
 {
     switch (e)
     {
@@ -156,7 +156,7 @@ static void generateGlslCode(GlslType glsltype = GlslType::glsl400)
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    const mx::FilePath logPath("genglsl_" + std::string(GlslTypeToString(glsltype)) + "_generate_test.txt");
+    const mx::FilePath logPath("genglsl_" + GlslTypeToString(glsltype) + "_generate_test.txt");
 
     GlslShaderGeneratorTester tester((glsltype == GlslType::glslvulkan) ? mx::VkShaderGenerator::create() : mx::GlslShaderGenerator::create(),
                                      testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
