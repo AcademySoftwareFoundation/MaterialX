@@ -141,3 +141,15 @@ TEST_CASE("Flatten filenames", "[file]")
     resolvedPathString = image2->getInputValue("file")->getValueString();
     CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
 }
+
+TEST_CASE("Current path concenation test", "[file]")
+{
+    mx::FilePath currentPath(".");
+    mx::FilePath appendPath("./foo/bar");
+    mx::FilePath concatenatedPath = currentPath / appendPath;
+    CHECK(concatenatedPath.asString() == appendPath.asString());
+
+    mx::FilePath appendPath2("././foo/bar");
+    concatenatedPath = currentPath / appendPath2;
+    CHECK(concatenatedPath.asString() == appendPath.asString());
+}
