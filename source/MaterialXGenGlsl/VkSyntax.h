@@ -7,7 +7,7 @@
 #define MATERIALX_ESSLSYNTAX_H
 
 /// @file
-/// ESSL syntax class
+/// Vulkan GLSL syntax class
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 

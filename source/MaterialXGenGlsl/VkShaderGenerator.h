@@ -7,7 +7,7 @@
 #define MATERIALX_VKSHADERGENERATOR_H
 
 /// @file
-/// ESSL shader generator
+/// Vulkan GLSL shader generator
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/VkResourceBindingContext.h>
