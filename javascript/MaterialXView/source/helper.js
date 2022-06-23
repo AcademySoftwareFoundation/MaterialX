@@ -126,7 +126,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath)
+function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
     let outValue;  
     switch (type)
@@ -159,7 +159,7 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath)
                 let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
                 const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniforms);
+                setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
             } 
             break;
@@ -222,7 +222,7 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
-function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
+function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
 {
     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
     const base = name.substring(0, idx) || name;
@@ -239,7 +239,7 @@ function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = getMinFilter(filterType, generateMipmaps);
 
-    texture.flipY = false;
+    texture.flipY = flipY;
 }
 
 /**
@@ -305,7 +305,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(shaderStage, textureLoader, searchPath)
+export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
 {
     let threeUniforms = {};
 
@@ -318,7 +318,8 @@ export function getUniformValues(shaderStage, textureLoader, searchPath)
                 const variable = uniforms.get(i);                
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, textureLoader, searchPath));
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, 
+                                                        textureLoader, searchPath, flipY));
             }
         }
     });
