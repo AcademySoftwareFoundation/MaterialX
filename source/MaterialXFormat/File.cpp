@@ -132,6 +132,7 @@ FilePath FilePath::operator/(const FilePath& rhs) const
             continue;
         }
         combined._vec.push_back(str);
+        length++;
     }
     return combined;
 }

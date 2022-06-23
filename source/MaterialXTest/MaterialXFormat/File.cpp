@@ -149,7 +149,11 @@ TEST_CASE("Current path concenation test", "[file]")
     mx::FilePath concatenatedPath = currentPath / appendPath;
     CHECK(concatenatedPath.asString() == appendPath.asString());
 
-    mx::FilePath appendPath2("././foo/bar");
+    mx::FilePath appendPath2("././././foo/bar");
     concatenatedPath = currentPath / appendPath2;
     CHECK(concatenatedPath.asString() == appendPath.asString());
+
+    mx::FilePath appendPath3("./.");
+    concatenatedPath = currentPath / appendPath3;
+    CHECK(concatenatedPath.asString() == currentPath.asString());
 }
