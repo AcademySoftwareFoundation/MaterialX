@@ -141,7 +141,7 @@ bool FilePath::exists() const
 #endif
 }
 
-FilePath FilePath::normalize() const
+FilePath FilePath::getNormalize() const
 {
     FilePath path(*this);
    
