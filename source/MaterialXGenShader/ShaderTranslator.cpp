@@ -157,6 +157,10 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
 
     DocumentPtr doc = shader->getDocument();
     vector<OutputPtr> referencedOutputs = getConnectedOutputs(shader);
+    // Make sure to always clear this cache member otherwise the
+    // previous graph member (which could have been dealocated already) 
+    // could be used.
+    _graph = nullptr;
     if (!referencedOutputs.empty())
     {
         _graph = referencedOutputs[0]->getParent() ? referencedOutputs[0]->getParent()->asA<NodeGraph>() : nullptr;
