@@ -148,6 +148,32 @@ bool FilePath::exists() const
 #endif
 }
 
+FilePath FilePath::normalize() const
+{
+    FilePath path(*this);
+   
+    if (_vec.size() <= 1)
+    {
+        return path;
+    }
+
+    const string DOT_PATH = ".";
+    path._vec.clear();
+    path._vec.push_back(_vec[0]);
+    size_t length = 1;
+    for (size_t i=1; i<_vec.size(); i++)
+    {
+        const string& str = _vec[i];
+        if (str == DOT_PATH && path[length-1] == DOT_PATH)
+        {
+            continue;
+        }
+        path._vec.push_back(str);
+        length++;
+    }
+    return path;
+}
+
 bool FilePath::isDirectory() const
 {
 #if defined(_WIN32)

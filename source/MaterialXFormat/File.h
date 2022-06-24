@@ -173,6 +173,9 @@ class MX_FORMAT_API FilePath
         return _vec[index];
     }
 
+    /// Return a file path with sequential "." paths merged
+    FilePath normalize() const;
+
     /// @}
     /// @name File System Operations
     /// @{
