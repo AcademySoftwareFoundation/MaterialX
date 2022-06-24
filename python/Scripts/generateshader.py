@@ -20,12 +20,9 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = output.decode(encoding='utf-8')
-            print('----- Validation success: ' + result)
         except subprocess.CalledProcessError as out:                                                                                                   
-            print('----- Validation failed: ', out.returncode)
-            print('    Result: ' + out.output.decode(encoding='utf-8'))
-    else:
-        print('--- No validation performed')
+            return (out.output.decode(encoding='utf-8'))
+    return ""
 
 def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
@@ -43,13 +40,11 @@ def main():
     try:
         mx.readFromXmlFile(doc, opts.inputFilename)
     except mx.ExceptionFileMissing as err:
-        print(err)
-        sys.exit(0)
+        print('Generation failed: "', err, '"')
+        sys.exit(-1)
 
     stdlib = mx.createDocument()
-    filePath = os.path.dirname(os.path.abspath(__file__))
-    searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..', 'libraries'))
-    searchPath.append(os.path.dirname(opts.inputFilename))
+    searchPath = mx.FileSearchPath(os.path.dirname(opts.inputFilename))
     libraryFolders = []
     if opts.paths:
         for pathList in opts.paths:
@@ -60,13 +55,18 @@ def main():
             for library in libraryList:
                 libraryFolders.append(library)
     libraryFolders.append("libraries")
-    mx.loadLibraries(libraryFolders, searchPath, stdlib)
-    doc.importLibrary(stdlib)
+    try:
+        mx.loadLibraries(libraryFolders, searchPath, stdlib)
+        doc.importLibrary(stdlib)
+    except err:
+        print('Generation failed: "', err, '"')
+        sys.exit(-1)
 
     valid, msg = doc.validate()
     if not valid:
         print('Validation warnings for input document:')
         print(msg)
+        sys.exit(-1)
 
     gentarget = 'glsl'
     if opts.target:
@@ -124,6 +124,7 @@ def main():
         pathPrefix = os.path.dirname(os.path.abspath(opts.inputFilename))
     print('- Shader output path: ' + pathPrefix)
 
+    failedShaders = ""
     for shaderNode in shaderNodes:
         # Material nodes are not supported directly for generation so find upstream
         # shader nodes.
@@ -145,7 +146,7 @@ def main():
                 file = open(filename, 'w+')
                 file.write(pixelSource)
                 file.close()
-                validateCode(filename, opts.validator, opts.validatorArgs)
+                errors = validateCode(filename, opts.validator, opts.validatorArgs)                
 
                 vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
                 filename = pathPrefix + shader.getName() + "." + gentarget + ".vert"
@@ -153,7 +154,7 @@ def main():
                 file = open(filename, 'w+')
                 file.write(vertexSource)
                 file.close()
-                validateCode(filename, opts.validator, opts.validatorArgs)
+                errors += validateCode(filename, opts.validator, opts.validatorArgs)
 
             else:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
@@ -162,10 +163,23 @@ def main():
                 file = open(filename, 'w+')
                 file.write(pixelSource)
                 file.close()
+                errors = validateCode(filename, opts.validator, opts.validatorArgs)
+
+            if errors != "":
+                print("Validation failed for shader: ", shaderNodeName)
+                print("-------------------------")
+                print('Error log: ', errors)
+                print("-------------------------")
+                failedShaders += (shaderNodeName + ' ')
+            else:
+                print("Validation passed for shader: ", shaderNodeName)
 
         else:
-            print('--- Failed to generate code for: ' + shaderNode.getName())
+            print("Validation failed for shader: ", shaderNodeName)
+            failedShaders += (shaderNodeName + ' ')
 
+    if failedShaders != "":
+        sys.exit(-1)
 
 if __name__ == '__main__':
     main()
