@@ -174,7 +174,7 @@ class MX_FORMAT_API FilePath
     }
 
     /// Return a file path with sequential "." paths merged
-    FilePath getNormalize() const;
+    FilePath getNormalized() const;
 
     /// @}
     /// @name File System Operations

@@ -147,16 +147,16 @@ TEST_CASE("Path normalizeation test", "[file]")
     mx::FilePath currentPath(".");
     mx::FilePath appendPath("./foo/bar");
     mx::FilePath concatenatedPath = currentPath / appendPath;
-    concatenatedPath = concatenatedPath.getNormalize();
+    concatenatedPath = concatenatedPath.getNormalized();
     CHECK(concatenatedPath.asString() == appendPath.asString());
 
     mx::FilePath appendPath2("././././foo/bar");
     concatenatedPath = currentPath / appendPath2;
-    concatenatedPath = concatenatedPath.getNormalize();
+    concatenatedPath = concatenatedPath.getNormalized();
     CHECK(concatenatedPath.asString() == appendPath.asString());
 
     mx::FilePath appendPath3("./.");
     concatenatedPath = currentPath / appendPath3;
-    concatenatedPath = concatenatedPath.getNormalize();
+    concatenatedPath = concatenatedPath.getNormalized();
     CHECK(concatenatedPath.asString() == currentPath.asString());
 }

@@ -172,7 +172,7 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
                 for (size_t i = 0; i < searchPath.size(); i++)
                 {
                     FilePath testPath = searchPath[i] / resolvedValue;
-                    testPath = testPath.getNormalize();
+                    testPath = testPath.getNormalized();
                     if (testPath.exists())
                     {
                         resolvedString = testPath.asString();
