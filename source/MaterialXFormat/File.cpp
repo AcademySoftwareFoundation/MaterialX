@@ -122,17 +122,10 @@ FilePath FilePath::operator/(const FilePath& rhs) const
         throw Exception("Appended path must be relative.");
     }
 
-    const string DOT_PATH = ".";
     FilePath combined(*this);
-    size_t length = combined._vec.size();
     for (const string& str : rhs._vec)
     {
-        if (str == DOT_PATH && combined[length-1] == DOT_PATH)
-        {
-            continue;
-        }
         combined._vec.push_back(str);
-        length++;
     }
     return combined;
 }
