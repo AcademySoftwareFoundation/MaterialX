@@ -608,9 +608,15 @@ void PropertyEditor::updateContents(Viewer* viewer)
     }
 
     // Shading model display
-    if (elem->isA<mx::Node>())
+    mx::NodePtr node = elem->asA<mx::Node>();
+    if (node)
     {
-        std::string shaderName = elem->getCategory();
+        std::string shaderName = node->getCategory();
+        std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
+        if (!shaderNodes.empty())
+        {
+            shaderName = shaderNodes[0]->getCategory();
+        }
         if (!shaderName.empty() && shaderName != "surface")
         {
             ng::Widget* twoColumns = new ng::Widget(_container);
