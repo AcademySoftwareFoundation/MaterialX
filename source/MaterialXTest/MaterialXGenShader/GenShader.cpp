@@ -196,7 +196,7 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
             std::cout << "Shader translation of " << (testPath / mtlxFile).asString() << " failed" << std::endl;
             std::cout << "Validation errors: " << validationErrors << std::endl;
         }
-        CHECK(valid);
+        REQUIRE(valid);
     }
 }
 
