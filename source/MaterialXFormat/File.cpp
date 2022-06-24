@@ -39,6 +39,8 @@ const string VALID_SEPARATORS = "/\\";
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
 
+const string DOT_STRING = ".";
+
 #if defined(_WIN32)
 const string PATH_LIST_SEPARATOR = ";";
 #else
@@ -128,6 +130,21 @@ FilePath FilePath::operator/(const FilePath& rhs) const
         combined._vec.push_back(str);
     }
     return combined;
+}
+
+FilePath FilePath::getNormalized() const
+{
+    FilePath res;
+    for (const string& str : _vec)
+    {
+        if (!res.isEmpty() && res[res.size() - 1] == DOT_STRING && str == DOT_STRING)
+        {
+            continue;
+        }
+        res._vec.push_back(str);
+    }
+    res._type = _type;
+    return res;
 }
 
 bool FilePath::exists() const

@@ -173,6 +173,10 @@ class MX_FORMAT_API FilePath
         return _vec[index];
     }
 
+    /// Return a normalized file path, where all sequential dot strings
+    /// in the path have been merged.
+    FilePath getNormalized() const;
+
     /// @}
     /// @name File System Operations
     /// @{
