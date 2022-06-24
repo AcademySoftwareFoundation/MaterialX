@@ -16,7 +16,7 @@ VkShaderGenerator::VkShaderGenerator() :
     GlslShaderGenerator()
 {
     _syntax = VkSyntax::create();
-    // Add in ESSL specific keywords
+    // Add in GLSL specific keywords
     const StringSet reservedWords = { "texture2D", "sampler" };
     _syntax->registerReservedWords(reservedWords);
 
