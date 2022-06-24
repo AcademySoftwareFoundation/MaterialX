@@ -39,6 +39,8 @@ const string VALID_SEPARATORS = "/\\";
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
 
+const string DOT_STRING = ".";
+
 #if defined(_WIN32)
 const string PATH_LIST_SEPARATOR = ";";
 #else
@@ -130,6 +132,21 @@ FilePath FilePath::operator/(const FilePath& rhs) const
     return combined;
 }
 
+FilePath FilePath::getNormalized() const
+{
+    FilePath res;
+    for (const string& str : _vec)
+    {
+        if (!res.isEmpty() && res[res.size() - 1] == DOT_STRING && str == DOT_STRING)
+        {
+            continue;
+        }
+        res._vec.push_back(str);
+    }
+    res._type = _type;
+    return res;
+}
+
 bool FilePath::exists() const
 {
 #if defined(_WIN32)
@@ -139,32 +156,6 @@ bool FilePath::exists() const
     struct stat sb;
     return stat(asString().c_str(), &sb) == 0;
 #endif
-}
-
-FilePath FilePath::getNormalized() const
-{
-    FilePath path(*this);
-   
-    if (_vec.size() <= 1)
-    {
-        return path;
-    }
-
-    const string DOT_PATH = ".";
-    path._vec.clear();
-    path._vec.push_back(_vec[0]);
-    size_t length = 1;
-    for (size_t i=1; i<_vec.size(); i++)
-    {
-        const string& str = _vec[i];
-        if (str == DOT_PATH && path[length-1] == DOT_PATH)
-        {
-            continue;
-        }
-        path._vec.push_back(str);
-        length++;
-    }
-    return path;
 }
 
 bool FilePath::isDirectory() const
