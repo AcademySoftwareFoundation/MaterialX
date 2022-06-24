@@ -44,7 +44,7 @@ def main():
         sys.exit(-1)
 
     stdlib = mx.createDocument()
-    searchPath = mx.FileSearchPath()
+    searchPath = mx.FileSearchPath(os.path.dirname(opts.inputFilename))
     libraryFolders = []
     if opts.paths:
         for pathList in opts.paths:

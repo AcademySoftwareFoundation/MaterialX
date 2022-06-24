@@ -142,7 +142,7 @@ TEST_CASE("Flatten filenames", "[file]")
     CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
 }
 
-TEST_CASE("Path normalizeation test", "[file]")
+TEST_CASE("Path normalization test", "[file]")
 {
     mx::FilePath currentPath(".");
     mx::FilePath appendPath("./foo/bar");
