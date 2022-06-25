@@ -5,7 +5,6 @@
 
 #include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenGlsl/VkSyntax.h>
-#include <MaterialXGenShader/Nodes/HwImageNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -16,7 +15,7 @@ VkShaderGenerator::VkShaderGenerator() :
     GlslShaderGenerator()
 {
     _syntax = VkSyntax::create();
-    // Add in GLSL specific keywords
+    // Add in Vulkan specific keywords
     const StringSet reservedWords = { "texture2D", "sampler" };
     _syntax->registerReservedWords(reservedWords);
 
