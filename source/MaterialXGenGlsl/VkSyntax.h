@@ -16,7 +16,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Syntax class for Vulkan GLSL
 class MX_GENGLSL_API VkSyntax : public GlslSyntax
 {
-public:
+  public:
     VkSyntax();
 
     static SyntaxPtr create() { return std::make_shared<VkSyntax>(); }

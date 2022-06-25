@@ -10,6 +10,7 @@ MATERIALX_NAMESPACE_BEGIN
 //
 // VkResourceBindingContext
 //
+
 VkResourceBindingContext::VkResourceBindingContext(size_t uniformBindingLocation) :
     _hwInitUniformBindLocation(uniformBindingLocation)
 {
@@ -175,4 +176,5 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);
 }
+
 MATERIALX_NAMESPACE_END
