@@ -93,8 +93,9 @@ function init()
         // Initialize viewer + lighting
         await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
 
-        // Load geometry
-        viewer.getScene().loadGeometry(viewer, orbitControls);
+        // Load geometry  
+        let scene = viewer.getScene();
+        scene.loadGeometry(viewer, orbitControls);
 
         // Load materials
         viewer.getMaterial().loadMaterials(viewer, materialFilename);

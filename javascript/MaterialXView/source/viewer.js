@@ -36,9 +36,9 @@ export class Scene
         this._scene.background.convertSRGBToLinear();
 
         const aspectRatio = window.innerWidth / window.innerHeight;
-        const cameraNearDist = 0.01;
-        const cameraFarDist = 5000.0;
-        const cameraFOV = 45.0;
+        const cameraNearDist = 0.05;
+        const cameraFarDist = 100.0;
+        const cameraFOV = 60.0;
         this._camera = new THREE.PerspectiveCamera(cameraFOV, aspectRatio, cameraNearDist, cameraFarDist);
 
         this.#_gltfLoader = new GLTFLoader();
@@ -46,6 +46,18 @@ export class Scene
         this.#_normalMat = new THREE.Matrix3();
         this.#_viewProjMat = new THREE.Matrix4();
         this.#_worldViewPos = new THREE.Vector3();
+    }
+
+    // Set whether to flip UVs in V for loaded geometry
+    setFlipGeometryV(val)
+    {
+        this.#_flipV = val;
+    }
+
+    // Get whether to flip UVs in V for loaded geometry
+    getFlipGeometryV()
+    {
+        return this.#_flipV;
     }
 
     // Utility to perform geometry file load
@@ -99,6 +111,9 @@ export class Scene
         const bbox = new THREE.Box3().setFromObject(this._scene);
         const bsphere = new THREE.Sphere();
         bbox.getBoundingSphere(bsphere);
+
+        let theScene = viewer.getScene();
+        let flipV = theScene.getFlipGeometryV();
     
         this._scene.traverse((child) => {
             if (child.isMesh) {
@@ -113,6 +128,15 @@ export class Scene
                     }
     
                     child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
+                }
+                else if (flipV)
+                {
+                    const uvCount = child.geometry.attributes.position.count;
+                    const uvs = child.geometry.attributes.uv.array;
+                    for (let i = 0; i < uvCount; i++) {
+                        let v = 1.0-(uvs[i*2 +1]);
+                        uvs[i*2+1] = v;
+                    }
                 }
     
                 if (!child.geometry.attributes.normal) {
@@ -304,6 +328,9 @@ export class Scene
     #_geometryURL = '';
     // Geometry loader
     #_gltfLoader = null;
+    // Flip V coordinate of texture coordinates.
+    // Set to true to be consistent with desktop viewer.
+    #_flipV = true;
 
     // Scene
     #_scene = null;
@@ -641,9 +668,11 @@ export class Material
         let vShader = shader.getSourceCode("vertex");
         let fShader = shader.getSourceCode("pixel");
 
+        let theScene = viewer.getScene();
+        let flipV = theScene.getFlipGeometryV();
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath),
+            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
         }
 
         Object.assign(uniforms, {

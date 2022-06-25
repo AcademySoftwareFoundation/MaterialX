@@ -157,14 +157,9 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
 
     DocumentPtr doc = shader->getDocument();
     vector<OutputPtr> referencedOutputs = getConnectedOutputs(shader);
-    if (!referencedOutputs.empty())
-    {
-        _graph = referencedOutputs[0]->getParent() ? referencedOutputs[0]->getParent()->asA<NodeGraph>() : nullptr;
-    }
-    if (!_graph)
-    {
-        _graph = doc->addNodeGraph();
-    }
+    ElementPtr referencedParent = !referencedOutputs.empty() ? referencedOutputs[0]->getParent() : nullptr;
+    NodeGraphPtr referencedGraph = referencedParent ? referencedParent->asA<NodeGraph>() : nullptr;
+    _graph = referencedGraph ? referencedGraph : doc->addNodeGraph();
 
     string translateNodeString = sourceCategory + "_to_" + destCategory;
     vector<NodeDefPtr> matchingNodeDefs = doc->getMatchingNodeDefs(translateNodeString);
