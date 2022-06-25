@@ -8,7 +8,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 //
-// VkResourceBindingContext
+// VkResourceBindingContext methods
 //
 
 VkResourceBindingContext::VkResourceBindingContext(size_t uniformBindingLocation) :

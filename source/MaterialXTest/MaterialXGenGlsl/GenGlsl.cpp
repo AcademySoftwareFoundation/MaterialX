@@ -125,26 +125,26 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 
 enum class GlslType
 {
-    glsl400,
-    glsl420,
-    glslvulkan
+    Glsl400,
+    Glsl420,
+    GlslVulkan
 };
 
 const std::string GlslTypeToString(GlslType e) throw()
 {
     switch (e)
     {
-        case GlslType::glsl420:
+        case GlslType::Glsl420:
             return "glsl420_layout";
-        case GlslType::glslvulkan:
+        case GlslType::GlslVulkan:
             return "glsl420_vulkan";
-        case GlslType::glsl400:
+        case GlslType::Glsl400:
         default:
             return "glsl400";
     }
 }
 
-static void generateGlslCode(GlslType glsltype = GlslType::glsl400)
+static void generateGlslCode(GlslType type = GlslType::Glsl400)
 {
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back("resources/Materials/TestSuite");
@@ -156,13 +156,13 @@ static void generateGlslCode(GlslType glsltype = GlslType::glsl400)
     const mx::GenOptions genOptions;
     mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
 
-    const mx::FilePath logPath("genglsl_" + GlslTypeToString(glsltype) + "_generate_test.txt");
+    const mx::FilePath logPath("genglsl_" + GlslTypeToString(type) + "_generate_test.txt");
 
-    GlslShaderGeneratorTester tester((glsltype == GlslType::glslvulkan) ? mx::VkShaderGenerator::create() : mx::GlslShaderGenerator::create(),
+    GlslShaderGeneratorTester tester((type == GlslType::GlslVulkan) ? mx::VkShaderGenerator::create() : mx::GlslShaderGenerator::create(),
                                      testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
 
     // Add resource binding context for glsl 4.20
-    if (glsltype == GlslType::glsl420)
+    if (type == GlslType::Glsl420)
     {
         // Set binding context to handle resource binding layouts
         mx::GlslResourceBindingContextPtr glslresourceBinding(mx::GlslResourceBindingContext::create());
@@ -176,17 +176,17 @@ static void generateGlslCode(GlslType glsltype = GlslType::glsl400)
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
 {
     // Generate with standard GLSL i.e version 400
-    generateGlslCode(GlslType::glsl400);
+    generateGlslCode(GlslType::Glsl400);
 }
 
 TEST_CASE("GenShader: GLSL Shader with Layout Generation", "[genglsl]")
 {
     // Generate GLSL with layout i.e version 400 + layout extension
-    generateGlslCode(GlslType::glsl420);
+    generateGlslCode(GlslType::Glsl420);
 }
 
 TEST_CASE("GenShader: Vulkan GLSL Shader", "[genglsl]")
 {
     // Generate with GLSL for Vulkan i.e. version 450
-    generateGlslCode(GlslType::glslvulkan);
+    generateGlslCode(GlslType::GlslVulkan);
 }
