@@ -111,9 +111,7 @@ def main():
     # Look for shader nodes
     shaderNodes = mx_gen_shader.findRenderableElements(doc, False)
     if not shaderNodes:
-        materials = doc.getMaterialNodes()
-        for material in materials:       
-            shaderNodes += mx.getShaderNodes(material, mx.SURFACE_SHADER_TYPE_STRING)
+        shaderNodes = doc.getMaterialNodes()
         if not shaderNodes:
             shaderNodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
 
@@ -126,11 +124,6 @@ def main():
 
     failedShaders = ""
     for shaderNode in shaderNodes:
-        # Material nodes are not supported directly for generation so find upstream
-        # shader nodes.
-        if shaderNode.getCategory() == 'surfacematerial':
-            shaderNodes += mx.getShaderNodes(shaderNode, mx.SURFACE_SHADER_TYPE_STRING)
-            continue
 
         shaderNodeName = shaderNode.getName()
         print('-- Generate code for node: ' + shaderNodeName)
@@ -166,16 +159,16 @@ def main():
                 errors = validateCode(filename, opts.validator, opts.validatorArgs)
 
             if errors != "":
-                print("Validation failed for shader: ", shaderNodeName)
-                print("-------------------------")
-                print('Error log: ', errors)
-                print("-------------------------")
+                print("--- Validation failed for node: ", shaderNodeName)
+                print("----------------------------")
+                print('--- Error log: ', errors)
+                print("----------------------------")
                 failedShaders += (shaderNodeName + ' ')
             else:
-                print("Validation passed for shader: ", shaderNodeName)
+                print("--- Validation passed for node:", shaderNodeName)
 
         else:
-            print("Validation failed for shader: ", shaderNodeName)
+            print("--- Validation failed for node:", shaderNodeName)
             failedShaders += (shaderNodeName + ' ')
 
     if failedShaders != "":
