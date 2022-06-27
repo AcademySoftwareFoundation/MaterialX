@@ -108,11 +108,11 @@ TEST_CASE("Flatten filenames", "[file]")
     searchPath.append(rootPath);
 
     mx::flattenFilenames(doc1, searchPath);    
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     resolvedPath = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString());
+    REQUIRE(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString());
     resolvedPath = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString());
+    REQUIRE(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString());
 
     // Reset document
     nodeGraph->setFilePrefix(TEST_FILE_PREFIX_STRING.asString() + "\\");
@@ -126,37 +126,38 @@ TEST_CASE("Flatten filenames", "[file]")
     separatorReplacer->setFilenameSubstitution("\\", "/");
 
     mx::flattenFilenames(doc1, searchPath, separatorReplacer);
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     std::string resolvedPathString = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
     resolvedPathString = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
 
     // 4. Test with pre-resolved filenames
     nodeGraph->setFilePrefix(TEST_FILE_PREFIX_STRING.asString() + "\\");
     mx::flattenFilenames(doc1, searchPath, separatorReplacer);
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     resolvedPathString = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
     resolvedPathString = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
 }
 
 TEST_CASE("Path normalization test", "[file]")
 {
-    mx::FilePath currentPath(".");
-    mx::FilePath appendPath("./foo/bar");
-    mx::FilePath concatenatedPath = currentPath / appendPath;
-    concatenatedPath = concatenatedPath.getNormalized();
-    CHECK(concatenatedPath.asString() == appendPath.asString());
+    const mx::FilePath REFERENCE_REL_PATH("a/b");
+    const mx::FilePath REFERENCE_ABS_PREFIX("/assets");
 
-    mx::FilePath appendPath2("././././foo/bar");
-    concatenatedPath = currentPath / appendPath2;
-    concatenatedPath = concatenatedPath.getNormalized();
-    CHECK(concatenatedPath.asString() == appendPath.asString());
+    std::vector<mx::FilePath> examplePaths =
+    {
+        "a/./b",
+        "././a/b",
+        "c/../d/../a/b",
+        "a/b/./c/d/../.."
+    };
 
-    mx::FilePath appendPath3("./.");
-    concatenatedPath = currentPath / appendPath3;
-    concatenatedPath = concatenatedPath.getNormalized();
-    CHECK(concatenatedPath.asString() == currentPath.asString());
+    for (const mx::FilePath& path : examplePaths)
+    {
+        REQUIRE(path.getNormalized() == REFERENCE_REL_PATH);
+        REQUIRE((REFERENCE_ABS_PREFIX / path).getNormalized() == (REFERENCE_ABS_PREFIX / REFERENCE_REL_PATH));
+    }
 }
