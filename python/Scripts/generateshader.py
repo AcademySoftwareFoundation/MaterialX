@@ -124,7 +124,6 @@ def main():
 
     failedShaders = ""
     for node in nodes:
-
         nodeName = node.getName()
         print('-- Generate code for node: ' + nodeName)
         nodeName = mx.createValidName(nodeName)
