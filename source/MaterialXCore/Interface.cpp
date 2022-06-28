@@ -86,7 +86,7 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
     {
         removeAttribute(OUTPUT_ATTRIBUTE);
         removeAttribute(NODE_GRAPH_ATTRIBUTE);
-        //removeAttribute(NODE_NAME_ATTRIBUTE);
+        removeAttribute(NODE_NAME_ATTRIBUTE);
     }
 }
 
