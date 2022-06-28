@@ -761,14 +761,16 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// name, and attributes.
     string asString() const;
 
-    /// Resolve a reference to a named element at the root scope of this document,
+    /// Resolve a reference to a named element under a given root. If
+    /// If no root is provided then the root scope of this document is used,
     /// taking the namespace at the scope of this element into account.
-    template <class T> shared_ptr<T> resolveRootNameReference(const string& name) const
+    template <class T> shared_ptr<T> resolveRootNameReference(const string& name, ConstElementPtr root = nullptr) const
     {
-        ConstElementPtr root = getRoot();
-        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
-        return child ? child : root->getChildOfType<T>(name);
-    }
+        ConstElementPtr scope = root ? root : getRoot();
+        shared_ptr<T> child = scope->getChildOfType<T>(getQualifiedName(name));
+        return child ? child : scope->getChildOfType<T>(name);
+    } 
+
 
     /// @}
 

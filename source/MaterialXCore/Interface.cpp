@@ -74,9 +74,11 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
         if (parent->isA<NodeGraph>())
         {
             setNodeGraphString(parent->getName());
+            removeAttribute(NODE_NAME_ATTRIBUTE);
         }
-        else
+        else if (parent->isA<Node>())
         {
+            setNodeName(parent->getName());
             removeAttribute(NODE_GRAPH_ATTRIBUTE);
         }
     }
@@ -84,6 +86,7 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
     {
         removeAttribute(OUTPUT_ATTRIBUTE);
         removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        //removeAttribute(NODE_NAME_ATTRIBUTE);
     }
 }
 
@@ -92,10 +95,19 @@ OutputPtr PortElement::getConnectedOutput() const
     const string& outputString = getOutputString();
     OutputPtr result = nullptr;
 
+    // Want to find a node or nodegraph at the same level as the 
+    // parent element to this port. 
+    ConstElementPtr parent = getParent();
+    ConstElementPtr root = parent ? parent->getParent() : nullptr;
+
     // Look for an output in a nodegraph
     if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString(), root);
+        if (!nodeGraph)
+        {
+            nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        }
         if (nodeGraph)
         {
             std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
@@ -116,37 +128,29 @@ OutputPtr PortElement::getConnectedOutput() const
     else if (hasNodeName())
     {
         const string& nodeName = getNodeName();
-        ConstElementPtr startingElement = getParent();
-        if (startingElement)
+        NodePtr node = resolveRootNameReference<Node>(nodeName, root);
+        if (!node)
         {
-            // Look for a node reference above the nodegraph if input is a direct child.
-            if (startingElement->isA<NodeGraph>())
+            node = resolveRootNameReference<Node>(nodeName);
+        }
+        if (node)
+        {
+            std::vector<OutputPtr> outputs = node->getOutputs();
+            if (!outputs.empty())
             {
-                startingElement = startingElement->getParent();
-            }
-            if (startingElement)
-            {
-                ConstGraphElementPtr graph = startingElement->getAncestorOfType<GraphElement>();
-                NodePtr node = graph ? graph->getNode(nodeName) : nullptr;
-                if (node)
+                if (outputString.empty())
                 {
-                    std::vector<OutputPtr> outputs = node->getOutputs();
-                    if (!outputs.empty())
-                    {
-                        if (outputString.empty())
-                        {
-                            result = outputs[0];
-                        }
-                        else
-                        {
-                            result = node->getOutput(outputString);
-                        }
-                    }
+                    result = outputs[0];
+                }
+                else
+                {
+                    result = node->getOutput(outputString);
                 }
             }
         }
     }
-    // Look for output in the document
+
+    // Look for output in the document level
     if (!result)
     {
         result = getDocument()->getOutput(outputString);

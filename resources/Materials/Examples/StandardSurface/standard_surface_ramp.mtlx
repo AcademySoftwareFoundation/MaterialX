@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <standard_surface name="standard_surface" type="surfaceshader">
+    <input name="base" type="float" value="0" />
+    <input name="specular" type="float" value="0" />
+    <input name="emission" type="float" value="1" />
+    <input name="emission_color" type="color3" nodename="ramp4" />
+  </standard_surface>
+ <surfacematerial name="Ramp" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface" />
+  </surfacematerial>  
+  <ramp4 name="ramp4" type="color3">
+    <input name="valuetl" type="color3" value="1, 0, 0" />
+    <input name="valuetr" type="color3" value="0, 1, 0" />
+    <input name="valuebl" type="color3" value="0, 0, 1" />
+    <input name="valuebr" type="color3" value="1, 1, 0" />
+	<output name="out" type="color3" />
+  </ramp4>
+</materialx>
