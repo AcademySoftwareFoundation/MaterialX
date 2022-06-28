@@ -189,8 +189,8 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
         catch (mx::Exception &e)
         {
             std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
-            REQUIRE(translated);
         }
+        REQUIRE(translated);
 
         std::string validationErrors;
         bool valid = doc->validate(&validationErrors);
