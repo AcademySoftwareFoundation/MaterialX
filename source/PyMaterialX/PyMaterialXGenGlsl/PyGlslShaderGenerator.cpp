@@ -8,6 +8,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
@@ -47,4 +48,16 @@ void bindPyEsslShaderGenerator(py::module& mod)
         .def("generate", &mx::EsslShaderGenerator::generate)
         .def("getTarget", &mx::EsslShaderGenerator::getTarget)
         .def("getVersion", &mx::EsslShaderGenerator::getVersion);
+}
+
+// Glsl Vulkan shader generator bindings
+
+void bindPyVkShaderGenerator(py::module& mod)
+{
+    py::class_<mx::VkShaderGenerator, mx::HwShaderGenerator, mx::VkShaderGeneratorPtr>(mod, "VkShaderGenerator")
+        .def_static("create", &mx::VkShaderGenerator::create)
+        .def(py::init<>())
+        .def("generate", &mx::VkShaderGenerator::generate)
+        .def("getTarget", &mx::VkShaderGenerator::getTarget)
+        .def("getVersion", &mx::VkShaderGenerator::getVersion);
 }
