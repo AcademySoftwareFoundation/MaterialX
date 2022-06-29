@@ -42,7 +42,7 @@ void bindPyGlslResourceBindingContext(py::module &mod)
 
 void bindPyEsslShaderGenerator(py::module& mod)
 {
-    py::class_<mx::EsslShaderGenerator, mx::HwShaderGenerator, mx::EsslShaderGeneratorPtr>(mod, "EsslShaderGenerator")
+    py::class_<mx::EsslShaderGenerator, mx::GlslShaderGenerator, mx::EsslShaderGeneratorPtr>(mod, "EsslShaderGenerator")
         .def_static("create", &mx::EsslShaderGenerator::create)
         .def(py::init<>())
         .def("generate", &mx::EsslShaderGenerator::generate)
@@ -54,7 +54,7 @@ void bindPyEsslShaderGenerator(py::module& mod)
 
 void bindPyVkShaderGenerator(py::module& mod)
 {
-    py::class_<mx::VkShaderGenerator, mx::HwShaderGenerator, mx::VkShaderGeneratorPtr>(mod, "VkShaderGenerator")
+    py::class_<mx::VkShaderGenerator, mx::GlslShaderGenerator, mx::VkShaderGeneratorPtr>(mod, "VkShaderGenerator")
         .def_static("create", &mx::VkShaderGenerator::create)
         .def(py::init<>())
         .def("generate", &mx::VkShaderGenerator::generate)
