@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
-    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "genglsl"). Default is genglsl.')
+    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, essl, vulkan"). Default is glsl.')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
@@ -77,6 +77,8 @@ def main():
         shadergen = mx_gen_mdl.MdlShaderGenerator.create()
     elif gentarget == 'essl':
         shadergen = mx_gen_glsl.EsslShaderGenerator.create()
+    elif gentarget == 'vulkan':
+        shadergen = mx_gen_glsl.VkShaderGenerator.create()
     else:
         shadergen = mx_gen_glsl.GlslShaderGenerator.create()
             
@@ -131,7 +133,7 @@ def main():
         if shader:
             # Use extension of .vert and .frag as it's type is
             # recognized by glslangValidator
-            if gentarget == 'glsl' or gentarget == 'essl':
+            if gentarget in ['glsl', 'essl', 'vulkan']:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                 filename = pathPrefix + shader.getName() + "." + gentarget + ".frag"
                 print('--- Wrote pixel shader to: ' + filename)
