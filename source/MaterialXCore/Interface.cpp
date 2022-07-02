@@ -103,10 +103,10 @@ OutputPtr PortElement::getConnectedOutput() const
     // Look for an output in a nodegraph
     if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString(), root);
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), root);
         if (!nodeGraph)
         {
-            nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
         }
         if (nodeGraph)
         {
@@ -128,10 +128,10 @@ OutputPtr PortElement::getConnectedOutput() const
     else if (hasNodeName())
     {
         const string& nodeName = getNodeName();
-        NodePtr node = resolveRootNameReference<Node>(nodeName, root);
+        NodePtr node = resolveNameReference<Node>(nodeName, root);
         if (!node)
         {
-            node = resolveRootNameReference<Node>(nodeName);
+            node = resolveNameReference<Node>(nodeName);
         }
         if (node)
         {
@@ -165,7 +165,7 @@ bool PortElement::validate(string* message) const
     NodePtr connectedNode = getConnectedNode();
     if (hasNodeName() || hasOutputString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeName());
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
         if (!nodeGraph)
         {
             validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
@@ -189,7 +189,7 @@ bool PortElement::validate(string* message) const
             }
             else if (hasNodeGraphString())
             {
-                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);
