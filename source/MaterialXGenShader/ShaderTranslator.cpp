@@ -147,7 +147,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     _graph = nullptr;
     _translationNode = nullptr;
 
-        if (!shader)
+    if (!shader)
     {
         return;
     }
