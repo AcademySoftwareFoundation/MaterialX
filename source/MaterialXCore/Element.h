@@ -761,6 +761,10 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// name, and attributes.
     string asString() const;
 
+
+    /// @}
+
+  protected:
     /// Resolve a reference to a named element at the scope of the given parent,
     /// taking the namespace at the scope of this element into account.  If no parent
     /// is provided, then the root scope of the document is used.
@@ -771,10 +775,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         return child ? child : scope->getChildOfType<T>(name);
     } 
 
-
-    /// @}
-
-  protected:
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
     void validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const;
