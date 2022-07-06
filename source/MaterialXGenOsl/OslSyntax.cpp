@@ -532,7 +532,7 @@ OslSyntax::OslSyntax()
     (
         Type::MATERIAL,
         std::make_shared<ScalarTypeSyntax>(
-            "material",
+            "MATERIAL",
             "null_closure",
             "0",
             "closure color")
