@@ -362,8 +362,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Second interface
     vec2 R23, phi23;
-    float eta3 = max(ior.x, eta2);
-    mx_fresnel_conductor_polarized(cosTheta2, eta2, eta3, extinction.x, R23, phi23);
+    mx_fresnel_conductor_polarized(cosTheta2, eta2, ior.x, extinction.x, R23, phi23);
 
     // Phase shift
     vec2 phi2 = phi21 + phi23;
