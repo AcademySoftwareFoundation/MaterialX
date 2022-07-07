@@ -348,7 +348,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Assume vacuum on the outside
     float eta1 = 1.0;
-    float eta2 = tf_ior;
+    float eta2 = max(tf_ior, eta1);
 
     // Optical path difference
     float cosTheta2 = sqrt(1.0 - mx_square(eta1/eta2) * (1.0 - mx_square(cosTheta)));
