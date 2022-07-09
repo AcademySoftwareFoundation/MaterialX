@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.38.5] - Development
+## [1.38.5] - 2022-07-09
 
 ### Added
 - Added a [refraction approximation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/918) for transmissive surfaces in GLSL, selected by the hwTransmissionRenderMethod generator option.
