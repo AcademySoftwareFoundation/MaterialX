@@ -63,10 +63,11 @@ MaterialX project, though they are encouraged to do so.
 The current Stakeholders of the MaterialX TSC are:
 
 - Eric Bourque - Autodesk
+- Fran Gonzalez - Pixar RenderMan
 - Rafal Jaroszkiewicz - SideFX
 - Lee Kerley - Sony Pictures Imageworks
 - Lutz Kettner - NVIDIA
-- Philippe Leprince - Pixar RenderMan
+- Bernard Kwok - Khronos Group
 - Jonathan Litt - Epic Games
 - André Mazzone - ILM
 - Magnus Pettersson - IKEA
