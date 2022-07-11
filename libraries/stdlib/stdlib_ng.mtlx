@@ -1046,6 +1046,7 @@
   <!--
     Node: <place2d>
     Transform incoming UV texture coordinates for 2D texture placement.
+    Sequence of transformation (in the order of application): -pivot, scale, rotate, translate, pivot.
   -->
   <nodegraph name="NG_place2d_vector2" nodedef="ND_place2d_vector2">
     <subtract name="N_subpivot" type="vector2">
@@ -1066,6 +1067,35 @@
     </subtract>
     <add name="N_addpivot" type="vector2">
       <input name="in1" type="vector2" nodename="N_applyoffset" />
+      <input name="in2" type="vector2" interfacename="pivot" />
+    </add>
+    <output name="out" type="vector2" nodename="N_addpivot" />
+  </nodegraph>
+
+  <!--
+    Node: <place2dframe>
+    Transform incoming UV texture coordinates for 2D texture placement.
+    Sequence of transformation (in the order of application): -pivot, translate, rotate, scale, pivot.
+  -->
+  <nodegraph name="NG_place2dframe_vector2" nodedef="ND_place2dframe_vector2">
+    <subtract name="N_subpivot" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="pivot" />
+    </subtract>
+    <subtract name="N_applyoffset" type="vector2">
+      <input name="in1" type="vector2" nodename="N_subpivot" />
+      <input name="in2" type="vector2" interfacename="offset" />
+    </subtract>
+    <rotate2d name="N_applyrot" type="vector2">
+      <input name="in" type="vector2" nodename="N_applyoffset" />
+      <input name="amount" type="float" interfacename="rotate" />
+    </rotate2d>
+    <divide name="N_applyscale" type="vector2">
+      <input name="in1" type="vector2" nodename="N_applyrot" />
+      <input name="in2" type="vector2" interfacename="scale" />
+    </divide>
+    <add name="N_addpivot" type="vector2">
+      <input name="in1" type="vector2" nodename="N_applyscale" />
       <input name="in2" type="vector2" interfacename="pivot" />
     </add>
     <output name="out" type="vector2" nodename="N_addpivot" />

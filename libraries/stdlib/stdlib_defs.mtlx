@@ -2333,8 +2333,23 @@
   <!--
     Node: <place2d> Supplemental Node
     Transform incoming UV texture coordinates for 2D texture placement.
+    Sequence of transformation (in the order of application): -pivot, scale, rotate, translate, pivot.
   -->
   <nodedef name="ND_place2d_vector2" node="place2d" nodegroup="math">
+    <input name="texcoord" type="vector2" value="0.0, 0.0" />
+    <input name="pivot" type="vector2" value="0.0,0.0" />
+    <input name="scale" type="vector2" value="1.0,1.0" />
+    <input name="rotate" type="float" value="0.0" unittype="angle" unit="degree" />
+    <input name="offset" type="vector2" value="0.0,0.0" />
+    <output name="out" type="vector2" defaultinput="texcoord" />
+  </nodedef>
+
+  <!--
+    Node: <place2dframe> Supplemental Node
+    Transform incoming UV texture coordinates for 2D texture placement.
+    Sequence of transformation (in the order of application): -pivot, translate, rotate, scale, pivot.
+  -->
+  <nodedef name="ND_place2dframe_vector2" node="place2dframe" nodegroup="math">
     <input name="texcoord" type="vector2" value="0.0, 0.0" />
     <input name="pivot" type="vector2" value="0.0,0.0" />
     <input name="scale" type="vector2" value="1.0,1.0" />
