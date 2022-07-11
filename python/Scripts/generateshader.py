@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
-    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "genglsl"). Default is genglsl.')
+    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, essl, vulkan"). Default is glsl.')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
@@ -77,6 +77,8 @@ def main():
         shadergen = mx_gen_mdl.MdlShaderGenerator.create()
     elif gentarget == 'essl':
         shadergen = mx_gen_glsl.EsslShaderGenerator.create()
+    elif gentarget == 'vulkan':
+        shadergen = mx_gen_glsl.VkShaderGenerator.create()
     else:
         shadergen = mx_gen_glsl.GlslShaderGenerator.create()
             
@@ -108,14 +110,12 @@ def main():
     shadergen.setUnitSystem(unitsystem)
     genoptions.targetDistanceUnit = 'meter'
 
-    # Look for shader nodes
-    shaderNodes = mx_gen_shader.findRenderableElements(doc, False)
-    if not shaderNodes:
-        materials = doc.getMaterialNodes()
-        for material in materials:       
-            shaderNodes += mx.getShaderNodes(material, mx.SURFACE_SHADER_TYPE_STRING)
-        if not shaderNodes:
-            shaderNodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
+    # Look for renderable nodes
+    nodes = mx_gen_shader.findRenderableElements(doc, False)
+    if not nodes:
+        nodes = doc.getMaterialNodes()
+        if not nodes:
+            nodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
 
     pathPrefix = ''
     if opts.outputPath and os.path.exists(opts.outputPath):
@@ -125,21 +125,15 @@ def main():
     print('- Shader output path: ' + pathPrefix)
 
     failedShaders = ""
-    for shaderNode in shaderNodes:
-        # Material nodes are not supported directly for generation so find upstream
-        # shader nodes.
-        if shaderNode.getCategory() == 'surfacematerial':
-            shaderNodes += mx.getShaderNodes(shaderNode, mx.SURFACE_SHADER_TYPE_STRING)
-            continue
-
-        shaderNodeName = shaderNode.getName()
-        print('-- Generate code for node: ' + shaderNodeName)
-        shaderNodeName = mx.createValidName(shaderNodeName)
-        shader = shadergen.generate(shaderNodeName, shaderNode, context)        
+    for node in nodes:
+        nodeName = node.getName()
+        print('-- Generate code for node: ' + nodeName)
+        nodeName = mx.createValidName(nodeName)
+        shader = shadergen.generate(nodeName, node, context)        
         if shader:
             # Use extension of .vert and .frag as it's type is
             # recognized by glslangValidator
-            if gentarget == 'glsl' or gentarget == 'essl':
+            if gentarget in ['glsl', 'essl', 'vulkan']:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                 filename = pathPrefix + shader.getName() + "." + gentarget + ".frag"
                 print('--- Wrote pixel shader to: ' + filename)
@@ -166,17 +160,17 @@ def main():
                 errors = validateCode(filename, opts.validator, opts.validatorArgs)
 
             if errors != "":
-                print("Validation failed for shader: ", shaderNodeName)
-                print("-------------------------")
-                print('Error log: ', errors)
-                print("-------------------------")
-                failedShaders += (shaderNodeName + ' ')
+                print("--- Validation failed for node: ", nodeName)
+                print("----------------------------")
+                print('--- Error log: ', errors)
+                print("----------------------------")
+                failedShaders += (nodeName + ' ')
             else:
-                print("Validation passed for shader: ", shaderNodeName)
+                print("--- Validation passed for node:", nodeName)
 
         else:
-            print("Validation failed for shader: ", shaderNodeName)
-            failedShaders += (shaderNodeName + ' ')
+            print("--- Validation failed for node:", nodeName)
+            failedShaders += (nodeName + ' ')
 
     if failedShaders != "":
         sys.exit(-1)
