@@ -283,8 +283,6 @@ NodePtr Input::getConnectedNode() const
             return rootNode;
         }
     }
-    return nullptr;
-}
 
     // Handle transitive connections via outputs.
     OutputPtr output = getConnectedOutput();

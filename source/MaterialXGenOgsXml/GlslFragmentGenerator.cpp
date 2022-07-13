@@ -157,15 +157,15 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     const bool lighting = requiresLighting(graph);
 
     // Emit common math functions
-    emitInclude("stdlib/genglsl/lib/mx_math.glsl", context, pixelStage);
+    emitLibraryInclude("stdlib/genglsl/lib/mx_math.glsl", context, pixelStage);
     emitLineBreak(pixelStage);
 
     if (lighting)
     {
         if (OgsXmlGenerator::useLightAPIV2()) {
-            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v2.glsl", context, pixelStage);
+            emitLibraryInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v2.glsl", context, pixelStage);
         } else {
-            emitInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v1.glsl", context, pixelStage);
+            emitLibraryInclude("pbrlib/genglsl/ogsxml/mx_lighting_maya_v1.glsl", context, pixelStage);
         }
     }
 

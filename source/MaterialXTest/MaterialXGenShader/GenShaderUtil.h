@@ -116,6 +116,12 @@ class TestSuiteOptions
     // Enable indirect lighting. Default is true. 
     bool enableIndirectLighting;
 
+    // Method for specular environment sampling (only used for HW rendering):
+    //   0 : Prefiltered - Use a radiance IBL texture that has been prefiltered with the BRDF.
+    //   1 : Filtered Importance Sampling - Use FIS to sample the IBL texture according to the BRDF in runtime.
+    // Default value is 1.
+    mx::HwSpecularEnvironmentMethod specularEnvironmentMethod;
+
     // Radiance IBL file.
     mx::FilePath radianceIBLPath;
 
