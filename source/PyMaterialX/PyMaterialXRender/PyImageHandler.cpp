@@ -42,8 +42,6 @@ void bindPyImageHandler(py::module& mod)
         .def("saveImage", &mx::ImageHandler::saveImage,
             py::arg("filePath"), py::arg("image"), py::arg("verticalFlip") = false)
         .def("acquireImage", &mx::ImageHandler::acquireImage)
-        .def("createImage", &mx::ImageHandler::createImage)
-        .def("getImage", &mx::ImageHandler::getImage)
         .def("bindImage", &mx::ImageHandler::bindImage)
         .def("unbindImage", &mx::ImageHandler::unbindImage)
         .def("unbindImages", &mx::ImageHandler::unbindImages)

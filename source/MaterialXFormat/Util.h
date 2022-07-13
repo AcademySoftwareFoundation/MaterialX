@@ -15,7 +15,6 @@
 
 #include <MaterialXFormat/Export.h>
 #include <MaterialXFormat/File.h>
-#include <MaterialXFormat/XmlExport.h>
 #include <MaterialXFormat/XmlIo.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -56,12 +55,11 @@ MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
 /// @param doc The document to modify.
 /// @param searchPath An optional search path for relative to absolute path conversion.
 /// @param customResolver An optional custom resolver to apply.
-/// @param skipFlattening An optional parameter that skips converting a path to an absolute one when it returns true.
-MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr, const FilePathPredicate& skipFlattening = nullptr);
+MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath = FileSearchPath(), StringResolverPtr customResolver = nullptr);
 
+/// Return a file search path containing the parent folder of each source URI in the given document.
+MX_FORMAT_API FileSearchPath getSourceSearchPath(ConstDocumentPtr doc);
 
-/// Return true if the given string is valid environment path value.
-MX_FORMAT_API bool isValidPath(const string& path);
 MATERIALX_NAMESPACE_END
 
 #endif

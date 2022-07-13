@@ -81,7 +81,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     }
 
     // Initialize our base renderer.
-    initialize();
+    GlslRenderer::initialize();
 
     // Initialize our image handler.
     _imageHandler = GLTextureHandler::create(StbImageLoader::create());
@@ -129,6 +129,7 @@ FilePath TextureBaker::generateTextureFilename(const StringMap& filenameTemplate
     {
         std::stringstream hashStream;
         hashStream << std::hash<std::string>{}(bakedImageName);
+        hashStream << "." + getExtension();
         bakedImageName = hashStream.str();
     }
     return _outputImagePath / bakedImageName;

@@ -1,4 +1,4 @@
-#include "libraries/stdlib/genglsl/lib/mx_noise.glsl"
+#include "lib/mx_noise.glsl"
 
 void mx_fractal3d_fa_vector4(float amplitude, int octaves, float lacunarity, float diminish, vec3 position, out vec4 result)
 {

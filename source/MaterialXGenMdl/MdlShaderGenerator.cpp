@@ -8,6 +8,7 @@
 #include <MaterialXGenMdl/MdlSyntax.h>
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/SourceCodeNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/MaterialNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/SurfaceNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
@@ -71,6 +72,9 @@ MdlShaderGenerator::MdlShaderGenerator() :
     ShaderGenerator(MdlSyntax::create())
 {
     // Register build-in implementations
+
+    // <!-- <surfacematerial> -->
+    registerImplementation("IM_surfacematerial_" + MdlShaderGenerator::TARGET, MaterialNodeMdl::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MdlShaderGenerator::TARGET, SurfaceNodeMdl::create);
@@ -239,15 +243,16 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     // closure/shader nodes and need to be emitted first.
     emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
 
-    // Emit function calls for internal closures nodes connected to the graph sockets.
-    // These will in turn emit function calls for any dependent closure nodes upstream.
+    // Emit function calls for "root" closure/shader nodes.
+    // These will internally emit function calls for any dependent closure nodes upstream.
     for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
     {
         if (socket->getConnection())
         {
             const ShaderNode* upstream = socket->getConnection()->getNode();
             if (upstream->getParent() == &graph &&
-                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || 
+                    upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 emitFunctionCall(*upstream, context, stage);
             }
@@ -275,9 +280,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             "        )\n"
             "    )\n"
             ");";
-        emitBlock(textureMaterial, context, stage);
+        emitBlock(textureMaterial, FilePath(), context, stage);
     }
-    else if (graph.hasClassification(ShaderNode::Classification::SHADER))
+    else
     {
         emitLine(_syntax->getTypeSyntax(outputSocket->getType()).getName() +  " finalOutput__ = " + result, stage);
 
@@ -285,14 +290,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         emitScopeEnd(stage);
 
         static const string shaderMaterial = "in material(finalOutput__);";
-        emitBlock(shaderMaterial, context, stage);
-    }
-    else
-    {
-        // End shader body
-        emitScopeEnd(stage);
-
-        throw ExceptionShaderGenError("Output type '" + outputSocket->getType()->getName() + "' is not yet supported by shader generator");
+        emitBlock(shaderMaterial, FilePath(), context, stage);
     }
 
     // Perform token substitution
@@ -330,8 +328,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-            outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        if (outputType->isClosure())
         {
             impl = ClosureCompoundNodeMdl::create();
         }
@@ -347,8 +344,7 @@ ShaderNodeImplPtr MdlShaderGenerator::getImplementation(const NodeDef& nodedef, 
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->getSemantic() == TypeDesc::SEMANTIC_CLOSURE ||
-                outputType->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+            if (outputType->isClosure())
             {
                 impl = ClosureSourceCodeNodeMdl::create();
             }
@@ -630,23 +626,24 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         const string& qualifier = input->isUniform() || input->getType()==Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = _syntax->getTypeName(input->getType());
-        const string value = (input->getValue() ?
-            _syntax->getValue(input->getType(), *input->getValue(), true) :
-            _syntax->getDefaultValue(input->getType(), true));
 
-        emitLineBegin(stage);
-
+        string value = input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;
         const string& geomprop = input->getGeomProp();
         if (!geomprop.empty())
         {
             auto it = GEOMPROP_DEFINITIONS.find(geomprop);
-            const string& v = it != GEOMPROP_DEFINITIONS.end() ? it->second : value;
-            emitString(type + " " + input->getVariable() + " = " + v, stage);
+            if (it != GEOMPROP_DEFINITIONS.end())
+            {
+                value = it->second;
+            }
         }
-        else
+        if (value.empty())
         {
-            emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
+            value = _syntax->getDefaultValue(input->getType(), true);
         }
+
+        emitLineBegin(stage);
+        emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
 
         if (i < inputs.size() - 1)
         {

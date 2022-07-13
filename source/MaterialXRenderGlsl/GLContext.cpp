@@ -12,7 +12,7 @@
 #include <MaterialXRenderGlsl/GLCocoaWrappers.h>
 #endif
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GLContext.h>
 
 MATERIALX_NAMESPACE_BEGIN

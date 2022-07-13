@@ -103,6 +103,9 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type is an aggregate of 4 floats.
     bool isFloat4() const { return _size == 4 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
+    /// Return true if the type represents a closure.
+    bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
+
   private:
     TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
              bool editable, const ChannelMap& channelMapping);
@@ -144,6 +147,7 @@ namespace Type
     extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
     extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
     extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
+    extern MX_GENSHADER_API const TypeDesc* MATERIAL;
 } // namespace Type
 
 MATERIALX_NAMESPACE_END

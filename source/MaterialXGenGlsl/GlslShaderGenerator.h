@@ -45,7 +45,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables. 
-    virtual const string getVertexDataPrefix(const VariableBlock& vertexData) const;
+    virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
 
   public:
     /// Unique identifier for this generator target
@@ -74,6 +74,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
+
+    /// Emit transmission rendering code
+    virtual void emitTransmissionRender(GenContext& context, ShaderStage& stage) const;
 
     /// Emit function definitions for lighting code
     virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;

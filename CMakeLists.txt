@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 5)
+set(MATERIALX_BUILD_VERSION 6)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -49,6 +49,7 @@ option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
+option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
@@ -116,6 +117,7 @@ mark_as_advanced(MATERIALX_PYTHON_LTO)
 mark_as_advanced(MATERIALX_INSTALL_PYTHON)
 mark_as_advanced(MATERIALX_TEST_RENDER)
 mark_as_advanced(MATERIALX_WARNINGS_AS_ERRORS)
+mark_as_advanced(MATERIALX_DYNAMIC_ANALYSIS)
 mark_as_advanced(MATERIALX_PYTHON_VERSION)
 mark_as_advanced(MATERIALX_PYTHON_EXECUTABLE)
 mark_as_advanced(MATERIALX_PYTHON_OCIO_DIR)
@@ -263,6 +265,11 @@ else()
     add_compile_options(-Wall -Wno-missing-braces)
     if(MATERIALX_WARNINGS_AS_ERRORS)
         add_compile_options(-Werror)
+    endif()
+    if(MATERIALX_DYNAMIC_ANALYSIS)
+        set(DYNAMIC_ANALYSIS_OPTIONS -fsanitize=address -fsanitize=leak -fsanitize=undefined -fno-sanitize-recover=all)
+        add_compile_options(${DYNAMIC_ANALYSIS_OPTIONS})
+        add_link_options(${DYNAMIC_ANALYSIS_OPTIONS})
     endif()
     if(MATERIALX_BUILD_JS)
         add_compile_options(-fexceptions)

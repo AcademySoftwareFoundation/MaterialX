@@ -139,7 +139,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
     return loadedLibraries;
 }
 
-void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver, const FilePathPredicate& skipFlattening)
+void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringResolverPtr customResolver)
 {
     for (ElementPtr elem : doc->traverseTree())
     {
@@ -163,15 +163,6 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
         }
         string resolvedString = valueElem->getResolvedValueString(elementResolver);
 
-        if (skipFlattening)
-        {
-            FilePath resolvedValue(resolvedString);
-            if (skipFlattening(resolvedValue))
-            {
-                continue;
-            }
-        }
-
         // Convert relative to absolute pathing if the file is not already found
         if (!searchPath.isEmpty())
         {
@@ -181,6 +172,7 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
                 for (size_t i = 0; i < searchPath.size(); i++)
                 {
                     FilePath testPath = searchPath[i] / resolvedValue;
+                    testPath = testPath.getNormalized();
                     if (testPath.exists())
                     {
                         resolvedString = testPath.asString();
@@ -209,12 +201,25 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
     }
 }
 
-
-bool isValidPath(const string& path)
+FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
 {
-    // The column and semicolumn chars are used to separate paths in env vars on different os.
-    // Do not allow both of them to have more portable values.
-    return path.find(PATH_LIST_SEPARATOR) == std::string::npos;
+    StringSet pathSet;
+    for (ConstElementPtr elem : doc->traverseTree())
+    {
+        if (elem->hasSourceUri())
+        {
+            FilePath sourceFilename = FilePath(elem->getSourceUri());
+            pathSet.insert(sourceFilename.getParentPath());
+        }
+    }
+
+    FileSearchPath searchPath;
+    for (FilePath path : pathSet)
+    {
+        searchPath.append(path);
+    }
+
+    return searchPath;
 }
 
 MATERIALX_NAMESPACE_END

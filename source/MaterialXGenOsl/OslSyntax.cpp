@@ -212,14 +212,14 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
         AggregateTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition, members)
     {}
 
-    string getValue(const Value& value, bool uniform) const
+    string getValue(const Value& value, bool uniform) const override
     {
         ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
         StringVec values = splitString(value.getValueString(), ",");
         return getValue(values, uniform);
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const
+    string getValue(const StringVec& values, bool /*uniform*/) const override
     {
         if (values.empty())
         {
@@ -314,7 +314,7 @@ OslSyntax::OslSyntax()
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
-        "reflection", "transparent", "debug", "holdout", "subsurface", 
+        "reflection", "transparent", "debug", "holdout", "subsurface", "sheen",
         // TODO: Add all OSL standard library functions names
         "mix", "rotate", "textureresource"
     });
@@ -523,6 +523,16 @@ OslSyntax::OslSyntax()
         Type::LIGHTSHADER,
         std::make_shared<ScalarTypeSyntax>(
             "lightshader",
+            "null_closure",
+            "0",
+            "closure color")
+    );
+
+    registerTypeSyntax
+    (
+        Type::MATERIAL,
+        std::make_shared<ScalarTypeSyntax>(
+            "MATERIAL",
             "null_closure",
             "0",
             "closure color")

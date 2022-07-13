@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" version="0.0.1" isdefaultversion="true">
-    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Base Color" uifolder="Base" />
-    <input name="metallic" type="float" value="0" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
-    <input name="roughness" type="float" value="0" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
+    <input name="base_color" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Base Color" uifolder="Base" />
+    <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
+    <input name="roughness" type="float" value="1" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Base" />
-    <input name="occlusion" type="float" value="0" uimin="0" uimax="1" uiname="Occlusion" uifolder="Base" />
+    <input name="occlusion" type="float" value="1" uimin="0" uimax="1" uiname="Occlusion" uifolder="Base" />
     <input name="transmission" type="float" value="0" uimin="0" uimax="1" uiname="Transmission" uifolder="Base" />
     <input name="specular" type="float" value="1" uimin="0" uimax="1" uiname="Specular" uifolder="Base" />
     <input name="specular_color" type="color3" value="1, 1, 1" uimin="0, 0, 0" uisoftmax="1, 1, 1" uiname="Specular Color" uifolder="Base" />
     <input name="ior" uniform="true" type="float" value="1.5" uimin="1" uisoftmax="3" uiname="Index of Refraction" uifolder="Base" />
-    <input name="alpha" type="float" value="0" uimin="0" uimax="1" uiname="Alpha" uifolder="Alpha" />
+    <input name="alpha" type="float" value="1" uimin="0" uimax="1" uiname="Alpha" uifolder="Alpha" />
     <input name="alpha_mode" uniform="true" type="integer" enum="OPAQUE, MASK, BLEND" enumvalues="0, 1, 2" value="0" uiname="Alpha Mode" uifolder="Alpha" />
     <input name="alpha_cutoff" uniform="true" type="float" value="0.5" uimin="0" uimax="1" uiname="Alpha Cutoff" uifolder="Alpha" />
     <input name="sheen_color" type="color3" value="0, 0, 0" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Sheen Color" uifolder="Sheen" />

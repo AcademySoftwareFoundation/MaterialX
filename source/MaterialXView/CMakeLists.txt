@@ -42,7 +42,7 @@ else()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Wno-deprecated)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        add_compile_options(-Wno-format-truncation)
+        add_compile_options(-Wno-format-truncation -Wno-use-after-free)
     endif()
 
     # Disable NanoGUI compiler modifications for Clang
@@ -82,9 +82,6 @@ if (MATERIALX_BUILD_GEN_OSL)
 endif()
 if (MATERIALX_BUILD_GEN_MDL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
-endif()
-if (MATERIALX_BUILD_GEN_ARNOLD)
-    LIST(APPEND MATERIALX_LIBRARIES MaterialXGenArnold)
 endif()
 
 target_link_libraries(

@@ -11,6 +11,10 @@ import { prepareEnvTexture, findLights, registerLights, getUniformValues } from 
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
+const ALL_GEOMETRY_SPECIFIER = "*";
+const NO_GEOMETRY_SPECIFIER = "";
+const DAG_PATH_SEPERATOR = "/";
+
 /*
     Scene management
 */
@@ -33,8 +37,8 @@ export class Scene
 
         const aspectRatio = window.innerWidth / window.innerHeight;
         const cameraNearDist = 0.05;
-        const cameraFarDist = 5000.0;
-        const cameraFOV = 45.0;
+        const cameraFarDist = 100.0;
+        const cameraFOV = 60.0;
         this._camera = new THREE.PerspectiveCamera(cameraFOV, aspectRatio, cameraNearDist, cameraFarDist);
 
         this.#_gltfLoader = new GLTFLoader();
@@ -42,6 +46,18 @@ export class Scene
         this.#_normalMat = new THREE.Matrix3();
         this.#_viewProjMat = new THREE.Matrix4();
         this.#_worldViewPos = new THREE.Vector3();
+    }
+
+    // Set whether to flip UVs in V for loaded geometry
+    setFlipGeometryV(val)
+    {
+        this.#_flipV = val;
+    }
+
+    // Get whether to flip UVs in V for loaded geometry
+    getFlipGeometryV()
+    {
+        return this.#_flipV;
     }
 
     // Utility to perform geometry file load
@@ -65,6 +81,7 @@ export class Scene
             scene.remove(scene.children[0]);
         }
 
+        this.#_rootNode = null;
         const model = gltfData.scene;
         if (!model)
         {
@@ -73,12 +90,17 @@ export class Scene
             const cube = new THREE.Mesh(geometry, material);
             obj = new Group();
             obj.add(geometry);
+        }
+        else
+        {
+            this.#_rootNode = model;
         } 
         scene.add(model);
 
         // Always reset controls based on camera for each load. 
         orbitControls.reset();
         this.updateScene(viewer, orbitControls);
+        viewer.getMaterial().updateMaterialAssignments(viewer);
     }
 
     //
@@ -89,6 +111,9 @@ export class Scene
         const bbox = new THREE.Box3().setFromObject(this._scene);
         const bsphere = new THREE.Sphere();
         bbox.getBoundingSphere(bsphere);
+
+        let theScene = viewer.getScene();
+        let flipV = theScene.getFlipGeometryV();
     
         this._scene.traverse((child) => {
             if (child.isMesh) {
@@ -104,6 +129,15 @@ export class Scene
     
                     child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
                 }
+                else if (flipV)
+                {
+                    const uvCount = child.geometry.attributes.position.count;
+                    const uvs = child.geometry.attributes.uv.array;
+                    for (let i = 0; i < uvCount; i++) {
+                        let v = 1.0-(uvs[i*2 +1]);
+                        uvs[i*2+1] = v;
+                    }
+                }
     
                 if (!child.geometry.attributes.normal) {
                     child.geometry.computeVertexNormals();
@@ -118,11 +152,12 @@ export class Scene
                 child.geometry.attributes.i_normal = child.geometry.attributes.normal;
                 child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
                 child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
-    
-                child.material = viewer.getMaterial().getCurrentMaterial();
             }
         });
     
+        // Update the background
+        this._scene.background = this.getBackground();
+
         // Fit camera to model
         const camera = this.getCamera();
         camera.position.y = bsphere.center.y;
@@ -155,17 +190,83 @@ export class Scene
         });
     }
 
-    // For now every mesh uses the same material
-    updateMaterial(material)
+    // Determine string DAG path based on individual node names.
+    getDagPath(node)
     {
+        const rootNode = this.#_rootNode;
+
+        let path = [node.name];
+        while (node.parent)
+        {
+            node = node.parent;
+            if (node)
+            {
+                // Stop at the root of the scene read in.
+                if (node == rootNode)
+                {
+                    break;
+                }
+                path.unshift(node.name);
+            }
+        }
+        return path;
+    }
+
+    // Assign material shader to associated geometry
+    updateMaterial(matassign)
+    {
+        let assigned = 0;
+
+        const shader = matassign.getShader();
+        const material = matassign.getMaterial().getName();
+        const geometry = matassign.getGeometry();
+        const collection = matassign.getCollection();
+
         const scene = this.getScene();
         const camera = this.getCamera();
-        scene.traverse((child) => {
-            if (child.isMesh) {
-                child.material = material;
-                child.material.needsUpdate = true;
+        scene.traverse((child) => 
+        {
+            if (child.isMesh) 
+            {
+                const dagPath = this.getDagPath(child).join('/');
+
+                // Note that this is a very simplistic
+                // assignment resolve and assumes basic
+                // regular expression name match.
+                let matches = (geometry == ALL_GEOMETRY_SPECIFIER);
+                if (!matches)
+                {
+                    if (collection)
+                    {
+                        if (collection.matchesGeomString(dagPath))
+                        {
+                            matches = true;
+                        }
+                    }
+                    else
+                    {
+                        const paths = geometry.split(',');
+                        for (let path of paths)
+                        {
+                            if (dagPath.match(path))
+                            {
+                                matches = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (matches)
+                {
+                    console.log('Assign material: ', material, ' to geometry: ', dagPath);
+                    child.material = shader;
+                    child.material.needsUpdate = true;
+                    assigned++;
+                }
             }
         });
+
+        return assigned;
     }
 
     updateCamera()
@@ -191,10 +292,45 @@ export class Scene
         this._geometryURL = url;
     }
 
+    setBackgroundTexture(texture)
+    {
+        this.#_backgroundTexture = texture;
+    }
+
+    getShowBackgroundTexture()
+    {
+        return this.#_showBackgroundTexture;
+    }
+
+    setShowBackgroundTexture(enable)
+    {
+        this.#_showBackgroundTexture = enable;
+    }
+
+    getBackground() 
+    {
+        if (this.#_backgroundTexture && this.#_showBackgroundTexture)
+        {
+            return this.#_backgroundTexture;
+        }
+        var color = new THREE.Color(this.#_backgroundColor);
+        color.convertSRGBToLinear();
+        return color;
+    }
+
+    toggleBackgroundTexture()
+    {
+        this.#_showBackgroundTexture = !this.#_showBackgroundTexture;
+        this._scene.background = this.getBackground();
+    }
+
     // Geometry file
     #_geometryURL = '';
     // Geometry loader
     #_gltfLoader = null;
+    // Flip V coordinate of texture coordinates.
+    // Set to true to be consistent with desktop viewer.
+    #_flipV = true;
 
     // Scene
     #_scene = null;
@@ -205,10 +341,17 @@ export class Scene
     // Background color
     #_backgroundColor = 0x4c4c52;
 
+    // Background texture
+    #_backgroundTexture = null;
+    #_showBackgroundTexture = true;
+
     // Transform matrices
     #_normalMat = new THREE.Matrix3();
     #_viewProjMat = new THREE.Matrix4();
     #_worldViewPos = new THREE.Vector3();
+
+    // Root node of imported scene
+    #_rootNode = null;
 }
 
 /* 
@@ -229,11 +372,14 @@ export class Editor
         );
     
         // Hide close button
-        Array.from(document.getElementsByClassName('close-button')).forEach(
-            function (element, index, array) {
-                element.style.display = "none";
-            }
-        );
+        if (this._hideCloseControl)
+        {
+            Array.from(document.getElementsByClassName('close-button')).forEach(
+                function (element, index, array) {
+                    element.style.display = "none";
+                }
+            );
+        }
     }
 
     //
@@ -284,10 +430,65 @@ export class Editor
     }
 
     _gui = null;
+    _hideCloseControl = false;
+}
+
+class MaterialAssign
+{
+    constructor(material, geometry, collection)
+    {
+        this._material = material;
+        this._geometry = geometry;
+        this._collection = collection;
+        this._shader = null;
+    }
+
+    setShader(shader)
+    {
+        this._shader = shader;
+    }
+
+    getShader()
+    {
+        return this._shader;
+    }
+
+    getMaterial()
+    {
+        return this._material;
+    }
+    
+    getGeometry()
+    {
+        return this._geometry;
+    }
+
+    getCollection()
+    {
+        return this._collection;
+    }
+
+    // MaterialX material node name
+    _material;
+
+    // MaterialX assignment geometry string
+    _geometry;
+
+    // MaterialX assignment collection
+    _collection;
+
+    // THREE.JS shader
+    _shader;
 }
 
 export class Material
 {
+    constructor()
+    {
+        this._materials = [];
+        this._defaultMaterial = null;
+    }
+
     // If no material file is selected, we programmatically create a default material as a fallback
     static createFallbackMaterial(doc) 
     {
@@ -308,7 +509,7 @@ export class Material
         });
     }
 
-    async loadMaterial(viewer, materialFilename)
+    async loadMaterials(viewer, materialFilename)
     {
         const mx = viewer.getMx();
 
@@ -321,8 +522,11 @@ export class Material
 
         let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
 
-        // Set search path.
-        const searchPath = 'Materials/Examples/StandardSurface/';
+        // Set search path. Assumes images are relative to current file
+        // location.
+        const paths = materialFilename.split('/');
+        paths.pop(); 
+        const searchPath = paths.join('/');
 
         // Load material
         if (mtlxMaterial)
@@ -330,24 +534,118 @@ export class Material
         else
             Material.createFallbackMaterial(doc);
 
-        // Search for any renderable items
-        let elem = mx.findRenderableElement(doc);
+        // Check if there are any looks defined in the document
+        // If so then traverse the looks for all material assignments.
+        // Generate code and compile for any associated surface shader
+        // and assign to the associatged geometry. If there are no looks
+        // then the first material is found and assignment to all the
+        // geometry. 
+        this._materials = [];
+        this._defaultMaterial = null;
+        var looks = doc.getLooks();
+        if (looks.length)
+        {
+            for (let look of looks)
+            {
+                const materialAssigns = look.getMaterialAssigns();
+                for (let materialAssign of materialAssigns) 
+                {
+                    let matName = materialAssign.getMaterial();
+                    if (matName)
+                    {   
+                        let mat = doc.getChild(matName);
+                        var shader;
+                        if (mat)
+                        {
+                            var shaders = mx.getShaderNodes(mat);
+                            if (shaders.length)
+                            {
+                                shader = shaders[0];
+                            }
+                        }
+                        let collection = materialAssign.getCollection();
+                        let geom = materialAssign.getGeom();
+                        let newAssignment;
+                        if (collection || geom)
+                        {
+                            newAssignment = new MaterialAssign(shader, geom, collection);
+                        }
+                        else
+                        {
+                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER);
+                        }
 
+                        if (newAssignment)
+                        {
+                            this._materials.push(newAssignment);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Search for any surface shader. It
+            // is assumed to be assigned to the entire scene
+            // The identifier used is "*" to mean the entire scene. 
+            let elem = mx.findRenderableElement(doc);
+            if (elem)
+            {
+                this._materials.push(new MaterialAssign(elem, ALL_GEOMETRY_SPECIFIER));
+            }
+        }
+        
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
-        // Create a new material
-        const currentMaterial = viewer.getMaterial().generateMaterial(elem, viewer);
-        if (currentMaterial)
+        // Create a new shader for each material node.
+        // Only create the shader once even if assigned more than once.
+        let shaderMap = new Map();
+        for (let matassign of this._materials)
         {
-            viewer.getScene().updateMaterial(currentMaterial);
+            let materialName = matassign.getMaterial().getName();
+            let shader = shaderMap[materialName];
+            if (!shader)
+            {
+                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+                shaderMap[materialName] = shader;
+            }
+            matassign.setShader(shader);
+        }
+
+        // Update scene shader assignments
+        this.updateMaterialAssignments(viewer);
+    }
+
+    //
+    // Update the assignments for scene objects based on the
+    // material assignment information stored in the viewer.
+    // Note: If none of the MaterialX assignments match the geometry
+    // in the scene, then the first material assignment shader is assigned
+    // to the entire scene.
+    //
+    updateMaterialAssignments(viewer)
+    {
+        let assigned = 0;
+        for (let matassign of this._materials)
+        {
+            if (matassign.getShader())
+            {
+                assigned += viewer.getScene().updateMaterial(matassign);
+            }
+        }
+        if (assigned == 0 && this._materials.length)
+        {
+            this._defaultMaterial = new MaterialAssign(this._materials[0].getMaterial(), ALL_GEOMETRY_SPECIFIER);
+            this._defaultMaterial.setShader(this._materials[0].getShader());
+            viewer.getScene().updateMaterial(this._defaultMaterial);
         }
     }
 
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer) 
+    generateMaterial(elem, viewer, searchPath) 
     {
         const mx = viewer.getMx();
         const textureLoader = new THREE.TextureLoader();
@@ -370,9 +668,11 @@ export class Material
         let vShader = shader.getSourceCode("vertex");
         let fShader = shader.getSourceCode("pixel");
 
+        let theScene = viewer.getScene();
+        let flipV = theScene.getFlipGeometryV();
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader),
+            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
+            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
         }
 
         Object.assign(uniforms, {
@@ -387,7 +687,7 @@ export class Material
         });
 
         // Create Three JS Material
-        this._currentMaterial  = new THREE.RawShaderMaterial({
+        let newMaterial  = new THREE.RawShaderMaterial({
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
@@ -400,9 +700,9 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, this._currentMaterial, gui);
+        this.updateEditor(elem, shader, newMaterial, gui);
 
-        return this._currentMaterial;
+        return newMaterial;
     }
 
     //
@@ -412,7 +712,6 @@ export class Material
     updateEditor(elem, shader, material, gui)
     {
         const elemPath = elem.getNamePath();
-        //const gui = viewer.getEditor().getGUI();
         var matUI = gui.addFolder(elemPath + ' Properties');
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
@@ -589,13 +888,11 @@ export class Material
         });
     }
 
-    getCurrentMaterial()
-    {
-        return this._currentMaterial;
-    }
+    // List of material assignments: { MaterialX node, geometry assignment string, and hardware shader }
+    _materials;
 
-    // Three.js material
-    _currentMaterial = null;
+    // Fallback material if nothing was assigned explicitly
+    _defaultMaterial;
 }
 
 /*
@@ -638,11 +935,14 @@ export class Viewer
         this.document.importLibrary(this.stdlib);
 
         this.initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+
+        loadedRadianceTexture.mapping = THREE.EquirectangularReflectionMapping;
+        this.getScene().setBackgroundTexture(loadedRadianceTexture);
     }
 
     //
     // Load in lighting rig document and register lights with generation context
-    // Initialize environent lighting (IBLs).
+    // Initialize environment lighting (IBLs).
     //
     async initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
     {

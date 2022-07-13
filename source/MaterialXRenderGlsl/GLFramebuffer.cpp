@@ -9,7 +9,7 @@
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -34,7 +34,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
 {
     if (!glGenFramebuffers)
     {
-        glewInit();
+        gladLoadGL();
     }
 
     // Convert texture format to OpenGL.
@@ -124,7 +124,7 @@ GLFramebuffer::~GLFramebuffer()
 
 void GLFramebuffer::resize(unsigned int width, unsigned int height)
 {
-    if (width * height <= 0)
+    if (width * height == 0)
     {
         return;
     }

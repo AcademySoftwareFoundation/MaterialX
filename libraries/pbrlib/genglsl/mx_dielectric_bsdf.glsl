@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "lib/mx_microfacet_specular.glsl"
 
 void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
@@ -44,7 +44,7 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
 
 void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
-    if (weight < M_FLOAT_EPS || scatter_mode == 0)
+    if (weight < M_FLOAT_EPS)
     {
         return;
     }
@@ -71,12 +71,10 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
     bsdf.throughput = 1.0 - dirAlbedo * weight;
 
-    // For now, we approximate the appearance of dielectric transmission as
-    // glossy environment map refraction, ignoring any scene geometry that
-    // might be visible through the surface.
-    fd.refraction = true;
-    vec3 Li = $refractionEnv ? mx_environment_radiance(N, V, X, safeAlpha, distribution, fd) : $refractionColor;
-    bsdf.response = Li * tint * weight;
+    if (scatter_mode != 0)
+    {
+        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd) * tint * weight;
+    }
 }
 
 void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)

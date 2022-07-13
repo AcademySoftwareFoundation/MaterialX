@@ -136,6 +136,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
+            const Matrix44 normalMatrix = positionMatrix.getInverse().getTranspose();
             
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
@@ -191,6 +192,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 MeshStreamPtr colorStream = nullptr;
                 MeshStreamPtr texcoordStream = nullptr;
                 MeshStreamPtr tangentStream = nullptr;
+                int colorAttrIndex = 0;
 
                 // Read in vertex streams
                 for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
@@ -221,7 +223,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
                     bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
                     bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
-                    bool isTexCoordSteram = (attribute->type == cgltf_attribute_type_texcoord);
+                    bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
                     if (isPositionStream)
                     {
                         // Create position stream
@@ -243,12 +245,15 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                     else if (attribute->type == cgltf_attribute_type_color)
                     {
-                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE, MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE + "_" + std::to_string(colorAttrIndex), MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        mesh->addStream(colorStream);
                         geomStream = colorStream;
                         if (vectorSize == 4)
                         {
+                            colorStream->setStride(MeshStream::STRIDE_4D);
                             desiredVectorSize = 4;
                         }
+                        colorAttrIndex++;
                     }
                     else if (attribute->type == cgltf_attribute_type_texcoord)
                     {
@@ -309,7 +314,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     normal[v] = floatValue;
                                 }
-                                normal = positionMatrix.transformNormal(normal);
+                                normal = normalMatrix.transformVector(normal).getNormalized();
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     buffer.push_back(normal[v]);
@@ -321,7 +326,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                 {
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     // Perform v-flip
-                                    if (isTexCoordSteram && v == 1)
+                                    if (isTexCoordStream && v == 1)
                                     {
                                         if (!texcoordVerticalFlip)
                                         {
@@ -397,10 +402,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         }
     }
 
-    if (data)
-    {
-        cgltf_free(data);
-    }
+    cgltf_free(data);
 
     return true;
 }

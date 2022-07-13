@@ -13,7 +13,12 @@ import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectio
 
 import { Viewer } from './viewer.js'
 
-let  renderer, composer, orbitControls;
+let renderer, composer, orbitControls;
+
+// Turntable option. For now the step size is fixed.
+let turntableEnabled = false;
+let turntableSteps = 360;
+let turntableStep = 0;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -36,7 +41,7 @@ function init()
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
         viewer.getEditor().clearFolders();
-        viewer.getMaterial().loadMaterial(viewer, materialFilename);
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
     });
 
@@ -88,12 +93,18 @@ function init()
         // Initialize viewer + lighting
         await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
 
-        // Load material
-        viewer.getMaterial().loadMaterial(viewer, materialFilename);
+        // Load geometry  
+        let scene = viewer.getScene();
+        scene.loadGeometry(viewer, orbitControls);
 
-        // Load geometry
-        viewer.getScene().loadGeometry(viewer, orbitControls);
+        // Load materials
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
 
+        // Update assignments
+        viewer.getMaterial().updateMaterialAssignments(viewer);
+
+        canvas.addEventListener("keydown", handleKeyEvents, true);
+        
     }).then(() => {
         animate();
     }).catch(err => {
@@ -111,9 +122,29 @@ function onWindowResize()
 function animate() 
 {
     requestAnimationFrame(animate);
-    if (viewer.getMaterial().getCurrentMaterial())
+
+    if (turntableEnabled)
     {
-        composer.render();
-        viewer.getScene().updateTransforms();
+        turntableStep = (turntableStep + 1) % 360;
+        var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
+        viewer.getScene()._scene.rotation.y = turntableAngle ;
+    }
+
+    composer.render();
+    viewer.getScene().updateTransforms();
+}
+
+function handleKeyEvents(event)
+{
+    const V_KEY = 86;
+    const P_KEY = 80;
+
+    if (event.keyCode == V_KEY)
+    {
+        viewer.getScene().toggleBackgroundTexture();
+    }
+    else if (event.keyCode == P_KEY)
+    {
+        turntableEnabled = !turntableEnabled;
     }
 }

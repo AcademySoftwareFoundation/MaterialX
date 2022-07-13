@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "lib/mx_microfacet_specular.glsl"
 
 void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
@@ -36,7 +36,7 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
 
 void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
-    if (weight < M_FLOAT_EPS || scatter_mode == 0)
+    if (weight < M_FLOAT_EPS)
     {
         return;
     }
@@ -55,14 +55,12 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     float avgDirAlbedo = dot(dirAlbedo, vec3(1.0 / 3.0));
     bsdf.throughput = vec3(1.0 - avgDirAlbedo * weight);
 
-    // For now, we approximate the appearance of Schlick transmission as
-    // glossy environment map refraction, ignoring any scene geometry that
-    // might be visible through the surface.
-    float avgF0 = dot(color0, vec3(1.0 / 3.0));
-    fd.refraction = true;
-    fd.ior.x = mx_f0_to_ior(avgF0);
-    vec3 Li = $refractionEnv ? mx_environment_radiance(N, V, X, safeAlpha, distribution, fd) : $refractionColor;
-    bsdf.response = Li * color0 * weight;
+    if (scatter_mode != 0)
+    {
+        float avgF0 = dot(color0, vec3(1.0 / 3.0));
+        fd.ior = vec3(mx_f0_to_ior(avgF0));
+        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd) * color0 * weight;
+    }
 }
 
 void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)

@@ -2,7 +2,6 @@
 
 Thank you for your interest in contributing to MaterialX!  This document explains our contribution process and procedures.
 
-Once your CLA is signed, send it to contributors@materialx.org and wait for confirmation that we've received it.  After that, you can submit pull requests.
 ## Community and Discussion
 
 There are two primary ways to connect with the MaterialX community:

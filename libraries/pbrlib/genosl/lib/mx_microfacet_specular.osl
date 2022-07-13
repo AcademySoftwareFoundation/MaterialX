@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genosl/lib/mx_microfacet.osl"
+#include "mx_microfacet.osl"
 
 // Compute the average of an anisotropic alpha pair.
 float mx_average_alpha(vector2 alpha)
@@ -10,6 +10,13 @@ float mx_average_alpha(vector2 alpha)
 float mx_ior_to_f0(float ior)
 {
     return mx_square((ior - 1.0) / (ior + 1.0));
+}
+
+// Convert normal-incidence reflectivity to real-valued index of refraction.
+float mx_f0_to_ior(float F0)
+{
+    float sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
+    return (1.0 + sqrtF0) / (1.0 - sqrtF0);
 }
 
 // Rational quadratic fit to Monte Carlo data for GGX directional albedo.

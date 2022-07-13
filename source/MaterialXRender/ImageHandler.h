@@ -174,11 +174,6 @@ class MX_RENDER_API ImageHandler
     /// @return On success, a shared pointer to the acquired image.
     ImagePtr acquireImage(const FilePath& filePath);
 
-    /// Create a new image. If the image of a given name exists in the cache then
-    /// it will be returend. Otherwise a new image will be created and added to the 
-    /// cache
-    ImagePtr createImage(const string& name, unsigned int width, unsigned int height, unsigned int channelCount, Image::BaseType baseType = Image::BaseType::UINT8);
-
     /// Bind an image for rendering.
     /// @param image The image to bind.
     /// @param samplingProperties Sampling properties for the image.
@@ -243,10 +238,6 @@ class MX_RENDER_API ImageHandler
         return _invalidImage;
     }
 
-    /// Return the cached image for a identifier, if found; otherwise return an empty
-    /// shared pointer.
-    ImagePtr getImage(const string& identifier);
-
     /// Acquire all images referenced by the given document, and return the
     /// images in a vector.
     ImageVec getReferencedImages(DocumentPtr doc);
@@ -261,7 +252,7 @@ class MX_RENDER_API ImageHandler
     // Add an image to the cache.
     void cacheImage(const string& filePath, ImagePtr image);
 
-    // Return the cached image for a given file path, if found; otherwise return an empty
+    // Return the cached image, if found; otherwise return an empty
     // shared pointer.
     ImagePtr getCachedImage(const FilePath& filePath);
 

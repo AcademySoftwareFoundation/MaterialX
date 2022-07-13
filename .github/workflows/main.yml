@@ -18,26 +18,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_7_Python27
+        - name: Linux_GCC_6_Python27
+          os: ubuntu-18.04
+          compiler: gcc
+          compiler_version: "6"
+          python: 2.7
+          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_VIEWER=OFF
+
+        - name: Linux_GCC_7_Python37
           os: ubuntu-18.04
           compiler: gcc
           compiler_version: "7"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Linux_GCC_10_Python37
-          os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: "10"
           python: 3.7
-          upload_shaders: ON
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
           compiler: gcc
           compiler_version: "11"
           python: 3.9
-          test_render: ON
+          build_javascript: ON
+
+        - name: Linux_GCC_12_Python39
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.9
+          upload_shaders: ON
 
         - name: Linux_Clang_9_Python27
           os: ubuntu-18.04
@@ -46,18 +53,26 @@ jobs:
           python: 2.7
           cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_11_Python37
+        - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
-          compiler_version: "11"
+          compiler_version: "10"
           python: 3.7
-          build_javascript: ON
 
-        - name: Linux_Clang_12_Python39
-          os: ubuntu-20.04
+        - name: Linux_Clang_13_Python39
+          os: ubuntu-22.04
           compiler: clang
-          compiler_version: "12"
+          compiler_version: "13"
           python: 3.9
+          test_render: ON
+
+        - name: Linux_Clang_14_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
+          python: 3.9
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
 
         - name: MacOS_Xcode_10_Python27
           os: macos-10.15
@@ -73,9 +88,9 @@ jobs:
           python: 3.7
 
         - name: MacOS_Xcode_13_Python39
-          os: macos-11
+          os: macos-12
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "13.3"
           python: 3.9
           static_analysis: ON
 
@@ -173,7 +188,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       run: cmake --build . --target install --config Release --parallel 2
@@ -184,6 +199,7 @@ jobs:
       working-directory: build
 
     - name: Python Tests
+      if: matrix.dynamic_analysis != 'ON'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
@@ -201,15 +217,14 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target essl --validator glslangValidator.exe
 
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
       run: |
         brew install cppcheck
-        cppcheck --max-configs=1 --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*JsMaterialX/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/* --suppress=*:*/PyBind11/* --suppress=toomanyconfigs -I. .
-      working-directory: source
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -230,9 +245,30 @@ jobs:
     - name: Viewer Tests
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
+
+    - name: Upload Installed Package
+      if: matrix.dynamic_analysis != 'ON'
+      uses: actions/upload-artifact@v2
+      with:
+        name: MaterialX_${{ matrix.name }}
+        path: build/installed/
+
+    - name: Upload Reference Shaders
+      uses: actions/upload-artifact@v2
+      if: matrix.upload_shaders == 'ON'
+      with:
+        name: Reference_Shaders_${{ matrix.name }}
+        path: build/bin/reference/
+
+    - name: Upload Renders
+      uses: actions/upload-artifact@v2
+      if: matrix.test_render == 'ON'
+      with:
+        name: Renders_${{ matrix.name }}
+        path: build/render/
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
@@ -269,22 +305,10 @@ jobs:
         folder: javascript/MaterialXView/dist
         single-commit: true
 
-    - name: Upload Installed Package
+    - name: Upload JavaScript Package
+      if: matrix.build_javascript == 'ON'
       uses: actions/upload-artifact@v2
       with:
-        name: MaterialX_${{ matrix.name }}
-        path: build/installed/
-
-    - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v2
-      if: matrix.upload_shaders == 'ON'
-      with:
-        name: Reference_Shaders_${{ matrix.name }}
-        path: build/bin/reference/
-
-    - name: Upload Renders
-      uses: actions/upload-artifact@v2
-      if: matrix.test_render == 'ON'
-      with:
-        name: Renders_${{ matrix.name }}
-        path: build/render/
+        name: MaterialX_JavaScript
+        path: javascript/build/installed/JavaScript/MaterialX        
+        if-no-files-found: ignore   

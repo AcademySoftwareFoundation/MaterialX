@@ -138,6 +138,7 @@ const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::COMPARE = "compare";
 const string ShaderNode::SWITCH = "switch";
+const string ShaderNode::SURFACESHADER = "surfaceshader";
 const string ShaderNode::SCATTER_MODE = "scatter_mode";
 const string ShaderNode::BSDF_R = "R";
 const string ShaderNode::BSDF_T = "T";
@@ -288,7 +289,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 
     // First, check for specific output types
     const ShaderOutput* primaryOutput = newNode->getOutput();
-    if (primaryOutput->getType() == Type::SURFACESHADER)
+    if (primaryOutput->getType() == Type::MATERIAL)
+    {
+        newNode->_classification = Classification::MATERIAL;
+    }
+    else if (primaryOutput->getType() == Type::SURFACESHADER)
     {
         if (nodeDefName == "ND_surface_unlit")
         {

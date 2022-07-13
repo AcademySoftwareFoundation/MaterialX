@@ -35,6 +35,21 @@ import ::df::*;
 
 // Shader Nodes
 
+export material mx_surfacematerial(
+	material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    float3 mxp_displacement = float3(0.0, 0.0, 0.0)
+)
+= material(
+    thin_walled: false,
+    surface: mxp_surfaceshader.surface,
+    backface: mxp_surfaceshader.backface,
+    geometry: material_geometry(
+        cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
+        displacement : mxp_displacement,
+        normal: mxp_surfaceshader.geometry.normal
+    )
+);
+
 export material mx_surface_unlit(
     float mxp_emission = 0.0,
     color mxp_emission_color = color(1.0, 1.0, 1.0),

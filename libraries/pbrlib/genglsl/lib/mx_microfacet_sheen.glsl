@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "mx_microfacet.glsl"
 
 // http://www.aconty.com/pdf/s2017_pbs_imageworks_sheen.pdf
 // Equation 2

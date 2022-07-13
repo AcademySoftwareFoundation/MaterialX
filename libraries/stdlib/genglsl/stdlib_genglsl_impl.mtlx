@@ -11,6 +11,9 @@
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
 
+  <!-- <surfacematerial> -->
+  <implementation name="IM_surfacematerial_genglsl" nodedef="ND_surfacematerial" target="genglsl" />
+
   <!-- <surface_unlit> -->
   <implementation name="IM_surface_unlit_genglsl" nodedef="ND_surface_unlit" target="genglsl" />
 
@@ -19,132 +22,132 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_genglsl" nodedef="ND_image_float" file="libraries/stdlib/genglsl/mx_image_float.glsl" function="mx_image_float" target="genglsl">
+  <implementation name="IM_image_float_genglsl" nodedef="ND_image_float" file="mx_image_float.glsl" function="mx_image_float" target="genglsl">
     <input name="default" type="float" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color3_genglsl" nodedef="ND_image_color3" file="libraries/stdlib/genglsl/mx_image_color3.glsl" function="mx_image_color3" target="genglsl">
+  <implementation name="IM_image_color3_genglsl" nodedef="ND_image_color3" file="mx_image_color3.glsl" function="mx_image_color3" target="genglsl">
     <input name="default" type="color3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color4_genglsl" nodedef="ND_image_color4" file="libraries/stdlib/genglsl/mx_image_color4.glsl" function="mx_image_color4" target="genglsl">
+  <implementation name="IM_image_color4_genglsl" nodedef="ND_image_color4" file="mx_image_color4.glsl" function="mx_image_color4" target="genglsl">
     <input name="default" type="color4" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector2_genglsl" nodedef="ND_image_vector2" file="libraries/stdlib/genglsl/mx_image_vector2.glsl" function="mx_image_vector2" target="genglsl">
+  <implementation name="IM_image_vector2_genglsl" nodedef="ND_image_vector2" file="mx_image_vector2.glsl" function="mx_image_vector2" target="genglsl">
     <input name="default" type="vector2" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector3_genglsl" nodedef="ND_image_vector3" file="libraries/stdlib/genglsl/mx_image_vector3.glsl" function="mx_image_vector3" target="genglsl">
+  <implementation name="IM_image_vector3_genglsl" nodedef="ND_image_vector3" file="mx_image_vector3.glsl" function="mx_image_vector3" target="genglsl">
     <input name="default" type="vector3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector4_genglsl" nodedef="ND_image_vector4" file="libraries/stdlib/genglsl/mx_image_vector4.glsl" function="mx_image_vector4" target="genglsl">
+  <implementation name="IM_image_vector4_genglsl" nodedef="ND_image_vector4" file="mx_image_vector4.glsl" function="mx_image_vector4" target="genglsl">
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="libraries/stdlib/genglsl/mx_normalmap.glsl" function="mx_normalmap" target="genglsl" />
+  <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="mx_normalmap.glsl" function="mx_normalmap" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->
 
   <!-- <constant> -->
-  <implementation name="IM_constant_float_genglsl" nodedef="ND_constant_float" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_color3_genglsl" nodedef="ND_constant_color3" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_color4_genglsl" nodedef="ND_constant_color4" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_vector2_genglsl" nodedef="ND_constant_vector2" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_vector3_genglsl" nodedef="ND_constant_vector3" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_vector4_genglsl" nodedef="ND_constant_vector4" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_boolean_genglsl" nodedef="ND_constant_boolean" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_integer_genglsl" nodedef="ND_constant_integer" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_matrix33_genglsl" nodedef="ND_constant_matrix33" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_matrix44_genglsl" nodedef="ND_constant_matrix44" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_string_genglsl" nodedef="ND_constant_string" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
-  <implementation name="IM_constant_filename_genglsl" nodedef="ND_constant_filename" file="libraries/stdlib/genglsl/mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_float_genglsl" nodedef="ND_constant_float" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_color3_genglsl" nodedef="ND_constant_color3" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_color4_genglsl" nodedef="ND_constant_color4" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_vector2_genglsl" nodedef="ND_constant_vector2" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_vector3_genglsl" nodedef="ND_constant_vector3" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_vector4_genglsl" nodedef="ND_constant_vector4" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_boolean_genglsl" nodedef="ND_constant_boolean" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_integer_genglsl" nodedef="ND_constant_integer" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_matrix33_genglsl" nodedef="ND_constant_matrix33" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_matrix44_genglsl" nodedef="ND_constant_matrix44" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_string_genglsl" nodedef="ND_constant_string" file="mx_constant.inline" target="genglsl" />
+  <implementation name="IM_constant_filename_genglsl" nodedef="ND_constant_filename" file="mx_constant.inline" target="genglsl" />
 
   <!-- <ramplr> -->
-  <implementation name="IM_ramplr_float_genglsl" nodedef="ND_ramplr_float" file="libraries/stdlib/genglsl/mx_ramplr_float.glsl" function="mx_ramplr_float" target="genglsl" />
-  <implementation name="IM_ramplr_color3_genglsl" nodedef="ND_ramplr_color3" file="libraries/stdlib/genglsl/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" target="genglsl" />
-  <implementation name="IM_ramplr_color4_genglsl" nodedef="ND_ramplr_color4" file="libraries/stdlib/genglsl/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" target="genglsl" />
-  <implementation name="IM_ramplr_vector2_genglsl" nodedef="ND_ramplr_vector2" file="libraries/stdlib/genglsl/mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" target="genglsl" />
-  <implementation name="IM_ramplr_vector3_genglsl" nodedef="ND_ramplr_vector3" file="libraries/stdlib/genglsl/mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" target="genglsl" />
-  <implementation name="IM_ramplr_vector4_genglsl" nodedef="ND_ramplr_vector4" file="libraries/stdlib/genglsl/mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" target="genglsl" />
+  <implementation name="IM_ramplr_float_genglsl" nodedef="ND_ramplr_float" file="mx_ramplr_float.glsl" function="mx_ramplr_float" target="genglsl" />
+  <implementation name="IM_ramplr_color3_genglsl" nodedef="ND_ramplr_color3" file="mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" target="genglsl" />
+  <implementation name="IM_ramplr_color4_genglsl" nodedef="ND_ramplr_color4" file="mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" target="genglsl" />
+  <implementation name="IM_ramplr_vector2_genglsl" nodedef="ND_ramplr_vector2" file="mx_ramplr_vector2.glsl" function="mx_ramplr_vector2" target="genglsl" />
+  <implementation name="IM_ramplr_vector3_genglsl" nodedef="ND_ramplr_vector3" file="mx_ramplr_vector3.glsl" function="mx_ramplr_vector3" target="genglsl" />
+  <implementation name="IM_ramplr_vector4_genglsl" nodedef="ND_ramplr_vector4" file="mx_ramplr_vector4.glsl" function="mx_ramplr_vector4" target="genglsl" />
 
   <!-- <ramptb> -->
-  <implementation name="IM_ramptb_float_genglsl" nodedef="ND_ramptb_float" file="libraries/stdlib/genglsl/mx_ramptb_float.glsl" function="mx_ramptb_float" target="genglsl" />
-  <implementation name="IM_ramptb_color3_genglsl" nodedef="ND_ramptb_color3" file="libraries/stdlib/genglsl/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" target="genglsl" />
-  <implementation name="IM_ramptb_color4_genglsl" nodedef="ND_ramptb_color4" file="libraries/stdlib/genglsl/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" target="genglsl" />
-  <implementation name="IM_ramptb_vector2_genglsl" nodedef="ND_ramptb_vector2" file="libraries/stdlib/genglsl/mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" target="genglsl" />
-  <implementation name="IM_ramptb_vector3_genglsl" nodedef="ND_ramptb_vector3" file="libraries/stdlib/genglsl/mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" target="genglsl" />
-  <implementation name="IM_ramptb_vector4_genglsl" nodedef="ND_ramptb_vector4" file="libraries/stdlib/genglsl/mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" target="genglsl" />
+  <implementation name="IM_ramptb_float_genglsl" nodedef="ND_ramptb_float" file="mx_ramptb_float.glsl" function="mx_ramptb_float" target="genglsl" />
+  <implementation name="IM_ramptb_color3_genglsl" nodedef="ND_ramptb_color3" file="mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" target="genglsl" />
+  <implementation name="IM_ramptb_color4_genglsl" nodedef="ND_ramptb_color4" file="mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" target="genglsl" />
+  <implementation name="IM_ramptb_vector2_genglsl" nodedef="ND_ramptb_vector2" file="mx_ramptb_vector2.glsl" function="mx_ramptb_vector2" target="genglsl" />
+  <implementation name="IM_ramptb_vector3_genglsl" nodedef="ND_ramptb_vector3" file="mx_ramptb_vector3.glsl" function="mx_ramptb_vector3" target="genglsl" />
+  <implementation name="IM_ramptb_vector4_genglsl" nodedef="ND_ramptb_vector4" file="mx_ramptb_vector4.glsl" function="mx_ramptb_vector4" target="genglsl" />
 
   <!-- <splitlr> -->
-  <implementation name="IM_splitlr_float_genglsl" nodedef="ND_splitlr_float" file="libraries/stdlib/genglsl/mx_splitlr_float.glsl" function="mx_splitlr_float" target="genglsl" />
-  <implementation name="IM_splitlr_color3_genglsl" nodedef="ND_splitlr_color3" file="libraries/stdlib/genglsl/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" target="genglsl" />
-  <implementation name="IM_splitlr_color4_genglsl" nodedef="ND_splitlr_color4" file="libraries/stdlib/genglsl/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" target="genglsl" />
-  <implementation name="IM_splitlr_vector2_genglsl" nodedef="ND_splitlr_vector2" file="libraries/stdlib/genglsl/mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" target="genglsl" />
-  <implementation name="IM_splitlr_vector3_genglsl" nodedef="ND_splitlr_vector3" file="libraries/stdlib/genglsl/mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" target="genglsl" />
-  <implementation name="IM_splitlr_vector4_genglsl" nodedef="ND_splitlr_vector4" file="libraries/stdlib/genglsl/mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" target="genglsl" />
+  <implementation name="IM_splitlr_float_genglsl" nodedef="ND_splitlr_float" file="mx_splitlr_float.glsl" function="mx_splitlr_float" target="genglsl" />
+  <implementation name="IM_splitlr_color3_genglsl" nodedef="ND_splitlr_color3" file="mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" target="genglsl" />
+  <implementation name="IM_splitlr_color4_genglsl" nodedef="ND_splitlr_color4" file="mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" target="genglsl" />
+  <implementation name="IM_splitlr_vector2_genglsl" nodedef="ND_splitlr_vector2" file="mx_splitlr_vector2.glsl" function="mx_splitlr_vector2" target="genglsl" />
+  <implementation name="IM_splitlr_vector3_genglsl" nodedef="ND_splitlr_vector3" file="mx_splitlr_vector3.glsl" function="mx_splitlr_vector3" target="genglsl" />
+  <implementation name="IM_splitlr_vector4_genglsl" nodedef="ND_splitlr_vector4" file="mx_splitlr_vector4.glsl" function="mx_splitlr_vector4" target="genglsl" />
 
   <!-- <splittb> -->
-  <implementation name="IM_splittb_float_genglsl" nodedef="ND_splittb_float" file="libraries/stdlib/genglsl/mx_splittb_float.glsl" function="mx_splittb_float" target="genglsl" />
-  <implementation name="IM_splittb_color3_genglsl" nodedef="ND_splittb_color3" file="libraries/stdlib/genglsl/mx_splittb_vector3.glsl" function="mx_splittb_vector3" target="genglsl" />
-  <implementation name="IM_splittb_color4_genglsl" nodedef="ND_splittb_color4" file="libraries/stdlib/genglsl/mx_splittb_vector4.glsl" function="mx_splittb_vector4" target="genglsl" />
-  <implementation name="IM_splittb_vector2_genglsl" nodedef="ND_splittb_vector2" file="libraries/stdlib/genglsl/mx_splittb_vector2.glsl" function="mx_splittb_vector2" target="genglsl" />
-  <implementation name="IM_splittb_vector3_genglsl" nodedef="ND_splittb_vector3" file="libraries/stdlib/genglsl/mx_splittb_vector3.glsl" function="mx_splittb_vector3" target="genglsl" />
-  <implementation name="IM_splittb_vector4_genglsl" nodedef="ND_splittb_vector4" file="libraries/stdlib/genglsl/mx_splittb_vector4.glsl" function="mx_splittb_vector4" target="genglsl" />
+  <implementation name="IM_splittb_float_genglsl" nodedef="ND_splittb_float" file="mx_splittb_float.glsl" function="mx_splittb_float" target="genglsl" />
+  <implementation name="IM_splittb_color3_genglsl" nodedef="ND_splittb_color3" file="mx_splittb_vector3.glsl" function="mx_splittb_vector3" target="genglsl" />
+  <implementation name="IM_splittb_color4_genglsl" nodedef="ND_splittb_color4" file="mx_splittb_vector4.glsl" function="mx_splittb_vector4" target="genglsl" />
+  <implementation name="IM_splittb_vector2_genglsl" nodedef="ND_splittb_vector2" file="mx_splittb_vector2.glsl" function="mx_splittb_vector2" target="genglsl" />
+  <implementation name="IM_splittb_vector3_genglsl" nodedef="ND_splittb_vector3" file="mx_splittb_vector3.glsl" function="mx_splittb_vector3" target="genglsl" />
+  <implementation name="IM_splittb_vector4_genglsl" nodedef="ND_splittb_vector4" file="mx_splittb_vector4.glsl" function="mx_splittb_vector4" target="genglsl" />
 
   <!-- <noise2d> -->
-  <implementation name="IM_noise2d_float_genglsl" nodedef="ND_noise2d_float" file="libraries/stdlib/genglsl/mx_noise2d_float.glsl" function="mx_noise2d_float" target="genglsl" />
-  <implementation name="IM_noise2d_color3_genglsl" nodedef="ND_noise2d_color3" file="libraries/stdlib/genglsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genglsl" />
-  <implementation name="IM_noise2d_color4_genglsl" nodedef="ND_noise2d_color4" file="libraries/stdlib/genglsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genglsl" />
-  <implementation name="IM_noise2d_color3FA_genglsl" nodedef="ND_noise2d_color3FA" file="libraries/stdlib/genglsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genglsl" />
-  <implementation name="IM_noise2d_color4FA_genglsl" nodedef="ND_noise2d_color4FA" file="libraries/stdlib/genglsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genglsl" />
-  <implementation name="IM_noise2d_vector2_genglsl" nodedef="ND_noise2d_vector2" file="libraries/stdlib/genglsl/mx_noise2d_vector2.glsl" function="mx_noise2d_vector2" target="genglsl" />
-  <implementation name="IM_noise2d_vector3_genglsl" nodedef="ND_noise2d_vector3" file="libraries/stdlib/genglsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genglsl" />
-  <implementation name="IM_noise2d_vector4_genglsl" nodedef="ND_noise2d_vector4" file="libraries/stdlib/genglsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genglsl" />
-  <implementation name="IM_noise2d_vector2FA_genglsl" nodedef="ND_noise2d_vector2FA" file="libraries/stdlib/genglsl/mx_noise2d_fa_vector2.glsl" function="mx_noise2d_fa_vector2" target="genglsl" />
-  <implementation name="IM_noise2d_vector3FA_genglsl" nodedef="ND_noise2d_vector3FA" file="libraries/stdlib/genglsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genglsl" />
-  <implementation name="IM_noise2d_vector4FA_genglsl" nodedef="ND_noise2d_vector4FA" file="libraries/stdlib/genglsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genglsl" />
+  <implementation name="IM_noise2d_float_genglsl" nodedef="ND_noise2d_float" file="mx_noise2d_float.glsl" function="mx_noise2d_float" target="genglsl" />
+  <implementation name="IM_noise2d_color3_genglsl" nodedef="ND_noise2d_color3" file="mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genglsl" />
+  <implementation name="IM_noise2d_color4_genglsl" nodedef="ND_noise2d_color4" file="mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genglsl" />
+  <implementation name="IM_noise2d_color3FA_genglsl" nodedef="ND_noise2d_color3FA" file="mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genglsl" />
+  <implementation name="IM_noise2d_color4FA_genglsl" nodedef="ND_noise2d_color4FA" file="mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genglsl" />
+  <implementation name="IM_noise2d_vector2_genglsl" nodedef="ND_noise2d_vector2" file="mx_noise2d_vector2.glsl" function="mx_noise2d_vector2" target="genglsl" />
+  <implementation name="IM_noise2d_vector3_genglsl" nodedef="ND_noise2d_vector3" file="mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genglsl" />
+  <implementation name="IM_noise2d_vector4_genglsl" nodedef="ND_noise2d_vector4" file="mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genglsl" />
+  <implementation name="IM_noise2d_vector2FA_genglsl" nodedef="ND_noise2d_vector2FA" file="mx_noise2d_fa_vector2.glsl" function="mx_noise2d_fa_vector2" target="genglsl" />
+  <implementation name="IM_noise2d_vector3FA_genglsl" nodedef="ND_noise2d_vector3FA" file="mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genglsl" />
+  <implementation name="IM_noise2d_vector4FA_genglsl" nodedef="ND_noise2d_vector4FA" file="mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genglsl" />
 
   <!-- <noise3d> -->
-  <implementation name="IM_noise3d_float_genglsl" nodedef="ND_noise3d_float" file="libraries/stdlib/genglsl/mx_noise3d_float.glsl" function="mx_noise3d_float" target="genglsl" />
-  <implementation name="IM_noise3d_color3_genglsl" nodedef="ND_noise3d_color3" file="libraries/stdlib/genglsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genglsl" />
-  <implementation name="IM_noise3d_color4_genglsl" nodedef="ND_noise3d_color4" file="libraries/stdlib/genglsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genglsl" />
-  <implementation name="IM_noise3d_color3FA_genglsl" nodedef="ND_noise3d_color3FA" file="libraries/stdlib/genglsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genglsl" />
-  <implementation name="IM_noise3d_color4FA_genglsl" nodedef="ND_noise3d_color4FA" file="libraries/stdlib/genglsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genglsl" />
-  <implementation name="IM_noise3d_vector2_genglsl" nodedef="ND_noise3d_vector2" file="libraries/stdlib/genglsl/mx_noise3d_vector2.glsl" function="mx_noise3d_vector2" target="genglsl" />
-  <implementation name="IM_noise3d_vector3_genglsl" nodedef="ND_noise3d_vector3" file="libraries/stdlib/genglsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genglsl" />
-  <implementation name="IM_noise3d_vector4_genglsl" nodedef="ND_noise3d_vector4" file="libraries/stdlib/genglsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genglsl" />
-  <implementation name="IM_noise3d_vector2FA_genglsl" nodedef="ND_noise3d_vector2FA" file="libraries/stdlib/genglsl/mx_noise3d_fa_vector2.glsl" function="mx_noise3d_fa_vector2" target="genglsl" />
-  <implementation name="IM_noise3d_vector3FA_genglsl" nodedef="ND_noise3d_vector3FA" file="libraries/stdlib/genglsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genglsl" />
-  <implementation name="IM_noise3d_vector4FA_genglsl" nodedef="ND_noise3d_vector4FA" file="libraries/stdlib/genglsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genglsl" />
+  <implementation name="IM_noise3d_float_genglsl" nodedef="ND_noise3d_float" file="mx_noise3d_float.glsl" function="mx_noise3d_float" target="genglsl" />
+  <implementation name="IM_noise3d_color3_genglsl" nodedef="ND_noise3d_color3" file="mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genglsl" />
+  <implementation name="IM_noise3d_color4_genglsl" nodedef="ND_noise3d_color4" file="mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genglsl" />
+  <implementation name="IM_noise3d_color3FA_genglsl" nodedef="ND_noise3d_color3FA" file="mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genglsl" />
+  <implementation name="IM_noise3d_color4FA_genglsl" nodedef="ND_noise3d_color4FA" file="mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genglsl" />
+  <implementation name="IM_noise3d_vector2_genglsl" nodedef="ND_noise3d_vector2" file="mx_noise3d_vector2.glsl" function="mx_noise3d_vector2" target="genglsl" />
+  <implementation name="IM_noise3d_vector3_genglsl" nodedef="ND_noise3d_vector3" file="mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genglsl" />
+  <implementation name="IM_noise3d_vector4_genglsl" nodedef="ND_noise3d_vector4" file="mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genglsl" />
+  <implementation name="IM_noise3d_vector2FA_genglsl" nodedef="ND_noise3d_vector2FA" file="mx_noise3d_fa_vector2.glsl" function="mx_noise3d_fa_vector2" target="genglsl" />
+  <implementation name="IM_noise3d_vector3FA_genglsl" nodedef="ND_noise3d_vector3FA" file="mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genglsl" />
+  <implementation name="IM_noise3d_vector4FA_genglsl" nodedef="ND_noise3d_vector4FA" file="mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genglsl" />
 
   <!-- <fractal3d> -->
-  <implementation name="IM_fractal3d_float_genglsl" nodedef="ND_fractal3d_float" file="libraries/stdlib/genglsl/mx_fractal3d_float.glsl" function="mx_fractal3d_float" target="genglsl" />
-  <implementation name="IM_fractal3d_color3_genglsl" nodedef="ND_fractal3d_color3" file="libraries/stdlib/genglsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genglsl" />
-  <implementation name="IM_fractal3d_color4_genglsl" nodedef="ND_fractal3d_color4" file="libraries/stdlib/genglsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genglsl" />
-  <implementation name="IM_fractal3d_color3FA_genglsl" nodedef="ND_fractal3d_color3FA" file="libraries/stdlib/genglsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genglsl" />
-  <implementation name="IM_fractal3d_color4FA_genglsl" nodedef="ND_fractal3d_color4FA" file="libraries/stdlib/genglsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genglsl" />
-  <implementation name="IM_fractal3d_vector2_genglsl" nodedef="ND_fractal3d_vector2" file="libraries/stdlib/genglsl/mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" target="genglsl" />
-  <implementation name="IM_fractal3d_vector3_genglsl" nodedef="ND_fractal3d_vector3" file="libraries/stdlib/genglsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genglsl" />
-  <implementation name="IM_fractal3d_vector4_genglsl" nodedef="ND_fractal3d_vector4" file="libraries/stdlib/genglsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genglsl" />
-  <implementation name="IM_fractal3d_vector2FA_genglsl" nodedef="ND_fractal3d_vector2FA" file="libraries/stdlib/genglsl/mx_fractal3d_fa_vector2.glsl" function="mx_fractal3d_fa_vector2" target="genglsl" />
-  <implementation name="IM_fractal3d_vector3FA_genglsl" nodedef="ND_fractal3d_vector3FA" file="libraries/stdlib/genglsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genglsl" />
-  <implementation name="IM_fractal3d_vector4FA_genglsl" nodedef="ND_fractal3d_vector4FA" file="libraries/stdlib/genglsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genglsl" />
+  <implementation name="IM_fractal3d_float_genglsl" nodedef="ND_fractal3d_float" file="mx_fractal3d_float.glsl" function="mx_fractal3d_float" target="genglsl" />
+  <implementation name="IM_fractal3d_color3_genglsl" nodedef="ND_fractal3d_color3" file="mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genglsl" />
+  <implementation name="IM_fractal3d_color4_genglsl" nodedef="ND_fractal3d_color4" file="mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genglsl" />
+  <implementation name="IM_fractal3d_color3FA_genglsl" nodedef="ND_fractal3d_color3FA" file="mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genglsl" />
+  <implementation name="IM_fractal3d_color4FA_genglsl" nodedef="ND_fractal3d_color4FA" file="mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genglsl" />
+  <implementation name="IM_fractal3d_vector2_genglsl" nodedef="ND_fractal3d_vector2" file="mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" target="genglsl" />
+  <implementation name="IM_fractal3d_vector3_genglsl" nodedef="ND_fractal3d_vector3" file="mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genglsl" />
+  <implementation name="IM_fractal3d_vector4_genglsl" nodedef="ND_fractal3d_vector4" file="mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genglsl" />
+  <implementation name="IM_fractal3d_vector2FA_genglsl" nodedef="ND_fractal3d_vector2FA" file="mx_fractal3d_fa_vector2.glsl" function="mx_fractal3d_fa_vector2" target="genglsl" />
+  <implementation name="IM_fractal3d_vector3FA_genglsl" nodedef="ND_fractal3d_vector3FA" file="mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genglsl" />
+  <implementation name="IM_fractal3d_vector4FA_genglsl" nodedef="ND_fractal3d_vector4FA" file="mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genglsl" />
 
   <!-- <cellnoise2d> -->
-  <implementation name="IM_cellnoise2d_float_genglsl" nodedef="ND_cellnoise2d_float" file="libraries/stdlib/genglsl/mx_cellnoise2d_float.glsl" function="mx_cellnoise2d_float" target="genglsl" />
+  <implementation name="IM_cellnoise2d_float_genglsl" nodedef="ND_cellnoise2d_float" file="mx_cellnoise2d_float.glsl" function="mx_cellnoise2d_float" target="genglsl" />
 
   <!-- <cellnoise3d> -->
-  <implementation name="IM_cellnoise3d_float_genglsl" nodedef="ND_cellnoise3d_float" file="libraries/stdlib/genglsl/mx_cellnoise3d_float.glsl" function="mx_cellnoise3d_float" target="genglsl" />
+  <implementation name="IM_cellnoise3d_float_genglsl" nodedef="ND_cellnoise3d_float" file="mx_cellnoise3d_float.glsl" function="mx_cellnoise3d_float" target="genglsl" />
 
   <!-- <worleynoise2d> -->
-  <implementation name="IM_worleynoise2d_float_genglsl" nodedef="ND_worleynoise2d_float" file="libraries/stdlib/genglsl/mx_worleynoise2d_float.glsl" function="mx_worleynoise2d_float" target="genglsl" />
-  <implementation name="IM_worleynoise2d_vector2_genglsl" nodedef="ND_worleynoise2d_vector2" file="libraries/stdlib/genglsl/mx_worleynoise2d_vector2.glsl" function="mx_worleynoise2d_vector2" target="genglsl" />
-  <implementation name="IM_worleynoise2d_vector3_genglsl" nodedef="ND_worleynoise2d_vector3" file="libraries/stdlib/genglsl/mx_worleynoise2d_vector3.glsl" function="mx_worleynoise2d_vector3" target="genglsl" />
+  <implementation name="IM_worleynoise2d_float_genglsl" nodedef="ND_worleynoise2d_float" file="mx_worleynoise2d_float.glsl" function="mx_worleynoise2d_float" target="genglsl" />
+  <implementation name="IM_worleynoise2d_vector2_genglsl" nodedef="ND_worleynoise2d_vector2" file="mx_worleynoise2d_vector2.glsl" function="mx_worleynoise2d_vector2" target="genglsl" />
+  <implementation name="IM_worleynoise2d_vector3_genglsl" nodedef="ND_worleynoise2d_vector3" file="mx_worleynoise2d_vector3.glsl" function="mx_worleynoise2d_vector3" target="genglsl" />
 
   <!-- <worleynoise3d> -->
-  <implementation name="IM_worleynoise3d_float_genglsl" nodedef="ND_worleynoise3d_float" file="libraries/stdlib/genglsl/mx_worleynoise3d_float.glsl" function="mx_worleynoise3d_float" target="genglsl" />
-  <implementation name="IM_worleynoise3d_vector2_genglsl" nodedef="ND_worleynoise3d_vector2" file="libraries/stdlib/genglsl/mx_worleynoise3d_vector2.glsl" function="mx_worleynoise3d_vector2" target="genglsl" />
-  <implementation name="IM_worleynoise3d_vector3_genglsl" nodedef="ND_worleynoise3d_vector3" file="libraries/stdlib/genglsl/mx_worleynoise3d_vector3.glsl" function="mx_worleynoise3d_vector3" target="genglsl" />
+  <implementation name="IM_worleynoise3d_float_genglsl" nodedef="ND_worleynoise3d_float" file="mx_worleynoise3d_float.glsl" function="mx_worleynoise3d_float" target="genglsl" />
+  <implementation name="IM_worleynoise3d_vector2_genglsl" nodedef="ND_worleynoise3d_vector2" file="mx_worleynoise3d_vector2.glsl" function="mx_worleynoise3d_vector2" target="genglsl" />
+  <implementation name="IM_worleynoise3d_vector3_genglsl" nodedef="ND_worleynoise3d_vector3" file="mx_worleynoise3d_vector3.glsl" function="mx_worleynoise3d_vector3" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Global nodes                                                             -->
@@ -204,242 +207,242 @@
   <!-- ======================================================================== -->
 
   <!-- <add> -->
-  <implementation name="IM_add_float_genglsl" nodedef="ND_add_float" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_color3_genglsl" nodedef="ND_add_color3" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_color3FA_genglsl" nodedef="ND_add_color3FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_color4_genglsl" nodedef="ND_add_color4" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_color4FA_genglsl" nodedef="ND_add_color4FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector2_genglsl" nodedef="ND_add_vector2" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector2FA_genglsl" nodedef="ND_add_vector2FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector3_genglsl" nodedef="ND_add_vector3" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector3FA_genglsl" nodedef="ND_add_vector3FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector4_genglsl" nodedef="ND_add_vector4" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_vector4FA_genglsl" nodedef="ND_add_vector4FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_matrix33_genglsl" nodedef="ND_add_matrix33" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_matrix33FA_genglsl" nodedef="ND_add_matrix33FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_matrix44_genglsl" nodedef="ND_add_matrix44" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_matrix44FA_genglsl" nodedef="ND_add_matrix44FA" file="libraries/stdlib/genglsl/mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_surfaceshader_genglsl" nodedef="ND_add_surfaceshader" function="mx_add_surfaceshader" file="libraries/stdlib/genglsl/mx_add_surfaceshader.glsl" target="genglsl" />
+  <implementation name="IM_add_float_genglsl" nodedef="ND_add_float" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_color3_genglsl" nodedef="ND_add_color3" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_color3FA_genglsl" nodedef="ND_add_color3FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_color4_genglsl" nodedef="ND_add_color4" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_color4FA_genglsl" nodedef="ND_add_color4FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector2_genglsl" nodedef="ND_add_vector2" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector2FA_genglsl" nodedef="ND_add_vector2FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector3_genglsl" nodedef="ND_add_vector3" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector3FA_genglsl" nodedef="ND_add_vector3FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector4_genglsl" nodedef="ND_add_vector4" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_vector4FA_genglsl" nodedef="ND_add_vector4FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_matrix33_genglsl" nodedef="ND_add_matrix33" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_matrix33FA_genglsl" nodedef="ND_add_matrix33FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_matrix44_genglsl" nodedef="ND_add_matrix44" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_matrix44FA_genglsl" nodedef="ND_add_matrix44FA" file="mx_add.inline" target="genglsl" />
+  <implementation name="IM_add_surfaceshader_genglsl" nodedef="ND_add_surfaceshader" function="mx_add_surfaceshader" file="mx_add_surfaceshader.glsl" target="genglsl" />
 
   <!-- <subtract> -->
-  <implementation name="IM_subtract_float_genglsl" nodedef="ND_subtract_float" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_color3_genglsl" nodedef="ND_subtract_color3" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_color3FA_genglsl" nodedef="ND_subtract_color3FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_color4_genglsl" nodedef="ND_subtract_color4" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_color4FA_genglsl" nodedef="ND_subtract_color4FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector2_genglsl" nodedef="ND_subtract_vector2" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector2FA_genglsl" nodedef="ND_subtract_vector2FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector3_genglsl" nodedef="ND_subtract_vector3" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector3FA_genglsl" nodedef="ND_subtract_vector3FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector4_genglsl" nodedef="ND_subtract_vector4" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_vector4FA_genglsl" nodedef="ND_subtract_vector4FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_matrix33_genglsl" nodedef="ND_subtract_matrix33" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_matrix33FA_genglsl" nodedef="ND_subtract_matrix33FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_matrix44_genglsl" nodedef="ND_subtract_matrix44" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
-  <implementation name="IM_subtract_matrix44FA_genglsl" nodedef="ND_subtract_matrix44FA" file="libraries/stdlib/genglsl/mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_float_genglsl" nodedef="ND_subtract_float" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_color3_genglsl" nodedef="ND_subtract_color3" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_color3FA_genglsl" nodedef="ND_subtract_color3FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_color4_genglsl" nodedef="ND_subtract_color4" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_color4FA_genglsl" nodedef="ND_subtract_color4FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector2_genglsl" nodedef="ND_subtract_vector2" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector2FA_genglsl" nodedef="ND_subtract_vector2FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector3_genglsl" nodedef="ND_subtract_vector3" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector3FA_genglsl" nodedef="ND_subtract_vector3FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector4_genglsl" nodedef="ND_subtract_vector4" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_vector4FA_genglsl" nodedef="ND_subtract_vector4FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_matrix33_genglsl" nodedef="ND_subtract_matrix33" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_matrix33FA_genglsl" nodedef="ND_subtract_matrix33FA" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_matrix44_genglsl" nodedef="ND_subtract_matrix44" file="mx_subtract.inline" target="genglsl" />
+  <implementation name="IM_subtract_matrix44FA_genglsl" nodedef="ND_subtract_matrix44FA" file="mx_subtract.inline" target="genglsl" />
 
   <!-- <multiply> -->
-  <implementation name="IM_multiply_float_genglsl" nodedef="ND_multiply_float" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_color3_genglsl" nodedef="ND_multiply_color3" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_color3FA_genglsl" nodedef="ND_multiply_color3FA" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_color4_genglsl" nodedef="ND_multiply_color4" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_color4FA_genglsl" nodedef="ND_multiply_color4FA" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector2_genglsl" nodedef="ND_multiply_vector2" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector2FA_genglsl" nodedef="ND_multiply_vector2FA" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector3_genglsl" nodedef="ND_multiply_vector3" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector3FA_genglsl" nodedef="ND_multiply_vector3FA" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector4_genglsl" nodedef="ND_multiply_vector4" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_vector4FA_genglsl" nodedef="ND_multiply_vector4FA" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" file="libraries/stdlib/genglsl/mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_surfaceshaderF_genglsl" nodedef="ND_multiply_surfaceshaderF" function="mx_multiply_surfaceshader_float" file="libraries/stdlib/genglsl/mx_multiply_surfaceshader_float.glsl" target="genglsl" />
-  <implementation name="IM_multiply_surfaceshaderC_genglsl" nodedef="ND_multiply_surfaceshaderC" function="mx_multiply_surfaceshader_color3" file="libraries/stdlib/genglsl/mx_multiply_surfaceshader_color3.glsl" target="genglsl" />
+  <implementation name="IM_multiply_float_genglsl" nodedef="ND_multiply_float" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_color3_genglsl" nodedef="ND_multiply_color3" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_color3FA_genglsl" nodedef="ND_multiply_color3FA" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_color4_genglsl" nodedef="ND_multiply_color4" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_color4FA_genglsl" nodedef="ND_multiply_color4FA" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector2_genglsl" nodedef="ND_multiply_vector2" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector2FA_genglsl" nodedef="ND_multiply_vector2FA" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector3_genglsl" nodedef="ND_multiply_vector3" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector3FA_genglsl" nodedef="ND_multiply_vector3FA" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector4_genglsl" nodedef="ND_multiply_vector4" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_vector4FA_genglsl" nodedef="ND_multiply_vector4FA" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" file="mx_multiply.inline" target="genglsl" />
+  <implementation name="IM_multiply_surfaceshaderF_genglsl" nodedef="ND_multiply_surfaceshaderF" function="mx_multiply_surfaceshader_float" file="mx_multiply_surfaceshader_float.glsl" target="genglsl" />
+  <implementation name="IM_multiply_surfaceshaderC_genglsl" nodedef="ND_multiply_surfaceshaderC" function="mx_multiply_surfaceshader_color3" file="mx_multiply_surfaceshader_color3.glsl" target="genglsl" />
 
   <!-- <divide> -->
-  <implementation name="IM_divide_float_genglsl" nodedef="ND_divide_float" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_color3_genglsl" nodedef="ND_divide_color3" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_color3FA_genglsl" nodedef="ND_divide_color3FA" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_color4_genglsl" nodedef="ND_divide_color4" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_color4FA_genglsl" nodedef="ND_divide_color4FA" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector2_genglsl" nodedef="ND_divide_vector2" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector2FA_genglsl" nodedef="ND_divide_vector2FA" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector3_genglsl" nodedef="ND_divide_vector3" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector3FA_genglsl" nodedef="ND_divide_vector3FA" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector4_genglsl" nodedef="ND_divide_vector4" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_vector4FA_genglsl" nodedef="ND_divide_vector4FA" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
-  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" file="libraries/stdlib/genglsl/mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_float_genglsl" nodedef="ND_divide_float" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_color3_genglsl" nodedef="ND_divide_color3" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_color3FA_genglsl" nodedef="ND_divide_color3FA" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_color4_genglsl" nodedef="ND_divide_color4" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_color4FA_genglsl" nodedef="ND_divide_color4FA" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector2_genglsl" nodedef="ND_divide_vector2" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector2FA_genglsl" nodedef="ND_divide_vector2FA" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector3_genglsl" nodedef="ND_divide_vector3" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector3FA_genglsl" nodedef="ND_divide_vector3FA" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector4_genglsl" nodedef="ND_divide_vector4" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_vector4FA_genglsl" nodedef="ND_divide_vector4FA" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_matrix33_genglsl" nodedef="ND_divide_matrix33" file="mx_divide.inline" target="genglsl" />
+  <implementation name="IM_divide_matrix44_genglsl" nodedef="ND_divide_matrix44" file="mx_divide.inline" target="genglsl" />
 
   <!-- <modulo> -->
-  <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_color3_genglsl" nodedef="ND_modulo_color3" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_color3FA_genglsl" nodedef="ND_modulo_color3FA" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_color4_genglsl" nodedef="ND_modulo_color4" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_color4FA_genglsl" nodedef="ND_modulo_color4FA" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector2_genglsl" nodedef="ND_modulo_vector2" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector2FA_genglsl" nodedef="ND_modulo_vector2FA" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector3_genglsl" nodedef="ND_modulo_vector3" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector3FA_genglsl" nodedef="ND_modulo_vector3FA" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector4_genglsl" nodedef="ND_modulo_vector4" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
-  <implementation name="IM_modulo_vector4FA_genglsl" nodedef="ND_modulo_vector4FA" file="libraries/stdlib/genglsl/mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_float_genglsl" nodedef="ND_modulo_float" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_color3_genglsl" nodedef="ND_modulo_color3" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_color3FA_genglsl" nodedef="ND_modulo_color3FA" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_color4_genglsl" nodedef="ND_modulo_color4" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_color4FA_genglsl" nodedef="ND_modulo_color4FA" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector2_genglsl" nodedef="ND_modulo_vector2" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector2FA_genglsl" nodedef="ND_modulo_vector2FA" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector3_genglsl" nodedef="ND_modulo_vector3" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector3FA_genglsl" nodedef="ND_modulo_vector3FA" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector4_genglsl" nodedef="ND_modulo_vector4" file="mx_modulo.inline" target="genglsl" />
+  <implementation name="IM_modulo_vector4FA_genglsl" nodedef="ND_modulo_vector4FA" file="mx_modulo.inline" target="genglsl" />
 
   <!-- <invert> -->
-  <implementation name="IM_invert_float_genglsl" nodedef="ND_invert_float" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_color3_genglsl" nodedef="ND_invert_color3" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_color3FA_genglsl" nodedef="ND_invert_color3FA" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_color4_genglsl" nodedef="ND_invert_color4" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_color4FA_genglsl" nodedef="ND_invert_color4FA" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector2_genglsl" nodedef="ND_invert_vector2" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector2FA_genglsl" nodedef="ND_invert_vector2FA" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector3_genglsl" nodedef="ND_invert_vector3" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector3FA_genglsl" nodedef="ND_invert_vector3FA" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector4_genglsl" nodedef="ND_invert_vector4" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
-  <implementation name="IM_invert_vector4FA_genglsl" nodedef="ND_invert_vector4FA" file="libraries/stdlib/genglsl/mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_float_genglsl" nodedef="ND_invert_float" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_color3_genglsl" nodedef="ND_invert_color3" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_color3FA_genglsl" nodedef="ND_invert_color3FA" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_color4_genglsl" nodedef="ND_invert_color4" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_color4FA_genglsl" nodedef="ND_invert_color4FA" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector2_genglsl" nodedef="ND_invert_vector2" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector2FA_genglsl" nodedef="ND_invert_vector2FA" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector3_genglsl" nodedef="ND_invert_vector3" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector3FA_genglsl" nodedef="ND_invert_vector3FA" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector4_genglsl" nodedef="ND_invert_vector4" file="mx_invert.inline" target="genglsl" />
+  <implementation name="IM_invert_vector4FA_genglsl" nodedef="ND_invert_vector4FA" file="mx_invert.inline" target="genglsl" />
 
   <!-- <absval> -->
-  <implementation name="IM_absval_float_genglsl" nodedef="ND_absval_float" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
-  <implementation name="IM_absval_color3_genglsl" nodedef="ND_absval_color3" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
-  <implementation name="IM_absval_color4_genglsl" nodedef="ND_absval_color4" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
-  <implementation name="IM_absval_vector2_genglsl" nodedef="ND_absval_vector2" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
-  <implementation name="IM_absval_vector3_genglsl" nodedef="ND_absval_vector3" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
-  <implementation name="IM_absval_vector4_genglsl" nodedef="ND_absval_vector4" file="libraries/stdlib/genglsl/mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_float_genglsl" nodedef="ND_absval_float" file="mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_color3_genglsl" nodedef="ND_absval_color3" file="mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_color4_genglsl" nodedef="ND_absval_color4" file="mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_vector2_genglsl" nodedef="ND_absval_vector2" file="mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_vector3_genglsl" nodedef="ND_absval_vector3" file="mx_absval.inline" target="genglsl" />
+  <implementation name="IM_absval_vector4_genglsl" nodedef="ND_absval_vector4" file="mx_absval.inline" target="genglsl" />
 
   <!-- <floor> -->
-  <implementation name="IM_floor_float_genglsl" nodedef="ND_floor_float" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
-  <implementation name="IM_floor_color3_genglsl" nodedef="ND_floor_color3" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
-  <implementation name="IM_floor_color4_genglsl" nodedef="ND_floor_color4" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
-  <implementation name="IM_floor_vector2_genglsl" nodedef="ND_floor_vector2" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
-  <implementation name="IM_floor_vector3_genglsl" nodedef="ND_floor_vector3" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
-  <implementation name="IM_floor_vector4_genglsl" nodedef="ND_floor_vector4" file="libraries/stdlib/genglsl/mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_float_genglsl" nodedef="ND_floor_float" file="mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_color3_genglsl" nodedef="ND_floor_color3" file="mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_color4_genglsl" nodedef="ND_floor_color4" file="mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_vector2_genglsl" nodedef="ND_floor_vector2" file="mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_vector3_genglsl" nodedef="ND_floor_vector3" file="mx_floor.inline" target="genglsl" />
+  <implementation name="IM_floor_vector4_genglsl" nodedef="ND_floor_vector4" file="mx_floor.inline" target="genglsl" />
   <!-- <ceil> -->
-  <implementation name="IM_ceil_float_genglsl" nodedef="ND_ceil_float" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
-  <implementation name="IM_ceil_color3_genglsl" nodedef="ND_ceil_color3" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
-  <implementation name="IM_ceil_color4_genglsl" nodedef="ND_ceil_color4" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
-  <implementation name="IM_ceil_vector2_genglsl" nodedef="ND_ceil_vector2" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
-  <implementation name="IM_ceil_vector3_genglsl" nodedef="ND_ceil_vector3" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
-  <implementation name="IM_ceil_vector4_genglsl" nodedef="ND_ceil_vector4" file="libraries/stdlib/genglsl/mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_float_genglsl" nodedef="ND_ceil_float" file="mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_color3_genglsl" nodedef="ND_ceil_color3" file="mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_color4_genglsl" nodedef="ND_ceil_color4" file="mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_vector2_genglsl" nodedef="ND_ceil_vector2" file="mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_vector3_genglsl" nodedef="ND_ceil_vector3" file="mx_ceil.inline" target="genglsl" />
+  <implementation name="IM_ceil_vector4_genglsl" nodedef="ND_ceil_vector4" file="mx_ceil.inline" target="genglsl" />
 
   <!-- <power> -->
-  <implementation name="IM_power_float_genglsl" nodedef="ND_power_float" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_color3_genglsl" nodedef="ND_power_color3" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_color3FA_genglsl" nodedef="ND_power_color3FA" file="libraries/stdlib/genglsl/mx_power_color3_float.inline" target="genglsl" />
-  <implementation name="IM_power_color4_genglsl" nodedef="ND_power_color4" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_color4FA_genglsl" nodedef="ND_power_color4FA" file="libraries/stdlib/genglsl/mx_power_color4_float.inline" target="genglsl" />
-  <implementation name="IM_power_vector2_genglsl" nodedef="ND_power_vector2" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_vector2FA_genglsl" nodedef="ND_power_vector2FA" file="libraries/stdlib/genglsl/mx_power_vector2_float.inline" target="genglsl" />
-  <implementation name="IM_power_vector3_genglsl" nodedef="ND_power_vector3" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_vector3FA_genglsl" nodedef="ND_power_vector3FA" file="libraries/stdlib/genglsl/mx_power_vector3_float.inline" target="genglsl" />
-  <implementation name="IM_power_vector4_genglsl" nodedef="ND_power_vector4" file="libraries/stdlib/genglsl/mx_power.inline" target="genglsl" />
-  <implementation name="IM_power_vector4FA_genglsl" nodedef="ND_power_vector4FA" file="libraries/stdlib/genglsl/mx_power_vector4_float.inline" target="genglsl" />
+  <implementation name="IM_power_float_genglsl" nodedef="ND_power_float" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_color3_genglsl" nodedef="ND_power_color3" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_color3FA_genglsl" nodedef="ND_power_color3FA" file="mx_power_color3_float.inline" target="genglsl" />
+  <implementation name="IM_power_color4_genglsl" nodedef="ND_power_color4" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_color4FA_genglsl" nodedef="ND_power_color4FA" file="mx_power_color4_float.inline" target="genglsl" />
+  <implementation name="IM_power_vector2_genglsl" nodedef="ND_power_vector2" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_vector2FA_genglsl" nodedef="ND_power_vector2FA" file="mx_power_vector2_float.inline" target="genglsl" />
+  <implementation name="IM_power_vector3_genglsl" nodedef="ND_power_vector3" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_vector3FA_genglsl" nodedef="ND_power_vector3FA" file="mx_power_vector3_float.inline" target="genglsl" />
+  <implementation name="IM_power_vector4_genglsl" nodedef="ND_power_vector4" file="mx_power.inline" target="genglsl" />
+  <implementation name="IM_power_vector4FA_genglsl" nodedef="ND_power_vector4FA" file="mx_power_vector4_float.inline" target="genglsl" />
 
   <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
-  <implementation name="IM_sin_float_genglsl" nodedef="ND_sin_float" file="libraries/stdlib/genglsl/mx_sin.inline" target="genglsl" />
-  <implementation name="IM_cos_float_genglsl" nodedef="ND_cos_float" file="libraries/stdlib/genglsl/mx_cos.inline" target="genglsl" />
-  <implementation name="IM_tan_float_genglsl" nodedef="ND_tan_float" file="libraries/stdlib/genglsl/mx_tan.inline" target="genglsl" />
-  <implementation name="IM_asin_float_genglsl" nodedef="ND_asin_float" file="libraries/stdlib/genglsl/mx_asin.inline" target="genglsl" />
-  <implementation name="IM_acos_float_genglsl" nodedef="ND_acos_float" file="libraries/stdlib/genglsl/mx_acos.inline" target="genglsl" />
-  <implementation name="IM_atan2_float_genglsl" nodedef="ND_atan2_float" file="libraries/stdlib/genglsl/mx_atan2.inline" target="genglsl" />
-  <implementation name="IM_sin_vector2_genglsl" nodedef="ND_sin_vector2" file="libraries/stdlib/genglsl/mx_sin.inline" target="genglsl" />
-  <implementation name="IM_cos_vector2_genglsl" nodedef="ND_cos_vector2" file="libraries/stdlib/genglsl/mx_cos.inline" target="genglsl" />
-  <implementation name="IM_tan_vector2_genglsl" nodedef="ND_tan_vector2" file="libraries/stdlib/genglsl/mx_tan.inline" target="genglsl" />
-  <implementation name="IM_asin_vector2_genglsl" nodedef="ND_asin_vector2" file="libraries/stdlib/genglsl/mx_asin.inline" target="genglsl" />
-  <implementation name="IM_acos_vector2_genglsl" nodedef="ND_acos_vector2" file="libraries/stdlib/genglsl/mx_acos.inline" target="genglsl" />
-  <implementation name="IM_atan2_vector2_genglsl" nodedef="ND_atan2_vector2" file="libraries/stdlib/genglsl/mx_atan2.inline" target="genglsl" />
-  <implementation name="IM_sin_vector3_genglsl" nodedef="ND_sin_vector3" file="libraries/stdlib/genglsl/mx_sin.inline" target="genglsl" />
-  <implementation name="IM_cos_vector3_genglsl" nodedef="ND_cos_vector3" file="libraries/stdlib/genglsl/mx_cos.inline" target="genglsl" />
-  <implementation name="IM_tan_vector3_genglsl" nodedef="ND_tan_vector3" file="libraries/stdlib/genglsl/mx_tan.inline" target="genglsl" />
-  <implementation name="IM_asin_vector3_genglsl" nodedef="ND_asin_vector3" file="libraries/stdlib/genglsl/mx_asin.inline" target="genglsl" />
-  <implementation name="IM_acos_vector3_genglsl" nodedef="ND_acos_vector3" file="libraries/stdlib/genglsl/mx_acos.inline" target="genglsl" />
-  <implementation name="IM_atan2_vector3_genglsl" nodedef="ND_atan2_vector3" file="libraries/stdlib/genglsl/mx_atan2.inline" target="genglsl" />
-  <implementation name="IM_sin_vector4_genglsl" nodedef="ND_sin_vector4" file="libraries/stdlib/genglsl/mx_sin.inline" target="genglsl" />
-  <implementation name="IM_cos_vector4_genglsl" nodedef="ND_cos_vector4" file="libraries/stdlib/genglsl/mx_cos.inline" target="genglsl" />
-  <implementation name="IM_tan_vector4_genglsl" nodedef="ND_tan_vector4" file="libraries/stdlib/genglsl/mx_tan.inline" target="genglsl" />
-  <implementation name="IM_asin_vector4_genglsl" nodedef="ND_asin_vector4" file="libraries/stdlib/genglsl/mx_asin.inline" target="genglsl" />
-  <implementation name="IM_acos_vector4_genglsl" nodedef="ND_acos_vector4" file="libraries/stdlib/genglsl/mx_acos.inline" target="genglsl" />
-  <implementation name="IM_atan2_vector4_genglsl" nodedef="ND_atan2_vector4" file="libraries/stdlib/genglsl/mx_atan2.inline" target="genglsl" />
+  <implementation name="IM_sin_float_genglsl" nodedef="ND_sin_float" file="mx_sin.inline" target="genglsl" />
+  <implementation name="IM_cos_float_genglsl" nodedef="ND_cos_float" file="mx_cos.inline" target="genglsl" />
+  <implementation name="IM_tan_float_genglsl" nodedef="ND_tan_float" file="mx_tan.inline" target="genglsl" />
+  <implementation name="IM_asin_float_genglsl" nodedef="ND_asin_float" file="mx_asin.inline" target="genglsl" />
+  <implementation name="IM_acos_float_genglsl" nodedef="ND_acos_float" file="mx_acos.inline" target="genglsl" />
+  <implementation name="IM_atan2_float_genglsl" nodedef="ND_atan2_float" file="mx_atan2.inline" target="genglsl" />
+  <implementation name="IM_sin_vector2_genglsl" nodedef="ND_sin_vector2" file="mx_sin.inline" target="genglsl" />
+  <implementation name="IM_cos_vector2_genglsl" nodedef="ND_cos_vector2" file="mx_cos.inline" target="genglsl" />
+  <implementation name="IM_tan_vector2_genglsl" nodedef="ND_tan_vector2" file="mx_tan.inline" target="genglsl" />
+  <implementation name="IM_asin_vector2_genglsl" nodedef="ND_asin_vector2" file="mx_asin.inline" target="genglsl" />
+  <implementation name="IM_acos_vector2_genglsl" nodedef="ND_acos_vector2" file="mx_acos.inline" target="genglsl" />
+  <implementation name="IM_atan2_vector2_genglsl" nodedef="ND_atan2_vector2" file="mx_atan2.inline" target="genglsl" />
+  <implementation name="IM_sin_vector3_genglsl" nodedef="ND_sin_vector3" file="mx_sin.inline" target="genglsl" />
+  <implementation name="IM_cos_vector3_genglsl" nodedef="ND_cos_vector3" file="mx_cos.inline" target="genglsl" />
+  <implementation name="IM_tan_vector3_genglsl" nodedef="ND_tan_vector3" file="mx_tan.inline" target="genglsl" />
+  <implementation name="IM_asin_vector3_genglsl" nodedef="ND_asin_vector3" file="mx_asin.inline" target="genglsl" />
+  <implementation name="IM_acos_vector3_genglsl" nodedef="ND_acos_vector3" file="mx_acos.inline" target="genglsl" />
+  <implementation name="IM_atan2_vector3_genglsl" nodedef="ND_atan2_vector3" file="mx_atan2.inline" target="genglsl" />
+  <implementation name="IM_sin_vector4_genglsl" nodedef="ND_sin_vector4" file="mx_sin.inline" target="genglsl" />
+  <implementation name="IM_cos_vector4_genglsl" nodedef="ND_cos_vector4" file="mx_cos.inline" target="genglsl" />
+  <implementation name="IM_tan_vector4_genglsl" nodedef="ND_tan_vector4" file="mx_tan.inline" target="genglsl" />
+  <implementation name="IM_asin_vector4_genglsl" nodedef="ND_asin_vector4" file="mx_asin.inline" target="genglsl" />
+  <implementation name="IM_acos_vector4_genglsl" nodedef="ND_acos_vector4" file="mx_acos.inline" target="genglsl" />
+  <implementation name="IM_atan2_vector4_genglsl" nodedef="ND_atan2_vector4" file="mx_atan2.inline" target="genglsl" />
 
   <!-- <sqrt> -->
-  <implementation name="IM_sqrt_float_genglsl" nodedef="ND_sqrt_float" file="libraries/stdlib/genglsl/mx_sqrt.inline" target="genglsl" />
-  <implementation name="IM_sqrt_vector2_genglsl" nodedef="ND_sqrt_vector2" file="libraries/stdlib/genglsl/mx_sqrt.inline" target="genglsl" />
-  <implementation name="IM_sqrt_vector3_genglsl" nodedef="ND_sqrt_vector3" file="libraries/stdlib/genglsl/mx_sqrt.inline" target="genglsl" />
-  <implementation name="IM_sqrt_vector4_genglsl" nodedef="ND_sqrt_vector4" file="libraries/stdlib/genglsl/mx_sqrt.inline" target="genglsl" />
+  <implementation name="IM_sqrt_float_genglsl" nodedef="ND_sqrt_float" file="mx_sqrt.inline" target="genglsl" />
+  <implementation name="IM_sqrt_vector2_genglsl" nodedef="ND_sqrt_vector2" file="mx_sqrt.inline" target="genglsl" />
+  <implementation name="IM_sqrt_vector3_genglsl" nodedef="ND_sqrt_vector3" file="mx_sqrt.inline" target="genglsl" />
+  <implementation name="IM_sqrt_vector4_genglsl" nodedef="ND_sqrt_vector4" file="mx_sqrt.inline" target="genglsl" />
 
   <!-- <ln> -->
-  <implementation name="IM_ln_float_genglsl" nodedef="ND_ln_float" file="libraries/stdlib/genglsl/mx_ln.inline" target="genglsl" />
-  <implementation name="IM_ln_vector2_genglsl" nodedef="ND_ln_vector2" file="libraries/stdlib/genglsl/mx_ln.inline" target="genglsl" />
-  <implementation name="IM_ln_vector3_genglsl" nodedef="ND_ln_vector3" file="libraries/stdlib/genglsl/mx_ln.inline" target="genglsl" />
-  <implementation name="IM_ln_vector4_genglsl" nodedef="ND_ln_vector4" file="libraries/stdlib/genglsl/mx_ln.inline" target="genglsl" />
+  <implementation name="IM_ln_float_genglsl" nodedef="ND_ln_float" file="mx_ln.inline" target="genglsl" />
+  <implementation name="IM_ln_vector2_genglsl" nodedef="ND_ln_vector2" file="mx_ln.inline" target="genglsl" />
+  <implementation name="IM_ln_vector3_genglsl" nodedef="ND_ln_vector3" file="mx_ln.inline" target="genglsl" />
+  <implementation name="IM_ln_vector4_genglsl" nodedef="ND_ln_vector4" file="mx_ln.inline" target="genglsl" />
 
   <!-- <exp> -->
-  <implementation name="IM_exp_float_genglsl" nodedef="ND_exp_float" file="libraries/stdlib/genglsl/mx_exp.inline" target="genglsl" />
-  <implementation name="IM_exp_vector2_genglsl" nodedef="ND_exp_vector2" file="libraries/stdlib/genglsl/mx_exp.inline" target="genglsl" />
-  <implementation name="IM_exp_vector3_genglsl" nodedef="ND_exp_vector3" file="libraries/stdlib/genglsl/mx_exp.inline" target="genglsl" />
-  <implementation name="IM_exp_vector4_genglsl" nodedef="ND_exp_vector4" file="libraries/stdlib/genglsl/mx_exp.inline" target="genglsl" />
+  <implementation name="IM_exp_float_genglsl" nodedef="ND_exp_float" file="mx_exp.inline" target="genglsl" />
+  <implementation name="IM_exp_vector2_genglsl" nodedef="ND_exp_vector2" file="mx_exp.inline" target="genglsl" />
+  <implementation name="IM_exp_vector3_genglsl" nodedef="ND_exp_vector3" file="mx_exp.inline" target="genglsl" />
+  <implementation name="IM_exp_vector4_genglsl" nodedef="ND_exp_vector4" file="mx_exp.inline" target="genglsl" />
 
   <!-- sign -->
-  <implementation name="IM_sign_float_genglsl" nodedef="ND_sign_float" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
-  <implementation name="IM_sign_color3_genglsl" nodedef="ND_sign_color3" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
-  <implementation name="IM_sign_color4_genglsl" nodedef="ND_sign_color4" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
-  <implementation name="IM_sign_vector2_genglsl" nodedef="ND_sign_vector2" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
-  <implementation name="IM_sign_vector3_genglsl" nodedef="ND_sign_vector3" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
-  <implementation name="IM_sign_vector4_genglsl" nodedef="ND_sign_vector4" file="libraries/stdlib/genglsl/mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_float_genglsl" nodedef="ND_sign_float" file="mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_color3_genglsl" nodedef="ND_sign_color3" file="mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_color4_genglsl" nodedef="ND_sign_color4" file="mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_vector2_genglsl" nodedef="ND_sign_vector2" file="mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_vector3_genglsl" nodedef="ND_sign_vector3" file="mx_sign.inline" target="genglsl" />
+  <implementation name="IM_sign_vector4_genglsl" nodedef="ND_sign_vector4" file="mx_sign.inline" target="genglsl" />
 
   <!-- <clamp> -->
-  <implementation name="IM_clamp_float_genglsl" nodedef="ND_clamp_float" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_color3_genglsl" nodedef="ND_clamp_color3" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_color3FA_genglsl" nodedef="ND_clamp_color3FA" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_color4_genglsl" nodedef="ND_clamp_color4" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_color4FA_genglsl" nodedef="ND_clamp_color4FA" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector2_genglsl" nodedef="ND_clamp_vector2" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector2FA_genglsl" nodedef="ND_clamp_vector2FA" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector3_genglsl" nodedef="ND_clamp_vector3" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector3FA_genglsl" nodedef="ND_clamp_vector3FA" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector4_genglsl" nodedef="ND_clamp_vector4" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
-  <implementation name="IM_clamp_vector4FA_genglsl" nodedef="ND_clamp_vector4FA" file="libraries/stdlib/genglsl/mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_float_genglsl" nodedef="ND_clamp_float" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_color3_genglsl" nodedef="ND_clamp_color3" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_color3FA_genglsl" nodedef="ND_clamp_color3FA" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_color4_genglsl" nodedef="ND_clamp_color4" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_color4FA_genglsl" nodedef="ND_clamp_color4FA" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector2_genglsl" nodedef="ND_clamp_vector2" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector2FA_genglsl" nodedef="ND_clamp_vector2FA" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector3_genglsl" nodedef="ND_clamp_vector3" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector3FA_genglsl" nodedef="ND_clamp_vector3FA" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector4_genglsl" nodedef="ND_clamp_vector4" file="mx_clamp.inline" target="genglsl" />
+  <implementation name="IM_clamp_vector4FA_genglsl" nodedef="ND_clamp_vector4FA" file="mx_clamp.inline" target="genglsl" />
 
   <!-- <min> -->
-  <implementation name="IM_min_float_genglsl" nodedef="ND_min_float" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_color3_genglsl" nodedef="ND_min_color3" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_color3FA_genglsl" nodedef="ND_min_color3FA" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_color4_genglsl" nodedef="ND_min_color4" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_color4FA_genglsl" nodedef="ND_min_color4FA" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector2_genglsl" nodedef="ND_min_vector2" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector2FA_genglsl" nodedef="ND_min_vector2FA" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector3_genglsl" nodedef="ND_min_vector3" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector3FA_genglsl" nodedef="ND_min_vector3FA" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector4_genglsl" nodedef="ND_min_vector4" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
-  <implementation name="IM_min_vector4FA_genglsl" nodedef="ND_min_vector4FA" file="libraries/stdlib/genglsl/mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_float_genglsl" nodedef="ND_min_float" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_color3_genglsl" nodedef="ND_min_color3" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_color3FA_genglsl" nodedef="ND_min_color3FA" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_color4_genglsl" nodedef="ND_min_color4" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_color4FA_genglsl" nodedef="ND_min_color4FA" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector2_genglsl" nodedef="ND_min_vector2" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector2FA_genglsl" nodedef="ND_min_vector2FA" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector3_genglsl" nodedef="ND_min_vector3" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector3FA_genglsl" nodedef="ND_min_vector3FA" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector4_genglsl" nodedef="ND_min_vector4" file="mx_min.inline" target="genglsl" />
+  <implementation name="IM_min_vector4FA_genglsl" nodedef="ND_min_vector4FA" file="mx_min.inline" target="genglsl" />
 
   <!-- <max> -->
-  <implementation name="IM_max_float_genglsl" nodedef="ND_max_float" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_color3_genglsl" nodedef="ND_max_color3" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_color3FA_genglsl" nodedef="ND_max_color3FA" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_color4_genglsl" nodedef="ND_max_color4" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_color4FA_genglsl" nodedef="ND_max_color4FA" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector2_genglsl" nodedef="ND_max_vector2" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector2FA_genglsl" nodedef="ND_max_vector2FA" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector3_genglsl" nodedef="ND_max_vector3" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector3FA_genglsl" nodedef="ND_max_vector3FA" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector4_genglsl" nodedef="ND_max_vector4" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
-  <implementation name="IM_max_vector4FA_genglsl" nodedef="ND_max_vector4FA" file="libraries/stdlib/genglsl/mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_float_genglsl" nodedef="ND_max_float" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_color3_genglsl" nodedef="ND_max_color3" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_color3FA_genglsl" nodedef="ND_max_color3FA" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_color4_genglsl" nodedef="ND_max_color4" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_color4FA_genglsl" nodedef="ND_max_color4FA" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector2_genglsl" nodedef="ND_max_vector2" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector2FA_genglsl" nodedef="ND_max_vector2FA" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector3_genglsl" nodedef="ND_max_vector3" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector3FA_genglsl" nodedef="ND_max_vector3FA" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector4_genglsl" nodedef="ND_max_vector4" file="mx_max.inline" target="genglsl" />
+  <implementation name="IM_max_vector4FA_genglsl" nodedef="ND_max_vector4FA" file="mx_max.inline" target="genglsl" />
 
   <!-- <normalize> -->
-  <implementation name="IM_normalize_vector2_genglsl" nodedef="ND_normalize_vector2" file="libraries/stdlib/genglsl/mx_normalize.inline" target="genglsl" />
-  <implementation name="IM_normalize_vector3_genglsl" nodedef="ND_normalize_vector3" file="libraries/stdlib/genglsl/mx_normalize.inline" target="genglsl" />
-  <implementation name="IM_normalize_vector4_genglsl" nodedef="ND_normalize_vector4" file="libraries/stdlib/genglsl/mx_normalize.inline" target="genglsl" />
+  <implementation name="IM_normalize_vector2_genglsl" nodedef="ND_normalize_vector2" file="mx_normalize.inline" target="genglsl" />
+  <implementation name="IM_normalize_vector3_genglsl" nodedef="ND_normalize_vector3" file="mx_normalize.inline" target="genglsl" />
+  <implementation name="IM_normalize_vector4_genglsl" nodedef="ND_normalize_vector4" file="mx_normalize.inline" target="genglsl" />
 
   <!-- <magnitude> -->
-  <implementation name="IM_magnitude_vector2_genglsl" nodedef="ND_magnitude_vector2" file="libraries/stdlib/genglsl/mx_magnitude.inline" target="genglsl" />
-  <implementation name="IM_magnitude_vector3_genglsl" nodedef="ND_magnitude_vector3" file="libraries/stdlib/genglsl/mx_magnitude.inline" target="genglsl" />
-  <implementation name="IM_magnitude_vector4_genglsl" nodedef="ND_magnitude_vector4" file="libraries/stdlib/genglsl/mx_magnitude.inline" target="genglsl" />
+  <implementation name="IM_magnitude_vector2_genglsl" nodedef="ND_magnitude_vector2" file="mx_magnitude.inline" target="genglsl" />
+  <implementation name="IM_magnitude_vector3_genglsl" nodedef="ND_magnitude_vector3" file="mx_magnitude.inline" target="genglsl" />
+  <implementation name="IM_magnitude_vector4_genglsl" nodedef="ND_magnitude_vector4" file="mx_magnitude.inline" target="genglsl" />
 
   <!-- <dotproduct> -->
-  <implementation name="IM_dotproduct_vector2_genglsl" nodedef="ND_dotproduct_vector2" file="libraries/stdlib/genglsl/mx_dotproduct.inline" target="genglsl" />
-  <implementation name="IM_dotproduct_vector3_genglsl" nodedef="ND_dotproduct_vector3" file="libraries/stdlib/genglsl/mx_dotproduct.inline" target="genglsl" />
-  <implementation name="IM_dotproduct_vector4_genglsl" nodedef="ND_dotproduct_vector4" file="libraries/stdlib/genglsl/mx_dotproduct.inline" target="genglsl" />
+  <implementation name="IM_dotproduct_vector2_genglsl" nodedef="ND_dotproduct_vector2" file="mx_dotproduct.inline" target="genglsl" />
+  <implementation name="IM_dotproduct_vector3_genglsl" nodedef="ND_dotproduct_vector3" file="mx_dotproduct.inline" target="genglsl" />
+  <implementation name="IM_dotproduct_vector4_genglsl" nodedef="ND_dotproduct_vector4" file="mx_dotproduct.inline" target="genglsl" />
 
   <!-- <crossproduct> -->
-  <implementation name="IM_crossproduct_vector3_genglsl" nodedef="ND_crossproduct_vector3" file="libraries/stdlib/genglsl/mx_crossproduct.inline" target="genglsl" />
+  <implementation name="IM_crossproduct_vector3_genglsl" nodedef="ND_crossproduct_vector3" file="mx_crossproduct.inline" target="genglsl" />
 
   <!-- <transformpoint> -->
   <implementation name="IM_transformpoint_vector3_genglsl" nodedef="ND_transformpoint_vector3" target="genglsl" />
@@ -451,28 +454,28 @@
   <implementation name="IM_transformnormal_vector3_genglsl" nodedef="ND_transformnormal_vector3" target="genglsl" />
 
   <!-- <transformmatrix> -->
-  <implementation name="IM_transformmatrix_vector2M3_genglsl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="libraries/stdlib/genglsl/mx_transformmatrix_vector2M3.glsl" target="genglsl" />
-  <implementation name="IM_transformmatrix_vector3_genglsl" nodedef="ND_transformmatrix_vector3" file="libraries/stdlib/genglsl/mx_transformmatrix.inline" target="genglsl" />
-  <implementation name="IM_transformmatrix_vector3M4_genglsl" nodedef="ND_transformmatrix_vector3M4" function="mx_transformmatrix_vector3M4" file="libraries/stdlib/genglsl/mx_transformmatrix_vector3M4.glsl" target="genglsl" />
-  <implementation name="IM_transformmatrix_vector4_genglsl" nodedef="ND_transformmatrix_vector4" file="libraries/stdlib/genglsl/mx_transformmatrix.inline" target="genglsl" />
+  <implementation name="IM_transformmatrix_vector2M3_genglsl" nodedef="ND_transformmatrix_vector2M3" function="mx_transformmatrix_vector2M3" file="mx_transformmatrix_vector2M3.glsl" target="genglsl" />
+  <implementation name="IM_transformmatrix_vector3_genglsl" nodedef="ND_transformmatrix_vector3" file="mx_transformmatrix.inline" target="genglsl" />
+  <implementation name="IM_transformmatrix_vector3M4_genglsl" nodedef="ND_transformmatrix_vector3M4" function="mx_transformmatrix_vector3M4" file="mx_transformmatrix_vector3M4.glsl" target="genglsl" />
+  <implementation name="IM_transformmatrix_vector4_genglsl" nodedef="ND_transformmatrix_vector4" file="mx_transformmatrix.inline" target="genglsl" />
 
   <!-- <transpose> -->
-  <implementation name="IM_transpose_matrix33_genglsl" nodedef="ND_transpose_matrix33" file="libraries/stdlib/genglsl/mx_transpose.inline" target="genglsl" />
-  <implementation name="IM_transpose_matrix44_genglsl" nodedef="ND_transpose_matrix44" file="libraries/stdlib/genglsl/mx_transpose.inline" target="genglsl" />
+  <implementation name="IM_transpose_matrix33_genglsl" nodedef="ND_transpose_matrix33" file="mx_transpose.inline" target="genglsl" />
+  <implementation name="IM_transpose_matrix44_genglsl" nodedef="ND_transpose_matrix44" file="mx_transpose.inline" target="genglsl" />
 
   <!-- <determinant> -->
-  <implementation name="IM_determinant_matrix33_genglsl" nodedef="ND_determinant_matrix33" file="libraries/stdlib/genglsl/mx_determinant.inline" target="genglsl" />
-  <implementation name="IM_determinant_matrix44_genglsl" nodedef="ND_determinant_matrix44" file="libraries/stdlib/genglsl/mx_determinant.inline" target="genglsl" />
+  <implementation name="IM_determinant_matrix33_genglsl" nodedef="ND_determinant_matrix33" file="mx_determinant.inline" target="genglsl" />
+  <implementation name="IM_determinant_matrix44_genglsl" nodedef="ND_determinant_matrix44" file="mx_determinant.inline" target="genglsl" />
 
   <!-- <invertmatrix> -->
-  <implementation name="IM_invertmatrix_matrix33_genglsl" nodedef="ND_invertmatrix_matrix33" file="libraries/stdlib/genglsl/mx_invertM.inline" target="genglsl" />
-  <implementation name="IM_invertmatrix_matrix44_genglsl" nodedef="ND_invertmatrix_matrix44" file="libraries/stdlib/genglsl/mx_invertM.inline" target="genglsl" />
+  <implementation name="IM_invertmatrix_matrix33_genglsl" nodedef="ND_invertmatrix_matrix33" file="mx_invertM.inline" target="genglsl" />
+  <implementation name="IM_invertmatrix_matrix44_genglsl" nodedef="ND_invertmatrix_matrix44" file="mx_invertM.inline" target="genglsl" />
 
   <!-- <rotate2d> -->
-  <implementation name="IM_rotate2d_vector2_genglsl" nodedef="ND_rotate2d_vector2" file="libraries/stdlib/genglsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" target="genglsl" />
+  <implementation name="IM_rotate2d_vector2_genglsl" nodedef="ND_rotate2d_vector2" file="mx_rotate_vector2.glsl" function="mx_rotate_vector2" target="genglsl" />
 
   <!-- <rotate3d> -->
-  <implementation name="IM_rotate3d_vector3_genglsl" nodedef="ND_rotate3d_vector3" file="libraries/stdlib/genglsl/mx_rotate_vector3.glsl" function="mx_rotate_vector3" target="genglsl" />
+  <implementation name="IM_rotate3d_vector3_genglsl" nodedef="ND_rotate3d_vector3" file="mx_rotate_vector3.glsl" function="mx_rotate_vector3" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
@@ -481,124 +484,124 @@
   <!-- <contrast> -->
 
   <!-- <remap> -->
-  <implementation name="IM_remap_float_genglsl" nodedef="ND_remap_float" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_color3_genglsl" nodedef="ND_remap_color3" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_color3FA_genglsl" nodedef="ND_remap_color3FA" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_color4_genglsl" nodedef="ND_remap_color4" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_color4FA_genglsl" nodedef="ND_remap_color4FA" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector2_genglsl" nodedef="ND_remap_vector2" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector2FA_genglsl" nodedef="ND_remap_vector2FA" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector3_genglsl" nodedef="ND_remap_vector3" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector3FA_genglsl" nodedef="ND_remap_vector3FA" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector4_genglsl" nodedef="ND_remap_vector4" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
-  <implementation name="IM_remap_vector4FA_genglsl" nodedef="ND_remap_vector4FA" file="libraries/stdlib/genglsl/mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_float_genglsl" nodedef="ND_remap_float" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_color3_genglsl" nodedef="ND_remap_color3" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_color3FA_genglsl" nodedef="ND_remap_color3FA" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_color4_genglsl" nodedef="ND_remap_color4" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_color4FA_genglsl" nodedef="ND_remap_color4FA" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector2_genglsl" nodedef="ND_remap_vector2" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector2FA_genglsl" nodedef="ND_remap_vector2FA" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector3_genglsl" nodedef="ND_remap_vector3" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector3FA_genglsl" nodedef="ND_remap_vector3FA" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector4_genglsl" nodedef="ND_remap_vector4" file="mx_remap.inline" target="genglsl" />
+  <implementation name="IM_remap_vector4FA_genglsl" nodedef="ND_remap_vector4FA" file="mx_remap.inline" target="genglsl" />
 
   <!-- <smoothstep> -->
-  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="libraries/stdlib/genglsl/mx_smoothstep_float.glsl" function="mx_smoothstep_float" target="genglsl" />
-  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="libraries/stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" target="genglsl" />
-  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="libraries/stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" target="genglsl" />
-  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="libraries/stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" target="genglsl" />
-  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="libraries/stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" target="genglsl" />
-  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="libraries/stdlib/genglsl/mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" target="genglsl" />
-  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="libraries/stdlib/genglsl/mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" target="genglsl" />
-  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="libraries/stdlib/genglsl/mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" target="genglsl" />
-  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="libraries/stdlib/genglsl/mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" target="genglsl" />
-  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="libraries/stdlib/genglsl/mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" target="genglsl" />
-  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="libraries/stdlib/genglsl/mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" target="genglsl" />
+  <implementation name="IM_smoothstep_float_genglsl" nodedef="ND_smoothstep_float" file="mx_smoothstep_float.glsl" function="mx_smoothstep_float" target="genglsl" />
+  <implementation name="IM_smoothstep_color3_genglsl" nodedef="ND_smoothstep_color3" file="mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" target="genglsl" />
+  <implementation name="IM_smoothstep_color3FA_genglsl" nodedef="ND_smoothstep_color3FA" file="mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" target="genglsl" />
+  <implementation name="IM_smoothstep_color4_genglsl" nodedef="ND_smoothstep_color4" file="mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" target="genglsl" />
+  <implementation name="IM_smoothstep_color4FA_genglsl" nodedef="ND_smoothstep_color4FA" file="mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" target="genglsl" />
+  <implementation name="IM_smoothstep_vector2_genglsl" nodedef="ND_smoothstep_vector2" file="mx_smoothstep_vec2.glsl" function="mx_smoothstep_vec2" target="genglsl" />
+  <implementation name="IM_smoothstep_vector2FA_genglsl" nodedef="ND_smoothstep_vector2FA" file="mx_smoothstep_vec2FA.glsl" function="mx_smoothstep_vec2FA" target="genglsl" />
+  <implementation name="IM_smoothstep_vector3_genglsl" nodedef="ND_smoothstep_vector3" file="mx_smoothstep_vec3.glsl" function="mx_smoothstep_vec3" target="genglsl" />
+  <implementation name="IM_smoothstep_vector3FA_genglsl" nodedef="ND_smoothstep_vector3FA" file="mx_smoothstep_vec3FA.glsl" function="mx_smoothstep_vec3FA" target="genglsl" />
+  <implementation name="IM_smoothstep_vector4_genglsl" nodedef="ND_smoothstep_vector4" file="mx_smoothstep_vec4.glsl" function="mx_smoothstep_vec4" target="genglsl" />
+  <implementation name="IM_smoothstep_vector4FA_genglsl" nodedef="ND_smoothstep_vector4FA" file="mx_smoothstep_vec4FA.glsl" function="mx_smoothstep_vec4FA" target="genglsl" />
 
   <!-- <luminance> -->
-  <implementation name="IM_luminance_color3_genglsl" nodedef="ND_luminance_color3" file="libraries/stdlib/genglsl/mx_luminance_color3.glsl" function="mx_luminance_color3" target="genglsl" />
-  <implementation name="IM_luminance_color4_genglsl" nodedef="ND_luminance_color4" file="libraries/stdlib/genglsl/mx_luminance_color4.glsl" function="mx_luminance_color4" target="genglsl" />
+  <implementation name="IM_luminance_color3_genglsl" nodedef="ND_luminance_color3" file="mx_luminance_color3.glsl" function="mx_luminance_color3" target="genglsl" />
+  <implementation name="IM_luminance_color4_genglsl" nodedef="ND_luminance_color4" file="mx_luminance_color4.glsl" function="mx_luminance_color4" target="genglsl" />
 
   <!-- <rgbtohsv> -->
-  <implementation name="IM_rgbtohsv_color3_genglsl" nodedef="ND_rgbtohsv_color3" file="libraries/stdlib/genglsl/mx_rgbtohsv_color3.glsl" function="mx_rgbtohsv_color3" target="genglsl" />
-  <implementation name="IM_rgbtohsv_color4_genglsl" nodedef="ND_rgbtohsv_color4" file="libraries/stdlib/genglsl/mx_rgbtohsv_color4.glsl" function="mx_rgbtohsv_color4" target="genglsl" />
+  <implementation name="IM_rgbtohsv_color3_genglsl" nodedef="ND_rgbtohsv_color3" file="mx_rgbtohsv_color3.glsl" function="mx_rgbtohsv_color3" target="genglsl" />
+  <implementation name="IM_rgbtohsv_color4_genglsl" nodedef="ND_rgbtohsv_color4" file="mx_rgbtohsv_color4.glsl" function="mx_rgbtohsv_color4" target="genglsl" />
 
   <!-- <hsvtorgb> -->
-  <implementation name="IM_hsvtorgb_color3_genglsl" nodedef="ND_hsvtorgb_color3" file="libraries/stdlib/genglsl/mx_hsvtorgb_color3.glsl" function="mx_hsvtorgb_color3" target="genglsl" />
-  <implementation name="IM_hsvtorgb_color4_genglsl" nodedef="ND_hsvtorgb_color4" file="libraries/stdlib/genglsl/mx_hsvtorgb_color4.glsl" function="mx_hsvtorgb_color4" target="genglsl" />
+  <implementation name="IM_hsvtorgb_color3_genglsl" nodedef="ND_hsvtorgb_color3" file="mx_hsvtorgb_color3.glsl" function="mx_hsvtorgb_color3" target="genglsl" />
+  <implementation name="IM_hsvtorgb_color4_genglsl" nodedef="ND_hsvtorgb_color4" file="mx_hsvtorgb_color4.glsl" function="mx_hsvtorgb_color4" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
   <!-- ======================================================================== -->
 
   <!-- <premult> -->
-  <implementation name="IM_premult_color4_genglsl" nodedef="ND_premult_color4" file="libraries/stdlib/genglsl/mx_premult_color4.glsl" function="mx_premult_color4" target="genglsl" />
+  <implementation name="IM_premult_color4_genglsl" nodedef="ND_premult_color4" file="mx_premult_color4.glsl" function="mx_premult_color4" target="genglsl" />
 
   <!-- <unpremult> -->
-  <implementation name="IM_unpremult_color4_genglsl" nodedef="ND_unpremult_color4" file="libraries/stdlib/genglsl/mx_unpremult_color4.glsl" function="mx_unpremult_color4" target="genglsl" />
+  <implementation name="IM_unpremult_color4_genglsl" nodedef="ND_unpremult_color4" file="mx_unpremult_color4.glsl" function="mx_unpremult_color4" target="genglsl" />
 
   <!-- <plus> -->
-  <implementation name="IM_plus_float_genglsl" nodedef="ND_plus_float" file="libraries/stdlib/genglsl/mx_plus.inline" target="genglsl" />
-  <implementation name="IM_plus_color3_genglsl" nodedef="ND_plus_color3" file="libraries/stdlib/genglsl/mx_plus.inline" target="genglsl" />
-  <implementation name="IM_plus_color4_genglsl" nodedef="ND_plus_color4" file="libraries/stdlib/genglsl/mx_plus.inline" target="genglsl" />
+  <implementation name="IM_plus_float_genglsl" nodedef="ND_plus_float" file="mx_plus.inline" target="genglsl" />
+  <implementation name="IM_plus_color3_genglsl" nodedef="ND_plus_color3" file="mx_plus.inline" target="genglsl" />
+  <implementation name="IM_plus_color4_genglsl" nodedef="ND_plus_color4" file="mx_plus.inline" target="genglsl" />
 
   <!-- <minus> -->
-  <implementation name="IM_minus_float_genglsl" nodedef="ND_minus_float" file="libraries/stdlib/genglsl/mx_minus.inline" target="genglsl" />
-  <implementation name="IM_minus_color3_genglsl" nodedef="ND_minus_color3" file="libraries/stdlib/genglsl/mx_minus.inline" target="genglsl" />
-  <implementation name="IM_minus_color4_genglsl" nodedef="ND_minus_color4" file="libraries/stdlib/genglsl/mx_minus.inline" target="genglsl" />
+  <implementation name="IM_minus_float_genglsl" nodedef="ND_minus_float" file="mx_minus.inline" target="genglsl" />
+  <implementation name="IM_minus_color3_genglsl" nodedef="ND_minus_color3" file="mx_minus.inline" target="genglsl" />
+  <implementation name="IM_minus_color4_genglsl" nodedef="ND_minus_color4" file="mx_minus.inline" target="genglsl" />
 
   <!-- <difference> -->
-  <implementation name="IM_difference_float_genglsl" nodedef="ND_difference_float" file="libraries/stdlib/genglsl/mx_difference.inline" target="genglsl" />
-  <implementation name="IM_difference_color3_genglsl" nodedef="ND_difference_color3" file="libraries/stdlib/genglsl/mx_difference.inline" target="genglsl" />
-  <implementation name="IM_difference_color4_genglsl" nodedef="ND_difference_color4" file="libraries/stdlib/genglsl/mx_difference.inline" target="genglsl" />
+  <implementation name="IM_difference_float_genglsl" nodedef="ND_difference_float" file="mx_difference.inline" target="genglsl" />
+  <implementation name="IM_difference_color3_genglsl" nodedef="ND_difference_color3" file="mx_difference.inline" target="genglsl" />
+  <implementation name="IM_difference_color4_genglsl" nodedef="ND_difference_color4" file="mx_difference.inline" target="genglsl" />
 
   <!-- <burn> -->
-  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="libraries/stdlib/genglsl/mx_burn_float.glsl" function="mx_burn_float" target="genglsl" />
-  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="libraries/stdlib/genglsl/mx_burn_color3.glsl" function="mx_burn_color3" target="genglsl" />
-  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="libraries/stdlib/genglsl/mx_burn_color4.glsl" function="mx_burn_color4" target="genglsl" />
+  <implementation name="IM_burn_float_genglsl" nodedef="ND_burn_float" file="mx_burn_float.glsl" function="mx_burn_float" target="genglsl" />
+  <implementation name="IM_burn_color3_genglsl" nodedef="ND_burn_color3" file="mx_burn_color3.glsl" function="mx_burn_color3" target="genglsl" />
+  <implementation name="IM_burn_color4_genglsl" nodedef="ND_burn_color4" file="mx_burn_color4.glsl" function="mx_burn_color4" target="genglsl" />
 
   <!-- <dodge> -->
-  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="libraries/stdlib/genglsl/mx_dodge_float.glsl" function="mx_dodge_float" target="genglsl" />
-  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="libraries/stdlib/genglsl/mx_dodge_color3.glsl" function="mx_dodge_color3" target="genglsl" />
-  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="libraries/stdlib/genglsl/mx_dodge_color4.glsl" function="mx_dodge_color4" target="genglsl" />
+  <implementation name="IM_dodge_float_genglsl" nodedef="ND_dodge_float" file="mx_dodge_float.glsl" function="mx_dodge_float" target="genglsl" />
+  <implementation name="IM_dodge_color3_genglsl" nodedef="ND_dodge_color3" file="mx_dodge_color3.glsl" function="mx_dodge_color3" target="genglsl" />
+  <implementation name="IM_dodge_color4_genglsl" nodedef="ND_dodge_color4" file="mx_dodge_color4.glsl" function="mx_dodge_color4" target="genglsl" />
 
   <!-- <screen> -->
-  <implementation name="IM_screen_float_genglsl" nodedef="ND_screen_float" file="libraries/stdlib/genglsl/mx_screen.inline" target="genglsl" />
-  <implementation name="IM_screen_color3_genglsl" nodedef="ND_screen_color3" file="libraries/stdlib/genglsl/mx_screen.inline" target="genglsl" />
-  <implementation name="IM_screen_color4_genglsl" nodedef="ND_screen_color4" file="libraries/stdlib/genglsl/mx_screen.inline" target="genglsl" />
+  <implementation name="IM_screen_float_genglsl" nodedef="ND_screen_float" file="mx_screen.inline" target="genglsl" />
+  <implementation name="IM_screen_color3_genglsl" nodedef="ND_screen_color3" file="mx_screen.inline" target="genglsl" />
+  <implementation name="IM_screen_color4_genglsl" nodedef="ND_screen_color4" file="mx_screen.inline" target="genglsl" />
 
   <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genglsl" nodedef="ND_overlay_float" file="libraries/stdlib/genglsl/mx_overlay_float.inline" target="genglsl" />
-  <implementation name="IM_overlay_color3_genglsl" nodedef="ND_overlay_color3" file="libraries/stdlib/genglsl/mx_overlay_color3.glsl" function="mx_overlay_color3" target="genglsl" />
-  <implementation name="IM_overlay_color4_genglsl" nodedef="ND_overlay_color4" file="libraries/stdlib/genglsl/mx_overlay_color4.glsl" function="mx_overlay_color4" target="genglsl" />
+  <implementation name="IM_overlay_float_genglsl" nodedef="ND_overlay_float" file="mx_overlay_float.inline" target="genglsl" />
+  <implementation name="IM_overlay_color3_genglsl" nodedef="ND_overlay_color3" file="mx_overlay_color3.glsl" function="mx_overlay_color3" target="genglsl" />
+  <implementation name="IM_overlay_color4_genglsl" nodedef="ND_overlay_color4" file="mx_overlay_color4.glsl" function="mx_overlay_color4" target="genglsl" />
 
   <!-- <disjointover> -->
-  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="libraries/stdlib/genglsl/mx_disjointover_color4.glsl" function="mx_disjointover_color4" target="genglsl" />
+  <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="mx_disjointover_color4.glsl" function="mx_disjointover_color4" target="genglsl" />
 
   <!-- <in> -->
-  <implementation name="IM_in_color4_genglsl" nodedef="ND_in_color4" file="libraries/stdlib/genglsl/mx_in_color4.inline" target="genglsl" />
+  <implementation name="IM_in_color4_genglsl" nodedef="ND_in_color4" file="mx_in_color4.inline" target="genglsl" />
 
   <!-- <mask> -->
-  <implementation name="IM_mask_color4_genglsl" nodedef="ND_mask_color4" file="libraries/stdlib/genglsl/mx_mask_color4.inline" target="genglsl" />
+  <implementation name="IM_mask_color4_genglsl" nodedef="ND_mask_color4" file="mx_mask_color4.inline" target="genglsl" />
 
   <!-- <matte> -->
-  <implementation name="IM_matte_color4_genglsl" nodedef="ND_matte_color4" file="libraries/stdlib/genglsl/mx_matte_color4.inline" target="genglsl" />
+  <implementation name="IM_matte_color4_genglsl" nodedef="ND_matte_color4" file="mx_matte_color4.inline" target="genglsl" />
 
   <!-- <out> -->
-  <implementation name="IM_out_color4_genglsl" nodedef="ND_out_color4" file="libraries/stdlib/genglsl/mx_out_color4.inline" target="genglsl" />
+  <implementation name="IM_out_color4_genglsl" nodedef="ND_out_color4" file="mx_out_color4.inline" target="genglsl" />
 
   <!-- <over> -->
-  <implementation name="IM_over_color4_genglsl" nodedef="ND_over_color4" file="libraries/stdlib/genglsl/mx_over_color4.inline" target="genglsl" />
+  <implementation name="IM_over_color4_genglsl" nodedef="ND_over_color4" file="mx_over_color4.inline" target="genglsl" />
 
   <!-- <inside> -->
-  <implementation name="IM_inside_float_genglsl" nodedef="ND_inside_float" file="libraries/stdlib/genglsl/mx_inside.inline" target="genglsl" />
-  <implementation name="IM_inside_color3_genglsl" nodedef="ND_inside_color3" file="libraries/stdlib/genglsl/mx_inside.inline" target="genglsl" />
-  <implementation name="IM_inside_color4_genglsl" nodedef="ND_inside_color4" file="libraries/stdlib/genglsl/mx_inside.inline" target="genglsl" />
+  <implementation name="IM_inside_float_genglsl" nodedef="ND_inside_float" file="mx_inside.inline" target="genglsl" />
+  <implementation name="IM_inside_color3_genglsl" nodedef="ND_inside_color3" file="mx_inside.inline" target="genglsl" />
+  <implementation name="IM_inside_color4_genglsl" nodedef="ND_inside_color4" file="mx_inside.inline" target="genglsl" />
 
   <!-- <outside> -->
-  <implementation name="IM_outside_float_genglsl" nodedef="ND_outside_float" file="libraries/stdlib/genglsl/mx_outside.inline" target="genglsl" />
-  <implementation name="IM_outside_color3_genglsl" nodedef="ND_outside_color3" file="libraries/stdlib/genglsl/mx_outside.inline" target="genglsl" />
-  <implementation name="IM_outside_color4_genglsl" nodedef="ND_outside_color4" file="libraries/stdlib/genglsl/mx_outside.inline" target="genglsl" />
+  <implementation name="IM_outside_float_genglsl" nodedef="ND_outside_float" file="mx_outside.inline" target="genglsl" />
+  <implementation name="IM_outside_color3_genglsl" nodedef="ND_outside_color3" file="mx_outside.inline" target="genglsl" />
+  <implementation name="IM_outside_color4_genglsl" nodedef="ND_outside_color4" file="mx_outside.inline" target="genglsl" />
 
   <!-- <mix> -->
-  <implementation name="IM_mix_float_genglsl" nodedef="ND_mix_float" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_color3_genglsl" nodedef="ND_mix_color3" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_color4_genglsl" nodedef="ND_mix_color4" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_vector2_genglsl" nodedef="ND_mix_vector2" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_vector3_genglsl" nodedef="ND_mix_vector3" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_vector4_genglsl" nodedef="ND_mix_vector4" file="libraries/stdlib/genglsl/mx_mix.inline" target="genglsl" />
-  <implementation name="IM_mix_surfaceshader_genglsl" nodedef="ND_mix_surfaceshader" function="mx_mix_surfaceshader" file="libraries/stdlib/genglsl/mx_mix_surfaceshader.glsl" target="genglsl" />
+  <implementation name="IM_mix_float_genglsl" nodedef="ND_mix_float" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_color3_genglsl" nodedef="ND_mix_color3" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_color4_genglsl" nodedef="ND_mix_color4" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector2_genglsl" nodedef="ND_mix_vector2" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector3_genglsl" nodedef="ND_mix_vector3" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector4_genglsl" nodedef="ND_mix_vector4" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_surfaceshader_genglsl" nodedef="ND_mix_surfaceshader" function="mx_mix_surfaceshader" file="mx_mix_surfaceshader.glsl" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->
@@ -766,21 +769,21 @@
   <!-- ======================================================================== -->
 
   <!-- <dot> -->
-  <implementation name="IM_dot_float_genglsl" nodedef="ND_dot_float" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_color3_genglsl" nodedef="ND_dot_color3" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_color4_genglsl" nodedef="ND_dot_color4" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_vector2_genglsl" nodedef="ND_dot_vector2" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_vector3_genglsl" nodedef="ND_dot_vector3" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_vector4_genglsl" nodedef="ND_dot_vector4" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_integer_genglsl" nodedef="ND_dot_integer" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_boolean_genglsl" nodedef="ND_dot_boolean" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_matrix33_genglsl" nodedef="ND_dot_matrix33" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_matrix44_genglsl" nodedef="ND_dot_matrix44" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_string_genglsl" nodedef="ND_dot_string" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_filename_genglsl" nodedef="ND_dot_filename" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_surfaceshader_genglsl" nodedef="ND_dot_surfaceshader" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_displacementshader_genglsl" nodedef="ND_dot_displacementshader" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_volumeshader_genglsl" nodedef="ND_dot_volumeshader" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
-  <implementation name="IM_dot_lightshader_genglsl" nodedef="ND_dot_lightshader" file="libraries/stdlib/genglsl/mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_float_genglsl" nodedef="ND_dot_float" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_color3_genglsl" nodedef="ND_dot_color3" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_color4_genglsl" nodedef="ND_dot_color4" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_vector2_genglsl" nodedef="ND_dot_vector2" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_vector3_genglsl" nodedef="ND_dot_vector3" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_vector4_genglsl" nodedef="ND_dot_vector4" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_integer_genglsl" nodedef="ND_dot_integer" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_boolean_genglsl" nodedef="ND_dot_boolean" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_matrix33_genglsl" nodedef="ND_dot_matrix33" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_matrix44_genglsl" nodedef="ND_dot_matrix44" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_string_genglsl" nodedef="ND_dot_string" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_filename_genglsl" nodedef="ND_dot_filename" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_surfaceshader_genglsl" nodedef="ND_dot_surfaceshader" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_displacementshader_genglsl" nodedef="ND_dot_displacementshader" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_volumeshader_genglsl" nodedef="ND_dot_volumeshader" file="mx_dot.inline" target="genglsl" />
+  <implementation name="IM_dot_lightshader_genglsl" nodedef="ND_dot_lightshader" file="mx_dot.inline" target="genglsl" />
 
 </materialx>

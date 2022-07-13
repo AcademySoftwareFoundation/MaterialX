@@ -90,7 +90,9 @@ namespace
 
         // Inputs on a surface shader which are checked for transparency
         const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
-                                                   {"existence", 1.0f} };
+                                                   {"existence", 1.0f},
+                                                   {"alpha", 1.0f},
+                                                   {"transmission", 0.0f} };
 
 
         // Check against the interface if a node is passed in to check against
@@ -217,6 +219,16 @@ bool isTransparentSurface(ElementPtr element, const string& target)
     NodePtr node = element->asA<Node>();
     if (node)
     {
+        // Handle material nodes.
+        if (node->getCategory() == SURFACE_MATERIAL_NODE_STRING)
+        {
+            vector<NodePtr> shaderNodes = getShaderNodes(node);
+            if (!shaderNodes.empty())
+            {
+                node = shaderNodes[0];
+            }
+        }
+
         // Handle shader nodes.
         if (isTransparentShaderNode(node, nullptr))
         {
@@ -324,7 +336,7 @@ bool elementRequiresShading(ConstTypedElementPtr element)
     string elementType(element->getType());
     static StringSet colorClosures =
     {
-        "surfaceshader", "volumeshader", "lightshader",
+        "material", "surfaceshader", "volumeshader", "lightshader",
         "BSDF", "EDF", "VDF"
     };
     return colorClosures.count(elementType) > 0;

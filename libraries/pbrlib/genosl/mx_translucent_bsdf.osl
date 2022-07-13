@@ -1,6 +1,5 @@
-void mx_translucent_bsdf(float weight, color _color, vector _normal, output BSDF bsdf)
+void mx_translucent_bsdf(float weight, color _color, normal N, output BSDF bsdf)
 {
-    // TODO: Subsurface closure is not supported by vanilla OSL.
-    bsdf.response = _color * weight * translucent(_normal);
+    bsdf.response = _color * weight * translucent(N);
     bsdf.throughput = color(0.0);
 }

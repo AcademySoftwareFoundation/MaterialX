@@ -9,6 +9,7 @@
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/Timer.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
@@ -43,6 +44,18 @@ class Viewer : public ng::Screen
     void setMeshScale(float scale)
     {
         _meshScale = scale;
+    }
+
+    // Set whether turntable rendering is enabled.
+    void setTurntableEnabled(bool val)
+    {
+        _turntableEnabled = val;
+    }
+
+    // Set the total number of steps for one 360 degree rotation.
+    void setTurntableSteps(int steps)
+    {
+        _turntableSteps = steps;
     }
 
     // Set the world-space position of the camera.
@@ -91,6 +104,12 @@ class Viewer : public ng::Screen
     void setShadowMapEnable(bool enable)
     {
         _genContext.getOptions().hwShadowMap = enable;
+    }
+
+    // Enable or disable drawing environment as the background.
+    void setDrawEnvironment(bool enable)
+    {
+        _drawEnvironment = enable;
     }
 
     // Set the modifiers to be applied to loaded documents.
@@ -156,7 +175,7 @@ class Viewer : public ng::Screen
     }
 
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath filename)
+    void requestFrameCapture(const mx::FilePath& filename)
     {
         _captureRequested = true;
         _captureFilename = filename;
@@ -244,15 +263,20 @@ class Viewer : public ng::Screen
     void renderFrame();
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
+    void renderTurnable();
     void renderScreenSpaceQuad(MaterialPtr material);
 
     // Update the directional albedo table.
     void updateAlbedoTable();
 
+    // Toggle turntable
+    void toggleTurntable(bool enable);
+
   private:
     ng::Window* _window;
 
     mx::FilePath _materialFilename;
+    mx::FileSearchPath _materialSearchPath;
     mx::FilePath _meshFilename;
     mx::FilePath _envRadianceFilename;
 
@@ -262,6 +286,11 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
     float _meshScale;
+
+    bool _turntableEnabled;
+    int _turntableSteps;
+    int _turntableStep;
+    mx::ScopedTimer _turntableTimer;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;
@@ -343,10 +372,6 @@ class Viewer : public ng::Screen
 #if MATERIALX_BUILD_GEN_MDL
     mx::GenContext _genContextMdl;
 #endif
-#if MATERIALX_BUILD_GEN_ARNOLD
-    mx::GenContext _genContextArnold;
-#endif
-
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;
 

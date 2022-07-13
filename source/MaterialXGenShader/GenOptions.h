@@ -11,6 +11,8 @@
 
 #include <MaterialXGenShader/Export.h>
 
+#include <MaterialXFormat/File.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /// Type of shader interface to be generated
@@ -58,6 +60,16 @@ enum HwDirectionalAlbedoMethod
     DIRECTIONAL_ALBEDO_MONTE_CARLO
 };
 
+/// Method to use for transmission rendering
+enum HwTransmissionRenderMethod
+{
+    /// Use a refraction approximation for transmission rendering
+    TRANSMISSION_REFRACTION,
+
+    /// Use opacity for transmission rendering
+    TRANSMISSION_OPACITY,
+};
+
 /// @class GenOptions 
 /// Class holding options to configure shader generation.
 class MX_GENSHADER_API GenOptions
@@ -67,9 +79,11 @@ class MX_GENSHADER_API GenOptions
         shaderInterfaceType(SHADER_INTERFACE_COMPLETE),
         fileTextureVerticalFlip(false),
         addUpstreamDependencies(true),
+        libraryPrefix("libraries"),
         hwTransparency(false),
         hwSpecularEnvironmentMethod(SPECULAR_ENVIRONMENT_FIS),
         hwDirectionalAlbedoMethod(DIRECTIONAL_ALBEDO_ANALYTIC),
+        hwTransmissionRenderMethod(TRANSMISSION_REFRACTION),
         hwWriteDepthMoments(false),
         hwShadowMap(false),
         hwAmbientOcclusion(false),
@@ -108,6 +122,11 @@ class MX_GENSHADER_API GenOptions
     /// for the element to generate a shader for.
     bool addUpstreamDependencies;
 
+    /// The standard library prefix, which will be applied to
+    /// calls to emitLibraryInclude during code generation.
+    /// Defaults to "libraries".
+    FilePath libraryPrefix;
+
     /// Sets if transparency is needed or not for HW shaders.
     /// If a surface shader has potential of being transparent
     /// this must be set to true, otherwise no transparency
@@ -122,6 +141,10 @@ class MX_GENSHADER_API GenOptions
     /// Sets the method to use for directional albedo evaluation
     /// for HW shader targets.
     HwDirectionalAlbedoMethod hwDirectionalAlbedoMethod;
+
+    /// Sets the method to use for transmission rendering
+    /// for HW shader targets.
+    HwTransmissionRenderMethod hwTransmissionRenderMethod;
 
     /// Enables the writing of depth moments for HW shader targets.
     /// Defaults to false.

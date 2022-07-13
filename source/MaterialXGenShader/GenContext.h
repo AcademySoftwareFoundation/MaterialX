@@ -48,22 +48,30 @@ class MX_GENSHADER_API GenContext
         return _options;
     }
 
-    /// Add to the search path used for finding source code.
+    /// Register a user search path for finding source code during
+    /// code generation.
     void registerSourceCodeSearchPath(const FilePath& path)
     {
         _sourceCodeSearchPath.append(path);
     }
 
-    /// Add to the search path used for finding source code.
+    /// Register a user search path for finding source code during
+    /// code generation.
     void registerSourceCodeSearchPath(const FileSearchPath& path)
     {
         _sourceCodeSearchPath.append(path);
     }
 
-    /// Resolve a file using the registered search paths.
-    FilePath resolveSourceFile(const FilePath& filename) const
+    /// Resolve a source code filename, first checking the given local path
+    /// then checking any file paths registered by the user.
+    FilePath resolveSourceFile(const FilePath& filename, const FilePath& localPath) const
     {
-        return _sourceCodeSearchPath.find(filename);
+        FileSearchPath searchPath = _sourceCodeSearchPath;
+        if (!localPath.isEmpty())
+        {
+            searchPath.prepend(localPath);
+        }
+        return searchPath.find(filename).getNormalized();
     }
 
     /// Add reserved words that should not be used as
@@ -182,31 +190,16 @@ class MX_GENSHADER_API GenContext
   protected:
     GenContext() = delete;
 
-    // Shader generator.
     ShaderGeneratorPtr _sg;
-
-    // Generation options.
     GenOptions _options;
-
-    // Search path for finding source files.
     FileSearchPath _sourceCodeSearchPath;
-
-    // Set of globally reserved words.
     StringSet _reservedWords;
 
-    // Cached shader node implementations.
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;
-
-    // User data
     std::unordered_map<string, vector<GenUserDataPtr>> _userData;
-
-    // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;
-
-    // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
-    // Contexts for closure evaluation.
     vector<ClosureContext*> _closureContexts;
 };
 

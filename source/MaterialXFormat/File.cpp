@@ -39,6 +39,9 @@ const string VALID_SEPARATORS = "/\\";
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
 
+const string CURRENT_PATH_STRING = ".";
+const string PARENT_PATH_STRING = "..";
+
 #if defined(_WIN32)
 const string PATH_LIST_SEPARATOR = ";";
 #else
@@ -128,6 +131,26 @@ FilePath FilePath::operator/(const FilePath& rhs) const
         combined._vec.push_back(str);
     }
     return combined;
+}
+
+FilePath FilePath::getNormalized() const
+{
+    FilePath res;
+    for (const string& str : _vec)
+    {
+        if (str == CURRENT_PATH_STRING)
+        {
+            continue;
+        }
+        if (str == PARENT_PATH_STRING && !res.isEmpty() && res[res.size() - 1] != PARENT_PATH_STRING)
+        {
+            res._vec.pop_back();
+            continue;
+        }
+        res._vec.push_back(str);
+    }
+    res._type = _type;
+    return res;
 }
 
 bool FilePath::exists() const
@@ -244,7 +267,6 @@ FilePathVec FilePath::getSubDirectories() const
             }
             if (d_type == DT_DIR)
             {
-                FilePath newDir = *this / path;
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }

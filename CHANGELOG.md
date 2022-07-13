@@ -1,6 +1,28 @@
 # Change Log
 
-## [1.38.5] - Development
+## [1.38.6] - Development
+
+## [1.38.5] - 2022-07-09
+
+### Added
+- Added a [refraction approximation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/918) for transmissive surfaces in GLSL, selected by the hwTransmissionRenderMethod generator option.
+- Added support for generalized Schlick transmission in GLSL and OSL.
+- Added support for code generation from material nodes.
+- Added a specialization of GlslShaderGenerator for Vulkan GLSL generation.
+- Added the [Chess Set](https://github.com/AcademySoftwareFoundation/MaterialX/pull/982) example from the [Karma: A Beautiful Game](https://www.sidefx.com/tutorials/karma-a-beautiful-game/) tutorial.  Contributed to the MaterialX project by SideFX, original artwork by Moeen and Mujtaba Sayed.
+- Added static and dynamic analysis tests to GitHub Actions builds.
+- Added support for GCC 12, Clang 13, and Clang 14.
+
+### Changed
+- Switched to [relative shader includes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/926) within the MaterialX data libraries, enabling custom folder names in distributions.
+- Improved and extended the sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/).
+
+### Fixed
+- Fixed math for normalizing normal and tangent vectors in GLSL.
+- Fixed math for transforming a vector4 by a matrix in OSL.
+- Fixed compatibility of OSL Worley noise with OSL 1.9.10.
+- Fixed layering of thin-film effects in the Standard Surface shading model.
+- Fixed input default values in the glTF PBR shading model.
 
 ## [1.38.4] - 2022-04-06
 
@@ -70,24 +92,6 @@
 - Fixed the default value of the roughness input of UsdPreviewSurface.
 - Fixed the assignment of channel names in EXR files written through OpenImageIO.
 
-## [1.38.1_adsk] - 2021-06-23
-
-### Added
-- Add support for local for numierc Value types.
-- Addition of new unlit shader surface shader to standard pbr library.
-- Add in new baking option to allow for baking to image using non-normalized texture coordinates. Required sometime for real-world unit mapping.
-- Allow for "gamma" shader to be used instead of sRGB buffers. This allows for some color output transformation without relying on hardware SRGB buffers which are not support in MESA configurations. Gamma control is part of MaterialXView.
-- Enable arm64 for macOS Xcode 12 CI build.
-
-### Changed
-- Enhance hardware transparency check including handling when transparency is defined by an graph definition.
-- Add token resolving to generic string resolvers. Fix code generation to use resolved values.
-- Fixes so that derived targets can use units and color management properly. (Was not finding base class targets)
-- Add requiresLighting() to shader generators to allow derived class to use this logic for custom direct lighting.
-- Fixes to node definition "flattening" to take into account upstream nodegraphs, baking from surface shaders and handling baking when multiple children within a nodegraph are flattened.
-- Minor MDL fix for texture pathing.
-- Update unit test configuration to have more modular sets of options texture baing and wedging.
-
 ## [1.38.1] - 2021-06-18
 
 ### Added
@@ -105,12 +109,6 @@
 
 ### Fixed
 - Fixed the Color3.asTuple and Color4.asTuple methods in Python
-
-## [1.38.0_adsk](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk)  
- - 2021-03-12 : Autodesk 1.38 release
- - Additional updates:
-   - transparency detection enhancement
-   - ArchViz core definitions + examples.
 
 ## [1.38.0] - 2021-03-02
 
@@ -135,53 +133,9 @@ Updated the MaterialX library to the v1.38 specification.  See the [v1.38 change
 - Updated the definition of UsdPreviewSurface to version 2.3.
 - Renamed the default branch from master to main.
 
-#### Removed
+### Removed
 - Removed support for the 'complex_ior', 'backfacing', 'viewdirection' and 'fresnel' nodes in Physically Based Shading.
 - Removed support for the Color2 type.
-
-### [v1.38_adsk_development4]
-- Up-to-date with LucasFilm `master` @(8df1c073)
-- Support for preserving comments in documents and improved mxupdate.py
-- Porting of 1.37 files to be 1.38 files (in progress)
-
-### [v1.38_adsk_development3](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development3) - 2021-02-23
-- Up-to-date with LucasFilm `master` @(a78c28572f8b275f0ed83509cf919a99791d6997)
-  - Includes fix for optimization logic to preserve other options such as averaging and not affect baked UDIM creation.
-- Change in signature for loadDocument(), loadLibrary() and loadLibraries() to have pointer based optional arguments.
-- Migration of core library files to 1.38.
-- Add getReferencedImages() to ShaderRenderer to support automatic texture bake resizing. Used by TextureBaker for auto baked image resizing.
-- Add setHashImageNames() option to TextureBaker to hash image file names in case they are too long for the file system (e.g. Windows).
-- Add in option to save Arnold OSL in MaterialXView via "A" key.
-
-### [v1.38_adsk_development2](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development2) : 2021-02-10
-- Up-to-date with LucasFilm `master` branch (no longer on v1.38 branch) [@e954329e29480ca2b2d05e437a018c0685a8d62b](https://github.com/materialx/MaterialX/commit/e954329e29480ca2b2d05e437a018c0685a8d62b).
-- *All documents upgrade to "1.38" as version number. Files must be marked as "1.37" for upgrade to occur*
-- Standard surface [default value changes](https://github.com/Autodesk/standard-surface/blob/master/reference/standard_surface.mtlx). Version is still 1.0.1.
-- UsdPreviewSurface "metallic" input name update for conformance. Version 2.3.
-- Deprecation of Language specifier and introduction of TargetDefs. Removal of "language" qualifier from public API.
-- Deprecation of `Material`, `ShaderRef`, `BindInput`, `BindToken` and other associated Elements. Removal of all interfaces from public API.
-- Deprecation of `Parameter` Element. Remapped to `Input` element with optional "uniform" attribute. Removal of Parameter interface from public API.
-- PBR node modifications including deprecation of the following nodes: `fresnel`, `viewdirection`, `backfacing`. `artistic_ior` signature change.
-- Updates to support Lama shaders.
-- TextureBaker version milestone "1" completion.
-- Deprecation of invalid nodegraph "version" tags. Version logic fixes.
-- GPU testing framework set up for Linux using Mesa.
-- Update of MDL to support 1.38. Passes unit tests verification using version 1.6.
-
-### [v1.38_adsk_development1](https://github.com/autodesk-forks/MaterialX/releases/tag/v1.38_adsk_development1) : Major changes since "v1.37.3_parameters_as_inputs"
- - Up-to-date with LucasFilm v1.38 branch [@3900415](https://github.com/materialx/MaterialX/commit/39004152256d64231352be8a28515c30a08b4414).
- - Finished API support for Material Nodes (from Material Elements)
- - Baker support for v1.38, CM and units.
- - Shader Translator support for v1.38, CM and units.
- - Parameter -> input upgrade and downgrade added
- - GLSL fidelity enhancements include SSS
- - USDPreviewSurface v2.3 support (Fresnel input fix)
- - Import of namespaced documents fix (no double namespacing)
- - Graph flattening enhancement
- - Update of WASM to 1.38. (new APIS to expose)
- - Filename resolver utilities
- - Github actions support.
- - Plus changes up to 1.37.3.
 
 ## [1.37.4] - 2020-12-18
 
@@ -214,44 +168,7 @@ Updated the MaterialX library to the v1.38 specification.  See the [v1.38 change
 
 ## [1.37.2] - 2020-09-06
 
-- ADSK : General
-  - Add definition searching for shader nodes for <material> instances (#919)
-  - Add in new ADSK shaderball + rectangle geometries (#943)
-  - Unit tests can use relative image paths from libraries root (#942)
-  - Unit tests image comparison HTML script update (#948)
-- ILM : Baking
-  - Add support for floating-point render targets (#922)
-- ADSK : ShaderGen general changes
-  - Fix regression with variable naming. (#927)
-  - Support for thin-film. (#923)
-  - Fix handling of included functions for convolution nodes (#909)
-  - Support for vertical layering through a layer operator node. (#892)
-- ADSK : OSL / GLSL ShaderGen layout support
-  - Fix GLSL regression with non-FIS environment sampling. (#930)
-  - Face forward GLSL fix to sheen brdf (#926)
-  - Fix regression in OSL generation. (#928)
-  - Fix regressions with layout bindings. (#906)
-  - Improve layering in OSL (#901)
-  - Fix regression with search paths in MaterialXView (#894)
-  - Test case and python bindings (#898)
-  - Enable GlslShaderGenerator to add `layout` in generated code. (#896)
-  - Use mod() vs fmod() logic for OSL and MDL codegen (#871). Only for 1.38
-- ADSK : Render general changes
-  - Environment rendering improvements (#945)
-  - Disable C++ Warning for OiioImageLoader (#938)
-  - Disable C++20 Warning for TinyExrLoader (#922)
-  - Fix binding issue if empty filename given to bind with. Remove skipping binding in that condition. (#915)
-  - Enhance upstream shader search for <surfacematerial> node. Enhance MaterialXView shader failure handling. (#911)
-- ADSK Definition publishing support:
-  - Makes it so that on read when an interface name has a matching node (#905)
-  - Initial Node Definition Version support code. (#899)
-  - Fix input traversal so "output" attribute is optional if nodename/nodegraph specified. (#882)
-  - Add in nodedef from nodegraph utilities (#848)
-- ADSK : Javascript Bindings
-  - Fix JavaScript security issues from the Codacy scan (#925)
-  - Part I : Basic setup MaterialX and parts of MaterialXFormat modules. CI on Travis. (#879)
-
-### ILM Added
+### Added
 - Added support for texture baking from Python, including new example script [baketextures.py](python/Scripts/baketextures.py).
 - Added support for texture baking of materials with multiple UDIMs.
 - Added support for floating-point render targets in ShaderRenderer and its subclasses, allowing for HDR texture baking.
@@ -259,10 +176,10 @@ Updated the MaterialX library to the v1.38 specification.  See the [v1.38 change
 - Added the ShaderTranslator class, laying the groundwork for support of shader translation graphs.
 - Added Python bindings for the Image class.
 
-### ILM Fixed
+### Fixed
 - Fixed the alignment of environment backgrounds in the viewer.
 
-### ILM Removed
+### Removed
 - Removed the CopyOptions class, making it the default behavior of Document\:\:importLibrary to skip conflicting elements.
 
 ## [1.37.1] - 2020-06-04

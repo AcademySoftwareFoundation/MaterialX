@@ -608,9 +608,15 @@ void PropertyEditor::updateContents(Viewer* viewer)
     }
 
     // Shading model display
-    if (elem->isA<mx::Node>())
+    mx::NodePtr node = elem->asA<mx::Node>();
+    if (node)
     {
-        std::string shaderName = elem->getCategory();
+        std::string shaderName = node->getCategory();
+        std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
+        if (!shaderNodes.empty())
+        {
+            shaderName = shaderNodes[0]->getCategory();
+        }
         if (!shaderName.empty() && shaderName != "surface")
         {
             ng::Widget* twoColumns = new ng::Widget(_container);
@@ -730,7 +736,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
     return box;
 }
 
-ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
+ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
     const mx::UIProperties* ui, std::function<void(int)> callback)
 {
     new ng::Label(parent, label);

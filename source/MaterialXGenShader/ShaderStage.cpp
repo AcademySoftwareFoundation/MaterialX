@@ -291,13 +291,12 @@ void ShaderStage::addComment(const string& str)
     endLine(false);
 }
 
-void ShaderStage::addBlock(const string& str, GenContext& context)
+void ShaderStage::addBlock(const string& str, const FilePath& sourceFilename, GenContext& context)
 {
     const string& INCLUDE = _syntax->getIncludeStatement();
     const string& QUOTE   = _syntax->getStringQuote();
 
-    // Add each line in the block seperatelly
-    // to get correct indentation
+    // Add each line in the block seperately to get correct indentation.
     StringStream stream(str);
     for (string line; std::getline(stream, line); )
     {
@@ -312,7 +311,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
                 if (length)
                 {
                     const string filename = line.substr(startQuote + 1, length);
-                    addInclude(filename, context);
+                    addInclude(filename, sourceFilename, context);
                 }
             }
         }
@@ -323,21 +322,21 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
     }
 }
 
-void ShaderStage::addInclude(const string& file, GenContext& context)
+void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context)
 {
-    string modifiedFile = file;
+    string modifiedFile = includeFilename;
     tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), modifiedFile);
-    FilePath resolvedFile = context.resolveSourceFile(modifiedFile);
+    FilePath resolvedFile = context.resolveSourceFile(modifiedFile, sourceFilename.getParentPath());
 
     if (!_includes.count(resolvedFile))
     {
         string content = readFile(resolvedFile);
         if (content.empty())
         {
-            throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
+            throw ExceptionShaderGenError("Could not find include file: '" + includeFilename.asString() + "'");
         }
         _includes.insert(resolvedFile);
-        addBlock(content, context);
+        addBlock(content, resolvedFile, context);
     }
 }
 

@@ -9,8 +9,7 @@ const IMAGE_PROPERTY_SEPARATOR = "_";
 const UADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "uaddressmode";
 const VADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "vaddressmode";
 const FILTER_TYPE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "filtertype";
-const FILE_PREFIX = '../../../Images/';
-const TARGET_FILE_PREFIX = 'Images/';
+const IMAGE_PATH_SEPARATOR = "/";
 
 /**
  * Initialized the environment texture as MaterialX expects it
@@ -127,7 +126,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(type, value, name, uniforms, textureLoader)
+function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
     let outValue;  
     switch (type)
@@ -157,11 +156,10 @@ function toThreeUniform(type, value, name, uniforms, textureLoader)
         case 'filename':
             if (value)
             {
-                let  mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX);
-                mappedValue = mappedValue.replace('boombox', TARGET_FILE_PREFIX);
-                const texture = textureLoader.load(mappedValue);
+                let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
+                const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniforms);
+                setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
             } 
             break;
@@ -224,7 +222,7 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
-function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
+function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
 {
     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
     const base = name.substring(0, idx) || name;
@@ -241,7 +239,7 @@ function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = getMinFilter(filterType, generateMipmaps);
 
-    texture.flipY = false;
+    texture.flipY = flipY;
 }
 
 /**
@@ -307,7 +305,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(shaderStage, textureLoader)
+export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
 {
     let threeUniforms = {};
 
@@ -320,7 +318,8 @@ export function getUniformValues(shaderStage, textureLoader)
                 const variable = uniforms.get(i);                
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, textureLoader));
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, 
+                                                        textureLoader, searchPath, flipY));
             }
         }
     });

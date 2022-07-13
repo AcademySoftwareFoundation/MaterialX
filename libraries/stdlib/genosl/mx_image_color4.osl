@@ -1,4 +1,4 @@
-#include "$fileTransformUv"
+#include "lib/$fileTransformUv"
 
 void mx_image_color4(textureresource file, string layer, color4 default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output color4 out)
 {

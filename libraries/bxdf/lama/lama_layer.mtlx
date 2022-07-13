@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="acescg">
   <!-- LamaLayer for BSDFs -->
-  <nodedef name="ND_lama_layer_bsdf" node="LamaLayer" version="1.0" isdefaultversion="true">
+  <nodedef name="ND_lama_layer_bsdf" node="LamaLayer" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="materialTop" uiname="Material Top" type="BSDF" 
            doc="Material used for the top slab. If not set, the base material will be used by itself." />
     <input name="materialBase" uiname="Material Base" type="BSDF" 

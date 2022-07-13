@@ -11,6 +11,9 @@
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
 
+  <!-- <surfacematerial> -->
+  <implementation name="IM_surfacematerial_genmdl" nodedef="ND_surfacematerial" target="genmdl" />
+
   <!-- <surface_unlit> -->
   <implementation name="IM_surface_unlit_genmdl" nodedef="ND_surface_unlit" sourcecode="mx::stdlib::mx_surface_unlit({{emission}}, {{emission_color}}, {{transmission}}, {{transmission_color}}, {{opacity}})" target="genmdl" />
 

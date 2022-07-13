@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
+#include "mx_microfacet.glsl"
 
 // Fresnel model options.
 const int FRESNEL_MODEL_DIELECTRIC = 0;
@@ -223,7 +223,7 @@ float mx_ior_to_f0(float ior)
 // Convert normal-incidence reflectivity to real-valued index of refraction.
 float mx_f0_to_ior(float F0)
 {
-    float sqrtF0 = sqrt(F0);
+    float sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
     return (1.0 + sqrtF0) / (1.0 - sqrtF0);
 }
 
@@ -340,7 +340,7 @@ vec3 mx_eval_sensitivity(float opd, float shift)
 }
 
 // A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
-// https://belcour.github.io/blog/research/2017/05/01/brdf-thin-film.html
+// https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
 vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
     // Convert nm -> m
@@ -348,7 +348,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Assume vacuum on the outside
     float eta1 = 1.0;
-    float eta2 = tf_ior;
+    float eta2 = max(tf_ior, eta1);
 
     // Optical path difference
     float cosTheta2 = sqrt(1.0 - mx_square(eta1/eta2) * (1.0 - mx_square(cosTheta)));
@@ -357,7 +357,6 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     // First interface
     vec2 R12, phi12;
     mx_fresnel_dielectric_polarized(cosTheta, eta1, eta2, R12, phi12);
-    vec2 R21  = R12;
     vec2 T121 = vec2(1.0) - R12;
     vec2 phi21 = vec2(M_PI) - phi12;
 

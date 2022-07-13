@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/AcademySoftwareFoundation/MaterialX)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest)
 [![Build Status](https://github.com/AcademySoftwareFoundation/MaterialX/workflows/main/badge.svg?branch=main)](https://github.com/AcademySoftwareFoundation/MaterialX/actions?query=branch%3Amain)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6025/badge)](https://bestpractices.coreinfrastructure.org/projects/6025)
 
 ### Introduction
 
@@ -15,7 +16,6 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Download the latest version of the [CMake](https://cmake.org/) build system.
 - Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
-- Select the `MATERIALX_BUILD_JS` option to build JavaScript bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
 
 ### Supported Platforms
@@ -28,8 +28,6 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
 
-The JavaScript bindings for MaterialX are based on [emscripten](https://emscripten.org/).
-
 ### Repository
 
 The MaterialX repository consists of the following folders:
@@ -38,7 +36,6 @@ The MaterialX repository consists of the following folders:
 - [javascript](javascript) - Support modules and example scripts for MaterialX JavaScript.
 - [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
 - [python](python) - Support modules and example scripts for MaterialX Python.
-- [javascript](source/JsMaterialX) - Support modules and tests for MaterialX JavaScript.
 - [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
 - [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
 

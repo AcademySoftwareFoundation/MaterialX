@@ -14,10 +14,12 @@ const std::string options =
 "    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
 "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
+"    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
+"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Defaults to 360\n"
 "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
-"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
-"    --cameraZoom [FLOAT]           Specify the amount to zoom the camera. (defaults to 1.0)\n"
+"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)\n"
+"    --cameraZoom [FLOAT]           Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)\n"
 "    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
 "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
@@ -28,6 +30,7 @@ const std::string options =
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+"    --drawEnvironment [BOOLEAN]    Specify whether to render the environment as the background (defaults to false)\n"
 "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
 "    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
 "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
@@ -83,13 +86,15 @@ int main(int argc, char* const argv[])
     }
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string meshFilename = "resources/Geometry/shaderball.obj";
+    std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
+    bool turntableEnabled = false;
+    int turntableSteps = 360;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
@@ -102,6 +107,7 @@ int main(int argc, char* const argv[])
     int screenWidth = 1280;
     int screenHeight = 960;
     mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    bool drawEnvironment = false;
     std::string captureFilename;
     int bakeWidth = 0;
     int bakeHeight = 0;
@@ -131,6 +137,15 @@ int main(int argc, char* const argv[])
         else if (token == "--meshScale")
         {
             parseToken(nextToken, "float", meshScale);
+        }
+        else if (token == "--enableTurntable")
+        {
+            parseToken(nextToken, "boolean", turntableEnabled);
+        }
+        else if (token == "--turntableSteps")
+        {
+            parseToken(nextToken, "integer", turntableSteps);
+            turntableSteps = std::clamp(turntableSteps, 2, 360);;
         }
         else if (token == "--cameraPosition")
         {
@@ -186,6 +201,10 @@ int main(int argc, char* const argv[])
         else if (token == "--screenColor")
         {
             parseToken(nextToken, "color3", screenColor);
+        }
+        else if (token == "--drawEnvironment")
+        {
+            parseToken(nextToken, "boolean", drawEnvironment);
         }
         else if (token == "--captureFilename")
         {
@@ -265,6 +284,8 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
+        viewer->setTurntableEnabled(turntableEnabled);
+        viewer->setTurntableSteps(turntableSteps);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
         viewer->setCameraViewAngle(cameraViewAngle);
@@ -273,6 +294,7 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
+        viewer->setDrawEnvironment(drawEnvironment);
         viewer->setDocumentModifiers(modifiers);
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
