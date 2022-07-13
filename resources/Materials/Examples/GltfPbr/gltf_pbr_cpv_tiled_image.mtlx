@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <gltf_pbr name="gltf_pbr" type="surfaceshader" version="0.0.1" >
+    <input name="base_color" type="color3" nodename="gltf_tiledimage1" output="out_color" />
+    <input name="alpha" type="float" nodename="gltf_tiledimage1" output="out_alpha" />
+  </gltf_pbr>
+  <surfacematerial name="surfacematerial" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="gltf_pbr" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <gltf_tiledimage name="gltf_tiledimage1" type="multioutput" >
+    <input name="file" type="filename" uniformed="tue" value="D:/Work/materialx/bernard_MaterialX/resources/Images/grid.png" />
+    <input name="use_geom_color" type="float" value="0" />
+    <input name="geom_color_index" type="integer" value="0" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <output name="out_color" type="color3" />
+    <output name="out_alpha" type="float" />
+  </gltf_tiledimage>
+</materialx>

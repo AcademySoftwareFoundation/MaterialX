@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodedef name="ND_gltf_tiledimage_color3_float_v0" node="gltf_tiledimage" nodegroup="texture2d" version="1" isdefaultversion="true" doc="Image / geomcolor blend definition.">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1, 1" />
+    <input name="uvoffset" type="vector2" value="0, 0" />
+    <input name="realworldimagesize" type="vector2" value="1, 1" />
+    <input name="realworldtilesize" type="vector2" value="1, 1" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="framerange" type="string" uniform="true" value="" />
+    <input name="framerange1" type="string" uniform="true" value="" />
+    <input name="frameoffset" type="integer" value="0" />
+    <input name="frameendaction" type="string" uniform="true" value="constant" />
+    <input name="geom_color_index" type="integer" value="0" />
+    <input name="use_geom_color" type="float" value="0" />
+    <output name="out_color" type="color3" value="0, 0, 0" />
+    <output name="out_alpha" type="float" value="0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_tiledimage_color3_float_v0" nodedef="ND_gltf_tiledimage_color3_float_v0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="uvtiling" type="vector2" value="1, 1" />
+    <input name="uvoffset" type="vector2" value="0, 0" />
+    <input name="realworldimagesize" type="vector2" value="1, 1" />
+    <input name="realworldtilesize" type="vector2" value="1, 1" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="framerange" type="string" uniform="true" value="" />
+    <input name="framerange1" type="string" uniform="true" value="" />
+    <input name="frameoffset" type="integer" value="0" />
+    <input name="frameendaction" type="string" uniform="true" value="constant" />
+    <input name="geom_color_index" type="integer" value="0" />
+    <input name="use_geom_color" type="float" value="0" />
+    <geomcolor name="geomcolor" type="color4" nodedef="ND_geomcolor_color4">
+      <input name="index" type="integer" uniform="true" interfacename="geom_color_index" value="0" />
+    </geomcolor>
+    <swizzle name="geomcolor_alpha" type="float" nodedef="ND_swizzle_color4_float">
+      <input name="in" type="color4" nodename="geomcolor" />
+    </swizzle>
+    <swizzle name="geomcolor_color" type="color3" nodedef="ND_swizzle_color4_color3">
+      <input name="in" type="color4" nodename="geomcolor" />
+      <input name="channels" type="string" uniform="true" value="rgb" />
+    </swizzle>
+    <swizzle name="image_alpha" type="float" nodedef="ND_swizzle_color4_float">
+      <input name="in" type="color4" nodename="tiledimage" />
+    </swizzle>
+    <multiply name="image_alpha_blend" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" nodename="image_alpha" />
+      <input name="in2" type="float" nodename="use_geomcolor_alpha" />
+    </multiply>
+    <swizzle name="image_color" type="color3" nodedef="ND_swizzle_color4_color3">
+      <input name="in" type="color4" nodename="tiledimage" />
+      <input name="channels" type="string" uniform="true" value="rgb" />
+    </swizzle>
+    <multiply name="image_color_blend" type="color3" nodedef="ND_multiply_color3">
+      <input name="in1" type="color3" nodename="use_geomcolor_color" />
+      <input name="in2" type="color3" nodename="image_color" />
+    </multiply>
+    <constant name="opaque_alpha" type="float" nodedef="ND_constant_float">
+      <input name="value" type="float" value="1" />
+    </constant>
+    <tiledimage name="tiledimage" type="color4" nodedef="ND_tiledimage_color4">
+      <input name="file" type="filename" uniform="true" interfacename="file" value="" />
+      <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" value="0, 0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="1, 1" />
+      <input name="uvoffset" type="vector2" interfacename="uvoffset" value="0, 0" />
+      <input name="realworldimagesize" type="vector2" interfacename="realworldimagesize" value="1, 1" />
+      <input name="realworldtilesize" type="vector2" interfacename="realworldtilesize" value="1, 1" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="framerange" type="string" uniform="true" interfacename="framerange1" />
+      <input name="frameoffset" type="integer" uniform="true" interfacename="frameoffset" value="0" />
+      <input name="frameendaction" type="string" uniform="true" interfacename="frameendaction" value="constant" />
+    </tiledimage>
+    <ifequal name="use_geomcolor_alpha" type="float" nodedef="ND_ifequal_float">
+      <input name="value1" type="float" interfacename="use_geom_color" value="0" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" nodename="geomcolor_alpha" />
+      <input name="in2" type="float" nodename="opaque_alpha" />
+    </ifequal>
+    <ifequal name="use_geomcolor_color" type="color3" nodedef="ND_ifequal_color3">
+      <input name="value1" type="float" interfacename="use_geom_color" value="0" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="color3" nodename="geomcolor_color" />
+      <input name="in2" type="color3" nodename="white" />
+    </ifequal>
+    <constant name="white" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" value="1, 1, 1" />
+    </constant>
+    <output name="out_color" type="color3" nodename="image_color_blend" />
+    <output name="out_alpha" type="float" nodename="image_alpha_blend" />
+  </nodegraph>
+</materialx>
