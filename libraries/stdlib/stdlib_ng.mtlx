@@ -1045,10 +1045,11 @@
 
   <!--
     Node: <place2d>
-    Transform incoming UV texture coordinates for 2D texture placement.
-    Sequence of transformation (in the order of application): -pivot, scale, rotate, translate, pivot.
+    Transform incoming UV texture coordinates from one 2D frame of reference to another.
+    The order of transformation is: -pivot, scale, rotate, translate, pivot.
   -->
-  <nodegraph name="NG_place2d_vector2" nodedef="ND_place2d_vector2">
+  <implementation name="IMPL_place2d_vector2" nodedef="ND_place2d_vector2" nodegraph="NG_place2d_vector2" />
+  <nodegraph name="NG_place2d_vector2">
     <subtract name="N_subpivot" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="pivot" />
@@ -1074,10 +1075,11 @@
 
   <!--
     Node: <place2dframe>
-    Transform incoming UV texture coordinates for 2D texture placement.
-    Sequence of transformation (in the order of application): -pivot, translate, rotate, scale, pivot.
+    Transform incoming UV texture coordinates from one 2D frame of reference to another.
+    The order of transformation is: -pivot, translate, rotate, scale, pivot.
   -->
-  <nodegraph name="NG_place2dframe_vector2" nodedef="ND_place2dframe_vector2">
+  <implementation name="IMPL_place2dframe_vector2" nodedef="ND_place2dframe_vector2" nodegraph="NG_place2dframe_vector2" />
+  <nodegraph name="NG_place2dframe_vector2">
     <subtract name="N_subpivot" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="pivot" />
