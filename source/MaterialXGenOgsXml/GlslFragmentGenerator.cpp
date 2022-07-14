@@ -171,8 +171,7 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
-    _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = string("stdlib/genglsl") +
-        (context.getOptions().fileTextureVerticalFlip ? "/lib/mx_transform_uv_vflip.glsl": "/lib/mx_transform_uv.glsl");
+    _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = (context.getOptions().fileTextureVerticalFlip ? "mx_transform_uv_vflip.glsl": "mx_transform_uv.glsl");
 
     // Add all functions for node implementations
     emitFunctionDefinitions(graph, context, pixelStage);

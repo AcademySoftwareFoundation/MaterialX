@@ -303,14 +303,7 @@ void OgsFxShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& 
 
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
-    if (context.getOptions().fileTextureVerticalFlip)
-    {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/genglsl/lib/mx_transform_uv_vflip.glsl";
-    }
-    else
-    {
-        _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "stdlib/genglsl/lib/mx_transform_uv.glsl";
-    }
+    _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = (context.getOptions().fileTextureVerticalFlip ? "mx_transform_uv_vflip.glsl" : "mx_transform_uv.glsl");
 
     // Emit environment lighting functions
     if (lighting)

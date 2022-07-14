@@ -102,6 +102,7 @@ static void generateXmlCode()
         mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/Units")
     };
 
+    // We need to add libraries here because OGSFX is derived from GLSL and needs to search glsl implmentations
     const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
     const mx::FilePath logPath("genogsxml_generate_test.txt");
