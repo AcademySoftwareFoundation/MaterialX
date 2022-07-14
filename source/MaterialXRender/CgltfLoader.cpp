@@ -456,10 +456,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         }
     }
 
-    if (data)
-    {
-        cgltf_free(data);
-    }
+    cgltf_free(data);
 
     return true;
 }
