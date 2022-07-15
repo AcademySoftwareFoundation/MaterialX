@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
+
   <!-- Test graph for adsk nodedefs -->
+  <!-- Disabled since adsk:brick_02 and adsk:parquet_03 have texture references that are part of libraries
+       This is not a support workflow and need improvements to Image resolver
+   -->
+  <!--
   <nodegraph name="util_nodedefs" type="color3">
     <adsk:colorcorrect name="colorcorrect" type="multioutput" version="1.0">
       <input name="color" type="color3" value="1, 0.5, 0.5" />
@@ -22,3 +27,4 @@
     <output name="parquet_material_out" type="material" nodename="parquet_03_material" />
   </nodegraph>
 </materialx>
+-->
