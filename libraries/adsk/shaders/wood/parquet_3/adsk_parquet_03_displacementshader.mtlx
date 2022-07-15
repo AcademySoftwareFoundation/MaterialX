@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <nodedef name="ND_parquet_03_displacementshader" node="parquet_03_displacement" nodegroup="shader" version="1.0" isdefaultversion="true" namespace="adsk">
-    <input name="displacement_image" type="filename" value="adsk/textures/parquet_03/2k/parquet_03_height_2k_raw.png" uniform="true" />
+    <input name="displacement_image" type="filename" value="textures/parquet_03_height_2k_raw.png" uniform="true" />
     <input name="displacement_scale" type="float" value="1.0" />
     <input name="scalar_zero_value" type="float" value="0.0" />
     <output name="out" type="displacementshader" value="" />

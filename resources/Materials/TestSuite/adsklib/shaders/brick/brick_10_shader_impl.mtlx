@@ -5,15 +5,15 @@
       <input name="in" type="vector3" nodename="bricks_10_normal" />
     </normalmap>
     <tiledimage name="bricks_10_basecolor" type="color3">
-      <input name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_basecolor_2k_acescg.exr" colorspace="acescg" />
+      <input name="file" type="filename" value="textures/bricks_10/2k/bricks_10_basecolor_2k_acescg.exr" colorspace="acescg" />
       <input name="uvtiling" type="vector2" value="3, 3" />
     </tiledimage>
     <tiledimage name="bricks_10_normal" type="vector3">
-      <input name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_normal_2k_raw.exr" />
+      <input name="file" type="filename" value="textures/bricks_10/2k/bricks_10_normal_2k_raw.exr" />
       <input name="uvtiling" type="vector2" value="3, 3" />
     </tiledimage>
     <tiledimage name="bricks_10_roughness" type="float">
-      <input name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_roughness_2k_raw.exr" />
+      <input name="file" type="filename" value="textures/bricks_10/2k/bricks_10_roughness_2k_raw.exr" />
       <input name="uvtiling" type="vector2" value="3, 3" />
     </tiledimage>
     <standard_surface name="bricks_10_sts" type="surfaceshader" version="1.0.1">
@@ -40,7 +40,7 @@
       <input name="in2" type="float" nodename="bricks_10_disp_subtract" />
     </multiply>
     <tiledimage name="bricks_10_displacement" type="float">
-      <input name="file" type="filename" value="adsk/textures/bricks_10/2k/bricks_10_height_2k_raw.exr" />
+      <input name="file" type="filename" value="textures/bricks_10/2k/bricks_10_height_2k_raw.exr" />
       <input name="uvtiling" type="vector2" value="3, 3" />
     </tiledimage>
     <normal name="bricks_10_disp_normal" type="vector3" />

@@ -73,10 +73,10 @@ target_link_libraries(MaterialXTest MaterialXGenShader)
   endif()
 endif()
 
-if(MATERIALX_BUILD_RUNTIME)
-  add_subdirectory(MaterialXRuntime)
-  target_link_libraries(MaterialXTest MaterialXRuntime)
-endif()
+#if(MATERIALX_BUILD_RUNTIME)
+#  add_subdirectory(MaterialXRuntime)
+#  target_link_libraries(MaterialXTest MaterialXRuntime)
+#endif()
 
 if(MATERIALX_BUILD_RENDER) # MATERIALX_BUILD_GEN is implied; can assume relevant MaterialXGen* libs already linked above
   add_subdirectory(MaterialXRender)
