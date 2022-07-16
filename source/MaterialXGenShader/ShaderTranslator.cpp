@@ -177,9 +177,6 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     shader->setCategory(destCategory);
     shader->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
     connectTranslationOutputs(shader);
-
-    _graph = nullptr;
-    _translationNode = nullptr;
 }
 
 void ShaderTranslator::translateAllMaterials(DocumentPtr doc, const string& destCategory)
