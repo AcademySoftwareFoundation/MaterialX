@@ -20,9 +20,9 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     if (shaderRef->hasAttribute(NodeDef::NODE_DEF_ATTRIBUTE))
     {
         string nodeDefString = shaderRef->getAttribute(NodeDef::NODE_DEF_ATTRIBUTE);
-        ConstElementPtr root = shaderRef->getRoot();
-        NodeDefPtr child = root->getChildOfType<NodeDef>(shaderRef->getQualifiedName(nodeDefString));
-        return child ? child : root->getChildOfType<NodeDef>(nodeDefString);
+        ConstDocumentPtr doc = shaderRef->getDocument();
+        NodeDefPtr child = doc->getNodeDef(shaderRef->getQualifiedName(nodeDefString));
+        return child ? child : doc->getNodeDef(nodeDefString);
     }
     if (shaderRef->hasAttribute(NodeDef::NODE_ATTRIBUTE))
     {
