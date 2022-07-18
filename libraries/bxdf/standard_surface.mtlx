@@ -75,7 +75,7 @@
     <input name="coat_IOR" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" uiname="Coat Index of Refraction" uifolder="Coat"
            doc="The index of refraction of the clear-coat layer." />
     <input name="coat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Coat normal" uifolder="Coat"
-           doc="Input normal for clear-coat layer" />
+           doc="Normal for the clear-coat layer." />
     <input name="coat_affect_color" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Color" uifolder="Coat" uiadvanced="true"
            doc="Controls the saturation of diffuse reflection and subsurface scattering below the clear-coat." />
     <input name="coat_affect_roughness" type="float" value="0" uimin="0" uimax="1" uiname="Coat Affect Roughness" uifolder="Coat" uiadvanced="true"
@@ -93,9 +93,9 @@
     <input name="thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry" uiadvanced="true"
            doc="If true the surface is double-sided and represents an infinitely thin shell. Suitable for thin objects such as tree leaves or paper." />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"
-           doc="Input geometric normal" />
-    <input name="tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"
-           doc="Input geometric tangent" />
+           doc="Shading normal." />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent" uifolder="Geometry"
+           doc="Shading tangent." />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
