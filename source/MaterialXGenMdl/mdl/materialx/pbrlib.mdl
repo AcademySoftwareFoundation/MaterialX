@@ -427,7 +427,9 @@ export material mx_surface(
     material mxp_edf  = material() [[ anno::usage( "materialx:edf") ]],
     float mxp_opacity = 1.0,
     uniform float mxp_transmission_ior = 1.0 // extra parameter for setting transmission IOR
-)
+) [[
+    anno::usage( "materialx:surfaceshader")
+]]
 = let {
     bsdf              bsdf_node = mxp_bsdf.surface.scattering;
     material_emission edf_node  = mxp_edf.surface.emission;
@@ -496,8 +498,8 @@ export material mx_light(
     material mxp_edf    = material() [[ anno::usage( "materialx:edf") ]],
     color    mxp_intensity = color(1.0),
     float    mxp_exposure  = 0.0
-) [[ 
-    anno::usage( "materialx:volumeshader") 
+) [[
+    anno::usage( "materialx:lightshader")
 ]]
 = let {
     edf   emission  = mxp_edf.surface.emission.emission;
