@@ -95,15 +95,14 @@ OutputPtr PortElement::getConnectedOutput() const
     const string& outputString = getOutputString();
     OutputPtr result = nullptr;
 
-    // Want to find a node or nodegraph at the same level as the 
-    // parent element to this port. 
+    // Determine the scope at which the connected output may be found.
     ConstElementPtr parent = getParent();
-    ConstElementPtr root = parent ? parent->getParent() : nullptr;
+    ConstElementPtr scope = parent ? parent->getParent() : nullptr;
 
-    // Look for an output in a nodegraph
+    // Look for a nodegraph output.
     if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), root);
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), scope);
         if (!nodeGraph)
         {
             nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
@@ -124,11 +123,11 @@ OutputPtr PortElement::getConnectedOutput() const
             }
         }
     }
-    // Look for output on a node
+    // Look for a node output.
     else if (hasNodeName())
     {
         const string& nodeName = getNodeName();
-        NodePtr node = resolveNameReference<Node>(nodeName, root);
+        NodePtr node = resolveNameReference<Node>(nodeName, scope);
         if (!node)
         {
             node = resolveNameReference<Node>(nodeName);
@@ -150,7 +149,7 @@ OutputPtr PortElement::getConnectedOutput() const
         }
     }
 
-    // Look for output in the document level
+    // Look for an output at document scope.
     if (!result)
     {
         result = getDocument()->getOutput(outputString);
