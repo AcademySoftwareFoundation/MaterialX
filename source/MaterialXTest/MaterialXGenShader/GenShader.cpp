@@ -180,14 +180,17 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
         mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
         mtlxFile.removeExtension();
 
+        bool translated = false;
         try
         {
             shaderTranslator->translateAllMaterials(doc, "UsdPreviewSurface");
+            translated = true;
         }
         catch (mx::Exception &e)
         {
             std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
         }
+        REQUIRE(translated);
 
         std::string validationErrors;
         bool valid = doc->validate(&validationErrors);

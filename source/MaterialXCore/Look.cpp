@@ -121,13 +121,13 @@ vector<VisibilityPtr> Look::getActiveVisibilities() const
 
 NodePtr MaterialAssign::getReferencedMaterial() const
 {
-    return resolveRootNameReference<Node>(getMaterial());
+    return resolveNameReference<Node>(getMaterial());
 }
 
 vector<OutputPtr> MaterialAssign::getMaterialOutputs() const
 {
     vector<OutputPtr> materialOutputs;
-    NodeGraphPtr materialGraph = resolveRootNameReference<NodeGraph>(getMaterial());
+    NodeGraphPtr materialGraph = resolveNameReference<NodeGraph>(getMaterial());
     if (materialGraph)
     {
         return materialGraph->getMaterialOutputs();

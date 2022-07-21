@@ -473,7 +473,7 @@ void Element::validateRequire(bool expression, bool& res, string* message, const
 
 TypeDefPtr TypedElement::getTypeDef() const
 {
-    return resolveRootNameReference<TypeDef>(getType());
+    return resolveNameReference<TypeDef>(getType());
 }
 
 //
