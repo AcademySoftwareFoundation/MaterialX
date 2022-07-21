@@ -63,7 +63,7 @@ void GeomElement::setCollection(ConstCollectionPtr collection)
 
 CollectionPtr GeomElement::getCollection() const
 {
-    return resolveRootNameReference<Collection>(getCollectionString());
+    return resolveNameReference<Collection>(getCollectionString());
 }
 
 bool GeomElement::validate(string* message) const
@@ -114,7 +114,7 @@ vector<CollectionPtr> Collection::getIncludeCollections() const
     vector<CollectionPtr> vec;
     for (const string& str : getTypedAttribute<StringVec>(INCLUDE_COLLECTION_ATTRIBUTE))
     {
-        CollectionPtr collection = resolveRootNameReference<Collection>(str);
+        CollectionPtr collection = resolveNameReference<Collection>(str);
         if (collection)
         {
             vec.push_back(collection);

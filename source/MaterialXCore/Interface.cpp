@@ -74,9 +74,11 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
         if (parent->isA<NodeGraph>())
         {
             setNodeGraphString(parent->getName());
+            removeAttribute(NODE_NAME_ATTRIBUTE);
         }
-        else
+        else if (parent->isA<Node>())
         {
+            setNodeName(parent->getName());
             removeAttribute(NODE_GRAPH_ATTRIBUTE);
         }
     }
@@ -84,6 +86,7 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
     {
         removeAttribute(OUTPUT_ATTRIBUTE);
         removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        removeAttribute(NODE_NAME_ATTRIBUTE);
     }
 }
 
@@ -92,10 +95,18 @@ OutputPtr PortElement::getConnectedOutput() const
     const string& outputString = getOutputString();
     OutputPtr result = nullptr;
 
-    // Look for an output in a nodegraph
+    // Determine the scope at which the connected output may be found.
+    ConstElementPtr parent = getParent();
+    ConstElementPtr scope = parent ? parent->getParent() : nullptr;
+
+    // Look for a nodegraph output.
     if (hasNodeGraphString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), scope);
+        if (!nodeGraph)
+        {
+            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+        }
         if (nodeGraph)
         {
             std::vector<OutputPtr> outputs = nodeGraph->getOutputs();
@@ -112,41 +123,33 @@ OutputPtr PortElement::getConnectedOutput() const
             }
         }
     }
-    // Look for output on a node
+    // Look for a node output.
     else if (hasNodeName())
     {
         const string& nodeName = getNodeName();
-        ConstElementPtr startingElement = getParent();
-        if (startingElement)
+        NodePtr node = resolveNameReference<Node>(nodeName, scope);
+        if (!node)
         {
-            // Look for a node reference above the nodegraph if input is a direct child.
-            if (startingElement->isA<NodeGraph>())
+            node = resolveNameReference<Node>(nodeName);
+        }
+        if (node)
+        {
+            std::vector<OutputPtr> outputs = node->getOutputs();
+            if (!outputs.empty())
             {
-                startingElement = startingElement->getParent();
-            }
-            if (startingElement)
-            {
-                ConstGraphElementPtr graph = startingElement->getAncestorOfType<GraphElement>();
-                NodePtr node = graph ? graph->getNode(nodeName) : nullptr;
-                if (node)
+                if (outputString.empty())
                 {
-                    std::vector<OutputPtr> outputs = node->getOutputs();
-                    if (!outputs.empty())
-                    {
-                        if (outputString.empty())
-                        {
-                            result = outputs[0];
-                        }
-                        else
-                        {
-                            result = node->getOutput(outputString);
-                        }
-                    }
+                    result = outputs[0];
+                }
+                else
+                {
+                    result = node->getOutput(outputString);
                 }
             }
         }
     }
-    // Look for output in the document
+
+    // Look for an output at document scope.
     if (!result)
     {
         result = getDocument()->getOutput(outputString);
@@ -161,7 +164,7 @@ bool PortElement::validate(string* message) const
     NodePtr connectedNode = getConnectedNode();
     if (hasNodeName() || hasOutputString())
     {
-        NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeName());
+        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
         if (!nodeGraph)
         {
             validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
@@ -185,7 +188,7 @@ bool PortElement::validate(string* message) const
             }
             else if (hasNodeGraphString())
             {
-                NodeGraphPtr nodeGraph = resolveRootNameReference<NodeGraph>(getNodeGraphString());
+                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
                 if (nodeGraph)
                 {
                     output = nodeGraph->getOutput(outputString);

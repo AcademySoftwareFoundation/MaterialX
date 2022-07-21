@@ -164,6 +164,7 @@ TEST_CASE("Flatten", "[nodegraph]")
 
     // Flatten all root-level nodes.
     doc->flattenSubgraphs();
+    REQUIRE(doc->validate());
 
     // Recount root-level nodes.
     size_t newRootNodes = doc->getNodes().size();

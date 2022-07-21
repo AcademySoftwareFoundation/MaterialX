@@ -130,7 +130,7 @@ void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
 
 NodeDefPtr Implementation::getNodeDef() const
 {
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
+    return resolveNameReference<NodeDef>(getNodeDefString());
 }
 
 bool Implementation::validate(string* message) const
