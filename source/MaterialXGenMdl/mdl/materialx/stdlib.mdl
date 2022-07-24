@@ -1092,7 +1092,7 @@ export float3 mx_tangent_vector3(
 {
 	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
 	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
-	return state::transform_vector(fromSpace, toSpace, state::texture_tangent_u(mxp_index));
+	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_u(mxp_index)));
 }
 
 export float3 mx_bitangent_vector3(
@@ -1108,7 +1108,7 @@ export float3 mx_bitangent_vector3(
 {
 	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
 	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
-	return state::transform_vector(fromSpace, toSpace, state::texture_tangent_v(mxp_index));
+	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_v(mxp_index)));
 }
 
 export float2 mx_texcoord_vector2(
