@@ -242,7 +242,7 @@ public:
     void addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context);
 
     /// Add a source file dependency for dependency tracking purposes
-    void addSourceDependency(const string& file);
+    void addSourceDependency(const FilePath& file);
 
     /// Add a value.
     template<typename T>

@@ -340,7 +340,7 @@ void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& so
     }
 }
 
-void ShaderStage::addSourceDependency(const string& file)
+void ShaderStage::addSourceDependency(const FilePath& file)
 {
     if (!_sourceDependencies.count(file))
     {
