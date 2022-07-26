@@ -42,5 +42,7 @@ void bindPyShaderStage(py::module& mod)
         .def("getConstantBlock", static_cast<mx::VariableBlock& (mx::ShaderStage::*)()>(&mx::ShaderStage::getConstantBlock))
         .def("getUniformBlocks", &mx::ShaderStage::getUniformBlocks)
         .def("getInputBlocks", &mx::ShaderStage::getInputBlocks)
+        .def("getIncludes", &mx::ShaderStage::getIncludes)
+        .def("getSourceDependencies", &mx::ShaderStage::getSourceDependencies)
         .def("getOutputBlocks", &mx::ShaderStage::getOutputBlocks);
 }

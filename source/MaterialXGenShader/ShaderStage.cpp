@@ -340,6 +340,14 @@ void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& so
     }
 }
 
+void ShaderStage::addSourceDependency(const FilePath& file)
+{
+    if (!_sourceDependencies.count(file))
+    {
+        _sourceDependencies.insert(file);
+    }
+}
+
 void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& context)
 {
     const ShaderNodeImpl& impl = node.getImplementation();

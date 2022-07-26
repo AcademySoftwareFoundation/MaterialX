@@ -198,6 +198,18 @@ public:
     {
         return _outputs;
     }
+
+    /// Return a set of all include files
+    const StringSet& getIncludes() const
+    {
+        return _includes;
+    }
+
+    /// Return a set of all source dependencies
+    const StringSet& getSourceDependencies() const
+    {
+        return _sourceDependencies;
+    }
  
     /// Start a new scope using the given bracket type.
     void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
@@ -228,6 +240,9 @@ public:
 
     /// Add the contents of an include file if not already present.
     void addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context);
+
+    /// Add a source file dependency for dependency tracking purposes
+    void addSourceDependency(const FilePath& file);
 
     /// Add a value.
     template<typename T>
@@ -271,6 +286,9 @@ public:
 
     /// Set of include files that has been included.
     StringSet _includes;
+
+    /// Set of source file dependencies from source code nodes
+    StringSet _sourceDependencies;
 
     /// Set of hash ID's for functions that has been defined.
     std::set<size_t> _definedFunctions;
