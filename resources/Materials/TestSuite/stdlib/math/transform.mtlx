@@ -175,21 +175,8 @@
       <input name="scale" type="vector2" value="2.0,2.0" />
       <input name="rotate" type="float" value="1.0" unittype="angle" unit="radian" />
       <input name="offset" type="vector2" value="0.2,0.2" />
+      <input name="operationorder" type="integer" value="0" />
     </place2d>
-    <output name="out" type="vector2" nodename="place2d1_1" />
-  </nodegraph>
-  <!-- place2dframe -->
-  <nodegraph name="place2dframe_vector2">
-    <texcoord name="texcoord1" type="vector2">
-      <input name="index" type="integer" value="0" />
-    </texcoord>
-    <place2dframe name="place2d1_1" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1" />
-      <input name="pivot" type="vector2" value="0.5,0.5" />
-      <input name="scale" type="vector2" value="2.0,1.0" />
-      <input name="rotate" type="float" value="1.0" unittype="angle" unit="radian" />
-      <input name="offset" type="vector2" value="0.2,0.2" />
-    </place2dframe>
     <output name="out" type="vector2" nodename="place2d1_1" />
   </nodegraph>
 </materialx>
