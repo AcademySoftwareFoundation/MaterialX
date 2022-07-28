@@ -447,4 +447,17 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
     return shader.createStage(name, _syntax);
 }
 
+void ShaderGenerator::createVariables(ShaderGraphPtr graph, GenContext& context, Shader& shader) const
+{
+    for (ShaderNode* node : graph->getNodes())
+    {
+        ApplicationVariableHandler handler = context.getApplicationVariableHandler();
+        if (handler)
+        {
+            handler(node, context);
+        }  
+        node->getImplementation().createVariables(*node, context, shader);
+    }
+}
+
 MATERIALX_NAMESPACE_END

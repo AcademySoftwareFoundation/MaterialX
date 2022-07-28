@@ -344,10 +344,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     output->setPath(outputSocket->getPath());
 
     // Create shader variables for all nodes that need this.
-    for (ShaderNode* node : graph->getNodes())
-    {
-        node->getImplementation().createVariables(*node, context, *shader);
-    }
+    createVariables(graph, context, *shader);
 
     HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
 
