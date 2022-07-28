@@ -197,8 +197,15 @@ void variableTracker(mx::ShaderNode* node, mx::GenContext& /*context*/)
         std::cout << "Emit geometric node: " << node->getName() << std::endl;
         const mx::ShaderInput* geomPropInput = node->getInput("geomprop");
         if (geomPropInput && geomPropInput->getValue())
-            std::cout << "geomprop: " << geomPropInput->getValue()->getValueString()
+            std::cout << "- geomprop: " << geomPropInput->getValue()->getValueString()
             << ", " << geomPropInput->getPath() << std::endl;
+        else
+        {
+            const mx::ShaderInput* indexIput = node->getInput("index");
+            if (indexIput && indexIput->getValue())
+                std::cout << "- index: " << indexIput->getValue()->getValueString()
+                << ", " << indexIput->getPath() << std::endl;
+        }
     }
 }
 
