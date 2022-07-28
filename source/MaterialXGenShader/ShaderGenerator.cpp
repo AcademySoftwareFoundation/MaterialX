@@ -449,9 +449,9 @@ ShaderStagePtr ShaderGenerator::createStage(const string& name, Shader& shader) 
 
 void ShaderGenerator::createVariables(ShaderGraphPtr graph, GenContext& context, Shader& shader) const
 {
+    ApplicationVariableHandler handler = context.getApplicationVariableHandler();
     for (ShaderNode* node : graph->getNodes())
     {
-        ApplicationVariableHandler handler = context.getApplicationVariableHandler();
         if (handler)
         {
             handler(node, context);

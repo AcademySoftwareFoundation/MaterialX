@@ -190,25 +190,6 @@ public:
     }
 };
 
-void variableTracker(mx::ShaderNode* node, mx::GenContext& /*context*/)
-{
-    if (node->hasClassification(mx::ShaderNode::Classification::GEOMETRIC))
-    {
-        std::cout << "Emit geometric node: " << node->getName() << std::endl;
-        const mx::ShaderInput* geomPropInput = node->getInput("geomprop");
-        if (geomPropInput && geomPropInput->getValue())
-            std::cout << "- geomprop: " << geomPropInput->getValue()->getValueString()
-            << ", " << geomPropInput->getPath() << std::endl;
-        else
-        {
-            const mx::ShaderInput* indexIput = node->getInput("index");
-            if (indexIput && indexIput->getValue())
-                std::cout << "- index: " << indexIput->getValue()->getValueString()
-                << ", " << indexIput->getPath() << std::endl;
-        }
-    }
-}
-
 } // anonymous namespace
 
 //
@@ -306,25 +287,21 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
-    _genContext.setApplicationVariableHandler(variableTracker);
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
-    _genContextEssl.setApplicationVariableHandler(variableTracker);
 
 #if MATERIALX_BUILD_GEN_OSL
     // Set OSL generator options.
     _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextOsl.getOptions().fileTextureVerticalFlip = false;
-    _genContextOsl.setApplicationVariableHandler(variableTracker);
 #endif
 #if MATERIALX_BUILD_GEN_MDL
     // Set MDL generator options.
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
-    _genContextMdl.setApplicationVariableHandler(variableTracker);
 #endif
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
