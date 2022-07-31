@@ -70,8 +70,8 @@
   <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" target="genosl" />
   <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" target="genosl" />
   -->
-  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{fg}}, {{bg}}, {{mix}})" target="genosl" />
-  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" sourcecode="mix({{fg}}, {{bg}}, {{mix}})" target="genosl" />
+  <implementation name="IM_mix_bsdf_genosl" nodedef="ND_mix_bsdf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />
+  <implementation name="IM_mix_edf_genosl" nodedef="ND_mix_edf" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" target="genosl" />
 
   <!-- <add> -->
   <!--
