@@ -71,11 +71,18 @@ void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& conte
 {
     BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
         // Emit function definition for non-inlined functions
-        if (!_inlined && !_functionSource.empty())
+        if (!_functionSource.empty())
         {
-            const ShaderGenerator& shadergen = context.getShaderGenerator();
-            shadergen.emitBlock(_functionSource, _sourceFilename, context, stage);
-            shadergen.emitLineBreak(stage);
+            if (!_sourceFilename.isEmpty())
+            {
+                stage.addSourceDependency(_sourceFilename);
+            }
+            if (!_inlined)
+            {
+                const ShaderGenerator& shadergen = context.getShaderGenerator();
+                shadergen.emitBlock(_functionSource, _sourceFilename, context, stage);
+                shadergen.emitLineBreak(stage);
+            }
         }
     END_SHADER_STAGE(stage, Stage::PIXEL)
 }

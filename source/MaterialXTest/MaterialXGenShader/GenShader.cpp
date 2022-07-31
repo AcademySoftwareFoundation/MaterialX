@@ -321,3 +321,52 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
     }
 #endif
 }
+
+void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
+{
+    const mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/GltfPbr/gltf_pbr_boombox.mtlx");
+    const mx::string testElement = "Material_boombox";
+
+    mx::DocumentPtr testDoc = mx::createDocument();
+    mx::readFromXmlFile(testDoc, testFile);
+    testDoc->importLibrary(libraries);
+
+    mx::ElementPtr element = testDoc->getChild(testElement);
+    CHECK(element);
+
+    mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    std::set<std::string> dependencies = shader->getStage("pixel").getSourceDependencies();
+    for (auto dependency : dependencies) {
+        mx::FilePath path(dependency);
+        REQUIRE(path.exists() == true);
+    }
+}
+
+TEST_CASE("GenShader: Track Dependencies", "[genshader]")
+{
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkPixelDependencies(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkPixelDependencies(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        checkPixelDependencies(libraries, context);
+    }
+#endif
+}
