@@ -50,7 +50,7 @@ option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third
 option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
-option(MATERIALX_OSL_LEGACY_CLOSURES "Code generation support for the old legacy OSL closures." ON)
+option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." ON)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
