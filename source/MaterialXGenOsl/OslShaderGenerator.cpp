@@ -166,7 +166,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
     registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
 
-#if MATERIALX_OSL_LEGACY_CLOSURES
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
     registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
@@ -178,6 +179,7 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
     registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
     registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
 
     // <!-- <thin_film> -->

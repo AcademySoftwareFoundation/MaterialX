@@ -37,7 +37,9 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     ShaderNode* top = topInput->getConnection()->getNode();
     ShaderNode* base = baseInput->getConnection()->getNode();
 
-#if MATERIALX_OSL_LEGACY_CLOSURES
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+
+    ClosureContext* cct = context.getClosureContext();
 
     if (top->hasClassification(ShaderNode::Classification::THINFILM))
     {
@@ -49,8 +51,6 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
         {
             throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
         }
-
-        ClosureContext* cct = context.getClosureContext();
 
         // Set the extra parameters for thin-film.
         ClosureContext::ClosureParams params;
@@ -125,8 +125,15 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     else
     {
         // Emit the function call for top and base layer.
-        shadergen.emitFunctionCall(*top, context, stage);
-        shadergen.emitFunctionCall(*base, context, stage);
+        // Make sure the connections are sibling nodes and not the graph interface.
+        if (top->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*top, context, stage);
+        }
+        if (base->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*base, context, stage);
+        }
 
         // Get the result variables.
         const string& topResult = topInput->getConnection()->getVariable();

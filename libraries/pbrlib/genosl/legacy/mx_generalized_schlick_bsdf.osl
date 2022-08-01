@@ -1,4 +1,4 @@
-#include "lib/mx_microfacet_specular.osl"
+#include "../lib/mx_microfacet_specular.osl"
 
 void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {

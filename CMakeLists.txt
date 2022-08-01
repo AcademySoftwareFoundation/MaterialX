@@ -50,8 +50,7 @@ option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third
 option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. GPU required for graphics validation." ON)
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
-
-option(MATERIALX_OSL_LEGACY_CLOSURES "Code generation support for the old legacy OSL closures." OFF)
+option(MATERIALX_OSL_LEGACY_CLOSURES "Code generation support for the old legacy OSL closures." ON)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
@@ -139,10 +138,12 @@ if (MATERIALX_BUILD_GEN_MDL)
 endif()
 
 # Add global definitions
-add_definitions(-DMATERIALX_OSL_LEGACY_CLOSURES=${MATERIALX_OSL_LEGACY_CLOSURES})
 add_definitions(-DMATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\")
 add_definitions(-DMATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\")
 add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
+if (MATERIALX_OSL_LEGACY_CLOSURES)
+    add_definitions(-DMATERIALX_OSL_LEGACY_CLOSURES)
+endif()
 if(MATERIALX_BUILD_OIIO)
     add_definitions(-DMATERIALX_BUILD_OIIO)
 endif()

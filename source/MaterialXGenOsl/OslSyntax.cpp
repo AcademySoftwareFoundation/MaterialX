@@ -457,7 +457,7 @@ OslSyntax::OslSyntax()
             "struct textureresource { string filename; string colorspace; };")
     );
 
-#if MATERIALX_OSL_LEGACY_CLOSURES
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
 
     registerTypeSyntax
     (
