@@ -2332,7 +2332,12 @@
 
   <!--
     Node: <place2d> Supplemental Node
-    Transform incoming UV texture coordinates for 2D texture placement.
+    Transform incoming UV texture coordinates from one 2D frame of reference to another.
+    operationorder (integer enum): the order in which to perform the transform operations.
+    "0" or "SRT" performs -pivot, scale, rotate, translate, +pivot as per the original
+    implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs
+    -pivot, translate, rotate, scale, +pivot which does not introduce texture shear.
+    Default is 0 "SRT" for backward compatibility.
   -->
   <nodedef name="ND_place2d_vector2" node="place2d" nodegroup="math">
     <input name="texcoord" type="vector2" value="0.0, 0.0" />
@@ -2340,6 +2345,7 @@
     <input name="scale" type="vector2" value="1.0,1.0" />
     <input name="rotate" type="float" value="0.0" unittype="angle" unit="degree" />
     <input name="offset" type="vector2" value="0.0,0.0" />
+    <input name="operationorder" type="integer" value="0" enum="SRT, TRS" enumvalues="0, 1" />
     <output name="out" type="vector2" defaultinput="texcoord" />
   </nodedef>
 

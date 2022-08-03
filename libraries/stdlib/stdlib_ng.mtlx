@@ -1045,7 +1045,12 @@
 
   <!--
     Node: <place2d>
-    Transform incoming UV texture coordinates for 2D texture placement.
+    Transform incoming UV texture coordinates from one 2D frame of reference to another.
+    operationorder (integer enum): the order in which to perform the transform operations.
+    "0" or "SRT" performs -pivot, scale, rotate, translate, +pivot as per the original
+    implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs
+    -pivot, translate, rotate, scale, +pivot which does not introduce texture shear.
+    Default is 0 "SRT" for backward compatibility.
   -->
   <nodegraph name="NG_place2d_vector2" nodedef="ND_place2d_vector2">
     <subtract name="N_subpivot" type="vector2">
@@ -1068,7 +1073,28 @@
       <input name="in1" type="vector2" nodename="N_applyoffset" />
       <input name="in2" type="vector2" interfacename="pivot" />
     </add>
-    <output name="out" type="vector2" nodename="N_addpivot" />
+    <subtract name="N_applyoffset2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_subpivot" />
+      <input name="in2" type="vector2" interfacename="offset" />
+    </subtract>
+    <rotate2d name="N_applyrot2" type="vector2">
+      <input name="in" type="vector2" nodename="N_applyoffset2" />
+      <input name="amount" type="float" interfacename="rotate" />
+    </rotate2d>
+    <divide name="N_applyscale2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_applyrot2" />
+      <input name="in2" type="vector2" interfacename="scale" />
+    </divide>
+    <add name="N_addpivot2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_applyscale2" />
+      <input name="in2" type="vector2" interfacename="pivot" />
+    </add>
+    <switch name="N_switch_operationorder" type="vector2">
+      <input name="in1" type="vector2" nodename="N_addpivot" />
+      <input name="in2" type="vector2" nodename="N_addpivot2" />
+      <input name="which" type="integer" interfacename="operationorder" />
+    </switch>
+    <output name="out" type="vector2" nodename="N_switch_operationorder" />
   </nodegraph>
 
   <!-- ======================================================================== -->
