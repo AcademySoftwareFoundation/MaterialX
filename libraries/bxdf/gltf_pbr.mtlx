@@ -559,10 +559,10 @@
     <input name="index1" type="integer" value="1" />
     <input name="index2" type="integer" value="2" />
     <input name="index3" type="integer" value="3" />
+    <output name="out0" type="float" value="0" />
     <output name="out1" type="float" value="0" />
     <output name="out2" type="float" value="0" />
     <output name="out3" type="float" value="0" />
-    <output name="out4" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_extractimage_vector4_float_float_float_float_1_0" nodedef="ND_extractimage_vector4_float_float_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
