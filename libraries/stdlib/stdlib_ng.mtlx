@@ -1412,7 +1412,6 @@
       <input name="value1" type="boolean" interfacename="doclamp" />
       <input name="value2" type="boolean" value="true" />
     </ifequal>
-    <input name="value1" type="boolean" interfacename="doclamp" />
     <output name="out" type="color4" nodename="N_switch_color4" />
   </nodegraph>
   <nodegraph name="NG_range_vector2" nodedef="ND_range_vector2">
