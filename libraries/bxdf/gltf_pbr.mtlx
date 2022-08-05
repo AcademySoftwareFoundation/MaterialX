@@ -271,7 +271,7 @@
     Node: <extractimage> Supplemental Node
     Extract individual channels from a color tiled image, outputting 3 floats
   -->
-   <nodedef name="ND__extractimage_color3_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+   <nodedef name="ND_extractimage_color3_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -290,7 +290,7 @@
     <output name="out1" type="float" value="0" />
     <output name="out2" type="float" value="0" />
   </nodedef>
-  <nodegraph name="NG__extractimage_color3_float_float_float_1_0" nodedef="ND__extractimage_color3_float_float_float_1_0">
+  <nodegraph name="NG_extractimage_color3_float_float_float_1_0" nodedef="ND_extractimage_color3_float_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -339,7 +339,7 @@
     Node: <extractimage> Supplemental Node
     Extract individual channels from a color4 tiled image, outputting 4 floats
   -->
-  <nodedef name="ND__extractimage_color4_float_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_extractimage_color4_float_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -360,7 +360,7 @@
     <output name="out3" type="float" value="0" />
     <output name="out4" type="float" value="0" />
   </nodedef>
-  <nodegraph name="NG__extractimage_color4_float_float_float_float_1_0" nodedef="ND__extractimage_color4_float_float_float_float_1_0" >
+  <nodegraph name="NG_extractimage_color4_float_float_float_float_1_0" nodedef="ND_extractimage_color4_float_float_float_float_1_0" >
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -415,7 +415,7 @@
     Node: <extractimage> Supplemental Node
     Extract individual channels from a vector2 tiled image, outputting 2 floats
   -->
-  <nodedef name="ND__extractimage_vector2_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_extractimage_vector2_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector2" value="0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -432,7 +432,7 @@
     <output name="out0" type="float" value="0" />
     <output name="out1" type="float" value="0" />
   </nodedef>
-  <nodegraph name="NG__extractimage_vector2_float_float_1_0" nodedef="ND__extractimage_vector2_float_float_1_0">
+  <nodegraph name="NG_extractimage_vector2_float_float_1_0" nodedef="ND_extractimage_vector2_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector2" value="0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -475,7 +475,7 @@
     Node: <extractimage> Supplemental Node
     Extract individual channels from a vector3 tiled image, outputting 3 floats
   -->
-  <nodedef name="ND__extractimage_vector3_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_extractimage_vector3_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -494,7 +494,7 @@
     <output name="out1" type="float" value="0" />
     <output name="out2" type="float" value="0" />
   </nodedef>
-  <nodegraph name="NG__extractimage_vector3_float_float_float_1_0" nodedef="ND__extractimage_vector3_float_float_float_1_0">
+  <nodegraph name="NG_extractimage_vector3_float_float_float_1_0" nodedef="ND_extractimage_vector3_float_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -543,7 +543,7 @@
     Node: <extractimage> Supplemental Node
     Extract individual channels from a vector4 tiled image, outputing 4 floats
   -->
-  <nodedef name="ND__extractimage_vector4_float_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true">
+  <nodedef name="ND_extractimage_vector4_float_float_float_float_1_0" node="extractimage" version="1.0" isdefaultversion="true">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector4" value="0, 0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
@@ -564,7 +564,7 @@
     <output name="out3" type="float" value="0" />
     <output name="out4" type="float" value="0" />
   </nodedef>
-  <nodegraph name="NG__extractimage_vector4_float_float_float_float_1_0" nodedef="ND__extractimage_vector4_float_float_float_float_1_0">
+  <nodegraph name="NG_extractimage_vector4_float_float_float_float_1_0" nodedef="ND_extractimage_vector4_float_float_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector4" value="0, 0, 0, 0" />
     <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" />
