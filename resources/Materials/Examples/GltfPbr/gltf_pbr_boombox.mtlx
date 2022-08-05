@@ -13,33 +13,20 @@
       <input name="file" type="filename" value="BoomBox_normal.png" />
       <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     </tiledimage>
-    <tiledimage name="image_orm" type="vector3">
-      <input name="file" type="filename" value="BoomBox_occlusionRoughnessMetallic.png" />
-      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
-    </tiledimage>
     <normalmap name="normalmap" type="vector3">
       <input name="in" type="vector3" nodename="image_normal" />
       <input name="scale" type="float" value="1.0" />
       <input name="space" type="string" value="tangent" />
     </normalmap>
-    <extract name="extract_occlusion" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="extract_roughness" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="extract_metallic" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="2" />
-    </extract>
+    <extractimage name="ExtractORM" type="multioutput" version="1.0">
+      <input name="file" type="filename" uniform="true" value="BoomBox_occlusionRoughnessMetallic.png" />
+    </extractimage>
     <output name="out_basecolor" type="color3" nodename="image_basecolor" />
     <output name="out_emission" type="color3" nodename="image_emission" />
     <output name="out_normal" type="vector3" nodename="normalmap" />
-    <output name="out_occlusion" type="float" nodename="extract_occlusion" />
-    <output name="out_roughness" type="float" nodename="extract_roughness" />
-    <output name="out_metallic" type="float" nodename="extract_metallic" />
+    <output name="out_occlusion" type="float" nodename="ExtractORM" output="out0"/>
+    <output name="out_roughness" type="float" nodename="ExtractORM" output="out1"/>
+    <output name="out_metallic" type="float" nodename="ExtractORM" output="out2"/>
   </nodegraph>
   <gltf_pbr name="SR_boombox" type="surfaceshader">
     <input name="base_color" type="color3" nodegraph="NG_boombox" output="out_basecolor" />
