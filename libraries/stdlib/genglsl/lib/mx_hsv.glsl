@@ -41,9 +41,7 @@ vec3 mx_hsvtorgb(vec3 hsv)
 {
     // Reference for this technique: Foley & van Dam
     float h = hsv.x; float s = hsv.y; float v = hsv.z;
-    if (s < 0.0001f) {
-      return vec3 (v, v, v);
-    } else {
+    if (s >= 0.0001f) {
         h = 6.0f * (h - floor(h));  // expand to [0..6)
         int hi = int(trunc(h));
         float f = h - float(hi);
@@ -62,6 +60,7 @@ vec3 mx_hsvtorgb(vec3 hsv)
             return vec3 (t, p, v);
         return vec3 (v, p, q);
     }
+    return vec3 (v, v, v);
 }
 
 
