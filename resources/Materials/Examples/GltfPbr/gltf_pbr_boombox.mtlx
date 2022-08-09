@@ -22,7 +22,7 @@
       <input name="file" type="filename" value="BoomBox_occlusionRoughnessMetallic.png" />
       <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     </tiledimage>
-    <extract name="extract_orm" type="multioutput" version="1.0">
+    <extract name="extract_orm" type="multioutput">
       <input name="in" type="vector3" nodename="image_orm" />
 	  <input name="index0" type="integer" value="0" />
 	  <input name="index1" type="integer" value="1" />
