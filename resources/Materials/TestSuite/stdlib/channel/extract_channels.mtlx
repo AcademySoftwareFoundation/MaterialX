@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <image name="image_v2" type="vector2" >
+    <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+  </image>
+  <extract name="extract_v2" type="multioutput" >
+    <input name="in" type="vector2" nodename="image_v2" />
+    <input name="index0" type="integer" value="0" />
+    <input name="index1" type="integer" value="1" />
+    <output name="out0" type="float" />
+    <output name="out1" type="float" />
+  </extract>
+  <surfacematerial name="channel0_material_v2" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit0_v2" />
+  </surfacematerial>
+  <surfacematerial name="channel1_material_v2" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit1_v2" />
+  </surfacematerial>
+  <surface_unlit name="unlit0_v2" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v2" output="out0" />
+  </surface_unlit>
+  <surface_unlit name="unlit1_v2" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v2" output="out1" />
+  </surface_unlit>
+	
+  <image name="image_v3" type="vector3" >
+    <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+  </image>
+  <extract name="extract_v3" type="multioutput" >
+    <input name="in" type="vector3" nodename="image_v3" />
+    <input name="index0" type="integer" value="0" />
+    <input name="index1" type="integer" value="1" />
+    <input name="index2" type="integer" value="2" />
+    <output name="out0" type="float" />
+    <output name="out1" type="float" />
+    <output name="out2" type="float" />
+  </extract>
+  <surfacematerial name="channel0_material_v3" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit0_v3" />
+  </surfacematerial>
+  <surfacematerial name="channel1_material_v3" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit1_v3" />
+  </surfacematerial>
+  <surfacematerial name="channel2_material_v3" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit2_v3" />
+  </surfacematerial>
+  <surface_unlit name="unlit0_v3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v3" output="out0" />
+  </surface_unlit>
+  <surface_unlit name="unlit1_v3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v3" output="out1" />
+  </surface_unlit>
+  <surface_unlit name="unlit2_v3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v3" output="out2" />
+  </surface_unlit>
+	
+  <!-- vector4 extraction -->
+  <image name="image_v4" type="vector4" >
+    <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+  </image>
+  <extract name="extract_v4" type="multioutput" >
+    <input name="in" type="vector4" nodename="image_v4" />
+    <input name="index0" type="integer" value="0" />
+    <input name="index1" type="integer" value="1" />
+    <input name="index2" type="integer" value="2" />
+    <input name="index3" type="integer" value="3" />
+    <output name="out0" type="float" />
+    <output name="out1" type="float" />
+    <output name="out2" type="float" />
+    <output name="out3" type="float" />
+  </extract>
+  <surfacematerial name="channel0_material_v4" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit0_v4" />
+  </surfacematerial>
+  <surfacematerial name="channel1_material_v4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit1_v4" />
+  </surfacematerial>
+  <surfacematerial name="channel2_material_v4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit2_v4" />
+  </surfacematerial>
+  <surfacematerial name="channel3_material_v4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit3_v4" />
+  </surfacematerial>
+  <surface_unlit name="unlit0_v4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v4" output="out0" />
+  </surface_unlit>
+  <surface_unlit name="unlit1_v4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v4" output="out1" />
+  </surface_unlit>
+  <surface_unlit name="unlit2_v4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v4" output="out2" />
+  </surface_unlit>  
+  <surface_unlit name="unlit3_v4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_v4" output="out3" />
+ </surface_unlit>  	
+
+ <!-- color3 extraction -->
+ <image name="image_c3" type="color3" >
+    <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+  </image>
+  <extract name="extract_c3" type="multioutput" >
+    <input name="in" type="color3" nodename="image_c3" />
+    <input name="index0" type="integer" value="0" />
+    <input name="index1" type="integer" value="1" />
+    <input name="index2" type="integer" value="2" />
+    <output name="out0" type="float" />
+    <output name="out1" type="float" />
+    <output name="out2" type="float" />
+  </extract>
+  <surfacematerial name="channel0_material_c3" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit0_c3" />
+  </surfacematerial>
+  <surfacematerial name="channel1_material_c3" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit1_c3" />
+  </surfacematerial>
+  <surfacematerial name="channel2_material_c3" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit2_c3" />
+  </surfacematerial>
+  <surface_unlit name="unlit0_c3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c3" output="out0" />
+  </surface_unlit>
+  <surface_unlit name="unlit1_c3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c3" output="out1" />
+  </surface_unlit>
+  <surface_unlit name="unlit2_c3" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c3" output="out2" />
+  </surface_unlit>  
+	
+  <!-- color4 extraction -->
+  <image name="image_c4" type="color4" >
+    <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+  </image>
+  <extract name="extract_c4" type="multioutput" >
+    <input name="in" type="color4" nodename="image_c4" />
+    <input name="index0" type="integer" value="0" />
+    <input name="index1" type="integer" value="1" />
+    <input name="index2" type="integer" value="2" />
+    <input name="index3" type="integer" value="3" />
+    <output name="out0" type="float" />
+    <output name="out1" type="float" />
+    <output name="out2" type="float" />
+    <output name="out3" type="float" />
+  </extract>
+  <surfacematerial name="channel0_material_c4" type="material" nodedef="ND_surfacematerial" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit0_c4" />
+  </surfacematerial>
+  <surfacematerial name="channel1_material_c4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit1_c4" />
+  </surfacematerial>
+  <surfacematerial name="channel2_material_c4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit2_c4" />
+  </surfacematerial>
+  <surfacematerial name="channel3_material_c4" type="material" >
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit3_c4" />
+  </surfacematerial>
+  <surface_unlit name="unlit0_c4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c4" output="out0" />
+  </surface_unlit>
+  <surface_unlit name="unlit1_c4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c4" output="out1" />
+  </surface_unlit>
+  <surface_unlit name="unlit2_c4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c4" output="out2" />
+  </surface_unlit>  
+  <surface_unlit name="unlit3_c4" type="surfaceshader" >
+    <input name="emission" type="float" nodename="extract_c4" output="out3" />
+  </surface_unlit>  
+</materialx>

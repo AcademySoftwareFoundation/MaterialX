@@ -18,18 +18,25 @@
       <input name="scale" type="float" value="1.0" />
       <input name="space" type="string" value="tangent" />
     </normalmap>
-    <extractimage name="image_orm" type="multioutput" version="1.0">
-      <input name="file" type="filename" uniform="true" value="BoomBox_occlusionRoughnessMetallic.png" />
+    <tiledimage name="image_orm" type="vector3">
+      <input name="file" type="filename" value="BoomBox_occlusionRoughnessMetallic.png" />
+      <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    </tiledimage>
+    <extract name="extract_orm" type="multioutput" version="1.0">
+      <input name="in" type="vector3" nodename="image_orm" />
+	  <input name="index0" type="integer" value="0" />
+	  <input name="index1" type="integer" value="1" />
+	  <input name="index2" type="integer" value="2" />
       <output name="out0" type="float" />
 	  <output name="out1" type="float" />
       <output name="out2" type="float" />
-	</extractimage>
+	</extract>
     <output name="out_basecolor" type="color3" nodename="image_basecolor" />
     <output name="out_emission" type="color3" nodename="image_emission" />
     <output name="out_normal" type="vector3" nodename="normalmap" />
-    <output name="out_occlusion" type="float" nodename="image_orm" output="out0"/>
-    <output name="out_roughness" type="float" nodename="image_orm" output="out1"/>
-    <output name="out_metallic" type="float" nodename="image_orm" output="out2"/>
+    <output name="out_occlusion" type="float" nodename="extract_orm" output="out0"/>
+    <output name="out_roughness" type="float" nodename="extract_orm" output="out1"/>
+    <output name="out_metallic" type="float" nodename="extract_orm" output="out2"/>
   </nodegraph>
   <gltf_pbr name="SR_boombox" type="surfaceshader">
     <input name="base_color" type="color3" nodegraph="NG_boombox" output="out_basecolor" />
