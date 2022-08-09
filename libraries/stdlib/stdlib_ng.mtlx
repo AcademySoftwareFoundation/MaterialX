@@ -2086,7 +2086,7 @@
     <input name="in" type="vector3" value="0, 0, 0" />
     <input name="index0" type="integer" value="0" />
     <input name="index1" type="integer" value="1" />
-    <input name="index2" type="integer" value="1" />
+    <input name="index2" type="integer" value="2" />
     <extract name="extract0" type="float" >
       <input name="in" type="vector3" interfacename="in" value="0, 0, 0" />
       <input name="index" type="integer" uniform="true" interfacename="index0" value="0" />

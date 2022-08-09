@@ -4061,10 +4061,10 @@
   </nodedef>
   <nodedef name="ND_extract_color4_channels" node="extract" nodegroup="channel">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="index0" type="integer" value="0" uimin="0" uimax="2" uniform="true" />
-    <input name="index1" type="integer" value="1" uimin="0" uimax="2" uniform="true" />
-    <input name="index2" type="integer" value="2" uimin="0" uimax="2" uniform="true" />
-    <input name="index3" type="integer" value="3" uimin="0" uimax="2" uniform="true" />
+    <input name="index0" type="integer" value="0" uimin="0" uimax="3" uniform="true" />
+    <input name="index1" type="integer" value="1" uimin="0" uimax="3" uniform="true" />
+    <input name="index2" type="integer" value="2" uimin="0" uimax="3" uniform="true" />
+    <input name="index3" type="integer" value="3" uimin="0" uimax="3" uniform="true" />
     <output name="out0" type="float" default="0.0" />
     <output name="out1" type="float" default="0.0" />
     <output name="out2" type="float" default="0.0" />
@@ -4080,8 +4080,8 @@
   <nodedef name="ND_extract_vector3_channels" node="extract" nodegroup="channel">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="index0" type="integer" value="0" uimin="0" uimax="2" uniform="true" />
-    <input name="index1" type="integer" value="1" uimin="0" uimax="1" uniform="true" />
-    <input name="index2" type="integer" value="2" uimin="0" uimax="1" uniform="true" />
+    <input name="index1" type="integer" value="1" uimin="0" uimax="2" uniform="true" />
+    <input name="index2" type="integer" value="2" uimin="0" uimax="2" uniform="true" />
     <output name="out0" type="float" default="0.0" />
     <output name="out1" type="float" default="0.0" />
     <output name="out2" type="float" default="0.0" />
@@ -4089,9 +4089,9 @@
   <nodedef name="ND_extract_vector4_channels" node="extract" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="index0" type="integer" value="0" uimin="0" uimax="3" uniform="true" />
-    <input name="index1" type="integer" value="1" uimin="0" uimax="1" uniform="true" />
-    <input name="index2" type="integer" value="2" uimin="0" uimax="1" uniform="true" />
-    <input name="index3" type="integer" value="3" uimin="0" uimax="1" uniform="true" />
+    <input name="index1" type="integer" value="1" uimin="0" uimax="3" uniform="true" />
+    <input name="index2" type="integer" value="2" uimin="0" uimax="3" uniform="true" />
+    <input name="index3" type="integer" value="3" uimin="0" uimax="3" uniform="true" />
     <output name="out0" type="float" default="0.0" />
     <output name="out1" type="float" default="0.0" />
     <output name="out2" type="float" default="0.0" />
