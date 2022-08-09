@@ -2104,8 +2104,8 @@
     <output name="out2" type="float" nodename="extract2" />
   </nodegraph>
 
-  <nodegraph name="NG_extract_vector3_channels" nodedef="ND_extract_vector3_channels">
-    <input name="in" type="vector4" value="0, 0, 0" />
+  <nodegraph name="NG_extract_vector4_channels" nodedef="ND_extract_vector4_channels">
+    <input name="in" type="vector4" value="0, 0, 0, 0" />
     <input name="index0" type="integer" value="0" />
     <input name="index1" type="integer" value="1" />
     <input name="index2" type="integer" value="2" />
