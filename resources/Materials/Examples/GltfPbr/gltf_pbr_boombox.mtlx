@@ -22,31 +22,17 @@
       <input name="scale" type="float" value="1.0" />
       <input name="space" type="string" value="tangent" />
     </normalmap>
-    <extract name="extract_occlusion" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="0" />
-    </extract>
-    <extract name="extract_roughness" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="1" />
-    </extract>
-    <extract name="extract_metallic" type="float">
-      <input name="in" type="vector3" nodename="image_orm" />
-      <input name="index" type="integer" value="2" />
-    </extract>
     <output name="out_basecolor" type="color3" nodename="image_basecolor" />
     <output name="out_emission" type="color3" nodename="image_emission" />
     <output name="out_normal" type="vector3" nodename="normalmap" />
-    <output name="out_occlusion" type="float" nodename="extract_occlusion" />
-    <output name="out_roughness" type="float" nodename="extract_roughness" />
-    <output name="out_metallic" type="float" nodename="extract_metallic" />
+    <output name="out_orm" type="vector3" nodename="image_orm" />
   </nodegraph>
   <gltf_pbr name="SR_boombox" type="surfaceshader">
     <input name="base_color" type="color3" nodegraph="NG_boombox" output="out_basecolor" />
-    <input name="metallic" type="float" nodegraph="NG_boombox" output="out_metallic" />
-    <input name="roughness" type="float" nodegraph="NG_boombox" output="out_roughness" />
+    <input name="metallic" type="float" nodegraph="NG_boombox" output="out_orm" channels="z" />
+    <input name="roughness" type="float" nodegraph="NG_boombox" output="out_orm" channels="y"/>
     <input name="normal" type="vector3" nodegraph="NG_boombox" output="out_normal" />
-    <input name="occlusion" type="float" nodegraph="NG_boombox" output="out_occlusion" />	  
+    <input name="occlusion" type="float" nodegraph="NG_boombox" output="out_orm" channels="x"/>	  
     <input name="transmission" type="float" value="0" />
     <input name="ior" type="float" value="1.5" />
     <input name="specular" type="float" value="1" />
