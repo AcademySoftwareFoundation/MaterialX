@@ -2110,21 +2110,20 @@
     <output name="outw" type="float" nodename="N_w_vector4" />
   </nodegraph>
   <nodegraph name="NG_separatecolor4" nodedef="ND_separatecolor4">
-	<input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-	<swizzle name="swizzle_rgb" type="color3">
-	  <input name="in" type="color4" interfacename="in" />
-	  <input name="channels" type="string" value="rgb" />
-	</swizzle>
-	<swizzle name="swizzle_a" type="float">
-	  <input name="in" type="color4" interfacename="in" />
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <swizzle name="swizzle_rgb" type="color3">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="channels" type="string" value="rgb" />
+    </swizzle>
+    <swizzle name="swizzle_a" type="float">
+      <input name="in" type="color4" interfacename="in" />
       <input name="channels" type="string" value="a" />
-	</swizzle>
-	<output name="outcolor" type="color3" nodename="swizzle_rgb" />
-	<output name="outa" type="float" nodename="swizzle_a" />	  
+    </swizzle>
+    <output name="outcolor" type="color3" nodename="swizzle_rgb" />
+    <output name="outa" type="float" nodename="swizzle_a" />
   </nodegraph>
 
-
-	<!-- ======================================================================== -->
+  <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 
