@@ -153,7 +153,7 @@
     </combine4>
     <output name="out" type="vector4" nodename="combine1" />
   </nodegraph>
-  <nodegraph name="separatecolor4" type="vector4">
+  <nodegraph name="separatecolor4">
     <separatecolor4 name="separate1" type="multioutput">
       <input name="in" type="color4" value="0.2, 0.4, 0.6, 0.5" />
     </separatecolor4>
@@ -162,5 +162,15 @@
       <input name="in2" type="float" nodename="separate1" output="outa" />
     </combine2>
     <output name="out" type="color4" nodename="combine1" />
+  </nodegraph>
+ <nodegraph name="separate_image">
+    <tiledimage name="tiledimage" type="color4">
+      <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
+    </tiledimage>
+    <separatecolor4 name="separatec4" type="multioutput">
+      <input name="in" type="color4" nodename="tiledimage" />
+    </separatecolor4>
+    <output name="outcolor" type="color3" nodename="separatec4" output="outcolor" />
+    <output name="outa" type="float" nodename="separatec4" output="outa" />
   </nodegraph>
 </materialx>
