@@ -4086,6 +4086,11 @@
     <output name="outz" type="float" default="0.0" />
     <output name="outw" type="float" default="0.0" />
   </nodedef>
+  <nodedef name="ND_separatecolor4" node="separatecolor4" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="outcolor" type="color3" default="0.0, 0.0, 0.0" />
+    <output name="outa" type="float" default="0.0" />
+  </nodedef>	
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

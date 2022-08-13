@@ -1888,7 +1888,7 @@ void Viewer::renderFrame()
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
-        if (!material)
+        if (!material || !material->getProgram())
         {
             continue;
         }
