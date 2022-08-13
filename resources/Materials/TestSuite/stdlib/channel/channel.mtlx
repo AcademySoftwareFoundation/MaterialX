@@ -163,7 +163,7 @@
     </combine2>
     <output name="out" type="color4" nodename="combine1" />
   </nodegraph>
- <nodegraph name="separate_image">
+  <nodegraph name="separate_image">
     <tiledimage name="tiledimage" type="color4">
       <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />
     </tiledimage>
