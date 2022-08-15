@@ -2111,16 +2111,28 @@
   </nodegraph>
   <nodegraph name="NG_separatecolor4" nodedef="ND_separatecolor4">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <swizzle name="swizzle_rgb" type="color3">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="channels" type="string" value="rgb" />
-    </swizzle>
-    <swizzle name="swizzle_a" type="float">
-      <input name="in" type="color4" interfacename="in" />
-      <input name="channels" type="string" value="a" />
-    </swizzle>
-    <output name="outcolor" type="color3" nodename="swizzle_rgb" />
-    <output name="outa" type="float" nodename="swizzle_a" />
+    <extract name="extract" type="float" nodedef="ND_extract_color4" >
+      <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
+    </extract>
+    <extract name="extract1" type="float">
+      <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
+      <input name="index" type="integer" uniform="true" value="1" />
+    </extract>
+    <extract name="extract2" type="float">
+      <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
+      <input name="index" type="integer" uniform="true" value="2" />
+    </extract>
+    <extract name="extract3" type="float">
+      <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
+      <input name="index" type="integer" uniform="true" value="3" />
+    </extract>
+    <combine3 name="combine3" type="color3">
+      <input name="in1" type="float" nodename="extract" />
+      <input name="in2" type="float" nodename="extract1" />
+      <input name="in3" type="float" nodename="extract2" />
+    </combine3>
+    <output name="outcolor" type="color3" nodename="combine3" />
+    <output name="outa" type="float" nodename="extract3" />
   </nodegraph>
 
   <!-- ======================================================================== -->
