@@ -2111,7 +2111,7 @@
   </nodegraph>
   <nodegraph name="NG_separatecolor4" nodedef="ND_separatecolor4">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <extract name="extract" type="float" nodedef="ND_extract_color4" >
+    <extract name="extract" type="float">
       <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
     </extract>
     <extract name="extract1" type="float">
