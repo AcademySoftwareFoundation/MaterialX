@@ -33,7 +33,8 @@ def main():
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
-    #parser.add_argument(dest='inputFilename', help='Filename of the input document.')
+    parser.add_argument('--setupCMS', dest='setupCMS', default=False, type=bool, help='Set up color management.')
+    parser.add_argument('--setupUnits', dest='setupUnits', default=False, type=bool, help='Set up unit system.')
     opts = parser.parse_args()
 
     doc = mx.createDocument()
@@ -56,11 +57,12 @@ def main():
                 libraryFolders.append(library)
     libraryFolders.append("libraries/stdlib")
     libraryFolders.append("libraries/targets")
+
     try:
         mx.loadLibraries(libraryFolders, searchPath, stdlib)
         doc.importLibrary(stdlib)
     except mx.Error:
-        print('Generation failed: "', err, '"')
+        print('Generation failed: "', mx.Error, '"')
         sys.exit(-1)
 
     valid, msg = doc.validate()
@@ -93,60 +95,66 @@ def main():
 
     genoptions = context.getOptions() 
     genoptions.shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE)
+    genoptions.addUpstreamDependencies = False
+    genoptions.fileTextureVerticalFlip = True
+    
+    if opts.setupCMS:
+        print('- Set up CMS ...')
+        cms = mx_gen_shader.DefaultColorManagementSystem.create(shadergen.getTarget())  
+        cms.loadLibrary(doc)
+        shadergen.setColorManagementSystem(cms)  
 
-    #print('- Set up CMS ...')
-    #cms = mx_gen_shader.DefaultColorManagementSystem.create(shadergen.getTarget())  
-    #cms.loadLibrary(doc)
-    #shadergen.setColorManagementSystem(cms)  
-
-    #print('- Set up Units ...')
-    #unitsystem = mx_gen_shader.UnitSystem.create(shadergen.getTarget())
-    #registry = mx.UnitConverterRegistry.create()
-    #distanceTypeDef = doc.getUnitTypeDef('distance')
-    #registry.addUnitConverter(distanceTypeDef, mx.LinearUnitConverter.create(distanceTypeDef))
-    #angleTypeDef = doc.getUnitTypeDef('angle')
-    #registry.addUnitConverter(angleTypeDef, mx.LinearUnitConverter.create(angleTypeDef))
-    #unitsystem.loadLibrary(stdlib)
-    #unitsystem.setUnitConverterRegistry(registry)
-    #shadergen.setUnitSystem(unitsystem)
-    #genoptions.targetDistanceUnit = 'meter'
-
+    if opts.setupUnits:
+        print('- Set up Units ...')
+        unitsystem = mx_gen_shader.UnitSystem.create(shadergen.getTarget())
+        registry = mx.UnitConverterRegistry.create()
+        distanceTypeDef = doc.getUnitTypeDef('distance')
+        registry.addUnitConverter(distanceTypeDef, mx.LinearUnitConverter.create(distanceTypeDef))
+        angleTypeDef = doc.getUnitTypeDef('angle')
+        registry.addUnitConverter(angleTypeDef, mx.LinearUnitConverter.create(angleTypeDef))
+        unitsystem.loadLibrary(stdlib)
+        unitsystem.setUnitConverterRegistry(registry)
+        shadergen.setUnitSystem(unitsystem)
+        genoptions.targetDistanceUnit = 'meter'
 
     pathPrefix = ''
     if opts.outputPath and os.path.exists(opts.outputPath):
         pathPrefix = opts.outputPath + os.path.sep
     print('- Shader output path: ' + pathPrefix)
 
-    ignoreNodeList = [ "surfacematerial", "volumematerial", "constant_filename", "arrayappend", "dot_filename" ]
+    ignoreNodeList = [ "surfacematerial", "volumematerial", "constant", "arrayappend", "dot_filename" ]
+    ignoreTypeList = [ "surfaceshader", "volumenshader", "lightshader" ]
+    missingImplementations = []
 
     failedShaders = ""
     nodedefs = doc.getNodeDefs()
     print('Nodedef count: ' + str(len(nodedefs)))
     for nodedef in nodedefs:
         
-        if nodedef.getNodeString() in ignoreNodeList:
+        nodeName = nodedef.getName()
+
+        if nodedef.getNodeString() in ignoreNodeList or nodedef.getType() in ignoreTypeList:
+            print('--- Skip nodedef: ' + nodeName)
             continue
 
-        nodeName = nodedef.getName()
-        print('-- Generate code for nodedef: ' + nodeName)
-        nodeName = doc.createValidChildName(nodeName + '_' + nodedef.getType())
+        # Strip out the ND_ if it's there
+        functionName = nodeName.removeprefix('ND_')
+        functionName = doc.createValidChildName(functionName)
+        print('-- Generate code for nodedef: ' + nodeName, '. Function: ', functionName)
 
         nodeinterface = nodedef.getImplementation()
         if not nodeinterface: 
-            print('-- Cannot find implementation.')
+            missingImplementations.append(nodeName)
             continue
 
-        print('-- Add node  for nodedef: ' + nodeName)
-        node = doc.addNodeInstance(nodedef, nodeName)
+        node = doc.addNodeInstance(nodedef, functionName)
         if not node:
-            print("--- Shader generation failed for node:", nodeName)
             failedShaders += (nodeName + ' ')
             continue
 
         try:
-            shader = shadergen.generate(nodeName, node, context)   
+            shader = shadergen.generate(functionName, node, context)   
         except:
-            print("--- Shader generation failed for node:", nodeName)
             failedShaders += (nodeName + ' ')
             continue;
         
@@ -155,8 +163,7 @@ def main():
             # recognized by glslangValidator
             if gentarget in ['glsl', 'essl', 'vulkan']:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
-                filename = pathPrefix + shader.getName() + "." + gentarget
-                print('--- Wrote pixel shader to: ' + filename)
+                filename = pathPrefix + shader.getName() + "." + gentarget + ".frag"
                 file = open(filename, 'w+')
                 file.write(pixelSource)
                 file.close()
@@ -165,7 +172,6 @@ def main():
             else:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                 filename = pathPrefix + shader.getName() + "." + gentarget
-                print('--- Wrote pixel shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(pixelSource)
                 file.close()
@@ -182,8 +188,12 @@ def main():
                     print("--- Validation passed for node:", nodeName)
 
         else:
-            print("--- Shader generation failed for node:", nodeName)
             failedShaders += (nodeName + ' ')
+
+    print("- Definitions with missing implementations:")
+    print(missingImplementations)
+    print("- Failed shader generations:")
+    print(failedShaders)
 
     if failedShaders != "":
         sys.exit(-1)
