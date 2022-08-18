@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+  <!-- Image * constant color test -->
+  <gltf_coloredimage name="gltf_colored_image" type="multioutput" >
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+    <input name="uvtiling" type="vector2" value="2.0, 2.0" />
+    <input name="uvoffset" type="vector2" value="0.5, 0.5" />
+    <input name="filtertype" type="string" value="closest" />
+    <input name="frameendaction" type="string" value="clamp" />	  
+    <input name="geomcolor" type="color4" value="1.0, 0.5, 1.0, 1.0" />
+    <input name="color" type="color4" value="1.0, 1.0, 0.5, 0.5" />
+    <output name="outcolor" type="color3" />
+    <output name="outa" type="float" />
+  </gltf_coloredimage>
+  <gltf_pbr name="gltf_colorimage_shader" type="surfaceshader" >
+    <input name="base_color" type="color3" nodename="gltf_colored_image" output="outcolor" />
+    <input name="alpha" type="float" nodename="gltf_colored_image" output="outa" />
+    <input name="alpha_mode" type="integer" value="2" />
+  </gltf_pbr>
+  <surfacematerial name="gltf_colorimage_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="gltf_colorimage_shader" />
+  </surfacematerial>	
+
+  <!-- Image * geometry color test -->
+  <geomcolor name="geomcolor1" type="color4" />
+  <gltf_coloredimage name="gltf_geomcolored_image" type="multioutput" >
+    <input name="file" type="filename" value="resources/Images/grid.png" />
+    <input name="uvtiling" type="vector2" value="2.0, 2.0" />
+    <input name="uvoffset" type="vector2" value="0.5, 0.5" />
+    <input name="filtertype" type="string" value="closest" />
+    <input name="frameendaction" type="string" value="clamp" />	  
+    <input name="geomcolor" type="color4" nodename="geomcolor1" />
+    <input name="color" type="color4" value="1.0, 1.0, 0.5, 0.5" />
+    <output name="outcolor" type="color3" />
+    <output name="outa" type="float" />
+  </gltf_coloredimage>
+  <gltf_pbr name="gltf_geomcolorimage_shader" type="surfaceshader" >
+    <input name="base_color" type="color3" nodename="gltf_geomcolored_image" output="outcolor" />
+    <input name="alpha" type="float" nodename="gltf_geomcolored_image" output="outa" />
+    <input name="alpha_mode" type="integer" value="2" />
+  </gltf_pbr>
+  <surfacematerial name="gltf_geomcolorimage_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="gltf_geomcolorimage_shader" />
+  </surfacematerial>	
+
+</materialx>

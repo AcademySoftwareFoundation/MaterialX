@@ -266,4 +266,78 @@
     </surface>
     <output name="out" type="surfaceshader" nodename="shader_constructor" />
   </nodegraph>
+	
+<!--
+    Node: <gltf_coloredimage> Supplemental Node
+    Multiply a color4 tiledimage color image by an input color. Default color is 1,1,1,1 which results in no change to the image.
+  -->
+  <nodedef name="ND_gltf_colortiledimage" node="gltf_coloredimage" version="0.0.1" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
+    <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
+    <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" uifolder="Image" />	  
+    <input name="index" type="integer" value="0" uifolder="Image" />
+    <input name="uvtiling" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="uvoffset" type="vector2" value="0, 0" uifolder="Image" />
+    <input name="realworldimagesize" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="realworldtilesize" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="filtertype" type="string" uniform="true" value="linear" uifolder="Image" />
+    <input name="framerange" type="string" uniform="true" value="" uifolder="Image" />
+    <input name="frameoffset" type="integer" value="0" uifolder="Image" />
+    <input name="frameendaction" type="string" uniform="true" value="constant" uifolder="Image" />
+    <input name="color" type="color4" value="1, 1, 1, 1" uifolder="Color" />
+    <input name="geomcolor" type="color4" value="1, 1, 1, 1" uifolder="Color" uiname="Geometry Color" />
+    <output name="outcolor" type="color3" value="0, 0, 0" />
+    <output name="outa" type="float" value="0" />
+  </nodedef>
+
+  <nodegraph name="NG_gltf_colortiledimage" nodedef="ND_gltf_colortiledimage" >
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="index" type="integer" value="0" />
+    <input name="uvtiling" type="vector2" value="1, 1" />
+    <input name="uvoffset" type="vector2" value="0, 0" />
+    <input name="realworldimagesize" type="vector2" value="1, 1" />
+    <input name="realworldtilesize" type="vector2" value="1, 1" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="framerange" type="string" uniform="true" value="" />
+    <input name="frameoffset" type="integer" value="0" />
+    <input name="frameendaction" type="string" uniform="true" value="constant" />
+    <input name="color" type="color4" value="1, 1, 1, 1" />
+    <input name="geomcolor" type="color4" value="1, 1, 1, 1" />
+    <tiledimage name="tiledimage" type="color4" >
+      <input name="file" type="filename" uniform="true" interfacename="file" value="" />
+      <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" value="0, 0" />
+      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="1, 1" />
+      <input name="uvoffset" type="vector2" interfacename="uvoffset" value="0, 0" />
+      <input name="realworldimagesize" type="vector2" interfacename="realworldimagesize" value="1, 1" />
+      <input name="realworldtilesize" type="vector2" interfacename="realworldtilesize" value="1, 1" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="framerange" type="string" uniform="true" interfacename="framerange" />
+      <input name="frameoffset" type="integer" uniform="true" interfacename="frameoffset" value="0" />
+      <input name="frameendaction" type="string" uniform="true" interfacename="frameendaction" value="constant" />
+    </tiledimage>
+    <multiply name="modulate_color" type="color4">
+      <input name="in1" type="color4" interfacename="color" />
+      <input name="in2" type="color4" nodename="tiledimage" />
+    </multiply>
+    <multiply name="modulate_geomcolor" type="color4">
+      <input name="in1" type="color4" nodename="modulate_color" />
+      <input name="in2" type="color4" interfacename="geomcolor" />
+    </multiply>
+    <separate4 name="separate_color" type="multioutput">
+      <input name="in" type="color4" nodename="modulate_geomcolor" />
+    </separate4>
+    <combine3 name="combine_color" type="color3">
+      <input name="in1" type="float" nodename="separate_color" output="outr" />
+      <input name="in2" type="float" nodename="separate_color" output="outg" />
+      <input name="in3" type="float" nodename="separate_color" output="outb" />
+    </combine3>
+    <dot name="separate_alpha" type="float">
+      <input name="in" type="float" nodename="separate_color" output="outb" />
+    </dot>
+    <output name="outcolor" type="color3" nodename="combine_color" />
+    <output name="outa" type="float" nodename="separate_alpha" />
+  </nodegraph>		
+	
 </materialx>
