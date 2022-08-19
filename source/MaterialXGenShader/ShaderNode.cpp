@@ -146,6 +146,7 @@ const string ShaderNode::TEXTURE2D_GROUPNAME = "texture2d";
 const string ShaderNode::TEXTURE3D_GROUPNAME = "texture3d";
 const string ShaderNode::PROCEDURAL2D_GROUPNAME = "procedural2d";
 const string ShaderNode::PROCEDURAL3D_GROUPNAME = "procedural3d";
+const string ShaderNode::GEOMETRIC_GROUPNAME = "geometric";
 
 //
 // ShaderNode methods
@@ -373,6 +374,10 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (groupName == TEXTURE3D_GROUPNAME || groupName == PROCEDURAL3D_GROUPNAME)
     {
         newNode->_classification |= Classification::SAMPLE3D;
+    }
+    else if (groupName == GEOMETRIC_GROUPNAME)
+    {
+        newNode->_classification |= Classification::GEOMETRIC;
     }
 
     // Create any metadata.

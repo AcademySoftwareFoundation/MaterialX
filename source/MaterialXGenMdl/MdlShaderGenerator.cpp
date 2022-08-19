@@ -546,10 +546,7 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
     VariableBlockPtr outputs = stage->createOutputBlock(MDL::OUTPUTS);
 
     // Create shader variables for all nodes that need this.
-    for (ShaderNode* node : graph->getNodes())
-    {
-        node->getImplementation().createVariables(*node, context, *shader);
-    }
+    createVariables(graph, context, *shader);
 
     // Create inputs for the published graph interface.
     for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
