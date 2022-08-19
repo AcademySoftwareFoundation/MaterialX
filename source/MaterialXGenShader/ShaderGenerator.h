@@ -214,6 +214,10 @@ class MX_GENSHADER_API ShaderGenerator
     /// Replace tokens with identifiers according to the given substitutions map.
     void replaceTokens(const StringMap& substitutions, ShaderStage& stage) const;
 
+    /// Create shader variables (e.g. uniforms, inputs and outputs) for
+    /// nodes that require input data from the application.
+    void createVariables(ShaderGraphPtr graph, GenContext& context, Shader& shader) const;
+
   protected:
     static const string T_FILE_TRANSFORM_UV;
 

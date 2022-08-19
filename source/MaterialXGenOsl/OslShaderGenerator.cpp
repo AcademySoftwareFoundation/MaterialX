@@ -371,10 +371,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     stage->createOutputBlock(OSL::OUTPUTS);
 
     // Create shader variables for all nodes that need this.
-    for (ShaderNode* node : graph->getNodes())
-    {
-        node->getImplementation().createVariables(*node, context, *shader);
-    }
+    createVariables(graph, context, *shader);
 
     // Create uniforms for the published graph interface.
     VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);
