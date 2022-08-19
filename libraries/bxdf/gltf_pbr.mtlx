@@ -269,58 +269,59 @@
 	
 <!--
     Node: <gltf_colorimage> Supplemental Node
-    Multiply a color4 tiledimage color image by an input color and geometry color. Default for both colors is 1,1,1,1 which results in no change to the image.
+    Multiply a color4 image modulated by uniform color and geometry color. Default uniform and geometry colors are 1,1,1,1 which results in no change to the image.
   -->
-  <nodedef name="ND_gltf_colortiledimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d" 
-           doc="Node to allow an image to be modulated by both a uniform color scaling and a geometric input color">
+  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="0.0.1" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
-    <input name="texcoord" type="vector2" value="0, 0" defaultgeomprop="UV0" uifolder="Image" />	  
-    <input name="index" type="integer" value="0" uifolder="Image" />
-    <input name="uvtiling" type="vector2" value="1, 1" uifolder="Image" />
-    <input name="uvoffset" type="vector2" value="0, 0" uifolder="Image" />
-    <input name="realworldimagesize" type="vector2" value="1, 1" uifolder="Image" />
-    <input name="realworldtilesize" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="uvindex" type="integer" value="0" uifolder="Image" />	  
+    <input name="pivot" type="vector2" value="0, 1" uifolder="Image" />
+    <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
+    <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
+    <input name="operationorder" type="integer" value="1" uifolder="Image" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" uifolder="Image"/>
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" uifolder="Image"/>
     <input name="filtertype" type="string" uniform="true" value="linear" uifolder="Image" />
-    <input name="framerange" type="string" uniform="true" value="" uifolder="Image" />
-    <input name="frameoffset" type="integer" value="0" uifolder="Image" />
-    <input name="frameendaction" type="string" uniform="true" value="constant" uifolder="Image" />
-    <input name="color" type="color4" value="1, 1, 1, 1" uniform="true" uifolder="Color" />
+    <input name="color" type="color4" value="1, 1, 1, 1" uifolder="Color" />
     <input name="geomcolor" type="color4" value="1, 1, 1, 1" uifolder="Color" uiname="Geometry Color" />
     <output name="outcolor" type="color3" value="0, 0, 0" />
     <output name="outa" type="float" value="0" />
   </nodedef>
 
-  <nodegraph name="NG_gltf_colortiledimage" nodedef="ND_gltf_colortiledimage" >
+  <nodegraph name="NG_gltf_colorimage" nodedef="ND_gltf_colorimage" >
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="index" type="integer" value="0" />
-    <input name="uvtiling" type="vector2" value="1, 1" />
-    <input name="uvoffset" type="vector2" value="0, 0" />
-    <input name="realworldimagesize" type="vector2" value="1, 1" />
-    <input name="realworldtilesize" type="vector2" value="1, 1" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="1" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
     <input name="filtertype" type="string" uniform="true" value="linear" />
-    <input name="framerange" type="string" uniform="true" value="" />
-    <input name="frameoffset" type="integer" value="0" />
-    <input name="frameendaction" type="string" uniform="true" value="constant" />
     <input name="color" type="color4" value="1, 1, 1, 1" />
     <input name="geomcolor" type="color4" value="1, 1, 1, 1" />
-    <tiledimage name="tiledimage" type="color4" >
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <gltf_image name="image" type="color4" >
       <input name="file" type="filename" uniform="true" interfacename="file" value="" />
       <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
-      <input name="texcoord" type="vector2" interfacename="texcoord" value="0, 0" />
-      <input name="uvtiling" type="vector2" interfacename="uvtiling" value="1, 1" />
-      <input name="uvoffset" type="vector2" interfacename="uvoffset" value="0, 0" />
-      <input name="realworldimagesize" type="vector2" interfacename="realworldimagesize" value="1, 1" />
-      <input name="realworldtilesize" type="vector2" interfacename="realworldtilesize" value="1, 1" />
+      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="scale" type="vector2" interfacename="scale" value="1, 1" />
+      <input name="rotate" type="float" interfacename="rotate" value="0" />
+      <input name="offset" type="vector2" interfacename="offset" value="0, 0" />
+      <input name="operationorder" type="integer" value="0" />
+      <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" value="periodic" />
       <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
-      <input name="framerange" type="string" uniform="true" interfacename="framerange" />
-      <input name="frameoffset" type="integer" uniform="true" interfacename="frameoffset" value="0" />
-      <input name="frameendaction" type="string" uniform="true" interfacename="frameendaction" value="constant" />
-    </tiledimage>
+    </gltf_image>
     <multiply name="modulate_color" type="color4">
       <input name="in1" type="color4" interfacename="color" />
-      <input name="in2" type="color4" nodename="tiledimage" />
+      <input name="in2" type="color4" nodename="image" />
     </multiply>
     <multiply name="modulate_geomcolor" type="color4">
       <input name="in1" type="color4" nodename="modulate_color" />
@@ -335,10 +336,333 @@
       <input name="in3" type="float" nodename="separate_color" output="outb" />
     </combine3>
     <dot name="separate_alpha" type="float">
-      <input name="in" type="float" nodename="separate_color" output="outb" />
+      <input name="in" type="float" nodename="separate_color" output="outa" />
     </dot>
     <output name="outcolor" type="color3" nodename="combine_color" />
     <output name="outa" type="float" nodename="separate_alpha" />
   </nodegraph>		
 	
+  <!--- 
+        Node: <gltf_image> 
+        color3 image lookup which matches glTF
+  -->
+  <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color3" value="0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <output name="out" type="color3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_NG_gltf_image_color3_color3_1_0" nodedef="ND_gltf_image_color3_color3_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="default" type="color3" value="0, 0, 0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <image name="image" type="color3">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="color3" interfacename="default" value="0, 0, 0" />
+      <input name="texcoord" type="vector2" nodename="place2d" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+    </image>
+    <divide name="invert_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </divide>
+    <multiply name="negate_rotate" type="float">
+      <input name="in1" type="float" interfacename="rotate"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+    <multiply name="negate_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="offset"/>
+      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+    </multiply>
+    <place2d name="place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="scale" type="vector2" nodename="invert_scale" />
+      <input name="rotate" type="float" nodename="negate_rotate" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+    </place2d>
+    <output name="out" type="color3" nodename="image" />
+  </nodegraph>
+
+  <!--- 
+        Node: <gltf_image> 
+        color4 image lookup which matches glTF
+  -->
+  <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="1" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <output name="out" type="color4" value="0, 0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_image_color4_color4_1_0" nodedef="ND_gltf_image_color4_color4_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="color4" value="0, 0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="1" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <image name="image" type="color4">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
+      <input name="texcoord" type="vector2" nodename="place2d" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+    </image>
+    <divide name="invert_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </divide>
+    <multiply name="negate_rotate" type="float">
+      <input name="in1" type="float" interfacename="rotate"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+    <multiply name="negate_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="offset"/>
+      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+    </multiply>
+    <place2d name="place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="scale" type="vector2" nodename="invert_scale" />
+      <input name="rotate" type="float" nodename="negate_rotate" />
+      <input name="offset" type="vector2" nodename="negate_offset"/>
+      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+    </place2d>
+    <output name="out" type="color4" nodename="image" />
+  </nodegraph>
+
+  <!--- 
+        Node: <gltf_image> 
+        float image lookup which matches glTF
+  -->      
+  <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="float" value="0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <output name="out" type="float" value="0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_image_float_float_1_0" nodedef="ND_gltf_image_float_float_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="float" value="0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <image name="image" type="float">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="float" interfacename="default" value="0" />
+      <input name="texcoord" type="vector2" nodename="place2d" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+    </image>
+    <divide name="invert_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </divide>
+    <multiply name="negate_rotate" type="float">
+      <input name="in1" type="float" interfacename="rotate"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+    <multiply name="negate_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="offset"/>
+      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+    </multiply>
+    <place2d name="place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="scale" type="vector2" nodename="invert_scale" />
+      <input name="rotate" type="float" nodename="negate_rotate" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+    </place2d>
+    <output name="out" type="float" nodename="image" />
+  </nodegraph>
+
+  <!--- 
+    Node: <gltf_image> 
+    vector3 image lookup which matches glTF
+  -->            
+  <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="vector3" value="0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <output name="out" type="vector3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_image_vector3_vector3_1_0"  nodedef="ND_gltf_image_vector3_vector3_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="vector3" value="0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <image name="image" type="vector3">
+      <input name="file" type="filename" uniform="true" interfacename="file"/>
+      <input name="default" type="vector3" interfacename="default" value="0, 0, 0"/>
+      <input name="texcoord" type="vector2" nodename="place2d"/>
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic"/>
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic"/>
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear"/>
+    </image>
+    <divide name="invert_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </divide>
+    <multiply name="negate_rotate" type="float">
+      <input name="in1" type="float" interfacename="rotate"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+    <multiply name="negate_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="offset"/>
+      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+    </multiply>
+    <place2d name="place2d" type="vector2">
+      <input name="texcoord" type="vector2" nodename="texcoord1"/>
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1"/>
+      <input name="scale" type="vector2" nodename="invert_scale" />
+      <input name="rotate" type="float" nodename="negate_rotate" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" value="0"/>
+    </place2d>
+    <output name="out" type="vector3" nodename="image" />
+  </nodegraph>
+
+  <!--- 
+    Node: <gltf_normalmap> 
+    normalmap image lookup which matches glTF
+  -->                  
+  <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <output name="out" type="vector3" value="0, 0, 0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_normalmap_vector3_1_0" nodedef="ND_gltf_normalmap_vector3_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="vector3" value="0.5, 0.5, 1" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 1" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="operationorder" type="integer" value="0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <texcoord name="texcoord1" type="vector2">
+      <input name="index" type="integer" uniform="true" interfacename="uvindex" />
+    </texcoord>
+    <image name="image" type="vector3">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="vector3" interfacename="default" value="0.5, 0.5, 1" />
+      <input name="texcoord" type="vector2" nodename="place2d" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+    </image>
+    <normalmap name="normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="image" />
+    </normalmap>
+    <divide name="invert_scale" type="vector2">
+      <input name="in1" type="vector2" value="1.0, 1.0"/>
+      <input name="in2" type="vector2" interfacename="scale"/>
+    </divide>
+    <multiply name="negate_rotate" type="float">
+      <input name="in1" type="float" interfacename="rotate"/>
+      <input name="in2" type="float" value="-1.0"/>
+    </multiply>
+    <multiply name="negate_offset" type="vector2">
+      <input name="in1" type="vector2" interfacename="offset"/>
+      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+    </multiply>
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" >
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="scale" type="vector2" nodename="invert_scale" value="1, 1" />
+      <input name="rotate" type="float" nodename="negate_rotate" />
+      <input name="offset" type="vector2" nodename ="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+    </place2d>
+    <output name="out" type="vector3" nodename="normalmap" />
+  </nodegraph>
+
 </materialx>
