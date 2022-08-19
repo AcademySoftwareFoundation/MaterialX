@@ -401,7 +401,6 @@ void variableTracker(mx::ShaderNode* node, mx::GenContext& /*context*/)
     }
 }
 
-
 TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 {
     std::string testDocumentString = 
@@ -447,8 +446,6 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 
     mx::ElementPtr element = testDoc->getChild(testElement);
     CHECK(element);
-
-
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
