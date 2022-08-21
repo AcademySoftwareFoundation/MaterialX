@@ -18,7 +18,7 @@
     <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" />
-    <input name="normal" type="vector3" value="0, 0, 1" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="displacement" type="float" value="0" />
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
     <output name="out" type="surfaceshader" />
