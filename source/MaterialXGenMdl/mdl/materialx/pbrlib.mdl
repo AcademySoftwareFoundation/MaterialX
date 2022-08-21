@@ -269,9 +269,9 @@ export material mx_generalized_schlick_bsdf(
 
 export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
-    color  mxp_color     = color(0.18) [[ anno::unused() ]],
-    float3 mxp_radius    = float3(1.0) [[ anno::unused() ]], // TODO: should probably be a color in MTLX Spec
-    float  mxp_anisotropy = 0.0 [[ anno::unused() ]],
+    color  mxp_color     = color(0.18),
+    float3 mxp_radius    = float3(1.0), // TODO: should probably be a color in MTLX Spec
+    float  mxp_anisotropy = 0.0,
     float3 mxp_normal    = state::normal() [[ anno::unused() ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
