@@ -66,7 +66,8 @@ mx::FileSearchPath getDefaultSearchPath()
     // Always include current path. Add in parent install path afterwards.
     // This prevents accidently picking up any "libraries" folder which are created
     // for development builds.
-    mx::FileSearchPath searchPath = modulePath;
+    mx::FileSearchPath searchPath;
+    searchPath.append(modulePath);
     if ((parentPath / "libraries").exists())
     {
         searchPath.append(parentPath);
