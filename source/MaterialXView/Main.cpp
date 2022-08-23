@@ -61,17 +61,15 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
 mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
+    mx::FilePath parentPath = modulePath.getParentPath();
 
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
+    // Always include current path. Add in parent install path afterwards.
+    // This prevents accidently picking up any "libraries" folder which are created
+    // for development builds.
+    mx::FileSearchPath searchPath = modulePath;
+    if ((parentPath / "libraries").exists())
     {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
+        searchPath.append(parentPath);
     }
 
     return searchPath;
