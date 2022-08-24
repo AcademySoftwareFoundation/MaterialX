@@ -15,7 +15,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
 {
     // Generate tangent frame.
     vec3 Y = normalize(cross(N, X));
-    X = cross(Y, N);
+    X = normalize(cross(Y, N));
     mat3 tangentToWorld = mat3(X, Y, N);
 
     // Transform the view vector to tangent space.
