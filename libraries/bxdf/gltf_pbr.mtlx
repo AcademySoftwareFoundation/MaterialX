@@ -348,6 +348,7 @@
   -->
   <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="color3" value="1,1,1" />
     <input name="default" type="color3" value="0, 0, 0" />
     <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -362,8 +363,9 @@
   </nodedef>
   <nodegraph name="NG_NG_gltf_image_color3_color3_1_0" nodedef="ND_gltf_image_color3_color3_1_0">
     <input name="file" type="filename" uniform="true" value="" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="factor" type="color3" value="1,1,1" />
     <input name="default" type="color3" value="0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" />
@@ -403,7 +405,11 @@
       <input name="offset" type="vector2" nodename="negate_offset" />
       <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
     </place2d>
-    <output name="out" type="color3" nodename="image" />
+    <multiply name="scale_image" type="color3">
+      <input name="in1" type="color3" interfacename="factor" />
+      <input name="in2" type="color3" nodename="image" />
+    </multiply>
+    <output name="out" type="color3" nodename="scale_image" />
   </nodegraph>
 
   <!--- 
@@ -412,6 +418,7 @@
   -->
   <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="color4" value="1,1,1,1" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
     <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -426,6 +433,7 @@
   </nodedef>
   <nodegraph name="NG_gltf_image_color4_color4_1_0" nodedef="ND_gltf_image_color4_color4_1_0">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="color4" value="1,1,1,1" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
     <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -467,7 +475,11 @@
       <input name="offset" type="vector2" nodename="negate_offset"/>
       <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
     </place2d>
-    <output name="out" type="color4" nodename="image" />
+    <multiply name="scale_image" type="color4">
+      <input name="in1" type="color4" interfacename="factor" />
+      <input name="in2" type="color4" nodename="image" />
+    </multiply>
+    <output name="out" type="color4" nodename="scale_image" />
   </nodegraph>
 
   <!--- 
@@ -476,6 +488,7 @@
   -->      
   <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="float" value="1" />
     <input name="default" type="float" value="0" />
     <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -490,6 +503,7 @@
   </nodedef>
   <nodegraph name="NG_gltf_image_float_float_1_0" nodedef="ND_gltf_image_float_float_1_0">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="float" value="1" />
     <input name="default" type="float" value="0" />
     <input name="uvindex" type="integer" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -531,7 +545,11 @@
       <input name="offset" type="vector2" nodename="negate_offset" />
       <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
     </place2d>
-    <output name="out" type="float" nodename="image" />
+    <multiply name="scale_image" type="float">
+      <input name="in1" type="float" interfacename="factor" />
+      <input name="in2" type="float" nodename="image" />
+    </multiply>
+    <output name="out" type="float" nodename="scale_image" />
   </nodegraph>
 
   <!--- 
@@ -665,4 +683,60 @@
     <output name="out" type="vector3" nodename="normalmap" />
   </nodegraph>
 
+  <!--
+    Node: <gltf_iridescence> 
+    normalmap image lookup which matches glTF  
+  -->
+  <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+    <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
+    <input name="default" type="vector3" value="0, 0, 0" uifolder="Image" />
+    <input name="uvindex" type="integer" value="0" uifolder="Image" />
+    <input name="pivot" type="vector2" value="0, 0" uifolder="Image" />
+    <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
+    <input name="rotate" type="float" value="0" uifolder="Image" />
+    <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" />
+    <input name="filtertype" type="string" uniform="true" value="linear" uifolder="Image" />
+    <input name="thicknessMin" type="float" value="100" uifolder="Thickness" />
+    <input name="thicknessMax" type="float" value="400" uifolder="Thickness" />
+    <output name="out" type="float" value="0" />
+  </nodedef>
+  <nodegraph name="NG_gltf_iridescence_thickness_float_1_0" nodedef="ND_gltf_iridescence_thickness_float_1_0">
+    <input name="file" type="filename" uniform="true" value="" />
+    <input name="default" type="vector3" value="0, 0, 0" />
+    <input name="uvindex" type="integer" value="0" />
+    <input name="pivot" type="vector2" value="0, 0" />
+    <input name="scale" type="vector2" value="1, 1" />
+    <input name="rotate" type="float" value="0" />
+    <input name="offset" type="vector2" value="0, 0" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="thicknessMin" type="float" value="100" />
+    <input name="thicknessMax" type="float" value="400" />
+    <mix name="mixThickness" type="float" nodedef="ND_mix_float" >
+      <input name="fg" type="float" interfacename="thicknessMin" value="0" />
+      <input name="bg" type="float" interfacename="thicknessMax" value="0" />
+      <input name="mix" type="float" nodename="extract" />
+    </mix>
+    <gltf_image name="thickness_image" type="vector3" >
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="vector3" interfacename="default" value="0, 0, 0" />
+      <input name="uvindex" type="integer" interfacename="uvindex" value="0" />
+      <input name="pivot" type="vector2" interfacename="pivot" value="0, 0" />
+      <input name="scale" type="vector2" interfacename="scale" value="1, 1" />
+      <input name="rotate" type="float" interfacename="rotate" value="0" />
+      <input name="offset" type="vector2" interfacename="offset" value="0, 0" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+    </gltf_image>
+    <extract name="extract" type="float" >
+      <input name="in" type="vector3" nodename="thickness_image" />
+      <input name="index" type="integer" uniform="true" value="1" />
+    </extract>
+    <output name="out" type="float" nodename="mixThickness" />
+  </nodegraph>
+  
 </materialx>
