@@ -180,7 +180,9 @@ void GLFramebuffer::unbind()
 
 ImagePtr GLFramebuffer::getColorImage(ImagePtr image)
 {
-    if (!image)
+    if (!image || (image && 
+        (image->getWidth() != _width || image->getHeight() != _height || image->getChannelCount() != _channelCount || 
+         image->getBaseType() != _baseType)))
     {
         image = Image::create(_width, _height, _channelCount, _baseType);
         image->createResourceBuffer();

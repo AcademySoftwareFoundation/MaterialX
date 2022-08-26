@@ -230,6 +230,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _generateReferenceIrradiance(false),
     _saveGeneratedLights(false),
     _shadowSoftness(1),
+    _shadowMapDirty(true),
     _ambientOcclusionGain(0.6f),
     _selectedGeom(0),
     _geomLabel(nullptr),
@@ -2494,8 +2495,10 @@ MaterialPtr Viewer::getWireframeMaterial()
 
 mx::ImagePtr Viewer::getShadowMap()
 {
-    if (!_shadowMap)
+    if (_shadowMapDirty)
     {
+        _shadowMapDirty = false;
+
         // Generate shaders for shadow rendering.
         if (!_shadowMaterial)
         {
@@ -2529,8 +2532,12 @@ mx::ImagePtr Viewer::getShadowMap()
         if (_shadowMaterial && _shadowBlurMaterial)
         {
             // Create framebuffer.
-            mx::GLFramebufferPtr framebuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
-            framebuffer->bind();
+            if (!_shadowFrameBuffer)
+            {
+                _shadowFrameBuffer = mx::GLFramebuffer::create(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 2, mx::Image::BaseType::FLOAT);
+            }
+
+            _shadowFrameBuffer->bind();
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -2546,7 +2553,8 @@ mx::ImagePtr Viewer::getShadowMap()
                     _shadowMaterial->drawPartition(geom);
                 }
             }
-            _shadowMap = framebuffer->getColorImage();
+            _shadowMap = _shadowFrameBuffer->getColorImage(_shadowMap);
+            _imageHandler->createRenderResources(_shadowMap, true);
 
             // Apply Gaussian blurring.
             mx::ImageSamplingProperties blurSamplingProperties;
@@ -2555,7 +2563,7 @@ mx::ImagePtr Viewer::getShadowMap()
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
             for (unsigned int i = 0; i < _shadowSoftness; i++)
             {
-                framebuffer->bind();
+                _shadowFrameBuffer->bind();
                 _shadowBlurMaterial->bindShader();
                 if (_imageHandler->bindImage(_shadowMap, blurSamplingProperties))
                 {
@@ -2568,8 +2576,7 @@ mx::ImagePtr Viewer::getShadowMap()
                 }
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
                 renderScreenSpaceQuad(_shadowBlurMaterial);
-                _imageHandler->releaseRenderResources(_shadowMap);
-                _shadowMap = framebuffer->getColorImage();
+                _shadowMap = _shadowFrameBuffer->getColorImage(_shadowMap);
             }
 
             // Restore state for scene rendering.
@@ -2584,11 +2591,7 @@ mx::ImagePtr Viewer::getShadowMap()
 
 void Viewer::invalidateShadowMap()
 {
-    if (_shadowMap)
-    {
-        _imageHandler->releaseRenderResources(_shadowMap);
-        _shadowMap = nullptr;
-    }
+    _shadowMapDirty = true;
 }
 
 void Viewer::updateAlbedoTable()
