@@ -19,7 +19,6 @@ ShaderNodeImplPtr ClosureLayerNodeOsl::create()
 void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    ClosureContext* cct = context.getClosureContext();
 
     ShaderNode& node = const_cast<ShaderNode&>(_node);
 
@@ -37,6 +36,10 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
     ShaderNode* top = topInput->getConnection()->getNode();
     ShaderNode* base = baseInput->getConnection()->getNode();
+
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+
+    ClosureContext* cct = context.getClosureContext();
 
     if (top->hasClassification(ShaderNode::Classification::THINFILM))
     {
@@ -102,6 +105,49 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
             shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
         }
     }
+
+#else
+
+    if (top->hasClassification(ShaderNode::Classification::THINFILM))
+    {
+        // Make sure the connection to base is a sibling node and not the graph interface.
+        if (base->getParent() != node.getParent())
+        {
+            throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
+        }
+
+        // TODO: Thin-film is not supported yet.
+        // Emit the function call for base layer but
+        // store the base result in the layer result variable.
+        ScopedSetVariableName setVariable(output->getVariable(), base->getOutput());
+        shadergen.emitFunctionCall(*base, context, stage);
+    }
+    else
+    {
+        // Emit the function call for top and base layer.
+        // Make sure the connections are sibling nodes and not the graph interface.
+        if (top->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*top, context, stage);
+        }
+        if (base->getParent() == node.getParent())
+        {
+            shadergen.emitFunctionCall(*base, context, stage);
+        }
+
+        // Get the result variables.
+        const string& topResult = topInput->getConnection()->getVariable();
+        const string& baseResult = baseInput->getConnection()->getVariable();
+
+        // Emit the layer closure call.
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(output, true, false, context, stage);
+        shadergen.emitString(" = layer(" + topResult + ", " + baseResult + ")", stage);
+        shadergen.emitLineEnd(stage);
+    }
+
+#endif // MATERIALX_OSL_LEGACY_CLOSURES
+
 }
 
 MATERIALX_NAMESPACE_END
