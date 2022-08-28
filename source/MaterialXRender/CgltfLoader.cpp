@@ -73,7 +73,7 @@ const std::string DEFAULT_MESH_PREFIX = "MESH_";
 // List of path names which match to meshes
 using GLTFMeshPathList = std::unordered_map<cgltf_mesh*, StringVec>;
 
-void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode,  FilePath path, size_t nodeCount, size_t meshCount)
+void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath path, size_t nodeCount, size_t meshCount)
 {
     FilePath prevPath = path;
     string cnodeName = cnode->name ? string(cnode->name) : DEFAULT_NODE_PREFIX + std::to_string(nodeCount++);
@@ -99,9 +99,6 @@ void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode,  FilePath 
     {
         computeMeshPaths(meshPaths, cnode->children[i], path, nodeCount, meshCount);
     }
-
-    // Pop path name
-    path = prevPath;
 }
 
 } // anonymous namespace
