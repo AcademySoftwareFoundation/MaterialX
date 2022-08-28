@@ -92,11 +92,6 @@
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
 
-    <multiply name="base_color" type="color3">
-      <input name="in1" type="color3" interfacename="base_color" />
-      <input name="in2" type="float" interfacename="base" />
-    </multiply>
-
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
@@ -154,6 +149,10 @@
       <input name="in" type="float" interfacename="thin_film_IOR" />
     </dot>
 
+    <!-- <dot name="normal" type="vector3" >
+      <input name="in" type="vector3" interfacename="normal" />
+    </dot> -->
+
     <!-- Output color switch priority: transmission > coat color > base color -->
     <ifequal name="has_coat" type="float" >
       <input name="value1" type="float" interfacename="coat" />
@@ -161,65 +160,70 @@
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
     </ifequal>
-    <swizzle name="coat_color_r" type="float" >
+    <swizzle name="coat_r" type="float" >
       <input name="in" type="color3" interfacename="coat_color" />
       <input name="channels" type="string" value="r" />
     </swizzle>
-    <swizzle name="coat_color_g" type="float" >
+    <swizzle name="coat_g" type="float" >
       <input name="in" type="color3" interfacename="coat_color" />
       <input name="channels" type="string" value="g" />
     </swizzle>
-    <swizzle name="coat_color_b" type="float" >
+    <swizzle name="coat_b" type="float" >
       <input name="in" type="color3" interfacename="coat_color" />
       <input name="channels" type="string" value="b" />
     </swizzle>
-    <ifequal name="coat_r_default" type="float" >
-      <input name="value1" type="float" nodename="coat_color_r" />
+    <ifequal name="coat_r_is_default" type="float" >
+      <input name="value1" type="float" nodename="coat_r" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifequal>
-    <ifequal name="coat_g_default" type="float" >
-      <input name="value1" type="float" nodename="coat_color_g" />
+    <ifequal name="coat_g_is_default" type="float" >
+      <input name="value1" type="float" nodename="coat_g" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifequal>
-    <ifequal name="coat_b_default" type="float" >
-      <input name="value1" type="float" nodename="coat_color_b" />
+    <ifequal name="coat_b_is_default" type="float" >
+      <input name="value1" type="float" nodename="coat_b" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
     </ifequal>
-    <multiply name="accum_coat_color1" type="float" >
-      <input name="in1" type="float" nodename="coat_r_default" />
-      <input name="in2" type="float" nodename="coat_g_default" />
+    <multiply name="accum_coat_rg" type="float" >
+      <input name="in1" type="float" nodename="coat_r_is_default" />
+      <input name="in2" type="float" nodename="coat_g_is_default" />
     </multiply>
-    <multiply name="accum_coat_color2" type="float" > 
-      <input name="in1" type="float" nodename="accum_coat_color1" />
-      <input name="in2" type="float" nodename="coat_b_default" />
+    <multiply name="accum_coat_rgb" type="float" > 
+      <input name="in1" type="float" nodename="accum_coat_rg" />
+      <input name="in2" type="float" nodename="coat_b_is_default" />
     </multiply>
-    <subtract name="diff_coat_and_color" type="float" >
+    <subtract name="has_coat_and_coat_color" type="float" >
       <input name="in1" type="float" nodename="has_coat" />
-      <input name="in2" type="float" nodename="accum_coat_color2" />
+      <input name="in2" type="float" nodename="accum_coat_rgb" />
     </subtract>
 
     <!-- if we have coat and color is not default, apply over base color -->
-    <ifequal name="color_switch1" type="color3" >
-      <input name="value1" type="float" nodename="diff_coat_and_color" />
+    <ifequal name="base_layer_color" type="color3" >
+      <input name="value1" type="float" nodename="has_coat_and_coat_color" />
       <input name="value2" type="float" value="1" />
       <input name="in1" type="color3" interfacename="coat_color" />
-      <input name="in2" type="color3" nodename="base_color" />
+      <input name="in2" type="color3" interfacename="base_color" />
     </ifequal>
+    <!-- Attenuate result of coat or base by base factor -->
+    <multiply name="attenuated_baselayer" type="color3" >
+      <input name="in1" type="color3" nodename="base_layer_color" />
+      <input name="in2" type="float" interfacename="base" />
+    </multiply>
     <!-- if transmission, use transmission color -->
-    <ifequal name="color_switch2" type="color3" >
+    <ifequal name="color_switch" type="color3" >
       <input name="value1" type="float" interfacename="transmission" />
       <input name="value2" type="float" value="0" />
-      <input name="in1" type="color3" nodename="color_switch1" />
+      <input name="in1" type="color3" nodename="attenuated_baselayer" />
       <input name="in2" type="color3" interfacename="transmission_color" />
     </ifequal>
 
-    <output name="base_color_out" type="color3" nodename="color_switch2" />
+    <output name="base_color_out" type="color3" nodename="color_switch" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
     <output name="transmission_out" type="float" nodename="transmission" />
@@ -232,6 +236,7 @@
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
+    <!-- <output name="normal_out" type="vector3" nodename="normal" /> -->
 
   </nodegraph>
 </materialx>
