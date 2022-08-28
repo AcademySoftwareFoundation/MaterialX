@@ -6,13 +6,13 @@
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
     <!-- <input name="diffuse_roughness" type="float" value="0" /> -->
     <input name="metalness" type="float" value="0" />
-    <!-- <input name="specular" type="float" value="1" /> -->
-    <!-- <input name="specular_color" type="color3" value="1, 1, 1" /> -->
+    <input name="specular" type="float" value="1" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
     <input name="specular_roughness" type="float" value="0.2" />
-    <!-- <input name="specular_IOR" type="float" value="1.5" /> -->
+    <input name="specular_IOR" type="float" value="1.5" />
     <!-- <input name="specular_anisotropy" type="float" value="0" /> -->
     <!-- <input name="specular_rotation" type="float" value="0" /> -->
-    <!-- <input name="transmission" type="float" value="0" /> -->
+    <input name="transmission" type="float" value="0" />
     <!-- <input name="transmission_color" type="color3" value="1, 1, 1" /> -->
     <!-- <input name="transmission_depth" type="float" value="0" /> -->
     <!-- <input name="transmission_scatter" type="color3" value="0, 0, 0" /> -->
@@ -56,14 +56,14 @@
     <!-- <output name="occlusion_out" type="float" /> -->
 
     <!-- parameter accepted, visual mismatch -->
-    <!-- <output name="transmission_out" type="float" /> -->
+    <output name="transmission_out" type="float" />
+
+    <output name="specular_out" type="float" />
+    <!-- parameter accepted, visual mismatch -->
+    <output name="specular_color_out" type="color3" />
 
     <!-- parameter accepted, visual mismatch -->
-    <!-- <output name="specular_out" type="float" /> -->
-    <!-- <output name="specular_color_out" type="color3" /> -->
-
-    <!-- parameter accepted, visual mismatch -->
-    <!-- <output name="ior_out" type="float" /> -->
+    <output name="ior_out" type="float" />
 
     <!-- inherited defaults -->
     <!-- <output name="alpha_out" type="float" /> -->
@@ -105,22 +105,22 @@
       <input name="in" type="vector3" interfacename="normal" />
     </dot> -->
 
-    <!-- <dot name="transmission" type="float">
+    <dot name="transmission" type="float">
       <input name="in" type="float" interfacename="transmission" />
-    </dot> -->
+    </dot>
 
     <!-- specular -->
-    <!-- <dot name="specular" type="float">
+    <dot name="specular" type="float">
       <input name="in" type="float" interfacename="specular" />
-    </dot> -->
-    <!-- <dot name="specular_color" type="color3">
+    </dot>
+    <dot name="specular_color" type="color3">
       <input name="in" type="color3" interfacename="specular_color" />
-    </dot> -->
+    </dot>
 
     <!-- ranges differ -->
-    <!-- <dot name="ior" type="float">
+    <dot name="ior" type="float">
       <input name="in" type="float" interfacename="specular_IOR" />
-    </dot> -->
+    </dot>
 
     <!-- sheen -->
     <!-- <dot name="sheen_color" type="color3">
@@ -154,10 +154,10 @@
     <output name="roughness_out" type="float" nodename="roughness" />
     <!-- <output name="normal_out" type="vector3" nodename="normal" /> -->
     <!-- <output name="occlusion_out" type="float" nodename="occlusion" /> -->
-    <!-- <output name="transmission_out" type="float" nodename="transmission" /> -->
-    <!-- <output name="specular_out" type="float" nodename="specular" /> -->
-    <!-- <output name="specular_color_out" type="color3" nodename="specular_color" /> -->
-    <!-- <output name="ior_out" type="float" nodename="ior" /> -->
+    <output name="transmission_out" type="float" nodename="transmission" />
+    <output name="specular_out" type="float" nodename="specular" />
+    <output name="specular_color_out" type="color3" nodename="specular_color" />
+    <output name="ior_out" type="float" nodename="ior" />
     <!-- <output name="alpha_out" type="float" nodename="alpha" /> -->
     <!-- <output name="alpha_mode_out" type="integer" nodename="alpha_mode" /> -->
     <!-- <output name="alpha_cutoff_out" type="float" nodename="alpha_cutoff" /> -->
