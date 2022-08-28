@@ -235,16 +235,13 @@ bool Node::validate(string* message) const
 NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNode)
 {
     string category = SURFACE_MATERIAL_NODE_STRING;
+    NodePtr materialNode = addNode(category, name, MATERIAL_TYPE_STRING);
     if (shaderNode)
     {
         if (shaderNode->getType() == VOLUME_MATERIAL_NODE_STRING)
         {
             category = VOLUME_SHADER_TYPE_STRING;
         }
-    }
-    NodePtr materialNode = addNode(category, name, MATERIAL_TYPE_STRING);
-    if (shaderNode)
-    {
         InputPtr input = materialNode->addInput(shaderNode->getType(), shaderNode->getType());
         input->setNodeName(shaderNode->getName());
     }
