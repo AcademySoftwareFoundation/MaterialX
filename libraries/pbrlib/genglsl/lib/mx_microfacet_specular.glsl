@@ -293,12 +293,12 @@ void mx_fresnel_conductor_phase_polarized(vec3 cosTheta, vec3 eta1, vec3 eta2, v
     vec3 k2 = kappa2 / eta2;
     vec3 sinThetaSqr = vec3(1.0) - cosTheta * cosTheta;
     vec3 A = eta2*eta2*(vec3(1.0)-k2*k2) - eta1*eta1*sinThetaSqr;
-    vec3 B = sqrt(A*A + mx_square(2*eta2*eta2*k2));
+    vec3 B = sqrt(A*A + mx_square(2.0*eta2*eta2*k2));
     vec3 U = sqrt((A+B)/2.0);
     vec3 V = max(vec3(0.0), sqrt((B-A)/2.0));
 
-    phiS = atan(2*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
-    phiP = atan(2*eta1*eta2*eta2*cosTheta * (2*k2*U - (vec3(1.0)-k2*k2) * V),
+    phiS = atan(2.0*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
+    phiP = atan(2.0*eta1*eta2*eta2*cosTheta * (2.0*k2*U - (vec3(1.0)-k2*k2) * V),
                 mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
 }
 
@@ -337,7 +337,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     // Note: This part needs to compute the new ray direction cosTheta2
     //       as cosTheta2 is wavelength dependent.
     vec3 scale = eta1 / eta2; //(cosTheta > 0) ? eta1[i]/eta2[i] : eta2[i]/eta1[i];
-    vec3 cosThetaTSqr = 1 - (1-cosTheta*cosTheta) * scale*scale;
+    vec3 cosThetaTSqr = 1.0 - (1.0-cosTheta*cosTheta) * scale*scale;
 
     vec3 cosTheta2 = sqrt(cosThetaTSqr);
     mx_fresnel_conductor_polarized(vec3(cosTheta), eta1, eta2, vec3(0.0), R12p, R12s);
@@ -413,7 +413,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     for (int m=1; m<=2; ++m)
     {
         Cm *= r123p;
-        Sm  = 2.0 * mx_eval_sensitivity(m*D, m*(phi23p+phi21p));
+        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23p+phi21p));
         I  += Cm*Sm;
     }
 
@@ -429,7 +429,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     for (int m=1; m<=2; ++m)
     {
         Cm *= r123s;
-        Sm  = 2.0 * mx_eval_sensitivity(m*D, m*(phi23s+phi21s));
+        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23s+phi21s));
         I  += Cm*Sm;
     }
 
