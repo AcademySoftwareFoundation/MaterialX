@@ -13,8 +13,8 @@
     <!-- <input name="specular_anisotropy" type="float" /> -->
     <!-- <input name="specular_rotation" type="float" /> -->
     <input name="transmission" type="float" />
-    <input name="transmission_color" type="color3" />
-    <input name="transmission_depth" type="float" />
+    <!-- <input name="transmission_color" type="color3" /> -->
+    <!-- <input name="transmission_depth" type="float" /> -->
     <!-- <input name="transmission_scatter" type="color3" /> -->
     <!-- <input name="transmission_scatter_anisotropy" type="float" /> -->
     <!-- <input name="transmission_dispersion" type="float" /> -->
@@ -28,16 +28,16 @@
     <input name="sheen_color" type="color3" />
     <input name="sheen_roughness" type="float" />
     <input name="coat" type="float" />
-    <input name="coat_color" type="color3" />
+    <!-- <input name="coat_color" type="color3" /> -->
     <input name="coat_roughness" type="float" />
     <!-- <input name="coat_anisotropy" type="float" /> -->
     <!-- <input name="coat_rotation" type="float" /> -->
     <!-- <input name="coat_IOR" type="float" /> -->
-    <input name="coat_normal" type="vector3" />
+    <!-- <input name="coat_normal" type="vector3" /> -->
     <!-- <input name="coat_affect_color" type="float" /> -->
     <!-- <input name="coat_affect_roughness" type="float" /> -->
-    <input name="thin_film_thickness" type="float" />
-    <input name="thin_film_IOR" type="float" />
+    <!-- <input name="thin_film_thickness" type="float" /> -->
+    <!-- <input name="thin_film_IOR" type="float" /> -->
     <input name="emission" type="float" />
     <input name="emission_color" type="color3" />
     <!-- <input name="opacity" type="color3" /> -->
@@ -48,7 +48,6 @@
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
-
     <!-- <output name="normal_out" type="vector3" /> -->
     <!-- <output name="occlusion_out" type="float" /> -->
     <output name="transmission_out" type="float" />
@@ -65,9 +64,9 @@
     <!-- <output name="clearcoat_normal_out" type="vector3" /> -->
     <output name="emissive_out" type="color3" />
     <output name="emissive_strength_out" type="float" />
-    <output name="thickness_out" type="float" />
+    <!-- <output name="thickness_out" type="float" /> -->
     <!-- <output name="attenuation_distance_out" type="float" /> -->
-    <output name="attenuation_color_out" type="color3" />
+    <!-- <output name="attenuation_color_out" type="color3" /> -->
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -126,22 +125,6 @@
       <input name="in" type="float" interfacename="emission" />
     </dot>
 
-    <dot name="thin_film_thickness" type="float">
-      <input name="in" type="float" interfacename="thin_film_thickness" />
-    </dot>
-
-    <dot name="thin_film_IOR" type="float">
-      <input name="in" type="float" interfacename="thin_film_IOR" />
-    </dot>
-
-    <dot name="thickness" type="float">
-      <input name="in" type="float" interfacename="transmission_depth" />
-    </dot>
-
-    <dot name="attenuation_color" type="color3">
-      <input name="in" type="color3" interfacename="transmission_color" />
-    </dot>
-
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
@@ -155,8 +138,6 @@
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
     <output name="emissive_strength_out" type="float" nodename="emissive_strength" />
-    <output name="thickness_out" type="float" nodename="thickness" />
-    <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />
 
   </nodegraph>
 </materialx>
