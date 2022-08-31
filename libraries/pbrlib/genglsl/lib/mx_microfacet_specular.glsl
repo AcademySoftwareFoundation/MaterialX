@@ -5,6 +5,7 @@ const int FRESNEL_MODEL_DIELECTRIC = 0;
 const int FRESNEL_MODEL_CONDUCTOR = 1;
 const int FRESNEL_MODEL_SCHLICK = 2;
 const int FRESNEL_MODEL_AIRY = 3;
+const int FRESNEL_MODEL_SCHLICK_AIRY = 3;
 
 // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
 const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
@@ -468,9 +469,18 @@ FresnelData mx_init_fresnel_schlick(vec3 F0)
     return fd;
 }
 
-FresnelData mx_init_fresnel_schlick_airy(vec3 F0, vec3 F90, float exponent, float tf_thickness, float tf_ior)
+FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
 {
     FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
+    fd.F0 = F0;
+    fd.F90 = F90;
+    fd.exponent = exponent;
+    return fd;
+}
+
+FresnelData mx_init_fresnel_schlick_airy(vec3 F0, vec3 F90, float exponent, float tf_thickness, float tf_ior)
+{
+    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK_AIRY);
     fd.F0 = F0;
     fd.F90 = F90;
     fd.exponent = exponent;
@@ -508,7 +518,7 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
     }
-    else if (fd.model == FRESNEL_MODEL_SCHLICK && fd.tf_thickness == 0.0)
+    else if (fd.model == FRESNEL_MODEL_SCHLICK)
     {
         return mx_fresnel_schlick(cosTheta, fd.F0, fd.F90, fd.exponent);
     }
@@ -516,7 +526,7 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior,
                                          fd.F0, fd.F90, fd.exponent,
-                                         fd.model == FRESNEL_MODEL_SCHLICK);
+                                         fd.model == FRESNEL_MODEL_SCHLICK_AIRY);
     }
 }
 
