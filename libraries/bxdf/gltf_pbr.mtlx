@@ -267,7 +267,7 @@
     <output name="out" type="surfaceshader" nodename="shader_constructor" />
   </nodegraph>
 	
-<!--
+  <!--
     Node: <gltf_colorimage> Supplemental Node
     Multiply a color4 image modulated by uniform color and geometry color. Default uniform and geometry colors are 1,1,1,1 which results in no change to the image.
   -->
@@ -343,8 +343,8 @@
   </nodegraph>		
 	
   <!--- 
-        Node: <gltf_image> 
-        color3 image lookup which matches glTF
+    Node: <gltf_image> 
+    color3 image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
@@ -413,8 +413,8 @@
   </nodegraph>
 
   <!--- 
-        Node: <gltf_image> 
-        color4 image lookup which matches glTF
+    Node: <gltf_image> 
+    color4 image lookup which matches glTF
   -->
   <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
@@ -483,8 +483,8 @@
   </nodegraph>
 
   <!--- 
-        Node: <gltf_image> 
-        float image lookup which matches glTF
+    Node: <gltf_image> 
+    float image lookup which matches glTF
   -->      
   <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
