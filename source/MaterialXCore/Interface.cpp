@@ -47,7 +47,7 @@ const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH = 
 // PortElement methods
 //
 
-void PortElement::setConnectedNode(NodePtr node)
+void PortElement::setConnectedNode(ConstNodePtr node)
 {
     if (node)
     {
