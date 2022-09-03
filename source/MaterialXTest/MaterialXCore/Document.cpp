@@ -46,7 +46,7 @@ TEST_CASE("Document", "[document]")
     REQUIRE(nodeGraph->getDescendant("missingNode") == mx::ElementPtr());
 
     // Create a simple shader interface.
-    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::InputPtr roughness = simpleSrf->setInputValue("roughness", 0.25f);
@@ -89,7 +89,7 @@ TEST_CASE("Document", "[document]")
     mx::DocumentPtr customLibrary = mx::createDocument();
     customLibrary->setNamespace("custom");
     mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
-    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
     customNodeGraph->addNodeInstance(customNodeDef, "custom1");
     customImpl->setNodeDef(customNodeDef);

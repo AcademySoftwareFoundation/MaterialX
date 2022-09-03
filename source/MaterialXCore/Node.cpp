@@ -20,7 +20,7 @@ const string Backdrop::HEIGHT_ATTRIBUTE = "height";
 // Node methods
 //
 
-void Node::setConnectedNode(const string& inputName, NodePtr node)
+void Node::setConnectedNode(const string& inputName, ConstNodePtr node)
 {
     InputPtr input = getInput(inputName);
     if (!input)
@@ -234,16 +234,13 @@ bool Node::validate(string* message) const
 
 NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNode)
 {
-    string category = SURFACE_MATERIAL_NODE_STRING;
+    bool isVolumeShader = shaderNode && shaderNode->getType() == VOLUME_SHADER_TYPE_STRING;
+    string category = isVolumeShader ? VOLUME_MATERIAL_NODE_STRING : SURFACE_MATERIAL_NODE_STRING;
     NodePtr materialNode = addNode(category, name, MATERIAL_TYPE_STRING);
     if (shaderNode)
     {
-        if (shaderNode->getType() == VOLUME_MATERIAL_NODE_STRING)
-        {
-            category = VOLUME_SHADER_TYPE_STRING;
-        }
         InputPtr input = materialNode->addInput(shaderNode->getType(), shaderNode->getType());
-        input->setNodeName(shaderNode->getName());
+        input->setConnectedNode(shaderNode);
     }
     return materialNode;
 }
