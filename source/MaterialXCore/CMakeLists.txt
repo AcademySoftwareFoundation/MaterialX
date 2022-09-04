@@ -7,10 +7,6 @@ add_library(MaterialXCore ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_CORE_EXPORTS)
 
-if (MATERIALX_BUILD_SHARED_LIBS)
-target_compile_definitions(MaterialXCore PUBLIC -DMATERIALX_BUILD_SHARED_LIBS)
-endif()
-
 set_target_properties(
     MaterialXCore PROPERTIES
     OUTPUT_NAME MaterialXCore${MATERIALX_LIBNAME_SUFFIX}
