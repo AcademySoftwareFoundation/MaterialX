@@ -3,24 +3,40 @@
 
   <!-- ======================================================================== -->
   <!-- USD Preview Surface node definitions                                     -->
+  <!-- The following definitions are based on the specification defined here:   -->
+  <!-- https://graphics.pixar.com/usd/release/spec_usdpreviewsurface.html       -->
   <!-- ======================================================================== -->
 
   <!-- Node: UsdPreviewSurface -->
   <nodedef name="ND_UsdPreviewSurface_surfaceshader" node="UsdPreviewSurface" nodegroup="pbr" doc="USD preview surface shader" version="2.3" isdefaultversion="true">
-    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" />
-    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" />
-    <input name="useSpecularWorkflow" type="integer" value="0" />
-    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" />
-    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
-    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" />
-    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
-    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" />
-    <input name="normal" type="vector3" value="0, 0, 1" />
-    <input name="displacement" type="float" value="0" />
-    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
+    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" 
+           doc="Diffuse color. When using metallic workflow this is interpreted as albedo."/>
+    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" 
+           doc="Emissive component."/>
+    <input name="useSpecularWorkflow" type="integer" value="0" 
+           doc="This node can fundamentally operate in two modes : Specular workflow where you provide a texture/value to the specularColor input. Or, Metallic workflow where you provide a texture/value to the metallic input."/>
+    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" 
+           doc="Specular color to be used. Enabled when useSpecularWorkflow = 1. This is the color at 0 incidence. Edge color is assumed white. Transition between the two colors according to Schlick fresnel approximation."/>
+    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" 
+           doc="Use 1 for metallic surfaces and 0 for non-metallic. Enabled when useSpecularWorkflow = 0. If metallic is 1, then both F0 (reflectivity at 0 degree incidence) and edge F90 reflectivity will simply be the Albedo . If metallic is 0, then Albedo is ignored in the calculation of F0 and F90; F0 is derived from ior via  and F90 is white. In between, we interpolate."/>
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" 
+           doc="Roughness for the specular lobe. The value ranges from 0 to 1, which goes from a perfectly specular surface at 0.0 to maximum roughness of the specular lobe. This value is usually squared before use with a GGX or Beckmann lobe. Note that roughness applies only to the specular lobe, and the transmissive lobe (if any) always assumes roughness 0.0."/>
+    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" 
+           doc="Second specular lobe amount. The color is white."/>
+    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" 
+           doc="Roughness for the second specular lobe."/>
+    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" 
+           doc="When opacity is 1.0 then the gprim is fully opaque, if it is smaller than 1.0 then the prim is translucent, when it is 0 the gprim is transparent. Note that even a fully transparent object still receives lighting as, for example, perfectly clear glass still has a specular response."/>
+    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" 
+           doc="The opacityThreshold input is useful for creating geometric cut-outs based on the opacity input. A value of 0.0 indicates that no masking is applied to the opacity input, while a value greater than 0.0 indicates that rendering of the surface is limited to the areas where the opacity is greater or equal to that value."/>
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
+           doc="ndex of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
+    <input name="normal" type="vector3" value="0, 0, 1" 
+           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal. The default input is ( 0,0,1 ) which allows for no transformation to be performed. This differs from the default for tangent space normalmap input which is ( 0.5, 0.5, 1 )."/>
+    <input name="displacement" type="float" value="0" 
+           doc="Displacement in the direction of the normal."/>
+    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" 
+           doc="Extra information about the occlusion of different parts of the mesh that this material is applied to. Occlusion only makes sense as a surface-varying signal, and pathtracers will likely choose to ignore it. An occlusion value of 0.0 means the surface point is fully occluded by other parts of the surface, and a value of 1.0 means the surface point is completely unoccluded by other parts of the surface."/>
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -35,13 +51,20 @@
   </nodedef>
 
   <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
-    <input name="file" type="filename" uniform="true" />
-    <input name="st" type="vector2" defaultgeomprop="UV0" />
-    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
-    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
-    <input name="fallback" type="color4" value="0, 0, 0, 1" />
-    <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" />
-    <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" />
+    <input name="file" type="filename" uniform="true" 
+      doc="Path to the color texture."/>
+    <input name="st" type="vector2" defaultgeomprop="UV0" 
+      doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
+      doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
+      doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>           
+    <input name="fallback" type="color4" value="0, 0, 0, 1" 
+      doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 ) for color texture."/>
+    <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" 
+      doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1, 1) for color texture."/>
+    <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" 
+      doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0, 0) for color texture."/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -50,13 +73,20 @@
   </nodedef>
 
   <nodedef name="ND_UsdUVTexture_23_NormalMap" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" >
-    <input name="file" type="filename" uniform="true" />
-    <input name="st" type="vector2" defaultgeomprop="UV0" />
-    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
-    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
-    <input name="fallback" type="vector3" value="0.5, 0.5, 1" />
-    <input name="scale" type="vector3" value="2, 2, 2" uniform="true" />
-    <input name="bias" type="vector3" value="-1, -1, -1" uniform="true" />
+    <input name="file" type="filename" uniform="true" 
+      doc="Path to the normal map texture."/>
+    <input name="st" type="vector2" defaultgeomprop="UV0" 
+      doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
+      doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
+           doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>
+    <input name="fallback" type="vector3" value="0.5, 0.5, 1" 
+          doc="Fallback value used when texture can not be read. Default is ( 0.5, 0.5, 1.0 ) for normal maps."/>
+    <input name="scale" type="vector3" value="2, 2, 2" uniform="true" 
+      doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (2, 2, 2) for normal maps"/>           
+    <input name="bias" type="vector3" value="-1, -1, -1" uniform="true" 
+      doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (-1, -1, 1) for normal maps"/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
