@@ -326,9 +326,9 @@ class Viewer : public ng::Screen
     MaterialPtr _shadowMaterial;
     MaterialPtr _shadowBlurMaterial;
     mx::ImagePtr _shadowMap;
-    bool _shadowMapDirty;
     unsigned int _shadowSoftness;
     mx::GLFramebufferPtr _shadowFrameBuffer;
+    bool _shadowMapDirty;
 
     // Ambient occlusion
     float _ambientOcclusionGain;
