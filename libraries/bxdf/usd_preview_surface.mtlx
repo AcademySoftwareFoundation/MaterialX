@@ -41,7 +41,8 @@
   </nodedef>
 
   <!-- Node: UsdUVTexture -->
-  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23">
+  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23" 
+           doc="USD texture reader version 2.2. Refer to 2.3 version for additional documentation. ">
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -50,7 +51,8 @@
     <output name="rgba" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
+  <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true"
+           doc="USD color texture reader version 2.3." >
     <input name="file" type="filename" uniform="true" 
       doc="Path to the color texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
@@ -72,7 +74,8 @@
     <output name="rgb" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_UsdUVTexture_23_NormalMap" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" >
+  <nodedef name="ND_UsdUVTexture_23_NormalMap" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" 
+           doc="USD normal map texture reader version 2.3.">
     <input name="file" type="filename" uniform="true" 
       doc="Path to the normal map texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 

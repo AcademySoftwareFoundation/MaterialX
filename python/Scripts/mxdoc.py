@@ -63,7 +63,7 @@ def main():
                     infos.append('<b>'+ port.getName() + '</b>')
                 infos.append(port.getType())
                 val = port.getValue()
-                if port.getType() == "float":
+                if val and port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
                 for attrname in ATTR_NAMES:
@@ -100,7 +100,7 @@ def main():
                     infos.append('**'+ port.getName() + '**')
                 infos.append(port.getType())
                 val = port.getValue()
-                if port.getType() == "float":
+                if val and port.getType() == "float":
                     val = round(val, 6)
                 infos.append(str(val))
                 for attrname in ATTR_NAMES:
