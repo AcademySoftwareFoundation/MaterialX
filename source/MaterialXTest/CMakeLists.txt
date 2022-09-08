@@ -82,12 +82,12 @@ endif()
 # TODO: Only do this stuff when it's relevant
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
-if (MATERIALX_OSL_LEGACY_CLOSURES)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
+if(MATERIALX_OSL_LEGACY_CLOSURES)
     add_custom_command(TARGET MaterialXTest POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E rename
-	    ${CMAKE_BINARY_DIR}/bin/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_BINARY_DIR}/bin/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
+        COMMAND ${CMAKE_COMMAND} -E rename
+        ${CMAKE_BINARY_DIR}/bin/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_BINARY_DIR}/bin/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
 endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
@@ -96,8 +96,8 @@ if(MATERIALX_BUILD_GEN_MDL)
 endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_BINARY_DIR}/bin/resources)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_BINARY_DIR}/bin/resources)
 
 set_target_properties(
     MaterialXTest PROPERTIES
