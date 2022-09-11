@@ -54,19 +54,19 @@
   <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true"
            doc="USD color texture reader version 2.3." >
     <input name="file" type="filename" uniform="true" 
-      doc="Path to the color texture."/>
+           doc="Path to the color texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
-      doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+           doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-      doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+           doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-      doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>           
+           doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>           
     <input name="fallback" type="color4" value="0, 0, 0, 1" 
-      doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 ) for color texture."/>
+           doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 ) for color texture."/>
     <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" 
-      doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1, 1) for color texture."/>
+           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1, 1) for color texture."/>
     <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" 
-      doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0, 0) for color texture."/>
+           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0, 0) for color texture."/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -77,19 +77,19 @@
   <nodedef name="ND_UsdUVTexture_23_NormalMap" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" 
            doc="USD normal map texture reader version 2.3.">
     <input name="file" type="filename" uniform="true" 
-      doc="Path to the normal map texture."/>
+           doc="Path to the normal map texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
-      doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+           doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-      doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+           doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>
     <input name="fallback" type="vector3" value="0.5, 0.5, 1" 
-          doc="Fallback value used when texture can not be read. Default is ( 0.5, 0.5, 1.0 ) for normal maps."/>
+           doc="Fallback value used when texture can not be read. Default is ( 0.5, 0.5, 1.0 ) for normal maps."/>
     <input name="scale" type="vector3" value="2, 2, 2" uniform="true" 
-      doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (2, 2, 2) for normal maps"/>           
+           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (2, 2, 2) for normal maps"/>           
     <input name="bias" type="vector3" value="-1, -1, -1" uniform="true" 
-      doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (-1, -1, 1) for normal maps"/>
+           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (-1, -1, 1) for normal maps"/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
