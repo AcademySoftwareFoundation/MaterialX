@@ -14,7 +14,7 @@
     <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" 
            doc="Emissive component."/>
     <input name="useSpecularWorkflow" type="integer" value="0" 
-           doc="This node can fundamentally operate in two modes : Specular workflow where you provide a texture/value to the specularColor input. Or, Metallic workflow where you provide a texture/value to the metallic input."/>
+           doc="This node can fundamentally operate in two modes: Specular workflow where you provide a texture/value to the specularColor input. Or, Metallic workflow where you provide a texture/value to the metallic input."/>
     <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" 
            doc="Specular color to be used. Enabled when useSpecularWorkflow = 1. This is the color at 0 incidence. Edge color is assumed white. Transition between the two colors according to Schlick fresnel approximation."/>
     <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" 
@@ -30,7 +30,7 @@
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" 
            doc="The opacityThreshold input is useful for creating geometric cut-outs based on the opacity input. A value of 0.0 indicates that no masking is applied to the opacity input, while a value greater than 0.0 indicates that rendering of the surface is limited to the areas where the opacity is greater or equal to that value."/>
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
-           doc="ndex of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
+           doc="Index of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
     <input name="normal" type="vector3" value="0, 0, 1" 
            doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal. The default input is ( 0,0,1 ) which allows for no transformation to be performed. This differs from the default for tangent space normalmap input which is ( 0.5, 0.5, 1 )."/>
     <input name="displacement" type="float" value="0" 
@@ -79,7 +79,7 @@
     <input name="file" type="filename" uniform="true" 
            doc="Path to the normal map texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
-           doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+           doc="Texture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
