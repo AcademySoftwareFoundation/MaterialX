@@ -165,6 +165,9 @@ OslShaderGenerator::OslShaderGenerator() :
     // <!-- <layer> -->
     registerImplementation("IM_layer_bsdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
     registerImplementation("IM_layer_vdf_" + OslShaderGenerator::TARGET, ClosureLayerNodeOsl::create);
+
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+
     // <!-- <mix> -->
     registerImplementation("IM_mix_bsdf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
     registerImplementation("IM_mix_edf_" + OslShaderGenerator::TARGET, ClosureMixNode::create);
@@ -176,6 +179,8 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_multiply_bsdfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
     registerImplementation("IM_multiply_edfC_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
     registerImplementation("IM_multiply_edfF_" + OslShaderGenerator::TARGET, ClosureMultiplyNode::create);
+
+#endif // MATERIALX_OSL_LEGACY_CLOSURES
 
     // <!-- <thin_film> -->
     registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
@@ -371,10 +376,7 @@ ShaderPtr OslShaderGenerator::createShader(const string& name, ElementPtr elemen
     stage->createOutputBlock(OSL::OUTPUTS);
 
     // Create shader variables for all nodes that need this.
-    for (ShaderNode* node : graph->getNodes())
-    {
-        node->getImplementation().createVariables(*node, context, *shader);
-    }
+    createVariables(graph, context, *shader);
 
     // Create uniforms for the published graph interface.
     VariableBlock& uniforms = stage->getUniformBlock(OSL::UNIFORMS);

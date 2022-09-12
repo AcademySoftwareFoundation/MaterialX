@@ -1389,12 +1389,6 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
         targetUnitSpace = globalTargetUnitSpace;
     }
 
-    // Don't perform unit conversion if targetUnitSpace is unspecified.
-    if (targetUnitSpace.empty())
-    {
-        return;
-    }
-
     // TODO: Consider this to be an optimization option as
     // this allows for the source and target unit to be the same value
     // while still allowing target unit updates on a compiled shader as the

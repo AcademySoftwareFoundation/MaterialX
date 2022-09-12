@@ -21,6 +21,9 @@ MATERIALX_NAMESPACE_BEGIN
 
 class ClosureContext;
 
+/// A standard function to allow for handling of application variables for a given node
+using ApplicationVariableHandler = std::function<void(ShaderNode*, GenContext&)>;
+
 /// @class GenContext 
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
@@ -187,6 +190,18 @@ class MX_GENSHADER_API GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
+    /// Set handler for application variables 
+    void setApplicationVariableHandler(ApplicationVariableHandler handler)
+    {
+        _applicationVariableHandler = handler;
+    }
+
+    /// Get handler for application variables 
+    ApplicationVariableHandler getApplicationVariableHandler() const
+    {
+        return _applicationVariableHandler;
+    }
+
   protected:
     GenContext() = delete;
 
@@ -201,6 +216,8 @@ class MX_GENSHADER_API GenContext
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
     vector<ClosureContext*> _closureContexts;
+
+    ApplicationVariableHandler _applicationVariableHandler;
 };
 
 

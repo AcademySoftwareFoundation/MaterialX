@@ -269,15 +269,49 @@ export material mx_generalized_schlick_bsdf(
 
 export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
-    color  mxp_color     = color(0.18) [[ anno::unused() ]],
-    float3 mxp_radius    = float3(1.0) [[ anno::unused() ]], // TODO: should probably be a color in MTLX Spec
-    float  mxp_anisotropy = 0.0 [[ anno::unused() ]],
+    color  mxp_color     = color(0.18),
+    float3 mxp_radius    = float3(1.0), // TODO: should probably be a color in MTLX Spec
+    float  mxp_anisotropy = 0.0,
     float3 mxp_normal    = state::normal() [[ anno::unused() ]]
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
-// TODO: add proper implementation
-= material();
+= let {
+    // https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_slides_v2.pdf
+    // Phase function eccentricity 'g' has been omitted here since we pass that directly 
+    // to anisotropic_vdf(directional_bias: g).    
+    color albedo = color(4.09712) +
+           (4.20863f * mxp_color) -
+           math::sqrt(
+               9.59217f +
+               41.6808f * mxp_color +
+               17.7126f * mxp_color * mxp_color);
+
+    color albedo_sq = albedo * albedo;
+
+    color white = color(1.0, 1.0, 1.0);
+
+    color alpha = 
+        (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
+
+    color radius_inv = white/color(mxp_radius);
+
+    color sigma_s = alpha * radius_inv;
+    color sigma_a = radius_inv - sigma_s;
+
+} in material(
+    volume: material_volume(
+        scattering: df::anisotropic_vdf (
+            directional_bias: mxp_anisotropy
+        ),
+        scattering_coefficient: sigma_s,
+        absorption_coefficient: sigma_a
+    ), 
+
+    surface: material_surface(
+        scattering: df::diffuse_transmission_bsdf(tint: white)
+    )
+);
 
 // TODO: MDL's sheen BSDF has no possibility to configure the base BSDF, it is
 //       always a diffuse BSDF. Its color is configurable through the multiscatter

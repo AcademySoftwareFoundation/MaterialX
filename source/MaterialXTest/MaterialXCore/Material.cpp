@@ -19,7 +19,7 @@ TEST_CASE("Material", "[material]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a base shader nodedef.
-    mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     simpleSrf->setInputValue("roughness", 0.25f);
@@ -30,7 +30,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(simpleSrf->getTokenValue("texId") == "01");
 
     // Create an inherited shader nodedef.
-    mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
+    mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", mx::SURFACE_SHADER_TYPE_STRING, "anisoSrf");
     anisoSrf->setInheritsFrom(simpleSrf);
     anisoSrf->setInputValue("anisotropy", 0.0f);
     REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
@@ -47,9 +47,9 @@ TEST_CASE("Material", "[material]")
     anisoSrf->setVersionString("2");
     shaderNode->setVersionString("2");
     REQUIRE(shaderNode->getNodeDef() == anisoSrf);
-    shaderNode->setType("volumeshader");
+    shaderNode->setType(mx::VOLUME_SHADER_TYPE_STRING);
     REQUIRE(shaderNode->getNodeDef() == nullptr);
-    shaderNode->setType("surfaceshader");
+    shaderNode->setType(mx::SURFACE_SHADER_TYPE_STRING);
     REQUIRE(shaderNode->getNodeDef() == anisoSrf);
 
     // Bind a shader input to a value.

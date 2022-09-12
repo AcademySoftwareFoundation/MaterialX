@@ -36,6 +36,8 @@ GenContext::GenContext(ShaderGeneratorPtr sg) :
     }
 
     addReservedWords(reservedWords);
+
+    _applicationVariableHandler = nullptr;
 }
 
 void GenContext::addNodeImplementation(const string& name, ShaderNodeImplPtr impl)
