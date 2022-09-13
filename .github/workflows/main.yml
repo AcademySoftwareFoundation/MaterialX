@@ -215,6 +215,7 @@ jobs:
     - name: Shader Validation Tests
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
+        vcpkg/vcpkg remove glslang
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
