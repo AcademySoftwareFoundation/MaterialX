@@ -32,11 +32,11 @@
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
            doc="Index of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
     <input name="normal" type="vector3" value="0, 0, 1" 
-           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal. The default input is ( 0,0,1 ) which allows for no transformation to be performed. This differs from the default for tangent space normalmap input which is ( 0.5, 0.5, 1 )."/>
+           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal. The default input is ( 0,0,1 ) which allows for no transformation to be performed."/>
     <input name="displacement" type="float" value="0" 
            doc="Displacement in the direction of the normal."/>
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" 
-           doc="Extra information about the occlusion of different parts of the mesh that this material is applied to. Occlusion only makes sense as a surface-varying signal, and pathtracers will likely choose to ignore it. An occlusion value of 0.0 means the surface point is fully occluded by other parts of the surface, and a value of 1.0 means the surface point is completely unoccluded by other parts of the surface."/>
+           doc="Extra information about the occlusion of different parts of the mesh that this material is applied to. An occlusion value of 0.0 means the surface point is fully occluded by other parts of the surface, and a value of 1.0 means the surface point is completely unoccluded by other parts of the surface."/>
     <output name="out" type="surfaceshader" />
   </nodedef>
 
