@@ -38,34 +38,41 @@ export function prepareEnvTexture(texture, capabilities)
  */
 function RGBToRGBA_Float(texture)
 {
-    const rgbData = texture.image.data;
-    const length = (rgbData.length / 3) * 4;
-    let rgbaData;
+    const w = texture.image.width;
+    const h = texture.image.height;
+    const dataSize = texture.image.data.length; 
+    const stride = dataSize / (w *h);
+    // No need to convert to RGBA if already 4 channel.
+    if (stride == 3)
+    {
+        const rgbData = texture.image.data;
+        const length = (rgbData.length / 3) * 4;
+        let rgbaData;
 
     switch (texture.type)
     {
-        case THREE.FloatType:
-            rgbaData = new Float32Array(length);
-            break;
-        case THREE.HalfFloatType:
-            rgbaData = new Uint16Array(length);
-            break;
-        default:
-          break;
-    }
+            case THREE.FloatType:
+                rgbaData = new Float32Array(length);
+                break;
+            case THREE.HalfFloatType:
+                rgbaData = new Uint16Array(length);
+                break;
+            default:
+                break;
+        }
 
     if (rgbaData)
     {
         for (let i = 0; i < length / 4; i++)
         {
-            rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
-            rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
-            rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
-            rgbaData[(i * 4) + 3] = 1.0;
+                rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
+                rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
+                rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
+                rgbaData[(i * 4) + 3] = 1.0;
+            }
+            return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
         }
-        return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
     }
-
     return texture;
 }
 
