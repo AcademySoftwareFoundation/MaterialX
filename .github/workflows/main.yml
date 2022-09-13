@@ -155,7 +155,7 @@ jobs:
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
         echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
         echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/tools/glslang | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
