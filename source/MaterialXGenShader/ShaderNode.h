@@ -357,6 +357,7 @@ class MX_GENSHADER_API ShaderNode
         // Types based on nodegroup
         static const uint32_t SAMPLE2D      = 1 << 20; /// Can be sampled in 2D (uv space)
         static const uint32_t SAMPLE3D      = 1 << 21; /// Can be sampled in 3D (position)
+        static const uint32_t GEOMETRIC     = 1 << 22; /// Geometric input
     };
 
     /// @struct ScopeInfo
@@ -403,6 +404,7 @@ class MX_GENSHADER_API ShaderNode
     static const string TEXTURE3D_GROUPNAME;
     static const string PROCEDURAL2D_GROUPNAME;
     static const string PROCEDURAL3D_GROUPNAME;
+    static const string GEOMETRIC_GROUPNAME;
 
   public:
     /// Constructor.

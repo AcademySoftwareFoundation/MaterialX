@@ -14,7 +14,7 @@ TEST_CASE("Look", "[look]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a material and look.
-    mx::NodePtr shaderNode = doc->addNode("standard_surface", "", "surfaceshader");
+    mx::NodePtr shaderNode = doc->addNode("standard_surface", "", mx::SURFACE_SHADER_TYPE_STRING);
     mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
     mx::LookPtr look = doc->addLook();
 

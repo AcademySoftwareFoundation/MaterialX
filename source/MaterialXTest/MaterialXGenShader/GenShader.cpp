@@ -370,3 +370,105 @@ TEST_CASE("GenShader: Track Dependencies", "[genshader]")
     }
 #endif
 }
+
+void variableTracker(mx::ShaderNode* node, mx::GenContext& /*context*/)
+{
+    static mx::StringMap results;
+    results["primvar_one"] = "geompropvalue1/geomprop";
+    results["primvar_two"] = "geompropvalue2/geomprop";
+    results["0"] = "Tworld";
+    results["upstream_primvar"] = "constant/value";
+
+    if (node->hasClassification(mx::ShaderNode::Classification::GEOMETRIC))
+    {
+        const mx::ShaderInput* geomPropInput = node->getInput("geomprop");
+        if (geomPropInput && geomPropInput->getValue())
+        {
+            std::string prop = geomPropInput->getValue()->getValueString();
+            REQUIRE(results.count(prop));
+            REQUIRE(results[prop] == geomPropInput->getPath());
+        }
+        else
+        {
+            const mx::ShaderInput* indexIput = node->getInput("index");
+            if (indexIput && indexIput->getValue())
+            {
+                std::string prop = indexIput->getValue()->getValueString();
+                REQUIRE(results.count(prop));
+                REQUIRE(results[prop] == indexIput->getPath());
+            }
+        }
+    }
+}
+
+TEST_CASE("GenShader: Track Application Variables", "[genshader]")
+{
+    std::string testDocumentString = 
+    "<?xml version=\"1.0\"?> \
+      <materialx version=\"1.38\"> \
+      <geompropvalue name=\"geompropvalue\" type=\"color3\" >  \
+        <input name=\"geomprop\" type=\"string\" uniform=\"true\" nodename=\"constant\" /> \
+      </geompropvalue> \
+      <geompropvalue name=\"geompropvalue1\" type=\"color3\" > \
+        <input name=\"geomprop\" type=\"string\" uniform=\"true\" value=\"primvar_one\" /> \
+      </geompropvalue> \
+      <geompropvalue name=\"geompropvalue2\" type=\"color3\" > \
+        <input name=\"geomprop\" type=\"string\" uniform=\"true\" value=\"primvar_two\" /> \
+      </geompropvalue> \
+      <multiply name=\"multiply\" type=\"color3\" > \
+        <input name=\"in1\" type=\"color3\" nodename=\"geompropvalue\" /> \
+        <input name=\"in2\" type=\"color3\" nodename=\"geompropvalue1\" /> \
+      </multiply> \
+      <add name=\"add\" type=\"color3\"  > \
+        <input name=\"in1\" type=\"color3\" nodename=\"multiply\" /> \
+        <input name=\"in2\" type=\"color3\" nodename=\"geompropvalue2\" /> \
+      </add> \
+      <standard_surface name=\"standard_surface\" type=\"surfaceshader\" > \
+        <input name=\"base_color\" type=\"color3\" nodename=\"add\" /> \
+      </standard_surface> \
+      <constant name=\"constant\" type=\"string\" > \
+        <input name=\"value\" type=\"string\" uniform=\"true\" value=\"upstream_primvar\" /> \
+      </constant> \
+      <surfacematerial name=\"surfacematerial\" type=\"material\" > \
+        <input name=\"surfaceshader\" type=\"surfaceshader\" nodename=\"standard_surface\" /> \
+      </surfacematerial> \
+    </materialx>";
+
+    const mx::string testElement = "surfacematerial";
+
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
+
+    mx::DocumentPtr testDoc = mx::createDocument();
+    mx::readFromXmlString(testDoc, testDocumentString);
+    testDoc->importLibrary(libraries);
+
+    mx::ElementPtr element = testDoc->getChild(testElement);
+    CHECK(element);
+
+#ifdef MATERIALX_BUILD_GEN_GLSL
+    {
+        mx::GenContext context(mx::GlslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        context.setApplicationVariableHandler(variableTracker);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_OSL
+    {
+        mx::GenContext context(mx::OslShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        context.setApplicationVariableHandler(variableTracker);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MDL
+    {
+        mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        context.setApplicationVariableHandler(variableTracker);
+        mx::ShaderPtr shader = context.getShaderGenerator().generate(testElement, element, context);
+    }
+#endif
+}

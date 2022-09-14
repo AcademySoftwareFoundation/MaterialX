@@ -457,6 +457,8 @@ OslSyntax::OslSyntax()
             "struct textureresource { string filename; string colorspace; };")
     );
 
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+
     registerTypeSyntax
     (
         Type::BSDF,
@@ -467,6 +469,20 @@ OslSyntax::OslSyntax()
             EMPTY_STRING,
             "struct BSDF { closure color response; color throughput; float thickness; float ior; };")
     );
+
+#else
+
+    registerTypeSyntax
+    (
+        Type::BSDF,
+        std::make_shared<ScalarTypeSyntax>(
+            "BSDF",
+            "null_closure",
+            "0",
+            "closure color")
+    );
+
+#endif // MATERIALX_OSL_LEGACY_CLOSURES
 
     registerTypeSyntax
     (
