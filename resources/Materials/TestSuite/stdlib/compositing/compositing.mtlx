@@ -282,11 +282,19 @@
     </mix>
     <output name="out" type="color3" nodename="mix1" />
   </nodegraph>
-  <nodegraph name="mix_color4">
+  <nodegraph name="mix_color3_color3">
+    <mix name="mix1" type="color3">
+      <input name="fg" type="color3" value="1.0000, 0.0, 0.0" />
+      <input name="bg" type="color3" value="0.0, 1.0000, 0.0" />
+      <input name="mix" type="color3" value="0.5000, 0.5000, 0.5000" />
+    </mix>
+    <output name="out" type="color3" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_color4_color4">
     <mix name="mix1" type="color4">
       <input name="fg" type="color4" value="1.0000, 0.0, 0.0, 1.0" />
       <input name="bg" type="color4" value="0.0000, 1.0000, 0.0, 1.0" />
-      <input name="mix" type="float" value="0.5000" />
+      <input name="mix" type="color4" value="0.5000, 0.5000, 0.5000, 0.5000" />
     </mix>
     <output name="out" type="color4" nodename="mix1" />
   </nodegraph>
@@ -298,6 +306,14 @@
     </mix>
     <output name="out" type="vector2" nodename="mix1" />
   </nodegraph>
+  <nodegraph name="mix_vector2_vector2">
+    <mix name="mix1" type="vector2">
+      <input name="fg" type="vector2" value="1.0000, 0.0" />
+      <input name="bg" type="vector2" value="0.0, 1.0000" />
+      <input name="mix" type="vector2" value="0.5000, 0.5000" />
+    </mix>
+    <output name="out" type="vector2" nodename="mix1" />
+  </nodegraph>
   <nodegraph name="mix_vector3">
     <mix name="mix1" type="vector3">
       <input name="fg" type="vector3" value="1.0000, 0.0, 0.0" />
@@ -306,11 +322,27 @@
     </mix>
     <output name="out" type="vector3" nodename="mix1" />
   </nodegraph>
+  <nodegraph name="mix_vector3_vector3">
+    <mix name="mix1" type="vector3">
+      <input name="fg" type="vector3" value="1.0000, 0.0, 0.0" />
+      <input name="bg" type="vector3" value="0.0, 1.0000, 0.0" />
+      <input name="mix" type="vector3" value="0.5000, 0.5000, 0.5000" />
+    </mix>
+    <output name="out" type="vector3" nodename="mix1" />
+  </nodegraph>
   <nodegraph name="mix_vector4">
     <mix name="mix1" type="vector4">
       <input name="fg" type="vector4" value="1.0000, 0.0, 0.0, 1.0" />
       <input name="bg" type="vector4" value="0.0, 1.0000, 0.0, 1.0" />
       <input name="mix" type="float" value="0.5000" />
+    </mix>
+    <output name="out" type="vector4" nodename="mix1" />
+  </nodegraph>
+  <nodegraph name="mix_vector4_vector4">
+    <mix name="mix1" type="vector4">
+      <input name="fg" type="vector4" value="1.0000, 0.0, 0.0, 1.0" />
+      <input name="bg" type="vector4" value="0.0, 1.0000, 0.0, 1.0" />
+      <input name="mix" type="vector4" value="0.5000, 0.5000, 0.5000, 0.5000" />
     </mix>
     <output name="out" type="vector4" nodename="mix1" />
   </nodegraph>

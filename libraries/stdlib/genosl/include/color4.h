@@ -182,6 +182,12 @@ color4 mix(color4 a, color4 b, float x )
                   mix(a.a, b.a, x));
 }
 
+color4 mix(color4 a, color4 b, color4 x )
+{
+    return color4(mix(a.rgb, b.rgb, x.rgb),
+                  mix(a.a, b.a, x.a));
+}
+
 float dot(color4 a, color b)
 {
     return dot(a.rgb, b);
