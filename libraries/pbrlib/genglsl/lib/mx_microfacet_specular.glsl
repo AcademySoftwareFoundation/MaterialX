@@ -434,6 +434,9 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
         I  += Cm*Sm;
     }
 
+    // Average parallel and perpendicular polarization
+    I *= 0.5;
+
     // Convert back to RGB reflectance
     I = clamp(XYZ_TO_RGB * I, vec3(0.0), vec3(1.0));
 
