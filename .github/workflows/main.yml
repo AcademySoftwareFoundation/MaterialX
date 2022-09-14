@@ -111,7 +111,7 @@ jobs:
           architecture: x64
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
-          test_shaders: ON
+          #test_shaders: ON
 
     steps:
     - name: Sync Repository
