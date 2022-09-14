@@ -61,6 +61,7 @@ class MX_CORE_API PortElement : public ValueElement
 
   protected:
     using NodePtr = shared_ptr<Node>;
+    using ConstNodePtr = shared_ptr<const Node>;
 
   public:
     /// @name Node Name
@@ -174,7 +175,7 @@ class MX_CORE_API PortElement : public ValueElement
     /// Set the node to which this element is connected.  The given node must
     /// belong to the same node graph.  If the node argument is null, then
     /// any existing node connection will be cleared.
-    void setConnectedNode(NodePtr node);
+    void setConnectedNode(ConstNodePtr node);
 
     /// Return the node, if any, to which this element is connected.
     virtual NodePtr getConnectedNode() const;
