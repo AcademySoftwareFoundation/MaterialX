@@ -55,7 +55,7 @@
     <input name="file" type="filename" uniform="true" 
            doc="Path to the color texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
-           doc="exture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+           doc="Texture coordinate to use to fetch this texture."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture. Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
@@ -78,7 +78,7 @@
     <input name="file" type="filename" uniform="true" 
            doc="Path to the normal map texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
-           doc="Texture coordinate to use to fetch this texture. This node defines a mathematical/cartesian mapping from st to uv to image space: the (0, 0) st coordinate maps to a (0, 0) uv coordinate that samples the lower-left-hand corner of the texture image, as viewed on a monitor, while the (1, 1) st coordinate maps to a (1, 1) uv coordinate that samples the upper-right-hand corner of the texture image, as viewed on a monitor."/>
+           doc="Texture coordinate to use to fetch this texture."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
