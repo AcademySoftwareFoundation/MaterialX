@@ -49,8 +49,8 @@ function RGBToRGBA_Float(texture)
         const length = (rgbData.length / 3) * 4;
         let rgbaData;
 
-    switch (texture.type)
-    {
+        switch (texture.type)
+        {
             case THREE.FloatType:
                 rgbaData = new Float32Array(length);
                 break;
@@ -61,10 +61,10 @@ function RGBToRGBA_Float(texture)
                 break;
         }
 
-    if (rgbaData)
-    {
-        for (let i = 0; i < length / 4; i++)
+        if (rgbaData)
         {
+            for (let i = 0; i < length / 4; i++)
+            {
                 rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
                 rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
                 rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];

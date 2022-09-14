@@ -151,11 +151,11 @@ jobs:
     - name: Install Dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        git clone https://github.com/Microsoft/vcpkg -b 2022.08.15 -c advice.detachedHead=false
+        git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
         echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
         echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/tools/glslang | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v2
@@ -215,7 +215,6 @@ jobs:
     - name: Shader Validation Tests
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
-        vcpkg/vcpkg remove glslang
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
