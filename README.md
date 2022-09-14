@@ -28,17 +28,6 @@ The MaterialX codebase requires a compiler with support for C++11, and can be bu
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
 
-### Repository
-
-The MaterialX repository consists of the following folders:
-
-- [documents](documents) - MaterialX documentation, including the specification and developer guide.
-- [javascript](javascript) - Support modules and example scripts for MaterialX JavaScript.
-- [libraries](libraries) - The standard data libraries for MaterialX, including definitions for the pattern and shading nodes.
-- [python](python) - Support modules and example scripts for MaterialX Python.
-- [resources](resources) - Resources for rendering MaterialX content, including example materials, images, and geometry.
-- [source](source) - Cross-platform C++ libraries for MaterialX with Python bindings.
-
 ### MaterialX Viewer
 
 The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.
@@ -56,6 +45,16 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
   <img src="/documents/Images/MaterialXView_TiledBrass.png" width="412" />
   <img src="/documents/Images/MaterialXView_TiledWood.png" width="412" /> 
 </p>
+
+### Open Chess Set
+
+The Open Chess Set is an open reference asset, consisting of a [MaterialX file](resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx) in the Standard Surface shading model and a [geometry file](resources/Geometry) in the glTF format.  It was authored by Moeen Sayed and Mujtaba Sayed, and was contributed to the MaterialX project by Side Effects.
+
+**Figure 3:** The Open Chess Set, rendered in Arnold for Maya
+<img src="/documents/Images/OpenChessSet_Arnold_01.png" />
+
+**Figure 4:** The Open Chess Set, rendered in Karma XPU for Houdini
+<img src="/documents/Images/OpenChessSet_Karma_01.png" />
 
 ### Pre-Built Binaries
 
