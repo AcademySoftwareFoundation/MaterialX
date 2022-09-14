@@ -15,6 +15,9 @@ const ALL_GEOMETRY_SPECIFIER = "*";
 const NO_GEOMETRY_SPECIFIER = "";
 const DAG_PATH_SEPERATOR = "/";
 
+// Logging toggle
+var logDetailedTime = false;
+
 /*
     Scene management
 */
@@ -75,6 +78,7 @@ export class Scene
     async loadGeometry(viewer, orbitControls)
     {
         var startTime = performance.now();
+        var geomLoadTime = startTime;
 
         const gltfData = await this.loadGeometryFile(this.getGeometryURL(), this.#_gltfLoader);
 
@@ -99,11 +103,13 @@ export class Scene
         } 
         scene.add(model);
 
+        console.log("- Scene load time: ", performance.now() - geomLoadTime, "ms");
+
         // Always reset controls based on camera for each load. 
         orbitControls.reset();
         this.updateScene(viewer, orbitControls);
 
-        console.log("Geometry load time: ", performance.now() - startTime, " ms.");
+        console.log("Total geometry load time: ", performance.now() - startTime, " ms.");
 
         viewer.getMaterial().updateMaterialAssignments(viewer);
         this.setUpdateTransforms();
@@ -114,15 +120,26 @@ export class Scene
     //
     updateScene(viewer, orbitControls)
     {
+        var startUpdateSceneTime = performance.now();
+        var uvTime = 0;
+        var normalTime = 0 ;
+        var tangentTime = 0;
+        var streamTime = 0;
+        var bboxTime = 0;
+
+        var startBboxTime = performance.now();
         const bbox = new THREE.Box3().setFromObject(this._scene);
         const bsphere = new THREE.Sphere();
         bbox.getBoundingSphere(bsphere);
+        bboxTime = performance.now() - startBboxTime;
 
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
     
+
         this._scene.traverse((child) => {
             if (child.isMesh) {
+                var startUVTime = performance.now();
                 if (!child.geometry.attributes.uv) {
                     const posCount = child.geometry.attributes.position.count;
                     const uvs = [];
@@ -144,22 +161,43 @@ export class Scene
                         uvs[i*2+1] = v;
                     }
                 }
+                uvTime += performance.now() - startUVTime;
     
                 if (!child.geometry.attributes.normal) {
+                    var startNormalTime = performance.new();
                     child.geometry.computeVertexNormals();
+                    normalTime += performance.now() - startNormalTime;
                 }
     
-                if (child.geometry.getIndex()) {
-                    child.geometry.computeTangents();
+                if (child.geometry.getIndex()) 
+                {
+                    if (!child.geometry.attributes.tangent)
+                    {
+                        var startTangentTime = performance.now();
+                        child.geometry.computeTangents();
+                        tangentTime += performance.now() - startTangentTime;
+                    }
                 }
     
                 // Use default MaterialX naming convention.
+                var startStreamTime = performance.now();
                 child.geometry.attributes.i_position = child.geometry.attributes.position;
                 child.geometry.attributes.i_normal = child.geometry.attributes.normal;
                 child.geometry.attributes.i_tangent = child.geometry.attributes.tangent;
                 child.geometry.attributes.i_texcoord_0 = child.geometry.attributes.uv;
+                streamTime += performance.now() - startStreamTime;
             }
         });
+
+        console.log("- Stream update time: ", performance.now() - startUpdateSceneTime, "ms");
+        if (logDetailedTime)
+        {
+            console.log('  - UV time: ', uvTime);
+            console.log('  - Normal time: ', normalTime);
+            console.log('  - Tangent time: ', tangentTime);
+            console.log('  - Stream Update time: ', streamTime);
+            console.log('  - Bounds compute time: ', bboxTime);
+        }
     
         // Update the background
         this._scene.background = this.getBackground();
@@ -547,7 +585,7 @@ export class Material
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
 
-        console.log("- Document load time: ", performance.now() - startDocTime, "ms.");
+        console.log("- Material document load time: ", performance.now() - startDocTime, "ms.");
 
         // Set search path. Assumes images are relative to current file
         // location.
@@ -676,7 +714,7 @@ export class Material
 
         if (assigned > 0)
         {
-            console.log('- Material assignment time: ', performance.now() - startTime, " ms.");
+            console.log('Material assignment time: ', performance.now() - startTime, " ms.");
         }
     }
 
@@ -685,7 +723,6 @@ export class Material
     //
     generateMaterial(elem, viewer, searchPath) 
     {
-        var logPerMaterialTimes = false;
         var startGenerateMat = performance.now();
 
         const mx = viewer.getMx();
@@ -702,14 +739,14 @@ export class Material
         var startTranspCheckTime = performance.now();
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
-        if (logPerMaterialTimes)
-            console.log("-- Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
+        if (logDetailedTime)
+            console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
 
         // Generate GLES code
         var startMTLXGenTime = performance.now();        
         let shader = gen.generate(elem.getNamePath(), elem, genContext);
-        if (logPerMaterialTimes)
-            console.log("-- MaterialX gen time: ", performance.now() - startMTLXGenTime, "ms");
+        if (logDetailedTime)
+            console.log("  - MaterialX gen time: ", performance.now() - startMTLXGenTime, "ms");
 
         var startUniformUpdate = performance.now();
 
@@ -747,14 +784,14 @@ export class Material
             side: THREE.DoubleSide
         });
 
-        if (logPerMaterialTimes)
-            console.log("-- Three material update time: ", performance.now() - startUniformUpdate, "ms");
+        if (logDetailedTime)
+            console.log("  - Three material update time: ", performance.now() - startUniformUpdate, "ms");
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
         this.updateEditor(elem, shader, newMaterial, gui);
 
-        if (logPerMaterialTimes)
+        if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
 
         return newMaterial;
@@ -766,7 +803,6 @@ export class Material
     //
     updateEditor(elem, shader, material, gui)
     {
-        var logEditorTime = false;
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
@@ -945,9 +981,9 @@ export class Material
             }
         });
 
-        if (logEditorTime)
+        if (logDetailedTime)
         {
-            console.log("-- Editor update time: ", performance.now() - startTime, "ms");
+            console.log("  - Editor update time: ", performance.now() - startTime, "ms");
         }
     }
 
