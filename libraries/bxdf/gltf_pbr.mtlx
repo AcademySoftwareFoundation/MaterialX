@@ -280,9 +280,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
     <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
     <input name="operationorder" type="integer" value="1" uifolder="Image" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" uifolder="Image"/>
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" uifolder="Image"/>
-    <input name="filtertype" type="string" uniform="true" value="linear" uifolder="Image" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image"/>
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image"/>
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" uifolder="Image" />
     <input name="color" type="color4" value="1, 1, 1, 1" uifolder="Color" />
     <input name="geomcolor" type="color4" value="1, 1, 1, 1" uifolder="Color" uiname="Geometry Color" />
     <output name="outcolor" type="color3" value="0, 0, 0" />
@@ -356,9 +356,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
     <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
     <output name="out" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_NG_gltf_image_color3_color3_1_0" nodedef="ND_gltf_image_color3_color3_1_0">
@@ -426,9 +426,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
     <input name="operationorder" type="integer" value="1" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
     <output name="out" type="color4" value="0, 0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_color4_color4_1_0" nodedef="ND_gltf_image_color4_color4_1_0">
@@ -496,9 +496,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
     <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
     <output name="out" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_float_float_1_0" nodedef="ND_gltf_image_float_float_1_0">
@@ -565,9 +565,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
     <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_vector3_vector3_1_0"  nodedef="ND_gltf_image_vector3_vector3_1_0">
@@ -629,9 +629,9 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
     <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_normalmap_vector3_1_0" nodedef="ND_gltf_normalmap_vector3_1_0">
@@ -695,9 +695,9 @@
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" uifolder="Image" />
     <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" />
-    <input name="filtertype" type="string" uniform="true" value="linear" uifolder="Image" />
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" enum="constant,clamp,periodic,mirror" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" uifolder="Image" enum="constant,clamp,periodic,mirror" />
+    <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" uifolder="Image" />
     <input name="thicknessMin" type="float" value="100" uifolder="Thickness" />
     <input name="thicknessMax" type="float" value="400" uifolder="Thickness" />
     <output name="out" type="float" value="0" />
