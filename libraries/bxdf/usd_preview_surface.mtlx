@@ -17,7 +17,7 @@
     <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" 
            doc="Specular color to be used. Enabled when useSpecularWorkflow = 1. This is the color at 0 incidence. Edge color is assumed white. Transition between the two colors according to Schlick fresnel approximation."/>
     <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" 
-           doc="Use 1 for metallic surfaces and 0 for non-metallic. Enabled when useSpecularWorkflow = 0. If metallic is 1, then both F0 (reflectivity at 0 degree incidence) and edge F90 reflectivity will simply be the Albedo."/>
+           doc="Use 1 for metallic surfaces and 0 for non-metallic. Enabled when useSpecularWorkflow = 0."/>
     <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" 
            doc="Roughness for the specular lobe. The value ranges from 0 to 1, which goes from a perfectly specular surface at 0.0 to maximum roughness of the specular lobe."/>
     <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" 
@@ -31,7 +31,7 @@
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
            doc="Index of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
     <input name="normal" type="vector3" value="0, 0, 1" 
-           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal."/>
+           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]."/>
     <input name="displacement" type="float" value="0" 
            doc="Displacement in the direction of the normal."/>
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" 
