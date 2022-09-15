@@ -19,23 +19,23 @@
     <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" 
            doc="Use 1 for metallic surfaces and 0 for non-metallic. Enabled when useSpecularWorkflow = 0. If metallic is 1, then both F0 (reflectivity at 0 degree incidence) and edge F90 reflectivity will simply be the Albedo."/>
     <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" 
-           doc="Roughness for the specular lobe. The value ranges from 0 to 1, which goes from a perfectly specular surface at 0.0 to maximum roughness of the specular lobe. This value is usually squared before use with a GGX or Beckmann lobe."/>
+           doc="Roughness for the specular lobe. The value ranges from 0 to 1, which goes from a perfectly specular surface at 0.0 to maximum roughness of the specular lobe."/>
     <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" 
            doc="Second specular lobe amount. The color is white."/>
     <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" 
            doc="Roughness for the second specular lobe."/>
     <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" 
-           doc="When opacity is 1.0 then the gprim is fully opaque, if it is smaller than 1.0 then the prim is translucent, when it is 0 the gprim is transparent. Note that even a fully transparent object still receives lighting as, for example, perfectly clear glass still has a specular response."/>
+           doc="When opacity is 1.0 then the gprim is fully opaque, if it is smaller than 1.0 then the prim is translucent, when it is 0 the gprim is transparent."/>
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" 
-           doc="The opacityThreshold input is useful for creating geometric cut-outs based on the opacity input. A value of 0.0 indicates that no masking is applied to the opacity input, while a value greater than 0.0 indicates that rendering of the surface is limited to the areas where the opacity is greater or equal to that value."/>
+           doc="The opacityThreshold input is useful for creating geometric cut-outs based on the opacity input."/>
     <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
            doc="Index of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
     <input name="normal" type="vector3" value="0, 0, 1" 
-           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal. The default input is ( 0,0,1 ) which allows for no transformation to be performed."/>
+           doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]. This means your texture reader implementation should provide data to this node that is properly scaled and ready to be consumed as a tangent space normal."/>
     <input name="displacement" type="float" value="0" 
            doc="Displacement in the direction of the normal."/>
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" 
-           doc="Extra information about the occlusion of different parts of the mesh that this material is applied to. An occlusion value of 0.0 means the surface point is fully occluded by other parts of the surface, and a value of 1.0 means the surface point is completely unoccluded by other parts of the surface."/>
+           doc="Extra information about the occlusion of different parts of the mesh that this material is applied to."/>
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -59,7 +59,7 @@
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture."/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-           doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>           
+           doc="Wrap mode when reading this texture."/>           
     <input name="fallback" type="color4" value="0, 0, 0, 1" 
            doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 ) for color texture."/>
     <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" 
@@ -82,7 +82,7 @@
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture."/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-           doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>
+           doc="Wrap mode when reading this texture."/>
     <input name="fallback" type="vector3" value="0.5, 0.5, 1" 
            doc="Fallback value used when texture can not be read. Default is ( 0.5, 0.5, 1.0 ) for normal maps."/>
     <input name="scale" type="vector3" value="2, 2, 2" uniform="true" 
