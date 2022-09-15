@@ -57,7 +57,7 @@
     <input name="st" type="vector2" defaultgeomprop="UV0" 
            doc="Texture coordinate to use to fetch this texture."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-           doc="Wrap mode when reading this texture. Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+           doc="Wrap mode when reading this texture."/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>           
     <input name="fallback" type="color4" value="0, 0, 0, 1" 
@@ -80,7 +80,7 @@
     <input name="st" type="vector2" defaultgeomprop="UV0" 
            doc="Texture coordinate to use to fetch this texture."/>
     <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
-           doc="Wrap mode when reading this texture.Possible Values: { black : Reader returns black outside unit square, clamp : extend edge values outside unit square, repeat : repeat texture outside unit square, mirror : flip and repeat texture outside unit square }"/>
+           doc="Wrap mode when reading this texture."/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture. Same options and caveats as wrapS."/>
     <input name="fallback" type="vector3" value="0.5, 0.5, 1" 
