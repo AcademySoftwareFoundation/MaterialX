@@ -112,6 +112,7 @@
   <nodegraph name="NG_standard_surface_surfaceshader_100">
 
     <!-- Roughness influence by coat-->
+    <!-- Calculate main specular roughness -->
     <multiply name="coat_affect_roughness_multiply1" type="float">
       <input name="in1" type="float" interfacename="coat_affect_roughness" />
       <input name="in2" type="float" interfacename="coat" />
@@ -127,6 +128,23 @@
     </mix>
     <roughness_anisotropy name="main_roughness" type="vector2">
       <input name="roughness" type="float" nodename="coat_affected_roughness" />
+      <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
+    </roughness_anisotropy>
+    <!-- Calculate transmission roughness -->
+    <add name="transmission_roughness_add" type="float">
+      <input name="in1" type="float" interfacename="specular_roughness" />
+      <input name="in2" type="float" interfacename="transmission_extra_roughness" />
+    </add>
+    <clamp name="transmission_roughness_clamped" type="float">
+      <input name="in" type="float" nodename="transmission_roughness_add" />
+    </clamp>
+    <mix name="coat_affected_transmission_roughness" type="float">
+      <input name="fg" type="float" value="1.0" />
+      <input name="bg" type="float" nodename="transmission_roughness_clamped" />
+      <input name="mix" type="float" nodename="coat_affect_roughness_multiply2" />
+    </mix>
+    <roughness_anisotropy name="transmission_roughness" type="vector2">
+      <input name="roughness" type="float" nodename="coat_affected_transmission_roughness" />
       <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
     </roughness_anisotropy>
 
@@ -248,7 +266,7 @@
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
-      <input name="roughness" type="vector2" nodename="main_roughness" />
+      <input name="roughness" type="vector2" nodename="transmission_roughness" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <input name="distribution" type="string" value="ggx" />
