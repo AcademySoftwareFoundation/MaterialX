@@ -118,7 +118,7 @@ function init()
 }
 
 function onWindowResize() 
-{   
+{
     viewer.getScene().updateCamera();
     viewer.getScene().setUpdateTransforms(); 
     renderer.setSize(window.innerWidth, window.innerHeight);
