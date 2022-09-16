@@ -18,17 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_6_Python27
-          os: ubuntu-18.04
+        - name: Linux_GCC_9_Python37
+          os: ubuntu-20.04
           compiler: gcc
-          compiler_version: "6"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_VIEWER=OFF
-
-        - name: Linux_GCC_7_Python37
-          os: ubuntu-18.04
-          compiler: gcc
-          compiler_version: "7"
+          compiler_version: "9"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -46,18 +39,12 @@ jobs:
           python: 3.9
           upload_shaders: ON
 
-        - name: Linux_Clang_9_Python27
-          os: ubuntu-18.04
-          compiler: clang
-          compiler_version: "9"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
         - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
           compiler_version: "10"
           python: 3.7
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
