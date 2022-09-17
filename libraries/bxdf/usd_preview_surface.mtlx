@@ -171,18 +171,32 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" interfacename="ior" />
     </add>
-    <divide name="div_ior" type="float">
+    <divide name="R" type="float">
       <input name="in1" type="float" nodename="one_minus_ior" />
       <input name="in2" type="float" nodename="one_plus_ior" />
     </divide>
-    <multiply name="F0" type="float">
-      <input name="in1" type="float" nodename="div_ior" />
-      <input name="in2" type="float" nodename="div_ior" />
+    <multiply name="R_sq" type="float">
+      <input name="in1" type="float" nodename="R" />
+      <input name="in2" type="float" nodename="R" />
     </multiply>
+    <mix name="specular_color_metallic" type="color3">
+      <input name="fg" type="color3" interfacename="diffuseColor" />
+      <input name="bg" type="color3" value="1, 1, 1" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
+    <multiply name="specular_color_metallic_R_sq" type="color3">
+      <input name="in1" type="color3" nodename="specular_color_metallic" />
+      <input name="in2" type="float" nodename="R_sq" />
+    </multiply>
+    <mix name="F0" type="color3">
+      <input name="fg" type="color3" nodename="specular_color_metallic" />
+      <input name="bg" type="color3" nodename="specular_color_metallic_R_sq" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
     <generalized_schlick_bsdf name="specular_bsdf2" type="BSDF">
       <input name="weight" type="float" value="1" />
-      <input name="color0" type="color3" nodename="F0" channels="rrr" />
-      <input name="color90" type="color3" value="1, 1, 1" />
+      <input name="color0" type="color3" nodename="F0" />
+      <input name="color90" type="color3" interfacename="specularColor" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
