@@ -246,13 +246,16 @@
       <input name="roughness" type="float" interfacename="clearcoatRoughness" />
       <input name="anisotropy" type="float" value="0" />
     </roughness_anisotropy>
-    <dielectric_bsdf name="coat_dielectric_bsdf" type="BSDF">
+    <convert name="coat_F0" type="color3">
+      <input name="in" type="float" nodename="R_sq" />
+    </convert>
+    <generalized_schlick_bsdf name="coat_dielectric_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="clearcoat" />
-      <input name="tint" type="color3" value="1, 1, 1" />
-      <input name="ior" type="float" value="1.5" />
+      <input name="color0" type="color3" nodename="coat_F0" />
+      <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
-    </dielectric_bsdf>
+    </generalized_schlick_bsdf>
     <layer name="coat_bsdf" type="BSDF">
       <input name="top" type="BSDF" nodename="coat_dielectric_bsdf" />
       <input name="base" type="BSDF" nodename="workflow_selector_bsdf" />
