@@ -323,7 +323,7 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
     float cosB = cos(atan(eta2 / eta1));    // Brewster's angle
     if (eta2 > eta1) {
         phiP = cosTheta < cosB ? M_PI : 0.0f;
-        phiS = 0;
+        phiS = 0.0f;
     } else {
         phiP = cosTheta < cosB ? 0.0f : M_PI;
         phiS = M_PI;
