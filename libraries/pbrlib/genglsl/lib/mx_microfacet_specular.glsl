@@ -303,7 +303,7 @@ void mx_fresnel_conductor_polarized(float cosTheta, vec3 n, vec3 k, out vec3 Rp,
     Rp = Rs * (t3 - t4) / (t3 + t4);
 }
 
-void mx_fresnel_conductor_polarized(float cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 Rp, out vec3 Rs)
+void mx_fresnel_conductor_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 Rp, out vec3 Rs)
 {
     vec3 n = eta2 / eta1;
     vec3 k = kappa2 / eta1;
@@ -331,8 +331,15 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
 }
 
 // Phase shift due to a conducting material
-void mx_fresnel_conductor_phase_polarized(float cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
+void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
 {
+    if (kappa2 == vec3(0, 0, 0) && eta2.x == eta2.y && eta2.y == eta2.z) {
+        // Use dielectric formula to increase performance
+        mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiP.x, phiS.x);
+        phiP = phiP.xxx;
+        phiS = phiS.xxx;
+        return;
+    }
     vec3 k2 = kappa2 / eta2;
     vec3 sinThetaSqr = vec3(1.0) - cosTheta * cosTheta;
     vec3 A = eta2*eta2*(vec3(1.0)-k2*k2) - eta1*eta1*sinThetaSqr;
@@ -392,7 +399,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     }
     else
     {
-        mx_fresnel_conductor_polarized(cosTheta2, vec3(eta2), eta3, kappa3, R23p, R23s);
+        mx_fresnel_conductor_polarized(cosTheta2, eta2, eta3, kappa3, R23p, R23s);
     }
 
     // Check for total internal reflection
@@ -425,7 +432,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     }
     else
     {
-        mx_fresnel_conductor_phase_polarized(cosTheta2, vec3(eta2), eta3, kappa3, phi23p, phi23s);
+        mx_fresnel_conductor_phase_polarized(cosTheta2, eta2, eta3, kappa3, phi23p, phi23s);
     }
 
     phi21p = M_PI - phi21p;
