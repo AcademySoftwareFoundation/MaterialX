@@ -250,6 +250,14 @@ function setTextureParameters(texture, name, uniforms, flipY = true, generateMip
 }
 
 /**
+ * Return the global light rotation matrix
+ */
+export function getLightRotation()
+{
+    return new THREE.Matrix4().makeRotationY(Math.PI / 2);
+}
+
+/**
  * Returns all lights nodes in a MaterialX document
  * @param {mx.Document} doc 
  * @returns {Array.<mx.Node>}
@@ -293,9 +301,12 @@ export function registerLights(mx, lights, genContext)
         const lightColor = light.getValueElement("color").getValue().getData().data();
         const lightIntensity = light.getValueElement("intensity").getValue().getData();
 
+        let rotatedLightDirection = new THREE.Vector3(...lightDirection)
+        rotatedLightDirection.transformDirection(getLightRotation())
+
         lightData.push({
             type: lightTypesBound[nodeName],
-            direction: new THREE.Vector3(...lightDirection),
+            direction: rotatedLightDirection,
             color: new THREE.Vector3(...lightColor), 
             intensity: lightIntensity
         });
