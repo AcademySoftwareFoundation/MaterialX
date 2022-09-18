@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
-import { prepareEnvTexture, findLights, registerLights, getUniformValues } from './helper.js'
+import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
 import { GUI } from 'dat.gui';
 
@@ -764,7 +764,7 @@ export class Material
         Object.assign(uniforms, {
             u_numActiveLightSources: { value: lights.length },
             u_lightData: { value: lightData },
-            u_envMatrix: { value: new THREE.Matrix4().makeRotationY(Math.PI) },
+            u_envMatrix: { value: getLightRotation() },
             u_envRadiance: { value: radianceTexture },
             u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
             u_envRadianceSamples: { value: 16 },
