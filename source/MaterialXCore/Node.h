@@ -64,7 +64,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// Set the node to which the given input is connected, creating a
     /// child input if needed.  If the node argument is null, then any
     /// existing node connection on the input will be cleared.
-    void setConnectedNode(const string& inputName, NodePtr node);
+    void setConnectedNode(const string& inputName, ConstNodePtr node);
 
     /// Return the Node connected to the given input.  If the given input is
     /// not present, then an empty NodePtr is returned.

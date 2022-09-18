@@ -30,7 +30,6 @@
     <output name="clearcoat_roughness_out" type="float" />
     <output name="emissive_out" type="color3" />
     <output name="emissive_strength_out" type="float" />
-
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
