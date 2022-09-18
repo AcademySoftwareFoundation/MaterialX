@@ -253,28 +253,57 @@ float mx_fresnel_dielectric(float cosTheta, float ior)
     return 0.5 * x * x * (1.0 + y * y);
 }
 
-// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-void mx_fresnel_conductor_polarized(vec3 cosTheta, vec3 n, vec3 k, out vec3 Rp, out vec3 Rs)
+void mx_fresnel_dielectric_polarized(float cosTheta, float n, out float Rp, out float Rs)
 {
-    cosTheta = clamp(cosTheta, vec3(0.0), vec3(1.0));
-    vec3 cosTheta2 = cosTheta * cosTheta;
-    vec3 sinTheta2 = 1.0 - cosTheta2;
+    if (cosTheta < 0.0) {
+        Rp = 1.0;
+        Rs = 1.0;
+        return;
+    }
+
+    float cosTheta2 = cosTheta * cosTheta;
+    float sinTheta2 = 1.0 - cosTheta2;
+    float n2 = n * n;
+
+    float t0 = n2 - sinTheta2;
+    float a2plusb2 = sqrt(t0 * t0);
+    float t1 = a2plusb2 + cosTheta2;
+    float a = sqrt(max(0.5 * (a2plusb2 + t0), 0.0));
+    float t2 = 2.0 * a * cosTheta;
+    Rs = (t1 - t2) / (t1 + t2);
+
+    float t3 = cosTheta2 * a2plusb2 + sinTheta2 * sinTheta2;
+    float t4 = t2 * sinTheta2;
+    Rp = Rs * (t3 - t4) / (t3 + t4);
+}
+
+void mx_fresnel_dielectric_polarized(float cosTheta, float eta1, float eta2, out float Rp, out float Rs)
+{
+    float n = eta2 / eta1;
+    mx_fresnel_dielectric_polarized(cosTheta, n, Rp, Rs);
+}
+
+void mx_fresnel_conductor_polarized(float cosTheta, vec3 n, vec3 k, out vec3 Rp, out vec3 Rs)
+{
+    cosTheta = clamp(cosTheta, 0.0, 1.0);
+    float cosTheta2 = cosTheta * cosTheta;
+    float sinTheta2 = 1.0 - cosTheta2;
     vec3 n2 = n * n;
     vec3 k2 = k * k;
 
-    vec3 t0 = n2 - k2 - sinTheta2;
+    vec3 t0 = n2 - k2 - vec3(sinTheta2);
     vec3 a2plusb2 = sqrt(t0 * t0 + 4.0 * n2 * k2);
-    vec3 t1 = a2plusb2 + cosTheta2;
+    vec3 t1 = a2plusb2 + vec3(cosTheta2);
     vec3 a = sqrt(max(0.5 * (a2plusb2 + t0), 0.0));
     vec3 t2 = 2.0 * a * cosTheta;
     Rs = (t1 - t2) / (t1 + t2);
 
-    vec3 t3 = cosTheta2 * a2plusb2 + sinTheta2 * sinTheta2;
+    vec3 t3 = cosTheta2 * a2plusb2 + vec3(sinTheta2 * sinTheta2);
     vec3 t4 = t2 * sinTheta2;
     Rp = Rs * (t3 - t4) / (t3 + t4);
 }
 
-void mx_fresnel_conductor_polarized(vec3 cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 Rp, out vec3 Rs)
+void mx_fresnel_conductor_polarized(float cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 Rp, out vec3 Rs)
 {
     vec3 n = eta2 / eta1;
     vec3 k = kappa2 / eta1;
@@ -284,12 +313,25 @@ void mx_fresnel_conductor_polarized(vec3 cosTheta, vec3 eta1, vec3 eta2, vec3 ka
 vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 {
     vec3 Rp, Rs;
-    mx_fresnel_conductor_polarized(vec3(cosTheta), n, k, Rp, Rs);
+    mx_fresnel_conductor_polarized(cosTheta, n, k, Rp, Rs);
     return 0.5 * (Rp  + Rs);
 }
 
+// Phase shift due to a dielectric material
+void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta2, out float phiP, out float phiS)
+{
+    float cosB = cos(atan(eta2 / eta1));    // Brewster's angle
+    if (eta2 > eta1) {
+        phiP = cosTheta < cosB ? M_PI : 0.0f;
+        phiS = 0;
+    } else {
+        phiP = cosTheta < cosB ? 0.0f : M_PI;
+        phiS = M_PI;
+    }
+}
+
 // Phase shift due to a conducting material
-void mx_fresnel_conductor_phase_polarized(vec3 cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
+void mx_fresnel_conductor_phase_polarized(float cosTheta, vec3 eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
 {
     vec3 k2 = kappa2 / eta2;
     vec3 sinThetaSqr = vec3(1.0) - cosTheta * cosTheta;
@@ -304,15 +346,15 @@ void mx_fresnel_conductor_phase_polarized(vec3 cosTheta, vec3 eta1, vec3 eta2, v
 }
 
 // Evaluation XYZ sensitivity curves in Fourier space
-vec3 mx_eval_sensitivity(vec3 opd, vec3 shift)
+vec3 mx_eval_sensitivity(float opd, vec3 shift)
 {
     // Use Gaussian fits, given by 3 parameters: val, pos and var
-    vec3 phase = 2.0*M_PI * opd;
+    float phase = 2.0*M_PI * opd;
     vec3 val = vec3(5.4856e-13, 4.4201e-13, 5.2481e-13);
     vec3 pos = vec3(1.6810e+06, 1.7953e+06, 2.2084e+06);
     vec3 var = vec3(4.3278e+09, 9.3046e+09, 6.6121e+09);
     vec3 xyz = val * sqrt(2.0*M_PI * var) * cos(pos * phase + shift) * exp(- var * phase*phase);
-    xyz.x   += 9.7470e-14 * sqrt(2.0*M_PI * 4.5282e+09) * cos(2.2399e+06 * phase[0] + shift[0]) * exp(- 4.5282e+09 * phase[0]*phase[0]);
+    xyz.x   += 9.7470e-14 * sqrt(2.0*M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift[0]) * exp(- 4.5282e+09 * phase*phase);
     return xyz / 1.0685e-7;
 }
 
@@ -325,44 +367,39 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     float d = tf_thickness * 1.0e-9;
 
     // Assume vacuum on the outside
-    vec3 eta1 = vec3(1.0);
-    vec3 eta2 = max(vec3(tf_ior), eta1);
+    float eta1 = 1.0;
+    float eta2 = max(tf_ior, eta1);
     vec3 eta3   = use_schlick ? mx_f0_to_ior_colored(f0) : ior;
     vec3 kappa3 = use_schlick ? vec3(0.0)                : extinction;
 
     // Compute the Spectral versions of the Fresnel reflectance and
     // transmitance for each interface.
-    vec3 R12p, T121p, R23p, R12s, T121s, R23s;
+    float R12p, T121p, R12s, T121s;
+    vec3 R23p, R23s;
     
     // Reflected and transmitted parts in the thin film
-    // Note: This part needs to compute the new ray direction cosTheta2
-    //       as cosTheta2 is wavelength dependent.
-    vec3 scale = eta1 / eta2; //(cosTheta > 0) ? eta1[i]/eta2[i] : eta2[i]/eta1[i];
-    vec3 cosThetaTSqr = 1.0 - (1.0-cosTheta*cosTheta) * scale*scale;
-
-    vec3 cosTheta2 = sqrt(cosThetaTSqr);
-    mx_fresnel_conductor_polarized(vec3(cosTheta), eta1, eta2, vec3(0.0), R12p, R12s);
+    mx_fresnel_dielectric_polarized(cosTheta, eta1, eta2, R12p, R12s);
 
     // Reflected part by the base
+    float scale = eta1 / eta2;
+    float cosThetaTSqr = 1.0 - (1.0-cosTheta*cosTheta) * scale*scale;
+    float cosTheta2 = sqrt(cosThetaTSqr);
     if (use_schlick)
     {
-        vec3 f = mx_fresnel_schlick(cosTheta, f0, f90, exponent);
+        vec3 f = mx_fresnel_schlick(cosTheta2, f0, f90, exponent);
         R23p = 0.5 * f;
         R23s = 0.5 * f;
     }
     else
     {
-        mx_fresnel_conductor_polarized(cosTheta2, eta2, eta3, kappa3, R23p, R23s);
+        mx_fresnel_conductor_polarized(cosTheta2, vec3(eta2), eta3, kappa3, R23p, R23s);
     }
 
     // Check for total internal reflection
-    for (int i = 0; i < 3; ++i)
+    if (cosThetaTSqr <= 0.0f)
     {
-        if (cosThetaTSqr[i] <= 0.0f)
-        {
-            R12s[i] = 1.0;
-            R12p[i] = 1.0;
-        }
+        R12s = 1.0;
+        R12p = 1.0;
     }
 
     // Compute the transmission coefficients
@@ -370,28 +407,29 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     T121s = 1.0 - R12s;
 
     // Optical path difference
-    vec3 D = 2.0 * eta2 * d * cosTheta2;
+    float D = 2.0 * eta2 * d * cosTheta2;
     vec3 Dphi = 2.0 * M_PI * D / vec3(580.0, 550.0, 450.0);
 
-    vec3 phi21p, phi21s, phi23p, phi23s, r123s, r123p;
+    float phi21p, phi21s;
+    vec3 phi23p, phi23s, r123s, r123p;
 
     // Evaluate the phase shift
-    mx_fresnel_conductor_phase_polarized(vec3(cosTheta), vec3(1.0), eta2, vec3(0.0), phi21p, phi21s);
+    mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2, phi21p, phi21s);
     if (use_schlick)
     {
         phi23p = vec3(
-            (eta3[0] < eta2[0]) ? M_PI : 0.0,
-            (eta3[1] < eta2[1]) ? M_PI : 0.0,
-            (eta3[2] < eta2[2]) ? M_PI : 0.0);
+            (eta3[0] < eta2) ? M_PI : 0.0,
+            (eta3[1] < eta2) ? M_PI : 0.0,
+            (eta3[2] < eta2) ? M_PI : 0.0);
         phi23s = phi23p;
     }
     else
     {
-        mx_fresnel_conductor_phase_polarized(cosTheta2, eta2, eta3, kappa3, phi23p, phi23s);
+        mx_fresnel_conductor_phase_polarized(cosTheta2, vec3(eta2), eta3, kappa3, phi23p, phi23s);
     }
 
-    phi21p = vec3(M_PI) - phi21p;
-    phi21s = vec3(M_PI) - phi21s;
+    phi21p = M_PI - phi21p;
+    phi21s = M_PI - phi21s;
 
     r123p = max(vec3(0.0), sqrt(R12p*R23p));
     r123s = max(vec3(0.0), sqrt(R12s*R23s));
@@ -414,7 +452,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     for (int m=1; m<=2; ++m)
     {
         Cm *= r123p;
-        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23p+phi21p));
+        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23p+vec3(phi21p)));
         I  += Cm*Sm;
     }
 
@@ -430,7 +468,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     for (int m=1; m<=2; ++m)
     {
         Cm *= r123s;
-        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23s+phi21s));
+        Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23s+vec3(phi21s)));
         I  += Cm*Sm;
     }
 
