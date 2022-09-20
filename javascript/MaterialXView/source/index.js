@@ -43,6 +43,7 @@ function init()
         viewer.getEditor().clearFolders();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
+        viewer.getScene().setUpdateTransforms();
     });
 
     // Handle geometry selection changes
@@ -71,6 +72,9 @@ function init()
 
     // Set up controls
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
+    orbitControls.addEventListener('change', () => {
+        viewer.getScene().setUpdateTransforms();
+    })  
 
     // Load model and shaders
 
@@ -116,6 +120,7 @@ function init()
 function onWindowResize() 
 {
     viewer.getScene().updateCamera();
+    viewer.getScene().setUpdateTransforms(); 
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -128,6 +133,7 @@ function animate()
         turntableStep = (turntableStep + 1) % 360;
         var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
         viewer.getScene()._scene.rotation.y = turntableAngle ;
+        viewer.getScene().setUpdateTransforms();
     }
 
     composer.render();
