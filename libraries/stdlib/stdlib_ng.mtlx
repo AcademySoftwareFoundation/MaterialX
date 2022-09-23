@@ -1031,6 +1031,21 @@
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
 
+  <nodegraph name="NG_bump_vector3" nodedef="ND_bump_vector3">
+    <normalmap name="N_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="N_heighttonormal" value="0.5, 0.5, 1" />
+      <input name="normal" type="vector3" interfacename="normal" value="0, 0, 0" />
+      <input name="space" type="string" value="tangent" />
+      <input name="scale" type="float" value="1" />
+      <input name="tangent" type="vector3" value="0, 0, 0" />
+    </normalmap>
+    <output name="out" type="vector3" nodename="N_normalmap" />
+    <heighttonormal name="N_heighttonormal" type="vector3">
+      <input name="in" type="float" interfacename="height" value="0" />
+      <input name="scale" type="float" interfacename="scale" value="1" />
+    </heighttonormal>
+  </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Global nodes                                                             -->
   <!-- ======================================================================== -->
