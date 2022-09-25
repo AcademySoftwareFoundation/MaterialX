@@ -38,34 +38,41 @@ export function prepareEnvTexture(texture, capabilities)
  */
 function RGBToRGBA_Float(texture)
 {
-    const rgbData = texture.image.data;
-    const length = (rgbData.length / 3) * 4;
-    let rgbaData;
-
-    switch (texture.type)
+    const w = texture.image.width;
+    const h = texture.image.height;
+    const dataSize = texture.image.data.length; 
+    const stride = dataSize / (w *h);
+    // No need to convert to RGBA if already 4 channel.
+    if (stride == 3)
     {
-        case THREE.FloatType:
-            rgbaData = new Float32Array(length);
-            break;
-        case THREE.HalfFloatType:
-            rgbaData = new Uint16Array(length);
-            break;
-        default:
-          break;
-    }
+        const rgbData = texture.image.data;
+        const length = (rgbData.length / 3) * 4;
+        let rgbaData;
 
-    if (rgbaData)
-    {
-        for (let i = 0; i < length / 4; i++)
+        switch (texture.type)
         {
-            rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
-            rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
-            rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
-            rgbaData[(i * 4) + 3] = 1.0;
+            case THREE.FloatType:
+                rgbaData = new Float32Array(length);
+                break;
+            case THREE.HalfFloatType:
+                rgbaData = new Uint16Array(length);
+                break;
+            default:
+                break;
         }
-        return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
-    }
 
+        if (rgbaData)
+        {
+            for (let i = 0; i < length / 4; i++)
+            {
+                rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
+                rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
+                rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
+                rgbaData[(i * 4) + 3] = 1.0;
+            }
+            return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
+        }
+    }
     return texture;
 }
 
@@ -243,6 +250,14 @@ function setTextureParameters(texture, name, uniforms, flipY = true, generateMip
 }
 
 /**
+ * Return the global light rotation matrix
+ */
+export function getLightRotation()
+{
+    return new THREE.Matrix4().makeRotationY(Math.PI / 2);
+}
+
+/**
  * Returns all lights nodes in a MaterialX document
  * @param {mx.Document} doc 
  * @returns {Array.<mx.Node>}
@@ -286,9 +301,12 @@ export function registerLights(mx, lights, genContext)
         const lightColor = light.getValueElement("color").getValue().getData().data();
         const lightIntensity = light.getValueElement("intensity").getValue().getData();
 
+        let rotatedLightDirection = new THREE.Vector3(...lightDirection)
+        rotatedLightDirection.transformDirection(getLightRotation())
+
         lightData.push({
             type: lightTypesBound[nodeName],
-            direction: new THREE.Vector3(...lightDirection),
+            direction: rotatedLightDirection,
             color: new THREE.Vector3(...lightColor), 
             intensity: lightIntensity
         });
