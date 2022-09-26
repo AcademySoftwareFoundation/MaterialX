@@ -607,7 +607,7 @@
   <implementation name="IM_mix_color3_genmdl" nodedef="ND_mix_color3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_color3_color3_genmdl" nodedef="ND_mix_color3_color3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_color4_genmdl" nodedef="ND_mix_color4" sourcecode="mx::stdlib::mx_mix_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_mix_color4_color4_genmdl" nodedef="ND_mix_color4_color4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_color4_color4_genmdl" nodedef="ND_mix_color4_color4" sourcecode="mx::stdlib::mx_mix_color4_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector2_genmdl" nodedef="ND_mix_vector2" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector2_vector2_genmdl" nodedef="ND_mix_vector2_vector2" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector3_genmdl" nodedef="ND_mix_vector3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
