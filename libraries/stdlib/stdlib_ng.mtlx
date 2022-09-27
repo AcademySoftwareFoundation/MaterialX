@@ -1892,18 +1892,12 @@
     Node: <colorcorrect> Supplemental Node
     Combines various adjustment nodes into one, artist-friendly color correction node.
   -->
-<nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
+  <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
     <multiply name="N_exposure" type="color3">
       <input name="in1" type="color3" nodename="N_contrast" value="0, 0, 0" />
       <input name="in2" type="float" nodename="N_exposurepwr" value="1" />
     </multiply>
     <output name="out" type="color3" nodename="N_exposure" />
-    <separate3 name="N_mtlxseparate3c1" type="multioutput">
-      <input name="in" type="color3" nodename="N_exposure" value="0, 0, 0" />
-    </separate3>
-    <output name="r" type="float" nodename="N_mtlxseparate3c1" output="outr" />
-    <output name="g" type="float" nodename="N_mtlxseparate3c1" output="outg" />
-    <output name="b" type="float" nodename="N_mtlxseparate3c1" output="outb" />
     <contrast name="N_contrast" type="color3">
       <input name="in" type="color3" nodename="N_gain" value="0, 0, 0" />
       <input name="amount" type="float" interfacename="contrast" value="1" />
@@ -1945,6 +1939,61 @@
     </saturate>
     <hsvadjust name="N_hsvadjust" type="color3">
       <input name="in" type="color3" interfacename="in" value="0, 0, 0" />
+      <input name="amount" type="vector3" nodename="N_parm2hue" value="0, 1, 1" />
+    </hsvadjust>
+    <combine3 name="N_parm2hue" type="vector3">
+      <input name="in1" type="float" interfacename="hue" value="0" />
+      <input name="in2" type="float" value="1" />
+      <input name="in3" type="float" value="1" />
+    </combine3>
+  </nodegraph>
+  <nodegraph name="NG_colorcorrect_color4" nodedef="ND_colorcorrect_color4">
+    <multiply name="N_exposure" type="color4">
+      <input name="in1" type="color4" nodename="N_contrast" value="0, 0, 0, 0" />
+      <input name="in2" type="float" nodename="N_exposurepwr" value="1" />
+    </multiply>
+    <output name="out" type="color4" nodename="N_exposure" />
+    <contrast name="N_contrast" type="color4">
+      <input name="in" type="color4" nodename="N_gain" value="0, 0, 0, 0" />
+      <input name="amount" type="float" interfacename="contrast" value="1" />
+      <input name="pivot" type="float" interfacename="contrastpivot" value="0.5" />
+    </contrast>
+    <power name="N_exposurepwr" type="float">
+      <input name="in2" type="float" interfacename="exposure" value="1" />
+      <input name="in1" type="float" value="2" />
+    </power>
+    <multiply name="N_gain" type="color4">
+      <input name="in1" type="color4" nodename="N_liftadd" value="0, 0, 0, 0" />
+      <input name="in2" type="float" interfacename="gain" value="1" />
+    </multiply>
+    <add name="N_liftadd" type="color4">
+      <input name="in1" type="color4" nodename="N_liftmult" value="0, 0, 0, 0" />
+      <input name="in2" type="float" interfacename="lift" value="0" />
+    </add>
+    <multiply name="N_liftmult" type="color4">
+      <input name="in1" type="color4" nodename="N_gamma" value="0, 0, 0, 0" />
+      <input name="in2" type="float" nodename="N_liftsubtract" value="1" />
+    </multiply>
+    <range name="N_gamma" type="color4">
+      <input name="in" type="color4" nodename="N_saturation" value="0, 0, 0, 0" />
+      <input name="gamma" type="float" interfacename="gamma" value="1" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+      <input name="outlow" type="float" value="0" />
+      <input name="outhigh" type="float" value="1" />
+      <input name="doclamp" type="boolean" value="false" />
+    </range>
+    <subtract name="N_liftsubtract" type="float">
+      <input name="in2" type="float" interfacename="lift" value="0" />
+      <input name="in1" type="float" value="1" />
+    </subtract>
+    <saturate name="N_saturation" type="color4">
+      <input name="in" type="color4" nodename="N_hsvadjust" value="0, 0, 0, 0" />
+      <input name="amount" type="float" interfacename="saturation" value="1" />
+      <input name="lumacoeffs" type="color3" value="0.272229, 0.674082, 0.0536895" />
+    </saturate>
+    <hsvadjust name="N_hsvadjust" type="color4">
+      <input name="in" type="color4" interfacename="in" value="0, 0, 0, 0" />
       <input name="amount" type="vector3" nodename="N_parm2hue" value="0, 1, 1" />
     </hsvadjust>
     <combine3 name="N_parm2hue" type="vector3">
