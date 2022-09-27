@@ -973,6 +973,59 @@
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
+  <!--
+    Node: <unifiednoise2d>
+    Combines the available noises into an artist-friendly node, adding controls
+    to adjust frequency, offset, jitter, etc... Where possible controls have
+    been unified between noises; any noise-specific controls should live in a
+    dedicated folder. These folders should be hidden by artist tools, unless their
+    corresponding noise type is selected.
+    
+    The noise types are:
+    
+       0 - Noise (noise2d/noise3d)
+       1 - Cell (cellnoise2d/cellnoise3d)
+       2 - Worley (worley2d/worley3d)
+       3 - Fractal (fractal3d)
+    
+    The output is 1 channel, with controls to adjust the output range.
+  -->
+  <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" uifolder="Common" value="0, 0" />
+    <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" />
+    <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" />
+    <input name="outgamma" type="float" uiname="Output Gamma" uifolder="Post Process" uisoftmin="0.0" uisoftmax="3.0" value="1" />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Noise,Cell,Worley,Fractal" enumvalues="0,1,2,3"/>
+    <output name="out" type="float" />
+  </nodedef>
+  
+  <!--
+    Node: <unifiednoise3d>
+    The 3d flavor of <unifiednoise2d>.
+  -->
+  <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="procedural3d">
+    <input name="position" type="vector3" uifolder="Common" value="0, 0, 0" />
+    <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" />
+    <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" />
+    <input name="outgamma" type="float" uiname="Output Gamma" uifolder="Post Process" uisoftmin="0.0" uisoftmax="3.0" value="1" />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Noise,Cell,Worley,Fractal" enumvalues="0,1,2,3"/>
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->

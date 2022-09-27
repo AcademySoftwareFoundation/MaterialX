@@ -1026,6 +1026,143 @@
     </mix>
     <output name="out" type="vector4" nodename="N_mix_vector4" />
   </nodegraph>
+  
+  <!--
+    <unifiednoise2d>
+    Combined 2d noises for artists.
+  -->
+  <nodegraph name="NG_unifiednoise2d_float" nodedef="ND_unifiednoise2d_float">
+    <range name="N_range" type="float">
+      <input name="in" type="float" nodename="N_switch_type" value="0" />
+      <input name="gamma" type="float" interfacename="outgamma" value="1" />
+      <input name="outlow" type="float" interfacename="outmin" value="0" />
+      <input name="outhigh" type="float" interfacename="outmax" value="1" />
+      <input name="doclamp" type="boolean" interfacename="clampoutput" value="true" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+    </range>
+    <output name="out" type="float" nodename="N_range" />
+    <switch name="N_switch_type" type="float">
+      <input name="in1" type="float" nodename="N_perlin_noise2d" value="0" />
+      <input name="in2" type="float" nodename="N_cellnoise2d" value="0" />
+      <input name="in3" type="float" nodename="N_worleynoise2d" value="0" />
+      <input name="in4" type="float" nodename="N_fractal3d" value="1" />
+      <input name="which" type="integer" interfacename="type" value="0" />
+      <input name="in5" type="float" value="0" />
+    </switch>
+    <noise2d name="N_perlin_noise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_cell_jitter" value="0, 0" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+    </noise2d>
+    <cellnoise2d name="N_cellnoise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_cell_jitter" value="0, 0" />
+    </cellnoise2d>
+    <worleynoise2d name="N_worleynoise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_offset" value="0, 0" />
+      <input name="jitter" type="float" interfacename="jitter" value="1" />
+    </worleynoise2d>
+    <fractal3d name="N_fractal3d" type="float">
+      <input name="octaves" type="integer" interfacename="octaves" value="3" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" value="2" />
+      <input name="diminish" type="float" interfacename="diminish" value="0.5" />
+      <input name="position" type="vector3" nodename="N_combine_with_jitter" value="0, 0, 0" />
+      <input name="amplitude" type="float" value="1" />
+    </fractal3d>
+    <rotate2d name="N_apply_cell_jitter" type="vector2">
+      <input name="in" type="vector2" nodename="N_apply_offset" value="0, 0" />
+      <input name="amount" type="float" nodename="N_cell_jitter_mult" value="0" />
+    </rotate2d>
+    <add name="N_apply_offset" type="vector2">
+      <input name="in1" type="vector2" nodename="N_apply_freq" value="0, 0" />
+      <input name="in2" type="vector2" interfacename="offset" value="0, 0" />
+    </add>
+    <combine3 name="N_combine_with_jitter" type="vector3">
+      <input name="in1" type="float" nodename="N_separate" output="outx" value="0" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" value="0" />
+      <input name="in3" type="float" nodename="N_cell_jitter_mult" value="0" />
+    </combine3>
+    <multiply name="N_cell_jitter_mult" type="float">
+      <input name="in1" type="float" nodename="N_jitter_minus_1" value="0" />
+      <input name="in2" type="float" value="90000" />
+    </multiply>
+    <multiply name="N_apply_freq" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" value="0, 0" />
+      <input name="in2" type="vector2" interfacename="freq" value="1, 1" />
+    </multiply>
+    <separate2 name="N_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="N_apply_offset" value="0, 0" />
+    </separate2>
+    <subtract name="N_jitter_minus_1" type="float">
+      <input name="in1" type="float" interfacename="jitter" value="0" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+  </nodegraph>
+  
+  <!--
+    <unifiednoise3d>
+    Combined 3d noises for artists.
+  -->
+  <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
+    <range name="N_range" type="float">
+      <input name="in" type="float" nodename="N_switch_type" value="0" />
+      <input name="gamma" type="float" interfacename="outgamma" value="1" />
+      <input name="outlow" type="float" interfacename="outmin" value="0" />
+      <input name="outhigh" type="float" interfacename="outmax" value="1" />
+      <input name="doclamp" type="boolean" interfacename="clampoutput" value="true" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+    </range>
+    <output name="out" type="float" nodename="N_range" />
+    <switch name="N_switch_type" type="float">
+      <input name="in1" type="float" nodename="N_perlin_noise3d" value="0" />
+      <input name="in2" type="float" nodename="N_cellnoise3d" value="0" />
+      <input name="in3" type="float" nodename="N_worleynoise3d" value="0" />
+      <input name="in4" type="float" nodename="N_fractal3d" value="1" />
+      <input name="which" type="integer" interfacename="type" value="0" />
+      <input name="in5" type="float" value="0" />
+    </switch>
+    <noise3d name="N_perlin_noise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" value="0, 0, 0" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+    </noise3d>
+    <cellnoise3d name="N_cellnoise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" value="0, 0, 0" />
+    </cellnoise3d>
+    <worleynoise3d name="N_worleynoise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_offset" value="0, 0, 0" />
+      <input name="jitter" type="float" interfacename="jitter" value="1" />
+    </worleynoise3d>
+    <fractal3d name="N_fractal3d" type="float">
+      <input name="octaves" type="integer" interfacename="octaves" value="3" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" value="2" />
+      <input name="diminish" type="float" interfacename="diminish" value="0.5" />
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" value="0, 0, 0" />
+      <input name="amplitude" type="float" value="1" />
+    </fractal3d>
+    <rotate3d name="N_apply_cell_jitter" type="vector3">
+      <input name="in" type="vector3" nodename="N_apply_offset" value="0, 0, 0" />
+      <input name="amount" type="float" nodename="N_cell_jitter_mult" value="0" />
+      <input name="axis" type="vector3" value="0.1, 1, 0" />
+    </rotate3d>
+    <add name="N_apply_offset" type="vector3">
+      <input name="in1" type="vector3" nodename="N_apply_freq" value="0, 0, 0" />
+      <input name="in2" type="vector3" interfacename="offset" value="0, 0, 0" />
+    </add>
+    <multiply name="N_cell_jitter_mult" type="float">
+      <input name="in1" type="float" nodename="N_jitter_minus_one" value="0" />
+      <input name="in2" type="float" value="90000" />
+    </multiply>
+    <multiply name="N_apply_freq" type="vector3">
+      <input name="in1" type="vector3" interfacename="position" value="0, 0, 0" />
+      <input name="in2" type="vector3" interfacename="freq" value="1, 1, 1" />
+    </multiply>
+    <subtract name="N_jitter_minus_one" type="float">
+      <input name="in1" type="float" interfacename="jitter" value="0" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
