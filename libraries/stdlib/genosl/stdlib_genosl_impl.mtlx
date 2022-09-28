@@ -602,10 +602,15 @@
   <!-- <mix> -->
   <implementation name="IM_mix_float_genosl" nodedef="ND_mix_float" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_color3_genosl" nodedef="ND_mix_color3" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_color3_color3_genosl" nodedef="ND_mix_color3_color3" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_color4_genosl" nodedef="ND_mix_color4" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_color4_color4_genosl" nodedef="ND_mix_color4_color4" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector2_genosl" nodedef="ND_mix_vector2" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector2_vector2_genosl" nodedef="ND_mix_vector2_vector2" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector3_genosl" nodedef="ND_mix_vector3" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector3_vector3_genosl" nodedef="ND_mix_vector3_vector3" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector4_genosl" nodedef="ND_mix_vector4" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector4_vector4_genosl" nodedef="ND_mix_vector4_vector4" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_surfaceshader_genosl" nodedef="ND_mix_surfaceshader" file="mx_mix.inline" target="genosl" />
 
   <!-- ======================================================================== -->

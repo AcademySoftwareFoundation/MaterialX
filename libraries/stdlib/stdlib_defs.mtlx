@@ -3222,10 +3222,22 @@
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="color3" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_color3_color3" node="mix" nodegroup="compositing">
+    <input name="fg" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="bg" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_color4" node="mix" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+  <nodedef name="ND_mix_color4_color4" node="mix" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="color4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector2" node="mix" nodegroup="compositing">
@@ -3234,16 +3246,34 @@
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="vector2" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_vector2_vector2" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector2" value="0.0, 0.0" />
+    <input name="bg" type="vector2" value="0.0, 0.0" />
+    <input name="mix" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_vector3" node="mix" nodegroup="compositing">
     <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="vector3" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_vector3_vector3" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_vector4" node="mix" nodegroup="compositing">
     <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
+    <output name="out" type="vector4" defaultinput="bg" />
+  </nodedef>
+  <nodedef name="ND_mix_vector4_vector4" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_surfaceshader" node="mix" nodegroup="compositing">
