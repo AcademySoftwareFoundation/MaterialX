@@ -1185,21 +1185,6 @@
     <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
     <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
-  <nodedef name="ND_add_surfaceshader" node="add" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="surfaceshader" value="" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_displacementshader" node="add" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="displacementshader" value="" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_volumeshader" node="add" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="volumeshader" value="" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
   <nodedef name="ND_add_color3FA" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="0.0" />
@@ -1385,36 +1370,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="1.0" />
     <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_surfaceshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_displacementshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_volumeshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_surfaceshaderC" node="multiply" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_volumeshaderC" node="multiply" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_displacementshaderV" node="multiply" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
   </nodedef>
 
   <!--
