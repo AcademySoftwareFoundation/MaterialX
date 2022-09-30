@@ -109,13 +109,7 @@ void checkImplementations(mx::GenContext& context,
     // Explicit set of node defs to skip temporarily
     mx::StringSet skipNodeDefs =
     {
-        "ND_add_displacementshader",
-        "ND_add_volumeshader",
         "ND_add_vdf",
-        "ND_multiply_displacementshaderF",
-        "ND_multiply_displacementshaderV",
-        "ND_multiply_volumeshaderF",
-        "ND_multiply_volumeshaderC",
         "ND_multiply_vdfF",
         "ND_multiply_vdfC",
         "ND_mix_displacementshader",

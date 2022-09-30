@@ -1322,105 +1322,6 @@ export float mx_time_float(
 	return ::state::animation_time();
 }
 
-export material mx_add_surfaceshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_add_displacementshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_add_volumeshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_surfaceshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_displacementshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_volumeshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_surfaceshaderC(
-	material mxp_in1,
-	color mxp_in2 = color(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_volumeshaderC(
-	material mxp_in1,
-	color mxp_in2 = color(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_displacementshaderV(
-	material mxp_in1,
-	float3 mxp_in2 = float3(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
 export color mx_modulo_color3(
 	color mxp_in1 = color(0.0, 0.0, 0.0),
 	color mxp_in2 = color(1.0, 1.0, 1.0)
@@ -3047,6 +2948,18 @@ export color4 mx_mix_color4(
 	]]
 {
 	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), float4(mxp_mix)));
+}
+
+export color4 mx_mix_color4_color4(
+	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_mix = mk_color4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: compositing")
+	]]
+{
+	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), mk_float4(mxp_mix)));
 }
 
 export material mx_mix_surfaceshader(

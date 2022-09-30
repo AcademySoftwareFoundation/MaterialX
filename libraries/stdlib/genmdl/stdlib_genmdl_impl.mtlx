@@ -224,7 +224,6 @@
   <implementation name="IM_add_matrix33FA_genmdl" nodedef="ND_add_matrix33FA" sourcecode="{{in1}} + float3x3({{in2}})" target="genmdl" />
   <implementation name="IM_add_matrix44_genmdl" nodedef="ND_add_matrix44" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_matrix44FA_genmdl" nodedef="ND_add_matrix44FA" sourcecode="{{in1}} + float4x4({{in2}})" target="genmdl" />
-  <implementation name="IM_add_surfaceshader_genmdl" nodedef="ND_add_surfaceshader" sourcecode="mx::stdlib::mx_add_surfaceshader({{in1}}, {{in2}})" target="genmdl" />
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmdl" nodedef="ND_subtract_float" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
@@ -257,8 +256,6 @@
   <implementation name="IM_multiply_vector4FA_genmdl" nodedef="ND_multiply_vector4FA" sourcecode="{{in1}} * {{in2}}" target="genmdl" />
   <implementation name="IM_multiply_matrix33_genmdl" nodedef="ND_multiply_matrix33" sourcecode="{{in1}} * {{in2}}" target="genmdl" />
   <implementation name="IM_multiply_matrix44_genmdl" nodedef="ND_multiply_matrix44" sourcecode="{{in1}} * {{in2}}" target="genmdl" />
-  <implementation name="IM_multiply_surfaceshaderF_genmdl" nodedef="ND_multiply_surfaceshaderF" sourcecode="mx::stdlib::mx_multiply_surfaceshaderF({{in1}}, {{in2}})" target="genmdl" />
-  <implementation name="IM_multiply_surfaceshaderC_genmdl" nodedef="ND_multiply_surfaceshaderC" sourcecode="mx::stdlib::mx_multiply_surfaceshaderC({{in1}}, {{in2}})" target="genmdl" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genmdl" nodedef="ND_divide_float" sourcecode="{{in1}} / {{in2}}" target="genmdl" />
@@ -605,10 +602,15 @@
   <!-- <mix> -->
   <implementation name="IM_mix_float_genmdl" nodedef="ND_mix_float" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_color3_genmdl" nodedef="ND_mix_color3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_color3_color3_genmdl" nodedef="ND_mix_color3_color3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_color4_genmdl" nodedef="ND_mix_color4" sourcecode="mx::stdlib::mx_mix_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_color4_color4_genmdl" nodedef="ND_mix_color4_color4" sourcecode="mx::stdlib::mx_mix_color4_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector2_genmdl" nodedef="ND_mix_vector2" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_vector2_vector2_genmdl" nodedef="ND_mix_vector2_vector2" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector3_genmdl" nodedef="ND_mix_vector3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_vector3_vector3_genmdl" nodedef="ND_mix_vector3_vector3" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector4_genmdl" nodedef="ND_mix_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_vector4_vector4_genmdl" nodedef="ND_mix_vector4_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_surfaceshader" sourcecode="mx::pbrlib::mx_mix_bsdf({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
   <!-- ======================================================================== -->
