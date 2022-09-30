@@ -18,11 +18,11 @@
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMultiplyNode.h>
-#include <MaterialXGenShader/Nodes/MaterialNode.h>
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/SurfaceNodeOsl.h>
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
+#include <MaterialXGenOsl/Nodes/MaterialNodeOsl.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -189,7 +189,7 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
     // <!-- <surfacematerial> -->
-    registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNode::create);
+    registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
 
     // Extra arguments for texture lookups.
     _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;

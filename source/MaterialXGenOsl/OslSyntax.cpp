@@ -507,11 +507,12 @@ OslSyntax::OslSyntax()
     registerTypeSyntax
     (
         Type::SURFACESHADER,
-        std::make_shared<ScalarTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",
-            "null_closure",
-            "0",
-            "closure color")
+            "surfaceshader(null_closure, null_closure, 1.0)",
+            "{ 0, 0, 1.0 }",
+            EMPTY_STRING,
+            "struct surfaceshader { closure color bsdf; closure color edf; float opacity; };")
     );
 
     registerTypeSyntax
