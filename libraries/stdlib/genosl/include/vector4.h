@@ -208,6 +208,14 @@ vector4 mix(vector4 value1, vector4 value2, float x )
                     mix( value1.w, value2.w, x));
 }
 
+vector4 mix(vector4 value1, vector4 value2, vector4 x )
+{
+    return vector4 (mix( value1.x, value2.x, x.x),
+                    mix( value1.y, value2.y, x.y),
+                    mix( value1.z, value2.z, x.z),
+                    mix( value1.w, value2.w, x.w));
+}
+
 vector vec4ToVec3(vector4 v)
 {
     return vector(v.x, v.y, v.z) / v.w;
