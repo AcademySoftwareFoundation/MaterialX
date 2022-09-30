@@ -200,12 +200,20 @@
       <input name="in1" type="float" nodename="coat_gamma_multiply" />
       <input name="in2" type="float" value="1.0" />
     </add>
-    <power name="coat_affected_diffuse_color" type="color3">
+    <max name="base_color_nonnegative" type="color3">
       <input name="in1" type="color3" interfacename="base_color" />
+      <input name="in2" type="float" value="0.0" />
+    </max>
+    <power name="coat_affected_diffuse_color" type="color3">
+      <input name="in1" type="color3" nodename="base_color_nonnegative" />
       <input name="in2" type="float" nodename="coat_gamma" />
     </power>
-    <power name="coat_affected_subsurface_color" type="color3">
+    <max name="subsurface_color_nonnegative" type="color3">
       <input name="in1" type="color3" interfacename="subsurface_color" />
+      <input name="in2" type="float" value="0.0" />
+    </max>
+    <power name="coat_affected_subsurface_color" type="color3">
+      <input name="in1" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="in2" type="float" nodename="coat_gamma" />
     </power>
 
