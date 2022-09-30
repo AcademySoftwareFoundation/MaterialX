@@ -225,7 +225,6 @@
   <implementation name="IM_add_matrix33FA_genosl" nodedef="ND_add_matrix33FA" file="mx_add.inline" target="genosl" />
   <implementation name="IM_add_matrix44_genosl" nodedef="ND_add_matrix44" file="mx_add.inline" target="genosl" />
   <implementation name="IM_add_matrix44FA_genosl" nodedef="ND_add_matrix44FA" file="mx_add.inline" target="genosl" />
-  <implementation name="IM_add_surfaceshader_genosl" nodedef="ND_add_surfaceshader" file="mx_add.inline" target="genosl" />
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genosl" nodedef="ND_subtract_float" file="mx_subtract.inline" target="genosl" />
@@ -258,8 +257,6 @@
   <implementation name="IM_multiply_vector4FA_genosl" nodedef="ND_multiply_vector4FA" file="mx_multiply.inline" target="genosl" />
   <implementation name="IM_multiply_matrix33_genosl" nodedef="ND_multiply_matrix33" file="mx_multiply.inline" target="genosl" />
   <implementation name="IM_multiply_matrix44_genosl" nodedef="ND_multiply_matrix44" file="mx_multiply.inline" target="genosl" />
-  <implementation name="IM_multiply_surfaceshaderF_genosl" nodedef="ND_multiply_surfaceshaderF" file="mx_multiply.inline" target="genosl" />
-  <implementation name="IM_multiply_surfaceshaderC_genosl" nodedef="ND_multiply_surfaceshaderC" file="mx_multiply.inline" target="genosl" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genosl" nodedef="ND_divide_float" file="mx_divide.inline" target="genosl" />
