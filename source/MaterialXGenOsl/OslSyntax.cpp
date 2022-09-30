@@ -306,6 +306,7 @@ OslSyntax::OslSyntax()
     // Add in all reserved words and keywords in OSL
     registerReservedWords(
     {
+        // OSL types and keywords
         "and", "break", "closure", "color", "continue", "do", "else", "emit", "float", "for", "if", "illuminance",
         "illuminate", "int", "matrix", "normal", "not", "or", "output", "point", "public", "return", "string",
         "struct", "vector", "void", "while",
@@ -313,10 +314,20 @@ OslSyntax::OslSyntax()
         "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
+        // OSL standard library functions names
+        "degrees", "radians", "cos", "sin", "tan", "acos", "asin", "atan", "atan2", "cosh", "sinh", "tanh",
+        "pow", "log", "log2", "log10", "logb", "sqrt", "inversesqrt", "cbrt", "hypot", "abs", "fabs", "sign",
+        "floor", "ceil", "round", "trunc", "fmod", "mod", "min", "max", "clamp", "mix", "select", "isnan",
+        "isinf", "isfinite", "erf", "erfc", "cross", "dot", "length", "distance", "normalize", "faceforward", 
+        "reflect", "fresnel", "transform", "transformu", "rotate", "luminance", "blackbody", "wavelength_color", 
+        "transformc", "determinant", "transpose", "step", "smoothstep", "linearstep", "smooth_linearstep", "aastep", 
+        "hash", "strlen", "getchar", "startswith", "endswith", "substr", "stof", "stoi", "concat", "textureresource",
+        "backfacing", "raytype", "iscameraray", "isdiffuseray", "isglossyray", "isshadowray", "getmatrix",
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
         "reflection", "transparent", "debug", "holdout", "subsurface", "sheen",
-        // TODO: Add all OSL standard library functions names
-        "mix", "rotate", "textureresource"
+        "oren_nayar_diffuse_bsdf", "burley_diffuse_bsdf", "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf", 
+        "translucent_bsdf", "transparent_bsdf","subsurface_bssrdf", "sheen_bsdf", "uniform_edf", "anisotropic_vdf", 
+        "medium_vdf", "layer", "artistic_ior"
     });
 
     //
