@@ -31,7 +31,7 @@
   <!-- Render test Suite Options -->
   <nodedef name="TestSuiteOptions">
     <!-- List of comma separated file names acts as a filter to only test documents with these names -->
-    <input name="overrideFiles" type="string" value="shader_ops.mtlx" />
+    <input name="overrideFiles" type="string" value="" />
 
     <!-- Comma separated list of light setup files. Only used for hardware shading languages  -->
     <input name="lightFiles" type="string" value="light_rig_test_2.mtlx" />
