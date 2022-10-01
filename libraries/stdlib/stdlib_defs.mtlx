@@ -2918,7 +2918,7 @@
     <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" doc="Multplier which increases or decreases color brightness by 2^value." value="0" />
     <output name="out" type="color3" />
   </nodedef>
-    <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
+  <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
     <input name="in" type="color4" uiname="Input Color" value="1, 1, 1, 0" />
     <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" />
