@@ -1104,10 +1104,10 @@
     Node: <bump>
     Offset the surface normal by a scalar value.
   -->
-  <nodedef name="ND_bump_vector3" node="bump" nodegroup="houdini">
+  <nodedef name="ND_bump_vector3" node="bump" nodegroup="geometric">
     <input name="height" type="float" uiname="Height" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="scale" type="float" uiname="Scale" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="normal" type="vector3" uiname="Normal" value="0, 0, 0" />
+    <input name="normal" type="vector3" uiname="Normal" defaultgeomprop="Nworld" />
     <output name="out" type="vector3" />
   </nodedef>
 
