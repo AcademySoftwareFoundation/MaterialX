@@ -352,7 +352,7 @@
     Node: <gltf_colorimage> Supplemental Node
     Multiply a color4 image modulated by uniform color and geometry color. Default uniform and geometry colors are 1,1,1,1 which results in no change to the image.
   -->
-  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="0.0.1" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
     <input name="uvindex" type="integer" value="0" uifolder="Image" />	  
