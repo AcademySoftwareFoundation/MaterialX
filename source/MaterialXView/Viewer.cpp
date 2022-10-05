@@ -250,13 +250,13 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl(mx::MdlShaderGenerator::create()),
 #endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
+    _drawEnvironment(false),
+    _outlineSelection(false),
+    _renderTransparency(true),
+    _renderDoubleSided(true),
     _splitByUdims(true),
     _mergeMaterials(false),
     _showAllInputs(false),
-    _renderTransparency(true),
-    _renderDoubleSided(true),
-    _outlineSelection(false),
-    _drawEnvironment(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
     _exitRequested(false),
@@ -436,7 +436,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap;
+    mx::ImagePtr envIrradianceMap = _imageHandler->getInvalidImage();
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
@@ -688,137 +688,23 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
     advancedPopup->set_layout(new ng::GroupLayout(13));
 
-    ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");
-    meshLabel->set_font_size(20);
-    meshLabel->set_font("sans-bold");
+    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
+    viewLabel->set_font_size(20);
+    viewLabel->set_font("sans-bold");
 
-    ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
-    splitUdimsBox->set_checked(_splitByUdims);
-    splitUdimsBox->set_callback([this](bool enable)
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Draw Environment");
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
     {
-        _splitByUdims = enable;
+        _drawEnvironment = enable;
     });
 
-    ng::Label* materialLabel = new ng::Label(advancedPopup, "Material Options");
-    materialLabel->set_font_size(20);
-    materialLabel->set_font("sans-bold");
-
-    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
-    mergeMaterialsBox->set_checked(_mergeMaterials);
-    mergeMaterialsBox->set_callback([this](bool enable)
+    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
+    outlineSelectedGeometryBox->set_checked(_outlineSelection);
+    outlineSelectedGeometryBox->set_callback([this](bool enable)
     {
-        _mergeMaterials = enable;
+        _outlineSelection = enable;
     });
-
-    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
-    showInputsBox->set_checked(_showAllInputs);
-    showInputsBox->set_callback([this](bool enable)
-    {
-        _showAllInputs = enable;
-    });    
-
-    Widget* unitGroup = new Widget(advancedPopup);
-    unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(unitGroup, "Distance Unit:");
-    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
-    distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
-    distanceUnitBox->set_chevron_icon(-1);
-    if (_distanceUnitConverter)
-    {
-        distanceUnitBox->set_selected_index(_distanceUnitConverter->getUnitAsInteger("meter"));
-    }
-    distanceUnitBox->set_callback([this](int index)
-    {
-        m_process_events = false;
-        _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#if MATERIALX_BUILD_GEN_OSL
-        _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#endif
-#if MATERIALX_BUILD_GEN_MDL
-        _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#endif
-        for (MaterialPtr material : _materials)
-        {
-            material->bindShader();
-            material->bindUnits(_unitRegistry, _genContext);
-        }
-        m_process_events = true;
-    });
-
-    ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
-    lightingLabel->set_font_size(20);
-    lightingLabel->set_font("sans-bold");
-
-    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
-    directLightingBox->set_checked(_lightHandler->getDirectLighting());
-    directLightingBox->set_callback([this](bool enable)
-    {
-        _lightHandler->setDirectLighting(enable);
-    });
-
-    ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
-    indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
-    indirectLightingBox->set_callback([this](bool enable)
-    {
-        _lightHandler->setIndirectLighting(enable);
-    });
-
-    ng::CheckBox* normalizeEnvironmentBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
-    normalizeEnvironmentBox->set_checked(_normalizeEnvironment);
-    normalizeEnvironmentBox->set_callback([this](bool enable)
-    {
-        _normalizeEnvironment = enable;
-    });
-
-    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
-    splitDirectLightBox->set_checked(_splitDirectLight);
-    splitDirectLightBox->set_callback([this](bool enable)
-    {
-        _splitDirectLight = enable;
-    });
-
-    ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
-    lightRotationRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    mx::UIProperties ui;
-    ui.uiMin = mx::Value::createValue(0.0f);
-    ui.uiMax = mx::Value::createValue(360.0f);
-    ng::FloatBox<float>* lightRotationBox = createFloatWidget(lightRotationRow, "Light Rotation:",
-        _lightRotation, &ui, [this](float value)
-    {
-        _lightRotation = value;
-        invalidateShadowMap();
-    });
-    lightRotationBox->set_editable(true);
-
-    ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
-    shadowingLabel->set_font_size(20);
-    shadowingLabel->set_font("sans-bold");
-
-    ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
-    shadowMapBox->set_checked(_genContext.getOptions().hwShadowMap);
-    shadowMapBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwShadowMap = enable;
-        reloadShaders();
-    });
-
-    ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
-    ambientOcclusionBox->set_checked(_genContext.getOptions().hwAmbientOcclusion);
-    ambientOcclusionBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwAmbientOcclusion = enable;
-        reloadShaders();
-    });
-
-    ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
-    ambientOcclusionGainRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
-        _ambientOcclusionGain, nullptr, [this](float value)
-    {
-        _ambientOcclusionGain = value;
-    });
-    ambientOcclusionGainBox->set_editable(true);
 
     ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
     renderLabel->set_font_size(20);
@@ -888,41 +774,130 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
-    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
-    viewLabel->set_font_size(20);
-    viewLabel->set_font("sans-bold");
+    ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
+    lightingLabel->set_font_size(20);
+    lightingLabel->set_font("sans-bold");
 
-    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
-    outlineSelectedGeometryBox->set_checked(_outlineSelection);
-    outlineSelectedGeometryBox->set_callback([this](bool enable)
+    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
+    directLightingBox->set_checked(_lightHandler->getDirectLighting());
+    directLightingBox->set_callback([this](bool enable)
     {
-        _outlineSelection = enable;
+        _lightHandler->setDirectLighting(enable);
     });
 
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->set_checked(_drawEnvironment);
-    drawEnvironmentBox->set_callback([this](bool enable)
+    ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
+    indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
+    indirectLightingBox->set_callback([this](bool enable)
     {
-        _drawEnvironment = enable;
+        _lightHandler->setIndirectLighting(enable);
     });
 
-    ng::CheckBox* turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
-    turntableEnabledCheckBox->set_checked(_turntableEnabled);
-    turntableEnabledCheckBox->set_callback([this](bool enable)
+    ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
+    lightRotationRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    mx::UIProperties ui;
+    ui.uiMin = mx::Value::createValue(0.0f);
+    ui.uiMax = mx::Value::createValue(360.0f);
+    ng::FloatBox<float>* lightRotationBox = createFloatWidget(lightRotationRow, "Light Rotation:",
+        _lightRotation, &ui, [this](float value)
     {
-        toggleTurntable(enable);
+        _lightRotation = value;
+        invalidateShadowMap();
+    });
+    lightRotationBox->set_editable(true);
+
+    ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
+    shadowingLabel->set_font_size(20);
+    shadowingLabel->set_font("sans-bold");
+
+    ng::CheckBox* shadowMapBox = new ng::CheckBox(advancedPopup, "Shadow Map");
+    shadowMapBox->set_checked(_genContext.getOptions().hwShadowMap);
+    shadowMapBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().hwShadowMap = enable;
+        reloadShaders();
     });
 
-    ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
-    meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ui.uiMin = mx::Value::createValue(2);
-    ui.uiMax = mx::Value::createValue(360);
-    ng::IntBox<int>* meshTurntableBox = createIntWidget(meshTurntableRow, "Turntable Steps:",
-        _turntableSteps, &ui, [this](int value)
+    ng::CheckBox* ambientOcclusionBox = new ng::CheckBox(advancedPopup, "Ambient Occlusion");
+    ambientOcclusionBox->set_checked(_genContext.getOptions().hwAmbientOcclusion);
+    ambientOcclusionBox->set_callback([this](bool enable)
     {
-        _turntableSteps = std::clamp(value, 2, 360);
+        _genContext.getOptions().hwAmbientOcclusion = enable;
+        reloadShaders();
     });
-    meshTurntableBox->set_editable(true);
+
+    ng::Widget* ambientOcclusionGainRow = new ng::Widget(advancedPopup);
+    ambientOcclusionGainRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    ng::FloatBox<float>* ambientOcclusionGainBox = createFloatWidget(ambientOcclusionGainRow, "AO Gain:",
+        _ambientOcclusionGain, nullptr, [this](float value)
+    {
+        _ambientOcclusionGain = value;
+    });
+    ambientOcclusionGainBox->set_editable(true);
+
+    ng::Label* sceneLabel = new ng::Label(advancedPopup, "Scene Options");
+    sceneLabel->set_font_size(20);
+    sceneLabel->set_font("sans-bold");
+
+    Widget* unitGroup = new Widget(advancedPopup);
+    unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(unitGroup, "Distance Unit:");
+    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
+    distanceUnitBox->set_chevron_icon(-1);
+    if (_distanceUnitConverter)
+    {
+        distanceUnitBox->set_selected_index(_distanceUnitConverter->getUnitAsInteger("meter"));
+    }
+    distanceUnitBox->set_callback([this](int index)
+    {
+        m_process_events = false;
+        _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#if MATERIALX_BUILD_GEN_OSL
+        _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+        _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+        for (MaterialPtr material : _materials)
+        {
+            material->bindShader();
+            material->bindUnits(_unitRegistry, _genContext);
+        }
+        m_process_events = true;
+    });
+
+    ng::Label* loadingLabel = new ng::Label(advancedPopup, "Asset Loading Options");
+    loadingLabel->set_font_size(20);
+    loadingLabel->set_font("sans-bold");
+
+    ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
+    splitUdimsBox->set_checked(_splitByUdims);
+    splitUdimsBox->set_callback([this](bool enable)
+    {
+        _splitByUdims = enable;
+    });
+
+    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
+    mergeMaterialsBox->set_checked(_mergeMaterials);
+    mergeMaterialsBox->set_callback([this](bool enable)
+    {
+        _mergeMaterials = enable;
+    });
+
+    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
+    showInputsBox->set_checked(_showAllInputs);
+    showInputsBox->set_callback([this](bool enable)
+    {
+        _showAllInputs = enable;
+    });
+
+    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
+    splitDirectLightBox->set_checked(_splitDirectLight);
+    splitDirectLightBox->set_callback([this](bool enable)
+    {
+        _splitDirectLight = enable;
+    });
 
     ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
     translationLabel->set_font_size(20);
