@@ -758,7 +758,7 @@
       <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
       <input name="scale" type="vector2" nodename="invert_scale" value="1, 1" />
       <input name="rotate" type="float" nodename="negate_rotate" />
-      <input name="offset" type="vector2" nodename ="negate_offset" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
       <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
     </place2d>
     <output name="out" type="vector3" nodename="normalmap" />
