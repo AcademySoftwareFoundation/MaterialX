@@ -6,26 +6,22 @@
   <standard_surface name="top_level_shader" type="surfaceshader" version="1.0.1" />
   <surfacematerial name="top_level_material_no_asssign" type="material" >
     <input name="surfaceshader" type="surfaceshader" nodename="top_level_shader" />
-    <input name="displacementshader" type="displacementshader" />
   </surfacematerial>
   <nodegraph name="top_level_material_in_graph_no_assign" >
     <standard_surface name="standard_surface2" type="surfaceshader" version="1.0.1" />
     <surfacematerial name="surfacematerial1" type="material" >
       <input name="surfaceshader" type="surfaceshader" nodename="standard_surface2" />
-      <input name="displacementshader" type="displacementshader" />
     </surfacematerial>
     <output name="out" type="material" nodename="surfacematerial1" />
   </nodegraph>
   <standard_surface name="top_level_shader1" type="surfaceshader" version="1.0.1" />
   <surfacematerial name="top_level_material_assigned" type="material" >
     <input name="surfaceshader" type="surfaceshader" nodename="top_level_shader1" />
-    <input name="displacementshader" type="displacementshader" />
   </surfacematerial>
   <nodegraph name="NG_material_def_material_1_0" nodedef="ND_material_def_material_1_0">
     <standard_surface name="standard_surface2" type="surfaceshader" version="1.0.1"  />
     <surfacematerial name="surfacematerial1" type="material" >
       <input name="surfaceshader" type="surfaceshader" nodename="standard_surface2" />
-      <input name="displacementshader" type="displacementshader" />
     </surfacematerial>
     <output name="out" type="material" nodename="surfacematerial1" />
   </nodegraph>
@@ -34,7 +30,6 @@
     <standard_surface name="standard_surface2" type="surfaceshader" version="1.0.1" />
     <surfacematerial name="surfacematerial1" type="material" >
       <input name="surfaceshader" type="surfaceshader" nodename="standard_surface2" />
-      <input name="displacementshader" type="displacementshader" />
     </surfacematerial>
     <output name="out" type="material" nodename="surfacematerial1" />
   </nodegraph>
