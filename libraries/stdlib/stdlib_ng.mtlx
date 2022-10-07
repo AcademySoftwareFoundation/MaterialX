@@ -1032,16 +1032,26 @@
     Combined 2d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise2d_float" nodedef="ND_unifiednoise2d_float">
+    <input name="texcoord" type="vector2" />
+    <input name="freq" type="vector2" />
+    <input name="offset" type="vector2" />
+    <input name="jitter" type="float" />
+    <input name="outmin" type="float" />
+    <input name="outmax" type="float" />
+    <input name="clampoutput" type="boolean" />
+    <input name="octaves" type="integer" />
+    <input name="lacunarity" type="float" />
+    <input name="diminish" type="float" />
+    <input name="type" type="integer" />
+    <output name="out" type="float" nodename="N_range" />
     <range name="N_range" type="float">
       <input name="in" type="float" nodename="N_switch_type" />
-      <input name="gamma" type="float" interfacename="outgamma" />
       <input name="outlow" type="float" interfacename="outmin" />
       <input name="outhigh" type="float" interfacename="outmax" />
       <input name="doclamp" type="boolean" interfacename="clampoutput" />
       <input name="inlow" type="float" value="0" />
       <input name="inhigh" type="float" value="1" />
     </range>
-    <output name="out" type="float" nodename="N_range" />
     <switch name="N_switch_type" type="float">
       <input name="in1" type="float" nodename="N_perlin_noise2d" />
       <input name="in2" type="float" nodename="N_cellnoise2d" />
@@ -1103,16 +1113,26 @@
     Combined 3d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
+    <input name="texcoord" type="vector2" />
+    <input name="freq" type="vector2" />
+    <input name="offset" type="vector2" />
+    <input name="jitter" type="float" />
+    <input name="outmin" type="float" />
+    <input name="outmax" type="float" />
+    <input name="clampoutput" type="boolean" />
+    <input name="octaves" type="integer" />
+    <input name="lacunarity" type="float" />
+    <input name="diminish" type="float" />
+    <input name="type" type="integer" />
+    <output name="out" type="float" nodename="N_range" />
     <range name="N_range" type="float">
       <input name="in" type="float" nodename="N_switch_type" />
-      <input name="gamma" type="float" interfacename="outgamma" />
       <input name="outlow" type="float" interfacename="outmin" />
       <input name="outhigh" type="float" interfacename="outmax" />
       <input name="doclamp" type="boolean" interfacename="clampoutput" />
       <input name="inlow" type="float" value="0" />
       <input name="inhigh" type="float" value="1" />
     </range>
-    <output name="out" type="float" nodename="N_range" />
     <switch name="N_switch_type" type="float">
       <input name="in1" type="float" nodename="N_perlin_noise3d" />
       <input name="in2" type="float" nodename="N_cellnoise3d" />

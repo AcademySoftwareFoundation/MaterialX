@@ -991,18 +991,17 @@
     The output is 1 channel, with controls to adjust the output range.
   -->
   <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" uifolder="Common" value="0, 0" />
-    <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" />
-    <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" />
-    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" />
-    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" />
-    <input name="outgamma" type="float" uiname="Output Gamma" uifolder="Post Process" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" />
-    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" />
-    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" />
-    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" />
-    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Noise,Cell,Worley,Fractal" enumvalues="0,1,2,3"/>
+    <input name="texcoord" type="vector2" uifolder="Common" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1)." />
+    <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" doc="Shift the noise in 2d space. Default is (0,0)." />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <output name="out" type="float" />
   </nodedef>
   
@@ -1011,18 +1010,17 @@
     The 3d flavor of <unifiednoise2d>.
   -->
   <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="procedural3d">
-    <input name="position" type="vector3" uifolder="Common" value="0, 0, 0" />
-    <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" />
-    <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" />
-    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" />
-    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" />
-    <input name="outgamma" type="float" uiname="Output Gamma" uifolder="Post Process" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" />
-    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" />
-    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" />
-    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" />
-    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Noise,Cell,Worley,Fractal" enumvalues="0,1,2,3"/>
+    <input name="position" type="vector3" uifolder="Common" defaultgeomprop="Pobject" doc="The input 3d space. Default is position in object-space." />
+    <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1,1)." />
+    <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" doc="Shift the noise in 3d space. Default is (0,0,0)." />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <output name="out" type="float" />
   </nodedef>
 
