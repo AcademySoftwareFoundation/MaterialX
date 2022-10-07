@@ -1893,11 +1893,20 @@
     Combines various adjustment nodes into one, artist-friendly color correction node.
   -->
   <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
+    <input name="in" type="color3" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
+    <output name="out" type="color3" nodename="N_exposure" />
     <multiply name="N_exposure" type="color3">
       <input name="in1" type="color3" nodename="N_contrast" />
       <input name="in2" type="float" nodename="N_exposurepwr" />
     </multiply>
-    <output name="out" type="color3" nodename="N_exposure" />
     <contrast name="N_contrast" type="color3">
       <input name="in" type="color3" nodename="N_gain" />
       <input name="amount" type="float" interfacename="contrast" />
@@ -1948,6 +1957,15 @@
     </combine3>
   </nodegraph>
   <nodegraph name="NG_colorcorrect_color4" nodedef="ND_colorcorrect_color4">
+    <input name="in" type="color4" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
     <output name="out" type="color4" nodename="N_combine_with_alpha" />
     <separate4 name="N_split_color4" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
