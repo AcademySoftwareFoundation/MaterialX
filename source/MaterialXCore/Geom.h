@@ -357,11 +357,11 @@ class MX_CORE_API GeomProp : public ValueElement
 /// as a reference to the "normal" geometric node with a space setting of
 /// "world", or a specific set of texture coordinates can be declared as a
 /// reference to the "texcoord" geometric node with an index setting of "1".
-class MX_CORE_API GeomPropDef : public Element
+class MX_CORE_API GeomPropDef : public TypedElement
 {
   public:
     GeomPropDef(ElementPtr parent, const string& name) :
-        Element(parent, CATEGORY, name)
+        TypedElement(parent, CATEGORY, name)
     {
     }
     virtual ~GeomPropDef() { }
