@@ -48,6 +48,7 @@ void bindPyNode(py::module& mod)
         .def("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)
+        .def("addGeomNode", &mx::GraphElement::addGeomNode)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")

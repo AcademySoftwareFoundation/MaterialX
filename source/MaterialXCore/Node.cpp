@@ -29,7 +29,11 @@ void Node::setConnectedNode(const string& inputName, ConstNodePtr node)
     }
     if (node)
     {
-        input->setType(node->getType());
+        const string& type = node->getType();
+        if (type != MULTI_OUTPUT_TYPE_STRING)
+        {
+            input->setType(type);
+        }
     }
     input->setConnectedNode(node);
 }
@@ -521,6 +525,25 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     }
 
     return result;
+}
+
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+{
+    string geomNodeName = namePrefix + "_" + geomPropDef->getName();
+    NodePtr geomNode = getNode(geomNodeName);
+    if (!geomNode)
+    {
+        geomNode = addNode(geomPropDef->getGeomProp(), geomNodeName, geomPropDef->getType());
+        if (geomPropDef->hasAttribute(GeomPropDef::SPACE_ATTRIBUTE))
+        {
+            geomNode->setInputValue(GeomPropDef::SPACE_ATTRIBUTE, geomPropDef->getAttribute(GeomPropDef::SPACE_ATTRIBUTE));
+        }
+        if (geomPropDef->hasAttribute(GeomPropDef::INDEX_ATTRIBUTE))
+        {
+            geomNode->setInputValue(GeomPropDef::INDEX_ATTRIBUTE, geomPropDef->getAttribute(GeomPropDef::INDEX_ATTRIBUTE), getTypeString<int>());
+        }
+    }
+    return geomNode;
 }
 
 string GraphElement::asStringDot() const
