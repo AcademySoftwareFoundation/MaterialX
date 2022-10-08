@@ -306,6 +306,10 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
 
+    /// If not yet present, add a geometry node to this graph matching the given property
+    /// definition and name prefix.
+    NodePtr addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix);
+
     /// Convert this graph to a string in the DOT language syntax.  This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).
     ///
