@@ -257,6 +257,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _splitByUdims(true),
     _mergeMaterials(false),
     _showAllInputs(false),
+    _flattenSubgraphs(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
     _exitRequested(false),
@@ -892,6 +893,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAllInputs = enable;
     });
 
+    ng::CheckBox* flattenBox = new ng::CheckBox(advancedPopup, "Flatten Subgraphs");
+    flattenBox->set_checked(_flattenSubgraphs);
+    flattenBox->set_callback([this](bool enable)
+    {
+        _flattenSubgraphs = enable;
+    });    
+
     ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
     splitDirectLightBox->set_checked(_splitDirectLight);
     splitDirectLightBox->set_callback([this](bool enable)
@@ -1172,6 +1180,19 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
+
+        // Flatten subgraphs if requested.
+        if (_flattenSubgraphs)
+        {
+            doc->flattenSubgraphs();
+            for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
+            {
+                if (graph->getActiveSourceUri() == doc->getActiveSourceUri())
+                {
+                    graph->flattenSubgraphs();
+                }
+            }
+        }
 
         // Validate the document.
         std::string message;
