@@ -379,66 +379,40 @@ void findRenderableMaterialNodes(ConstDocumentPtr doc,
 void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
 {
     std::unordered_set<ElementPtr> processedSources;
-
     findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedSources);
-
-    // Find node graph outputs. Skip any light shaders
-    vector<OutputPtr> testOutputs;
-    for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+    if (!elements.empty())
     {
-        // Skip anything from an include file including libraries.
-        // Skip any nodegraph which is a definition
-        if (!nodeGraph->hasSourceUri() && !nodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
+        return;
+    }
+
+    // Find all node graph outputs in the content document.
+    vector<OutputPtr> graphOutputs;
+    for (OutputPtr output : doc->getOutputs())
+    {
+        if (output->getActiveSourceUri() == doc->getActiveSourceUri())
         {
-            for (auto graphOutput : nodeGraph->getOutputs())
+            graphOutputs.push_back(output);
+        }
+    }
+    for (NodeGraphPtr graph : doc->getNodeGraphs())
+    {
+        for (OutputPtr output : graph->getOutputs())
+        {
+            if (output->getActiveSourceUri() == doc->getActiveSourceUri())
             {
-                testOutputs.push_back(graphOutput);
+                graphOutputs.push_back(output);
             }
         }
     }
 
-    // Add in all top-level outputs not already processed.
-    auto docOutputs = doc->getOutputs();
-    for (auto docOutput : docOutputs)
+    // Add renderable graph outputs to the return vector.
+    for (OutputPtr output : graphOutputs)
     {
-        if (!docOutput->hasSourceUri())
-        {
-            testOutputs.push_back(docOutput);
-        }
-    }
-
-    for (OutputPtr output : testOutputs)
-    {
-        if (processedSources.count(output))
-        {
-            continue;
-        }
         NodePtr node = output->getConnectedNode();
         if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
         {
-            NodeDefPtr nodeDef = node->getNodeDef();
-            if (!nodeDef)
-            {
-                throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getNamePath() + "'");
-            }
-            if (requiresImplementation(nodeDef))
-            {
-                if (node->getType() == MATERIAL_TYPE_STRING)
-                {
-                    if (processedSources.count(node))
-                    {
-                        continue;
-                    }
-                    elements.push_back(node);
-                    processedSources.insert(node);
-                }
-                else
-                {
-                    elements.push_back(output);
-                }
-            }
+            elements.push_back(output);
         }
-        processedSources.insert(output);
     }
 }
 
