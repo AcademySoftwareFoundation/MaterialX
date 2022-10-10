@@ -391,6 +391,7 @@ class Viewer : public ng::Screen
     bool _splitByUdims;
     bool _mergeMaterials;
     bool _showAllInputs;
+    bool _flattenSubgraphs;
 
     // Shader translation
     std::string _targetShader;
