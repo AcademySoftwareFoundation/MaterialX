@@ -1105,10 +1105,12 @@
     Offset the surface normal by a scalar value.
   -->
   <nodedef name="ND_bump_vector3" node="bump" nodegroup="geometric">
-    <input name="height" type="float" uiname="Height" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="scale" type="float" uiname="Scale" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="normal" type="vector3" uiname="Normal" defaultgeomprop="Nworld" />
-    <output name="out" type="vector3" />
+    <input name="height" type="float" uiname="Height" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Amount to offset the surface normal." />
+    <input name="scale" type="float" uiname="Scale" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Scalar to adjust the height amount." />
+    <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" doc="The space to transform the normal from ('tangent' or 'object'); defaults to 'tangent'" />
+    <input name="normal" type="vector3" uiname="Normal" defaultgeomprop="Nworld" doc="Surface normal; defaults to the current world-space normal." />
+    <input name="tangent" type="vector3" uiname="Tangent" defaultgeomprop="Tworld" doc="Surface tangent vector, defaults to the current world-space tangent vector." />
+    <output name="out" type="vector3" doc="Offset surface normal; connect this to a shader's 'normal' input." />
   </nodedef>
 
   <!-- ======================================================================== -->

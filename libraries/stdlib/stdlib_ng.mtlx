@@ -1032,18 +1032,22 @@
   <!-- ======================================================================== -->
 
   <nodegraph name="NG_bump_vector3" nodedef="ND_bump_vector3">
+    <input name="height" type="float" />
+    <input name="scale" type="float" />
+    <input name="space" type="string" />
+    <input name="normal" type="vector3" />
+    <input name="tangent" type="vector3" />
+    <output name="out" type="vector3" nodename="N_normalmap" />
     <heighttonormal name="N_heighttonormal" type="vector3">
       <input name="in" type="float" interfacename="height" />
-      <input name="scale" type="float" interfacename="scale" />
     </heighttonormal>
     <normalmap name="N_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="N_heighttonormal" />
       <input name="normal" type="vector3" interfacename="normal" />
-      <input name="space" type="string" value="tangent" />
-      <input name="scale" type="float" value="1" />
-      <input name="tangent" type="vector3" />
+      <input name="space" type="string" interfacename="space" />
+      <input name="scale" type="float" interfacename="scale" />
+      <input name="tangent" type="vector3" interfacename="tangent"/>
     </normalmap>
-    <output name="out" type="vector3" nodename="N_normalmap" />
   </nodegraph>
 
   <!-- ======================================================================== -->
