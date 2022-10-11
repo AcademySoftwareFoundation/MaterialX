@@ -1113,9 +1113,9 @@
     Combined 3d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
-    <input name="texcoord" type="vector2" />
-    <input name="freq" type="vector2" />
-    <input name="offset" type="vector2" />
+    <input name="position" type="vector3" />
+    <input name="freq" type="vector3" />
+    <input name="offset" type="vector3" />
     <input name="jitter" type="float" />
     <input name="outmin" type="float" />
     <input name="outmax" type="float" />

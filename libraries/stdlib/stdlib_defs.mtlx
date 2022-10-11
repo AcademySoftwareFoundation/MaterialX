@@ -983,7 +983,7 @@
     
     The noise types are:
     
-       0 - Noise (noise2d/noise3d)
+       0 - Perlin (noise2d/noise3d)
        1 - Cell (cellnoise2d/cellnoise3d)
        2 - Worley (worley2d/worley3d)
        3 - Fractal (fractal3d)
