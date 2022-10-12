@@ -50,7 +50,7 @@
       <input name="in2" type="float" nodename="pow2_surfaniso0" />
     </subtract>
     <constant name="surface_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="surface_rotation" />
+      <input name="value" type="float" interfacename="surface_rotation" />
     </constant>
     <divide name="div_rotation0" type="float">
       <input name="in1" type="float" nodename="surface_rotation_param" />
@@ -60,7 +60,7 @@
       <input name="in1" type="float" nodename="div_rotation0" />
     </modulo>
     <constant name="layered_f0_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_f0" />
+      <input name="value" type="float" interfacename="layered_f0" />
     </constant>
     <sqrt name="sqrt_layeredf0" type="float">
       <input name="in" type="float" nodename="layered_f0_param" />
@@ -78,10 +78,10 @@
       <input name="in2" type="float" nodename="oneminus_sqrtlayeredf0" />
     </divide>
     <constant name="layered_roughness_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_roughness" />
+      <input name="value" type="float" interfacename="layered_roughness" />
     </constant>
     <constant name="layered_anisotropy_param" type="float">
-      <input name="value" type="float" value="1" interfacename="layered_anisotropy" />
+      <input name="value" type="float" interfacename="layered_anisotropy" />
     </constant>
     <subtract name="oneminus_layeraniso0" type="float">
       <input name="in1" type="float" value="1.0" />
@@ -107,7 +107,7 @@
       <input name="in2" type="float" nodename="pow2_layeraniso0" />
     </subtract>
     <constant name="layered_rotation_param" type="float">
-      <input name="value" type="float" value="0" interfacename="layered_rotation" />
+      <input name="value" type="float" interfacename="layered_rotation" />
     </constant>
     <divide name="div_rotation1" type="float">
       <input name="in1" type="float" nodename="layered_rotation_param" />
@@ -117,13 +117,13 @@
       <input name="in1" type="float" nodename="div_rotation1" />
     </modulo>
     <constant name="layered_fraction_param" type="float">
-      <input name="value" type="float" value="0" interfacename="layered_fraction" />
+      <input name="value" type="float" interfacename="layered_fraction" />
     </constant>
     <constant name="layered_diffuse_param" type="color3">
-      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_diffuse" />
+      <input name="value" type="color3" interfacename="layered_diffuse" />
     </constant>
     <constant name="layered_bottom_f0_param" type="color3">
-      <input name="value" type="color3" value="1, 1, 1" interfacename="layered_bottom_f0" />
+      <input name="value" type="color3" interfacename="layered_bottom_f0" />
     </constant>
     <subtract name="oneminus_layerfraction" type="float">
       <input name="in1" type="float" value="1.0" />
@@ -148,9 +148,9 @@
       <input name="value2" type="boolean" value="true" />
     </ifequal>
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="layered_normal" />
-      <input name="coat_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
-      <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
+      <input name="normal" type="vector3" defaultgeomprop="Nobject" interfacename="layered_normal" />
+      <input name="coat_normal" type="vector3" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="opacity" type="color3" interfacename="surface_cutout" />
       <input name="coat" type="float" nodename="coat_value" />
       <input name="metalness" type="float" nodename="layered_fraction_value" />
       <input name="specular" type="float" value="0.0" />
@@ -182,12 +182,12 @@
   </nodedef>
   <nodegraph name="NG_bitmap_color3" nodedef="ND_bitmap_color3">
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale" />
+      <input name="in1" type="vector2" interfacename="uv_scale" />
       <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset" />
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset" />
+      <input name="in2" type="vector2" interfacename="uv_offset" />
     </add>
     <multiply name="rotation_angle_param" type="float">
       <input name="in1" type="float" interfacename="rotation_angle" />
@@ -238,12 +238,12 @@
   </nodedef>
   <nodegraph name="NG_normal_map" nodedef="ND_normal_map">
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale" />
+      <input name="in1" type="vector2" interfacename="uv_scale" />
       <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset" />
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset" />
+      <input name="in2" type="vector2" interfacename="uv_offset" />
     </add>
     <multiply name="rotation_angle_param" type="float">
       <input name="in1" type="float" interfacename="rotation_angle" />
@@ -295,12 +295,12 @@
   </nodedef>
   <nodegraph name="NG_bitmap_remap_float" nodedef="ND_bitmap_remap_float">
     <divide name="total_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0" interfacename="uv_scale" />
+      <input name="in1" type="vector2" interfacename="uv_scale" />
       <input name="in2" type="vector2" interfacename="realworld_scale" />
     </divide>
     <add name="total_offset" type="vector2">
       <input name="in1" type="vector2" interfacename="realworld_offset" />
-      <input name="in2" type="vector2" value="0.0, 0.0" interfacename="uv_offset" />
+      <input name="in2" type="vector2" interfacename="uv_offset" />
     </add>
     <multiply name="rotation_angle_param" type="float">
       <input name="in1" type="float" interfacename="rotation_angle" />

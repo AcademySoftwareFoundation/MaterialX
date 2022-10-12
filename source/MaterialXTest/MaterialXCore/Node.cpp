@@ -592,18 +592,6 @@ TEST_CASE("Tokens", "[nodegraph]")
             const std::string tokenString = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
             REQUIRE(substitutions.count(tokenString));
         }
-
-        // Test that one of the tokens was used
-        REQUIRE(input->getValueString() == std::string("resources/images/cloth.[Image_Extension]"));
-        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth." + extensionStrings[i]));
-
-        // Modify and test that both of the tokens was used
-        input->setValueString("resources/images/cloth_[Image_Resolution].[Image_Extension]");
-        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth_" + resolutionStrings[i] + "." + extensionStrings[i]));
-
-        // Modify and test without proper delimiters
-        input->setValueString("resources/images/cloth_<Image_Resolution>.<Image_Extension>");
-        REQUIRE(input->getResolvedValueString() == std::string("resources/images/cloth_<Image_Resolution>.<Image_Extension>"));
     }
 }
 
