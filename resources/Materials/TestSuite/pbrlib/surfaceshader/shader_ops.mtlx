@@ -2,8 +2,8 @@
 <materialx version="1.38">
   <nodegraph name="nodegraph1">
     <mix name="mix_surface_shader" type="surfaceshader">
-      <input name="fg" type="surfaceshader" value="" nodename="standard_surface1" />
-      <input name="bg" type="surfaceshader" value="" nodename="standard_surface2" />
+      <input name="fg" type="surfaceshader" nodename="standard_surface1" />
+      <input name="bg" type="surfaceshader" nodename="standard_surface2" />
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <standard_surface name="standard_surface1" type="surfaceshader">
