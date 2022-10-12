@@ -3,7 +3,7 @@
   <nodegraph name="green_graph" >
     <input name="in" type="color3" value="0, 1, 0" />
     <separate3 name="green_node" type="multioutput" nodedef="ND_separate3_color3" >
-      <input name="in" type="color3" interfacename="in" value="0, 1, 0"  />
+      <input name="in" type="color3" interfacename="in" />
       <output name="outr" type="float" />
       <output name="outg" type="float" />
       <output name="outb" type="float" />

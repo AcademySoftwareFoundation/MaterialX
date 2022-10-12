@@ -2,7 +2,7 @@
 <materialx version="1.38">
   <nodegraph name="lighting1">
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" value="" nodename="diffusebsdf1" />
+      <input name="bsdf" type="BSDF" nodename="diffusebsdf1" />
       <input name="edf" type="EDF" value="" />
       <input name="opacity" type="float" value="1.0" />
     </surface>

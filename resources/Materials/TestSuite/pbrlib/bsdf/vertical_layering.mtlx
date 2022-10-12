@@ -200,7 +200,7 @@
         <input name="base" type="BSDF" nodename="mybsdf1" />
       </layer>
       <surface name="surface1" type="surfaceshader">
-        <input name="bsdf" type="BSDF" value="" nodename="layer1" />
+        <input name="bsdf" type="BSDF" nodename="layer1" />
       </surface>
       <output name="out" type="surfaceshader" nodename="surface1" />
     </nodegraph>
