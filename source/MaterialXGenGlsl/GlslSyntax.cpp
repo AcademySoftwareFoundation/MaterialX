@@ -386,7 +386,7 @@ GlslSyntax::GlslSyntax()
             "material(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
             "surfaceshader",
-            "#define surfaceshader material")
+            "#define material surfaceshader")
     );
 }
 
