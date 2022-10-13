@@ -88,6 +88,23 @@ namespace
             return false;
         }
 
+        if (node->getCategory() == "mix")
+        {
+            const InputPtr fg = node->getInput("fg");
+            const NodePtr fgNode = fg ? fg->getConnectedNode() : nullptr;
+            if (fgNode && isTransparentShaderNode(fgNode, nullptr))
+            {
+                return true;
+            }
+            const InputPtr bg = node->getInput("bg");
+            const NodePtr bgNode = bg ? bg->getConnectedNode() : nullptr;
+            if (bgNode && isTransparentShaderNode(bgNode, nullptr))
+            {
+                return true;
+            }
+            return false;
+        }
+
         // Inputs on a surface shader which are checked for transparency
         const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
                                                    {"existence", 1.0f},
