@@ -296,15 +296,24 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// @}
     /// @name Utility
     /// @{
-
-    /// Flatten any references to graph-based node definitions within this
-    /// node graph, replacing each reference with the equivalent node network.
+    
+    /// Flatten all subgraphs at the root scope of this graph element,
+    /// recursively replacing each graph-defined node with its equivalent
+    /// node network.
+    /// @param target An optional target string to be used in specifying
+    ///     which node definitions are used in this process.
+    /// @param filter An optional node predicate specifying which nodes
+    ///     should be included and excluded from this process.
     void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter = nullptr);
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
+
+    /// If not yet present, add a geometry node to this graph matching the given property
+    /// definition and name prefix.
+    NodePtr addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix);
 
     /// Convert this graph to a string in the DOT language syntax.  This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).

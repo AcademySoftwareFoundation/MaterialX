@@ -42,7 +42,7 @@
     <input name="diffuse_color" type="color3" value="0.18, 0.18, 0.18" />
     <input name="repeat" type="vector2" value="4, 4" />
     <burley_diffuse_bsdf name="burley_diffuse_bsdf" type="BSDF">
-      <input name="color" type="color3" interfacename="diffuse_color" value="0.18, 0.18, 0.18" />
+      <input name="color" type="color3" interfacename="diffuse_color" />
     </burley_diffuse_bsdf>
     <convert name="convert" type="color3">
       <input name="in" type="float" nodename="ramp4" />
@@ -64,7 +64,7 @@
     <texcoord name="texcoord" type="vector2" />
     <multiply name="multiply" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord" />
-      <input name="in2" type="vector2" interfacename="repeat" value="4, 4" />
+      <input name="in2" type="vector2" interfacename="repeat" />
     </multiply>
     <modulo name="modulo" type="vector2">
       <input name="in1" type="vector2" nodename="multiply" />

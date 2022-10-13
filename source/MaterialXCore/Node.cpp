@@ -29,7 +29,11 @@ void Node::setConnectedNode(const string& inputName, ConstNodePtr node)
     }
     if (node)
     {
-        input->setType(node->getType());
+        const string& type = node->getType();
+        if (type != MULTI_OUTPUT_TYPE_STRING)
+        {
+            input->setType(type);
+        }
     }
     input->setConnectedNode(node);
 }
@@ -247,45 +251,42 @@ NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNod
 
 void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 {
-    vector<NodePtr> processNodeVec = getNodes();
-    while (!processNodeVec.empty())
+    vector<NodePtr> nodeQueue = getNodes();
+    while (!nodeQueue.empty())
     {
-        // Precompute graph implementations and downstream ports for this node vector.
+        // Determine which nodes require processing, and precompute declarations
+        // and graph implementations for these nodes.
         using PortElementVec = vector<PortElementPtr>;
+        std::vector<NodePtr> processNodeVec;
         std::unordered_map<NodePtr, NodeGraphPtr> graphImplMap;
+        std::unordered_map<NodePtr, ConstNodeDefPtr> declarationMap;
         std::unordered_map<NodePtr, PortElementVec> downstreamPortMap;
-        for (NodePtr cacheNode : processNodeVec)
+        for (NodePtr node : nodeQueue)
         {
-            InterfaceElementPtr implement = cacheNode->getImplementation(target);
-            if (!implement || !implement->isA<NodeGraph>())
+            if (filter && !filter(node))
             {
                 continue;
             }
-            NodeGraphPtr subNodeGraph = implement->asA<NodeGraph>();
-            graphImplMap[cacheNode] = subNodeGraph;
-            downstreamPortMap[cacheNode] = cacheNode->getDownstreamPorts();
-            for (NodePtr subNode : subNodeGraph->getNodes())
+
+            InterfaceElementPtr implement = node->getImplementation(target);
+            if (implement && implement->isA<NodeGraph>())
             {
-                downstreamPortMap[subNode] = subNode->getDownstreamPorts();
+                processNodeVec.push_back(node);
+                graphImplMap[node] = implement->asA<NodeGraph>();
+                declarationMap[node] = node->getDeclaration(target);
+                downstreamPortMap[node] = node->getDownstreamPorts();
+                for (NodePtr sourceSubNode : implement->asA<NodeGraph>()->getNodes())
+                {
+                    downstreamPortMap[sourceSubNode] = sourceSubNode->getDownstreamPorts();
+                }
             }
         }
-        processNodeVec.clear();
-
-        // Attributes in addition to value to copy over
-        StringVec copyAttributes = { ValueElement::UNIT_ATTRIBUTE,
-                                     ValueElement::UNITTYPE_ATTRIBUTE,
-                                     ValueElement::COLOR_SPACE_ATTRIBUTE };
+        nodeQueue.clear();
 
         // Iterate through nodes with graph implementations.
-        for (const auto& pair : graphImplMap)
+        for (NodePtr processNode : processNodeVec)
         {
-            NodePtr processNode = pair.first;
-            if (filter && !filter(processNode))
-            {
-                continue;
-            }
-
-            NodeGraphPtr sourceSubGraph = pair.second;
+            NodeGraphPtr sourceSubGraph = graphImplMap[processNode];
             std::unordered_map<NodePtr, NodePtr> subNodeMap;
 
             // Create a new instance of each original subnode.
@@ -298,61 +299,20 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                 destSubNode->copyContentFrom(sourceSubNode);
                 setChildIndex(destSubNode->getName(), getChildIndex(processNode->getName()));
 
-                // Transfer interface properties from the reference node to the new subnode.
-                for (ValueElementPtr destValue : destSubNode->getChildrenOfType<ValueElement>())
-                {
-                    if (!destValue->hasInterfaceName())
-                    {
-                        continue;
-                    }
-
-                    ValueElementPtr refValue = processNode->getChildOfType<ValueElement>(destValue->getInterfaceName());
-                    if (refValue)
-                    {
-                        if (refValue->hasValueString())
-                        {
-                            destValue->setValueString(refValue->getValueString());
-                        }
-                        for (auto copyAttribute : copyAttributes)
-                        {
-                            if (refValue->hasAttribute(copyAttribute))
-                            {
-                                destValue->setAttribute(copyAttribute, refValue->getAttribute(copyAttribute));
-                            }
-                        }
-                        if (destValue->isA<Input>() && refValue->isA<Input>())
-                        {
-                            InputPtr refInput = refValue->asA<Input>();
-                            InputPtr newInput = destValue->asA<Input>();
-                            if (refInput->hasNodeName())
-                            {
-                                newInput->setNodeName(refInput->getNodeName());
-                            }
-                            if (refInput->hasOutputString())
-                            {
-                                newInput->setOutputString(refInput->getOutputString());
-                            }
-                            if (refInput->hasNodeGraphString())
-                            {
-                                newInput->setNodeGraphString(refInput->getNodeGraphString());
-                            }
-                        }
-                    }
-                    destValue->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
-                }
-
                 // Store the mapping between subgraphs.
                 subNodeMap[sourceSubNode] = destSubNode;
 
                 // Add the subnode to the queue, allowing processing of nested subgraphs.
-                processNodeVec.push_back(destSubNode);
+                nodeQueue.push_back(destSubNode);
             }
 
-            // Transfer internal connections between subgraphs.
+            // Update properties of generated subnodes.
             for (const auto& subNodePair : subNodeMap)
             {
                 NodePtr sourceSubNode = subNodePair.first;
                 NodePtr destSubNode = subNodePair.second;
+
+                // Update node connections.
                 for (PortElementPtr sourcePort : downstreamPortMap[sourceSubNode])
                 {
                     if (sourcePort->isA<Input>())
@@ -360,88 +320,76 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         auto it = subNodeMap.find(sourcePort->getParent()->asA<Node>());
                         if (it != subNodeMap.end())
                         {
-                            it->second->setConnectedNode(sourcePort->getName(), destSubNode);
+                            InputPtr processNodeInput = it->second->getInput(sourcePort->getName());
+                            if (processNodeInput)
+                            {
+                                processNodeInput->setNodeName(destSubNode->getName());
+                            }
                         }
                     }
                     else if (sourcePort->isA<Output>())
                     {
                         for (PortElementPtr processNodePort : downstreamPortMap[processNode])
                         {
-                            processNodePort->setConnectedNode(destSubNode);
+                            processNodePort->setNodeName(destSubNode->getName());
                         }
                     }
                 }
-            }
 
-            // Connect any nodegraph outputs within the graph which point to another
-            // flatten node within the nodegraph. As it's been flattened the previous
-            // reference is incorrect and needs to be updated.
-            if (sourceSubGraph->getOutputCount())
-            {
-                for (OutputPtr sourceOutput : getOutputs())
+                // Transfer interface properties.
+                for (InputPtr destInput : destSubNode->getInputs())
                 {
-                    const string& nodeNameString = sourceOutput->getNodeName();
-                    const string& outputString = sourceOutput->getOutputString();
-
-                    if (nodeNameString != processNode->getName())
+                    if (destInput->hasInterfaceName())
                     {
-                        continue;
+                        InputPtr sourceInput = processNode->getInput(destInput->getInterfaceName());
+                        if (sourceInput)
+                        {
+                            destInput->copyContentFrom(sourceInput);
+                        }
+                        else
+                        {
+                            ConstNodeDefPtr declaration = declarationMap[processNode];
+                            InputPtr declInput = declaration ? declaration->getActiveInput(destInput->getInterfaceName()) : nullptr;
+                            if (declInput)
+                            {
+                                if (declInput->hasValueString())
+                                {
+                                    destInput->setValueString(declInput->getValueString());
+                                }
+                                if (declInput->hasDefaultGeomPropString())
+                                {
+                                    ConstGeomPropDefPtr geomPropDef = getDocument()->getGeomPropDef(declInput->getDefaultGeomPropString());
+                                    if (geomPropDef)
+                                    {
+                                        destInput->setConnectedNode(addGeomNode(geomPropDef, "geomNode"));
+                                    }
+                                }
+                            }
+                        }
+                        destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     }
-
-                    // Look for what the original output pointed to.
-                    OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
-                    if (!sourceSubGraphOutput)
-                    {
-                        continue;
-                    }
-
-                    string destName = sourceSubGraphOutput->getNodeName();
-                    if (destName.empty())
-                    {
-                        destName = sourceSubGraphOutput->getNodeGraphString();
-                    }
-                    NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
-                    NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
-                    if (destNode)
-                    {
-                        destName = destNode->getName();
-                    }
-
-                    // Point original output to this one
-                    sourceOutput->setNodeName(destName);
                 }
             }
 
-            // If the node was flattened then any downstream references
-            // need to be updated to point to the new root of the flatten node.
-            PortElementVec downstreamPorts = downstreamPortMap[processNode];
-            for (auto downstreamPort : downstreamPorts)
+            // Update downstream ports with connections to subgraph outputs.
+            for (PortElementPtr downstreamPort : downstreamPortMap[processNode])
             {
-                const string& outputString = downstreamPort->getOutputString();
-
-                // Look for an output on the flattened graph
-                OutputPtr sourceSubGraphOutput = outputString.empty() ? sourceSubGraph->getOutputs()[0] : sourceSubGraph->getOutput(outputString);
-                if (!sourceSubGraphOutput)
+                if (downstreamPort->hasOutputString())
                 {
-                    continue;
+                    OutputPtr subGraphOutput = sourceSubGraph->getOutput(downstreamPort->getOutputString());
+                    if (subGraphOutput)
+                    {
+                        string destName = subGraphOutput->getNodeName();
+                        NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
+                        NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
+                        if (destNode)
+                        {
+                            destName = destNode->getName();
+                        }
+                        downstreamPort->setNodeName(destName);
+                        downstreamPort->setOutputString(EMPTY_STRING);
+                    }
                 }
-
-                // Find connected node to the output
-                string destName = sourceSubGraphOutput->getNodeName();
-                if (destName.empty())
-                {
-                    destName = sourceSubGraphOutput->getNodeGraphString();
-                }
-                NodePtr sourceSubNode = sourceSubGraph->getNode(destName);
-                NodePtr destNode = sourceSubNode ? subNodeMap[sourceSubNode] : nullptr;
-                if (destNode)
-                {
-                    destName = destNode->getName();
-                }
-
-                // Use that node to overwrite downstream port connection
-                downstreamPort->setNodeName(destName);
-                downstreamPort->setOutputString(EMPTY_STRING);
             }
 
             // The processed node has been replaced, so remove it from the graph.
@@ -521,6 +469,25 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     }
 
     return result;
+}
+
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+{
+    string geomNodeName = namePrefix + "_" + geomPropDef->getName();
+    NodePtr geomNode = getNode(geomNodeName);
+    if (!geomNode)
+    {
+        geomNode = addNode(geomPropDef->getGeomProp(), geomNodeName, geomPropDef->getType());
+        if (geomPropDef->hasAttribute(GeomPropDef::SPACE_ATTRIBUTE))
+        {
+            geomNode->setInputValue(GeomPropDef::SPACE_ATTRIBUTE, geomPropDef->getAttribute(GeomPropDef::SPACE_ATTRIBUTE));
+        }
+        if (geomPropDef->hasAttribute(GeomPropDef::INDEX_ATTRIBUTE))
+        {
+            geomNode->setInputValue(GeomPropDef::INDEX_ATTRIBUTE, geomPropDef->getAttribute(GeomPropDef::INDEX_ATTRIBUTE), getTypeString<int>());
+        }
+    }
+    return geomNode;
 }
 
 string GraphElement::asStringDot() const

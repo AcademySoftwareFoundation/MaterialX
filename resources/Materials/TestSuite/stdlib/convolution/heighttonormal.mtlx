@@ -3,7 +3,7 @@
   <nodegraph name="height_to_normal">
     <input name="file" type="filename" uniform="true" value="resources/Images/plain_heightmap.png" />
     <tiledimage name="tiledimage" type="float">
-      <input name="file" type="filename" uniform="true" interfacename="file" value="resources/Images/plain_heightmap.png" />
+      <input name="file" type="filename" uniform="true" interfacename="file" />
       <input name="uvtiling" type="vector2" value="10, 10" />
     </tiledimage>
     <heighttonormal name="heighttonormal" type="vector3">

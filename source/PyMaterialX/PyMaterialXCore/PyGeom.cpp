@@ -56,7 +56,7 @@ void bindPyGeom(py::module& mod)
     py::class_<mx::GeomProp, mx::GeomPropPtr, mx::ValueElement>(mod, "GeomProp")
         .def_readonly_static("CATEGORY", &mx::GeomProp::CATEGORY);
 
-    py::class_<mx::GeomPropDef, mx::GeomPropDefPtr, mx::Element>(mod, "GeomPropDef")
+    py::class_<mx::GeomPropDef, mx::GeomPropDefPtr, mx::TypedElement>(mod, "GeomPropDef")
         .def("setGeomProp", &mx::GeomPropDef::setGeomProp)
         .def("hasGeomProp", &mx::GeomPropDef::hasGeomProp)
         .def("getGeomProp", &mx::GeomPropDef::getGeomProp)
