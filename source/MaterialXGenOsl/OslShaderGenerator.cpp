@@ -280,6 +280,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const ShaderPort* singleOutput = outputs.size() == 1 ? outputs[0] : NULL;
 
     const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+    const bool isBsdfOutput = singleOutput && singleOutput->getType() == Type::BSDF;
+#endif
+
     if (isSurfaceShaderOutput)
     {
         // Special case for having 'surfaceshader' as final output type.
@@ -288,6 +293,16 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         // to understand this output.
         emitLine("output closure color " + singleOutput->getVariable() + " = 0", stage, false);
     }
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+    else if (isBsdfOutput)
+    {
+        // Special case for having 'BSDF' as final output type.
+        // For legacy closures this type is a struct internally (response, throughput, thickness, ior)
+        // so we must declare this as a single closure color type in order for renderers
+        // to understand this output.
+        emitLine("output closure color " + singleOutput->getVariable() + " = 0", stage, false);
+    }
+#endif
     else
     {
         // Just emit all outputs the way they are declared.
@@ -342,6 +357,18 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         emitLine(singleOutput->getVariable() + " = (" + result + ".bsdf + " + result + ".edf) * opacity_weight + transparent() * (1.0 - opacity_weight)", stage);
         emitScopeEnd(stage);
     }
+#ifdef MATERIALX_OSL_LEGACY_CLOSURES
+    else if (isBsdfOutput)
+    {
+        // Special case for having 'BSDF' as final output type.
+        // For legacy closures this type is a struct internally (response, throughput, thickness, ior)
+        // so we must declare this as a single closure color type in order for renderers
+        // to understand this output.
+        const ShaderGraphOutputSocket* socket = graph.getOutputSocket(0);
+        const string result = getUpstreamResult(socket, context);
+        emitLine(singleOutput->getVariable() + " = " + result + ".response", stage);
+    }
+#endif
     else
     {
         // Assign results to final outputs.
