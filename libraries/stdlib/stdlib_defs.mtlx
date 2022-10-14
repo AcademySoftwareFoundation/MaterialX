@@ -2907,6 +2907,36 @@
     <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
     <output name="out" type="color4" defaultinput="in" />
   </nodedef>
+  
+  <!--
+    Node: <colorcorrect> Supplemental Node
+    Combines various adjustment nodes into one, artist-friendly color correction node.
+    The color4 signature does not touch the alpha channel.
+  -->
+  <nodedef name="ND_colorcorrect_color3" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color3" uiname="Input Color" value="1, 1, 1" doc="The input color to be adjusted." />
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color4" uiname="Input Color" value="1, 1, 1, 0" doc="The input color to be adjusted." />
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <output name="out" type="color4" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
