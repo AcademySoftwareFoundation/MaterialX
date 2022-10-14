@@ -2042,6 +2042,115 @@
     </mix>
     <output name="out" type="color4" nodename="N_mix_color4" />
   </nodegraph>
+  
+  <!--
+    Node: <colorcorrect> Supplemental Node
+    Combines various adjustment nodes into one, artist-friendly color correction node.
+  -->
+  <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
+    <input name="in" type="color3" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
+    <output name="out" type="color3" nodename="N_exposure" />
+    <multiply name="N_exposure" type="color3">
+      <input name="in1" type="color3" nodename="N_contrast" />
+      <input name="in2" type="float" nodename="N_exposurepwr" />
+    </multiply>
+    <contrast name="N_contrast" type="color3">
+      <input name="in" type="color3" nodename="N_gain" />
+      <input name="amount" type="float" interfacename="contrast" />
+      <input name="pivot" type="float" interfacename="contrastpivot" />
+    </contrast>
+    <power name="N_exposurepwr" type="float">
+      <input name="in2" type="float" interfacename="exposure" />
+      <input name="in1" type="float" value="2" />
+    </power>
+    <multiply name="N_gain" type="color3">
+      <input name="in1" type="color3" nodename="N_liftadd" />
+      <input name="in2" type="float" interfacename="gain" />
+    </multiply>
+    <add name="N_liftadd" type="color3">
+      <input name="in1" type="color3" nodename="N_liftmult" />
+      <input name="in2" type="float" interfacename="lift" />
+    </add>
+    <multiply name="N_liftmult" type="color3">
+      <input name="in1" type="color3" nodename="N_gamma" />
+      <input name="in2" type="float" nodename="N_liftsubtract" />
+    </multiply>
+    <range name="N_gamma" type="color3">
+      <input name="in" type="color3" nodename="N_saturation" />
+      <input name="gamma" type="float" interfacename="gamma" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+      <input name="outlow" type="float" value="0" />
+      <input name="outhigh" type="float" value="1" />
+      <input name="doclamp" type="boolean" value="false" />
+    </range>
+    <subtract name="N_liftsubtract" type="float">
+      <input name="in2" type="float" interfacename="lift"/>
+      <input name="in1" type="float" value="1" />
+    </subtract>
+    <saturate name="N_saturation" type="color3">
+      <input name="in" type="color3" nodename="N_hsvadjust" />
+      <input name="amount" type="float" interfacename="saturation"/>
+      <input name="lumacoeffs" type="color3" />
+    </saturate>
+    <hsvadjust name="N_hsvadjust" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="amount" type="vector3" nodename="N_parm2hue" />
+    </hsvadjust>
+    <combine3 name="N_parm2hue" type="vector3">
+      <input name="in1" type="float" interfacename="hue" />
+      <input name="in2" type="float" value="1" />
+      <input name="in3" type="float" value="1" />
+    </combine3>
+  </nodegraph>
+  <nodegraph name="NG_colorcorrect_color4" nodedef="ND_colorcorrect_color4">
+    <input name="in" type="color4" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
+    <output name="out" type="color4" nodename="N_combine_with_alpha" />
+    <separate4 name="N_split_color4" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine3 name="N_combine_color" type="color3">
+      <input name="in1" type="float" nodename="N_split_color4" output="outr" />
+      <input name="in2" type="float" nodename="N_split_color4" output="outg" />
+      <input name="in3" type="float" nodename="N_split_color4" output="outb" />
+    </combine3>
+    <colorcorrect name="N_colorcorrect" type="color3">
+      <input name="in" type="color3" nodename="N_combine_color" />
+      <input name="hue" type="float" interfacename="hue" />
+      <input name="saturation" type="float" interfacename="saturation" />
+      <input name="gamma" type="float" interfacename="gamma" />
+      <input name="lift" type="float" interfacename="lift" />
+      <input name="gain" type="float" interfacename="gain" />
+      <input name="contrast" type="float" interfacename="contrast" />
+      <input name="contrastpivot" type="float" interfacename="contrastpivot"  />
+      <input name="exposure" type="float" interfacename="exposure" />
+    </colorcorrect>
+    <separate3 name="N_split_color" type="multioutput">
+      <input name="in" type="color3" nodename="N_colorcorrect" />
+    </separate3>
+    <combine4 name="N_combine_with_alpha" type="color4">
+      <input name="in1" type="float" nodename="N_split_color" output="outr" />
+      <input name="in2" type="float" nodename="N_split_color" output="outg" />
+      <input name="in3" type="float" nodename="N_split_color" output="outb" />
+      <input name="in4" type="float" nodename="N_split_color4" output="outa" />
+    </combine4>
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
