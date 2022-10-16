@@ -11,6 +11,19 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
+    using OpaqueTestPair = std::pair<string, float>;
+    using OpaqueTestPairList = vector<OpaqueTestPair>;
+
+    // Inputs on a surface shader which are checked for transparency
+    const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
+                                               {"existence", 1.0f},
+                                               {"alpha", 1.0f},
+                                               {"transmission", 0.0f} };
+
+    const string MIX_CATEGORY("mix");
+    const string MIX_FG_INPUT("fg");
+    const string MIX_BG_INPUT("bg");
+
     bool isEqual(const float& v1, const float& v2)
     {
         const float EPSILON = 0.00001f;
@@ -33,9 +46,6 @@ namespace
         }
         return false;
     }
-
-    using OpaqueTestPair = std::pair<string, float>;
-    using OpaqueTestPairList = vector<OpaqueTestPair>;
 
     // Get corresponding input for an interfacename for a nodegraph. 
     // The check is done for any corresponding nodedef first and then for 
@@ -88,12 +98,22 @@ namespace
             return false;
         }
 
-        // Inputs on a surface shader which are checked for transparency
-        const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
-                                                   {"existence", 1.0f},
-                                                   {"alpha", 1.0f},
-                                                   {"transmission", 0.0f} };
-
+        if (node->getCategory() == MIX_CATEGORY)
+        {
+            const InputPtr fg = node->getInput(MIX_FG_INPUT);
+            const NodePtr fgNode = fg ? fg->getConnectedNode() : nullptr;
+            if (fgNode && isTransparentShaderNode(fgNode, nullptr))
+            {
+                return true;
+            }
+            const InputPtr bg = node->getInput(MIX_BG_INPUT);
+            const NodePtr bgNode = bg ? bg->getConnectedNode() : nullptr;
+            if (bgNode && isTransparentShaderNode(bgNode, nullptr))
+            {
+                return true;
+            }
+            return false;
+        }
 
         // Check against the interface if a node is passed in to check against
         OpaqueTestPairList interfaceNames;
