@@ -477,7 +477,7 @@ OslSyntax::OslSyntax()
             "BSDF",
             "BSDF(null_closure, color(1.0), 0.0, 0.0)",
             "{ 0, color(1.0), 0.0, 0.0 }",
-            EMPTY_STRING,
+            "closure color",
             "struct BSDF { closure color response; color throughput; float thickness; float ior; };")
     );
 
@@ -490,7 +490,8 @@ OslSyntax::OslSyntax()
             "BSDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define BSDF closure color")
     );
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
@@ -502,7 +503,8 @@ OslSyntax::OslSyntax()
             "EDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define EDF closure color")
     );
 
     registerTypeSyntax
@@ -512,17 +514,19 @@ OslSyntax::OslSyntax()
             "VDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define VDF closure color")
     );
 
     registerTypeSyntax
     (
         Type::SURFACESHADER,
-        std::make_shared<ScalarTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",
-            "null_closure",
-            "0",
-            "closure color")
+            "surfaceshader(null_closure, null_closure, 1.0)",
+            "{ 0, 0, 1.0 }",
+            "closure color",
+            "struct surfaceshader { closure color bsdf; closure color edf; float opacity; };")
     );
 
     registerTypeSyntax
@@ -532,7 +536,8 @@ OslSyntax::OslSyntax()
             "volumeshader",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define volumeshader closure color")
     );
 
     registerTypeSyntax
@@ -542,7 +547,8 @@ OslSyntax::OslSyntax()
             "displacementshader",
             "vector(0.0)",
             "vector(0.0)",
-            "vector")
+            "vector",
+            "#define displacementshader vector")
     );
 
     registerTypeSyntax
@@ -552,7 +558,8 @@ OslSyntax::OslSyntax()
             "lightshader",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define lightshader closure color")
     );
 
     registerTypeSyntax
@@ -562,7 +569,8 @@ OslSyntax::OslSyntax()
             "MATERIAL",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define MATERIAL closure color")
     );
 }
 
