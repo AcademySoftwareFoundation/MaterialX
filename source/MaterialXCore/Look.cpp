@@ -29,7 +29,7 @@ vector<MaterialAssignPtr> getGeometryBindings(ConstNodePtr materialNode, const s
         {
             if (matAssign->getReferencedMaterial() == materialNode)
             {
-                if (geomStringsMatch(geom, matAssign->getActiveGeom()))
+                if (geomStringsMatch(matAssign->getActiveGeom(), geom, true))
                 {
                     matAssigns.push_back(matAssign);
                     continue;
