@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="directional_edf_test">
+    <uniform_edf name="uniform_edf_1" type="EDF">
+      <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    </uniform_edf>
+    <directional_edf name="directional_edf_1" type="EDF">
+      <input name="color0" type="color3" value="0.0, 0.0, 0.0" />
+      <input name="color90" type="color3" value="1.0, 0.1, 0.2" />
+      <input name="exponent" type="float" value="3.0" />
+      <input name="base" type="EDF" nodename="uniform_edf_1" />
+    </directional_edf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="edf" type="EDF" nodename="directional_edf_1" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>
