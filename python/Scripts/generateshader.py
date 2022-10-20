@@ -16,7 +16,7 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
         cmd = codevalidator + ' ' + sourceCodeFile 
         if codevalidatorArgs:
             cmd += ' ' + codevalidatorArgs
-        print('----- Run: '+ cmd)
+        print('----- Run Validator: '+ cmd)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = output.decode(encoding='utf-8')
@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
+    parser.add_argument('--shaderInterfaceType', dest='shaderInterfaceType', default=0, type=int, help='Set the type of shader interface to be generated')
     parser.add_argument(dest='inputFilename', help='Filename of the input document.')
     opts = parser.parse_args()
 
@@ -91,7 +92,10 @@ def main():
         context.pushUserData('udbinding', bindingContext)
 
     genoptions = context.getOptions() 
-    genoptions.shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE)
+    if opts.shaderInterfaceType == 0 or opts.shaderInterfaceType == 1:
+        genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType(opts.shaderInterfaceType)
+    else:
+       genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE
 
     print('- Set up CMS ...')
     cms = mx_gen_shader.DefaultColorManagementSystem.create(shadergen.getTarget())  
@@ -135,7 +139,7 @@ def main():
             # recognized by glslangValidator
             if gentarget in ['glsl', 'essl', 'vulkan']:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
-                filename = pathPrefix + shader.getName() + "." + gentarget + ".frag"
+                filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
                 print('--- Wrote pixel shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(pixelSource)
@@ -143,7 +147,7 @@ def main():
                 errors = validateCode(filename, opts.validator, opts.validatorArgs)                
 
                 vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
-                filename = pathPrefix + shader.getName() + "." + gentarget + ".vert"
+                filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".vert"
                 print('--- Wrote vertex shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(vertexSource)
@@ -152,7 +156,7 @@ def main():
 
             else:
                 pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
-                filename = pathPrefix + shader.getName() + "." + gentarget
+                filename = pathPrefix + "/" + shader.getName() + "." + gentarget
                 print('--- Wrote pixel shader to: ' + filename)
                 file = open(filename, 'w+')
                 file.write(pixelSource)

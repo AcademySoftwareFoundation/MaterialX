@@ -166,7 +166,8 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
                 let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
                 const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniforms, flipY);
+                if (texture)
+                    setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
             } 
             break;
@@ -236,15 +237,23 @@ function setTextureParameters(texture, name, uniforms, flipY = true, generateMip
 
     texture.generateMipmaps = generateMipmaps;
 
-    const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX)?.getValue().getData();
-    const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX)?.getValue().getData();
+    if (uniforms.find(base + UADDRESS_MODE_SUFFIX)) {
+        const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
+        texture.wrapS = getWrapping(uaddressmode);
+    }
 
-    texture.wrapS = getWrapping(uaddressmode);
-    texture.wrapT = getWrapping(vaddressmode);
+    if (uniforms.find(base + VADDRESS_MODE_SUFFIX)) {
+        const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
+        if (vaddressmode)
+            texture.wrapT = getWrapping(vaddressmode);
+    }
 
-    const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = getMinFilter(filterType, generateMipmaps);
+    if (uniforms.find(base + FILTER_TYPE_SUFFIX))
+    {
+        const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX).value;
+        texture.magFilter = THREE.LinearFilter;
+        texture.minFilter = getMinFilter(filterType, generateMipmaps);
+    }
 
     texture.flipY = flipY;
 }

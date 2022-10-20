@@ -38,6 +38,7 @@ const std::string options =
 "    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
+"    --reducedInterface [BOOLEAN]   Specify to reduce the interface exposure for generated shaders\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
 "    --help                         Display the complete list of command-line options\n";
 
@@ -113,6 +114,7 @@ int main(int argc, char* const argv[])
     int bakeHeight = 0;
     std::string bakeFilename;
     float refresh = 50.0f;
+    bool reducedInterface = false;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -246,6 +248,10 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
+        else if (token == "--reducedInterface")
+        {
+            parseToken(nextToken, "boolean", reducedInterface);
+        }
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -299,6 +305,7 @@ int main(int argc, char* const argv[])
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
+        viewer->setReducedInterface(reducedInterface);
         viewer->initialize();
         if (!bakeFilename.empty()) 
         {

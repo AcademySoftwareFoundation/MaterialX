@@ -136,6 +136,12 @@ class Viewer : public ng::Screen
         _bakeFilename = bakeFilename;
     }
 
+    // Set to reduced interface shader generation
+    void setReducedInterface(bool val)
+    {
+        _reducedInterface = val;
+    }
+
     // Return true if all inputs should be shown in the property editor.
     bool getShowAllInputs() const
     {
@@ -395,6 +401,7 @@ class Viewer : public ng::Screen
 
     // Shader translation
     std::string _targetShader;
+    bool _reducedInterface;
 
     // Frame capture
     bool _captureRequested;

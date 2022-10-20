@@ -259,6 +259,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _showAllInputs(false),
     _flattenSubgraphs(false),
     _targetShader("standard_surface"),
+    _reducedInterface(false),
     _captureRequested(false),
     _exitRequested(false),
     _wedgeRequested(false),
@@ -1561,6 +1562,10 @@ void Viewer::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+    if (_reducedInterface)
+    {
+        context.getOptions().shaderInterfaceType = mx::ShaderInterfaceType::SHADER_INTERFACE_REDUCED;
+    }
 }
 
 void Viewer::loadStandardLibraries()
