@@ -739,16 +739,12 @@ export class Material
         var startTranspCheckTime = performance.now();
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
-        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
-        console.log(genContext.getOptions().shaderInterfaceType);
-
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
 
         // Generate GLES code
-        var startMTLXGenTime = performance.now();
-        var logInfo;
-        let shader = mx.createShader(elem.getNamePath(), elem, genContext);
+        var startMTLXGenTime = performance.now();        
+        let shader = gen.generate(elem.getNamePath(), elem, genContext);
         if (logDetailedTime)
             console.log("  - MaterialX gen time: ", performance.now() - startMTLXGenTime, "ms");
 
@@ -757,7 +753,6 @@ export class Material
         // Get shaders and uniform values
         let vShader = shader.getSourceCode("vertex");
         let fShader = shader.getSourceCode("pixel");
-        //console.log(fShader);
 
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
@@ -823,7 +818,6 @@ export class Material
         {
             if (!uniforms.empty()) 
             {
-                console.log("************ uniform count:", uniforms.size());
                 for (let i = 0; i < uniforms.size(); ++i) 
                 {
                     const variable = uniforms.get(i);
