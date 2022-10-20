@@ -420,6 +420,31 @@ export material mx_measured_edf(
     )
 );
 
+export material mx_directional_edf(
+    color mxp_color0 = color(1.0),
+    color mxp_color90 = color(1.0),
+    float mxp_exponent = 5.0,
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
+) [[ 
+    anno::usage( "materialx:edf") 
+]]
+= material(
+    thin_walled: mxp_base.thin_walled,
+    surface: material_surface(
+        scattering: mxp_base.surface.scattering,
+        emission: material_emission(
+            emission: df::directional_factor(mxp_color0, mxp_color90, mxp_exponent, mxp_base.surface.emission.emission),
+            intensity: mxp_base.surface.emission.intensity,
+            mode: mxp_base.surface.emission.mode
+        ),
+    backface: mxp_base.backface,
+    ior:      mxp_base.ior,
+    volume:   mxp_base.volume,
+    geometry: mxp_base.geometry,
+    hair:     mxp_base.hair
+    )
+);
+
 // VDF Nodes
 
 export material mx_absorption_vdf(
