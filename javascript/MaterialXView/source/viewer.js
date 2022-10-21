@@ -605,7 +605,7 @@ export class Material
         // and assign to the associatged geometry. If there are no looks
         // then the first material is found and assignment to all the
         // geometry. 
-        while (this._materials.length) { this._materials.pop(); } 
+        this._materials.length = 0;
         this._defaultMaterial = null;
         var looks = doc.getLooks();
         if (looks.length)
