@@ -665,11 +665,15 @@ void NodeGraph::addInterfaceName(const string& inputPath, const string& interfac
     if (input && !input->getConnectedNode())
     {
         input->setInterfaceName(interfaceName);
-        ValuePtr value = input->getValue();
-        if (value)
+        InputPtr nodeDefInput = nodeDef->getInput(interfaceName);
+        if (!nodeDefInput)
         {
-            InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
-            nodeDefInput->setValueString(value->getValueString());
+            nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
+        }
+        if (input->hasValue())
+        {
+            nodeDefInput->setValueString(input->getValueString());
+            input->removeAttribute(Input::VALUE_ATTRIBUTE);
         }
     }
 }
