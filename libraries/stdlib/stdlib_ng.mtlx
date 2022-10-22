@@ -2099,7 +2099,6 @@
     <saturate name="N_saturation" type="color3">
       <input name="in" type="color3" nodename="N_hsvadjust" />
       <input name="amount" type="float" interfacename="saturation"/>
-      <input name="lumacoeffs" type="color3" />
     </saturate>
     <hsvadjust name="N_hsvadjust" type="color3">
       <input name="in" type="color3" interfacename="in" />

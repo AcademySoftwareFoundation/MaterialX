@@ -77,8 +77,8 @@
       <input name="opacity" type="color3" value="1, 1, 1" />
     </standard_surface>
     <mix name="mix_surface_shader" type="surfaceshader">
-      <input name="fg" type="surfaceshader" value="" nodename="standard_surface1" />
-      <input name="bg" type="surfaceshader" value="" nodename="standard_surface2" />
+      <input name="fg" type="surfaceshader" nodename="standard_surface1" />
+      <input name="bg" type="surfaceshader" nodename="standard_surface2" />
       <input name="mix" type="float" value="0.7000" />
     </mix>
     <surfacematerial name="material" type="material">
@@ -108,8 +108,8 @@
       <input name="emission_color" type="color3" value="0, 0, 0" />
     </standard_surface>
     <mix name="mix_surface_shader" type="surfaceshader">
-      <input name="fg" type="surfaceshader" value="" nodename="standard_surface1" />
-      <input name="bg" type="surfaceshader" value="" nodename="standard_surface2" />
+      <input name="fg" type="surfaceshader" nodename="standard_surface1" />
+      <input name="bg" type="surfaceshader" nodename="standard_surface2" />
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <surfacematerial name="material" type="material">
