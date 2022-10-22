@@ -628,7 +628,6 @@ export class Material
                                 shader = shaders[0];
                             }
                         }
-                        
                         let collection = materialAssign.getCollection();
                         let geom = materialAssign.getGeom();
                         let newAssignment;
