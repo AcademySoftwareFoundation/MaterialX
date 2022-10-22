@@ -605,7 +605,7 @@ export class Material
         // and assign to the associatged geometry. If there are no looks
         // then the first material is found and assignment to all the
         // geometry. 
-        this._materials = [];
+        this._materials.length = 0;
         this._defaultMaterial = null;
         var looks = doc.getLooks();
         if (looks.length)
@@ -633,6 +633,16 @@ export class Material
                         let newAssignment;
                         if (collection || geom)
                         {
+                            // Remove leading "/" from collection and geom for 
+                            // later assignment comparison checking
+                            if (collection && collection.charAt(0) == "/")
+                            {
+                                collection = collection.slice(1);
+                            }
+                            if (geom && geom.charAt(0) == "/")
+                            {
+                                geom = geom.slice(1);
+                            }
                             newAssignment = new MaterialAssign(shader, geom, collection);
                         }
                         else
