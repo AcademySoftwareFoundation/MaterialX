@@ -628,19 +628,22 @@ export class Material
                                 shader = shaders[0];
                             }
                         }
+                        
                         let collection = materialAssign.getCollection();
-                        if (collection && collection && collection.charAt(0) == "/")
-                        {
-                            collection = collection.slice(1);
-                        }
                         let geom = materialAssign.getGeom();
-                        if (geom && geom && geom.charAt(0) == "/")
-                        {
-                            geom = geom.slice(1);
-                        }
                         let newAssignment;
                         if (collection || geom)
                         {
+                            // Remove leading "/" from collection and geom for 
+                            // later assignment comparison checking
+                            if (collection && collection.charAt(0) == "/")
+                            {
+                                collection = collection.slice(1);
+                            }
+                            if (geom && geom.charAt(0) == "/")
+                            {
+                                geom = geom.slice(1);
+                            }
                             newAssignment = new MaterialAssign(shader, geom, collection);
                         }
                         else
