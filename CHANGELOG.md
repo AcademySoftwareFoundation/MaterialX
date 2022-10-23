@@ -2,6 +2,23 @@
 
 ## [1.38.6] - Development
 
+### Added
+- Added new [Unified Noise](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1087) and [Color Correct](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1086) nodes, providing artistic interfaces over the standard noise and adjustment primitives.
+- Added shader generation support for the [MaterialX closures in OSL](https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/releases/tag/v1.12.6.2), selected by a new [CMake build option](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1039).
+- Added a shader translation graph from [Autodesk Standard Surface to glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1064).
+- Added support for the [transmission_extra_roughness](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1079) input in the Standard Surface shading model.
+- Added support for the [iridescence](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) inputs in the glTF PBR shading model.
+- Added support for the 'subsurface_bsdf' node in MDL.
+- Added an 'operationorder' input to the 'place2d' node.
+- Extended the 'mix' node to support multi-channel interpolators.
+
+### Changed
+- Improved the alignment of the [UsdPreviewSurface shading graph](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1082) with reference implementations.
+- Improved the accuracy of the [thin-film BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) implementation in GLSL.
+
+### Fixed
+- Fixed the implementation of the 'screen' compositing node in GLSL, OSL, and MDL.
+
 ## [1.38.5] - 2022-07-09
 
 ### Added
