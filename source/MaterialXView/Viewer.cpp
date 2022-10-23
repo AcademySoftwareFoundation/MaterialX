@@ -1308,11 +1308,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     // Generate a shader for the new material.
                     mat->generateShader(_genContext);
                 }
-
-                mx::NodePtr materialNode = mat->getMaterialNode();
-                if (materialNode)
+            }
+       
+            // For document assignment we must go in order of assignments for looks
+            // with later assignments superceding earlier ones.
+            for (mx::LookPtr look : doc->getLooks())
+            {
+                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
                 {
-                    // Apply geometric assignments specified in the document, if any.
+                    const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)
                     {
                         std::string geom = part->getName();
@@ -1320,13 +1324,40 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         {
                             geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
                         }
-                        if (!getGeometryBindings(materialNode, geom).empty())
+                        if (mx::geomStringsMatch(activeGeom, geom, true))
                         {
-                            assignMaterial(part, mat);
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
+                        }
+                        mx::CollectionPtr coll = matAssign->getCollection();
+                        if (coll && coll->matchesGeomString(geom))
+                        {
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
                         }
                     }
+                }
+            }
 
-                    // Apply implicit udim assignments, if any.
+            // Apply implicit udim assignments, if any.
+            for (MaterialPtr mat : newMaterials)
+            {
+                mx::NodePtr materialNode = mat->getMaterialNode();
+                if (materialNode)
+                {
+                    std::string udim = mat->getUdim();
                     if (!udim.empty())
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
