@@ -306,6 +306,7 @@ OslSyntax::OslSyntax()
     // Add in all reserved words and keywords in OSL
     registerReservedWords(
     {
+        // OSL types and keywords
         "and", "break", "closure", "color", "continue", "do", "else", "emit", "float", "for", "if", "illuminance",
         "illuminate", "int", "matrix", "normal", "not", "or", "output", "point", "public", "return", "string",
         "struct", "vector", "void", "while",
@@ -313,10 +314,22 @@ OslSyntax::OslSyntax()
         "false", "friend", "goto", "inline", "long", "new", "operator", "private", "protected", "short",
         "signed", "sizeof", "static", "switch", "template", "this", "throw", "true", "try", "typedef", "uniform",
         "union", "unsigned", "varying", "virtual", "volatile",
+        // OSL standard library functions names
+        "degrees", "radians", "cos", "sin", "tan", "acos", "asin", "atan", "atan2", "cosh", "sinh", "tanh",
+        "pow", "log", "log2", "log10", "logb", "sqrt", "inversesqrt", "cbrt", "hypot", "abs", "fabs", "sign",
+        "floor", "ceil", "round", "trunc", "fmod", "mod", "min", "max", "clamp", "mix", "select", "isnan",
+        "isinf", "isfinite", "erf", "erfc", "cross", "dot", "length", "distance", "normalize", "faceforward", 
+        "reflect", "fresnel", "transform", "transformu", "rotate", "luminance", "blackbody", "wavelength_color", 
+        "transformc", "determinant", "transpose", "step", "smoothstep", "linearstep", "smooth_linearstep", "aastep", 
+        "hash", "strlen", "getchar", "startswith", "endswith", "substr", "stof", "stoi", "concat", "textureresource",
+        "backfacing", "raytype", "iscameraray", "isdiffuseray", "isglossyray", "isshadowray", "getmatrix",
         "emission", "background", "diffuse", "oren_nayer", "translucent", "phong", "ward", "microfacet",
         "reflection", "transparent", "debug", "holdout", "subsurface", "sheen",
-        // TODO: Add all OSL standard library functions names
-        "mix", "rotate", "textureresource"
+        "oren_nayar_diffuse_bsdf", "burley_diffuse_bsdf", "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf", 
+        "translucent_bsdf", "transparent_bsdf","subsurface_bssrdf", "sheen_bsdf", "uniform_edf", "anisotropic_vdf", 
+        "medium_vdf", "layer", "artistic_ior",
+        // mx_funcs function names
+        "contrast"
     });
 
     //
@@ -466,7 +479,7 @@ OslSyntax::OslSyntax()
             "BSDF",
             "BSDF(null_closure, color(1.0), 0.0, 0.0)",
             "{ 0, color(1.0), 0.0, 0.0 }",
-            EMPTY_STRING,
+            "closure color",
             "struct BSDF { closure color response; color throughput; float thickness; float ior; };")
     );
 
@@ -479,7 +492,8 @@ OslSyntax::OslSyntax()
             "BSDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define BSDF closure color")
     );
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
@@ -491,7 +505,8 @@ OslSyntax::OslSyntax()
             "EDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define EDF closure color")
     );
 
     registerTypeSyntax
@@ -501,17 +516,19 @@ OslSyntax::OslSyntax()
             "VDF",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define VDF closure color")
     );
 
     registerTypeSyntax
     (
         Type::SURFACESHADER,
-        std::make_shared<ScalarTypeSyntax>(
+        std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",
-            "null_closure",
-            "0",
-            "closure color")
+            "surfaceshader(null_closure, null_closure, 1.0)",
+            "{ 0, 0, 1.0 }",
+            "closure color",
+            "struct surfaceshader { closure color bsdf; closure color edf; float opacity; };")
     );
 
     registerTypeSyntax
@@ -521,7 +538,8 @@ OslSyntax::OslSyntax()
             "volumeshader",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define volumeshader closure color")
     );
 
     registerTypeSyntax
@@ -531,7 +549,8 @@ OslSyntax::OslSyntax()
             "displacementshader",
             "vector(0.0)",
             "vector(0.0)",
-            "vector")
+            "vector",
+            "#define displacementshader vector")
     );
 
     registerTypeSyntax
@@ -541,7 +560,8 @@ OslSyntax::OslSyntax()
             "lightshader",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define lightshader closure color")
     );
 
     registerTypeSyntax
@@ -551,7 +571,8 @@ OslSyntax::OslSyntax()
             "MATERIAL",
             "null_closure",
             "0",
-            "closure color")
+            "closure color",
+            "#define MATERIAL closure color")
     );
 }
 

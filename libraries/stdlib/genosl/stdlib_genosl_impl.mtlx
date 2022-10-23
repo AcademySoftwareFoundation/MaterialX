@@ -225,7 +225,6 @@
   <implementation name="IM_add_matrix33FA_genosl" nodedef="ND_add_matrix33FA" file="mx_add.inline" target="genosl" />
   <implementation name="IM_add_matrix44_genosl" nodedef="ND_add_matrix44" file="mx_add.inline" target="genosl" />
   <implementation name="IM_add_matrix44FA_genosl" nodedef="ND_add_matrix44FA" file="mx_add.inline" target="genosl" />
-  <implementation name="IM_add_surfaceshader_genosl" nodedef="ND_add_surfaceshader" file="mx_add.inline" target="genosl" />
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genosl" nodedef="ND_subtract_float" file="mx_subtract.inline" target="genosl" />
@@ -258,8 +257,6 @@
   <implementation name="IM_multiply_vector4FA_genosl" nodedef="ND_multiply_vector4FA" file="mx_multiply.inline" target="genosl" />
   <implementation name="IM_multiply_matrix33_genosl" nodedef="ND_multiply_matrix33" file="mx_multiply.inline" target="genosl" />
   <implementation name="IM_multiply_matrix44_genosl" nodedef="ND_multiply_matrix44" file="mx_multiply.inline" target="genosl" />
-  <implementation name="IM_multiply_surfaceshaderF_genosl" nodedef="ND_multiply_surfaceshaderF" file="mx_multiply.inline" target="genosl" />
-  <implementation name="IM_multiply_surfaceshaderC_genosl" nodedef="ND_multiply_surfaceshaderC" file="mx_multiply.inline" target="genosl" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genosl" nodedef="ND_divide_float" file="mx_divide.inline" target="genosl" />
@@ -602,11 +599,16 @@
   <!-- <mix> -->
   <implementation name="IM_mix_float_genosl" nodedef="ND_mix_float" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_color3_genosl" nodedef="ND_mix_color3" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_color3_color3_genosl" nodedef="ND_mix_color3_color3" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_color4_genosl" nodedef="ND_mix_color4" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_color4_color4_genosl" nodedef="ND_mix_color4_color4" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector2_genosl" nodedef="ND_mix_vector2" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector2_vector2_genosl" nodedef="ND_mix_vector2_vector2" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector3_genosl" nodedef="ND_mix_vector3" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector3_vector3_genosl" nodedef="ND_mix_vector3_vector3" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector4_genosl" nodedef="ND_mix_vector4" file="mx_mix.inline" target="genosl" />
-  <implementation name="IM_mix_surfaceshader_genosl" nodedef="ND_mix_surfaceshader" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_vector4_vector4_genosl" nodedef="ND_mix_vector4_vector4" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_surfaceshader_genosl" nodedef="ND_mix_surfaceshader" file="mx_mix_surfaceshader.osl" function="mx_mix_surfaceshader" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->

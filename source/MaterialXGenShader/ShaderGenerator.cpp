@@ -159,10 +159,6 @@ void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
     // Emit typedef statements for all data types that have an alias
     for (const auto& syntax : _syntax->getTypeSyntaxes())
     {
-        if (!syntax->getTypeAlias().empty())
-        {
-            stage.addLine("#define " + syntax->getName() + " " + syntax->getTypeAlias(), false);
-        }
         if (!syntax->getTypeDefinition().empty())
         {
             stage.addLine(syntax->getTypeDefinition(), false);

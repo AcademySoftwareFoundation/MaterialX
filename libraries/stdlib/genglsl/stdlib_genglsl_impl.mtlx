@@ -222,7 +222,6 @@
   <implementation name="IM_add_matrix33FA_genglsl" nodedef="ND_add_matrix33FA" file="mx_add.inline" target="genglsl" />
   <implementation name="IM_add_matrix44_genglsl" nodedef="ND_add_matrix44" file="mx_add.inline" target="genglsl" />
   <implementation name="IM_add_matrix44FA_genglsl" nodedef="ND_add_matrix44FA" file="mx_add.inline" target="genglsl" />
-  <implementation name="IM_add_surfaceshader_genglsl" nodedef="ND_add_surfaceshader" function="mx_add_surfaceshader" file="mx_add_surfaceshader.glsl" target="genglsl" />
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genglsl" nodedef="ND_subtract_float" file="mx_subtract.inline" target="genglsl" />
@@ -255,8 +254,6 @@
   <implementation name="IM_multiply_vector4FA_genglsl" nodedef="ND_multiply_vector4FA" file="mx_multiply.inline" target="genglsl" />
   <implementation name="IM_multiply_matrix33_genglsl" nodedef="ND_multiply_matrix33" file="mx_multiply.inline" target="genglsl" />
   <implementation name="IM_multiply_matrix44_genglsl" nodedef="ND_multiply_matrix44" file="mx_multiply.inline" target="genglsl" />
-  <implementation name="IM_multiply_surfaceshaderF_genglsl" nodedef="ND_multiply_surfaceshaderF" function="mx_multiply_surfaceshader_float" file="mx_multiply_surfaceshader_float.glsl" target="genglsl" />
-  <implementation name="IM_multiply_surfaceshaderC_genglsl" nodedef="ND_multiply_surfaceshaderC" function="mx_multiply_surfaceshader_color3" file="mx_multiply_surfaceshader_color3.glsl" target="genglsl" />
 
   <!-- <divide> -->
   <implementation name="IM_divide_float_genglsl" nodedef="ND_divide_float" file="mx_divide.inline" target="genglsl" />
@@ -597,10 +594,15 @@
   <!-- <mix> -->
   <implementation name="IM_mix_float_genglsl" nodedef="ND_mix_float" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_color3_genglsl" nodedef="ND_mix_color3" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_color3_color3_genglsl" nodedef="ND_mix_color3_color3" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_color4_genglsl" nodedef="ND_mix_color4" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_color4_color4_genglsl" nodedef="ND_mix_color4_color4" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_vector2_genglsl" nodedef="ND_mix_vector2" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector2_vector2_genglsl" nodedef="ND_mix_vector2_vector2" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_vector3_genglsl" nodedef="ND_mix_vector3" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector3_vector3_genglsl" nodedef="ND_mix_vector3_vector3" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_vector4_genglsl" nodedef="ND_mix_vector4" file="mx_mix.inline" target="genglsl" />
+  <implementation name="IM_mix_vector4_vector4_genglsl" nodedef="ND_mix_vector4_vector4" file="mx_mix.inline" target="genglsl" />
   <implementation name="IM_mix_surfaceshader_genglsl" nodedef="ND_mix_surfaceshader" function="mx_mix_surfaceshader" file="mx_mix_surfaceshader.glsl" target="genglsl" />
 
   <!-- ======================================================================== -->

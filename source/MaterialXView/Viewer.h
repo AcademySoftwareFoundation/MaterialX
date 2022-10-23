@@ -375,22 +375,23 @@ class Viewer : public ng::Screen
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;
 
-    // Mesh options
-    bool _splitByUdims;
-
-    // Material options
-    bool _mergeMaterials;
-    bool _showAllInputs;
-
-    // Unit options
-    mx::StringVec _distanceUnitOptions;
-    mx::LinearUnitConverterPtr _distanceUnitConverter;
+    // Viewing options
+    bool _drawEnvironment;
+    bool _outlineSelection;
 
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
-    bool _outlineSelection;
-    bool _drawEnvironment;
+
+    // Scene options
+    mx::StringVec _distanceUnitOptions;
+    mx::LinearUnitConverterPtr _distanceUnitConverter;
+
+    // Asset loading options
+    bool _splitByUdims;
+    bool _mergeMaterials;
+    bool _showAllInputs;
+    bool _flattenSubgraphs;
 
     // Shader translation
     std::string _targetShader;

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" version="0.0.1" isdefaultversion="true">
+  <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" version="2.0.1" isdefaultversion="true">
     <input name="base_color" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Base Color" uifolder="Base" />
     <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
     <input name="roughness" type="float" value="1" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
@@ -13,6 +13,9 @@
     <input name="alpha" type="float" value="1" uimin="0" uimax="1" uiname="Alpha" uifolder="Alpha" />
     <input name="alpha_mode" uniform="true" type="integer" enum="OPAQUE, MASK, BLEND" enumvalues="0, 1, 2" value="0" uiname="Alpha Mode" uifolder="Alpha" />
     <input name="alpha_cutoff" uniform="true" type="float" value="0.5" uimin="0" uimax="1" uiname="Alpha Cutoff" uifolder="Alpha" />
+    <input name="iridescence" type="float" value="0" uimin="0" uimax="1" uiname="Iridescence" uifolder="Iridescence" />
+    <input name="iridescence_ior" uniform="true" type="float" value="1.3" uimin="1" uisoftmax="3" uiname="Iridescence Index of Refraction" uifolder="Iridescence" />
+    <input name="iridescence_thickness" type="float" value="100" uimin="0" uisoftmin="100" uisoftmax="400" uiname="Iridescence Thickness" uifolder="Iridescence" />
     <input name="sheen_color" type="color3" value="0, 0, 0" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Sheen Color" uifolder="Sheen" />
     <input name="sheen_roughness" type="float" value="0" uimin="0" uimax="1" uiname="Sheen Roughness" uifolder="Sheen" />
     <input name="clearcoat" type="float" value="0" uimin="0" uimax="1" uiname="Clearcoat" uifolder="Clearcoat" />
@@ -27,6 +30,7 @@
   </nodedef>
 
   <nodegraph name="IMPL_gltf_pbr_surfaceshader" nodedef="ND_gltf_pbr_surfaceshader">
+
     <!-- Volume -->
 
     <convert name="attenuation_color_vec" type="vector3">
@@ -138,6 +142,58 @@
       <input name="base" type="BSDF" nodename="transmission_mix" />
     </layer>
 
+    <!-- Thin-film + Dielectric
+         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+
+    <oren_nayar_diffuse_bsdf name="tf_diffuse_bsdf" type="BSDF">
+      <input name="color" type="color3" interfacename="base_color" />
+      <input name="normal" type="vector3" interfacename="normal" />
+    </oren_nayar_diffuse_bsdf>
+
+    <dielectric_bsdf name="tf_transmission_bsdf" type="BSDF">
+      <input name="weight" type="float" value="1" />
+      <input name="tint" type="color3" interfacename="base_color" />
+      <input name="ior" type="float" interfacename="ior" />
+      <input name="roughness" type="vector2" nodename="roughness_uv" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="scatter_mode" type="string" value="T" />
+    </dielectric_bsdf>
+
+    <generalized_schlick_bsdf name="tf_reflection_bsdf" type="BSDF">
+      <input name="color0" type="color3" nodename="dielectric_f0" />
+      <input name="color90" type="color3" nodename="dielectric_f90" />
+      <input name="roughness" type="vector2" nodename="roughness_uv" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="scatter_mode" type="string" value="R" />
+    </generalized_schlick_bsdf>
+
+    <mix name="tf_transmission_mix" type="BSDF">
+      <input name="bg" type="BSDF" nodename="tf_diffuse_bsdf" />
+      <input name="fg" type="BSDF" nodename="tf_transmission_bsdf" />
+      <input name="mix" type="float" interfacename="transmission" />
+    </mix>
+
+    <layer name="tf_dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="tf_reflection_bsdf" />
+      <input name="base" type="BSDF" nodename="tf_transmission_mix" />
+    </layer>
+
+    <thin_film_bsdf name="dielectric_thinfilm_bsdf" type="BSDF">
+      <input name="thickness" type="float" interfacename="iridescence_thickness" />
+      <input name="ior" type="float" interfacename="iridescence_ior" />
+    </thin_film_bsdf>
+
+    <layer name="iridescent_dielectric_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_thinfilm_bsdf" />
+      <input name="base" type="BSDF" nodename="tf_dielectric_bsdf" />
+    </layer>
+
+    <mix name="mix_iridescent_dielectric_bsdf" type="BSDF">
+      <input name="bg" type="BSDF" nodename="dielectric_bsdf" />
+      <input name="fg" type="BSDF" nodename="iridescent_dielectric_bsdf" />
+      <input name="mix" type="float" interfacename="iridescence" />
+    </mix>
+
     <!-- Metal -->
 
     <generalized_schlick_bsdf name="metal_bsdf" type="BSDF">
@@ -147,11 +203,37 @@
       <input name="normal" type="vector3" interfacename="normal" />
     </generalized_schlick_bsdf>
 
+    <!-- Thin-film + Metal
+         Note: Due to limitations in codegen, the base layer BSDF is duplicated (#1035). -->
+
+    <generalized_schlick_bsdf name="tf_metal_bsdf" type="BSDF">
+      <input name="color0" type="color3" interfacename="base_color" />
+      <input name="color90" type="color3" value="1, 1, 1" />
+      <input name="roughness" type="vector2" nodename="roughness_uv" />
+      <input name="normal" type="vector3" interfacename="normal" />
+    </generalized_schlick_bsdf>
+
+    <thin_film_bsdf name="metal_thinfilm_bsdf" type="BSDF">
+      <input name="thickness" type="float" interfacename="iridescence_thickness" />
+      <input name="ior" type="float" interfacename="iridescence_ior" />
+    </thin_film_bsdf>
+
+    <layer name="iridescent_metal_bsdf" type="BSDF">
+      <input name="top" type="BSDF" nodename="metal_thinfilm_bsdf" />
+      <input name="base" type="BSDF" nodename="tf_metal_bsdf" />
+    </layer>
+
+    <mix name="mix_iridescent_metal_bsdf" type="BSDF">
+      <input name="bg" type="BSDF" nodename="metal_bsdf" />
+      <input name="fg" type="BSDF" nodename="iridescent_metal_bsdf" />
+      <input name="mix" type="float" interfacename="iridescence" />
+    </mix>
+
     <!-- Dielectric/metal mix -->
 
     <mix name="base_mix" type="BSDF">
-      <input name="bg" type="BSDF" nodename="dielectric_bsdf" />
-      <input name="fg" type="BSDF" nodename="metal_bsdf" />
+      <input name="bg" type="BSDF" nodename="mix_iridescent_dielectric_bsdf" />
+      <input name="fg" type="BSDF" nodename="mix_iridescent_metal_bsdf" />
       <input name="mix" type="float" interfacename="metallic" />
     </mix>
 
@@ -214,7 +296,7 @@
     <dielectric_bsdf name="clearcoat_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="clearcoat" />
       <input name="roughness" type="vector2" nodename="clearcoat_roughness_uv" />
-      <input name="ior" type="float" value="1.5"/>
+      <input name="ior" type="float" value="1.5" />
       <input name="normal" type="vector3" interfacename="clearcoat_normal" />
     </dielectric_bsdf>
 
@@ -271,7 +353,7 @@
     Node: <gltf_colorimage> Supplemental Node
     Multiply a color4 image modulated by uniform color and geometry color. Default uniform and geometry colors are 1,1,1,1 which results in no change to the image.
   -->
-  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="0.0.1" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
     <input name="uvindex" type="integer" value="0" uifolder="Image" />	  
@@ -280,8 +362,8 @@
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
     <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
     <input name="operationorder" type="integer" value="1" uifolder="Image" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image"/>
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image"/>
+    <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
+    <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
     <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" uifolder="Image" />
     <input name="color" type="color4" value="1, 1, 1, 1" uifolder="Color" />
     <input name="geomcolor" type="color4" value="1, 1, 1, 1" uifolder="Color" uiname="Geometry Color" />
@@ -289,7 +371,7 @@
     <output name="outa" type="float" value="0" />
   </nodedef>
 
-  <nodegraph name="NG_gltf_colorimage" nodedef="ND_gltf_colorimage" >
+  <nodegraph name="NG_gltf_colorimage" nodedef="ND_gltf_colorimage">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
     <input name="uvindex" type="integer" value="0" />
@@ -306,18 +388,18 @@
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
-    <gltf_image name="image" type="color4" >
-      <input name="file" type="filename" uniform="true" interfacename="file" value="" />
-      <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
+    <gltf_image name="image" type="color4">
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="color4" interfacename="default" />
       <input name="uvindex" type="integer" interfacename="uvindex" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
-      <input name="scale" type="vector2" interfacename="scale" value="1, 1" />
-      <input name="rotate" type="float" interfacename="rotate" value="0" />
-      <input name="offset" type="vector2" interfacename="offset" value="0, 0" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
+      <input name="scale" type="vector2" interfacename="scale" />
+      <input name="rotate" type="float" interfacename="rotate" />
+      <input name="offset" type="vector2" interfacename="offset" />
       <input name="operationorder" type="integer" value="0" />
       <input name="uaddressmode" type="string" uniform="true" value="periodic" />
       <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </gltf_image>
     <multiply name="modulate_color" type="color4">
       <input name="in1" type="color4" interfacename="color" />
@@ -379,31 +461,31 @@
     </texcoord>
     <image name="image" type="color3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="color3" interfacename="default" value="0, 0, 0" />
+      <input name="default" type="color3" interfacename="default" />
       <input name="texcoord" type="vector2" nodename="place2d" />
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </image>
     <divide name="invert_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0"/>
-      <input name="in2" type="vector2" interfacename="scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in2" type="vector2" interfacename="scale" />
     </divide>
     <multiply name="negate_rotate" type="float">
-      <input name="in1" type="float" interfacename="rotate"/>
-      <input name="in2" type="float" value="-1.0"/>
+      <input name="in1" type="float" interfacename="rotate" />
+      <input name="in2" type="float" value="-1.0" />
     </multiply>
     <multiply name="negate_offset" type="vector2">
-      <input name="in1" type="vector2" interfacename="offset"/>
-      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+      <input name="in1" type="vector2" interfacename="offset" />
+      <input name="in2" type="vector2" value="-1.0, 1.0" />
     </multiply>
     <place2d name="place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" nodename="invert_scale" />
       <input name="rotate" type="float" nodename="negate_rotate" />
       <input name="offset" type="vector2" nodename="negate_offset" />
-      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
     <multiply name="scale_image" type="color3">
       <input name="in1" type="color3" interfacename="factor" />
@@ -449,31 +531,31 @@
     </texcoord>
     <image name="image" type="color4">
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="color4" interfacename="default" value="0, 0, 0, 0" />
+      <input name="default" type="color4" interfacename="default" />
       <input name="texcoord" type="vector2" nodename="place2d" />
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </image>
     <divide name="invert_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0"/>
-      <input name="in2" type="vector2" interfacename="scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in2" type="vector2" interfacename="scale" />
     </divide>
     <multiply name="negate_rotate" type="float">
-      <input name="in1" type="float" interfacename="rotate"/>
-      <input name="in2" type="float" value="-1.0"/>
+      <input name="in1" type="float" interfacename="rotate" />
+      <input name="in2" type="float" value="-1.0" />
     </multiply>
     <multiply name="negate_offset" type="vector2">
-      <input name="in1" type="vector2" interfacename="offset"/>
-      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+      <input name="in1" type="vector2" interfacename="offset" />
+      <input name="in2" type="vector2" value="-1.0, 1.0" />
     </multiply>
     <place2d name="place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" nodename="invert_scale" />
       <input name="rotate" type="float" nodename="negate_rotate" />
-      <input name="offset" type="vector2" nodename="negate_offset"/>
-      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
     <multiply name="scale_image" type="color4">
       <input name="in1" type="color4" interfacename="factor" />
@@ -519,31 +601,31 @@
     </texcoord>
     <image name="image" type="float">
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="float" interfacename="default" value="0" />
+      <input name="default" type="float" interfacename="default" />
       <input name="texcoord" type="vector2" nodename="place2d" />
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </image>
     <divide name="invert_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0"/>
-      <input name="in2" type="vector2" interfacename="scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in2" type="vector2" interfacename="scale" />
     </divide>
     <multiply name="negate_rotate" type="float">
-      <input name="in1" type="float" interfacename="rotate"/>
-      <input name="in2" type="float" value="-1.0"/>
+      <input name="in1" type="float" interfacename="rotate" />
+      <input name="in2" type="float" value="-1.0" />
     </multiply>
     <multiply name="negate_offset" type="vector2">
-      <input name="in1" type="vector2" interfacename="offset"/>
-      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+      <input name="in1" type="vector2" interfacename="offset" />
+      <input name="in2" type="vector2" value="-1.0, 1.0" />
     </multiply>
     <place2d name="place2d" type="vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" nodename="invert_scale" />
       <input name="rotate" type="float" nodename="negate_rotate" />
       <input name="offset" type="vector2" nodename="negate_offset" />
-      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
     <multiply name="scale_image" type="float">
       <input name="in1" type="float" interfacename="factor" />
@@ -586,32 +668,32 @@
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
     <image name="image" type="vector3">
-      <input name="file" type="filename" uniform="true" interfacename="file"/>
-      <input name="default" type="vector3" interfacename="default" value="0, 0, 0"/>
-      <input name="texcoord" type="vector2" nodename="place2d"/>
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic"/>
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic"/>
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear"/>
+      <input name="file" type="filename" uniform="true" interfacename="file" />
+      <input name="default" type="vector3" interfacename="default" />
+      <input name="texcoord" type="vector2" nodename="place2d" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </image>
     <divide name="invert_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0"/>
-      <input name="in2" type="vector2" interfacename="scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in2" type="vector2" interfacename="scale" />
     </divide>
     <multiply name="negate_rotate" type="float">
-      <input name="in1" type="float" interfacename="rotate"/>
-      <input name="in2" type="float" value="-1.0"/>
+      <input name="in1" type="float" interfacename="rotate" />
+      <input name="in2" type="float" value="-1.0" />
     </multiply>
     <multiply name="negate_offset" type="vector2">
-      <input name="in1" type="vector2" interfacename="offset"/>
-      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+      <input name="in1" type="vector2" interfacename="offset" />
+      <input name="in2" type="vector2" value="-1.0, 1.0" />
     </multiply>
     <place2d name="place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="texcoord1"/>
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1"/>
+      <input name="texcoord" type="vector2" nodename="texcoord1" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" nodename="invert_scale" />
       <input name="rotate" type="float" nodename="negate_rotate" />
       <input name="offset" type="vector2" nodename="negate_offset" />
-      <input name="operationorder" type="integer" interfacename="operationorder" value="0"/>
+      <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
     <output name="out" type="vector3" nodename="image" />
   </nodegraph>
@@ -651,34 +733,34 @@
     </texcoord>
     <image name="image" type="vector3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="vector3" interfacename="default" value="0.5, 0.5, 1" />
+      <input name="default" type="vector3" interfacename="default" />
       <input name="texcoord" type="vector2" nodename="place2d" />
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </image>
     <normalmap name="normalmap" type="vector3">
       <input name="in" type="vector3" nodename="image" />
     </normalmap>
     <divide name="invert_scale" type="vector2">
-      <input name="in1" type="vector2" value="1.0, 1.0"/>
-      <input name="in2" type="vector2" interfacename="scale"/>
+      <input name="in1" type="vector2" value="1.0, 1.0" />
+      <input name="in2" type="vector2" interfacename="scale" />
     </divide>
     <multiply name="negate_rotate" type="float">
-      <input name="in1" type="float" interfacename="rotate"/>
-      <input name="in2" type="float" value="-1.0"/>
+      <input name="in1" type="float" interfacename="rotate" />
+      <input name="in2" type="float" value="-1.0" />
     </multiply>
     <multiply name="negate_offset" type="vector2">
-      <input name="in1" type="vector2" interfacename="offset"/>
-      <input name="in2" type="vector2" value="-1.0, 1.0"/>
+      <input name="in1" type="vector2" interfacename="offset" />
+      <input name="in2" type="vector2" value="-1.0, 1.0" />
     </multiply>
-    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" >
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2">
       <input name="texcoord" type="vector2" nodename="texcoord1" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 1" />
-      <input name="scale" type="vector2" nodename="invert_scale" value="1, 1" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
+      <input name="scale" type="vector2" nodename="invert_scale" />
       <input name="rotate" type="float" nodename="negate_rotate" />
-      <input name="offset" type="vector2" nodename ="negate_offset" />
-      <input name="operationorder" type="integer" interfacename="operationorder" value="0" />
+      <input name="offset" type="vector2" nodename="negate_offset" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
     <output name="out" type="vector3" nodename="normalmap" />
   </nodegraph>
@@ -715,24 +797,24 @@
     <input name="filtertype" type="string" uniform="true" value="linear" />
     <input name="thicknessMin" type="float" value="100" />
     <input name="thicknessMax" type="float" value="400" />
-    <mix name="mixThickness" type="float" nodedef="ND_mix_float" >
-      <input name="fg" type="float" interfacename="thicknessMin" value="0" />
-      <input name="bg" type="float" interfacename="thicknessMax" value="0" />
+    <mix name="mixThickness" type="float" nodedef="ND_mix_float">
+      <input name="fg" type="float" interfacename="thicknessMin" />
+      <input name="bg" type="float" interfacename="thicknessMax" />
       <input name="mix" type="float" nodename="extract" />
     </mix>
-    <gltf_image name="thickness_image" type="vector3" >
+    <gltf_image name="thickness_image" type="vector3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="vector3" interfacename="default" value="0, 0, 0" />
-      <input name="uvindex" type="integer" interfacename="uvindex" value="0" />
-      <input name="pivot" type="vector2" interfacename="pivot" value="0, 0" />
-      <input name="scale" type="vector2" interfacename="scale" value="1, 1" />
-      <input name="rotate" type="float" interfacename="rotate" value="0" />
-      <input name="offset" type="vector2" interfacename="offset" value="0, 0" />
-      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" value="periodic" />
-      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" value="linear" />
+      <input name="default" type="vector3" interfacename="default" />
+      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="pivot" type="vector2" interfacename="pivot" />
+      <input name="scale" type="vector2" interfacename="scale" />
+      <input name="rotate" type="float" interfacename="rotate" />
+      <input name="offset" type="vector2" interfacename="offset" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
+      <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </gltf_image>
-    <extract name="extract" type="float" >
+    <extract name="extract" type="float">
       <input name="in" type="vector3" nodename="thickness_image" />
       <input name="index" type="integer" uniform="true" value="1" />
     </extract>

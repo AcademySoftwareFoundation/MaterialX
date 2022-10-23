@@ -359,6 +359,12 @@ bool Input::validate(string* message) const
             validateRequire(getInterfaceInput() != nullptr, res, message, "Interface name not found in containing NodeGraph");
         }
     }
+    if (getParent()->isA<Node>())
+    {
+        bool hasValueBinding = hasValue();
+        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
+        validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+    }
     return PortElement::validate(message) && res;
 }
 

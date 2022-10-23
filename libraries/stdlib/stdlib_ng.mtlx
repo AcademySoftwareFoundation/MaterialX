@@ -1026,6 +1026,161 @@
     </mix>
     <output name="out" type="vector4" nodename="N_mix_vector4" />
   </nodegraph>
+  
+  <!--
+    <unifiednoise2d>
+    Combined 2d noises for artists.
+  -->
+  <nodegraph name="NG_unifiednoise2d_float" nodedef="ND_unifiednoise2d_float">
+    <input name="texcoord" type="vector2" />
+    <input name="freq" type="vector2" />
+    <input name="offset" type="vector2" />
+    <input name="jitter" type="float" />
+    <input name="outmin" type="float" />
+    <input name="outmax" type="float" />
+    <input name="clampoutput" type="boolean" />
+    <input name="octaves" type="integer" />
+    <input name="lacunarity" type="float" />
+    <input name="diminish" type="float" />
+    <input name="type" type="integer" />
+    <output name="out" type="float" nodename="N_range" />
+    <range name="N_range" type="float">
+      <input name="in" type="float" nodename="N_switch_type" />
+      <input name="outlow" type="float" interfacename="outmin" />
+      <input name="outhigh" type="float" interfacename="outmax" />
+      <input name="doclamp" type="boolean" interfacename="clampoutput" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+    </range>
+    <switch name="N_switch_type" type="float">
+      <input name="in1" type="float" nodename="N_perlin_noise2d" />
+      <input name="in2" type="float" nodename="N_cellnoise2d" />
+      <input name="in3" type="float" nodename="N_worleynoise2d" />
+      <input name="in4" type="float" nodename="N_fractal3d" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <noise2d name="N_perlin_noise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_cell_jitter" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+    </noise2d>
+    <cellnoise2d name="N_cellnoise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_cell_jitter" />
+    </cellnoise2d>
+    <worleynoise2d name="N_worleynoise2d" type="float">
+      <input name="texcoord" type="vector2" nodename="N_apply_offset" />
+      <input name="jitter" type="float" interfacename="jitter" />
+    </worleynoise2d>
+    <fractal3d name="N_fractal3d" type="float">
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" nodename="N_combine_with_jitter" />
+      <input name="amplitude" type="float" value="1" />
+    </fractal3d>
+    <rotate2d name="N_apply_cell_jitter" type="vector2">
+      <input name="in" type="vector2" nodename="N_apply_offset" />
+      <input name="amount" type="float" nodename="N_cell_jitter_mult" />
+    </rotate2d>
+    <add name="N_apply_offset" type="vector2">
+      <input name="in1" type="vector2" nodename="N_apply_freq" />
+      <input name="in2" type="vector2" interfacename="offset" />
+    </add>
+    <combine3 name="N_combine_with_jitter" type="vector3">
+      <input name="in1" type="float" nodename="N_separate" output="outx" />
+      <input name="in2" type="float" nodename="N_separate" output="outy" />
+      <input name="in3" type="float" nodename="N_cell_jitter_mult" />
+    </combine3>
+    <multiply name="N_cell_jitter_mult" type="float">
+      <input name="in1" type="float" nodename="N_jitter_minus_1" />
+      <input name="in2" type="float" value="90000" />
+    </multiply>
+    <multiply name="N_apply_freq" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="freq" />
+    </multiply>
+    <separate2 name="N_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="N_apply_offset" />
+    </separate2>
+    <subtract name="N_jitter_minus_1" type="float">
+      <input name="in1" type="float" interfacename="jitter" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+  </nodegraph>
+  
+  <!--
+    <unifiednoise3d>
+    Combined 3d noises for artists.
+  -->
+  <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
+    <input name="position" type="vector3" />
+    <input name="freq" type="vector3" />
+    <input name="offset" type="vector3" />
+    <input name="jitter" type="float" />
+    <input name="outmin" type="float" />
+    <input name="outmax" type="float" />
+    <input name="clampoutput" type="boolean" />
+    <input name="octaves" type="integer" />
+    <input name="lacunarity" type="float" />
+    <input name="diminish" type="float" />
+    <input name="type" type="integer" />
+    <output name="out" type="float" nodename="N_range" />
+    <range name="N_range" type="float">
+      <input name="in" type="float" nodename="N_switch_type" />
+      <input name="outlow" type="float" interfacename="outmin" />
+      <input name="outhigh" type="float" interfacename="outmax" />
+      <input name="doclamp" type="boolean" interfacename="clampoutput" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+    </range>
+    <switch name="N_switch_type" type="float">
+      <input name="in1" type="float" nodename="N_perlin_noise3d" />
+      <input name="in2" type="float" nodename="N_cellnoise3d" />
+      <input name="in3" type="float" nodename="N_worleynoise3d" />
+      <input name="in4" type="float" nodename="N_fractal3d" />
+      <input name="which" type="integer" interfacename="type" />
+    </switch>
+    <noise3d name="N_perlin_noise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" />
+      <input name="amplitude" type="float" value="0.5" />
+      <input name="pivot" type="float" value="0.5" />
+    </noise3d>
+    <cellnoise3d name="N_cellnoise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" />
+    </cellnoise3d>
+    <worleynoise3d name="N_worleynoise3d" type="float">
+      <input name="position" type="vector3" nodename="N_apply_offset" />
+      <input name="jitter" type="float" interfacename="jitter" />
+    </worleynoise3d>
+    <fractal3d name="N_fractal3d" type="float">
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" nodename="N_apply_cell_jitter" />
+      <input name="amplitude" type="float" value="1" />
+    </fractal3d>
+    <rotate3d name="N_apply_cell_jitter" type="vector3">
+      <input name="in" type="vector3" nodename="N_apply_offset" />
+      <input name="amount" type="float" nodename="N_cell_jitter_mult" />
+      <input name="axis" type="vector3" value="0.1, 1, 0" />
+    </rotate3d>
+    <add name="N_apply_offset" type="vector3">
+      <input name="in1" type="vector3" nodename="N_apply_freq" />
+      <input name="in2" type="vector3" interfacename="offset" />
+    </add>
+    <multiply name="N_cell_jitter_mult" type="float">
+      <input name="in1" type="float" nodename="N_jitter_minus_one" />
+      <input name="in2" type="float" value="90000" />
+    </multiply>
+    <multiply name="N_apply_freq" type="vector3">
+      <input name="in1" type="vector3" interfacename="position" />
+      <input name="in2" type="vector3" interfacename="freq" />
+    </multiply>
+    <subtract name="N_jitter_minus_one" type="float">
+      <input name="in1" type="float" interfacename="jitter" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
@@ -1886,6 +2041,114 @@
       <input name="mix" type="float" interfacename="amount" />
     </mix>
     <output name="out" type="color4" nodename="N_mix_color4" />
+  </nodegraph>
+  
+  <!--
+    Node: <colorcorrect> Supplemental Node
+    Combines various adjustment nodes into one, artist-friendly color correction node.
+  -->
+  <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
+    <input name="in" type="color3" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
+    <output name="out" type="color3" nodename="N_exposure" />
+    <multiply name="N_exposure" type="color3">
+      <input name="in1" type="color3" nodename="N_contrast" />
+      <input name="in2" type="float" nodename="N_exposurepwr" />
+    </multiply>
+    <contrast name="N_contrast" type="color3">
+      <input name="in" type="color3" nodename="N_gain" />
+      <input name="amount" type="float" interfacename="contrast" />
+      <input name="pivot" type="float" interfacename="contrastpivot" />
+    </contrast>
+    <power name="N_exposurepwr" type="float">
+      <input name="in2" type="float" interfacename="exposure" />
+      <input name="in1" type="float" value="2" />
+    </power>
+    <multiply name="N_gain" type="color3">
+      <input name="in1" type="color3" nodename="N_liftadd" />
+      <input name="in2" type="float" interfacename="gain" />
+    </multiply>
+    <add name="N_liftadd" type="color3">
+      <input name="in1" type="color3" nodename="N_liftmult" />
+      <input name="in2" type="float" interfacename="lift" />
+    </add>
+    <multiply name="N_liftmult" type="color3">
+      <input name="in1" type="color3" nodename="N_gamma" />
+      <input name="in2" type="float" nodename="N_liftsubtract" />
+    </multiply>
+    <range name="N_gamma" type="color3">
+      <input name="in" type="color3" nodename="N_saturation" />
+      <input name="gamma" type="float" interfacename="gamma" />
+      <input name="inlow" type="float" value="0" />
+      <input name="inhigh" type="float" value="1" />
+      <input name="outlow" type="float" value="0" />
+      <input name="outhigh" type="float" value="1" />
+      <input name="doclamp" type="boolean" value="false" />
+    </range>
+    <subtract name="N_liftsubtract" type="float">
+      <input name="in2" type="float" interfacename="lift"/>
+      <input name="in1" type="float" value="1" />
+    </subtract>
+    <saturate name="N_saturation" type="color3">
+      <input name="in" type="color3" nodename="N_hsvadjust" />
+      <input name="amount" type="float" interfacename="saturation"/>
+    </saturate>
+    <hsvadjust name="N_hsvadjust" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="amount" type="vector3" nodename="N_parm2hue" />
+    </hsvadjust>
+    <combine3 name="N_parm2hue" type="vector3">
+      <input name="in1" type="float" interfacename="hue" />
+      <input name="in2" type="float" value="1" />
+      <input name="in3" type="float" value="1" />
+    </combine3>
+  </nodegraph>
+  <nodegraph name="NG_colorcorrect_color4" nodedef="ND_colorcorrect_color4">
+    <input name="in" type="color4" />
+    <input name="hue" type="float" />
+    <input name="saturation" type="float" />
+    <input name="gamma" type="float" />
+    <input name="lift" type="float" />
+    <input name="gain" type="float" />
+    <input name="contrast" type="float" />
+    <input name="contrastpivot" type="float" />
+    <input name="exposure" type="float" />
+    <output name="out" type="color4" nodename="N_combine_with_alpha" />
+    <separate4 name="N_split_color4" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine3 name="N_combine_color" type="color3">
+      <input name="in1" type="float" nodename="N_split_color4" output="outr" />
+      <input name="in2" type="float" nodename="N_split_color4" output="outg" />
+      <input name="in3" type="float" nodename="N_split_color4" output="outb" />
+    </combine3>
+    <colorcorrect name="N_colorcorrect" type="color3">
+      <input name="in" type="color3" nodename="N_combine_color" />
+      <input name="hue" type="float" interfacename="hue" />
+      <input name="saturation" type="float" interfacename="saturation" />
+      <input name="gamma" type="float" interfacename="gamma" />
+      <input name="lift" type="float" interfacename="lift" />
+      <input name="gain" type="float" interfacename="gain" />
+      <input name="contrast" type="float" interfacename="contrast" />
+      <input name="contrastpivot" type="float" interfacename="contrastpivot"  />
+      <input name="exposure" type="float" interfacename="exposure" />
+    </colorcorrect>
+    <separate3 name="N_split_color" type="multioutput">
+      <input name="in" type="color3" nodename="N_colorcorrect" />
+    </separate3>
+    <combine4 name="N_combine_with_alpha" type="color4">
+      <input name="in1" type="float" nodename="N_split_color" output="outr" />
+      <input name="in2" type="float" nodename="N_split_color" output="outg" />
+      <input name="in3" type="float" nodename="N_split_color" output="outb" />
+      <input name="in4" type="float" nodename="N_split_color4" output="outa" />
+    </combine4>
   </nodegraph>
 
   <!-- ======================================================================== -->

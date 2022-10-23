@@ -47,10 +47,10 @@
   </nodedef>
   <nodegraph name="IMP_substratebsdf" nodedef="ND_substratebsdf">
     <oren_nayar_diffuse_bsdf name="diffuse" type="BSDF">
-      <input name="color" type="color3" interfacename="albedo" value="0.9, 0.1, 0.1" />
+      <input name="color" type="color3" interfacename="albedo" />
     </oren_nayar_diffuse_bsdf>
     <translucent_bsdf name="subsurface2" type="BSDF">
-      <input name="color" type="color3" interfacename="subsurface" value="0.1, 0.1, 0.8" />
+      <input name="color" type="color3" interfacename="subsurface" />
     </translucent_bsdf>
     <mix name="mix1" type="BSDF">
       <input name="fg" type="BSDF" nodename="diffuse" />
@@ -69,17 +69,17 @@
   </nodedef>
   <nodegraph name="IMP_substrateshader" nodedef="ND_substrateshader">
     <substratebsdf name="substrate1" type="BSDF">
-      <input name="albedo" type="color3" value="0.8, 0.2, 0.1" interfacename="albedo" />
-      <input name="subsurface" type="color3" value="0.1, 0.1, 0.8" interfacename="subsurface" />
-      <input name="subsurface_weight" type="float" value="0.0" interfacename="subsurface_weight" />
+      <input name="albedo" type="color3" interfacename="albedo" />
+      <input name="subsurface" type="color3" interfacename="subsurface" />
+      <input name="subsurface_weight" type="float" interfacename="subsurface_weight" />
     </substratebsdf>
     <uniform_edf name="edf1" type="EDF">
-      <input name="color" type="color3" value="0.0, 0.0, 0.0" interfacename="emission" />
+      <input name="color" type="color3" interfacename="emission" />
     </uniform_edf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="substrate1" />
       <input name="edf" type="EDF" nodename="edf1" />
-      <input name="opacity" type="float" value="1.0" interfacename="opacity" />
+      <input name="opacity" type="float" interfacename="opacity" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>

@@ -973,6 +973,57 @@
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
 
+  <!--
+    Node: <unifiednoise2d>
+    Combines the available noises into an artist-friendly node, adding controls
+    to adjust frequency, offset, jitter, etc... Where possible controls have
+    been unified between noises; any noise-specific controls should live in a
+    dedicated folder. These folders should be hidden by artist tools, unless their
+    corresponding noise type is selected.
+    
+    The noise types are:
+    
+       0 - Perlin (noise2d/noise3d)
+       1 - Cell (cellnoise2d/cellnoise3d)
+       2 - Worley (worley2d/worley3d)
+       3 - Fractal (fractal3d)
+    
+    The output is 1 channel, with controls to adjust the output range.
+  -->
+  <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" uifolder="Common" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1)." />
+    <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" doc="Shift the noise in 2d space. Default is (0,0)." />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <output name="out" type="float" />
+  </nodedef>
+  
+  <!--
+    Node: <unifiednoise3d>
+    The 3d flavor of <unifiednoise2d>.
+  -->
+  <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="procedural3d">
+    <input name="position" type="vector3" uifolder="Common" defaultgeomprop="Pobject" doc="The input 3d space. Default is position in object-space." />
+    <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1,1)." />
+    <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" doc="Shift the noise in 3d space. Default is (0,0,0)." />
+    <input name="jitter" type="float" uiname="Jitter" uifolder="Common" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjust uniformity of Worley noise; for other noise types jitters the results." />
+    <input name="outmin" type="float" uiname="Output Min" uifolder="Post Process" value="0" doc="The lowest values fit to the noise. Default is 0.0." />
+    <input name="outmax" type="float" uiname="Output Max" uifolder="Post Process" value="1" doc="The highest values fit to the noise. Default is 1.0." />
+    <input name="clampoutput" type="boolean" uiname="Clamp Output" uifolder="Post Process" value="true" doc="Clamp the output to the min and max output values." />
+    <input name="octaves" type="integer" uiname="Octaves" uifolder="Fractal" value="3" doc="The number of octaves of Fractal noise to be generated. Default is 3." />
+    <input name="lacunarity" type="float" uiname="Lacunarity" uifolder="Fractal" value="2" doc="The exponential scale between successive octaves of Fractal noise. Default is 2.0." />
+    <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
+    <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
@@ -1185,21 +1236,6 @@
     <input name="in2" type="matrix44" value="0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0, 0.0,0.0,0.0,0.0" />
     <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
-  <nodedef name="ND_add_surfaceshader" node="add" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="surfaceshader" value="" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_displacementshader" node="add" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="displacementshader" value="" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_add_volumeshader" node="add" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="volumeshader" value="" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
   <nodedef name="ND_add_color3FA" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="0.0" />
@@ -1385,36 +1421,6 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="1.0" />
     <output name="out" type="vector4" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_surfaceshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_displacementshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_volumeshaderF" node="multiply" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="float" value="1.0" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_surfaceshaderC" node="multiply" nodegroup="math">
-    <input name="in1" type="surfaceshader" value="" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="surfaceshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_volumeshaderC" node="multiply" nodegroup="math">
-    <input name="in1" type="volumeshader" value="" />
-    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="volumeshader" defaultinput="in1" />
-  </nodedef>
-  <nodedef name="ND_multiply_displacementshaderV" node="multiply" nodegroup="math">
-    <input name="in1" type="displacementshader" value="" />
-    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    <output name="out" type="displacementshader" defaultinput="in1" />
   </nodedef>
 
   <!--
@@ -2901,6 +2907,36 @@
     <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
     <output name="out" type="color4" defaultinput="in" />
   </nodedef>
+  
+  <!--
+    Node: <colorcorrect> Supplemental Node
+    Combines various adjustment nodes into one, artist-friendly color correction node.
+    The color4 signature does not touch the alpha channel.
+  -->
+  <nodedef name="ND_colorcorrect_color3" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color3" uiname="Input Color" value="1, 1, 1" doc="The input color to be adjusted." />
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodedef name="ND_colorcorrect_color4" node="colorcorrect" nodegroup="adjustment">
+    <input name="in" type="color4" uiname="Input Color" value="1, 1, 1, 0" doc="The input color to be adjusted." />
+    <input name="hue" type="float" uiname="Hue" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Rotates the color hue, with values wrapping at 0-1 boundaries." />
+    <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
+    <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
+    <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
+    <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
+    <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
+    <output name="out" type="color4" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
@@ -3222,10 +3258,22 @@
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="color3" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_color3_color3" node="mix" nodegroup="compositing">
+    <input name="fg" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="bg" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_color4" node="mix" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
+    <output name="out" type="color4" defaultinput="bg" />
+  </nodedef>
+  <nodedef name="ND_mix_color4_color4" node="mix" nodegroup="compositing">
+    <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="color4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector2" node="mix" nodegroup="compositing">
@@ -3234,16 +3282,34 @@
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="vector2" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_vector2_vector2" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector2" value="0.0, 0.0" />
+    <input name="bg" type="vector2" value="0.0, 0.0" />
+    <input name="mix" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_vector3" node="mix" nodegroup="compositing">
     <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
     <output name="out" type="vector3" defaultinput="bg" />
   </nodedef>
+  <nodedef name="ND_mix_vector3_vector3" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="bg" />
+  </nodedef>
   <nodedef name="ND_mix_vector4" node="mix" nodegroup="compositing">
     <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="mix" type="float" value="0.0" />
+    <output name="out" type="vector4" defaultinput="bg" />
+  </nodedef>
+  <nodedef name="ND_mix_vector4_vector4" node="mix" nodegroup="compositing">
+    <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_surfaceshader" node="mix" nodegroup="compositing">
