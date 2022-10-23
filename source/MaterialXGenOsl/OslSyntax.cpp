@@ -327,9 +327,7 @@ OslSyntax::OslSyntax()
         "reflection", "transparent", "debug", "holdout", "subsurface", "sheen",
         "oren_nayar_diffuse_bsdf", "burley_diffuse_bsdf", "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf", 
         "translucent_bsdf", "transparent_bsdf","subsurface_bssrdf", "sheen_bsdf", "uniform_edf", "anisotropic_vdf", 
-        "medium_vdf", "layer", "artistic_ior",
-        // mx_funcs function names
-        "contrast"
+        "medium_vdf", "layer", "artistic_ior"
     });
 
     //

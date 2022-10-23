@@ -1,1 +1,1 @@
-contrast({{in}}, {{amount}}, {{pivot}})
+mx_contrast({{in}}, {{amount}}, {{pivot}})
