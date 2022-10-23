@@ -1310,8 +1310,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
             }
        
-            // For document assignment we must go in order of assignments for looks
-            // with later assignments superceding earlier ones.
+            // Apply material assignments in the order in which they are declared within the document,
+            // with later assignments superseding earlier ones.
             for (mx::LookPtr look : doc->getLooks())
             {
                 for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
