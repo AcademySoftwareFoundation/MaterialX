@@ -263,9 +263,9 @@ vector4 fgamma(vector4 in, float g)
 
 
 //
-// contrast scales the input around a central `pivot` value.
+// mx_contrast scales the input around a central `pivot` value.
 //
-float contrast(float in, float amount, float pivot)
+float mx_contrast(float in, float amount, float pivot)
 {
     float out = in - pivot;
     out *= amount;
@@ -273,7 +273,7 @@ float contrast(float in, float amount, float pivot)
     return out;
 }
 
-color contrast(color in, color amount, color pivot)
+color mx_contrast(color in, color amount, color pivot)
 {
     color out = in - pivot;
     out *= amount;
@@ -281,7 +281,7 @@ color contrast(color in, color amount, color pivot)
     return out;
 }
 
-color contrast(color in, float amount, float pivot)
+color mx_contrast(color in, float amount, float pivot)
 {
     color out = in - pivot;
     out *= amount;
@@ -289,42 +289,42 @@ color contrast(color in, float amount, float pivot)
     return out;
 }
 
-color4 contrast(color4 c, color4 amount, color4 pivot)
+color4 mx_contrast(color4 c, color4 amount, color4 pivot)
 {
-    return color4(contrast(c.rgb, amount.rgb, pivot.rgb),
-                  contrast(c.a, amount.a, pivot.a));
+    return color4(mx_contrast(c.rgb, amount.rgb, pivot.rgb),
+                  mx_contrast(c.a, amount.a, pivot.a));
 }
 
-color4 contrast(color4 c, float amount, float pivot)
+color4 mx_contrast(color4 c, float amount, float pivot)
 {
-    return contrast(c, color4(color(amount), amount), color4(color(pivot), pivot));
+    return mx_contrast(c, color4(color(amount), amount), color4(color(pivot), pivot));
 }
 
-vector2 contrast(vector2 in, vector2 amount, vector2 pivot)
+vector2 mx_contrast(vector2 in, vector2 amount, vector2 pivot)
 {
-    return vector2 (contrast(in.x, amount.x, pivot.x),
-                    contrast(in.y, amount.y, pivot.y));
+    return vector2 (mx_contrast(in.x, amount.x, pivot.x),
+                    mx_contrast(in.y, amount.y, pivot.y));
 }
 
-vector2 contrast(vector2 in, float amount, float pivot)
+vector2 mx_contrast(vector2 in, float amount, float pivot)
 {
-    return contrast(in, vector2(amount, amount), vector2(pivot, pivot));
+    return mx_contrast(in, vector2(amount, amount), vector2(pivot, pivot));
 }
 
-vector4 contrast(vector4 in, vector4 amount, vector4 pivot)
+vector4 mx_contrast(vector4 in, vector4 amount, vector4 pivot)
 {
-    return vector4 (contrast(in.x, amount.x, pivot.x),
-                    contrast(in.y, amount.y, pivot.y),
-                    contrast(in.z, amount.z, pivot.z),
-                    contrast(in.w, amount.w, pivot.w));
+    return vector4 (mx_contrast(in.x, amount.x, pivot.x),
+                    mx_contrast(in.y, amount.y, pivot.y),
+                    mx_contrast(in.z, amount.z, pivot.z),
+                    mx_contrast(in.w, amount.w, pivot.w));
 }
 
-vector4 contrast(vector4 in, float amount, float pivot)
+vector4 mx_contrast(vector4 in, float amount, float pivot)
 {
-    return vector4 (contrast(in.x, amount, pivot),
-                    contrast(in.y, amount, pivot),
-                    contrast(in.z, amount, pivot),
-                    contrast(in.w, amount, pivot));
+    return vector4 (mx_contrast(in.x, amount, pivot),
+                    mx_contrast(in.y, amount, pivot),
+                    mx_contrast(in.z, amount, pivot),
+                    mx_contrast(in.w, amount, pivot));
 }
 
 
