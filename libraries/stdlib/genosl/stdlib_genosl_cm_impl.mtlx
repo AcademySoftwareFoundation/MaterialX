@@ -21,4 +21,8 @@
   <implementation name="IM_srgb_texture_to_lin_rec709_color3_genosl" file="mx_srgb_texture_to_lin_rec709_color3.osl" function="mx_srgb_texture_to_lin_rec709_color3" target="genosl" />
   <implementation name="IM_srgb_texture_to_lin_rec709_color4_genosl" file="mx_srgb_texture_to_lin_rec709_color4.osl" function="mx_srgb_texture_to_lin_rec709_color4" target="genosl" />
 
+  <implementation name="IM_g22_adobergb_to_lin_rec709_color3_genosl" file="mx_g22_adobergb_to_lin_rec709_color3.osl" function="mx_g22_adobergb_to_lin_rec709_color3" target="genosl" />
+  <implementation name="IM_g22_adobergb_to_lin_rec709_color4_genosl" file="mx_g22_adobergb_to_lin_rec709_color4.osl" function="mx_g22_adobergb_to_lin_rec709_color4" target="genosl" />
+  <implementation name="IM_lin_adobergb_to_lin_rec709_color3_genosl" file="mx_lin_adobergb_to_lin_rec709_color3.osl" function="mx_lin_adobergb_to_lin_rec709_color3" target="genosl" />
+  <implementation name="IM_lin_adobergb_to_lin_rec709_color4_genosl" file="mx_lin_adobergb_to_lin_rec709_color4.osl" function="mx_lin_adobergb_to_lin_rec709_color4" target="genosl" />
 </materialx>

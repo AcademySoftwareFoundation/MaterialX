@@ -180,3 +180,65 @@ export color4 mx_srgb_texture_to_lin_rec709_color4(color4 mxp_in)
 {
     return mk_color4(mx_srgb_texture_to_lin_rec709_color4(mk_float4(mxp_in)));
 }
+
+export float3 mx_lin_adobergb_to_lin_rec709_color3(float3 mxp_in)
+[[
+    anno::description("linear AdobeRGB to linear Rec709 transform for float3")
+]]
+{
+    float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
+    float4x4 xform = float4x4( 1.39828340e+00, -1.23390452e-07,  4.56148723e-08, 0.0,
+                              -3.98283117e-01,  9.99999995e-01, -4.29382905e-02, 0.0,
+                               4.42716499e-08,  3.12672428e-08,  1.04293825e+00, 0.0,
+                               0.0, 0.0, 0.0, 1.0);
+    float3 result = ::swizzle::xyz(xform * outColor);
+    return result;
+}
+
+export float3 mx_g22_adobergb_to_lin_rec709_color3(float3 mxp_in)
+[[
+    anno::description("Gamma 2.2 AdobeRGB to linear Rec709 transform for float3")
+]]
+{
+    float3 gamma = float3(563 / 256);
+    float3 lin_adobergb_color ::math::pow( ::math::max( float3(0), mxp_in ), gamma );
+    return mx_lin_adobergb_to_lin_rec709_color3(lin_adobergb_color);
+}
+
+export color mx_g22_adobergb_to_lin_rec709_color3(color mxp_in)
+{
+    return color(mx_g22_adobergb_to_lin_rec709_color3(float3(mxp_in)));
+}
+
+export float4 mx_g22_adobergb_to_lin_rec709_color4(float4 mxp_in)
+[[
+    anno::description("Gamma 2.2 AdobeRGB to linear Rec709 transform for float4")
+]]
+{
+    float3 outColor = mx_g22_adobergb_to_lin_rec709_color3(float3(mxp_in.x, mxp_in.y, mxp_in.z));
+    return float4(outColor.x, outColor.y, outColor.z, mxp_in.w);
+}
+
+export color4 mx_g22_adobergb_to_lin_rec709_color4(color4 mxp_in)
+{
+    return mk_color4(mx_g22_adobergb_to_lin_rec709_color4(mk_float4(mxp_in)));
+}
+
+export color mx_lin_adobergb_to_lin_rec709_color3(color mxp_in)
+{
+    return color(mx_lin_adobergb_to_lin_rec709_color3(float3(mxp_in)));
+}
+
+export float4 mx_lin_adobergb_to_lin_rec709_color4(float4 mxp_in)
+[[
+    anno::description("linear AdobeRGB to linear Rec709 transform for float4")
+]]
+{
+    float3 outColor = mx_lin_adobergb_to_lin_rec709_color3(float3(mxp_in.x, mxp_in.y, mxp_in.z));
+    return float4(outColor.x, outColor.y, outColor.z, mxp_in.w);
+}
+
+export color4 mx_lin_adobergb_to_lin_rec709_color4(color4 mxp_in)
+{
+    return mk_color4(mx_lin_adobergb_to_lin_rec709_color4(mk_float4(mxp_in)));
+}

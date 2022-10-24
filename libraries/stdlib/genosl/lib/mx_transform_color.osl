@@ -10,3 +10,19 @@ color mx_srgb_texture_to_lin_rec709(color inColor)
     color powSeg = pow(max(inColor + color(0.055), color(0.0)) / 1.055, color(2.4));
     return mix(linSeg, powSeg, isAbove);
 }
+
+color mx_lin_adobergb_to_lin_rec709(color inColor)
+{
+    matrix adobergb_to_srgb = matrix( 1.39828340e+00, -1.23390452e-07,  4.56148723e-08, 0.,
+                                     -3.98283117e-01,  9.99999995e-01, -4.29382905e-02, 0.,
+                                      4.42716499e-08,  3.12672428e-08,  1.04293825e+00, 0.,
+                                      0.,              0.,              0.,             1.);
+
+    return color(transform(adobergb_to_srgb, vector(inColor)));
+}
+
+color mx_g22_adobergb_to_lin_rec709(color inColor)
+{
+    color lin_adobergb_color = pow(max(color(0.), inColor), color(563. / 256.));
+    return mx_lin_adobergb_to_lin_rec709(lin_adobergb_color);
+}
