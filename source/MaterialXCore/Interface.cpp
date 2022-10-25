@@ -329,6 +329,8 @@ GeomPropDefPtr Input::getDefaultGeomProp() const
 bool Input::validate(string* message) const
 {
     bool res = true;
+    ConstElementPtr parent = getParent();
+
     if (hasDefaultGeomPropString())
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
@@ -359,11 +361,15 @@ bool Input::validate(string* message) const
             validateRequire(getInterfaceInput() != nullptr, res, message, "Interface name not found in containing NodeGraph");
         }
     }
-    if (getParent()->isA<Node>())
+    if (parent->isA<Node>())
     {
         bool hasValueBinding = hasValue();
         bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
         validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+    }
+    else if (parent->isA<NodeGraph>())
+    {
+        validateRequire(parent->asA<NodeGraph>()->getNodeDef() == nullptr, res, message, "Input element in a functional nodegraph has no effect");
     }
     return PortElement::validate(message) && res;
 }
