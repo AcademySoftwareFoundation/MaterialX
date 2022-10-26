@@ -24,7 +24,7 @@
 //     Document version 1.6.1, December 16, 2019
 //     www.nvidia.com/mdl
 
-mdl 1.6;
+mdl 1.7;
 
 using .::core import *;
 import .::swizzle::*;
@@ -435,14 +435,13 @@ export material mx_directional_edf(
         emission: material_emission(
             emission: df::directional_factor(mxp_color0, mxp_color90, mxp_exponent, mxp_base.surface.emission.emission),
             intensity: mxp_base.surface.emission.intensity,
-            mode: mxp_base.surface.emission.mode
+            mode: mxp_base.surface.emission.mode)
         ),
     backface: mxp_base.backface,
     ior:      mxp_base.ior,
     volume:   mxp_base.volume,
     geometry: mxp_base.geometry,
     hair:     mxp_base.hair
-    )
 );
 
 // VDF Nodes
