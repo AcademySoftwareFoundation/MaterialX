@@ -1032,18 +1032,6 @@
     Combined 2d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise2d_float" nodedef="ND_unifiednoise2d_float">
-    <input name="texcoord" type="vector2" />
-    <input name="freq" type="vector2" />
-    <input name="offset" type="vector2" />
-    <input name="jitter" type="float" />
-    <input name="outmin" type="float" />
-    <input name="outmax" type="float" />
-    <input name="clampoutput" type="boolean" />
-    <input name="octaves" type="integer" />
-    <input name="lacunarity" type="float" />
-    <input name="diminish" type="float" />
-    <input name="type" type="integer" />
-    <output name="out" type="float" nodename="N_range" />
     <range name="N_range" type="float">
       <input name="in" type="float" nodename="N_switch_type" />
       <input name="outlow" type="float" interfacename="outmin" />
@@ -1106,6 +1094,7 @@
       <input name="in1" type="float" interfacename="jitter" />
       <input name="in2" type="float" value="1" />
     </subtract>
+    <output name="out" type="float" nodename="N_range" />
   </nodegraph>
   
   <!--
@@ -1113,18 +1102,6 @@
     Combined 3d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
-    <input name="position" type="vector3" />
-    <input name="freq" type="vector3" />
-    <input name="offset" type="vector3" />
-    <input name="jitter" type="float" />
-    <input name="outmin" type="float" />
-    <input name="outmax" type="float" />
-    <input name="clampoutput" type="boolean" />
-    <input name="octaves" type="integer" />
-    <input name="lacunarity" type="float" />
-    <input name="diminish" type="float" />
-    <input name="type" type="integer" />
-    <output name="out" type="float" nodename="N_range" />
     <range name="N_range" type="float">
       <input name="in" type="float" nodename="N_switch_type" />
       <input name="outlow" type="float" interfacename="outmin" />
@@ -1180,6 +1157,7 @@
       <input name="in1" type="float" interfacename="jitter" />
       <input name="in2" type="float" value="1" />
     </subtract>
+    <output name="out" type="float" nodename="N_range" />
   </nodegraph>
 
   <!-- ======================================================================== -->
@@ -2061,16 +2039,6 @@
     Combines various adjustment nodes into one, artist-friendly color correction node.
   -->
   <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">
-    <input name="in" type="color3" />
-    <input name="hue" type="float" />
-    <input name="saturation" type="float" />
-    <input name="gamma" type="float" />
-    <input name="lift" type="float" />
-    <input name="gain" type="float" />
-    <input name="contrast" type="float" />
-    <input name="contrastpivot" type="float" />
-    <input name="exposure" type="float" />
-    <output name="out" type="color3" nodename="N_exposure" />
     <multiply name="N_exposure" type="color3">
       <input name="in1" type="color3" nodename="N_contrast" />
       <input name="in2" type="float" nodename="N_exposurepwr" />
@@ -2122,18 +2090,9 @@
       <input name="in2" type="float" value="1" />
       <input name="in3" type="float" value="1" />
     </combine3>
+    <output name="out" type="color3" nodename="N_exposure" />
   </nodegraph>
   <nodegraph name="NG_colorcorrect_color4" nodedef="ND_colorcorrect_color4">
-    <input name="in" type="color4" />
-    <input name="hue" type="float" />
-    <input name="saturation" type="float" />
-    <input name="gamma" type="float" />
-    <input name="lift" type="float" />
-    <input name="gain" type="float" />
-    <input name="contrast" type="float" />
-    <input name="contrastpivot" type="float" />
-    <input name="exposure" type="float" />
-    <output name="out" type="color4" nodename="N_combine_with_alpha" />
     <separate4 name="N_split_color4" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
     </separate4>
@@ -2162,6 +2121,7 @@
       <input name="in3" type="float" nodename="N_split_color" output="outb" />
       <input name="in4" type="float" nodename="N_split_color4" output="outa" />
     </combine4>
+    <output name="out" type="color4" nodename="N_combine_with_alpha" />
   </nodegraph>
 
   <!-- ======================================================================== -->

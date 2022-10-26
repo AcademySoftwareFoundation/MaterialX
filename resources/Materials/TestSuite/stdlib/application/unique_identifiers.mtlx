@@ -7,8 +7,6 @@
     <output name="out2" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_blah2_float_float" nodedef="ND_blah2_float_float">
-    <input name="out1" type="float" value="1" />
-    <input name="out3" type="vector2" value="0, 0" />
     <constant name="constant" type="float">
       <input name="value" type="float" value="10" uniform="true" uivisible="true" />
     </constant>
