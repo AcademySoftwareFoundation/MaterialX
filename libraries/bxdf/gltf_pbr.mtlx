@@ -372,19 +372,6 @@
   </nodedef>
 
   <nodegraph name="NG_gltf_colorimage" nodedef="ND_gltf_colorimage">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="1" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
-    <input name="color" type="color4" value="1, 1, 1, 1" />
-    <input name="geomcolor" type="color4" value="1, 1, 1, 1" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -444,18 +431,6 @@
     <output name="out" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_NG_gltf_image_color3_color3_1_0" nodedef="ND_gltf_image_color3_color3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="color3" value="1,1,1" />
-    <input name="default" type="color3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -514,18 +489,6 @@
     <output name="out" type="color4" value="0, 0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_color4_color4_1_0" nodedef="ND_gltf_image_color4_color4_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="color4" value="1,1,1,1" />
-    <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="1" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -584,18 +547,6 @@
     <output name="out" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_float_float_1_0" nodedef="ND_gltf_image_float_float_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="float" value="1" />
-    <input name="default" type="float" value="0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -653,17 +604,6 @@
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_vector3_vector3_1_0"  nodedef="ND_gltf_image_vector3_vector3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -717,17 +657,6 @@
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_normalmap_vector3_1_0" nodedef="ND_gltf_normalmap_vector3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0.5, 0.5, 1" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -785,18 +714,6 @@
     <output name="out" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_gltf_iridescence_thickness_float_1_0" nodedef="ND_gltf_iridescence_thickness_float_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 0" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
-    <input name="thicknessMin" type="float" value="100" />
-    <input name="thicknessMax" type="float" value="400" />
     <mix name="mixThickness" type="float" nodedef="ND_mix_float">
       <input name="fg" type="float" interfacename="thicknessMin" />
       <input name="bg" type="float" interfacename="thicknessMax" />

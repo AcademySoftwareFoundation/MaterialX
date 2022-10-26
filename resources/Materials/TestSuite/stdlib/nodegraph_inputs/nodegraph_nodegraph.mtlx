@@ -48,8 +48,6 @@
     <output name="nd_graph_out_image2" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_upstream_graph" nodedef="ND_upstream_graph">
-    <input name="nd_file" type="filename" uniform="true" value="resources/Images/grid.png" />
-    <input name="nd_file2" type="filename" uniform="true" value="resources/Images/cloth.png" />
     <image name="image" type="color3">
       <input name="file" type="filename" uniform="true" interfacename="nd_file" />
     </image>
