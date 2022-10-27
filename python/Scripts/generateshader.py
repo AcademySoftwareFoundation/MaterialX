@@ -95,7 +95,7 @@ def main():
     if opts.shaderInterfaceType == 0 or opts.shaderInterfaceType == 1:
         genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType(opts.shaderInterfaceType)
     else:
-       genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE
+        genoptions.shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE
 
     print('- Set up CMS ...')
     cms = mx_gen_shader.DefaultColorManagementSystem.create(shadergen.getTarget())  
