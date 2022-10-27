@@ -25,6 +25,7 @@ const std::string options =
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
 "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
+"    --reducedInterface [BOOLEAN]   Specify to reduce the interface exposure for generated shaders\n"
 "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
 "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
@@ -38,7 +39,6 @@ const std::string options =
 "    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
 "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
 "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
-"    --reducedInterface [BOOLEAN]   Specify to reduce the interface exposure for generated shaders\n"
 "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
 "    --help                         Display the complete list of command-line options\n";
 
@@ -104,6 +104,7 @@ int main(int argc, char* const argv[])
     int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
     float lightRotation = 0.0f;
     bool shadowMap = true;
+    bool reducedInterface = false;
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
@@ -114,7 +115,6 @@ int main(int argc, char* const argv[])
     int bakeHeight = 0;
     std::string bakeFilename;
     float refresh = 50.0f;
-    bool reducedInterface = false;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -184,6 +184,10 @@ int main(int argc, char* const argv[])
         {
             parseToken(nextToken, "boolean", shadowMap);
         }
+        else if (token == "--reducedInterface")
+        {
+            parseToken(nextToken, "boolean", reducedInterface);
+        }
         else if (token == "--path")
         {
             searchPath.append(mx::FileSearchPath(nextToken));
@@ -248,10 +252,6 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
-        else if (token == "--reducedInterface")
-        {
-            parseToken(nextToken, "boolean", reducedInterface);
-        }
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -300,12 +300,12 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
+        viewer->setReducedInterface(reducedInterface);
         viewer->setDrawEnvironment(drawEnvironment);
         viewer->setDocumentModifiers(modifiers);
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
-        viewer->setReducedInterface(reducedInterface);
         viewer->initialize();
         if (!bakeFilename.empty()) 
         {
