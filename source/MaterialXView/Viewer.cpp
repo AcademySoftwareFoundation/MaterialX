@@ -259,7 +259,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _showAllInputs(false),
     _flattenSubgraphs(false),
     _targetShader("standard_surface"),
-    _reducedInterface(false),
     _captureRequested(false),
     _exitRequested(false),
     _wedgeRequested(false),
@@ -893,6 +892,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _showAllInputs = enable;
     });
+
+    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduced Shader Interface");
+    shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
+    shaderInterfaceBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().shaderInterfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
+    });    
 
     ng::CheckBox* flattenBox = new ng::CheckBox(advancedPopup, "Flatten Subgraphs");
     flattenBox->set_checked(_flattenSubgraphs);
@@ -1562,10 +1568,6 @@ void Viewer::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
-    if (_reducedInterface)
-    {
-        context.getOptions().shaderInterfaceType = mx::ShaderInterfaceType::SHADER_INTERFACE_REDUCED;
-    }
 }
 
 void Viewer::loadStandardLibraries()
