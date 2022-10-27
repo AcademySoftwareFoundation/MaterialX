@@ -635,9 +635,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
     ///    by the given target name.
     /// @param target An optional target name, which will be used to filter
     ///    the declarations that are considered.
-    /// @return A shared pointer to nodedef, or an empty shared pointer if
+    /// @return A shared pointer to declaration, or an empty shared pointer if
     ///    no declaration was found.
-    virtual ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const;
+    virtual ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
     /// Return true if this instance has an exact input match with the given
     /// declaration, where each input of this the instance corresponds to a

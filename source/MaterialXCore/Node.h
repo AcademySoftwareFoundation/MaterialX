@@ -151,7 +151,7 @@ class MX_CORE_API Node : public InterfaceElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override
     {
         return getNodeDef(target);
     }
@@ -364,7 +364,7 @@ class MX_CORE_API NodeGraph : public GraphElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// Add an interface name to an existing NodeDef associated with this NodeGraph.
     /// @param inputPath Path to an input descendant of this graph.
