@@ -166,7 +166,8 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
                 let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
                 const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniforms, flipY);
+                if (texture)
+                    setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
             } 
             break;
@@ -229,26 +230,33 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
-function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
-{
-    const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
-    const base = name.substring(0, idx) || name;
-
-    texture.generateMipmaps = generateMipmaps;
-
-    const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX)?.getValue().getData();
-    const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX)?.getValue().getData();
-
-    texture.wrapS = getWrapping(uaddressmode);
-    texture.wrapT = getWrapping(vaddressmode);
-
-    const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = getMinFilter(filterType, generateMipmaps);
-
-    texture.flipY = flipY;
-}
-
+ function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
+ {
+     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
+     const base = name.substring(0, idx) || name;
+ 
+     texture.generateMipmaps = generateMipmaps;
+     texture.wrapS = THREE.RepeatWrapping;
+     texture.wrapT = THREE.RepeatWrapping;
+     texture.magFilter = THREE.LinearFilter;
+     texture.flipY = flipY;
+     
+     if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
+     {
+         const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
+         texture.wrapS = getWrapping(uaddressmode);
+     }
+ 
+     if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
+     {
+         const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
+         texture.wrapT = getWrapping(vaddressmode);
+     }
+ 
+     const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
+     texture.minFilter = getMinFilter(filterType, generateMipmaps);
+ }
+ 
 /**
  * Return the global light rotation matrix
  */
