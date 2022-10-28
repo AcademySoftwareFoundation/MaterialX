@@ -35,7 +35,7 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
 
     // For compounds we do not want to publish all internal inputs
     // so always use the reduced interface for this graph.
-    const int oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
+    const ShaderInterfaceType oldShaderInterfaceType = context.getOptions().shaderInterfaceType;
     context.getOptions().shaderInterfaceType = SHADER_INTERFACE_REDUCED;
     _rootGraph = ShaderGraph::create(nullptr, graph, context);
     context.getOptions().shaderInterfaceType = oldShaderInterfaceType;
