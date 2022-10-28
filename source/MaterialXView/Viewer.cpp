@@ -893,7 +893,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAllInputs = enable;
     });
 
-    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduced Shader Interface");
+    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
     shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
     shaderInterfaceBox->set_callback([this](bool enable)
     {
