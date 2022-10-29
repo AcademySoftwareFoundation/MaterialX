@@ -58,9 +58,13 @@
       <input name="in1" type="float" nodename="node_divide_21" />
       <input name="in2" type="float" nodename="node_tiledimage_float_22" />
     </multiply>
+    <max name="node_max_1" type="float">
+      <input name="in1" type="float" nodename="node_tiledimage_float_10" />
+      <input name="in2" type="float" value="0.00001" />
+    </max>
     <divide name="node_divide_21" type="float">
       <input name="in1" type="float" interfacename="roughness_amount" />
-      <input name="in2" type="float" nodename="node_tiledimage_float_10" />
+      <input name="in2" type="float" nodename="node_max_1" />
     </divide>
     <mix name="node_mix_6" type="color3">
       <input name="fg" type="color3" interfacename="dirt_color" />
