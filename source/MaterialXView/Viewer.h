@@ -387,8 +387,10 @@ class Viewer : public ng::Screen
     mx::StringVec _distanceUnitOptions;
     mx::LinearUnitConverterPtr _distanceUnitConverter;
 
-    // Asset loading options
+    // Mesh loading options
     bool _splitByUdims;
+
+    // Material loading options
     bool _mergeMaterials;
     bool _showAllInputs;
     bool _flattenSubgraphs;
