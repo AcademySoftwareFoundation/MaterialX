@@ -868,9 +868,9 @@ void Viewer::createAdvancedSettings(Widget* parent)
         m_process_events = true;
     });
 
-    ng::Label* loadingLabel = new ng::Label(advancedPopup, "Asset Loading Options");
-    loadingLabel->set_font_size(20);
-    loadingLabel->set_font("sans-bold");
+    ng::Label* meshLoading = new ng::Label(advancedPopup, "Mesh Loading Options");
+    meshLoading->set_font_size(20);
+    meshLoading->set_font("sans-bold");
 
     ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
     splitUdimsBox->set_checked(_splitByUdims);
@@ -878,6 +878,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _splitByUdims = enable;
     });
+
+    ng::Label* materialLoading = new ng::Label(advancedPopup, "Material Loading Options");
+    materialLoading->set_font_size(20);
+    materialLoading->set_font("sans-bold");
 
     ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
     mergeMaterialsBox->set_checked(_mergeMaterials);
@@ -906,6 +910,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _flattenSubgraphs = enable;
     });    
+
+    ng::Label* envLoading = new ng::Label(advancedPopup, "Environment Loading Options");
+    envLoading->set_font_size(20);
+    envLoading->set_font("sans-bold");
+
+    ng::CheckBox* normalizeEnvBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
+    normalizeEnvBox->set_checked(_normalizeEnvironment);
+    normalizeEnvBox->set_callback([this](bool enable)
+    {
+        _normalizeEnvironment = enable;
+    });
 
     ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
     splitDirectLightBox->set_checked(_splitDirectLight);
@@ -1846,6 +1861,11 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
 void Viewer::renderFrame()
 {
+    if (_geometryList.empty() || _materials.empty())
+    {
+        return;
+    }
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -2181,11 +2201,6 @@ void Viewer::renderTurnable()
 
 void Viewer::draw_contents()
 {    
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
-
     updateCameras();
 
     mx::checkGlErrors("before viewer render");
