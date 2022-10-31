@@ -743,6 +743,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
+    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
+    shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
+    shaderInterfaceBox->set_callback([this](bool enable)
+    {
+        mx::ShaderInterfaceType interfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
+        setShaderInterfaceType(interfaceType);
+    });    
+
     Widget* albedoGroup = new Widget(advancedPopup);
     albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(albedoGroup, "Albedo Method:");
@@ -896,13 +904,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _showAllInputs = enable;
     });
-
-    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
-    shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
-    shaderInterfaceBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().shaderInterfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
-    });    
 
     ng::CheckBox* flattenBox = new ng::CheckBox(advancedPopup, "Flatten Subgraphs");
     flattenBox->set_checked(_flattenSubgraphs);
@@ -2713,4 +2714,18 @@ void Viewer::toggleTurntable(bool enable)
     }
     invalidateShadowMap();
     _turntableStep = 0;
+}
+
+void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
+{
+    _genContext.getOptions().shaderInterfaceType = interfaceType;
+    _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
+#if MATERIALX_BUILD_GEN_OSL
+    _genContextOsl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    _genContextMdl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+    reloadShaders();
+    updateDisplayedProperties();
 }

@@ -272,6 +272,9 @@ class Viewer : public ng::Screen
     // Toggle turntable
     void toggleTurntable(bool enable);
 
+    // Set shader interface type
+    void setShaderInterfaceType(mx::ShaderInterfaceType interfaceType);
+
   private:
     ng::Window* _window;
 
