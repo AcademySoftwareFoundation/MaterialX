@@ -300,19 +300,26 @@ int main(int argc, char* const argv[])
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
         viewer->initialize();
-        if (!bakeFilename.empty()) 
+
+        bool drawOffscreen = !bakeFilename.empty() || !captureFilename.empty();
+        if (drawOffscreen)
         {
-            viewer->bakeTextures();
+            viewer->set_visible(false);
+            if (!bakeFilename.empty())
+            {
+                viewer->bakeTextures();
+            }
+            else if (!captureFilename.empty())
+            {
+                viewer->requestFrameCapture(captureFilename);
+            }
+            viewer->redraw();
+            viewer->draw_all();
             viewer->requestExit();
         } 
-        else 
-        {            
-            viewer->set_visible(true);
-        }
-        if (!captureFilename.empty())
+        else
         {
-            viewer->requestFrameCapture(captureFilename);
-            viewer->requestExit();
+            viewer->set_visible(true);
         }
         ng::mainloop(refresh);
     }
