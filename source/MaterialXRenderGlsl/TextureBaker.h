@@ -234,6 +234,13 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
 
+    /// Set whether to write a separate document per material when calling bakeAllMaterials.
+    /// By default separate documents are written.
+    void setWriteSeparateDocuments(bool value)
+    {
+        _writeSeparateDocs = value;
+    }
+
   protected:
     class BakedImage
     {
@@ -295,6 +302,9 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
     StringMap _bakedInputMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
+
+    bool _writeSeparateDocs;
+    DocumentPtr _bakedTextureDoc;
 };
 
 MATERIALX_NAMESPACE_END

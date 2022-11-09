@@ -59,7 +59,9 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _textureSpaceMin(0.0f),
     _textureSpaceMax(1.0f),
     _generator(GlslShaderGenerator::create()),
-    _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" })
+    _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" }),
+    _writeSeparateDocs(true),
+    _bakedTextureDoc(nullptr)
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -318,35 +320,38 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     }
 
     // Create document.
-    DocumentPtr bakedTextureDoc = createDocument();
+    if (!_bakedTextureDoc || _writeSeparateDocs)
+    {
+        _bakedTextureDoc = createDocument();
+    }
     if (shader->getDocument()->hasColorSpace())
     {
-        bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
+        _bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
     }
 
     // Create node graph and geometry info.
     NodeGraphPtr bakedNodeGraph;
     if (!_bakedImageMap.empty())
     {
-        _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
-        bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
+        _bakedGraphName = _bakedTextureDoc->createValidChildName(_bakedGraphName);
+        bakedNodeGraph = _bakedTextureDoc->addNodeGraph(_bakedGraphName);
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
-    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
+    _bakedGeomInfoName = _bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? _bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue(UDIM_SET_PROPERTY, udimSet, "stringarray");
     }
 
     // Create a shader node.
-    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
+    NodePtr bakedShader = _bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
-        NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
+        NodePtr bakedMaterial = _bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
             const string& sourceMaterialInputName = sourceMaterialInput->getName();
@@ -466,7 +471,7 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     _material = nullptr;
 
     // Return the baked document on success.
-    return bakedTextureDoc;
+    return _bakedTextureDoc;
 }
 
 DocumentPtr TextureBaker::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
@@ -570,34 +575,45 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         const TypedElementPtr& element = renderableMaterials[i];
         string documentName;
         DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
-        if (bakedMaterialDoc)
+        if (_writeSeparateDocs && bakedMaterialDoc)
         {
             bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
         }
     }
 
-    // Write documents in memory to disk.
-    size_t bakeCount = bakedDocuments.size();
-    for (size_t i = 0; i < bakeCount; i++)
+    if (_writeSeparateDocs)
     {
-        if (bakedDocuments[i].second)
+        // Write documents in memory to disk.
+        size_t bakeCount = bakedDocuments.size();
+        for (size_t i = 0; i < bakeCount; i++)
         {
-            FilePath writeFilename = outputFilename;
-
-            // Add additional filename decorations if there are multiple documents.
-            if (bakedDocuments.size() > 1)
+            if (bakedDocuments[i].second)
             {
-                const string extension = writeFilename.getExtension();
-                writeFilename.removeExtension();
-                string filenameSeparator = writeFilename.isDirectory()? EMPTY_STRING : "_";
-                writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
-            }
+                FilePath writeFilename = outputFilename;
 
-            writeToXmlFile(bakedDocuments[i].second, writeFilename);
-            if (_outputStream)
-            {
-                *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                // Add additional filename decorations if there are multiple documents.
+                if (bakedDocuments.size() > 1)
+                {
+                    const string extension = writeFilename.getExtension();
+                    writeFilename.removeExtension();
+                    string filenameSeparator = writeFilename.isDirectory() ? EMPTY_STRING : "_";
+                    writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
+                }
+
+                writeToXmlFile(bakedDocuments[i].second, writeFilename);
+                if (_outputStream)
+                {
+                    *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                }
             }
+        }
+    }
+    else if (_bakedTextureDoc)
+    {
+        writeToXmlFile(_bakedTextureDoc, outputFilename);
+        if (_outputStream)
+        {
+            *_outputStream << "Wrote baked document: " << outputFilename.asString() << std::endl;
         }
     }
 }

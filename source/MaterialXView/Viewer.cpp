@@ -271,7 +271,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeOptimize(true),
     _bakeRequested(false),
     _bakeWidth(0),
-    _bakeHeight(0)
+    _bakeHeight(0),
+    _bakeSeparateDocuments(true),
+    _minimumBakeDimension(1024)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -970,6 +972,27 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _bakeOptimize = enable;
     });
+
+    ng::Widget* bakeDimension = new ng::Widget(advancedPopup);
+    bakeDimension->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    mx::UIProperties bakeui;
+    bakeui.uiMin = mx::Value::createValue(4);
+    bakeui.uiMax = mx::Value::createValue(2048);
+    ng::IntBox<int>* bakeDimensionBox = createIntWidget(bakeDimension, "Minimum Bake Size",
+        _minimumBakeDimension, &bakeui, [this](unsigned int value)
+    {
+        _minimumBakeDimension = value;
+    });
+    bakeDimensionBox->set_value(_minimumBakeDimension);
+    bakeDimensionBox->set_editable(true);
+    
+
+    ng::CheckBox* bakeSeparateDocuments = new ng::CheckBox(advancedPopup, "Bake Separate Documents");
+    bakeSeparateDocuments->set_checked(_bakeSeparateDocuments);
+    bakeSeparateDocuments->set_callback([this](bool enable)
+    {
+        _bakeSeparateDocuments = enable;
+    });    
 
     ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
     wedgeLabel->set_font_size(20);
@@ -2115,15 +2138,15 @@ void Viewer::bakeTextures()
         // Compute baking resolution.
         mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
         auto maxImageSize = mx::getMaxDimensions(imageVec);
-        unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
-        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
+        unsigned int bakeWidth = std::max(maxImageSize.first, _minimumBakeDimension);
+        unsigned int bakeHeight = std::max(maxImageSize.second, _minimumBakeDimension);
         if (_bakeWidth)
         {
-            bakeWidth = std::max(_bakeWidth, (unsigned int) 4);
+            bakeWidth = std::max(_bakeWidth, _minimumBakeDimension);
         }
         if (_bakeHeight)
         {
-            bakeHeight = std::max(_bakeHeight, (unsigned int) 4);
+            bakeHeight = std::max(_bakeHeight, _minimumBakeDimension);
         }
 
         // Construct a texture baker.
@@ -2133,6 +2156,7 @@ void Viewer::bakeTextures()
         baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
+        baker->setWriteSeparateDocuments(_bakeSeparateDocuments);
 
         // Assign our existing image handler, releasing any existing render resources for cached images.
         _imageHandler->releaseRenderResources();
