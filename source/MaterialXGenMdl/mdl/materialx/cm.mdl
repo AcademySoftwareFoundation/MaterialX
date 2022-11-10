@@ -187,9 +187,9 @@ export float3 mx_lin_adobergb_to_lin_rec709_color3(float3 mxp_in)
 ]]
 {
     float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-    float4x4 xform = float4x4( 1.39828340e+00, -1.23390452e-07,  4.56148723e-08, 0.0,
-                              -3.98283117e-01,  9.99999995e-01, -4.29382905e-02, 0.0,
-                               4.42716499e-08,  3.12672428e-08,  1.04293825e+00, 0.0,
+    float4x4 xform = float4x4( 1.39835574e+00, -2.50233861e-16,  2.77555756e-17, 0.0,
+                              -3.98355744e-01,  1.00000000e+00, -4.29289893e-02, 0.0,
+                               0.00000000e+00,  0.00000000e+00,  1.04292899e+00, 0.0,
                                0.0, 0.0, 0.0, 1.0);
     float3 result = ::swizzle::xyz(xform * outColor);
     return result;
