@@ -18,8 +18,8 @@
   <implementation name="IM_srgb_texture_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_lin_rec709_color3({{in}})" target="genmdl" />
   <implementation name="IM_srgb_texture_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_srgb_texture_to_lin_rec709_color4({{in}})" target="genmdl" />
 
-  <implementation name="IM_g22_adobergb_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_g22_adobergb_to_lin_rec709_color3({{in}})" target="genmdl" />
-  <implementation name="IM_g22_adobergb_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_g22_adobergb_to_lin_rec709_color4({{in}})" target="genmdl" />
+  <implementation name="IM_adobergb_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_adobergb_to_lin_rec709_color3({{in}})" target="genmdl" />
+  <implementation name="IM_adobergb_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_adobergb_to_lin_rec709_color4({{in}})" target="genmdl" />
   <implementation name="IM_lin_adobergb_to_lin_rec709_color3_genmdl" sourcecode="mx::cm::mx_lin_adobergb_to_lin_rec709_color3({{in}})" target="genmdl" />
   <implementation name="IM_lin_adobergb_to_lin_rec709_color4_genmdl" sourcecode="mx::cm::mx_lin_adobergb_to_lin_rec709_color4({{in}})" target="genmdl" />
 

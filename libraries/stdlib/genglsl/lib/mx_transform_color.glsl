@@ -16,7 +16,7 @@ vec3 mx_lin_adobergb_to_lin_rec709(vec3 color)
     return adobergb_to_srgb * color;
 }
 
-vec3 mx_g22_adobergb_to_lin_rec709(vec3 color)
+vec3 mx_adobergb_to_lin_rec709(vec3 color)
 {
     vec3 lin_adobergb_color = pow(max(vec3(0.), color), vec3(563 / 256));
     return mx_lin_adobergb_to_lin_rec709(lin_adobergb_color);

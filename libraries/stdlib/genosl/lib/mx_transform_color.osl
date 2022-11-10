@@ -21,7 +21,7 @@ color mx_lin_adobergb_to_lin_rec709(color inColor)
     return color(transform(adobergb_to_srgb, vector(inColor)));
 }
 
-color mx_g22_adobergb_to_lin_rec709(color inColor)
+color mx_adobergb_to_lin_rec709(color inColor)
 {
     color lin_adobergb_color = pow(max(color(0.), inColor), color(563. / 256.));
     return mx_lin_adobergb_to_lin_rec709(lin_adobergb_color);

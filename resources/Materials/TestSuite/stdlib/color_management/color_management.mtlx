@@ -50,13 +50,13 @@
       <input name="base_color" type="color3" nodename="image_srgb_texture" />
     </standard_surface>
     <output name="image_srgb_texture_output" type="surfaceshader" nodename="image_srgb_texture_standard_surface6" />
-    <image name="image_g22_adobergb" type="color3">
-      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="g22_adobergb" />
+    <image name="image_adobergb" type="color3">
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="adobergb" />
     </image>
-    <standard_surface name="image_g22_adobergb_standard_surface7" type="surfaceshader">
-      <input name="base_color" type="color3" value="1, 1, 1" nodename="image_g22_adobergb" />
+    <standard_surface name="image_adobergb_standard_surface7" type="surfaceshader">
+      <input name="base_color" type="color3" value="1, 1, 1" nodename="image_adobergb" />
     </standard_surface>
-    <output name="image_g22_adobergb_output" type="surfaceshader" nodename="image_g22_adobergb_standard_surface7" />
+    <output name="image_adobergb_output" type="surfaceshader" nodename="image_adobergb_standard_surface7" />
     <image name="image_lin_adobergb" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_adobergb" />
     </image>
@@ -113,13 +113,13 @@
       <input name="base_color" type="color3" nodename="color_srgb_texture" channels="rgb" />
     </standard_surface>
     <output name="color_srgb_texture_output" type="surfaceshader" nodename="color_srgb_texture_standard_surface6" />
-    <constant name="color_g22_adobergb" type="color4">
-      <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="g22_adobergb" />
+    <constant name="color_adobergb" type="color4">
+      <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="adobergb" />
     </constant>
-    <standard_surface name="color_g22_adobergb_standard_surface7" type="surfaceshader">
-      <input name="base_color" type="color3" value="1, 1, 1" nodename="color_g22_adobergb" channels="rgb" />
+    <standard_surface name="color_adobergb_standard_surface7" type="surfaceshader">
+      <input name="base_color" type="color3" value="1, 1, 1" nodename="color_adobergb" channels="rgb" />
     </standard_surface>
-    <output name="color_g22_adobergb_output" type="surfaceshader" nodename="color_g22_adobergb_standard_surface7" />
+    <output name="color_adobergb_output" type="surfaceshader" nodename="color_adobergb_standard_surface7" />
     <constant name="color_lin_adobergb" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_adobergb" />
     </constant>

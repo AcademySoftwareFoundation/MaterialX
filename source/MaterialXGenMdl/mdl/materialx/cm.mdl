@@ -195,7 +195,7 @@ export float3 mx_lin_adobergb_to_lin_rec709_color3(float3 mxp_in)
     return result;
 }
 
-export float3 mx_g22_adobergb_to_lin_rec709_color3(float3 mxp_in)
+export float3 mx_adobergb_to_lin_rec709_color3(float3 mxp_in)
 [[
     anno::description("Gamma 2.2 AdobeRGB to linear Rec709 transform for float3")
 ]]
@@ -205,23 +205,23 @@ export float3 mx_g22_adobergb_to_lin_rec709_color3(float3 mxp_in)
     return mx_lin_adobergb_to_lin_rec709_color3(lin_adobergb_color);
 }
 
-export color mx_g22_adobergb_to_lin_rec709_color3(color mxp_in)
+export color mx_adobergb_to_lin_rec709_color3(color mxp_in)
 {
-    return color(mx_g22_adobergb_to_lin_rec709_color3(float3(mxp_in)));
+    return color(mx_adobergb_to_lin_rec709_color3(float3(mxp_in)));
 }
 
-export float4 mx_g22_adobergb_to_lin_rec709_color4(float4 mxp_in)
+export float4 mx_adobergb_to_lin_rec709_color4(float4 mxp_in)
 [[
     anno::description("Gamma 2.2 AdobeRGB to linear Rec709 transform for float4")
 ]]
 {
-    float3 outColor = mx_g22_adobergb_to_lin_rec709_color3(float3(mxp_in.x, mxp_in.y, mxp_in.z));
+    float3 outColor = mx_adobergb_to_lin_rec709_color3(float3(mxp_in.x, mxp_in.y, mxp_in.z));
     return float4(outColor.x, outColor.y, outColor.z, mxp_in.w);
 }
 
-export color4 mx_g22_adobergb_to_lin_rec709_color4(color4 mxp_in)
+export color4 mx_adobergb_to_lin_rec709_color4(color4 mxp_in)
 {
-    return mk_color4(mx_g22_adobergb_to_lin_rec709_color4(mk_float4(mxp_in)));
+    return mk_color4(mx_adobergb_to_lin_rec709_color4(mk_float4(mxp_in)));
 }
 
 export color mx_lin_adobergb_to_lin_rec709_color3(color mxp_in)
