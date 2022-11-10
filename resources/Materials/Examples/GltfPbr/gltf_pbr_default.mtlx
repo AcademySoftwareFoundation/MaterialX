@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
   <gltf_pbr name="SR_default" type="surfaceshader">
-    <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
-    <input name="metallic" type="float" value="0" />
-    <input name="roughness" type="float" value="0" />
+    <input name="base_color" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="metallic" type="float" value="1" />
+    <input name="roughness" type="float" value="1" />
     <input name="normal" type="vector3" value="0, 0, 1" />
     <input name="occlusion" type="float" value="0" />
     <input name="transmission" type="float" value="0" />
