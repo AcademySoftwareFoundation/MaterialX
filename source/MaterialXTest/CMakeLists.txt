@@ -121,6 +121,9 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
+# enable Catch Benchmarking
+target_compile_definitions(MaterialXTest PRIVATE -DCATCH_CONFIG_ENABLE_BENCHMARKING)
+
 target_link_libraries(
     MaterialXTest
     ${CMAKE_DL_LIBS})
