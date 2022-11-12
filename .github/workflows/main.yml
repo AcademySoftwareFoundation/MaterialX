@@ -18,17 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_6_Python27
-          os: ubuntu-18.04
+        - name: Linux_GCC_9_Python37
+          os: ubuntu-20.04
           compiler: gcc
-          compiler_version: "6"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_VIEWER=OFF
-
-        - name: Linux_GCC_7_Python37
-          os: ubuntu-18.04
-          compiler: gcc
-          compiler_version: "7"
+          compiler_version: "9"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -46,18 +39,12 @@ jobs:
           python: 3.9
           upload_shaders: ON
 
-        - name: Linux_Clang_9_Python27
-          os: ubuntu-18.04
-          compiler: clang
-          compiler_version: "9"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
         - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
           compiler_version: "10"
           python: 3.7
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -74,12 +61,12 @@ jobs:
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
 
-        - name: MacOS_Xcode_10_Python27
-          os: macos-10.15
+        - name: MacOS_Xcode_11_Python37
+          os: macos-11
           compiler: xcode
-          compiler_version: "10.3"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
+          compiler_version: "11.7"
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          python: 3.7
 
         - name: MacOS_Xcode_12_Python37
           os: macos-11
@@ -115,7 +102,7 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -158,7 +145,7 @@ jobs:
         echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Install Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -180,9 +167,9 @@ jobs:
 
     - name: Install Node
       if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-         node-version: '12'
+         node-version: '16'
 
     - name: CMake Generate
       run: |
@@ -251,20 +238,20 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.dynamic_analysis != 'ON'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: matrix.upload_shaders == 'ON'
       with:
         name: Reference_Shaders_${{ matrix.name }}
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
@@ -299,7 +286,7 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@4.1.9
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
@@ -307,7 +294,7 @@ jobs:
 
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        

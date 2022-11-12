@@ -432,11 +432,6 @@ void GlslProgram::unbindGeometry()
     glBindBuffer(GL_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
 
-    // Disable vertex attribute arrays.
-    for (int i : _enabledStreamLocations)
-    {
-        glDisableVertexAttribArray(i);
-    }
     _enabledStreamLocations.clear();
 
     // Release attribute buffers.
