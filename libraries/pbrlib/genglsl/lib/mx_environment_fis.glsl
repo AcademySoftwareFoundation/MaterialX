@@ -1,5 +1,4 @@
 #include "mx_microfacet_specular.glsl"
-#include "mx_environment.glsl"
 
 // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
 // Section 20.4 Equation 13
@@ -15,7 +14,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
 {
     // Generate tangent frame.
     vec3 Y = normalize(cross(N, X));
-    X = normalize(cross(Y, N));
+    X = cross(Y, N);
     mat3 tangentToWorld = mat3(X, Y, N);
 
     // Transform the view vector to tangent space.

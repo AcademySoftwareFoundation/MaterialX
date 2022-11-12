@@ -10,7 +10,6 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     N = mx_forward_facing_normal(N, V);
 
     vec3 Y = normalize(cross(N, X));
-    X = normalize(cross(Y, N));
     vec3 H = normalize(L + V);
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);

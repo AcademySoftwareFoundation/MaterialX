@@ -1,5 +1,4 @@
 #include "mx_microfacet_specular.glsl"
-#include "mx_environment.glsl"
 
 float mx_latlong_compute_lod(float alpha)
 {
