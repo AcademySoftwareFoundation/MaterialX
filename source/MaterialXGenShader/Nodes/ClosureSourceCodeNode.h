@@ -10,9 +10,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+/// @class ClosureSourceCodeNode
+/// Implemention for a closure node using data-driven static source code.
 class MX_GENSHADER_API ClosureSourceCodeNode : public SourceCodeNode
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;

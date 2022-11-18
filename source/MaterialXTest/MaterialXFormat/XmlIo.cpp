@@ -69,16 +69,16 @@ TEST_CASE("Load content", "[xmlio]")
         mx::readFromXmlBuffer(writtenDoc, xmlString.c_str());
         REQUIRE(*writtenDoc == *doc);
 
-        // Flatten subgraph references.
-        for (mx::NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+        // Flatten all subgraphs.
+        doc->flattenSubgraphs();
+        for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
         {
-            if (nodeGraph->getActiveSourceUri() != doc->getSourceUri())
+            if (graph->getActiveSourceUri() == doc->getSourceUri())
             {
-                continue;
+                graph->flattenSubgraphs();
             }
-            nodeGraph->flattenSubgraphs();
-            REQUIRE(nodeGraph->validate());
         }
+        REQUIRE(doc->validate());
 
         // Verify that all referenced types and nodes are declared.
         bool referencesValid = true;

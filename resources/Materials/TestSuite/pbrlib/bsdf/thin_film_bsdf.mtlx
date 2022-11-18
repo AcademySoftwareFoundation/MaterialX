@@ -156,4 +156,44 @@
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
 
+  <nodegraph name="thin_film_test7">
+    <conductor_bsdf name="conductor_brdf_1" type="BSDF">
+      <input name="ior" type="color3" value="0.18, 0.42, 1.37" />
+      <input name="extinction" type="color3" value="3.42, 2.35, 1.77" />
+      <input name="roughness" type="vector2" value="0.0, 0.0" />
+    </conductor_bsdf>
+    <thin_film_bsdf name="thin_film_brdf_1" type="BSDF">
+      <input name="thickness" type="float" value="550" />
+      <input name="ior" type="float" value="1.5" />
+    </thin_film_bsdf>
+    <layer name="layer_bsdf_1" type="BSDF">
+      <input name="top" type="BSDF" nodename="thin_film_brdf_1" />
+      <input name="base" type="BSDF" nodename="conductor_brdf_1" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer_bsdf_1" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
+  <nodegraph name="thin_film_test8">
+    <generalized_schlick_bsdf name="generalized_schlick_brdf_1" type="BSDF">
+      <input name="color0" type="color3" value="0.04, 0.04, 0.04" />
+      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="roughness" type="vector2" value="0, 0" />
+    </generalized_schlick_bsdf>
+    <thin_film_bsdf name="thin_film_brdf_1" type="BSDF">
+      <input name="thickness" type="float" value="550" />
+      <input name="ior" type="float" value="1.5" />
+    </thin_film_bsdf>
+    <layer name="layer_bsdf_1" type="BSDF">
+      <input name="top" type="BSDF" nodename="thin_film_brdf_1" />
+      <input name="base" type="BSDF" nodename="generalized_schlick_brdf_1" />
+    </layer>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="layer_bsdf_1" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+
 </materialx>

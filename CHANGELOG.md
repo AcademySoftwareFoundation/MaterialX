@@ -1,6 +1,31 @@
 # Change Log
 
-## [1.38.6] - Development
+## [1.38.7] - Development
+
+## [1.38.6] - 2022-11-04
+
+### Added
+- Added new [Unified Noise](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1087), [Color Correct](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1086), and [Bump](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1085) nodes, providing artistic interfaces over the standard procedural, adjustment, and geometric primitives.
+- Added shader generation support for the [MaterialX closures in OSL](https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/releases/tag/v1.12.6.2), selected by a new [CMake build option](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1039).
+- Added a shader translation graph from [Autodesk Standard Surface to glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1064).
+- Added support for the [transmission_extra_roughness](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1079) input in the Standard Surface shading model.
+- Added support for the [iridescence](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) inputs in the glTF PBR shading model.
+- Added support for the [subsurface_bsdf](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1053) node in MDL.
+- Added an [operationorder](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1027) input to the 'place2d' node.
+- Extended the [mix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1077) node to support multi-channel interpolators.
+- Extended the [flattenSubgraphs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1101) method to handle a broader range of graph structures.
+
+### Changed
+- Improved the alignment of the [UsdPreviewSurface shading graph](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1082) with reference implementations.
+- Improved the accuracy of the [thin-film BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) implementation in GLSL.
+- Improved code generation for the [mix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1104) node of 'surfaceshader' type.
+- Removed [add and multiply](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1089) nodes for 'surfaceshader', 'volumeshader', and 'displacementshader' types.
+- Refactored and extended the [Advanced Options](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1093) panel in MaterialXView.
+
+### Fixed
+- Fixed the implementation of the [screen](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1111) compositing node in GLSL, OSL, and MDL.
+- Fixed parent/child precedence in the [getGeometryBindings](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1113) function.
+- Fixed [OpenGL errors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1126) when unbinding geometry in MaterialXView on MacOS.
 
 ## [1.38.5] - 2022-07-09
 

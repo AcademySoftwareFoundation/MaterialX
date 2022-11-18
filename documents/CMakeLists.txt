@@ -1,6 +1,6 @@
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(DOXYGEN_HTML_OUTPUT_DIR ${DOXYGEN_OUTPUT_DIR}/MaterialXDocs)
-set(DOXYGEN_INPUT_LIST ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide
+set(DOXYGEN_HTML_OUTPUT_DIR ${DOXYGEN_OUTPUT_DIR}/html)
+set(DOXYGEN_INPUT_LIST ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide/MainPage.md
                        ${CMAKE_SOURCE_DIR}/source/MaterialXCore
                        ${CMAKE_SOURCE_DIR}/source/MaterialXFormat
                        ${CMAKE_SOURCE_DIR}/source/MaterialXGenShader
@@ -25,7 +25,10 @@ if(DOXYGEN_FOUND)
                       COMMENT "Generating HTML documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
     add_custom_command(TARGET MaterialXDocs PRE_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources/Images ${CMAKE_CURRENT_BINARY_DIR})
+                       ${CMAKE_SOURCE_DIR}/documents/DoxygenAwesome ${CMAKE_CURRENT_BINARY_DIR})
+    add_custom_command(TARGET MaterialXDocs PRE_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR})
     install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
             DESTINATION "documents" MESSAGE_NEVER)
 endif(DOXYGEN_FOUND)

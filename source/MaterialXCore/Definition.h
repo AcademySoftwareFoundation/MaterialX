@@ -165,7 +165,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// @}
 
@@ -287,7 +287,7 @@ class MX_CORE_API Implementation : public InterfaceElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// @}
 

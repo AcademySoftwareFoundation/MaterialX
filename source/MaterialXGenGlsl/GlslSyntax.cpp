@@ -321,7 +321,8 @@ GlslSyntax::GlslSyntax()
             "EDF",
             "EDF(0.0)",
             "EDF(0.0)",
-            "vec3")
+            "vec3",
+            "#define EDF vec3")
     );
 
     registerTypeSyntax
@@ -384,7 +385,8 @@ GlslSyntax::GlslSyntax()
             "material",
             "material(vec3(0.0),vec3(0.0))",
             EMPTY_STRING,
-            "surfaceshader")
+            "surfaceshader",
+            "#define material surfaceshader")
     );
 }
 

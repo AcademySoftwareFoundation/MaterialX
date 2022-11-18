@@ -1,5 +1,5 @@
 {
-  "name": "jsmaterialxview",
+  "name": "MaterialXView",
   "version": "1.0.0",
   "description": "MaterialX Web Viewer",
   "main": "source/index.js",

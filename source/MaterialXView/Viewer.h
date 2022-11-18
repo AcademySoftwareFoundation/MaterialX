@@ -272,6 +272,9 @@ class Viewer : public ng::Screen
     // Toggle turntable
     void toggleTurntable(bool enable);
 
+    // Set shader interface type
+    void setShaderInterfaceType(mx::ShaderInterfaceType interfaceType);
+
   private:
     ng::Window* _window;
 
@@ -375,22 +378,25 @@ class Viewer : public ng::Screen
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;
 
-    // Mesh options
-    bool _splitByUdims;
-
-    // Material options
-    bool _mergeMaterials;
-    bool _showAllInputs;
-
-    // Unit options
-    mx::StringVec _distanceUnitOptions;
-    mx::LinearUnitConverterPtr _distanceUnitConverter;
+    // Viewing options
+    bool _drawEnvironment;
+    bool _outlineSelection;
 
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
-    bool _outlineSelection;
-    bool _drawEnvironment;
+
+    // Scene options
+    mx::StringVec _distanceUnitOptions;
+    mx::LinearUnitConverterPtr _distanceUnitConverter;
+
+    // Mesh loading options
+    bool _splitByUdims;
+
+    // Material loading options
+    bool _mergeMaterials;
+    bool _showAllInputs;
+    bool _flattenSubgraphs;
 
     // Shader translation
     std::string _targetShader;

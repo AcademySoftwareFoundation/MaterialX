@@ -250,13 +250,14 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl(mx::MdlShaderGenerator::create()),
 #endif
     _unitRegistry(mx::UnitConverterRegistry::create()),
+    _drawEnvironment(false),
+    _outlineSelection(false),
+    _renderTransparency(true),
+    _renderDoubleSided(true),
     _splitByUdims(true),
     _mergeMaterials(false),
     _showAllInputs(false),
-    _renderTransparency(true),
-    _renderDoubleSided(true),
-    _outlineSelection(false),
-    _drawEnvironment(false),
+    _flattenSubgraphs(false),
     _targetShader("standard_surface"),
     _captureRequested(false),
     _exitRequested(false),
@@ -436,7 +437,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap;
+    mx::ImagePtr envIrradianceMap = _imageHandler->getInvalidImage();
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
@@ -688,62 +689,98 @@ void Viewer::createAdvancedSettings(Widget* parent)
     ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
     advancedPopup->set_layout(new ng::GroupLayout(13));
 
-    ng::Label* meshLabel = new ng::Label(advancedPopup, "Mesh Options");
-    meshLabel->set_font_size(20);
-    meshLabel->set_font("sans-bold");
+    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
+    viewLabel->set_font_size(20);
+    viewLabel->set_font("sans-bold");
 
-    ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
-    splitUdimsBox->set_checked(_splitByUdims);
-    splitUdimsBox->set_callback([this](bool enable)
+    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Draw Environment");
+    drawEnvironmentBox->set_checked(_drawEnvironment);
+    drawEnvironmentBox->set_callback([this](bool enable)
     {
-        _splitByUdims = enable;
+        _drawEnvironment = enable;
     });
 
-    ng::Label* materialLabel = new ng::Label(advancedPopup, "Material Options");
-    materialLabel->set_font_size(20);
-    materialLabel->set_font("sans-bold");
-
-    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
-    mergeMaterialsBox->set_checked(_mergeMaterials);
-    mergeMaterialsBox->set_callback([this](bool enable)
+    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
+    outlineSelectedGeometryBox->set_checked(_outlineSelection);
+    outlineSelectedGeometryBox->set_callback([this](bool enable)
     {
-        _mergeMaterials = enable;
+        _outlineSelection = enable;
     });
 
-    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
-    showInputsBox->set_checked(_showAllInputs);
-    showInputsBox->set_callback([this](bool enable)
+    ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
+    renderLabel->set_font_size(20);
+    renderLabel->set_font("sans-bold");
+
+    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
+    transparencyBox->set_checked(_renderTransparency);
+    transparencyBox->set_callback([this](bool enable)
     {
-        _showAllInputs = enable;
+        _renderTransparency = enable;
+    });
+
+    ng::CheckBox* doubleSidedBox = new ng::CheckBox(advancedPopup, "Render Double-Sided");
+    doubleSidedBox->set_checked(_renderDoubleSided);
+    doubleSidedBox->set_callback([this](bool enable)
+    {
+        _renderDoubleSided = enable;
+    });
+
+    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
+    importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    importanceSampleBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
+        _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
+        reloadShaders();
+    });
+
+    ng::CheckBox* refractionBox = new ng::CheckBox(advancedPopup, "Transmission Refraction");
+    refractionBox->set_checked(_genContext.getOptions().hwTransmissionRenderMethod == mx::TRANSMISSION_REFRACTION);
+    refractionBox->set_callback([this](bool enable)
+    {
+        _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
+        _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
+        reloadShaders();
+    });
+
+    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
+    shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
+    shaderInterfaceBox->set_callback([this](bool enable)
+    {
+        mx::ShaderInterfaceType interfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
+        setShaderInterfaceType(interfaceType);
     });    
 
-    Widget* unitGroup = new Widget(advancedPopup);
-    unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(unitGroup, "Distance Unit:");
-    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
-    distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
-    distanceUnitBox->set_chevron_icon(-1);
-    if (_distanceUnitConverter)
+    Widget* albedoGroup = new Widget(advancedPopup);
+    albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(albedoGroup, "Albedo Method:");
+    mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
+    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
+    albedoBox->set_chevron_icon(-1);
+    albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
+    albedoBox->set_callback([this](int index)
     {
-        distanceUnitBox->set_selected_index(_distanceUnitConverter->getUnitAsInteger("meter"));
-    }
-    distanceUnitBox->set_callback([this](int index)
+        _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
+        reloadShaders();
+        updateAlbedoTable();
+    });
+
+    Widget* sampleGroup = new Widget(advancedPopup);
+    sampleGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(sampleGroup, "Environment Samples:");
+    mx::StringVec sampleOptions;
+    for (int i = MIN_ENV_SAMPLE_COUNT; i <= MAX_ENV_SAMPLE_COUNT; i *= 4)
     {
         m_process_events = false;
-        _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#if MATERIALX_BUILD_GEN_OSL
-        _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#endif
-#if MATERIALX_BUILD_GEN_MDL
-        _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
-#endif
-        for (MaterialPtr material : _materials)
-        {
-            material->bindShader();
-            material->bindUnits(_unitRegistry, _genContext);
-        }
+        sampleOptions.push_back(std::to_string(i));
         m_process_events = true;
+    }
+    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
+    sampleBox->set_chevron_icon(-1);
+    sampleBox->set_selected_index((int)std::log2(_lightHandler->getEnvSampleCount() / MIN_ENV_SAMPLE_COUNT) / 2);
+    sampleBox->set_callback([this](int index)
+    {
+        _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
     ng::Label* lightingLabel = new ng::Label(advancedPopup, "Lighting Options");
@@ -762,20 +799,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
     indirectLightingBox->set_callback([this](bool enable)
     {
         _lightHandler->setIndirectLighting(enable);
-    });
-
-    ng::CheckBox* normalizeEnvironmentBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
-    normalizeEnvironmentBox->set_checked(_normalizeEnvironment);
-    normalizeEnvironmentBox->set_callback([this](bool enable)
-    {
-        _normalizeEnvironment = enable;
-    });
-
-    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
-    splitDirectLightBox->set_checked(_splitDirectLight);
-    splitDirectLightBox->set_callback([this](bool enable)
-    {
-        _splitDirectLight = enable;
     });
 
     ng::Widget* lightRotationRow = new ng::Widget(advancedPopup);
@@ -820,109 +843,92 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     ambientOcclusionGainBox->set_editable(true);
 
-    ng::Label* renderLabel = new ng::Label(advancedPopup, "Render Options");
-    renderLabel->set_font_size(20);
-    renderLabel->set_font("sans-bold");
+    ng::Label* sceneLabel = new ng::Label(advancedPopup, "Scene Options");
+    sceneLabel->set_font_size(20);
+    sceneLabel->set_font("sans-bold");
 
-    ng::CheckBox* transparencyBox = new ng::CheckBox(advancedPopup, "Render Transparency");
-    transparencyBox->set_checked(_renderTransparency);
-    transparencyBox->set_callback([this](bool enable)
+    Widget* unitGroup = new Widget(advancedPopup);
+    unitGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(unitGroup, "Distance Unit:");
+    ng::ComboBox* distanceUnitBox = new ng::ComboBox(unitGroup, _distanceUnitOptions);
+    distanceUnitBox->set_fixed_size(ng::Vector2i(100, 20));
+    distanceUnitBox->set_chevron_icon(-1);
+    if (_distanceUnitConverter)
     {
-        _renderTransparency = enable;
-    });
-
-    ng::CheckBox* doubleSidedBox = new ng::CheckBox(advancedPopup, "Render Double-Sided");
-    doubleSidedBox->set_checked(_renderDoubleSided);
-    doubleSidedBox->set_callback([this](bool enable)
-    {
-        _renderDoubleSided = enable;
-    });
-
-    ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
-    importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
-    importanceSampleBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
-        _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
-        reloadShaders();
-    });
-
-    ng::CheckBox* refractionBox = new ng::CheckBox(advancedPopup, "Transmission Refraction");
-    refractionBox->set_checked(_genContext.getOptions().hwTransmissionRenderMethod == mx::TRANSMISSION_REFRACTION);
-    refractionBox->set_callback([this](bool enable)
-    {
-        _genContext.getOptions().hwTransmissionRenderMethod = enable ? mx::TRANSMISSION_REFRACTION : mx::TRANSMISSION_OPACITY;
-        _genContextEssl.getOptions().hwTransmissionRenderMethod = _genContext.getOptions().hwTransmissionRenderMethod;
-        reloadShaders();
-    });
-
-    Widget* albedoGroup = new Widget(advancedPopup);
-    albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(albedoGroup, "Albedo Method:");
-    mx::StringVec albedoOptions = { "Analytic", "Table", "MC" };
-    ng::ComboBox* albedoBox = new ng::ComboBox(albedoGroup, albedoOptions);
-    albedoBox->set_chevron_icon(-1);
-    albedoBox->set_selected_index((int) _genContext.getOptions().hwDirectionalAlbedoMethod );
-    albedoBox->set_callback([this](int index)
-    {
-        _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
-        reloadShaders();
-        updateAlbedoTable();
-    });
-
-    Widget* sampleGroup = new Widget(advancedPopup);
-    sampleGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    new ng::Label(sampleGroup, "Environment Samples:");
-    mx::StringVec sampleOptions;
-    for (int i = MIN_ENV_SAMPLE_COUNT; i <= MAX_ENV_SAMPLE_COUNT; i *= 4)
+        distanceUnitBox->set_selected_index(_distanceUnitConverter->getUnitAsInteger("meter"));
+    }
+    distanceUnitBox->set_callback([this](int index)
     {
         m_process_events = false;
-        sampleOptions.push_back(std::to_string(i));
+        _genContext.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+        _genContextEssl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#if MATERIALX_BUILD_GEN_OSL
+        _genContextOsl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+        _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
+#endif
+        for (MaterialPtr material : _materials)
+        {
+            material->bindShader();
+            material->bindUnits(_unitRegistry, _genContext);
+        }
         m_process_events = true;
-    }
-    ng::ComboBox* sampleBox = new ng::ComboBox(sampleGroup, sampleOptions);
-    sampleBox->set_chevron_icon(-1);
-    sampleBox->set_selected_index((int)std::log2(_lightHandler->getEnvSampleCount() / MIN_ENV_SAMPLE_COUNT) / 2);
-    sampleBox->set_callback([this](int index)
-    {
-        _lightHandler->setEnvSampleCount(MIN_ENV_SAMPLE_COUNT * (int) std::pow(4, index));
     });
 
-    ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
-    viewLabel->set_font_size(20);
-    viewLabel->set_font("sans-bold");
+    ng::Label* meshLoading = new ng::Label(advancedPopup, "Mesh Loading Options");
+    meshLoading->set_font_size(20);
+    meshLoading->set_font("sans-bold");
 
-    ng::CheckBox* outlineSelectedGeometryBox = new ng::CheckBox(advancedPopup, "Outline Selected Geometry");
-    outlineSelectedGeometryBox->set_checked(_outlineSelection);
-    outlineSelectedGeometryBox->set_callback([this](bool enable)
+    ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
+    splitUdimsBox->set_checked(_splitByUdims);
+    splitUdimsBox->set_callback([this](bool enable)
     {
-        _outlineSelection = enable;
+        _splitByUdims = enable;
     });
 
-    ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
-    drawEnvironmentBox->set_checked(_drawEnvironment);
-    drawEnvironmentBox->set_callback([this](bool enable)
+    ng::Label* materialLoading = new ng::Label(advancedPopup, "Material Loading Options");
+    materialLoading->set_font_size(20);
+    materialLoading->set_font("sans-bold");
+
+    ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
+    mergeMaterialsBox->set_checked(_mergeMaterials);
+    mergeMaterialsBox->set_callback([this](bool enable)
     {
-        _drawEnvironment = enable;
+        _mergeMaterials = enable;
     });
 
-    ng::CheckBox* turntableEnabledCheckBox = new ng::CheckBox(advancedPopup, "Enable Turntable");
-    turntableEnabledCheckBox->set_checked(_turntableEnabled);
-    turntableEnabledCheckBox->set_callback([this](bool enable)
+    ng::CheckBox* showInputsBox = new ng::CheckBox(advancedPopup, "Show All Inputs");
+    showInputsBox->set_checked(_showAllInputs);
+    showInputsBox->set_callback([this](bool enable)
     {
-        toggleTurntable(enable);
+        _showAllInputs = enable;
     });
 
-    ng::Widget* meshTurntableRow = new ng::Widget(advancedPopup);
-    meshTurntableRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    ui.uiMin = mx::Value::createValue(2);
-    ui.uiMax = mx::Value::createValue(360);
-    ng::IntBox<int>* meshTurntableBox = createIntWidget(meshTurntableRow, "Turntable Steps:",
-        _turntableSteps, &ui, [this](int value)
+    ng::CheckBox* flattenBox = new ng::CheckBox(advancedPopup, "Flatten Subgraphs");
+    flattenBox->set_checked(_flattenSubgraphs);
+    flattenBox->set_callback([this](bool enable)
     {
-        _turntableSteps = std::clamp(value, 2, 360);
+        _flattenSubgraphs = enable;
+    });    
+
+    ng::Label* envLoading = new ng::Label(advancedPopup, "Environment Loading Options");
+    envLoading->set_font_size(20);
+    envLoading->set_font("sans-bold");
+
+    ng::CheckBox* normalizeEnvBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
+    normalizeEnvBox->set_checked(_normalizeEnvironment);
+    normalizeEnvBox->set_callback([this](bool enable)
+    {
+        _normalizeEnvironment = enable;
     });
-    meshTurntableBox->set_editable(true);
+
+    ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
+    splitDirectLightBox->set_checked(_splitDirectLight);
+    splitDirectLightBox->set_callback([this](bool enable)
+    {
+        _splitDirectLight = enable;
+    });
 
     ng::Label* translationLabel = new ng::Label(advancedPopup, "Translation Options (T)");
     translationLabel->set_font_size(20);
@@ -1198,6 +1204,19 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
 
+        // Flatten subgraphs if requested.
+        if (_flattenSubgraphs)
+        {
+            doc->flattenSubgraphs();
+            for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
+            {
+                if (graph->getActiveSourceUri() == doc->getActiveSourceUri())
+                {
+                    graph->flattenSubgraphs();
+                }
+            }
+        }
+
         // Validate the document.
         std::string message;
         if (!doc->validate(&message))
@@ -1312,11 +1331,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     // Generate a shader for the new material.
                     mat->generateShader(_genContext);
                 }
-
-                mx::NodePtr materialNode = mat->getMaterialNode();
-                if (materialNode)
+            }
+       
+            // Apply material assignments in the order in which they are declared within the document,
+            // with later assignments superseding earlier ones.
+            for (mx::LookPtr look : doc->getLooks())
+            {
+                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
                 {
-                    // Apply geometric assignments specified in the document, if any.
+                    const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)
                     {
                         std::string geom = part->getName();
@@ -1324,13 +1347,40 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         {
                             geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
                         }
-                        if (!getGeometryBindings(materialNode, geom).empty())
+                        if (mx::geomStringsMatch(activeGeom, geom, true))
                         {
-                            assignMaterial(part, mat);
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
+                        }
+                        mx::CollectionPtr coll = matAssign->getCollection();
+                        if (coll && coll->matchesGeomString(geom))
+                        {
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
                         }
                     }
+                }
+            }
 
-                    // Apply implicit udim assignments, if any.
+            // Apply implicit udim assignments, if any.
+            for (MaterialPtr mat : newMaterials)
+            {
+                mx::NodePtr materialNode = mat->getMaterialNode();
+                if (materialNode)
+                {
+                    std::string udim = mat->getUdim();
                     if (!udim.empty())
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
@@ -1812,6 +1862,11 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
 void Viewer::renderFrame()
 {
+    if (_geometryList.empty() || _materials.empty())
+    {
+        return;
+    }
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -2147,11 +2202,6 @@ void Viewer::renderTurnable()
 
 void Viewer::draw_contents()
 {    
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
-
     updateCameras();
 
     mx::checkGlErrors("before viewer render");
@@ -2664,4 +2714,18 @@ void Viewer::toggleTurntable(bool enable)
     }
     invalidateShadowMap();
     _turntableStep = 0;
+}
+
+void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
+{
+    _genContext.getOptions().shaderInterfaceType = interfaceType;
+    _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
+#if MATERIALX_BUILD_GEN_OSL
+    _genContextOsl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    _genContextMdl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+    reloadShaders();
+    updateDisplayedProperties();
 }

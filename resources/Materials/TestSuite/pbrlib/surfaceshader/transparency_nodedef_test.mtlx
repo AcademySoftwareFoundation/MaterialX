@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" xmlns:xi="http://www.w3.org/2001/XInclude">
   <nodegraph name="NG_transpGraph_image0" nodedef="ND_transpGraph_image0">
-    <input name="opacity_file" type="filename" uniform="true" value="resources/Images/grid.png" />
     <burley_diffuse_bsdf name="burley_diffuse_bsdf" type="BSDF">
       <input name="color" type="color3" value="0.8, 0.8, 0.8" />
     </burley_diffuse_bsdf>
@@ -57,10 +56,8 @@
   <output name="surf_opacity_mapped" nodename="transptype_1" output="surf_opacity_mapped" type="surfaceshader" />
   <output name="ss_opacity_unmapped_out" nodename="transptype_1" output="ss_opacity_unmapped_out" type="surfaceshader" />
   <nodegraph name="NG_transpGraph_proc0" nodedef="ND_transpGraph_proc0">
-    <input name="diffuse_color" type="color3" value="0.18, 0.18, 0.18" />
-    <input name="repeat" type="vector2" value="4, 4" />
     <burley_diffuse_bsdf name="burley_diffuse_bsdf" type="BSDF">
-      <input name="color" type="color3" interfacename="diffuse_color" value="0.18, 0.18, 0.18" />
+      <input name="color" type="color3" interfacename="diffuse_color" />
     </burley_diffuse_bsdf>
     <convert name="convert" type="color3">
       <input name="in" type="float" nodename="ramp4" />
@@ -82,7 +79,7 @@
     <texcoord name="texcoord" type="vector2" />
     <multiply name="multiply" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord" />
-      <input name="in2" type="vector2" interfacename="repeat" value="4, 4" />
+      <input name="in2" type="vector2" interfacename="repeat" />
     </multiply>
     <modulo name="modulo" type="vector2">
       <input name="in1" type="vector2" nodename="multiply" />

@@ -109,7 +109,11 @@
   <!-- Node: UsdPreviewSurface -->
   <nodegraph name="IMP_UsdPreviewSurface_surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader">
 
-    <!-- Compute the per-pixel surface normal -->
+    <convert name="use_specular_workflow_float" type="float">
+      <input name="in" type="integer" interfacename="useSpecularWorkflow" />
+    </convert>
+
+    <!-- Compute the surface normal -->
     <multiply name="scale_normal" type="vector3">
       <input name="in1" type="vector3" interfacename="normal" />
       <input name="in2" type="float" value="0.5" />
@@ -123,8 +127,17 @@
     </normalmap>
 
     <!-- Diffuse Layer -->
+    <subtract name="inverse_metalness" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="metallic" />
+    </subtract>
+    <mix name="diffuse_bsdf_weight" type="float">
+      <input name="fg" type="float" value="1.0" />
+      <input name="bg" type="float" nodename="inverse_metalness" />
+      <input name="mix" type="float" nodename="use_specular_workflow_float" />
+    </mix>
     <oren_nayar_diffuse_bsdf name="diffuse_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1" />
+      <input name="weight" type="float" nodename="diffuse_bsdf_weight" />
       <input name="color" type="color3" interfacename="diffuseColor" />
       <input name="roughness" type="float" value="0" />
       <input name="normal" type="vector3" nodename="surface_normal" />
@@ -171,18 +184,32 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" interfacename="ior" />
     </add>
-    <divide name="div_ior" type="float">
+    <divide name="R" type="float">
       <input name="in1" type="float" nodename="one_minus_ior" />
       <input name="in2" type="float" nodename="one_plus_ior" />
     </divide>
-    <multiply name="F0" type="float">
-      <input name="in1" type="float" nodename="div_ior" />
-      <input name="in2" type="float" nodename="div_ior" />
+    <multiply name="R_sq" type="float">
+      <input name="in1" type="float" nodename="R" />
+      <input name="in2" type="float" nodename="R" />
     </multiply>
+    <mix name="specular_color_metallic" type="color3">
+      <input name="fg" type="color3" interfacename="diffuseColor" />
+      <input name="bg" type="color3" value="1, 1, 1" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
+    <multiply name="specular_color_metallic_R_sq" type="color3">
+      <input name="in1" type="color3" nodename="specular_color_metallic" />
+      <input name="in2" type="float" nodename="R_sq" />
+    </multiply>
+    <mix name="F0" type="color3">
+      <input name="fg" type="color3" nodename="specular_color_metallic" />
+      <input name="bg" type="color3" nodename="specular_color_metallic_R_sq" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
     <generalized_schlick_bsdf name="specular_bsdf2" type="BSDF">
       <input name="weight" type="float" value="1" />
-      <input name="color0" type="color3" nodename="F0" channels="rrr" />
-      <input name="color90" type="color3" value="1, 1, 1" />
+      <input name="color0" type="color3" nodename="F0" />
+      <input name="color90" type="color3" interfacename="specularColor" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
@@ -208,9 +235,6 @@
     </mix>
 
     <!-- Select Specular/Metalness workflow -->
-    <convert name="use_specular_workflow_float" type="float">
-      <input name="in" type="integer" interfacename="useSpecularWorkflow" />
-    </convert>
     <mix name="workflow_selector_bsdf" type="BSDF">
       <input name="fg" type="BSDF" nodename="specular_workflow_bsdf" />
       <input name="bg" type="BSDF" nodename="metalness_workflow_bsdf" />
@@ -222,13 +246,16 @@
       <input name="roughness" type="float" interfacename="clearcoatRoughness" />
       <input name="anisotropy" type="float" value="0" />
     </roughness_anisotropy>
-    <dielectric_bsdf name="coat_dielectric_bsdf" type="BSDF">
+    <convert name="coat_F0" type="color3">
+      <input name="in" type="float" nodename="R_sq" />
+    </convert>
+    <generalized_schlick_bsdf name="coat_dielectric_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="clearcoat" />
-      <input name="tint" type="color3" value="1, 1, 1" />
-      <input name="ior" type="float" value="1.5" />
+      <input name="color0" type="color3" nodename="coat_F0" />
+      <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
-    </dielectric_bsdf>
+    </generalized_schlick_bsdf>
     <layer name="coat_bsdf" type="BSDF">
       <input name="top" type="BSDF" nodename="coat_dielectric_bsdf" />
       <input name="base" type="BSDF" nodename="workflow_selector_bsdf" />
