@@ -300,17 +300,18 @@ int main(int argc, char* const argv[])
         bool drawOffscreen = !bakeFilename.empty() || !captureFilename.empty();
         if (drawOffscreen)
         {
-            viewer->set_visible(false);
+            // Baking does not require a viewport redraw
             if (!bakeFilename.empty())
             {
                 viewer->bakeTextures();
             }
+            // However capture requires does as the viewport is
+            // is not visible at startup (which triggers a redraw).
             else if (!captureFilename.empty())
             {
                 viewer->requestFrameCapture(captureFilename);
+                viewer->draw_all();
             }
-            viewer->redraw();
-            viewer->draw_all();
             viewer->requestExit();
         } 
         else
