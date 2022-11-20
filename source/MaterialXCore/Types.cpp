@@ -78,21 +78,21 @@ Color3 Color3::srgbToLinear() const
 // Matrix33 methods
 //
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::getTranspose() const
+Matrix33 Matrix33::getTranspose() const
 {
     return Matrix33(_arr[0][0], _arr[1][0], _arr[2][0],
                     _arr[0][1], _arr[1][1], _arr[2][1],
                     _arr[0][2], _arr[1][2], _arr[2][2]);
 }
 
-template <> float MatrixN<Matrix33, float, 3>::getDeterminant() const
+float Matrix33::getDeterminant() const
 {
     return _arr[0][0] * (_arr[1][1]*_arr[2][2] - _arr[2][1]*_arr[1][2]) +
            _arr[0][1] * (_arr[1][2]*_arr[2][0] - _arr[2][2]*_arr[1][0]) +
            _arr[0][2] * (_arr[1][0]*_arr[2][1] - _arr[2][0]*_arr[1][1]);
 }
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
+Matrix33 Matrix33::getAdjugate() const
 {
     return Matrix33(
         _arr[1][1]*_arr[2][2] - _arr[2][1]*_arr[1][2],
@@ -159,7 +159,7 @@ Matrix33 Matrix33::createRotation(float angle)
 // Matrix44 methods
 //
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::getTranspose() const
+Matrix44 Matrix44::getTranspose() const
 {
     return Matrix44(_arr[0][0], _arr[1][0], _arr[2][0], _arr[3][0],
                     _arr[0][1], _arr[1][1], _arr[2][1], _arr[3][1],
@@ -167,7 +167,7 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getTranspose() const
                     _arr[0][3], _arr[1][3], _arr[2][3], _arr[3][3]);
 }
 
-template <> float MatrixN<Matrix44, float, 4>::getDeterminant() const
+float Matrix44::getDeterminant() const
 {
     return _arr[0][0] * (_arr[1][1]*_arr[2][2]*_arr[3][3] + _arr[3][1]*_arr[1][2]*_arr[2][3] + _arr[2][1]*_arr[3][2]*_arr[1][3] -
                          _arr[1][1]*_arr[3][2]*_arr[2][3] - _arr[2][1]*_arr[1][2]*_arr[3][3] - _arr[3][1]*_arr[2][2]*_arr[1][3]) +
@@ -179,7 +179,7 @@ template <> float MatrixN<Matrix44, float, 4>::getDeterminant() const
                          _arr[1][0]*_arr[2][1]*_arr[3][2] - _arr[3][0]*_arr[1][1]*_arr[2][2] - _arr[2][0]*_arr[3][1]*_arr[1][2]);
 }
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
+Matrix44 Matrix44::getAdjugate() const
 {
     return Matrix44(
         _arr[1][1]*_arr[2][2]*_arr[3][3] + _arr[3][1]*_arr[1][2]*_arr[2][3] + _arr[2][1]*_arr[3][2]*_arr[1][3] -
