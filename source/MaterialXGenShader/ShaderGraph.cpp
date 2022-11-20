@@ -1015,15 +1015,10 @@ void ShaderGraph::optimize(GenContext& context)
     {
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            // Constant nodes can be removed by assigning their value downstream
-            // But don't remove it if it's connected upstream, i.e. it's value
-            // input is published.
-            ShaderInput* valueInput = node->getInput(0);
-            if (!valueInput->getConnection())
-            {
-                bypass(context, node, 0);
-                ++numEdits;
-            }
+            // Constant nodes can be removed by moving their value 
+            // or connection downstream.
+            bypass(context, node, 0);
+            ++numEdits;
         }
         else if (node->hasClassification(ShaderNode::Classification::IFELSE))
         {
@@ -1069,9 +1064,11 @@ void ShaderGraph::optimize(GenContext& context)
         // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
         {
-            if (outputSocket->getConnection())
+            // Make sure to not include connections to the graph itself.
+            ShaderOutput* upstreamPort = outputSocket->getConnection();
+            if (upstreamPort && upstreamPort->getNode() != this)
             {
-                for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(outputSocket->getConnection()))
+                for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(upstreamPort))
                 {
                     usedNodes.insert(edge.upstream->getNode());
                 }
