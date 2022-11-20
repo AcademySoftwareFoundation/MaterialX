@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--hdr", dest="hdr", action="store_true", help="Bake images with high dynamic range (e.g. in HDR or EXR format).")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
+    parser.add_argument('--writeSingleDocument', dest='writeSingleDocument', default=False, action="store_true", help='Specify to write all baked materials to a single MaterialX document.')
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     parser.add_argument(dest="destShader", help="Destination shader for translation")
@@ -86,6 +87,9 @@ def main():
     # Bake translated materials to flat textures.
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
     baker = mx_render_glsl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
+    # Check whether to bake to one or several documents
+    if opts.writeSingleDocument:
+        baker.setWriteSeparateDocuments(False)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':

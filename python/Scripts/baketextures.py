@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
-    parser.add_argument('--writeSingleDocument', dest='writeSingleDocument', default=False, action="store_true", help='Set False to write all baked materials to the same document.')
+    parser.add_argument('--writeSingleDocument', dest='writeSingleDocument', default=False, action="store_true", help='Specify to write all baked materials to a single MaterialX document.')
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     opts = parser.parse_args()
