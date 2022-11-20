@@ -1,4 +1,4 @@
-﻿#include "lib/mx_microfacet_diffuse.glsl"
+#include "lib/mx_microfacet_diffuse.glsl"
 
 void mx_subsurface_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, vec3 radius, float anisotropy, vec3 normal, inout BSDF bsdf)
 {
