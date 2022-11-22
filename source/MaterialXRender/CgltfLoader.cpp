@@ -329,6 +329,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     {
                         MeshFloatBuffer& buffer = geomStream->getData();
                         cgltf_size vertexCount = accessor->count;
+                        geomStream->reserve(vertexCount);
 
                         if (_debugLevel > 0)
                         {

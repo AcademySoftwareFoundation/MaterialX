@@ -43,7 +43,7 @@ MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
 {
     // Create the normal stream.
     MeshStreamPtr normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, 0);
-    normalStream->getData().resize(positionStream->getData().size());
+    normalStream->resize(positionStream->getSize());
 
     // Iterate through partitions.
     for (size_t i = 0; i < getPartitionCount(); i++)
@@ -114,7 +114,7 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
 
     // Create the tangent stream.
     MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
-    tangentStream->getData().resize(positionStream->getData().size());
+    tangentStream->resize(positionStream->getSize());
     std::fill(tangentStream->getData().begin(), tangentStream->getData().end(), 0.0f);
 
     // Iterate through partitions.

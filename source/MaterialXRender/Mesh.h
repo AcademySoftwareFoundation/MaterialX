@@ -59,6 +59,12 @@ class MX_RENDER_API MeshStream
         return std::make_shared<MeshStream>(name, type, index);
     }
 
+    /// Reserve memory for a given number of elements
+    void reserve(size_t elementCount)
+    {
+        _data.reserve(elementCount * (size_t) _stride);
+    }
+
     /// Resize data to an given number of elements
     void resize(size_t elementCount)
     {
@@ -119,11 +125,13 @@ class MX_RENDER_API MeshStream
         _stride = stride;
     }
 
+    /// Get the number of elements
     size_t getSize() const
     {
-        return _data.size();
+        return _data.size() / _stride;
     }
 
+    /// Transform elements by a matrix
     void transform(const Matrix44 &matrix);
 
   protected:
