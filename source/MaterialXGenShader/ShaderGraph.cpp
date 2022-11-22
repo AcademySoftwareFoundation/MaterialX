@@ -1013,9 +1013,10 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT) ||
+            node->hasClassification(ShaderNode::Classification::DOT))
         {
-            // Constant nodes can be removed by moving their value 
+            // Constant and dot nodes can be removed by moving their value 
             // or connection downstream.
             bypass(context, node, 0);
             ++numEdits;
