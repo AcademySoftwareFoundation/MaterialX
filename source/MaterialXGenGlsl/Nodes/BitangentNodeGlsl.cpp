@@ -28,6 +28,8 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Sha
     {
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_MATRIX, vs);
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_WORLD, vs, ps);
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_BITANGENT_WORLD, vs, ps);
     }
     else
@@ -64,7 +66,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             if (!bitangent->isEmitted())
             {
                 bitangent->setEmitted();
-                shadergen.emitLine(prefix + bitangent->getVariable() + " = cross(" + normal->getVariable() + ", " + tangent->getVariable() + ")", stage);
+                shadergen.emitLine(prefix + bitangent->getVariable() + " = cross(" + prefix + normal->getVariable() + ", " + prefix + tangent->getVariable() + ")", stage);
             }
         }
         else
