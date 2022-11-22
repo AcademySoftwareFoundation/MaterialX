@@ -101,6 +101,32 @@ void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath p
     }
 }
 
+void decodeVec4Tangents(MeshStreamPtr vec4TangentStream, MeshStreamPtr normalStream, MeshStreamPtr& tangentStream, MeshStreamPtr& bitangentStream)
+{
+    if (vec4TangentStream->getSize() != normalStream->getSize())
+    {
+        return;
+    }
+
+    tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
+    bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
+
+    tangentStream->resize(vec4TangentStream->getSize());
+    bitangentStream->resize(vec4TangentStream->getSize());
+
+    for (int i = 0; i < vec4TangentStream->getSize(); i++)
+    {
+      const Vector4& vec4Tangent = vec4TangentStream->getElement<Vector4>(i);
+      const Vector3& normal = normalStream->getElement<Vector3>(i);
+
+      Vector3& tangent = tangentStream->getElement<Vector3>(i);
+      Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
+
+      tangent = Vector3(vec4Tangent[0], vec4Tangent[1], vec4Tangent[2]);
+      bitangent = normal.cross(tangent) * vec4Tangent[3];
+    }
+}
+
 } // anonymous namespace
 
 bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
@@ -242,7 +268,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 MeshStreamPtr normalStream = nullptr;
                 MeshStreamPtr colorStream = nullptr;
                 MeshStreamPtr texcoordStream = nullptr;
-                MeshStreamPtr tangentStream = nullptr;
+                MeshStreamPtr vec4TangentStream = nullptr;
                 int colorAttrIndex = 0;
 
                 // Read in vertex streams
@@ -274,7 +300,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
                     bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
                     bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
+                    bool isTangentStream = (attribute->type == cgltf_attribute_type_tangent);
+                    bool isColorStream = (attribute->type == cgltf_attribute_type_color);
                     bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
+
                     if (isPositionStream)
                     {
                         // Create position stream
@@ -282,19 +311,20 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                         mesh->addStream(positionStream);
                         geomStream = positionStream;
                     }
-                    else if (attribute->type == cgltf_attribute_type_normal)
+                    else if (isNormalStream)
                     {
                         normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, streamIndex);
                         mesh->addStream(normalStream);
                         geomStream = normalStream;
                     }
-                    else if (attribute->type == cgltf_attribute_type_tangent)
+                    else if (isTangentStream)
                     {
-                        tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, streamIndex);
-                        mesh->addStream(tangentStream);
-                        geomStream = tangentStream;
+                        vec4TangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE + "4", MeshStream::TANGENT_ATTRIBUTE, streamIndex);
+                        vec4TangentStream->setStride(MeshStream::STRIDE_4D); // glTF stores the bitangent sign in the 4th component
+                        geomStream = vec4TangentStream;
+                        desiredVectorSize = 4;
                     }
-                    else if (attribute->type == cgltf_attribute_type_color)
+                    else if (isColorStream)
                     {
                         colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE + "_" + std::to_string(colorAttrIndex), MeshStream::COLOR_ATTRIBUTE, streamIndex);
                         mesh->addStream(colorStream);
@@ -306,7 +336,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                         }
                         colorAttrIndex++;
                     }
-                    else if (attribute->type == cgltf_attribute_type_texcoord)
+                    else if (isTexCoordStream)
                     {
                         texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
                         mesh->addStream(texcoordStream);
@@ -441,10 +471,26 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 mesh->setSphereCenter(sphereCenter);
                 mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
-                // Generate tangents, normals and texture coordinates if none provided
-                if (!tangentStream && positionStream)
+                if (vec4TangentStream && normalStream)
                 {
-                    tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                    // Decode glTF vec4 tangents to MaterialX vec3 tangents and bitangents
+                    MeshStreamPtr tangentStream;
+                    MeshStreamPtr bitangentStream;
+                    decodeVec4Tangents(vec4TangentStream, normalStream, tangentStream, bitangentStream);
+
+                    if (tangentStream)
+                    {
+                        mesh->addStream(tangentStream);
+                    }
+                    if (bitangentStream)
+                    {
+                        mesh->addStream(bitangentStream);
+                    }
+                }
+                else if (positionStream)
+                {
+                    // Generate tangents, normals and texture coordinates if none provided
+                    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
                     if (tangentStream)
                     {
                         mesh->addStream(tangentStream);
