@@ -61,11 +61,11 @@
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture."/>           
     <input name="fallback" type="color4" value="0, 0, 0, 1" 
-           doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 ) for color texture."/>
+           doc="Fallback value used when texture can not be read. Default is ( 0, 0, 0, 1 )."/>
     <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" 
-           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1, 1) for color texture."/>
+           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1, 1)."/>
     <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" 
-           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0, 0) for color texture."/>
+           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0, 0)."/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -73,8 +73,8 @@
     <output name="rgb" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_UsdUVTexture_23_NormalMap" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" 
-           doc="USD normal map texture reader version 2.3.">
+  <nodedef name="ND_UsdUVTexture_23_vector3" node="UsdUvTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true" 
+           doc="USD vector3 texture reader version 2.3.">
     <input name="file" type="filename" uniform="true" 
            doc="Path to the normal map texture."/>
     <input name="st" type="vector2" defaultgeomprop="UV0" 
@@ -83,12 +83,12 @@
            doc="Wrap mode when reading this texture."/>
     <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" 
            doc="Wrap mode when reading this texture."/>
-    <input name="fallback" type="vector3" value="0.5, 0.5, 1" 
-           doc="Fallback value used when texture can not be read. Default is ( 0.5, 0.5, 1.0 ) for normal maps."/>
-    <input name="scale" type="vector3" value="2, 2, 2" uniform="true" 
-           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (2, 2, 2) for normal maps"/>           
-    <input name="bias" type="vector3" value="-1, -1, -1" uniform="true" 
-           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (-1, -1, 1) for normal maps"/>
+    <input name="fallback" type="vector3" value="0.0, 0.0, 0" 
+           doc="Fallback value used when texture can not be read. Default is ( 0.0, 0.0, 0.0 )."/>
+    <input name="scale" type="vector3" value="1, 1, 1" uniform="true" 
+           doc="Scale to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (1, 1, 1)."/>           
+    <input name="bias" type="vector3" value="0, 0, 0" uniform="true" 
+           doc="Bias to be applied to all components of the texture. Output is textureValue * scale + bias. Default is (0, 0, 0)."/>
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -383,28 +383,21 @@
     <output name="rgb" type="color3" nodename="image_bias" channels="rgb" />
   </nodegraph>
 
-  <nodegraph name="IMP_UsdUVTexture_23_NormalMap" nodedef="ND_UsdUVTexture_23_NormalMap">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="st" type="vector2" value="0, 0" />
-    <input name="wrapS" type="string" uniform="true" value="periodic" />
-    <input name="wrapT" type="string" uniform="true" value="periodic" />
-    <input name="fallback" type="vector3" value="0.5, 0.5, 1" />
-    <input name="scale" type="vector3" value="2, 2, 2" />
-    <input name="bias" type="vector3" value="-1, -1, -1" />
+  <nodegraph name="IMP_UsdUVTexture_23_vector3" nodedef="ND_UsdUVTexture_23_vector3">
     <image name="image" type="vector3" >
       <input name="file" type="filename" uniform="true" interfacename="file" />
-      <input name="default" type="vector3" interfacename="fallback" value="0.5, 0.5, 1" />
+      <input name="default" type="vector3" interfacename="fallback" value="0, 0, 0" />
       <input name="texcoord" type="vector2" interfacename="st" value="0, 0" />
       <input name="uaddressmode" type="string" uniform="true" interfacename="wrapS" value="periodic" />
       <input name="vaddressmode" type="string" uniform="true" interfacename="wrapT" value="periodic" />
     </image>
     <add name="image_bias" type="vector3">
       <input name="in1" type="vector3" nodename="image_scale" />
-      <input name="in2" type="vector3" interfacename="bias" value="-1, -1, -1" />
+      <input name="in2" type="vector3" interfacename="bias" />
     </add>
     <multiply name="image_scale" type="vector3">
       <input name="in1" type="vector3" nodename="image" />
-      <input name="in2" type="vector3" interfacename="scale" value="2, 2, 2" />
+      <input name="in2" type="vector3" interfacename="scale" />
     </multiply>
     <constant name="constant" type="float">
       <input name="value" type="float" value="1" />

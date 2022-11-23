@@ -3,11 +3,8 @@
   <UsdUvTexture name="UsdUvTexture" type="multioutput" >
     <input name="file" type="filename" uniform="true" value="../../../Images/brick_normal.jpg" />
     <input name="st" type="vector2" nodename="place2d" />
-    <output name="r" type="float" />
-    <output name="g" type="float" />
-    <output name="b" type="float" />
-    <output name="a" type="float" />
-    <output name="rgb" type="vector3" />
+    <input name="scale" type="vector3" value="2, 2, 2" />
+    <input name="bias" type="vector3" value="-0.5, -0.5, -0.5" />      
   </UsdUvTexture>
   <UsdPreviewSurface name="UsdPreviewSurface" type="surfaceshader">
     <input name="normal" type="vector3" nodename="UsdUvTexture" output="rgb" />
