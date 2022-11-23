@@ -303,13 +303,12 @@ NodePtr Input::getConnectedNode() const
 
 InputPtr Input::getInterfaceInput() const
 {
-    const string& interfaceName = getInterfaceName();
-    if (!interfaceName.empty())
+    if (hasInterfaceName())
     {
         ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
         if (graph)
         {
-            return graph->getInput(interfaceName);
+            return graph->getInput(getInterfaceName());
         }
     }
     return nullptr;
@@ -329,41 +328,21 @@ GeomPropDefPtr Input::getDefaultGeomProp() const
 bool Input::validate(string* message) const
 {
     bool res = true;
+    ConstElementPtr parent = getParent();
+
     if (hasDefaultGeomPropString())
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    if (hasInterfaceName())
-    {
-        ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
-        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
-        if (nodeDef)
-        {
-            InputPtr interfaceInput = nodeDef->getActiveInput(getInterfaceName());
-            validateRequire(interfaceInput != nullptr, res, message, "Interface name not found in referenced NodeDef");
-            if (interfaceInput)
-            {
-                if (hasChannels())
-                {
-                    bool valid = validChannelsString(getChannels(), interfaceInput->getType(), getType());
-                    validateRequire(valid, res, message, "Invalid channels string for interface name");
-                }
-                else
-                {
-                    validateRequire(getType() == interfaceInput->getType(), res, message, "Interface name refers to input of a different type");
-                }
-            }
-        }
-        else
-        {
-            validateRequire(getInterfaceInput() != nullptr, res, message, "Interface name not found in containing NodeGraph");
-        }
-    }
-    if (getParent()->isA<Node>())
+    if (parent->isA<Node>())
     {
         bool hasValueBinding = hasValue();
         bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
         validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+    }
+    else if (parent->isA<NodeGraph>())
+    {
+        validateRequire(parent->asA<NodeGraph>()->getNodeDef() == nullptr, res, message, "Input element in a functional nodegraph has no effect");
     }
     return PortElement::validate(message) && res;
 }
@@ -556,7 +535,7 @@ ValuePtr InterfaceElement::getInputValue(const string& name, const string& targe
     }
 
     // Return the value, if any, stored in our declaration.
-    ConstNodeDefPtr decl = getDeclaration(target);
+    ConstInterfaceElementPtr decl = getDeclaration(target);
     if (decl)
     {
         input = decl->getInput(name);
@@ -626,9 +605,9 @@ void InterfaceElement::unregisterChildElement(ElementPtr child)
     }
 }
 
-ConstNodeDefPtr InterfaceElement::getDeclaration(const string&) const
+ConstInterfaceElementPtr InterfaceElement::getDeclaration(const string&) const
 {
-    return NodeDefPtr();
+    return InterfaceElementPtr();
 }
 
 bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message) const

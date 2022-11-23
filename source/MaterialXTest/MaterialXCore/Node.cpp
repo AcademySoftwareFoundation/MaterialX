@@ -641,7 +641,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
 
         // Check declaration was set up properly
-        mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
+        mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
 
         // Arbitrarily add all unconnected inputs as interfaces

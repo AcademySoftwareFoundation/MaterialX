@@ -499,7 +499,7 @@ ValuePtr ValueElement::getDefaultValue() const
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)
     {
-        ConstNodeDefPtr decl = interface->getDeclaration();
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -519,7 +519,7 @@ const string& ValueElement::getActiveUnit() const
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)
     {
-        ConstNodeDefPtr decl = interface->getDeclaration();
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -544,11 +544,11 @@ bool ValueElement::validate(string* message) const
     {
         validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
-        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
-        if (nodeDef)
+        ConstInterfaceElementPtr decl = nodeGraph ? nodeGraph->getDeclaration() : nullptr;
+        if (decl)
         {
-            ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
-            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            ValueElementPtr valueElem = decl->getActiveValueElement(getInterfaceName());
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced declaration");
             if (valueElem)
             {
                 ConstPortElementPtr portElem = asA<PortElement>();

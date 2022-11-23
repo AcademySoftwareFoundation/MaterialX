@@ -6,7 +6,6 @@
     <output name="out" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_myimage_color3_v1" nodedef="ND_myimage_color3_v1">
-    <input name="file" type="filename" uniform="true" value="" />
     <image name="image" type="color3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
     </image>
@@ -19,7 +18,6 @@
     <output name="out" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_myimage_color3_v2" nodedef="ND_myimage_color3_v2">
-    <input name="file" type="filename" uniform="true" value="" />
     <image name="image" type="color3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
     </image>

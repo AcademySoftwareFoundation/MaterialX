@@ -155,7 +155,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     const string& sourceCategory = shader->getCategory();
     if (sourceCategory == destCategory)
     {
-        return;
+        throw Exception("The source shader \"" + shader->getNamePath() + "\" category is already \"" + destCategory + "\"");
     }
 
     DocumentPtr doc = shader->getDocument();
