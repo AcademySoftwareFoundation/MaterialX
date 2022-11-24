@@ -56,7 +56,7 @@ def printNodeDictionary(nodegroupdict, opts):
             print('</ul>')
         else:  
             for n in nodegroupdict[ng]:
-                groupString += n + ' '
+                groupString += '[' + n + '](#' + n + ') '
             print('* ' + groupString)
     if opts.documentType == "html":
         print('<hr>')
@@ -80,7 +80,9 @@ def printNodeDefs(doc, opts):
                 print('<h3><a id="%s">' % nodeString)
                 print('Node: %s' % nodeString)
                 print('</a></h3>')
-                currentNodeString = nodeString               
+                currentNodeString = nodeString  
+            print('<details><summary>%s</summary>' % nd.getName())
+            print('<p>')
             print('<ul>')
             print('<li> <em>NodeDef</em>: %s' % nd.getName())
             print('<li> <em>Type</em>: %s' % nd.getType())
@@ -120,18 +122,26 @@ def printNodeDefs(doc, opts):
                     print('<td>' + info + '</td>')
                 print('</tr>')
             print('</table>')
+            print('</p></details>')
 
         # Markdown output
         else:
-            print('- *Nodedef*: %s' % nd.getName())
-            print('- *Type*: %s' % nd.getType())
+            nodeString = nd.getNodeString()
+            if currentNodeString != nodeString:
+                print('### Node: *%s*' % nodeString)
+                currentNodeString = nodeString
+            print('<details><summary>%s</summary>' % nd.getName())
+            print('<p>')
+            print(' ')
+            print('* *Nodedef*: %s' % nd.getName())
+            print('* *Type*: %s' % nd.getType())
             if len(nd.getNodeGroup()) > 0:
-                print('- *Node Group*: %s' % nd.getNodeGroup())
+                print('* *Node Group*: %s' % nd.getNodeGroup())
             if len(nd.getVersionString()) > 0:
-                print('- *Version*: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
+                print('* *Version*: %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
             if len(nd.getInheritString()) > 0:
                 print('- *Inherits From*: %s' % nd.getInheritString())
-            print('- *Doc*: %s\n' % nd.getAttribute('doc'))
+            print('* *Doc*: %s\n' % nd.getAttribute('doc'))
             print('| ' + ' | '.join(HEADERS) + ' |')
             print('|' + ' ---- |' * len(HEADERS) + '')
             inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()
@@ -154,6 +164,9 @@ def printNodeDefs(doc, opts):
                 for attrname in ATTR_NAMES:
                     infos.append(port.getAttribute(attrname))
                 print('| ' + " | ".join(infos) + ' |')
+
+            print('</p></details>')
+            print(' ')
 
 # Read in a single document or documents in a folder
 # Return false if any document cannot be read
