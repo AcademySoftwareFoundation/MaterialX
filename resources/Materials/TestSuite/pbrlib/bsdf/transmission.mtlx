@@ -25,12 +25,12 @@
       <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
     </oren_nayar_diffuse_bsdf>
     <mix name="mix1" type="BSDF">
-      <input name="fg" type="BSDF" value="" nodename="diffuse_brdf2" />
-      <input name="bg" type="BSDF" value="" nodename="dielectric_btdf1" />
+      <input name="fg" type="BSDF" nodename="diffuse_brdf2" />
+      <input name="bg" type="BSDF" nodename="dielectric_btdf1" />
       <input name="mix" type="float" interfacename="transmission" />
     </mix>
     <surface name="surface3" type="surfaceshader">
-      <input name="bsdf" type="BSDF" value="" nodename="mix1" />
+      <input name="bsdf" type="BSDF" nodename="mix1" />
       <input name="edf" type="EDF" value="" />
       <input name="opacity" type="float" value="1.0000" />
     </surface>

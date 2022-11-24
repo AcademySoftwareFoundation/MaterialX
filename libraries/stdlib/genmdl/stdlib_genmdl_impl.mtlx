@@ -562,8 +562,8 @@
   <implementation name="IM_dodge_color4_genmdl" nodedef="ND_dodge_color4" sourcecode="mx::stdlib::mx_dodge_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
   <!-- <screen> -->
-  <implementation name="IM_screen_float_genmdl" nodedef="ND_screen_float" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}})) * (1 - {{bg}}))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
-  <implementation name="IM_screen_color3_genmdl" nodedef="ND_screen_color3" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}})) * (1 - {{bg}}))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
+  <implementation name="IM_screen_float_genmdl" nodedef="ND_screen_float" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
+  <implementation name="IM_screen_color3_genmdl" nodedef="ND_screen_color3" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
   <implementation name="IM_screen_color4_genmdl" nodedef="ND_screen_color4" sourcecode="mx::stdlib::mx_screen_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
   <!-- <overlay> -->

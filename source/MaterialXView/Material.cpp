@@ -8,6 +8,8 @@
 
 #include <MaterialXFormat/Util.h>
 
+const std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
+
 //
 // Material methods
 //
@@ -35,32 +37,14 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
     _glProgram = mx::GlslProgram::create();
     _glProgram->addStage(mx::Stage::VERTEX, vertexShader);
     _glProgram->addStage(mx::Stage::PIXEL, pixelShader);
-    _glProgram->build();
-
-    updateUniformsList();
 
     return true;
-}
-
-void Material::updateUniformsList()
-{
-    _uniformVariable.clear();
-    if (!_glProgram)
-    {
-        return;
-    }
-
-    for (const auto& pair : _glProgram->getUniformsList())
-    {
-        _uniformVariable.insert(pair.first);
-    }
 }
 
 void Material::clearShader()
 {
     _hwShader = nullptr;
     _glProgram = nullptr;
-    _uniformVariable.clear();
 }
 
 bool Material::generateShader(mx::GenContext& context)
@@ -86,9 +70,6 @@ bool Material::generateShader(mx::GenContext& context)
 
     _glProgram = mx::GlslProgram::create();
     _glProgram->setStages(_hwShader);
-    _glProgram->build();
-
-    updateUniformsList();
 
     return true;
 }
@@ -99,9 +80,6 @@ bool Material::generateShader(mx::ShaderPtr hwShader)
 
     _glProgram = mx::GlslProgram::create();
     _glProgram->setStages(hwShader);
-    _glProgram->build();
-
-    updateUniformsList();
 
     return true;
 }
@@ -145,22 +123,27 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     return generateShader(_hwShader);
 }
 
-void Material::bindShader()
+bool Material::bindShader() const
 {
-    if (_glProgram)
+    if (!_glProgram)
     {
-        _glProgram->bind();
+        return false;
     }
+
+    if (!_glProgram->hasBuiltData())
+    {
+        _glProgram->build();
+    }
+    return _glProgram->bind();
 }
 
 void Material::bindMesh(mx::MeshPtr mesh)
 {
-    if (!mesh || !_glProgram)
+    if (!mesh || !bindShader())
     {
         return;
     }
 
-    _glProgram->bind();
     if (_boundMesh && mesh->getName() != _boundMesh->getName())
     {
         _glProgram->unbindGeometry();
@@ -171,12 +154,11 @@ void Material::bindMesh(mx::MeshPtr mesh)
 
 bool Material::bindPartition(mx::MeshPartitionPtr part) const
 {
-    if (!_glProgram)
+    if (!bindShader())
     {
         return false;
     }
 
-    _glProgram->bind();
     _glProgram->bindPartition(part);
 
     return true;
@@ -334,9 +316,10 @@ void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPt
 
 void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
 {
-    static std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
-
-    _glProgram->bind();
+    if (!bindShader())
+    {
+        return;
+    }
 
     mx::ShaderPort* port = nullptr;
     mx::VariableBlock* publicUniforms = getPublicUniforms();
@@ -350,7 +333,7 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         });
 
         // Check if the uniform exists in the shader program
-        if (port && !_uniformVariable.count(port->getVariable()))
+        if (port && !_glProgram->getUniformsList().count(port->getVariable()))
         {
             port = nullptr;
         }
@@ -383,9 +366,13 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
 
 void Material::unbindGeometry()
 {
-    if (_glProgram)
+    if (!_boundMesh)
     {
-        _glProgram->bind();
+        return;
+    }
+
+    if (bindShader())
+    {
         _glProgram->unbindGeometry();
     }
     _boundMesh = nullptr;
@@ -418,7 +405,7 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
             });
 
         // Check if the uniform exists in the shader program
-        if (port && !_uniformVariable.count(port->getVariable()))
+        if (port && !_glProgram->getUniformsList().count(port->getVariable()))
         {
             port = nullptr;
         }
@@ -428,13 +415,17 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
 
 void Material::modifyUniform(const std::string& path, mx::ConstValuePtr value, std::string valueString)
 {
+    if (!bindShader())
+    {
+        return;
+    }
+
     mx::ShaderPort* uniform = findUniform(path);
     if (!uniform)
     {
         return;
     }
 
-    _glProgram->bind();
     _glProgram->bindUniform(uniform->getVariable(), value);
 
     if (valueString.empty())

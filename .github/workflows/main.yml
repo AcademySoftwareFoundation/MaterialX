@@ -102,7 +102,7 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -145,7 +145,7 @@ jobs:
         echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Install Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -167,9 +167,9 @@ jobs:
 
     - name: Install Node
       if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-         node-version: '12'
+         node-version: '16'
 
     - name: CMake Generate
       run: |
@@ -238,20 +238,20 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.dynamic_analysis != 'ON'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: matrix.upload_shaders == 'ON'
       with:
         name: Reference_Shaders_${{ matrix.name }}
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
@@ -286,7 +286,7 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@4.1.9
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
@@ -294,7 +294,7 @@ jobs:
 
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        

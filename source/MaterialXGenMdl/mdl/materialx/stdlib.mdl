@@ -2770,8 +2770,8 @@ export color4 mx_screen_color4(
 		anno::description("Node Group: compositing")
 	]]
 {
-	color rgb = (mxp_mix*((1.0 - (1.0 - mxp_fg.rgb)) * (1 - mxp_bg.rgb))) + ((1.0-mxp_mix)*mxp_bg.rgb);
-	float a   = (mxp_mix*((1.0 - (1.0 - mxp_fg.a  )) * (1 - mxp_bg.a  ))) + ((1.0-mxp_mix)*mxp_bg.a  );
+	color rgb = (mxp_mix*((1.0 - (1.0 - mxp_fg.rgb) * (1 - mxp_bg.rgb)))) + ((1.0-mxp_mix)*mxp_bg.rgb);
+	float a   = (mxp_mix*((1.0 - (1.0 - mxp_fg.a  ) * (1 - mxp_bg.a  )))) + ((1.0-mxp_mix)*mxp_bg.a  );
 	return color4(rgb,a);
 }
 

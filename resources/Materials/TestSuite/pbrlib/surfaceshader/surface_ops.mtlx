@@ -18,28 +18,28 @@
       <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
     </sheen_bsdf>
     <mix name="mix_edf1" type="EDF">
-      <input name="fg" type="EDF" value="" nodename="Emission_EDF" />
+      <input name="fg" type="EDF" nodename="Emission_EDF" />
       <input name="bg" type="EDF" value="" />
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <mix name="mix_surface1" type="surfaceshader">
-      <input name="fg" type="surfaceshader" value="" nodename="surface1" />
-      <input name="bg" type="surfaceshader" value="" nodename="surface2" />
+      <input name="fg" type="surfaceshader" nodename="surface1" />
+      <input name="bg" type="surfaceshader" nodename="surface2" />
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <mix name="mix_bsdf1" type="BSDF">
-      <input name="fg" type="BSDF" value="" nodename="sheen_brdf1" />
-      <input name="bg" type="BSDF" value="" nodename="subsurface_brdf1" />
+      <input name="fg" type="BSDF" nodename="sheen_brdf1" />
+      <input name="bg" type="BSDF" nodename="subsurface_brdf1" />
       <input name="mix" type="float" value="0.5000" />
     </mix>
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" value="" nodename="conductor_brdf1" />
-      <input name="edf" type="EDF" value="" nodename="mix_edf1" />
+      <input name="bsdf" type="BSDF" nodename="conductor_brdf1" />
+      <input name="edf" type="EDF" nodename="mix_edf1" />
       <input name="opacity" type="float" value="1.0000" />
     </surface>
     <surface name="surface2" type="surfaceshader">
-      <input name="bsdf" type="BSDF" value="" nodename="SchlickBRDF" />
-      <input name="edf" type="EDF" value="" nodename="Emission_EDF" />
+      <input name="bsdf" type="BSDF" nodename="SchlickBRDF" />
+      <input name="edf" type="EDF" nodename="Emission_EDF" />
       <input name="opacity" type="float" value="1.0" />
     </surface>
     <uniform_edf name="Emission_EDF" type="EDF">

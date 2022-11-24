@@ -100,7 +100,7 @@ class MX_GENSHADER_API GenOptions
     //  - graph flattening or not
 
     /// Sets the type of shader interface to be generated
-    int shaderInterfaceType;
+    ShaderInterfaceType shaderInterfaceType;
 
     /// If true the y-component of texture coordinates used for sampling
     /// file textures will be flipped before sampling. This can be used if

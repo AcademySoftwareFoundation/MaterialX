@@ -17,6 +17,7 @@ MATERIALX_NAMESPACE_BEGIN
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 
 /// @class ShaderTranslator
+/// A helper class for translating content between shading models.
 class MX_GENSHADER_API ShaderTranslator
 {
   public:

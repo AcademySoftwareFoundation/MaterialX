@@ -608,7 +608,7 @@
   <implementation name="IM_mix_vector3_vector3_genosl" nodedef="ND_mix_vector3_vector3" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector4_genosl" nodedef="ND_mix_vector4" file="mx_mix.inline" target="genosl" />
   <implementation name="IM_mix_vector4_vector4_genosl" nodedef="ND_mix_vector4_vector4" file="mx_mix.inline" target="genosl" />
-  <implementation name="IM_mix_surfaceshader_genosl" nodedef="ND_mix_surfaceshader" file="mx_mix.inline" target="genosl" />
+  <implementation name="IM_mix_surfaceshader_genosl" nodedef="ND_mix_surfaceshader" file="mx_mix_surfaceshader.osl" function="mx_mix_surfaceshader" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->

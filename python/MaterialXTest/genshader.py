@@ -50,7 +50,7 @@ class TestGenShader(unittest.TestCase):
         context.registerSourceCodeSearchPath(searchPath)
 
         # Test complete mode
-        context.getOptions().shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE);
+        context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
         shader = shadergen.generate(exampleName, output, context);
         self.assertTrue(shader)
         self.assertTrue(len(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)) > 0)
@@ -68,7 +68,7 @@ class TestGenShader(unittest.TestCase):
         file.close()
         os.remove(shader.getName() + "_complete.osl");
 
-        context.getOptions().shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_REDUCED);
+        context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
         shader = shadergen.generate(exampleName, output, context);
         self.assertTrue(shader)
         self.assertTrue(len(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)) > 0)
