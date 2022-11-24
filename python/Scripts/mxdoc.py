@@ -70,11 +70,6 @@ def printNodeDefs(doc, opts):
     for nd in doc.getNodeDefs():
         # HTML output
         if opts.documentType == "html":
-            print('<head><style>')
-            print('table, th, td {')
-            print('   border-bottom: 1px solid; border-collapse: collapse; padding: 10px;')
-            print('}')
-            print('</style></head>')
             nodeString = nd.getNodeString()
             if currentNodeString != nodeString:
                 print('<h3><a id="%s">' % nodeString)
@@ -191,6 +186,21 @@ def readDocuments(rootPath, doc):
     return readDoc
 
 
+def printHeader(opts):
+    if opts.documentType == "html":
+        print('<html>')
+        print('<head><style>')
+        print('table, th, td {')
+        print('   border-bottom: 1px solid; border-collapse: collapse; padding: 10px;')
+        print('}')
+        print('</style></head>')
+        print('<body>')
+
+def printFooter(opts):
+    if opts.documentType == "html":
+        print('</body>')
+        print('</html>')
+
 def main():
     parser = argparse.ArgumentParser(description="Print documentation for each nodedef in the given document.")
     parser.add_argument(dest="inputFilename", help="Path of the input MaterialX document or folder.")
@@ -198,6 +208,8 @@ def main():
     parser.add_argument('--showInherited', default=False, action='store_true', help='Show inherited inputs. Default is False')
     parser.add_argument('--printIndex', default=False, action='store_true', help="Print nodedef index. Default is False")
     opts = parser.parse_args()
+
+    printHeader(opts)
 
     rootPath = opts.inputFilename;
     doc = mx.createDocument()
@@ -208,7 +220,9 @@ def main():
         nodedict = getNodeDictionary(doc)
         printNodeDictionary(nodedict, opts)
 
-    printNodeDefs(doc, opts)    
+    printNodeDefs(doc, opts) 
+
+    printFooter(opts) 
 
 if __name__ == '__main__':
     main()
