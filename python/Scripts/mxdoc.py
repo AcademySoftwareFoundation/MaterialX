@@ -68,8 +68,9 @@ def printNodeDefs(doc, opts):
 
     currentNodeString = ""
     for nd in doc.getNodeDefs():
+
         # HTML output
-        if opts.documentType == "html":
+        if opts.documentType == 'html':
             nodeString = nd.getNodeString()
             if currentNodeString != nodeString:
                 print('<h3><a id="%s">' % nodeString)
@@ -119,8 +120,81 @@ def printNodeDefs(doc, opts):
             print('</table>')
             print('</p></details>')
 
+        elif opts.documentType == 'cpp':
+            
+            print('/// @class %s' % nd.getName())
+            print('///   Type: %s' % nd.getType())
+            if len(nd.getNodeGroup()) > 0:
+                print('///   @ingroup %s' % nd.getNodeGroup())
+            if len(nd.getVersionString()) > 0:
+                print('///   @version %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
+            if len(nd.getInheritString()) > 0:
+                print('///   @extends %s' % nd.getInheritString())
+            nodedoc = nd.getAttribute('doc')
+            if len(nodedoc) > 0:
+                print('///   @brief %s' % nd.getAttribute('doc'))
+
+            if len(nd.getInheritString()) > 0:
+                print('class %s' % nd.getName(), 'public %s' % nd.getInheritString())
+            else:
+                print('class %s' % nd.getName())
+            print('{')
+
+            print('  public:')
+            inputList = nd.getActiveInputs() if opts.showInherited  else nd.getInputs()
+            if inputList:
+                print('    /// @name Inputs')
+                print('    /// @{')
+                for port in inputList:
+                    print(' ')
+                    #print('    /// Input ', port.getName())
+                    val = port.getValue()
+                    if val:
+                        if port.getType() == "float":
+                            val = round(val, 6)
+                        print('    /// value: ', str(val))   
+                        for attrName in ATTR_NAMES:
+                            if attrName == 'doc':
+                                continue
+                            attrValue = port.getAttribute(attrName)
+                            if attrValue:
+                                print('    /// ' + attrName + ': ' + attrValue)                                         
+                    print('    ///  @brief %s' % port.getAttribute('doc'))
+                    print('    ' + port.getType() + ' ' + port.getName() + ';')
+                print('    /// @}')
+
+            outputList = nd.getActiveOutputs() if opts.showInherited  else nd.getOutputs()
+            if outputList:
+                print('    /// @name Outputs')
+                val = port.getValue()
+                if val:
+                    if port.getType() == "float":
+                        val = round(val, 6)
+                    print('    /// value: ', str(val))                    
+                print('    /// @{')
+                for port in outputList:
+                    print(' ')
+                    #print('    /// Output: ', port.getName())
+                    #print('    ///  %s' % port.getAttribute('doc'))
+                    print('    ' + port.getType() + ' ' + port.getName() + ';')
+                print('    /// @}')
+
+            tokenList = nd.getActiveTokens() if opts.showInherited  else nd.getTokens()
+            if tokenList:
+                print('    /// @name Tokens')
+                print('    /// @{')
+                for port in tokenList:
+                    print(' ')
+                    #print('    ///  %s' % port.getAttribute('doc'))
+                    #print('    /// Token: ', port.getName())
+                    print('    ' + port.getType() + ' ' + port.getName() + ';')
+                print('    /// @}')
+
+            print('};')
+            print(' ')
+
         # Markdown output
-        else:
+        elif opts.documentType == 'md':
             nodeString = nd.getNodeString()
             if currentNodeString != nodeString:
                 print('### Node: *%s*' % nodeString)
@@ -216,7 +290,7 @@ def main():
     readDocuments(rootPath, doc)    
 
     #if opts.printIndex:
-    if opts.printIndex:
+    if opts.printIndex and opts.documentType != 'cpp':
         nodedict = getNodeDictionary(doc)
         printNodeDictionary(nodedict, opts)
 
