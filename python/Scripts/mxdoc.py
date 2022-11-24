@@ -66,17 +66,15 @@ def printNodeDictionary(nodegroupdict, opts):
 # Print the document for node definitions in a file
 def printNodeDefs(doc, opts):
 
-    if opts.documentType == "html":
-        print('<head><style>')
-        print('table, th, td {')
-        print('   border-bottom: 1px solid; border-collapse: collapse; padding: 10px;')
-        print('}')
-        print('</style></head>')
-
     currentNodeString = ""
     for nd in doc.getNodeDefs():
         # HTML output
         if opts.documentType == "html":
+            print('<head><style>')
+            print('table, th, td {')
+            print('   border-bottom: 1px solid; border-collapse: collapse; padding: 10px;')
+            print('}')
+            print('</style></head>')
             nodeString = nd.getNodeString()
             if currentNodeString != nodeString:
                 print('<h3><a id="%s">' % nodeString)
