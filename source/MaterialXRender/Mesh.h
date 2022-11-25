@@ -415,7 +415,7 @@ class MX_RENDER_API Mesh
     /// @param normalStream Input normal stream
     /// @param texcoordStream Input texcoord stream
     /// @return The generated tangent stream, on success; otherwise, a null pointer.
-    MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream);
+    MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr& normalStream, MeshStreamPtr& texcoordStream);
 
     /// Merge all mesh partitions into one.
     void mergePartitions();

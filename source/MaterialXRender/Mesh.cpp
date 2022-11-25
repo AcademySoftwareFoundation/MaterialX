@@ -86,7 +86,7 @@ MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
     return texcoordStream;
 }
 
-MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
+MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr& normalStream, MeshStreamPtr& texcoordStream)
 {
     if (!positionStream)
     {
