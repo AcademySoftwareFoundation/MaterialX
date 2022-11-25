@@ -86,28 +86,12 @@ MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
     return texcoordStream;
 }
 
-MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr& normalStream, MeshStreamPtr& texcoordStream)
+MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
 {
-    if (!positionStream)
-    {
-        return nullptr;
-    }
-    if (!texcoordStream)
-    {
-        texcoordStream = generateTextureCoordinates(positionStream);
-        addStream(texcoordStream);
-    }
-    if (!normalStream)
-    {
-        normalStream = generateNormals(positionStream);
-        addStream(normalStream);
-    }
-
     size_t vertexCount = positionStream->getData().size() / positionStream->getStride();
     size_t normalCount = normalStream->getData().size() / normalStream->getStride();
     size_t texcoordCount = texcoordStream->getData().size() / texcoordStream->getStride();
-    if (vertexCount != normalCount ||
-        vertexCount != texcoordCount)
+    if (vertexCount != normalCount || vertexCount != texcoordCount)
     {
         return nullptr;
     }

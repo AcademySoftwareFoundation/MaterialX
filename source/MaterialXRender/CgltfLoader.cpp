@@ -422,6 +422,11 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                 }
 
+                if (!positionStream)
+                {
+                    continue;
+                }
+
                 // Read indexing
                 MeshPartitionPtr part = MeshPartition::create();
                 size_t indexCount = 0;
@@ -430,7 +435,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 {
                     indexCount = indexAccessor->count;
                 }
-                else if (positionStream)
+                else
                 {
                     indexCount = positionStream->getData().size();
                 }
@@ -461,16 +466,14 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 mesh->addPartition(part);
 
                 // Update positional information.
-                if (positionStream)
-                {
-                    mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
-                }
+                mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
                 mesh->setMinimumBounds(boxMin);
                 mesh->setMaximumBounds(boxMax);
                 Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
                 mesh->setSphereCenter(sphereCenter);
                 mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
+                // According to glTF spec. 3.7.2.1, tangents must be ignored when normals are missing
                 if (vec4TangentStream && normalStream)
                 {
                     // Decode glTF vec4 tangents to MaterialX vec3 tangents and bitangents
@@ -487,9 +490,20 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                         mesh->addStream(bitangentStream);
                     }
                 }
-                else if (positionStream)
+
+                // Generate tangents, normals and texture coordinates if none are provided
+                if (!normalStream)
                 {
-                    // Generate tangents, normals and texture coordinates if none provided
+                    normalStream = mesh->generateNormals(positionStream);
+                    mesh->addStream(normalStream);
+                }
+                if (!texcoordStream)
+                {
+                    texcoordStream = mesh->generateTextureCoordinates(positionStream);
+                    mesh->addStream(texcoordStream);
+                }
+                if (!vec4TangentStream)
+                {
                     MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
                     if (tangentStream)
                     {

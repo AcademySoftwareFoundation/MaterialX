@@ -415,7 +415,7 @@ class MX_RENDER_API Mesh
     /// @param normalStream Input normal stream
     /// @param texcoordStream Input texcoord stream
     /// @return The generated tangent stream, on success; otherwise, a null pointer.
-    MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr& normalStream, MeshStreamPtr& texcoordStream);
+    MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream);
 
     /// Generate bitangents from the given normals and tangents.
     /// @param normalStream Input normal stream

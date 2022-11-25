@@ -160,21 +160,25 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
     mesh->setSphereCenter(sphereCenter);
     mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
-    if (normalsFound)
-    {
-        mesh->addStream(normalStream);
-    }
-    if (texcoordStream)
-    {
-        mesh->addStream(texcoordStream);
-    }
-
     // Generate tangents, normals and texture coordinates as needed
+    if (!normalsFound)
+    {
+        normalStream = mesh->generateNormals(positionStream);
+    }
+    mesh->addStream(normalStream);
+
+    if (!texcoordStream)
+    {
+        texcoordStream = mesh->generateTextureCoordinates(positionStream);
+    }
+    mesh->addStream(texcoordStream);
+
     MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
     if (tangentStream)
     {
         mesh->addStream(tangentStream);
     }
+
     MeshStreamPtr bitangentStream = mesh->generateBitangents(normalStream, tangentStream);
     if (bitangentStream)
     {
