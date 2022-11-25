@@ -180,7 +180,7 @@ MeshStreamPtr Mesh::generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr
     MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
     bitangentStream->resize(normalStream->getSize());
 
-    for (int i = 0; i < normalStream->getSize(); i++)
+    for (size_t i = 0; i < normalStream->getSize(); i++)
     {
         const Vector3& normal = normalStream->getElement<Vector3>(i);
         const Vector3& tangent = tangentStream->getElement<Vector3>(i);
