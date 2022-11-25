@@ -186,6 +186,28 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
     return tangentStream;
 }
 
+MeshStreamPtr Mesh::generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr tangentStream)
+{
+    if (normalStream->getSize() != tangentStream->getSize())
+    {
+        return nullptr;
+    }
+
+    MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
+    bitangentStream->resize(normalStream->getSize());
+
+    for (int i = 0; i < normalStream->getSize(); i++)
+    {
+        const Vector3& normal = normalStream->getElement<Vector3>(i);
+        const Vector3& tangent = tangentStream->getElement<Vector3>(i);
+
+        Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
+        bitangent = normal.cross(tangent);
+    }
+
+    return bitangentStream;
+}
+
 void Mesh::mergePartitions()
 {
     if (getPartitionCount() <= 1)

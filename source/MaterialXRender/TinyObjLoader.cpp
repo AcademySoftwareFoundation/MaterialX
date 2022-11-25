@@ -175,6 +175,11 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
     {
         mesh->addStream(tangentStream);
     }
+    MeshStreamPtr bitangentStream = mesh->generateBitangents(normalStream, tangentStream);
+    if (bitangentStream)
+    {
+        mesh->addStream(bitangentStream);
+    }
 
     return true;
 }

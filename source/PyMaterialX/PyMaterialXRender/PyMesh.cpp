@@ -71,6 +71,7 @@ void bindPyMesh(py::module& mod)
         .def("generateTextureCoordinates", &mx::Mesh::generateTextureCoordinates)
         .def("generateNormals", &mx::Mesh::generateNormals)
         .def("generateTangents", &mx::Mesh::generateTangents)
+        .def("generateBitangents", &mx::Mesh::generateBitangents)
         .def("mergePartitions", &mx::Mesh::mergePartitions)
         .def("splitByUdims", &mx::Mesh::splitByUdims);
 }

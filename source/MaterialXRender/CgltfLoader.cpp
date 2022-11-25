@@ -495,6 +495,11 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     {
                         mesh->addStream(tangentStream);
                     }
+                    MeshStreamPtr bitangentStream = mesh->generateBitangents(normalStream, tangentStream);
+                    if (bitangentStream)
+                    {
+                        mesh->addStream(bitangentStream);
+                    }
                 }
             }
         }

@@ -417,6 +417,12 @@ class MX_RENDER_API Mesh
     /// @return The generated tangent stream, on success; otherwise, a null pointer.
     MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr& normalStream, MeshStreamPtr& texcoordStream);
 
+    /// Generate bitangents from the given normals and tangents.
+    /// @param normalStream Input normal stream
+    /// @param tangentStream Input tangent stream
+    /// @return The generated bitangent stream, on success; otherwise, a null pointer.
+    MeshStreamPtr generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr tangentStream);
+
     /// Merge all mesh partitions into one.
     void mergePartitions();
 
