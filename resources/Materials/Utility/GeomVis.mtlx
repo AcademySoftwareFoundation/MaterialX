@@ -1,0 +1,269 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <!-- Default material -->
+  <oren_nayar_diffuse_bsdf name="N_default" type="BSDF" />
+  <surface name="S_default" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_default" />
+  </surface>
+  <surfacematerial name="M_default" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_default" />
+  </surfacematerial>
+
+  <!-- Helper graph to visualize directions -->
+  <nodedef name="ND_dir_to_bsdf" node="dir_to_bsdf">
+    <input name="in" type="vector3" value="0, 0, 0" />
+    <output name="out" type="BSDF" />
+  </nodedef>
+  <nodegraph name="NG_dir_to_bsdf" nodedef="ND_dir_to_bsdf">
+    <input name="in" type="vector3" />
+    <add name="N_add" type="vector3">
+      <input name="in1" type="vector3" interfacename="in" />
+      <input name="in2" type="float" value="1" />
+    </add>
+    <divide name="N_div" type="vector3">
+      <input name="in1" type="vector3" nodename="N_add" />
+      <input name="in2" type="float" value="2" />
+    </divide>
+    <convert name="N_conv" type="color3">
+      <input name="in" type="vector3" nodename="N_div" />
+    </convert>
+    <oren_nayar_diffuse_bsdf name="N_bsdf" type="BSDF">
+      <input name="color" type="color3" nodename="N_conv" />
+    </oren_nayar_diffuse_bsdf>
+    <output name="out" type="BSDF" nodename="N_bsdf" />
+  </nodegraph>
+
+  <!-- Position, model space -->
+  <position name="G_position_model" type="vector3">
+    <input name="space" type="string" value="model" />
+  </position>
+  <convert name="N_position_model_conv" type="color3">
+    <input name="in" type="vector3" nodename="G_position_model" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_position_model" type="BSDF">
+    <input name="color" type="color3" nodename="N_position_model_conv" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_position_model" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_position_model" />
+  </surface>
+  <surfacematerial name="M_position_model" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_position_model" />
+  </surfacematerial>
+
+  <!-- Position, object space -->
+  <position name="G_position_object" type="vector3" />
+  <convert name="N_position_object_conv" type="color3">
+    <input name="in" type="vector3" nodename="G_position_object" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_position_object" type="BSDF">
+    <input name="color" type="color3" nodename="N_position_object_conv" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_position_object" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_position_object" />
+  </surface>
+  <surfacematerial name="M_position_object" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_position_object" />
+  </surfacematerial>
+
+  <!-- Position, world space -->
+  <position name="G_position_world" type="vector3">
+    <input name="space" type="string" value="world" />
+  </position>
+  <convert name="N_position_world_conv" type="color3">
+    <input name="in" type="vector3" nodename="G_position_world" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_position_world" type="BSDF">
+    <input name="color" type="color3" nodename="N_position_world_conv" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_position_world" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_position_world" />
+  </surface>
+  <surfacematerial name="M_position_world" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_position_world" />
+  </surfacematerial>
+
+  <!-- Normal, model space -->
+  <normal name="G_normal_model" type="vector3">
+    <input name="space" type="string" value="model" />
+  </normal>
+  <dir_to_bsdf name="N_normal_model" type="BSDF">
+    <input name="in" type="vector3" nodename="G_normal_model" />
+  </dir_to_bsdf>
+  <surface name="S_normal_model" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_normal_model" />
+  </surface>
+  <surfacematerial name="M_normal_model" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_normal_model" />
+  </surfacematerial>
+
+  <!-- Normal, object space -->
+  <normal name="G_normal_object" type="vector3" />
+  <dir_to_bsdf name="N_normal_object" type="BSDF">
+    <input name="in" type="vector3" nodename="G_normal_object" />
+  </dir_to_bsdf>
+  <surface name="S_normal_object" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_normal_object" />
+  </surface>
+  <surfacematerial name="M_normal_object" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_normal_object" />
+  </surfacematerial>
+
+  <!-- Normal, world space -->
+  <normal name="G_normal_world" type="vector3">
+    <input name="space" type="string" value="world" />
+  </normal>
+  <dir_to_bsdf name="N_normal_world" type="BSDF">
+    <input name="in" type="vector3" nodename="G_normal_world" />
+  </dir_to_bsdf>
+  <surface name="S_normal_world" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_normal_world" />
+  </surface>
+  <surfacematerial name="M_normal_world" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_normal_world" />
+  </surfacematerial>
+
+  <!-- Tangent, model space -->
+  <tangent name="G_tangent_model" type="vector3">
+    <input name="space" type="string" value="model" />
+  </tangent>
+  <dir_to_bsdf name="N_tangent_model" type="BSDF">
+    <input name="in" type="vector3" nodename="G_tangent_model" />
+  </dir_to_bsdf>
+  <surface name="S_tangent_model" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_tangent_model" />
+  </surface>
+  <surfacematerial name="M_tangent_model" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_tangent_model" />
+  </surfacematerial>
+
+  <!-- Tangent, object space -->
+  <tangent name="G_tangent_object" type="vector3" />
+  <dir_to_bsdf name="N_tangent_object" type="BSDF">
+    <input name="in" type="vector3" nodename="G_tangent_object" />
+  </dir_to_bsdf>
+  <surface name="S_tangent_object" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_tangent_object" />
+  </surface>
+  <surfacematerial name="M_tangent_object" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_tangent_object" />
+  </surfacematerial>
+
+  <!-- Tangent, world space -->
+  <tangent name="G_tangent_world" type="vector3">
+    <input name="space" type="string" value="world" />
+  </tangent>
+  <dir_to_bsdf name="N_tangent_world" type="BSDF">
+    <input name="in" type="vector3" nodename="G_tangent_world" />
+  </dir_to_bsdf>
+  <surface name="S_tangent_world" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_tangent_world" />
+  </surface>
+  <surfacematerial name="M_tangent_world" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_tangent_world" />
+  </surfacematerial>
+
+  <!-- Bitangent, model space -->
+  <bitangent name="G_bitangent_model" type="vector3">
+    <input name="space" type="string" value="model" />
+  </bitangent>
+  <dir_to_bsdf name="N_bitangent_model" type="BSDF">
+    <input name="in" type="vector3" nodename="G_bitangent_model" />
+  </dir_to_bsdf>
+  <surface name="S_bitangent_model" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_bitangent_model" />
+  </surface>
+  <surfacematerial name="M_bitangent_model" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_bitangent_model" />
+  </surfacematerial>
+
+  <!-- Bitangent, object space -->
+  <bitangent name="G_bitangent_object" type="vector3" />
+  <dir_to_bsdf name="N_bitangent_object" type="BSDF">
+    <input name="in" type="vector3" nodename="G_bitangent_object" />
+  </dir_to_bsdf>
+  <surface name="S_bitangent_object" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_bitangent_object" />
+  </surface>
+  <surfacematerial name="M_bitangent_object" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_bitangent_object" />
+  </surfacematerial>
+
+  <!-- Bitangent, world space -->
+  <bitangent name="G_bitangent_world" type="vector3">
+    <input name="space" type="string" value="world" />
+  </bitangent>
+  <dir_to_bsdf name="N_bitangent_world" type="BSDF">
+    <input name="in" type="vector3" nodename="G_bitangent_world" />
+  </dir_to_bsdf>
+  <surface name="S_bitangent_world" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_bitangent_world" />
+  </surface>
+  <surfacematerial name="M_bitangent_world" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_bitangent_world" />
+  </surfacematerial>
+
+  <!-- TexCoord -->
+  <texcoord name="G_texcoord" type="vector2" />
+  <convert name="N_texcoord_conv1" type="vector3">
+    <input name="in" type="vector2" nodename="G_texcoord" />
+  </convert>
+  <convert name="N_texcoord_conv2" type="color3">
+    <input name="in" type="vector3" nodename="N_texcoord_conv1" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_texcoord" type="BSDF">
+    <input name="color" type="color3" nodename="N_texcoord_conv2" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_texcoord" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_texcoord" />
+  </surface>
+  <surfacematerial name="M_texcoord" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_texcoord" />
+  </surfacematerial>
+
+  <!-- GeomColor, float -->
+  <geomcolor name="G_geomcolor_float" type="float" />
+  <convert name="N_geomcolor_float_conv1" type="vector3">
+    <input name="in" type="float" nodename="G_geomcolor_float" />
+  </convert>
+  <convert name="N_geomcolor_float_conv2" type="color3">
+    <input name="in" type="vector3" nodename="N_geomcolor_float_conv1" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_geomcolor_float" type="BSDF">
+    <input name="color" type="color3" nodename="N_geomcolor_float_conv2" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_geomcolor_float" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_geomcolor_float" />
+  </surface>
+  <surfacematerial name="M_geomcolor_float" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_geomcolor_float" />
+  </surfacematerial>
+
+  <!-- GeomColor, color3 -->
+  <geomcolor name="G_geomcolor_color3" type="color3" />
+  <oren_nayar_diffuse_bsdf name="N_geomcolor_color3" type="BSDF">
+    <input name="color" type="color3" nodename="G_geomcolor_color3" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_geomcolor_color3" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_geomcolor_color3" />
+  </surface>
+  <surfacematerial name="M_geomcolor_color3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_geomcolor_color3" />
+  </surfacematerial>
+
+  <!-- GeomColor, color4 -->
+  <geomcolor name="G_geomcolor_color4" type="color4" />
+  <convert name="N_geomcolor_color4_conv" type="color3">
+    <input name="in" type="color4" nodename="G_geomcolor_color4" />
+  </convert>
+  <oren_nayar_diffuse_bsdf name="N_geomcolor_color4" type="BSDF">
+    <input name="color" type="color3" nodename="N_geomcolor_color4_conv" />
+  </oren_nayar_diffuse_bsdf>
+  <surface name="S_geomcolor_color4" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="N_geomcolor_color4" />
+  </surface>
+  <surfacematerial name="M_geomcolor_color4" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="S_geomcolor_color4" />
+  </surfacematerial>
+
+</materialx>
