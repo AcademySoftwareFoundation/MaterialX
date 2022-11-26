@@ -45,8 +45,12 @@ def printNodeDictionary(nodegroupdict, opts):
     for ng in nodegroupdict:
         if opts.documentType == "html":
             print('<h3>Node Group: ' + ng + '</h3>')
-        else:
+        elif opts.documentType == 'md':
             print('### Node Group: ' + ng)
+        else:
+            print('/// @defgroup ' + ng + " Group: " + ng)
+            print('///@{')
+
         groupString = ""
         if opts.documentType == "html":
             for n in nodegroupdict[ng]:
@@ -54,14 +58,21 @@ def printNodeDictionary(nodegroupdict, opts):
             print('<ul>')
             print('<li>' + groupString)
             print('</ul>')
-        else:  
+        elif opts.documentType == 'md':
             for n in nodegroupdict[ng]:
                 groupString += '[' + n + '](#' + n + ') '
             print('* ' + groupString)
+        else:
+            for n in nodegroupdict[ng]:
+                print('/// @brief class ' + n + ' in ' + ng)
+            print('///@}')
+
     if opts.documentType == "html":
         print('<hr>')
-    else:
+    elif opts.documentType == 'md':
         print('---------')
+    else:
+        print(' ')
 
 # Print the document for node definitions in a file
 def printNodeDefs(doc, opts):
@@ -123,11 +134,12 @@ def printNodeDefs(doc, opts):
         elif opts.documentType == 'cpp':
             
             print('/// @class %s' % nd.getName())
-            print('///   Type: %s' % nd.getType())
+            print('///   @return %s' % nd.getType())
             if len(nd.getNodeGroup()) > 0:
                 print('///   @ingroup %s' % nd.getNodeGroup())
             if len(nd.getVersionString()) > 0:
-                print('///   @version %s. Is default: %s' % (nd.getVersionString(), nd.getDefaultVersion()))
+                print('///   @version %s' % nd.getVersionString())
+                print('///   Is default version: %s' % nd.getDefaultVersion())
             if len(nd.getInheritString()) > 0:
                 print('///   @extends %s' % nd.getInheritString())
             nodedoc = nd.getAttribute('doc')
@@ -147,35 +159,41 @@ def printNodeDefs(doc, opts):
                 print('    /// @{')
                 for port in inputList:
                     print(' ')
-                    #print('    /// Input ', port.getName())
+                    docstr = port.getAttribute('doc')
+                    if len(docstr) == 0:
+                        docstr = port.getName() + ' parameter'
+                    print('    /// @brief %s' % docstr)
+                    #print('    /// ~~~~')
                     val = port.getValue()
                     if val:
                         if port.getType() == "float":
                             val = round(val, 6)
-                        print('    /// value: ', str(val))   
+                        print('    ///    * Default value: ', str(val))   
                         for attrName in ATTR_NAMES:
                             if attrName == 'doc':
                                 continue
                             attrValue = port.getAttribute(attrName)
                             if attrValue:
-                                print('    /// ' + attrName + ': ' + attrValue)                                         
-                    print('    ///  @brief %s' % port.getAttribute('doc'))
+                                print('    ///    * ' + attrName + ': ' + attrValue)                                         
+                    #print('    /// ~~~~')
                     print('    ' + port.getType() + ' ' + port.getName() + ';')
                 print('    /// @}')
 
             outputList = nd.getActiveOutputs() if opts.showInherited  else nd.getOutputs()
             if outputList:
                 print('    /// @name Outputs')
-                val = port.getValue()
-                if val:
-                    if port.getType() == "float":
-                        val = round(val, 6)
-                    print('    /// value: ', str(val))                    
                 print('    /// @{')
                 for port in outputList:
                     print(' ')
-                    #print('    /// Output: ', port.getName())
-                    #print('    ///  %s' % port.getAttribute('doc'))
+                    docstr = port.getAttribute('doc')
+                    if len(docstr) == 0:
+                        docstr = port.getName() + ' parameter'
+                    print('    /// @brief %s' % docstr)
+                    val = port.getValue()
+                    if val:
+                        if port.getType() == "float":
+                            val = round(val, 6)
+                        print('    ///    * Default value: ', str(val))                    
                     print('    ' + port.getType() + ' ' + port.getName() + ';')
                 print('    /// @}')
 
@@ -185,8 +203,6 @@ def printNodeDefs(doc, opts):
                 print('    /// @{')
                 for port in tokenList:
                     print(' ')
-                    #print('    ///  %s' % port.getAttribute('doc'))
-                    #print('    /// Token: ', port.getName())
                     print('    ' + port.getType() + ' ' + port.getName() + ';')
                 print('    /// @}')
 
@@ -289,10 +305,8 @@ def main():
     doc = mx.createDocument()
     readDocuments(rootPath, doc)    
 
-    #if opts.printIndex:
-    if opts.printIndex and opts.documentType != 'cpp':
-        nodedict = getNodeDictionary(doc)
-        printNodeDictionary(nodedict, opts)
+    nodedict = getNodeDictionary(doc)
+    printNodeDictionary(nodedict, opts)
 
     printNodeDefs(doc, opts) 
 
