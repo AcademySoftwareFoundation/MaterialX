@@ -201,7 +201,7 @@ export float3 mx_adobergb_to_lin_rec709_color3(float3 mxp_in)
 ]]
 {
     float3 gamma = float3(563 / 256);
-    float3 lin_adobergb_color ::math::pow( ::math::max( float3(0), mxp_in ), gamma );
+    float3 lin_adobergb_color = ::math::pow( ::math::max( float3(0), mxp_in ), gamma );
     return mx_lin_adobergb_to_lin_rec709_color3(lin_adobergb_color);
 }
 
