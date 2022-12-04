@@ -3,6 +3,6 @@
 void mx_g22_ap1_to_lin_rec709_color3(color _in, output color result)
 {
     color linearColor = pow(max(color(0.0), _in), color(2.2));
-    vector outRgb = transform(M_AP1_TO_REC709, vector(linearColor[0], linearColor[1], linearColor[2]));
+    vector outRgb = transform(AP1_TO_REC709, vector(linearColor[0], linearColor[1], linearColor[2]));
     result = color(outRgb[0], outRgb[1], outRgb[2]);
 }
