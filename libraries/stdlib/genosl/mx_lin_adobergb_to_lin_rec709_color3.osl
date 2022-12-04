@@ -2,5 +2,5 @@
 
 void mx_lin_adobergb_to_lin_rec709_color3(color _in, output color result)
 {
-    result = mx_lin_adobergb_to_lin_rec709(_in);
+    result = color(transform(ADOBERGB_TO_REC709, vector(_in)));
 }
