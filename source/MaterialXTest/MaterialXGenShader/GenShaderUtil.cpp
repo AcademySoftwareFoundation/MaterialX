@@ -868,8 +868,7 @@ void TestSuiteOptions::print(std::ostream& output) const
     output << "\tRender Size: " << renderSize[0] << "," << renderSize[1] << std::endl;
     output << "\tSave Images: " << saveImages << std::endl;
     output << "\tDump uniforms and Attributes  " << dumpUniformsAndAttributes << std::endl;
-    output << "\tNon-Shaded Geometry: " << unShadedGeometry.asString() << std::endl;
-    output << "\tShaded Geometry: " << shadedGeometry.asString() << std::endl;
+    output << "\tRender Geometry: " << renderGeometry.asString() << std::endl;
     output << "\tEnable Direct Lighting: " << enableDirectLighting << std::endl;
     output << "\tEnable Indirect Lighting: " << enableIndirectLighting << std::endl;
     output << "\tRadiance IBL File Path " << radianceIBLPath.asString() << std::endl;
@@ -897,8 +896,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string DUMP_UNIFORMS_AND_ATTRIBUTES_STRING("dumpUniformsAndAttributes");
     const std::string CHECK_IMPL_COUNT_STRING("checkImplCount");
     const std::string DUMP_GENERATED_CODE_STRING("dumpGeneratedCode");
-    const std::string UNSHADED_GEOMETRY_STRING("unShadedGeometry");
-    const std::string SHADED_GEOMETRY_STRING("shadedGeometry");
+    const std::string RENDER_GEOMETRY_STRING("renderGeometry");
     const std::string ENABLE_DIRECT_LIGHTING("enableDirectLighting");
     const std::string ENABLE_INDIRECT_LIGHTING("enableIndirectLighting");
     const std::string RADIANCE_IBL_PATH_STRING("radianceIBLPath");
@@ -912,8 +910,7 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
-    unShadedGeometry = SPHERE_GEOMETRY;
-    shadedGeometry = SPHERE_GEOMETRY;
+    renderGeometry = SPHERE_GEOMETRY;
     enableDirectLighting = true;
     enableIndirectLighting = true;
     enableReferenceQuality = false;
@@ -1048,13 +1045,9 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
                     {
                         dumpGeneratedCode = val->asA<bool>();
                     }
-                    else if (name == UNSHADED_GEOMETRY_STRING)
+                    else if (name == RENDER_GEOMETRY_STRING)
                     {
-                        unShadedGeometry = p->getValueString();
-                    }
-                    else if (name == SHADED_GEOMETRY_STRING)
-                    {
-                        shadedGeometry = p->getValueString();
+                        renderGeometry = p->getValueString();
                     }
                     else if (name == ENABLE_DIRECT_LIGHTING)
                     {
