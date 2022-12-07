@@ -71,13 +71,9 @@
     <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
     <input name="dumpGeneratedCode" type="boolean" value="true" />
 
-    <!-- Suggested geometry file to use for rendering unshaded elements.
+    <!-- The geometry file to be rendered in tests.
          File path is relative to the "/resources/Geometry/" folder -->
-    <input name="unShadedGeometry" type="string" value="sphere.obj" />
-
-    <!-- Suggested geometry file to use for rendering shaded elements.
-         File path is relative to the "/resources/Geometry/" folder -->
-    <input name="shadedGeometry" type="string" value="sphere.obj" />
+    <input name="renderGeometry" type="string" value="sphere.obj" />
 
     <!-- Enable direct lighting. Default is true. -->
     <input name="enableDirectLighting" type="boolean" value="false" />
