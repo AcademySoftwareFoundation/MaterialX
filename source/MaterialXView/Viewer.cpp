@@ -525,6 +525,15 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
         return;
     }
 
+    if (geometry == getSelectedGeometry())
+    {
+        setSelectedMaterial(material);
+        if (material)
+        {
+            updateDisplayedProperties();
+        }
+    }
+
     if (material)
     {
         _materialAssignments[geometry] = material;
@@ -533,15 +542,6 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     else
     {
         _materialAssignments.erase(geometry);
-    }
-
-    if (geometry == getSelectedGeometry())
-    {
-        setSelectedMaterial(material);
-        if (material)
-        {
-            updateDisplayedProperties();
-        }
     }
 }
 
@@ -872,7 +872,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #endif
         for (MaterialPtr material : _materials)
         {
-            material->bindShader();
             material->bindUnits(_unitRegistry, _genContext);
         }
         m_process_events = true;
@@ -1438,10 +1437,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << error << std::endl;
         }
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+        _materialAssignments.clear();
     }
     catch (std::exception& e)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
+        _materialAssignments.clear();
     }
 
     // Update material UI.
@@ -1475,7 +1476,7 @@ void Viewer::reloadShaders()
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to reload shaders", e.what());
     }
 
-    _materials.clear();
+    _materialAssignments.clear();
 }
 
 void Viewer::saveShaderSource(mx::GenContext& context)
@@ -1885,7 +1886,7 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
 void Viewer::renderFrame()
 {
-    if (_geometryList.empty() || _materials.empty())
+    if (_geometryList.empty() || _materialAssignments.empty())
     {
         return;
     }

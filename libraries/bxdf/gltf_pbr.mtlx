@@ -356,7 +356,7 @@
   <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
-    <input name="uvindex" type="integer" value="0" uifolder="Image" />	  
+    <input name="uvindex" type="integer" uniform="true" value="0" uifolder="Image" />	  
     <input name="pivot" type="vector2" value="0, 1" uifolder="Image" />
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
@@ -378,7 +378,7 @@
     <gltf_image name="image" type="color4">
       <input name="file" type="filename" uniform="true" interfacename="file" />
       <input name="default" type="color4" interfacename="default" />
-      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="uvindex" type="integer" uniform="true" interfacename="uvindex" />
       <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />
@@ -419,7 +419,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color3" value="1,1,1" />
     <input name="default" type="color3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -477,7 +477,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color4" value="1,1,1,1" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -535,7 +535,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="float" value="1" />
     <input name="default" type="float" value="0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -592,7 +592,7 @@
   <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -645,7 +645,7 @@
   <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0.5, 0.5, 1" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -701,7 +701,7 @@
   <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="vector3" value="0, 0, 0" uifolder="Image" />
-    <input name="uvindex" type="integer" value="0" uifolder="Image" />
+    <input name="uvindex" type="integer" uniform="true" value="0" uifolder="Image" />
     <input name="pivot" type="vector2" value="0, 0" uifolder="Image" />
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" uifolder="Image" />
@@ -722,7 +722,7 @@
     <gltf_image name="thickness_image" type="vector3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
       <input name="default" type="vector3" interfacename="default" />
-      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="uvindex" type="integer" uniform="true" interfacename="uvindex" />
       <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />

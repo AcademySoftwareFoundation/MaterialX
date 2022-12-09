@@ -133,7 +133,7 @@ class Material
     }
 
     /// Bind shader
-    void bindShader();
+    bool bindShader() const;
 
     /// Bind viewing information for this material.
     void bindViewInformation(mx::CameraPtr camera);
@@ -177,7 +177,6 @@ class Material
 
   protected:
     void clearShader();
-    void updateUniformsList();
 
   protected:
     mx::ShaderPtr _hwShader;
@@ -191,7 +190,6 @@ class Material
 
     std::string _udim;
     bool _hasTransparency;
-    mx::StringSet _uniformVariable;
 
     mx::ImageVec _boundImages;
 };
