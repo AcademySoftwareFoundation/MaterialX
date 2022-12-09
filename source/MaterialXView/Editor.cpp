@@ -607,6 +607,9 @@ void PropertyEditor::updateContents(Viewer* viewer)
         return;
     }
 
+    // Bind and validate the shader
+    material->bindShader();
+
     // Shading model display
     mx::NodePtr node = elem->asA<mx::Node>();
     if (node)
