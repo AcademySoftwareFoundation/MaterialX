@@ -28,7 +28,7 @@
            doc="When opacity is 1.0 then the gprim is fully opaque, if it is smaller than 1.0 then the prim is translucent, when it is 0 the gprim is transparent."/>
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" 
            doc="The opacityThreshold input is useful for creating geometric cut-outs based on the opacity input."/>
-    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" 
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" 
            doc="Index of Refraction to be used for translucent objects and objects with specular components, including the clearcoat if clearcoat > 0."/>
     <input name="normal" type="vector3" value="0, 0, 1" 
            doc="Expects normal in tangent space [(-1,-1,-1), (1,1,1)]."/>

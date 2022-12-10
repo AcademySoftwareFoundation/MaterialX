@@ -71,13 +71,9 @@
     <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
     <input name="dumpGeneratedCode" type="boolean" value="true" />
 
-    <!-- Suggested geometry file to use for rendering unshaded elements.
+    <!-- The geometry file to be rendered in tests.
          File path is relative to the "/resources/Geometry/" folder -->
-    <input name="unShadedGeometry" type="string" value="sphere.obj" />
-
-    <!-- Suggested geometry file to use for rendering shaded elements.
-         File path is relative to the "/resources/Geometry/" folder -->
-    <input name="shadedGeometry" type="string" value="sphere.obj" />
+    <input name="renderGeometry" type="string" value="sphere.obj" />
 
     <!-- Enable direct lighting. Default is true. -->
     <input name="enableDirectLighting" type="boolean" value="false" />
@@ -98,7 +94,7 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples,resources/Materials/TestSuite" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/noise,resources/Materials/TestSuite/pbrlib" />
 
     <!-- Enable reference quality rendering. Default is false. -->
     <input name="enableReferenceQuality" type="boolean" value="false" />

@@ -57,9 +57,6 @@ class MX_RENDERGLSL_API GlslProgram
     /// @return Shader stage string. String is empty if not found.
     const string& getStageSourceCode(const string& stage) const;
 
-    /// Clear out any existing stages
-    void clearStages();
-
     /// Return the shader, if any, used to generate this program.
     ShaderPtr getShader() const
     {
@@ -67,14 +64,25 @@ class MX_RENDERGLSL_API GlslProgram
     }
 
     /// @}
-    /// @name Program validation and introspection
+    /// @name Program building
     /// @{
 
-    /// Create the shader program from stages specified
-    /// An exception is thrown if the program cannot be created.
-    /// The exception will contain a list of program creation errors.
-    /// @return Program identifier.
-    unsigned int build();
+    /// Build shader program data from the source code set for
+    /// each shader stage.
+    ///
+    /// An exception is thrown if the program cannot be built.
+    /// The exception will contain a list of compilation errors.
+    void build();
+
+    /// Return true if built shader program data is present.
+    bool hasBuiltData();
+
+    // Clear built shader program data, if any.
+    void clearBuiltData();
+
+    /// @}
+    /// @name Program introspection
+    /// @{
 
     /// Structure to hold information about program inputs.
     /// The structure is populated by directly scanning the program so may not contain
@@ -213,9 +221,6 @@ class MX_RENDERGLSL_API GlslProgram
     // Update a list of program input attributes
     const InputMap& updateAttributesList();
 
-    // Clear out any cached input lists
-    void clearInputLists();
-
     // Utility to find a uniform value in an uniform list.
     // If uniform cannot be found a null pointer will be return.
     ValuePtr findUniformValue(const string& uniformName, const InputMap& uniformList);
@@ -223,9 +228,6 @@ class MX_RENDERGLSL_API GlslProgram
     // Bind an individual texture to a program uniform location
     ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                          ImageHandlerPtr imageHandler, const ImageSamplingProperties& imageProperties);
-
-    // Delete any currently created shader program
-    void deleteProgram();
 
     // Utility to map a MaterialX type to an OpenGL type
     static int mapTypeToOpenGLType(const TypeDesc* type);
