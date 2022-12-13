@@ -140,7 +140,7 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
-        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/bin"
+        Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
         Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/bin"
         Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
