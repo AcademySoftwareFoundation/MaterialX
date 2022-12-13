@@ -116,14 +116,14 @@ void decodeVec4Tangents(MeshStreamPtr vec4TangentStream, MeshStreamPtr normalStr
 
     for (size_t i = 0; i < vec4TangentStream->getSize(); i++)
     {
-      const Vector4& vec4Tangent = vec4TangentStream->getElement<Vector4>(i);
-      const Vector3& normal = normalStream->getElement<Vector3>(i);
+        const Vector4& vec4Tangent = vec4TangentStream->getElement<Vector4>(i);
+        const Vector3& normal = normalStream->getElement<Vector3>(i);
 
-      Vector3& tangent = tangentStream->getElement<Vector3>(i);
-      Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
+        Vector3& tangent = tangentStream->getElement<Vector3>(i);
+        Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
 
-      tangent = Vector3(vec4Tangent[0], vec4Tangent[1], vec4Tangent[2]);
-      bitangent = normal.cross(tangent) * vec4Tangent[3];
+        tangent = Vector3(vec4Tangent[0], vec4Tangent[1], vec4Tangent[2]);
+        bitangent = normal.cross(tangent) * vec4Tangent[3];
     }
 }
 
