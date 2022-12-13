@@ -90,7 +90,8 @@ class MX_GENSHADER_API GenOptions
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
-        emitColorTransforms(true)
+        emitColorTransforms(true),
+        implicitBitangents(true)
     {
     }
     virtual ~GenOptions() { }
@@ -177,6 +178,10 @@ class MX_GENSHADER_API GenOptions
     /// system is defined.
     /// Defaults to true.
     bool emitColorTransforms;
+
+    /// Calculate fallback bitangents from existing normals and tangents
+    /// inside the <bitangent> node.
+    bool implicitBitangents;
 };
 
 MATERIALX_NAMESPACE_END
