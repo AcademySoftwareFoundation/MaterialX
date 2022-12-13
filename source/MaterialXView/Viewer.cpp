@@ -288,7 +288,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
-    _genContext.getOptions().implicitBitangents = false;
+    _genContext.getOptions().hwImplicitBitangents = false;
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";

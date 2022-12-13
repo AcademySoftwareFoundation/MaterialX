@@ -21,7 +21,7 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext& cont
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    if (options.implicitBitangents)
+    if (options.hwImplicitBitangents)
     {
         addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
         addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_TANGENT, vs);
@@ -38,7 +38,7 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext& cont
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_BITANGENT_WORLD, vs, ps);
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_MATRIX, vs);
 
-        if (options.implicitBitangents)
+        if (options.hwImplicitBitangents)
         {
             addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
             addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_WORLD, vs, ps);
@@ -70,7 +70,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             {
                 bitangent->setEmitted();
 
-                if (options.implicitBitangents)
+                if (options.hwImplicitBitangents)
                 {
                     ShaderPort* normal = vertexData[HW::T_NORMAL_WORLD];
                     if (!normal->isEmitted())
@@ -99,7 +99,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             {
                 bitangent->setEmitted();
 
-                if (options.implicitBitangents)
+                if (options.hwImplicitBitangents)
                 {
                     shadergen.emitLine(prefix + bitangent->getVariable() + " = cross(" + HW::T_IN_NORMAL + ", " + HW::T_IN_TANGENT + ")", stage);
                 }
