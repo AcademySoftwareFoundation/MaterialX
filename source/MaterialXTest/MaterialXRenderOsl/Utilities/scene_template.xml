@@ -16,7 +16,7 @@
       color Cin %background_color%;
       shader constant_color layer1;
    </ShaderGroup>
-   <Quad corner="-400, -400, -800" edge_x="800, 0, 0" edge_y="0, 800, 0" />
+   <Quad corner="-340, -340, -800" edge_x="680, 0, 0" edge_y="0, 680, 0" />
 
    <!-- Shader graph for routing to output layer:
    input_shader_parameter_overrides : are parameter overrides for the input shader
