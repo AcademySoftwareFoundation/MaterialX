@@ -98,7 +98,7 @@ jobs:
           architecture: x64
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
-          #test_shaders: ON
+          test_shaders: ON
 
     steps:
     - name: Sync Repository
@@ -140,9 +140,9 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
-        echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
+        Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
+        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/bin"
+        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
     - name: Install Python ${{ matrix.python }}
       uses: actions/setup-python@v4
@@ -194,9 +194,9 @@ jobs:
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_gold.mtlx --path .. --target glsl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_copper.mtlx --path .. --target osl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target glsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target osl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target mdl
       working-directory: python
 
     - name: Shader Validation Tests
@@ -204,8 +204,8 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx --path . --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
 
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'

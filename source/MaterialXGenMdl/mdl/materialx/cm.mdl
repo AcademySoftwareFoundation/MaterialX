@@ -28,10 +28,10 @@ export float3 mx_ap1_to_rec709_color3(float3 mxp_in)
 ]]
 {
     float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-    float4x4 xform = float4x4(1.705079555511475, -0.1297005265951157, -0.02416634373366833, 0.0,
-                            -0.6242334842681885, 1.138468623161316, -0.1246141716837883, 0.0,
-                            -0.0808461606502533, -0.008768022060394287, 1.148780584335327,
-                            0.0, 0.0, 0.0, 0.0, 1.0);
+    float4x4 xform = float4x4( 1.705050992658, -0.130256417507, -0.024003356805, 0.0,
+                              -0.621792120657,  1.140804736575, -0.128968976065, 0.0,
+                              -0.083258872001, -0.010548319068,  1.15297233287,  0.0,
+                               0.0,             0.0,             0.0,            1.0);
     float3 result = ::swizzle::xyz(xform * outColor);
     return result;
 }
@@ -47,10 +47,10 @@ export float4 mx_ap1_to_rec709_color4(float4 mxp_in)
 ]]
 {
     float4 outColor = float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-    float4x4 xform =  float4x4(1.705079555511475, -0.1297005265951157, -0.02416634373366833, 0.0,
-                               -0.6242334842681885, 1.138468623161316, -0.1246141716837883, 0.0,
-                                -0.0808461606502533, -0.008768022060394287, 1.148780584335327,
-                                0.0, 0.0, 0.0, 0.0, 1.0);
+    float4x4 xform = float4x4( 1.705050992658, -0.130256417507, -0.024003356805, 0.0,
+                              -0.621792120657,  1.140804736575, -0.128968976065, 0.0,
+                              -0.083258872001, -0.010548319068,  1.15297233287,  0.0,
+                               0.0,             0.0,             0.0,            1.0);
     float3 result3 = ::swizzle::xyz(xform * outColor);
     float4 result = float4(result3.x,result3.y, result3.z, mxp_in.w);
     return result;
@@ -201,7 +201,7 @@ export float3 mx_adobergb_to_lin_rec709_color3(float3 mxp_in)
 ]]
 {
     float3 gamma = float3(563 / 256);
-    float3 lin_adobergb_color ::math::pow( ::math::max( float3(0), mxp_in ), gamma );
+    float3 lin_adobergb_color = ::math::pow( ::math::max( float3(0), mxp_in ), gamma );
     return mx_lin_adobergb_to_lin_rec709_color3(lin_adobergb_color);
 }
 
