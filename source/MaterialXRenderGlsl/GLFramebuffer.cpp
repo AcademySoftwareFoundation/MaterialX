@@ -116,7 +116,11 @@ GLFramebuffer::~GLFramebuffer()
     if (_framebuffer)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDeleteTextures(1, &_colorTexture);
+
+        // TODO: This line is commented out as a workaround for the RenderView in the graph editor,
+        //       and we'll need to track down the underlying cause of this issue.
+        //glDeleteTextures(1, &_colorTexture);
+
         glDeleteTextures(1, &_depthTexture);
         glDeleteFramebuffers(1, &_framebuffer);
     }
