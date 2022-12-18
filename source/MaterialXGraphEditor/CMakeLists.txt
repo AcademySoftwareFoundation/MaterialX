@@ -27,11 +27,11 @@ include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories("${DEAR_IMGUI_PREFIX}/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser/include")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/Gl3w")
 
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
+set(GLFW_INSTALL OFF)
 
 add_subdirectory(External/Glfw)
 
@@ -51,7 +51,7 @@ target_link_libraries(
     PRIVATE
     ${MATERIALX_LIBRARIES}
     ${OPENGL_LIBRARIES}
- 	glfw2)
+ 	glfw_minimal)
 
 if (UNIX)
     if (APPLE)
