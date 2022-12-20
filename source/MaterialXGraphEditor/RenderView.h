@@ -22,8 +22,8 @@ class RenderView
                const std::string& envRadianceFilename,
                const mx::FileSearchPath& searchPath,
                const mx::FilePathVec& libraryFolders,
-               float screenWidth,
-               float screenHeight);
+               unsigned int screenWidth,
+               unsigned int screenHeight);
     ~RenderView() { }
 
     // Initialize the viewer for rendering.
@@ -71,12 +71,12 @@ class RenderView
         return _showAllInputs;
     }
 
-    void setScreenWidth(float width)
+    void setScreenWidth(unsigned int width)
     {
         _screenWidth = width;
     }
 
-    void setScreenHeight(float height)
+    void setScreenHeight(unsigned int height)
     {
         _screenHeight = height;
     }
@@ -156,14 +156,14 @@ class RenderView
         _exitRequested = true;
     }
 
-    void draw_contents();
+    void drawContents();
     mx::ImagePtr getFrameImage();
     unsigned int _textureID;
     void reloadShaders();
 
     float _pixelRatio;
-    float _screenWidth;
-    float _screenHeight;
+    unsigned int _screenWidth;
+    unsigned int _screenHeight;
     mx::GLFramebufferPtr _renderFrame;
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);

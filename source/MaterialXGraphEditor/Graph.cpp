@@ -90,7 +90,7 @@ void Graph::initialize()
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::Color3 screenColor(1.0f, 0.3f, 0.32f);
 
-    _renderer = std::make_shared<RenderView>(materialFilename, meshFilename, envRadianceFilename, _searchPath, _libraryFolders, 1280.f, 960.f);
+    _renderer = std::make_shared<RenderView>(materialFilename, meshFilename, envRadianceFilename, _searchPath, _libraryFolders, 1280, 960);
     _renderer->initialize();
 }
 
@@ -2628,11 +2628,11 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0));
 
     // renderView window
-    ImVec2 wsize = ImVec2(_renderer->_screenWidth, _renderer->_screenHeight);
+    ImVec2 wsize = ImVec2((float) _renderer->_screenWidth, (float) _renderer->_screenHeight);
     float aspectRatio = _renderer->_pixelRatio;
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
-    _renderer->_screenWidth = screenSize[0];
-    _renderer->_screenHeight = screenSize[1];
+    _renderer->_screenWidth = (unsigned int) screenSize[0];
+    _renderer->_screenHeight = (unsigned int) screenSize[1];
 
     if (_renderer != nullptr)
     {

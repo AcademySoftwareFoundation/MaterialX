@@ -201,11 +201,11 @@ int main(int argc, char* const argv[])
             initialized = true;
             graph->initialize();
         }
+        graph->_renderer->drawContents();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
 
-        graph->_renderer->draw_contents();
         ImGui::Render();
 
         glViewport(0, 0, display_w, display_h);

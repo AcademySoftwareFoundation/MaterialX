@@ -161,8 +161,8 @@ RenderView::RenderView(const std::string& materialFilename,
                        const std::string& envRadianceFilename,
                        const mx::FileSearchPath& searchPath,
                        const mx::FilePathVec& libraryFolders,
-                       float screenWidth,
-                       float screenHeight) :
+                       unsigned int screenWidth,
+                       unsigned int screenHeight) :
     _textureID(0),
     _pixelRatio(1.0f),
     _screenWidth(screenWidth),
@@ -873,7 +873,7 @@ mx::ImagePtr RenderView::getAmbientOcclusionImage(MaterialPtr material)
     return _imageHandler->acquireImage(aoFilename);
 }
 
-void RenderView::draw_contents()
+void RenderView::drawContents()
 {
     if (_geometryList.empty() || _materials.empty())
     {
@@ -886,14 +886,10 @@ void RenderView::draw_contents()
     // Render the current frame.
     try
     {
-
         renderFrame();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        // glDisable(GL_FRAMEBUFFER_SRGB);
     }
-    catch (std::exception& e)
+    catch (std::exception&)
     {
-        (void) e;
         _materialAssignments.clear();
         glDisable(GL_FRAMEBUFFER_SRGB);
     }
@@ -979,6 +975,7 @@ void RenderView::loadEnvironmentLight()
 
 void RenderView::renderFrame()
 {
+    // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
@@ -987,14 +984,6 @@ void RenderView::renderFrame()
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
 
-    glEnable(GL_FRAMEBUFFER_SRGB);
-    _renderFrame = mx::GLFramebuffer::create((int32_t) _screenWidth, (int32_t) _screenHeight, 4, mx::Image::BaseType::UINT8);
-    _renderFrame->bind();
-
-    glClearColor(.70f, .70f, .75f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    // Initialize OpenGL state
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
@@ -1016,6 +1005,19 @@ void RenderView::renderFrame()
             _genContext.getOptions().hwShadowMap = false;
         }
     }
+
+    // Initialize viewport render.
+    if (!_renderFrame ||
+         _renderFrame->getWidth() != _screenWidth ||
+         _renderFrame->getHeight() != _screenHeight)
+    {
+        _renderFrame = mx::GLFramebuffer::create(_screenWidth, _screenHeight, 4, mx::Image::BaseType::UINT8);
+    }
+    _renderFrame->bind();
+    glClearColor(.70f, .70f, .75f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_FRAMEBUFFER_SRGB);
+
     // Enable backface culling if requested.
     if (!_renderDoubleSided)
     {
@@ -1084,8 +1086,10 @@ void RenderView::renderFrame()
     {
         glDisable(GL_CULL_FACE);
     }
-    _textureID = _renderFrame->getColorTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    // Store viewport texture for render.
+    _textureID = _renderFrame->getColorTexture();
 }
 
 mx::ImagePtr RenderView::getFrameImage()
@@ -1105,7 +1109,7 @@ mx::ImagePtr RenderView::getFrameImage()
 
 void RenderView::initCamera()
 {
-    _viewCamera->setViewportSize(mx::Vector2(static_cast<float>(_screenWidth), static_cast<float>(_screenHeight)));
+    _viewCamera->setViewportSize(mx::Vector2((float) _screenWidth, (float) _screenHeight));
 
     // Disable user camera controls when non-centered views are requested.
     _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
