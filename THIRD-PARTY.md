@@ -1,17 +1,9 @@
-See [LICENSE](LICENSE) for the main open source license of original code
-written for the MaterialX project.
+# Third-Party Project Licenses
 
-The remainder of this file reproduces the open source licensing details
-of other projects that have been imported, incorporated into, or derived
-into parts of MaterialX.
+This section documents the licenses of third-party projects that have been imported or incorporated into MaterialX.  All of these are compatible with the [main license](LICENSE) under which the MaterialX project is open-sourced.  Let us know if you notice any errors or omissions and we'd be happy to address them.
 
-In no particular order:
-
----------------------------------------------------------------------
-
-PyBind11, courtesy of Wenzel Jakob.
-https://pybind11.readthedocs.io/en/latest/
-
+### [PyBind11](https://pybind11.readthedocs.io/en/latest/)
+```
 Copyright (c) 2016 Wenzel Jakob <wenzel.jakob@epfl.ch>, All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,12 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Please also refer to the file .github/CONTRIBUTING.md, which clarifies licensing of
 external contributions to this project including patches, pull requests, etc.
+```
 
----------------------------------------------------------------------
-
-NanoGUI, courtesy of Wenzel Jakob.
-https://nanogui.readthedocs.io/en/latest/
-
+### [NanoGUI](https://nanogui.readthedocs.io/en/latest/)
+```
 Copyright (c) 2017 Wenzel Jakob <wenzel.jakob@epfl.ch>, All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -83,12 +73,10 @@ hereby grant the following license: a non-exclusive, royalty-free perpetual
 license to install, use, modify, prepare derivative works, incorporate into
 other computer software, distribute, and sublicense such enhancements or
 derivative works thereof, in binary and source code form.
+```
 
----------------------------------------------------------------------
-
-OpenShadingLanguage, courtesy of Larry Gritz, et al.
-https://github.com/AcademySoftwareFoundation/OpenShadingLanguage
-
+### [OpenShadingLanguage](https://github.com/AcademySoftwareFoundation/OpenShadingLanguage)
+```
 Copyright (c) 2009-present Contributors to the Open Shading Language project.
 All Rights Reserved.
 
@@ -116,12 +104,10 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
----------------------------------------------------------------------
-
-OpenImageIO, courtesy of Larry Gritz, et al.
-https://openimageio.readthedocs.io/en/latest/
-
+### [OpenImageIO](https://openimageio.readthedocs.io/en/latest/)
+```
 Copyright (c) 2008-present by Contributors to the OpenImageIO project.
 All Rights Reserved.
 
@@ -149,15 +135,13 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
----------------------------------------------------------------------
-
-TinyObjLoader, courtesy of Syoyo Fujita.
-https://github.com/tinyobjloader
-
+### [TinyObjLoader](https://github.com/tinyobjloader/tinyobjloader)
+```
 The MIT License (MIT)
 
-Copyright (c) 2012-2016 Syoyo Fujita and many contributors.
+Copyright (c) 2012-2019 Syoyo Fujita and many contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -176,12 +160,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+```
 
----------------------------------------------------------------------
-
-Cgltf, courtesy of Johannes Kuhlmann.
-https://nicedoc.io/jkuhlmann/cgltf
-
+### [Cgltf](https://github.com/jkuhlmann/cgltf)
+```
 Copyright (c) 2018-2021 Johannes Kuhlmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -201,12 +183,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
 
----------------------------------------------------------------------
-
-StbImage, courtesy of Sean Barrett.
-https://github.com/nothings
-
+### [StbImage](https://github.com/nothings/stb)
+```
 MIT License
 
 Copyright (c) 2017 Sean Barrett
@@ -227,13 +207,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
 
----------------------------------------------------------------------
+### [PugiXML](https://pugixml.org/)
+```
+MIT License
 
-PugiXML, courtesy of Arseny Kapoulkine.
-https://pugixml.org/
-
-Copyright (c) 2006-2018 Arseny Kapoulkine
+Copyright (c) 2006-2022 Arseny Kapoulkine
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -255,15 +235,13 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+```
 
----------------------------------------------------------------------
-
-Glad, courtesy of David Herberth.
-https://github.com/Dav1dde/glad
-
+### [Glad](https://github.com/Dav1dde/glad)
+```
 The MIT License (MIT)
 
-Copyright (c) 2013-2021 David Herberth
+Copyright (c) 2013-2022 David Herberth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -281,14 +259,10 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
 
----------------------------------------------------------------------
-
-Catch, courtesy of Two Blue Cubes Ltd.
-https://github.com/catchorg
-
-Copyright 2014 Two Blue Cubes Ltd.
-
+### [Catch](https://github.com/catchorg)
+```
 Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
@@ -312,38 +286,31 @@ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
 FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+```
 
----------------------------------------------------------------------
+### [AmbientCG Assets](https://ambientcg.com/)
+```
+All ambientCG assets are provided under the Creative Commons CC0 1.0 Universal License.
 
-HDRI Haven images.
-https://hdrihaven.com
+The Creative Commons CC0 license gives you near limitless freedom to use the materials, models and other assets:
+ 
+"You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission."
+```
 
-HDRI License
-All HDRIs on this site are licensed as CC0 - which is the most liberal license I know of.
+### [Poly Haven Assets](https://polyhaven.com/)
+```
+Our assets are all licensed as CC0, which is effectively Public Domain even in jurisdictions that do not support the Public Domain.
 
-Here's an exerpt from the CC0 FAQ page to clarify:
-
-Once the creator or a subsequent owner of a work applies CC0 to a work, the work is no longer his or hers in any meaningful sense under copyright law. Anyone can then use the work in any way and for any purpose, including commercial purposes, subject to other laws and the rights others may have in the work or how the work is used. Think of CC0 as the "no rights reserved" option. CC0 is a useful tool for clarifying that you do not claim copyright in a work anywhere in the world.
 In other words:
+- You can use our assets for any purpose, including commercial work.
+- You do not need to give credit or attribution when using them (although it is appreciated).
+- You can redistribute them, share them around, include them when sharing your own work, or even in a product you sell.
+```
 
-You can use the HDRIs for any purpose, including commercial work.
-You do not need to give credit or attribution when using them (although it is appreciated).
-You can redistribute them, share them around, include them when sharing your own work, or in a product you sell.
-The only thing you can't do is claim to be the original author of the HDRIs.
+# Third-Party Software and Services
 
-More info: CC0 summary, CC0 wiki, CC0 FAQ.
+The MaterialX project also uses the following software and services that are provided free of charge to open-source projects:
 
-If you have any questions, feel free to email me at info@hdrihaven.com
-
-Disclaimer: occasionally a brand name, logo or other copyrighted design may appear in the HDRIs. It is the responsibility of the user not to infringe on these copyrights in their own work.
-
----------------------------------------------------------------------
-
-CC0Textures images
-https://cc0textures.com/
-
-All textures on CC0Textures.com are licensed under the Creative Commons CC0 License. You can use them for any purpose, even Commercially. There is no need to give credit.
-
----------------------------------------------------------------------
-
-If we have left anything out, it is unintentional. Please let us know.
+- [CMake](https://cmake.org/) for cross-platform builds
+- [GitHub Actions](https://github.com/features/actions) for continuous integration
+- [PVS-Studio](https://pvs-studio.com) and [Cppcheck](https://cppcheck.sourceforge.io/) for static analysis
