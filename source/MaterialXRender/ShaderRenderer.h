@@ -119,17 +119,7 @@ class MX_RENDER_API ShaderRenderer
     /// @}
 
   protected:
-    ShaderRenderer() :
-        _width(0),
-        _height(0),
-        _baseType(Image::BaseType::UINT8)
-    { }
-
-    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-        _width(width),
-        _height(height),
-        _baseType(baseType)
-    { }
+    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
   protected:
     unsigned int _width;
