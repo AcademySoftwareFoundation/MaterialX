@@ -90,6 +90,7 @@ class MX_GENSHADER_API GenOptions
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
+        hwImplicitBitangents(true),
         emitColorTransforms(true)
     {
     }
@@ -172,6 +173,10 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
+
+    /// Calculate fallback bitangents from existing normals and tangents
+    /// inside the <bitangent> node.
+    bool hwImplicitBitangents;
 
     /// Enable emitting colorspace transform code if a color management 
     /// system is defined.
