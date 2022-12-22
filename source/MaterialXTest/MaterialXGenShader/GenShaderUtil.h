@@ -104,11 +104,8 @@ class TestSuiteOptions
     // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
     bool dumpUniformsAndAttributes = true;
 
-    // Non-shaded geometry file
-    MaterialX::FilePath unShadedGeometry;
-
-    // Shaded geometry file
-    MaterialX::FilePath shadedGeometry;
+    // Geometry file to be rendered
+    MaterialX::FilePath renderGeometry;
 
     // Enable direct lighting. Default is true. 
     bool enableDirectLighting;

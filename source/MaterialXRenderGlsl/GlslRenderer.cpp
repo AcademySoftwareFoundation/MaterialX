@@ -136,11 +136,9 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
     {
-        if (_framebuffer)
-        {
-            _framebuffer->resize(width, height);
-        }
-        else
+        if (!_framebuffer ||
+             _framebuffer->getWidth() != width ||
+             _framebuffer->getHeight() != height)
         {
             _framebuffer = GLFramebuffer::create(width, height, 4, _baseType);
         }

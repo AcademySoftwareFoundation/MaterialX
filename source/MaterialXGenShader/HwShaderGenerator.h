@@ -85,6 +85,7 @@ namespace HW
     extern MX_GENSHADER_API const string T_IN_POSITION;
     extern MX_GENSHADER_API const string T_IN_NORMAL;
     extern MX_GENSHADER_API const string T_IN_TANGENT;
+    extern MX_GENSHADER_API const string T_IN_BITANGENT;
     extern MX_GENSHADER_API const string T_IN_TEXCOORD;
     extern MX_GENSHADER_API const string T_IN_GEOMPROP;
     extern MX_GENSHADER_API const string T_IN_COLOR;
@@ -141,6 +142,7 @@ namespace HW
     extern MX_GENSHADER_API const string IN_POSITION;
     extern MX_GENSHADER_API const string IN_NORMAL;
     extern MX_GENSHADER_API const string IN_TANGENT;
+    extern MX_GENSHADER_API const string IN_BITANGENT;
     extern MX_GENSHADER_API const string IN_TEXCOORD;
     extern MX_GENSHADER_API const string IN_GEOMPROP;
     extern MX_GENSHADER_API const string IN_COLOR;

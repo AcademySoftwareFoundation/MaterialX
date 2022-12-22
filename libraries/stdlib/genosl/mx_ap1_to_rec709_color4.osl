@@ -2,6 +2,6 @@
 
 void mx_ap1_to_rec709_color4(color4 _in, output color4 result)
 {
-    vector outRgb = transform(M_AP1_TO_REC709, vector(_in.rgb[0], _in.rgb[1], _in.rgb[2]));
+    vector outRgb = transform(AP1_TO_REC709, vector(_in.rgb[0], _in.rgb[1], _in.rgb[2]));
     result = color4(color(outRgb[0], outRgb[1], outRgb[2]), _in.a);
 }
