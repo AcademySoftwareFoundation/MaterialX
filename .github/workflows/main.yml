@@ -59,6 +59,7 @@ jobs:
           compiler_version: "14"
           python: 3.9
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          clang_format: ON
           dynamic_analysis: ON
 
         - name: MacOS_Xcode_11_Python37
@@ -171,6 +172,10 @@ jobs:
       with:
          node-version: '16'
 
+    - name: Run Clang Format
+      if: matrix.clang_format == 'ON'
+      run: find source \( -name *.h -o -name *.cpp \) ! -path "*/Catch/*" ! -path "*/External/*" ! -path "*/NanoGUI/*" ! -path "*/PugiXML/*"  ! -path "*/PyBind11/*" | xargs clang-format -i --verbose
+
     - name: CMake Generate
       run: |
         mkdir build
@@ -242,6 +247,13 @@ jobs:
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
+
+    - name: Upload Formatted Source
+      if: matrix.clang_format == 'ON'
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_ClangFormat
+        path: source
 
     - name: Upload Reference Shaders
       uses: actions/upload-artifact@v3
