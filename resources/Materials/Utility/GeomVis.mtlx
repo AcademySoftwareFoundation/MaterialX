@@ -16,7 +16,6 @@
     <output name="out" type="BSDF" />
   </nodedef>
   <nodegraph name="NG_dir_to_bsdf" nodedef="ND_dir_to_bsdf">
-    <input name="in" type="vector3" />
     <add name="N_add" type="vector3">
       <input name="in1" type="vector3" interfacename="in" />
       <input name="in2" type="float" value="1" />
