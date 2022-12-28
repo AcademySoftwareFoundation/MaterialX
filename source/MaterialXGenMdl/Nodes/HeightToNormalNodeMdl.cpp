@@ -53,9 +53,10 @@ bool HeightToNormalNodeMdl::acceptsInputType(const TypeDesc* type) const
 
 void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-    
+
         const ShaderInput* inInput = node.getInput("in");
         const ShaderInput* scaleInput = node.getInput("scale");
 
@@ -69,8 +70,8 @@ void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext&
         // the variables to assign to the sample grid.
         //  
         StringVec sampleStrings;
-        emitInputSamplesUV(node, sampleCount, filterWidth, 
-                           filterSize, filterOffset, sampleSizeFunctionUV, 
+        emitInputSamplesUV(node, sampleCount, filterWidth,
+                           filterSize, filterOffset, sampleSizeFunctionUV,
                            context, stage, sampleStrings);
 
         const ShaderOutput* output = node.getOutput();
@@ -84,7 +85,7 @@ void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext&
         {
             shadergen.emitLineBegin(stage);
             shadergen.emitString("    " + sampleStrings[i], stage);
-            if (i+1 < sampleCount)
+            if (i + 1 < sampleCount)
             {
                 shadergen.emitLine(",", stage, false);
             }
@@ -97,7 +98,7 @@ void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext&
         shadergen.emitInput(scaleInput, context, stage);
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 const string& HeightToNormalNodeMdl::getTarget() const

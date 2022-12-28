@@ -21,10 +21,13 @@
 
 #include <sstream>
 
-// Macro for begin/end of statements to be picked up by a given shader stage.
-// For shaders that are multi-stage all code generation statements adding code 
-// to the shader should be wrapped inside such begin/end stating its target.
-#define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
+// Restrict a scoped block of statements to a specific shader stage, as
+// is required for multi-stage shading languages.  Statements within
+// the block will only be emitted when processing the given stage.
+#define DEFINE_SHADER_STAGE(stage, name) if (stage.getName() == name)
+
+// These macros are deprecated, and should be replaced with DEFINE_SHADER_STAGE.
+#define BEGIN_SHADER_STAGE(stage, name) DEFINE_SHADER_STAGE(stage, name) {
 #define END_SHADER_STAGE(stage, name) }
 
 MATERIALX_NAMESPACE_BEGIN

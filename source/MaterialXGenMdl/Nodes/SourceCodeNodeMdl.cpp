@@ -51,7 +51,8 @@ void SourceCodeNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext&, S
 
 void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         if (_inlined)
         {
@@ -143,7 +144,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

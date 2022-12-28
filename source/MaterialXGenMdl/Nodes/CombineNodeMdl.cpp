@@ -19,7 +19,8 @@ ShaderNodeImplPtr CombineNodeMdl::create()
 
 void CombineNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Custom handling for color3 type input, all other types 
         // can are handled by our parent class below.
         // Custom handling is needed since in MDL color must be converted
@@ -87,8 +88,7 @@ void CombineNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         {
             CombineNode::emitFunctionCall(node, context, stage);
         }
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

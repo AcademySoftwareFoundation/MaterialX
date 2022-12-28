@@ -56,7 +56,8 @@ void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shade
 
 void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const Syntax& syntax = shadergen.getSyntax();
 
@@ -65,7 +66,7 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
 
         // Begin function signature.
         shadergen.emitLineBegin(stage);
-        shadergen.emitString("void " + _functionName + + "(", stage);
+        shadergen.emitString("void " + _functionName + +"(", stage);
 
         string delim = "";
 
@@ -100,19 +101,21 @@ void CompoundNode::emitFunctionDefinition(const ShaderNode&, GenContext& context
 
         // End function body.
         shadergen.emitFunctionBodyEnd(*_rootGraph, context, stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         // Emit function calls for all child nodes to the vertex shader stage
         shadergen.emitFunctionCalls(*_rootGraph, context, stage);
-    END_SHADER_STAGE(stage, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Declare the output variables.
         emitOutputVariables(node, context, stage);
 
@@ -141,7 +144,7 @@ void CompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& context,
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

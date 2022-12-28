@@ -70,14 +70,16 @@ void BlurNode::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& 
 
 void BlurNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         emitSamplingFunctionDefinition(node, context, stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* inInput = node.getInput(IN_STRING);
@@ -212,7 +214,7 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
             shadergen.emitString(" = " + sampleStrings[0], stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END
