@@ -44,7 +44,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
                 origOutputs.insert(connectedOutput);
             }
             else if (shaderInput->hasValueString())
-            { 
+            {
                 input->setValueString(shaderInput->getValueString());
             }
             else

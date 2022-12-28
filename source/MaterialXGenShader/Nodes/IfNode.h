@@ -30,6 +30,7 @@ class MX_GENSHADER_API IfGreaterNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
+
   private:
     const string& equalityString() const override
     {
@@ -38,12 +39,13 @@ class MX_GENSHADER_API IfGreaterNode : public IfNode
     static string EQUALITY_STRING;
 };
 
-/// @class IfGreaterEqNode 
+/// @class IfGreaterEqNode
 /// "ifgreatereq" node implementation
 class MX_GENSHADER_API IfGreaterEqNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
+
   private:
     const string& equalityString() const override
     {
@@ -52,12 +54,13 @@ class MX_GENSHADER_API IfGreaterEqNode : public IfNode
     static string EQUALITY_STRING;
 };
 
-/// @class IfEqualNode 
+/// @class IfEqualNode
 /// "ifequal" node implementation
 class MX_GENSHADER_API IfEqualNode : public IfNode
 {
   public:
     static ShaderNodeImplPtr create();
+
   private:
     const string& equalityString() const override
     {

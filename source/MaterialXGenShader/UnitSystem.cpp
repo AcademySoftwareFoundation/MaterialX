@@ -69,9 +69,9 @@ void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
 
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
-        shadergen.emitFunctionBodyBegin(node, context, stage);  
+        shadergen.emitFunctionBodyBegin(node, context, stage);
         shadergen.emitVariableDeclarations(unitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
-        shadergen.emitLine("return ("+ VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
+        shadergen.emitLine("return (" + VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
         shadergen.emitFunctionBodyEnd(node, context, stage);
     }
 }
@@ -105,10 +105,10 @@ void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 //
 
 UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc* t, const string& unittype) :
-                             sourceUnit(ss),
-                             targetUnit(ts),
-                             type(t),
-                             unitType(unittype)
+    sourceUnit(ss),
+    targetUnit(ts),
+    type(t),
+    unitType(unittype)
 {
     if (type != Type::FLOAT && type != Type::VECTOR2 && type != Type::VECTOR3 && type != Type::VECTOR4)
     {
