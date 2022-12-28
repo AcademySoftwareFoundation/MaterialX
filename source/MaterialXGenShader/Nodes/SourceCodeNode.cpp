@@ -69,7 +69,8 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
 void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Emit function definition for non-inlined functions
         if (!_functionSource.empty())
         {
@@ -84,12 +85,13 @@ void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& conte
                 shadergen.emitLineBreak(stage);
             }
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         if (_inlined)
         {
@@ -190,7 +192,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

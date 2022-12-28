@@ -447,53 +447,57 @@ void GlslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage)
 
 void GlslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
-    if (!vertexInputs.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
-        emitComment("Inputs block: " + vertexInputs.getName(), stage);
-        emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
-        emitLineBreak(stage);
+        const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
+        if (!vertexInputs.empty())
+        {
+            emitComment("Inputs block: " + vertexInputs.getName(), stage);
+            emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
+            emitLineBreak(stage);
+        }
     }
-END_SHADER_STAGE(stage, Stage::VERTEX)
 
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        emitLine("in " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-        emitScopeEnd(stage, false, false);
-        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
-        emitLineBreak(stage);
-        emitLineBreak(stage);
+        const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        if (!vertexData.empty())
+        {
+            emitLine("in " + vertexData.getName(), stage, false);
+            emitScopeBegin(stage);
+            emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+            emitScopeEnd(stage, false, false);
+            emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+            emitLineBreak(stage);
+            emitLineBreak(stage);
+        }
     }
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void GlslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
-        emitLine("out " + vertexData.getName(), stage, false);
-        emitScopeBegin(stage);
-        emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
-        emitScopeEnd(stage, false, false);
-        emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
-        emitLineBreak(stage);
+        const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        if (!vertexData.empty())
+        {
+            emitLine("out " + vertexData.getName(), stage, false);
+            emitScopeBegin(stage);
+            emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
+            emitScopeEnd(stage, false, false);
+            emitString(" " + vertexData.getInstance() + Syntax::SEMICOLON, stage);
+            emitLineBreak(stage);
+            emitLineBreak(stage);
+        }
+    }
+
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
+        emitComment("Pixel shader outputs", stage);
+        const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
+        emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
         emitLineBreak(stage);
     }
-END_SHADER_STAGE(stage, Stage::VERTEX)
-
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    emitComment("Pixel shader outputs", stage);
-    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
-    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
-    emitLineBreak(stage);
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 HwResourceBindingContextPtr GlslShaderGenerator::getResourceBindingContext(GenContext& context) const
@@ -727,31 +731,31 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
 void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-
-    // Emit Light functions if requested
-    if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        // For surface shaders we need light shaders
-        if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
+        // Emit Light functions if requested
+        if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
         {
-            // Emit functions for all bound light shaders
-            HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
-            if (lightShaders)
+            // For surface shaders we need light shaders
+            if (graph.hasClassification(ShaderNode::Classification::SHADER | ShaderNode::Classification::SURFACE))
             {
-                for (const auto& it : lightShaders->get())
+                // Emit functions for all bound light shaders
+                HwLightShadersPtr lightShaders = context.getUserData<HwLightShaders>(HW::USER_DATA_LIGHT_SHADERS);
+                if (lightShaders)
                 {
-                    emitFunctionDefinition(*it.second, context, stage);
+                    for (const auto& it : lightShaders->get())
+                    {
+                        emitFunctionDefinition(*it.second, context, stage);
+                    }
                 }
-            }
-            // Emit functions for light sampling
-            for (const auto& it : _lightSamplingNodes)
-            {
-                emitFunctionDefinition(*it, context, stage);
+                // Emit functions for light sampling
+                for (const auto& it : _lightSamplingNodes)
+                {
+                    emitFunctionDefinition(*it, context, stage);
+                }
             }
         }
     }
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)

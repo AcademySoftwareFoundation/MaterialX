@@ -26,7 +26,8 @@ void ClosureCompoundNodeMdl::addClassification(ShaderNode& node) const
 
 void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const Syntax& syntax = shadergen.getSyntax();
 
@@ -141,13 +142,13 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContex
         }
 
         shadergen.emitLineBreak(stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void ClosureCompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Emit calls for any closure dependencies upstream from this node.
@@ -183,7 +184,7 @@ void ClosureCompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

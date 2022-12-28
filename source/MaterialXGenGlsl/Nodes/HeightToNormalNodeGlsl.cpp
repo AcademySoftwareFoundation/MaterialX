@@ -52,19 +52,21 @@ bool HeightToNormalNodeGlsl::acceptsInputType(const TypeDesc* type) const
 
 void HeightToNormalNodeGlsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Emit sampling functions
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLibraryInclude("stdlib/genglsl/lib/mx_sampling.glsl", context, stage);
         shadergen.emitLineBreak(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-    
+
         const ShaderInput* inInput = node.getInput("in");
         const ShaderInput* scaleInput = node.getInput("scale");
 
@@ -78,8 +80,8 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         // the variables to assign to the sample grid.
         //  
         StringVec sampleStrings;
-        emitInputSamplesUV(node, sampleCount, filterWidth, 
-                           filterSize, filterOffset, sampleSizeFunctionUV, 
+        emitInputSamplesUV(node, sampleCount, filterWidth,
+                           filterSize, filterOffset, sampleSizeFunctionUV,
                            context, stage, sampleStrings);
 
         const ShaderOutput* output = node.getOutput();
@@ -99,7 +101,7 @@ void HeightToNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext
         shadergen.emitInput(scaleInput, context, stage);
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 const string& HeightToNormalNodeGlsl::getTarget() const
