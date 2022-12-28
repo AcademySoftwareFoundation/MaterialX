@@ -70,7 +70,7 @@ enum HwTransmissionRenderMethod
     TRANSMISSION_OPACITY,
 };
 
-/// @class GenOptions 
+/// @class GenOptions
 /// Class holding options to configure shader generation.
 class MX_GENSHADER_API GenOptions
 {
@@ -118,8 +118,8 @@ class MX_GENSHADER_API GenOptions
     /// Shader fragments will be generated to transform
     /// input distance values to the given unit.
     string targetDistanceUnit;
-    
-    /// Sets whether to include upstream dependencies 
+
+    /// Sets whether to include upstream dependencies
     /// for the element to generate a shader for.
     bool addUpstreamDependencies;
 
@@ -178,7 +178,7 @@ class MX_GENSHADER_API GenOptions
     /// inside the <bitangent> node.
     bool hwImplicitBitangents;
 
-    /// Enable emitting colorspace transform code if a color management 
+    /// Enable emitting colorspace transform code if a color management
     /// system is defined.
     /// Defaults to true.
     bool emitColorTransforms;

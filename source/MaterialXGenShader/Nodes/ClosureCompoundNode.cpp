@@ -116,7 +116,7 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
         {
             const ShaderNode* upstream = outputSocket->getConnection()->getNode();
             if (upstream->getParent() == _rootGraph.get() &&
-               (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 shadergen.emitFunctionCall(*upstream, context, stage);
             }

@@ -25,7 +25,7 @@ using ShaderNodeImplPtr = shared_ptr<class ShaderNodeImpl>;
 
 /// @class ShaderNodeImpl
 /// Class handling the shader generation implementation for a node.
-/// Responsible for emitting the function definition and function call 
+/// Responsible for emitting the function definition and function call
 /// that is the node implementation.
 class MX_GENSHADER_API ShaderNodeImpl
 {
@@ -114,7 +114,7 @@ class MX_GENSHADER_API ShaderNodeImpl
 /// A no operation node, to be used for organizational nodes that has no code to execute.
 class MX_GENSHADER_API NopNode : public ShaderNodeImpl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 };
 
