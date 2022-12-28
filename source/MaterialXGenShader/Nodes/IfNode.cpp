@@ -91,5 +91,4 @@ ShaderNodeImplPtr IfEqualNode::create()
     return std::make_shared<IfEqualNode>();
 }
 
-
 MATERIALX_NAMESPACE_END

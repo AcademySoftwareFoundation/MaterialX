@@ -54,7 +54,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
         if (_functionName != validFunctionName)
         {
             throw ExceptionShaderGenError("Function name '" + _functionName +
-                "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
+                                          "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
         }
     }
     else
@@ -118,7 +118,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 if (!input)
                 {
                     throw ExceptionShaderGenError("Could not find an input named '" + variable +
-                        "' on node '" + node.getName() + "'");
+                                                  "' on node '" + node.getName() + "'");
                 }
 
                 if (input->getConnection())

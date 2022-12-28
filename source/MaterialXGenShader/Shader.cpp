@@ -41,7 +41,6 @@ bool Shader::hasStage(const string& name)
     return (it != _stagesMap.end());
 }
 
-
 ShaderStage& Shader::getStage(const string& name)
 {
     auto it = _stagesMap.find(name);
