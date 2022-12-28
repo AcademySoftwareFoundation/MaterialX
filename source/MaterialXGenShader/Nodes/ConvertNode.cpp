@@ -71,7 +71,8 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
     static const string IN_STRING("in");
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* in = node.getInput(IN_STRING);
@@ -134,7 +135,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + result, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

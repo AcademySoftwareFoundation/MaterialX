@@ -47,48 +47,49 @@ void LightNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shad
 
 void LightNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
-
-    shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, FilePath(), context, stage);
-    shadergen.emitLineBreak(stage);
-
-    const ShaderInput* edfInput = node.getInput("edf");
-    const ShaderNode* edf = edfInput->getConnectedSibling();
-    if (edf)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        context.pushClosureContext(&_callEmission);
-        shadergen.emitFunctionCall(*edf, context, stage);
-        context.popClosureContext();
+        const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
+        shadergen.emitBlock(LIGHT_DIRECTION_CALCULATION, FilePath(), context, stage);
         shadergen.emitLineBreak(stage);
 
-        shadergen.emitComment("Apply quadratic falloff and adjust intensity", stage);
-        shadergen.emitLine("result.intensity = " + edf->getOutput()->getVariable() + " / (distance * distance)", stage);
-
-        const ShaderInput* intensity = node.getInput("intensity");
-        const ShaderInput* exposure = node.getInput("exposure");
-
-        shadergen.emitLineBegin(stage);
-        shadergen.emitString("result.intensity *= ", stage);
-        shadergen.emitInput(intensity, context, stage);
-        shadergen.emitLineEnd(stage);
-
-        // Emit exposure adjustment only if it matters
-        if (exposure->getConnection() || (exposure->getValue() && exposure->getValue()->asA<float>() != 0.0f))
+        const ShaderInput* edfInput = node.getInput("edf");
+        const ShaderNode* edf = edfInput->getConnectedSibling();
+        if (edf)
         {
+            context.pushClosureContext(&_callEmission);
+            shadergen.emitFunctionCall(*edf, context, stage);
+            context.popClosureContext();
+
+            shadergen.emitLineBreak(stage);
+
+            shadergen.emitComment("Apply quadratic falloff and adjust intensity", stage);
+            shadergen.emitLine("result.intensity = " + edf->getOutput()->getVariable() + " / (distance * distance)", stage);
+
+            const ShaderInput* intensity = node.getInput("intensity");
+            const ShaderInput* exposure = node.getInput("exposure");
+
             shadergen.emitLineBegin(stage);
-            shadergen.emitString("result.intensity *= pow(2, ", stage);
-            shadergen.emitInput(exposure, context, stage);
-            shadergen.emitString(")", stage);
+            shadergen.emitString("result.intensity *= ", stage);
+            shadergen.emitInput(intensity, context, stage);
             shadergen.emitLineEnd(stage);
+
+            // Emit exposure adjustment only if it matters
+            if (exposure->getConnection() || (exposure->getValue() && exposure->getValue()->asA<float>() != 0.0f))
+            {
+                shadergen.emitLineBegin(stage);
+                shadergen.emitString("result.intensity *= pow(2, ", stage);
+                shadergen.emitInput(exposure, context, stage);
+                shadergen.emitString(")", stage);
+                shadergen.emitLineEnd(stage);
+            }
+        }
+        else
+        {
+            shadergen.emitLine("result.intensity = vec3(0.0)", stage);
         }
     }
-    else
-    {
-        shadergen.emitLine("result.intensity = vec3(0.0)", stage);
-    }
-END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 MATERIALX_NAMESPACE_END

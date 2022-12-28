@@ -59,7 +59,8 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
@@ -109,9 +110,10 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 }
             }
         }
-    END_SHADER_STAGE(stage, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
@@ -127,7 +129,7 @@ void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             shadergen.emitString(" = normalize(" + prefix + bitangent->getVariable() + ")", stage);
         }
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

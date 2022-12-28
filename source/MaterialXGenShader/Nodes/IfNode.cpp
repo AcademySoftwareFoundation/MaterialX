@@ -18,7 +18,8 @@ string IfEqualNode::EQUALITY_STRING = " == ";
 
 void IfNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderGraph& graph = *node.getParent();
@@ -72,7 +73,7 @@ void IfNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Shade
 
             shadergen.emitScopeEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 ShaderNodeImplPtr IfGreaterNode::create()
