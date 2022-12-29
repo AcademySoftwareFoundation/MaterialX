@@ -16,7 +16,6 @@ ShaderNodeImplPtr SurfaceNodeMdl::create()
     return std::make_shared<SurfaceNodeMdl>();
 }
 
-
 const ShaderInput* findTransmissionIOR(const ShaderNode& node)
 {
     if (node.hasClassification(ShaderNode::Classification::BSDF_T))
