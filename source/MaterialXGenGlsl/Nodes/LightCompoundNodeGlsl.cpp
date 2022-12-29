@@ -50,7 +50,7 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms
-    for (size_t i = 0; i<_lightUniforms.size(); ++i)
+    for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
         ShaderPort* u = const_cast<ShaderPort*>(_lightUniforms[i]);
         lightData.add(u->getSelf());
