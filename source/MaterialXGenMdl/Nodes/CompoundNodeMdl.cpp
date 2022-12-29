@@ -36,10 +36,8 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& cont
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const Syntax& syntax = shadergen.getSyntax();
 
-        const bool isMaterialExpr = (
-            _rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
-            _rootGraph->hasClassification(ShaderNode::Classification::SHADER)
-        );
+        const bool isMaterialExpr = (_rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                                     _rootGraph->hasClassification(ShaderNode::Classification::SHADER));
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -78,8 +76,8 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& cont
             const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
             const string& type = syntax.getTypeName(input->getType());
             const string value = (input->getValue() ?
-                syntax.getValue(input->getType(), *input->getValue()) :
-                syntax.getDefaultValue(input->getType()));
+                                  syntax.getValue(input->getType(), *input->getValue()) :
+                                  syntax.getDefaultValue(input->getType()));
 
             const string& delim = --count > 0 ? Syntax::COMMA : EMPTY_STRING;
             shadergen.emitLine(qualifier + type + " " + input->getVariable() + " = " + value + delim, stage, false);

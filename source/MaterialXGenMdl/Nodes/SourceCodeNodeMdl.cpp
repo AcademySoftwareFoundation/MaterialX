@@ -78,7 +78,7 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
                 if (!input)
                 {
                     throw ExceptionShaderGenError("Could not find an input named '" + variable +
-                        "' on node '" + node.getName() + "'");
+                                                  "' on node '" + node.getName() + "'");
                 }
 
                 code.push_back(shadergen.getUpstreamResult(input, context));
