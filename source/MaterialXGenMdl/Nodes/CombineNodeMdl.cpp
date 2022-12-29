@@ -21,7 +21,7 @@ void CombineNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        // Custom handling for color3 type input, all other types 
+        // Custom handling for color3 type input, all other types
         // can are handled by our parent class below.
         // Custom handling is needed since in MDL color must be converted
         // to float3 before accessing its sub-component.
