@@ -11,14 +11,16 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    const string LIGHT_DIRECTION_CALCULATION =
-        "vec3 L = light.position - position;\n"
-        "float distance = length(L);\n"
-        "L /= distance;\n"
-        "result.direction = L;\n";
-}
 
-LightNodeGlsl::LightNodeGlsl() : 
+const string LIGHT_DIRECTION_CALCULATION =
+    "vec3 L = light.position - position;\n"
+    "float distance = length(L);\n"
+    "L /= distance;\n"
+    "result.direction = L;\n";
+
+} // anonymous namespace
+
+LightNodeGlsl::LightNodeGlsl() :
     _callEmission(HwShaderGenerator::ClosureContextType::EMISSION)
 {
     // Emission context
@@ -39,7 +41,7 @@ void LightNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shad
     VariableBlock& lightUniforms = ps.getUniformBlock(HW::LIGHT_DATA);
     lightUniforms.add(Type::FLOAT, "intensity", Value::createValue<float>(1.0f));
     lightUniforms.add(Type::FLOAT, "exposure", Value::createValue<float>(0.0f));
-    lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f,1.0f,0.0f)));
+    lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f, 1.0f, 0.0f)));
 
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);

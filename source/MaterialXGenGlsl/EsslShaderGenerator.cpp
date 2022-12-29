@@ -13,8 +13,8 @@ MATERIALX_NAMESPACE_BEGIN
 const string EsslShaderGenerator::TARGET = "essl";
 const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
 
-EsslShaderGenerator::EsslShaderGenerator()
-    : GlslShaderGenerator()
+EsslShaderGenerator::EsslShaderGenerator() :
+    GlslShaderGenerator()
 {
     _syntax = EsslSyntax::create();
     // Add in ESSL specific keywords
@@ -98,7 +98,7 @@ string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
 HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     HwResourceBindingContextPtr resoureBindingCtx = GlslShaderGenerator::getResourceBindingContext(context);
-    if (resoureBindingCtx) 
+    if (resoureBindingCtx)
     {
         throw ExceptionShaderGenError("The EsslShaderGenerator does not support resource binding.");
     }

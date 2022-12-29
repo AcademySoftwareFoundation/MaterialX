@@ -9,8 +9,10 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, vec3 position, out lightshader result)";
-}
+
+const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, vec3 position, out lightshader result)";
+
+} // anonymous namespace
 
 LightSamplerNodeGlsl::LightSamplerNodeGlsl()
 {
