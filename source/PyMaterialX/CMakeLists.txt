@@ -14,7 +14,7 @@ if(MATERIALX_PYTHON_PYBIND11_DIR STREQUAL "")
     if(pybind11_FOUND)
         include_directories(${PYBIND11_INCLUDE_DIR})
     else()
-        set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/PyBind11")
+        set(MATERIALX_PYTHON_PYBIND11_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/PyBind11")
     endif()
 endif()
 
