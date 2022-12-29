@@ -13,7 +13,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Frame node implementation for GLSL
 class MX_GENGLSL_API FrameNodeGlsl : public GlslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
