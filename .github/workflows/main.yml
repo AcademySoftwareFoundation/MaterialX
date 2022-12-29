@@ -174,7 +174,7 @@ jobs:
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
-      run: find source \( -name *.h -o -name *.cpp \) ! -path "*/Catch/*" ! -path "*/External/*" ! -path "*/NanoGUI/*" ! -path "*/PugiXML/*"  ! -path "*/PyBind11/*" | xargs clang-format -i --verbose
+      run: find source \( -name *.h -o -name *.cpp \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
       run: |
@@ -216,7 +216,7 @@ jobs:
       if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
       run: |
         brew install cppcheck
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/*
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
