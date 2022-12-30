@@ -30,11 +30,7 @@ To enable OpenImageIO support in MaterialX builds, the following additional opti
 - `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.
 - `MATERIALX_OIIO_DIR`: Path to the root folder of an OpenImageIO installation.  If MATERIALX_BUILD_OIIO has been enabled, then this option may be used to select which installation is used.
 
-To enable Open Shading Language compiler and render validation in MaterialX builds, the following additional options may be used:
-
-- `MATERIALX_OSL_BINARY_OSLC`: Path to the OSL compiler binary (e.g. `oslc.exe`).
-- `MATERIALX_OSL_BINARY_TESTRENDER`: Path to the OSL test render binary (e.g. `testrender.exe`).
-- `MATERIALX_OSL_INCLUDE_PATH`: Path to the OSL shader include folder, which contains headers such as `stdosl.h`.
+See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, and MDL.
 
 #### Building MaterialX Python
 

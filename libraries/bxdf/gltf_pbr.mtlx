@@ -5,6 +5,7 @@
     <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
     <input name="roughness" type="float" value="1" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Base" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent" uifolder="Base" />
     <input name="occlusion" type="float" value="1" uimin="0" uimax="1" uiname="Occlusion" uifolder="Base" />
     <input name="transmission" type="float" value="0" uimin="0" uimax="1" uiname="Transmission" uifolder="Base" />
     <input name="specular" type="float" value="1" uimin="0" uimax="1" uiname="Specular" uifolder="Base" />
@@ -120,6 +121,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -128,6 +130,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -156,6 +159,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -164,6 +168,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -201,6 +206,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </generalized_schlick_bsdf>
 
     <!-- Thin-film + Metal
@@ -211,6 +217,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </generalized_schlick_bsdf>
 
     <thin_film_bsdf name="metal_thinfilm_bsdf" type="BSDF">
@@ -298,6 +305,7 @@
       <input name="roughness" type="vector2" nodename="clearcoat_roughness_uv" />
       <input name="ior" type="float" value="1.5" />
       <input name="normal" type="vector3" interfacename="clearcoat_normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </dielectric_bsdf>
 
     <layer name="clearcoat_layer" type="BSDF">

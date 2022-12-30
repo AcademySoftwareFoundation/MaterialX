@@ -172,7 +172,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            if (connectedInput || 
+            if (connectedInput ||
                 output->getParent() == output->getDocument())
             {
                 if (!output->getOutputString().empty())
@@ -473,7 +473,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     return result;
 }
 
-NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix)
 {
     string geomNodeName = namePrefix + "_" + geomPropDef->getName();
     NodePtr geomNode = getNode(geomNodeName);

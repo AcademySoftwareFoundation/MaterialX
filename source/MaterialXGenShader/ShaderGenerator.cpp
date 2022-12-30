@@ -30,7 +30,7 @@ const string ShaderGenerator::T_FILE_TRANSFORM_UV = "$fileTransformUv";
 //
 
 ShaderGenerator::ShaderGenerator(SyntaxPtr syntax) :
-     _syntax(syntax)
+    _syntax(syntax)
 {
 }
 
@@ -102,7 +102,7 @@ void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenConte
 }
 
 void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-    bool checkScope) const
+                                       bool checkScope) const
 {
     // Check if it's emitted already.
     if (stage.isEmitted(node, context))
@@ -114,7 +114,8 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
     if (checkScope && node.referencedConditionally())
     {
         emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-            node.getScopeInfo().conditionalNode->getName() + "'", stage);
+                        node.getScopeInfo().conditionalNode->getName() + "'",
+                    stage);
         return;
     }
     stage.addFunctionCall(node, context);
@@ -167,19 +168,19 @@ void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
     stage.newLine();
 }
 
-void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
+void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
                                               GenContext&, ShaderStage& stage,
                                               bool assignValue) const
 {
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
     str += _syntax->getTypeName(variable->getType());
-    
+
     bool haveArray = variable->getType()->isArray() && variable->getValue();
     if (haveArray)
     {
         str += _syntax->getArrayTypeSuffix(variable->getType(), *variable->getValue());
     }
-    
+
     str += " " + variable->getVariable();
 
     // If an array we need an array qualifier (suffix) for the variable name
@@ -191,19 +192,19 @@ void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const 
     if (assignValue)
     {
         const string valueStr = (variable->getValue() ?
-            _syntax->getValue(variable->getType(), *variable->getValue(), true) :
-            _syntax->getDefaultValue(variable->getType(), true));
+                                 _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                                 _syntax->getDefaultValue(variable->getType(), true));
         str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
     }
 
     stage.addString(str);
 }
 
-void ShaderGenerator::emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator, 
+void ShaderGenerator::emitVariableDeclarations(const VariableBlock& block, const string& qualifier, const string& separator,
                                                GenContext& context, ShaderStage& stage,
                                                bool assignValue) const
 {
-    for (size_t i=0; i<block.size(); ++i)
+    for (size_t i = 0; i < block.size(); ++i)
     {
         emitLineBegin(stage);
         emitVariableDeclaration(block[i], qualifier, context, stage, assignValue);
@@ -346,16 +347,18 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
 
 namespace
 {
-    void replace(const StringMap& substitutions, ShaderPort* port)
-    {
-        string name = port->getName();
-        tokenSubstitution(substitutions, name);
-        port->setName(name);
-        string variable = port->getVariable();
-        tokenSubstitution(substitutions, variable);
-        port->setVariable(variable);
-    }
+
+void replace(const StringMap& substitutions, ShaderPort* port)
+{
+    string name = port->getName();
+    tokenSubstitution(substitutions, name);
+    port->setName(name);
+    string variable = port->getVariable();
+    tokenSubstitution(substitutions, variable);
+    port->setVariable(variable);
 }
+
+} // anonymous namespace
 
 void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const
 {
@@ -367,8 +370,7 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
     }
 
     // Add default entries.
-    ShaderMetadataVec defaultMetadata =
-    {
+    ShaderMetadataVec defaultMetadata = {
         ShaderMetadata(ValueElement::UI_NAME_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UI_FOLDER_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UI_MIN_ATTRIBUTE, nullptr),
@@ -451,7 +453,7 @@ void ShaderGenerator::createVariables(ShaderGraphPtr graph, GenContext& context,
         if (handler)
         {
             handler(node, context);
-        }  
+        }
         node->getImplementation().createVariables(*node, context, shader);
     }
 }

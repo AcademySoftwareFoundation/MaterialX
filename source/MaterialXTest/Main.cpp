@@ -5,7 +5,7 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXFormat/File.h>
 
 namespace mx = MaterialX;
