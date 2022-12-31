@@ -26,7 +26,7 @@ class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContex
     GlslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
     static GlslResourceBindingContextPtr create(
-        size_t uniformBindingLocation=0, size_t samplerBindingLocation=0)
+        size_t uniformBindingLocation = 0, size_t samplerBindingLocation = 0)
     {
         return std::make_shared<GlslResourceBindingContext>(
             uniformBindingLocation, samplerBindingLocation);

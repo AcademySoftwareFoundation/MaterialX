@@ -9,8 +9,10 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, vec3 position, out lightshader result)";
-}
+
+const string SAMPLE_LIGHTS_FUNC_SIGNATURE = "void sampleLightSource(LightData light, vec3 position, out lightshader result)";
+
+} // anonymous namespace
 
 LightSamplerNodeGlsl::LightSamplerNodeGlsl()
 {
@@ -24,7 +26,8 @@ ShaderNodeImplPtr LightSamplerNodeGlsl::create()
 
 void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Emit light sampler function with all bound light types
@@ -48,7 +51,7 @@ void LightSamplerNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCon
         }
 
         shadergen.emitFunctionBodyEnd(node, context, stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

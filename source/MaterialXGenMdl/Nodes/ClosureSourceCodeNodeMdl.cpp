@@ -20,16 +20,15 @@ ShaderNodeImplPtr ClosureSourceCodeNodeMdl::create()
 
 void ClosureSourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Emit calls for any closure dependencies upstream from this node.
         shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
 
         SourceCodeNodeMdl::emitFunctionCall(node, context, stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

@@ -54,10 +54,12 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 
 namespace MDL
 {
-    // Identifiers for MDL variable blocks
-    extern MX_GENMDL_API const string INPUTS;
-    extern MX_GENMDL_API const string OUTPUTS;
-}
+
+// Identifiers for MDL variable blocks
+extern MX_GENMDL_API const string INPUTS;
+extern MX_GENMDL_API const string OUTPUTS;
+
+} // namespace MDL
 
 MATERIALX_NAMESPACE_END
 

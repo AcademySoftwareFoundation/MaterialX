@@ -19,7 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Syntax class for OSL (Open Shading Language)
 class MX_GENOSL_API OslSyntax : public Syntax
 {
-public:
+  public:
     OslSyntax();
 
     static SyntaxPtr create() { return std::make_shared<OslSyntax>(); }

@@ -610,52 +610,52 @@
   <!-- ======================================================================== -->
 
   <!-- <ifgreater -->
-  <implementation name="IM_ifgreater_float_genglsl" nodedef="ND_ifgreater_float" target="genglsl" />
-  <implementation name="IM_ifgreater_color3_genglsl" nodedef="ND_ifgreater_color3" target="genglsl" />
-  <implementation name="IM_ifgreater_color4_genglsl" nodedef="ND_ifgreater_color4" target="genglsl" />
-  <implementation name="IM_ifgreater_vector2_genglsl" nodedef="ND_ifgreater_vector2" target="genglsl" />
-  <implementation name="IM_ifgreater_vector3_genglsl" nodedef="ND_ifgreater_vector3" target="genglsl" />
-  <implementation name="IM_ifgreater_vector4_genglsl" nodedef="ND_ifgreater_vector4" target="genglsl" />
-  <implementation name="IM_ifgreater_floatI_genglsl" nodedef="ND_ifgreater_floatI" target="genglsl" />
-  <implementation name="IM_ifgreater_color3I_genglsl" nodedef="ND_ifgreater_color3I" target="genglsl" />
-  <implementation name="IM_ifgreater_color4I_genglsl" nodedef="ND_ifgreater_color4I" target="genglsl" />
-  <implementation name="IM_ifgreater_vector2I_genglsl" nodedef="ND_ifgreater_vector2I" target="genglsl" />
-  <implementation name="IM_ifgreater_vector3I_genglsl" nodedef="ND_ifgreater_vector3I" target="genglsl" />
-  <implementation name="IM_ifgreater_vector4I_genglsl" nodedef="ND_ifgreater_vector4I" target="genglsl" />
+  <implementation name="IM_ifgreater_float_genglsl" nodedef="ND_ifgreater_float" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_color3_genglsl" nodedef="ND_ifgreater_color3" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_color4_genglsl" nodedef="ND_ifgreater_color4" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector2_genglsl" nodedef="ND_ifgreater_vector2" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector3_genglsl" nodedef="ND_ifgreater_vector3" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector4_genglsl" nodedef="ND_ifgreater_vector4" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_floatI_genglsl" nodedef="ND_ifgreater_floatI" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_color3I_genglsl" nodedef="ND_ifgreater_color3I" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_color4I_genglsl" nodedef="ND_ifgreater_color4I" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector2I_genglsl" nodedef="ND_ifgreater_vector2I" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector3I_genglsl" nodedef="ND_ifgreater_vector3I" file="mx_ifgreater.inline" target="genglsl" />
+  <implementation name="IM_ifgreater_vector4I_genglsl" nodedef="ND_ifgreater_vector4I" file="mx_ifgreater.inline" target="genglsl" />
 
   <!-- <ifgreatereq -->
-  <implementation name="IM_ifgreatereq_float_genglsl" nodedef="ND_ifgreatereq_float" target="genglsl" />
-  <implementation name="IM_ifgreatereq_color3_genglsl" nodedef="ND_ifgreatereq_color3" target="genglsl" />
-  <implementation name="IM_ifgreatereq_color4_genglsl" nodedef="ND_ifgreatereq_color4" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector2_genglsl" nodedef="ND_ifgreatereq_vector2" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector3_genglsl" nodedef="ND_ifgreatereq_vector3" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector4_genglsl" nodedef="ND_ifgreatereq_vector4" target="genglsl" />
-  <implementation name="IM_ifgreatereq_floatI_genglsl" nodedef="ND_ifgreatereq_floatI" target="genglsl" />
-  <implementation name="IM_ifgreatereq_color3I_genglsl" nodedef="ND_ifgreatereq_color3I" target="genglsl" />
-  <implementation name="IM_ifgreatereq_color4I_genglsl" nodedef="ND_ifgreatereq_color4I" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector2I_genglsl" nodedef="ND_ifgreatereq_vector2I" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector3I_genglsl" nodedef="ND_ifgreatereq_vector3I" target="genglsl" />
-  <implementation name="IM_ifgreatereq_vector4I_genglsl" nodedef="ND_ifgreatereq_vector4I" target="genglsl" />
+  <implementation name="IM_ifgreatereq_float_genglsl" nodedef="ND_ifgreatereq_float" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_color3_genglsl" nodedef="ND_ifgreatereq_color3" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_color4_genglsl" nodedef="ND_ifgreatereq_color4" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector2_genglsl" nodedef="ND_ifgreatereq_vector2" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector3_genglsl" nodedef="ND_ifgreatereq_vector3" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector4_genglsl" nodedef="ND_ifgreatereq_vector4" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_floatI_genglsl" nodedef="ND_ifgreatereq_floatI" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_color3I_genglsl" nodedef="ND_ifgreatereq_color3I" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_color4I_genglsl" nodedef="ND_ifgreatereq_color4I" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector2I_genglsl" nodedef="ND_ifgreatereq_vector2I" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector3I_genglsl" nodedef="ND_ifgreatereq_vector3I" file="mx_ifgreatereq.inline" target="genglsl" />
+  <implementation name="IM_ifgreatereq_vector4I_genglsl" nodedef="ND_ifgreatereq_vector4I" file="mx_ifgreatereq.inline" target="genglsl" />
 
   <!-- <ifequal -->
-  <implementation name="IM_ifequal_float_genglsl" nodedef="ND_ifequal_float" target="genglsl" />
-  <implementation name="IM_ifequal_color3_genglsl" nodedef="ND_ifequal_color3" target="genglsl" />
-  <implementation name="IM_ifequal_color4_genglsl" nodedef="ND_ifequal_color4" target="genglsl" />
-  <implementation name="IM_ifequal_vector2_genglsl" nodedef="ND_ifequal_vector2" target="genglsl" />
-  <implementation name="IM_ifequal_vector3_genglsl" nodedef="ND_ifequal_vector3" target="genglsl" />
-  <implementation name="IM_ifequal_vector4_genglsl" nodedef="ND_ifequal_vector4" target="genglsl" />
-  <implementation name="IM_ifequal_floatI_genglsl" nodedef="ND_ifequal_floatI" target="genglsl" />
-  <implementation name="IM_ifequal_color3I_genglsl" nodedef="ND_ifequal_color3I" target="genglsl" />
-  <implementation name="IM_ifequal_color4I_genglsl" nodedef="ND_ifequal_color4I" target="genglsl" />
-  <implementation name="IM_ifequal_vector2I_genglsl" nodedef="ND_ifequal_vector2I" target="genglsl" />
-  <implementation name="IM_ifequal_vector3I_genglsl" nodedef="ND_ifequal_vector3I" target="genglsl" />
-  <implementation name="IM_ifequal_vector4I_genglsl" nodedef="ND_ifequal_vector4I" target="genglsl" />
-  <implementation name="IM_ifequal_floatB_genglsl" nodedef="ND_ifequal_floatB" target="genglsl" />
-  <implementation name="IM_ifequal_color3B_genglsl" nodedef="ND_ifequal_color3B" target="genglsl" />
-  <implementation name="IM_ifequal_color4B_genglsl" nodedef="ND_ifequal_color4B" target="genglsl" />
-  <implementation name="IM_ifequal_vector2B_genglsl" nodedef="ND_ifequal_vector2B" target="genglsl" />
-  <implementation name="IM_ifequal_vector3B_genglsl" nodedef="ND_ifequal_vector3B" target="genglsl" />
-  <implementation name="IM_ifequal_vector4B_genglsl" nodedef="ND_ifequal_vector4B" target="genglsl" />
+  <implementation name="IM_ifequal_float_genglsl" nodedef="ND_ifequal_float" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color3_genglsl" nodedef="ND_ifequal_color3" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color4_genglsl" nodedef="ND_ifequal_color4" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector2_genglsl" nodedef="ND_ifequal_vector2" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector3_genglsl" nodedef="ND_ifequal_vector3" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector4_genglsl" nodedef="ND_ifequal_vector4" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_floatI_genglsl" nodedef="ND_ifequal_floatI" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color3I_genglsl" nodedef="ND_ifequal_color3I" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color4I_genglsl" nodedef="ND_ifequal_color4I" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector2I_genglsl" nodedef="ND_ifequal_vector2I" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector3I_genglsl" nodedef="ND_ifequal_vector3I" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector4I_genglsl" nodedef="ND_ifequal_vector4I" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_floatB_genglsl" nodedef="ND_ifequal_floatB" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color3B_genglsl" nodedef="ND_ifequal_color3B" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_color4B_genglsl" nodedef="ND_ifequal_color4B" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector2B_genglsl" nodedef="ND_ifequal_vector2B" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector3B_genglsl" nodedef="ND_ifequal_vector3B" file="mx_ifequal.inline" target="genglsl" />
+  <implementation name="IM_ifequal_vector4B_genglsl" nodedef="ND_ifequal_vector4B" file="mx_ifequal.inline" target="genglsl" />
 
   <!-- <switch> -->
 
