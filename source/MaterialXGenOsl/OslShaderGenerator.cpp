@@ -13,7 +13,6 @@
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
@@ -37,34 +36,6 @@ OslShaderGenerator::OslShaderGenerator() :
     ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
-
-    // <!-- <if*> -->
-    static const string SEPARATOR = "_";
-    static const string INT_SEPARATOR = "I_";
-    static const string BOOL_SEPARATOR = "B_";
-    static const StringVec IMPL_PREFIXES = { "IM_ifgreater_", "IM_ifgreatereq_", "IM_ifequal_" };
-    static const vector<CreatorFunction<ShaderNodeImpl>> IMPL_CREATE_FUNCTIONS =
-        { IfGreaterNode::create, IfGreaterEqNode::create, IfEqualNode::create };
-    static const vector<bool> IMPL_HAS_INTVERSION = { true, true, true };
-    static const vector<bool> IMPL_HAS_BOOLVERSION = { false, false, true };
-    static const StringVec IMPL_TYPES = { "float", "color3", "color4", "vector2", "vector3", "vector4" };
-    for (size_t i = 0; i < IMPL_PREFIXES.size(); i++)
-    {
-        const string& implPrefix = IMPL_PREFIXES[i];
-        for (const string& implType : IMPL_TYPES)
-        {
-            const string implRoot = implPrefix + implType;
-            registerImplementation(implRoot + SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            if (IMPL_HAS_INTVERSION[i])
-            {
-                registerImplementation(implRoot + INT_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            }
-            if (IMPL_HAS_BOOLVERSION[i])
-            {
-                registerImplementation(implRoot + BOOL_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            }
-        }
-    }
 
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
