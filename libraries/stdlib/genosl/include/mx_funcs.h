@@ -5,49 +5,25 @@
 // http://www.materialx.org/
 
 #pragma once
+
 #include "color4.h"
 #include "vector2.h"
 #include "vector4.h"
 #include "matrix33.h"
 
+//
+// Support functions for OSL implementations of the MaterialX nodes.
+//
 
-///////////////////////////////////////////////////////////////////////////
-// This file contains lots of functions helpful in the implementation of
-// the MaterialX nodes.
-///////////////////////////////////////////////////////////////////////////
+float mx_ternary(int expr, float v1, float v2) { if (expr) return v1; else return v2; }
+color mx_ternary(int expr, color v1, color v2) { if (expr) return v1; else return v2; }
+color4 mx_ternary(int expr, color4 v1, color4 v2) { if (expr) return v1; else return v2; }
+vector mx_ternary(int expr, vector v1, vector v2) { if (expr) return v1; else return v2; }
+vector2 mx_ternary(int expr, vector2 v1, vector2 v2) { if (expr) return v1; else return v2; }
+vector4 mx_ternary(int expr, vector4 v1, vector4 v2) { if (expr) return v1; else return v2; }
+matrix mx_ternary(int expr, matrix v1, matrix v2) { if (expr) return v1; else return v2; }
+matrix33 mx_ternary(int expr, matrix33 v1, matrix33 v2) { if (expr) return v1; else return v2; }
 
-
-// Define mx_convert_type
-//   float -> colvecN
-color mx_convert (float a) { return color(a); }
-color4 mx_convert (float a) { return color4(a,a); }
-vector mx_convert (float a) { return vector(a); }
-vector2 mx_convert (float a) { return vector2(a,a); }
-vector4 mx_convert (float a) { return vector4(a,a,a,a); }
-//   colN <-> vecN
-vector mx_convert (color a) { return (vector)a; }
-vector4 mx_convert (color4 a) { return vector4 (a.rgb[0], a.rgb[1], a.rgb[2], a.a); }
-color mx_convert (vector a) { return (color)a; }
-color4 mx_convert (vector4 a) { return color4 (color(a.x,a.y,a.z), a.w); }
-//   col3 <-> col4
-color mx_convert (color4 a) { return a.rgb; }
-color4 mx_convert (color a) { return color4(a,1.0); }
-
-// Define mx_add() overloaded for all MX types.
-float mx_add (float a, float b) { return a+b; }
-point mx_add (point a, point b) { return a+b; }
-point mx_add (point a, float b) { return a+b; }
-vector mx_add (vector a, vector b) { return a+b; }
-vector mx_add (vector a, float b) { return a+b; }
-vector2 mx_add (vector2 a, vector2 b) { return a+b; }
-vector2 mx_add (vector2 a, float b) { return a+b; }
-vector4 mx_add (vector4 a, vector4 b) { return a+b; }
-vector4 mx_add (vector4 a, float b) { return a+b; }
-color mx_add (color a, color b) { return a+b; }
-color mx_add (color a, float b) { return a+b; }
-color4 mx_add (color4 a, color4 b) { return a+b; }
-color4 mx_add (color4 a, float b) { return a+b; }
-closure color mx_add (closure color a, closure color b) { return a+b; }
 
 matrix33 mx_add(matrix33 a, matrix33 b)
 {
@@ -86,22 +62,7 @@ matrix mx_add(matrix a, float b)
 }
 
 
-// Define mx_sub() overloaded for all MX types.
-float mx_sub (float a, float b) { return a-b; }
-point mx_sub (point a, point b) { return a-b; }
-point mx_sub (point a, float b) { return a-b; }
-vector mx_sub (vector a, vector b) { return a-b; }
-vector mx_sub (vector a, float b) { return a-b; }
-vector2 mx_sub (vector2 a, vector2 b) { return a-b; }
-vector2 mx_sub (vector2 a, float b) { return a-b; }
-vector4 mx_sub (vector4 a, vector4 b) { return a-b; }
-vector4 mx_sub (vector4 a, float b) { return a-b; }
-color mx_sub (color a, color b) { return a-b; }
-color mx_sub (color a, float b) { return a-b; }
-color4 mx_sub (color4 a, color4 b) { return a-b; }
-color4 mx_sub (color4 a, float b) { return a-b; }
-
-matrix33 mx_sub(matrix33 a, matrix33 b)
+matrix33 mx_subtract(matrix33 a, matrix33 b)
 {
     return matrix33(matrix(
         a.m[0][0]-b.m[0][0], a.m[0][1]-b.m[0][1], a.m[0][2]-b.m[0][2], 0.0,
@@ -110,7 +71,7 @@ matrix33 mx_sub(matrix33 a, matrix33 b)
         0.0, 0.0, 0.0, 1.0));
 }
 
-matrix33 mx_sub(matrix33 a, float b)
+matrix33 mx_subtract(matrix33 a, float b)
 {
     return matrix33(matrix(
         a.m[0][0]-b, a.m[0][1]-b, a.m[0][2]-b, 0.0,
@@ -119,7 +80,7 @@ matrix33 mx_sub(matrix33 a, float b)
         0.0, 0.0, 0.0, 1.0));
 }
 
-matrix mx_sub(matrix a, matrix b)
+matrix mx_subtract(matrix a, matrix b)
 {
    return matrix(
        a[0][0]-b[0][0], a[0][1]-b[0][1], a[0][2]-b[0][2], a[0][3]-b[0][3],
@@ -128,7 +89,7 @@ matrix mx_sub(matrix a, matrix b)
        a[3][0]-b[3][0], a[3][1]-b[3][1], a[3][2]-b[3][2], a[3][3]-b[3][3]);
 }
 
-matrix mx_sub(matrix a, float b)
+matrix mx_subtract(matrix a, float b)
 {
     return matrix(
         a[0][0]-b, a[0][1]-b, a[0][2]-b, a[0][3]-b,
@@ -138,7 +99,6 @@ matrix mx_sub(matrix a, float b)
 }
 
 
-// remap `in` from [inLow, inHigh] to [outLow, outHigh], optionally clamping to the new range.
 float mx_remap(float in, float inLow, float inHigh, float outLow, float outHigh, int doClamp)
 {
       float x = (in - inLow)/(inHigh-inLow);
@@ -210,9 +170,6 @@ vector4 mx_remap(vector4 in, float inLow, float inHigh, float outLow, float outH
 }
 
 
-//
-// mx_contrast scales the input around a central `pivot` value.
-//
 float mx_contrast(float in, float amount, float pivot)
 {
     float out = in - pivot;
@@ -317,9 +274,6 @@ vector4 mx_noise(string noisetype, point position)
 }
 
 
-//
-// fractional Brownian motion
-//
 float mx_fbm(point position, int octaves, float lacunarity, float diminish, string noisetype)
 {
     float out = 0;
@@ -573,10 +527,4 @@ vector mx_worley_noise_vector3(vector p, float jitter, int metric)
     if (metric == 0)
         result = sqrt(result);
     return result;
-}
-
-
-color4 mx_combine(float a, float b, float c, float d)
-{
-    return color4(color(a,b,c), d);
 }
