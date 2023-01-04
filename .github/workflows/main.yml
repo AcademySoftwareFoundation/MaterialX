@@ -197,6 +197,7 @@ jobs:
         python MaterialXTest/genshader.py
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
+        mkdir ../build/installed/documents
         python Scripts/mxdoc.py md --docType --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.md
         python Scripts/mxdoc.py html --docType --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.md
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target glsl
