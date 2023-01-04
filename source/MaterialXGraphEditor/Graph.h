@@ -105,6 +105,7 @@ class Graph
     int findNode(int nodeId);
     void DrawPinIcon(std::string type, bool connected, int alpha);
     Pin getPin(ed::PinId id);
+    void CreateInputPin(int attrId, mx::InputPtr input);
     std::vector<int> CreateNodes(bool nodegraph);
     int getNodeId(ed::PinId pinId);
     void buildGroupNode(UiNodePtr node);

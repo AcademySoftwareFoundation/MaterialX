@@ -57,7 +57,7 @@ class UiNode
         return _currOutput;
     }
 
-    void setName(const std::string &newName)
+    void setName(const std::string& newName)
     {
         _name = newName;
     }
@@ -85,7 +85,7 @@ class UiNode
     {
         _outputConnections.push_back(connections);
     }
-    void setMessage(const std::string &message)
+    void setMessage(const std::string& message)
     {
         _message = message;
     }
@@ -95,7 +95,7 @@ class UiNode
         return _message;
     }
 
-    void setCategory(const std::string &category)
+    void setCategory(const std::string& category)
     {
         _category = category;
     }
@@ -105,7 +105,7 @@ class UiNode
         return _category;
     }
 
-    void setType(const std::string &type)
+    void setType(const std::string& type)
     {
         _type = type;
     }
@@ -145,6 +145,7 @@ class UiNode
     void removeOutputConnection(std::string);
     mx::ElementPtr getMxElement();
     int _level;
+    bool _showAllInputs;
 
   private:
     int _id;

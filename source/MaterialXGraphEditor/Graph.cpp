@@ -225,6 +225,7 @@ void Graph::linkGraph()
                 {
                     if (inputs[i]._input->getInterfaceInput())
                     {
+
                         inputs[i].setConnected(true);
                     }
                 }
@@ -350,7 +351,6 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
 
     if (checkPosition(layoutNode) && !_autoLayout)
     {
-        // bool scale = testForScale();
         for (UiNodePtr node : _graphNodes)
         {
             // since nodegrpah nodes do not have any materialX info they are placed based off their conneced node
@@ -1755,7 +1755,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             }
             else if (!geomProp)
             {
-                //only set the defaults if not a geom prop as that should not be changed in the property editor
+                // only set the defaults if not a geom prop as that should not be changed in the property editor
                 setDefaults(inputNew);
             }
         }
@@ -1953,6 +1953,33 @@ void Graph::outputPin(UiNodePtr node, int attrId, std::string outputPin, std::st
     ImGui::Unindent(nodeWidth - labelWidth);
     ++attrId;
 }
+
+void Graph::CreateInputPin(int attrId, mx::InputPtr input)
+{
+    ed::BeginPin(attrId, ed::PinKind::Input);
+    ImGui::PushID(int(attrId));
+    if (!_pinFilterType.empty())
+    {
+        if (_pinFilterType == input->getType())
+        {
+            DrawPinIcon(input->getType(), true, DEFAULT_ALPHA);
+        }
+        else
+        {
+            DrawPinIcon(input->getType(), true, FILTER_ALPHA);
+        }
+    }
+    else
+    {
+        DrawPinIcon(input->getType(), true, DEFAULT_ALPHA);
+    }
+
+    ImGui::SameLine();
+    ImGui::TextUnformatted(input->getName().c_str());
+    ed::EndPin();
+    ImGui::PopID();
+}
+
 std::vector<int> Graph::CreateNodes(bool nodegraph)
 {
     _currPins.clear();
@@ -1999,29 +2026,6 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
                     std::string inName = inputs[i]->getName();
                     mx::InputPtr newIn = inputs[i]->getInterfaceInput();
                     Pin inPin = Pin(int(attrId), &*inName.begin(), inputs[i]->getType(), node, ax::NodeEditor::PinKind::Input, inputs[i], nullptr);
-                    ed::BeginPin(attrId, ed::PinKind::Input);
-                    ImGui::PushID(int(attrId));
-                    std::string ty = inputs[i]->getType();
-                    if (!_pinFilterType.empty())
-                    {
-                        if (_pinFilterType == ty)
-                        {
-                            DrawPinIcon(inputs[i]->getType(), true, DEFAULT_ALPHA);
-                        }
-                        else
-                        {
-                            DrawPinIcon(inputs[i]->getType(), true, FILTER_ALPHA);
-                        }
-                    }
-                    else
-                    {
-                        DrawPinIcon(inputs[i]->getType(), true, DEFAULT_ALPHA);
-                    }
-
-                    ImGui::SameLine();
-                    ImGui::TextUnformatted(inName.c_str());
-                    ed::EndPin();
-
                     if (node->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                     {
 
@@ -2031,14 +2035,22 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
                             inPin.setConnected(true);
                         }
                     }
-                    else if (inputs[i]->getConnectedNode() != nullptr)
+                    else if (inputs[i]->getConnectedNode() || inputs[i]->getInterfaceInput())
                     {
                         inPin.setConnected(true);
+                    }
+                    if (node->_showAllInputs)
+                    {
+                        CreateInputPin(attrId, inputs[i]);
+                    }
+                    else if (inPin.getConnected())
+                    {
+                        CreateInputPin(attrId, inputs[i]);
                     }
 
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ImGui::PopID();
+
                     ++attrId;
                 }
                 // set color of output pin
@@ -2074,6 +2086,11 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
                 outputPin(node, int(attrId), outputType, "output");
                 ++attrId;
                 Pin inPin = Pin(int(attrId), &*("Value"), node->getInput()->getType(), node, ax::NodeEditor::PinKind::Input, node->getInput(), nullptr);
+                if (node->getInput()->getConnectedNode())
+                {
+                    inPin.setConnected(true);
+                }
+
                 ed::BeginPin(attrId, ed::PinKind::Input);
                 if (!_pinFilterType.empty())
                 {
@@ -2174,35 +2191,21 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
 
                     std::string inName = input->getName();
                     Pin inPin = Pin(int(attrId), &*inName.begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
-                    ed::BeginPin(attrId, ed::PinKind::Input);
-                    ImGui::PushID(int(attrId));
-                    if (!_pinFilterType.empty())
-                    {
-                        if (_pinFilterType == input->getType())
-                        {
-                            DrawPinIcon(input->getType(), true, DEFAULT_ALPHA);
-                        }
-                        else
-                        {
-                            DrawPinIcon(input->getType(), true, FILTER_ALPHA);
-                        }
-                    }
-                    else
-                    {
-                        DrawPinIcon(input->getType(), true, DEFAULT_ALPHA);
-                    }
-                    ImGui::SameLine();
-                    ImGui::TextUnformatted(inName.c_str());
-                    ed::EndPin();
 
                     if (input->getConnectedNode() != nullptr)
                     {
                         inPin.setConnected(true);
                     }
-
+                    if (node->_showAllInputs)
+                    {
+                        CreateInputPin(attrId, input);
+                    }
+                    else if (inPin.getConnected())
+                    {
+                        CreateInputPin(attrId, input);
+                    }
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ImGui::PopID();
                     ++attrId;
                 }
                 for (mx::OutputPtr output : node->getNodeGraph()->getOutputs())
@@ -2508,6 +2511,134 @@ void Graph::deleteLink(ed::LinkId deletedLinkId)
 void Graph::deleteNode(UiNodePtr node)
 {
 
+    // delete link
+    for (Pin inputPins : node->inputPins)
+    {
+        UiNodePtr upNode = node->getConnectedNode(inputPins._name);
+        if (upNode)
+        {
+            upNode->removeOutputConnection(node->getName());
+            int num = node->getEdgeIndex(upNode->getId());
+            // erase edge between node and up node
+            if (num != -1)
+            {
+                if (node->edges.size() == 1)
+                {
+                    node->edges.erase(node->edges.begin() + 0);
+                }
+                else if (node->edges.size() > 1)
+                {
+                    node->edges.erase(node->edges.begin() + num);
+                }
+            }
+        }
+    }
+    // update downNode info
+    std::vector<UiNodePtr> downNodes = node->getOutputConnections();
+    for (UiNodePtr downNode : downNodes)
+    {
+        int num = downNode->getEdgeIndex(node->getId());
+        if (num != -1)
+        {
+            if (downNode->edges.size() == 1)
+            {
+                downNode->edges.erase(downNode->edges.begin() + 0);
+            }
+            else if (downNode->edges.size() > 1)
+            {
+                downNode->edges.erase(downNode->edges.begin() + num);
+            }
+        }
+
+        downNode->setInputNodeNum(-1);
+        // not really necessary since it will be deleted
+        node->removeOutputConnection(downNode->getName());
+        // change input so that is default val
+        // change informtion of actual mx::Node
+        if (downNode->getNode() != nullptr)
+        {
+
+            mx::NodeDefPtr nodeDef = downNode->getNode()->getNodeDef(downNode->getNode()->getName());
+
+            for (Pin pin : downNode->inputPins)
+            {
+
+                if (pin._input->getConnectedNode())
+                {
+                    if (pin._input->getConnectedNode()->getName() == node->getName())
+                    {
+                        mx::ValuePtr val = nodeDef->getActiveInput(pin._input->getName())->getValue();
+                        std::cout << nodeDef->asString() << std::endl;
+                        if (downNode->getNode()->getType() == "surfaceshader")
+                        {
+                            pin._input->setConnectedOutput(nullptr);
+                        }
+                        else
+                        {
+                            pin._input->setConnectedNode(nullptr);
+                        }
+
+                        pin.setConnected(false);
+                        if (val)
+                        {
+                            std::string valString = val->getValueString();
+                            pin._input->setValueString(val->getValueString());
+                            updateMaterials(pin._input, pin._input->getValue(), true);
+                        }
+                    }
+                }
+                else if (pin._input->getConnectedOutput())
+                {
+                    if (pin._input->getConnectedOutput()->getName() == node->getName())
+                    {
+                        mx::ValuePtr val = nodeDef->getActiveInput(pin._input->getName())->getValue();
+                        std::cout << nodeDef->asString() << std::endl;
+                        if (downNode->getNode()->getType() == "surfaceshader")
+                        {
+                            pin._input->setConnectedOutput(nullptr);
+                        }
+                        else
+                        {
+                            pin._input->setConnectedNode(nullptr);
+                        }
+
+                        pin.setConnected(false);
+                        if (val)
+                        {
+                            std::string valString = val->getValueString();
+                            pin._input->setValueString(val->getValueString());
+                            updateMaterials(pin._input, pin._input->getValue(), true);
+                        }
+                    }
+                }
+            }
+        }
+        else if (downNode->getNodeGraph())
+        {
+            // set default values for nodegraph node pins ie nodegraph inputs
+            mx::NodeDefPtr nodeDef = downNode->getNodeGraph()->getNodeDef();
+            for (Pin pin : downNode->inputPins)
+            {
+                if (downNode->getConnectedNode(pin._name))
+                {
+                    if (downNode->getConnectedNode(pin._name) == node)
+                    {
+
+                        if (node->getInput())
+                        {
+                            downNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                            setDefaults(node->getInput());
+                        }
+                        pin._input->setConnectedNode(nullptr);
+                        pin.setConnected(false);
+                        setDefaults(pin._input);
+                        updateMaterials(pin._input, pin._input->getValue(), true);
+                    }
+                }
+            }
+        }
+    }
+
     // remove from NodeGraph
     // all link information is handled in delete link which is called before this
     int nodeNum = findNode(node->getId());
@@ -2805,6 +2936,7 @@ void Graph::propertyEditor()
                 ImGui::PopID();
             }
             ImGui::Unindent();
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
 
         else if (_currUiNode->getInput() != nullptr)
@@ -2864,9 +2996,11 @@ void Graph::propertyEditor()
                 count++;
             }
             ImGui::Unindent();
+            ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
+
         if (ImGui::Button("Node Info"))
         {
             ImGui::OpenPopup("docstring");
@@ -3240,6 +3374,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                         }
                     }
                 }
+                linkGraph();
             }
             _isCut = false;
         }
