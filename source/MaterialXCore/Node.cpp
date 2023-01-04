@@ -644,6 +644,61 @@ void Node::addInputsFromNodeDef()
     }
 }
 
+ValueElementPtr Node::addValueElementFromNodeDef(const string& name)
+{
+    ValueElementPtr nodeElement = getValueElement(name);
+    if (!nodeElement)
+    {
+        NodeDefPtr nodeDef = getNodeDef();
+        ValueElementPtr nodeDefElem = nodeDef ? nodeDef->getActiveValueElement(name) : nullptr;
+        if (nodeDefElem)
+        { 
+            if (nodeDefElem->isA<Output>())
+            {
+                nodeElement = addOutput(name, nodeDefElem->getType());
+            }
+            else if (nodeDefElem->isA<Input>())
+            {
+                nodeElement = addInput(name, nodeDefElem->getType());
+            }            
+            if (nodeElement && nodeDefElem->hasValueString())
+            {
+                nodeElement->setValueString(nodeDefElem->getValueString());
+            }
+        }
+    }
+    return nodeElement;
+}
+
+void Node::addValueElementsFromNodeDef()
+{
+    NodeDefPtr nodeDef = getNodeDef();
+    if (nodeDef)
+    {
+        for (ValueElementPtr nodeDefElem : nodeDef->getActiveValueElements())
+        {
+            const string& inputName = nodeDefElem->getName();
+            ValueElementPtr valueElem = getValueElement(inputName);
+            ValueElementPtr newElem = nullptr;
+            if (!valueElem)
+            {
+                if (nodeDefElem->isA<Output>())
+                {
+                    newElem = addOutput(nodeDefElem->getName(), nodeDefElem->getType());
+                }
+                else if (nodeDefElem->isA<Input>())
+                {
+                    newElem= addInput(inputName, nodeDefElem->getType());
+                }
+                if (newElem && nodeDefElem->hasValueString())
+                {
+                    newElem->setValueString(nodeDefElem->getValueString());
+                }
+            }
+        }
+    }
+}
+
 void NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
 {
     NodeDefPtr nodeDef = getNodeDef();

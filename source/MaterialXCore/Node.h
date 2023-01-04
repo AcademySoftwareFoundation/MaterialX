@@ -163,6 +163,14 @@ class MX_CORE_API Node : public InterfaceElement
     /// Add inputs based on the corresponding associated node definition.
     void addInputsFromNodeDef();
 
+    /// Add an value elements (inputs/outputs) based on the corresponding element for the associated node definition.
+    /// If the element already exists on the node it will just be returned.
+    ValueElementPtr addValueElementFromNodeDef(const string& name);
+
+    /// Add value elements based on the corresponding associated node definition.
+    void addValueElementsFromNodeDef();
+
+
     /// @}
     /// @name Validation
     /// @{

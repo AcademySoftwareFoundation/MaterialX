@@ -273,7 +273,9 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeOptimize(true),
     _bakeRequested(false),
     _bakeWidth(0),
-    _bakeHeight(0)
+    _bakeHeight(0),
+    _diagramFormat(DiagramFormat::MERMAID_FORMAT),
+    _diagramWriteCategoryNames(false)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -310,6 +312,10 @@ Viewer::Viewer(const std::string& materialFilename,
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
     _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
+
+    _graphIORegistry = mx::GraphIORegistry::create();    
+    _graphIORegistry->addGraphIO(mx::MermaidGraphIO::create());
+    _graphIORegistry->addGraphIO(mx::DotGraphIO::create());
 }
 
 void Viewer::initialize()
@@ -1025,6 +1031,30 @@ void Viewer::createAdvancedSettings(Widget* parent)
     });
     wedgeCountBox->set_value(8);
     wedgeCountBox->set_editable(true);
+
+    ng::Label* diagramLabel = new ng::Label(advancedPopup, "Diagram Output Options (D)");
+    diagramLabel->set_font_size(20);
+    diagramLabel->set_font("sans-bold");
+
+    Widget* diagramFormatGroup = new Widget(advancedPopup);
+    diagramFormatGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    new ng::Label(diagramFormatGroup, "Diagram format:");
+    mx::StringVec diagramFormatOptions = { "mermaid", "dot" };
+    ng::ComboBox* diagramFormatBox = new ng::ComboBox(diagramFormatGroup, diagramFormatOptions);
+    diagramFormatBox->set_chevron_icon(-1);
+    diagramFormatBox->set_selected_index((int) _diagramFormat );
+    diagramFormatBox->set_callback([this](int index)
+    {
+        _diagramFormat = (DiagramFormat)index;
+    });
+
+    ng::CheckBox* diagramNamingBox = new ng::CheckBox(advancedPopup, "Write Category Names");
+    diagramNamingBox->set_checked(_diagramWriteCategoryNames);
+    diagramNamingBox->set_callback([this](bool enable)
+    {
+        _diagramWriteCategoryNames = enable;
+    });
+
 }
 
 void Viewer::updateGeometrySelections()
@@ -1539,43 +1569,104 @@ void Viewer::loadShaderSource()
     }
 }
 
-void Viewer::saveDotFiles()
+void Viewer::saveDiagrams()
 {
     try
     {
+        mx::FilePath baseFilename = getBaseOutputPath();
+
         MaterialPtr material = getSelectedMaterial();
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
-        mx::NodePtr shaderNode = elem->asA<mx::Node>();
-        if (shaderNode)
+
+        mx::NodePtr shaderNode = nullptr;
+        mx::GraphElementPtr graphNode = nullptr;
+
+        // Handle an output. Get parent graph
+        std::vector<mx::OutputPtr> outputs;
+
+        // If element chosen is an output then use that as the starting point (root)
+        // and get the parent nodegraph or document (GraphElement)
+        mx::OutputPtr rootOutput = elem->asA<mx::Output>();
+        if (rootOutput)
         {
-            mx::FilePath baseFilename = getBaseOutputPath();
-            for (mx::InputPtr input : shaderNode->getInputs())
+            outputs.push_back(rootOutput);
+            mx::ElementPtr parentPtr = rootOutput->getParent();
+            if (parentPtr->isA<mx::NodeGraph>())
             {
-                mx::OutputPtr output = input->getConnectedOutput();
-                mx::ConstNodeGraphPtr nodeGraph = output ? output->getAncestorOfType<mx::NodeGraph>() : nullptr;
-                if (nodeGraph)
+                graphNode = parentPtr->asA<mx::NodeGraph>();
+            }
+            else
+            {
+                graphNode = elem->getDocument();
+            }
+        }
+
+        // Root is not an output so attempt to find output roots
+        //
+        else
+        {
+            mx::NodePtr node = elem->asA<mx::Node>();
+
+            // Material nodes have no output so traverse upstream to get starting node
+            if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
+            {
+                std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
+                if (!shaderNodes.empty())
                 {
-                    std::string dotString = nodeGraph->asStringDot();
-                    std::string dotFilename = baseFilename.asString() + "_" + nodeGraph->getName() + ".dot";
-                    writeTextFile(dotString, dotFilename);
+                    node = shaderNodes[0];
+                    if (!node->getOutputCount())
+                    {
+                        node->addValueElementsFromNodeDef();
+                    }
                 }
             }
-
-            mx::NodeDefPtr nodeDef = shaderNode->getNodeDef();
-            mx::InterfaceElementPtr implement = nodeDef ? nodeDef->getImplementation() : nullptr;
-            mx::NodeGraphPtr nodeGraph = implement ? implement->asA<mx::NodeGraph>() : nullptr;
-            if (nodeGraph)
+            if (node)
             {
-                std::string dotString = nodeGraph->asStringDot();
-                std::string dotFilename = baseFilename.asString() + "_" + nodeDef->getName() + ".dot";
-                writeTextFile(dotString, dotFilename);
+                // Get all outputs on the node
+                for (mx::OutputPtr out : node->getActiveOutputs())
+                {
+                    outputs.push_back(out);
+                }
+                graphNode = elem->getDocument();
             }
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved dot files: ", baseFilename.asString() + "_*.dot");
+        }
+        
+        std::string outputString;
+        std::string outputFilename;
+        if (graphNode)
+        {
+            std::string formatString;
+            if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)
+            {
+                formatString = "md";
+            }
+            else
+            {
+                formatString = "dot";
+            }
+            
+            mx::GraphIOGenOptions graphOptions;
+            graphOptions.setWriteCategories(_diagramWriteCategoryNames);
+            outputString = _graphIORegistry->write(formatString, graphNode, outputs, graphOptions);
+            if (!outputString.empty())
+            {
+                if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)
+                {
+                    outputString = "```mermaid\n" + outputString + "\n```\n";
+                }
+                outputFilename = baseFilename.asString() + "_" + mx::createValidName(elem->getNamePath()) + "." + formatString;
+                writeTextFile(outputString, outputFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved diagram file: ", outputFilename);
+            }
+            else
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to save diagram file for material");
+            }
         }
     }
     catch (std::exception& e)
     {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save dot file for material", e.what());
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save diagram file for material", e.what());
     }
 }
 
@@ -1749,10 +1840,10 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
         return true;
     }
 
-    // Save each node graph in the current material as a dot file.
+    // Save each node graph in the current material as a diagram file.
     if (key == GLFW_KEY_D && action == GLFW_PRESS)
     {
-        saveDotFiles();
+        saveDiagrams();
         return true;
     }
 

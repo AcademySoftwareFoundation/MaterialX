@@ -15,6 +15,8 @@
 
 #include <MaterialXCore/Unit.h>
 
+#include <MaterialXFormat/GraphIO.h>
+
 namespace mx = MaterialX;
 namespace ng = nanogui;
 
@@ -205,7 +207,7 @@ class Viewer : public ng::Screen
     void loadStandardLibraries();
     void saveShaderSource(mx::GenContext& context);
     void loadShaderSource();
-    void saveDotFiles();
+    void saveDiagrams();
 
     // Translate the current material to the target shading model.
     mx::DocumentPtr translateMaterial();
@@ -422,6 +424,16 @@ class Viewer : public ng::Screen
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
     mx::FilePath _bakeFilename;
+
+    // Diagram export
+    enum class DiagramFormat
+    {
+        MERMAID_FORMAT = 0,
+        DOT_FORMAT
+    };
+    DiagramFormat _diagramFormat;
+    bool _diagramWriteCategoryNames;
+    mx::GraphIORegistryPtr _graphIORegistry;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;
