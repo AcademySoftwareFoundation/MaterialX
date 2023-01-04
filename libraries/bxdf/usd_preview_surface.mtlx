@@ -209,7 +209,7 @@
     <generalized_schlick_bsdf name="specular_bsdf2" type="BSDF">
       <input name="weight" type="float" value="1" />
       <input name="color0" type="color3" nodename="F0" />
-      <input name="color90" type="color3" interfacename="specularColor" />
+      <input name="color90" type="color3" nodename="specular_color_metallic" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
