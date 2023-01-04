@@ -198,8 +198,8 @@ jobs:
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
         mkdir ../build/installed/documents
-        python Scripts/mxdoc.py md --docType --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.md
-        python Scripts/mxdoc.py html --docType --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.md
+        python Scripts/mxdoc.py --docType md --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.md
+        python Scripts/mxdoc.py --docType html --nodegraph --printIndex ../libraries > ../build/installed/documents/node_library.html
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target mdl
