@@ -105,8 +105,8 @@ class Graph
     int findNode(int nodeId);
     void DrawPinIcon(std::string type, bool connected, int alpha);
     Pin getPin(ed::PinId id);
-    void CreateInputPin(int attrId, mx::InputPtr input);
-    std::vector<int> CreateNodes(bool nodegraph);
+    void createInputPin(int attrId, mx::InputPtr input);
+    std::vector<int> createNodes(bool nodegraph);
     int getNodeId(ed::PinId pinId);
     void buildGroupNode(UiNodePtr node);
     void AddLink(ed::PinId inputPinId, ed::PinId outputPinId);
@@ -136,6 +136,8 @@ class Graph
     void graphButtons();
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
+    bool readOnly();
+    void readOnlyPopup();
     mx::InputPtr findInput(mx::InputPtr input, std::string name);
     // document and intializing information
     mx::FilePath _materialFilename;
@@ -160,7 +162,7 @@ class Graph
     // current nodes and nodegraphs
     UiNodePtr _currUiNode;
     UiNodePtr _prevUiNode;
-    mx::NodeGraphPtr _currNodeGraph;
+    mx::GraphElementPtr _currGraphElem;
     UiNodePtr _currRenderNode;
     std::vector<std::string> _currGraphName;
 

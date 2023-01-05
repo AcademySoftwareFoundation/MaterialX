@@ -212,12 +212,15 @@ void Graph::linkGraph()
                     int start = int(getOutputPin(node, inputNode, inputs[i]).Get());
                     if (start >= 0)
                     {
-                        inputNode->outputPins[0].setConnected(true);
-                        link._startAttr = start;
-
-                        if (!linkExists(link))
+                        if (inputNode->outputPins.size() > 0)
                         {
-                            _currLinks.push_back(link);
+                            inputNode->outputPins[0].setConnected(true);
+                            link._startAttr = start;
+
+                            if (!linkExists(link))
+                            {
+                                _currLinks.push_back(link);
+                            }
                         }
                     }
                 }
@@ -1385,14 +1388,7 @@ void Graph::copyUiNode(UiNodePtr node)
         if (node->getNode())
         {
             mx::NodePtr mxNode;
-            if (_isNodeGraph)
-            {
-                mxNode = _currNodeGraph->addNodeInstance(node->getNode()->getNodeDef());
-            }
-            else
-            {
-                mxNode = _graphDoc->addNodeInstance(node->getNode()->getNodeDef());
-            }
+            mxNode = _currGraphElem->addNodeInstance(node->getNode()->getNodeDef());
             mxNode->copyContentFrom(node->getNode());
             mxNode->setName(newName);
             copyNode->setNode(mxNode);
@@ -1400,28 +1396,14 @@ void Graph::copyUiNode(UiNodePtr node)
         else if (node->getInput())
         {
             mx::InputPtr mxInput;
-            if (_isNodeGraph)
-            {
-                mxInput = _currNodeGraph->addInput(newName);
-            }
-            else
-            {
-                mxInput = _graphDoc->addInput(newName);
-            }
+            mxInput = _currGraphElem->addInput(newName);
             mxInput->copyContentFrom(node->getInput());
             copyNode->setInput(mxInput);
         }
         else if (node->getOutput())
         {
             mx::OutputPtr mxOutput;
-            if (_isNodeGraph)
-            {
-                mxOutput = _currNodeGraph->addOutput(newName);
-            }
-            else
-            {
-                mxOutput = _graphDoc->addOutput(newName);
-            }
+            mxOutput = _currGraphElem->addOutput(newName);
             mxOutput->copyContentFrom(node->getOutput());
             mxOutput->setName(newName);
             copyNode->setOutput(mxOutput);
@@ -1434,7 +1416,6 @@ void Graph::copyUiNode(UiNodePtr node)
         _graphDoc->addNodeGraph();
         std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
         copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
-        _currNodeGraph = _graphDoc->getNodeGraphs().back();
         copyNode->setName(nodeGraphName);
         copyNodeGraph(node, copyNode);
     }
@@ -1596,19 +1577,10 @@ void Graph::addNode(std::string category, std::string name, std::string type)
     if (category == "output")
     {
         std::string outName = "";
-
         mx::OutputPtr newOut;
         // add output as child of correct parent and create valid name
-        if (_isNodeGraph)
-        {
-            outName = _currNodeGraph->createValidChildName(name);
-            newOut = _currNodeGraph->addOutput(outName, type);
-        }
-        else
-        {
-            outName = _graphDoc->createValidChildName(name);
-            newOut = _graphDoc->addOutput(outName, type);
-        }
+        outName = _currGraphElem->createValidChildName(name);
+        newOut = _currGraphElem->addOutput(outName, type);
         auto outputNode = std::make_shared<UiNode>(outName, int(_graphTotalSize + 1));
         outputNode->setOutput(newOut);
         setUiNodeInfo(outputNode, type, category);
@@ -1619,16 +1591,8 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         std::string inName = "";
         mx::InputPtr newIn = nullptr;
         // add input as child of correct parent and create valid name
-        if (_isNodeGraph)
-        {
-            inName = _currNodeGraph->createValidChildName(name);
-            newIn = _currNodeGraph->addInput(inName, type);
-        }
-        else
-        {
-            inName = _graphDoc->createValidChildName(name);
-            newIn = _graphDoc->addInput(inName, type);
-        }
+        inName = _currGraphElem->createValidChildName(name);
+        newIn = _currGraphElem->addInput(inName, type);
         auto inputNode = std::make_shared<UiNode>(inName, int(_graphTotalSize + 1));
         setDefaults(newIn);
         inputNode->setInput(newIn);
@@ -1653,7 +1617,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         auto nodeGraphNode = std::make_shared<UiNode>(nodeGraphName, int(_graphTotalSize + 1));
         // set mx::Nodegraph as node graph for uiNode
         nodeGraphNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
-        _currNodeGraph = _graphDoc->getNodeGraphs().back();
+
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
     }
@@ -1698,16 +1662,10 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             std::string sub = nodedefName.substr(3, nodedefName.length());
             if (sub == name)
             {
-                if (_isNodeGraph)
-                {
-                    node = _currNodeGraph->addNodeInstance(nodedef);
-                    node->setName(_currNodeGraph->createValidChildName(name));
-                }
-                else
-                {
-                    node = _graphDoc->addNodeInstance(nodedef);
-                    node->setName(_graphDoc->createValidChildName(name));
-                }
+
+                node = _currGraphElem->addNodeInstance(nodedef);
+                node->setName(_currGraphElem->createValidChildName(name));
+                // }
             }
         }
     }
@@ -1858,7 +1816,11 @@ void Graph::buildGroupNode(UiNodePtr node)
     }
     ed::EndGroupHint();
 }
-
+bool Graph::readOnly()
+{
+    // if the sources are not the same then the current graph cannot be modified
+    return _currGraphElem->getActiveSourceUri() != _graphDoc->getActiveSourceUri();
+}
 mx::InputPtr Graph::findInput(mx::InputPtr nodeInput, std::string name)
 {
     if (_isNodeGraph)
@@ -1954,7 +1916,7 @@ void Graph::outputPin(UiNodePtr node, int attrId, std::string outputPin, std::st
     ++attrId;
 }
 
-void Graph::CreateInputPin(int attrId, mx::InputPtr input)
+void Graph::createInputPin(int attrId, mx::InputPtr input)
 {
     ed::BeginPin(attrId, ed::PinKind::Input);
     ImGui::PushID(int(attrId));
@@ -1980,7 +1942,7 @@ void Graph::CreateInputPin(int attrId, mx::InputPtr input)
     ImGui::PopID();
 }
 
-std::vector<int> Graph::CreateNodes(bool nodegraph)
+std::vector<int> Graph::createNodes(bool nodegraph)
 {
     _currPins.clear();
     std::vector<int> outputNum;
@@ -1998,7 +1960,6 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
             std::string outputType;
             node->inputPins.clear();
             node->outputPins.clear();
-
             if (node->getNode() != nullptr)
             {
 
@@ -2041,11 +2002,11 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
                     }
                     if (node->_showAllInputs)
                     {
-                        CreateInputPin(attrId, inputs[i]);
+                        createInputPin(attrId, inputs[i]);
                     }
                     else if (inPin.getConnected())
                     {
-                        CreateInputPin(attrId, inputs[i]);
+                        createInputPin(attrId, inputs[i]);
                     }
 
                     node->inputPins.push_back(inPin);
@@ -2198,11 +2159,11 @@ std::vector<int> Graph::CreateNodes(bool nodegraph)
                     }
                     if (node->_showAllInputs)
                     {
-                        CreateInputPin(attrId, input);
+                        createInputPin(attrId, input);
                     }
                     else if (inPin.getConnected())
                     {
-                        CreateInputPin(attrId, input);
+                        createInputPin(attrId, input);
                     }
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
@@ -2537,22 +2498,7 @@ void Graph::deleteNode(UiNodePtr node)
     std::vector<UiNodePtr> downNodes = node->getOutputConnections();
     for (UiNodePtr downNode : downNodes)
     {
-        int num = downNode->getEdgeIndex(node->getId());
-        if (num != -1)
-        {
-            if (downNode->edges.size() == 1)
-            {
-                downNode->edges.erase(downNode->edges.begin() + 0);
-            }
-            else if (downNode->edges.size() > 1)
-            {
-                downNode->edges.erase(downNode->edges.begin() + num);
-            }
-        }
 
-        downNode->setInputNodeNum(-1);
-        // not really necessary since it will be deleted
-        node->removeOutputConnection(downNode->getName());
         // change input so that is default val
         // change informtion of actual mx::Node
         if (downNode->getNode() != nullptr)
@@ -2637,21 +2583,29 @@ void Graph::deleteNode(UiNodePtr node)
                 }
             }
         }
+
+        int num = downNode->getEdgeIndex(node->getId());
+        if (num != -1)
+        {
+            if (downNode->edges.size() == 1)
+            {
+                downNode->edges.erase(downNode->edges.begin() + 0);
+            }
+            else if (downNode->edges.size() > 1)
+            {
+                downNode->edges.erase(downNode->edges.begin() + num);
+            }
+        }
+
+        downNode->setInputNodeNum(-1);
+        // not really necessary since it will be deleted
+        node->removeOutputConnection(downNode->getName());
     }
 
     // remove from NodeGraph
     // all link information is handled in delete link which is called before this
     int nodeNum = findNode(node->getId());
-    if (_isNodeGraph)
-    {
-        _currNodeGraph->removeChild(node->getName());
-    }
-    else
-    {
-
-        _graphDoc->removeChild(node->getName());
-    }
-
+    _currGraphElem->removeChild(node->getName());
     _graphNodes.erase(_graphNodes.begin() + nodeNum);
 }
 
@@ -2671,8 +2625,8 @@ void Graph::upNodeGraph()
             _currUiNode = nullptr;
         }
         _prevUiNode = nullptr;
-        _currNodeGraph = nullptr;
         _isNodeGraph = false;
+        _currGraphElem = _graphDoc;
         _initial = true;
     }
 }
@@ -2697,7 +2651,6 @@ void Graph::graphButtons()
             _currUiNode = nullptr;
         }
         _prevUiNode = nullptr;
-        _currNodeGraph = nullptr;
         _isNodeGraph = false;
         _currGraphName.clear();
     }
@@ -3023,7 +2976,7 @@ void Graph::addNodePopup(bool cursor)
     }
     if (ImGui::BeginPopup("add node"))
     {
-        _popup = true;
+
         // check if there is a document
         if (_graphDoc == nullptr)
         {
@@ -3031,6 +2984,7 @@ void Graph::addNodePopup(bool cursor)
             mx::DocumentPtr doc = mx::createDocument();
             doc->importLibrary(_stdLib);
             _graphDoc = doc;
+            _currGraphElem = _graphDoc;
             addExtraNodes();
         }
 
@@ -3169,6 +3123,21 @@ void Graph::searchNodePopup(bool cursor)
         ImGui::EndPopup();
     }
 }
+
+void Graph::readOnlyPopup()
+{
+    if (_popup)
+    {
+        ImGui::SetNextWindowSize(ImVec2(200, 100));
+        ImGui::OpenPopup("Read Only");
+        _popup = false;
+    }
+    if (ImGui::BeginPopup("Read Only"))
+    {
+        ImGui::Text("This graph is Read Only");
+        ImGui::EndPopup();
+    }
+}
 // sets up graph editor
 void Graph::drawGraph(ImVec2 mousePos)
 {
@@ -3204,6 +3173,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         ImGui::SetNextWindowSize({ 250.0f, 300.0f });
         addNodePopup(TextCursor);
         searchNodePopup(TextCursor);
+        readOnlyPopup();
         ImGui::PopStyleVar();
 
         ed::Resume();
@@ -3266,30 +3236,45 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             else if (ed::AcceptCut())
             {
-                _copiedNodes.clear();
-                // same as copy but remove from graphNodes
-                for (ed::NodeId selected : selectedNodes)
+                if (!readOnly())
                 {
-                    int pos = findNode((int) selected.Get());
-                    if (pos >= 0)
+                    _copiedNodes.clear();
+                    // same as copy but remove from graphNodes
+                    for (ed::NodeId selected : selectedNodes)
                     {
-                        _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                        int pos = findNode((int) selected.Get());
+                        if (pos >= 0)
+                        {
+                            _copiedNodes.insert(std::pair<UiNodePtr, UiNodePtr>(_graphNodes[pos], nullptr));
+                        }
                     }
+                    cutNodes();
+                    _isCut = true;
                 }
-                cutNodes();
-                _isCut = true;
+                else
+                {
+                    _popup = true;
+                }
             }
             else if (ed::AcceptPaste())
             {
-                for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
+                if (!readOnly())
                 {
-                    copyUiNode(iter->first);
+                    for (std::map<UiNodePtr, UiNodePtr>::iterator iter = _copiedNodes.begin(); iter != _copiedNodes.end(); iter++)
+                    {
+                        copyUiNode(iter->first);
+                    }
+                    _addNewNode = true;
                 }
-                _addNewNode = true;
+                else
+                {
+                    _popup = true;
+                }
             }
         }
+
         // set y position of first node
-        std::vector<int> outputNum = CreateNodes(_isNodeGraph);
+        std::vector<int> outputNum = createNodes(_isNodeGraph);
 
         // address copy information if applicable and relink graph if a new node has been added
         if (_addNewNode)
@@ -3363,14 +3348,17 @@ void Graph::drawGraph(ImVec2 mousePos)
                     if (int(id.Get()) > 0)
                     {
                         int pos = findNode(int(id.Get()));
-                        if (pos >= 0)
+                        if (pos >= 0 && !readOnly())
                         {
-
                             deleteNode(_graphNodes[pos]);
                             _delete = true;
                             ed::DeselectNode(id);
                             ed::DeleteNode(id);
                             _currUiNode = nullptr;
+                        }
+                        else if (readOnly())
+                        {
+                            _popup = true;
                         }
                     }
                 }
@@ -3396,7 +3384,14 @@ void Graph::drawGraph(ImVec2 mousePos)
             ed::PinId inputPinId, outputPinId, filterPinId;
             if (ed::QueryNewLink(&inputPinId, &outputPinId))
             {
-                AddLink(inputPinId, outputPinId);
+                if (!readOnly())
+                {
+                    AddLink(inputPinId, outputPinId);
+                }
+                else
+                {
+                    _popup = true;
+                }
             }
             if (ed::QueryNewNode(&filterPinId))
             {
@@ -3417,7 +3412,14 @@ void Graph::drawGraph(ImVec2 mousePos)
             ed::LinkId deletedLinkId;
             while (ed::QueryDeletedLink(&deletedLinkId))
             {
-                deleteLink(deletedLinkId);
+                if (!readOnly())
+                {
+                    deleteLink(deletedLinkId);
+                }
+                else
+                {
+                    _popup = true;
+                }
             }
         }
         ed::EndDelete();
@@ -3436,20 +3438,32 @@ void Graph::drawGraph(ImVec2 mousePos)
                 // only dive if current node is a node graph
                 if (impl && impl->isA<mx::NodeGraph>())
                 {
+                    savePosition();
                     _graphStack.push(_graphNodes);
                     mx::NodeGraphPtr implGraph = impl->asA<mx::NodeGraph>();
                     _initial = true;
                     _graphNodes.clear();
                     ed::DeselectNode(_currUiNode->getId());
                     _currUiNode = nullptr;
-                    _currNodeGraph = implGraph;
-                    _currGraphName.push_back(implGraph->getName());
+                    _currGraphElem = implGraph;
+                    if (readOnly())
+                    {
+                        std::string graphName = implGraph->getName() + " (Read Only)";
+                        _currGraphName.push_back(graphName);
+                        _popup = true;
+                    }
+                    else
+                    {
+
+                        _currGraphName.push_back(implGraph->getName());
+                    }
                     buildUiNodeGraph(implGraph);
                     ed::NavigateToContent();
                 }
             }
             else if (_currUiNode->getNodeGraph() != nullptr)
             {
+                savePosition();
                 _graphStack.push(_graphNodes);
                 mx::NodeGraphPtr implGraph = _currUiNode->getNodeGraph();
                 _currUiNode->getOutputConnections();
@@ -3459,8 +3473,18 @@ void Graph::drawGraph(ImVec2 mousePos)
                 setRenderMaterial(_currUiNode);
                 ed::DeselectNode(_currUiNode->getId());
                 _currUiNode = nullptr;
-                _currNodeGraph = implGraph;
-                _currGraphName.push_back(implGraph->getName());
+                _currGraphElem = implGraph;
+                if (readOnly())
+                {
+
+                    std::string graphName = implGraph->getName() + " (Read Only)";
+                    _currGraphName.push_back(graphName);
+                    _popup = true;
+                }
+                else
+                {
+                    _currGraphName.push_back(implGraph->getName());
+                }
                 buildUiNodeGraph(implGraph);
                 ed::NavigateToContent();
             }
@@ -3532,6 +3556,7 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
         }
         addExtraNodes();
+        _currGraphElem = _graphDoc;
         _fileDialog.ClearSelected();
     }
 
