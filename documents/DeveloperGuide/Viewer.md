@@ -62,7 +62,7 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 - `O`: Save the current OSL shader source to file.
 - `M`: Save the current MDL shader source to file.
 - `L`: Load GLSL shader source from file.  Editing the source files before loading provides a way to debug and experiment with shader source code.
-- `D`: Save each node graph in the current material as a DOT file.  See www.graphviz.org for more details on this format.
+- `D`: Save the node graph for the current material as a diagram file. This can be either a `mermaid` or `dot` file foramt. See and https://mermaid.js.org/ and https://www.graphviz.org for more details on the each format. See `Advanced Settings` for additional controls.
 - `F`: Capture the current frame and save to file.
 - `W`: Create a wedge rendering and save to file.  See `Advanced Settings` for additional controls.
 - `T`: Translate the current material to a different shading model.  See `Advanced Settings` for additional controls.
