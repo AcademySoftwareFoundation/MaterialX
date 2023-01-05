@@ -66,10 +66,11 @@ void LightShaderNodeGlsl::createVariables(const ShaderNode&, GenContext& context
 
 void LightShaderNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine(_functionName + "(light, position, result)", stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END
