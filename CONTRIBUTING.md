@@ -22,4 +22,12 @@ The MaterialX CLAs are the standard forms used by Linux Foundation projects and 
 
 ## Coding Conventions
 
-Please follow the coding convention and style in each file and in each library when adding new files.  For convenience, you can use the included [clang-format](.clang-format) file to automatically align new source files with MaterialX coding conventions.
+The coding style of the MaterialX project is defined by a [clang-format](.clang-format) file in the repository, which is supported by Clang versions 13 and newer.
+
+When adding new source files to the repository, use the provided clang-format file to automatically align the code to MaterialX conventions.  When modifying existing code, follow the surrounding formatting conventions so that new or modified code blends in with the current code.
+
+## Unit Tests
+
+Each MaterialX module has a companion folder within the [MaterialXTest](source/MaterialXTest) module, containing a set of unit tests that validate its functionality.
+
+When contributing new code to MaterialX, make sure to include appropriate unit tests in MaterialXTest to validate the expected behavior of the new code.

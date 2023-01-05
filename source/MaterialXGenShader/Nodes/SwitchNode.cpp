@@ -20,7 +20,8 @@ ShaderNodeImplPtr SwitchNode::create()
 
 void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const ShaderGraph& graph = *node.getParent();
 
@@ -49,7 +50,7 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             }
             // Convert to float to insure a valid comparison, since the 'which'
             // input may be float, integer or boolean.
-            shadergen.emitString("if (float(", stage); 
+            shadergen.emitString("if (float(", stage);
             shadergen.emitInput(which, context, stage);
             shadergen.emitString(") < float(", stage);
             shadergen.emitValue(float(branch + 1), stage);
@@ -76,7 +77,7 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
 
             shadergen.emitScopeEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

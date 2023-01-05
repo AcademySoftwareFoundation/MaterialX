@@ -5,7 +5,7 @@
 
 #include <MaterialXFormat/XmlIo.h>
 
-#include <MaterialXFormat/PugiXML/pugixml.hpp>
+#include <MaterialXFormat/External/PugiXML/pugixml.hpp>
 
 #include <MaterialXCore/Types.h>
 

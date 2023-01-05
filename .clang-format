@@ -1,4 +1,5 @@
 AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
 AllowShortLambdasOnASingleLine: false
 AlwaysBreakTemplateDeclarations: No
 BreakBeforeBraces: Allman
