@@ -109,7 +109,6 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
     }
 }
 
-
 ScopedSetClosureParams::ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
     _cct(cct),
     _node(node),
@@ -147,7 +146,6 @@ ScopedSetClosureParams::~ScopedSetClosureParams()
         _cct->setClosureParams(_node, _oldParams);
     }
 }
-
 
 ScopedSetVariableName::ScopedSetVariableName(const string& name, ShaderPort* port) :
     _port(port),

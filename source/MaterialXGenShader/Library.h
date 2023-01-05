@@ -41,7 +41,7 @@ using ShaderNodeImplPtr = shared_ptr<ShaderNodeImpl>;
 /// Shared pointer to a GenContext
 using GenContextPtr = shared_ptr<GenContext>;
 
-template<class T> using CreatorFunction = shared_ptr<T>(*)();
+template <class T> using CreatorFunction = shared_ptr<T> (*)();
 
 MATERIALX_NAMESPACE_END
 

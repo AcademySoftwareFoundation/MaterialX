@@ -147,7 +147,6 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     }
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
-
 }
 
 MATERIALX_NAMESPACE_END

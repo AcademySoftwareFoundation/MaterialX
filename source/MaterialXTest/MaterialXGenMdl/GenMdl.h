@@ -6,7 +6,7 @@
 #ifndef GENMDL_H
 #define GENMDL_H
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 

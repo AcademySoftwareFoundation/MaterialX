@@ -167,7 +167,8 @@ public:
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        {
             mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
             const mx::string prefix = vertexData.getInstance() + ".";
             mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
@@ -176,9 +177,10 @@ public:
                 position->setEmitted();
                 shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
             }
-        END_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        }
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
             mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
             const mx::string prefix = vertexData.getInstance() + ".";
             mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
@@ -186,7 +188,7 @@ public:
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
             shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
             shadergen.emitLineEnd(stage);
-        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        }
     }
 };
 
@@ -290,6 +292,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
+    _genContext.getOptions().hwImplicitBitangents = false;
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";

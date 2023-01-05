@@ -152,7 +152,7 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
         const char ch = channels[i];
         if (ch == '0' || ch == '1')
         {
-            membersSwizzled.push_back(string(1,ch));
+            membersSwizzled.push_back(string(1, ch));
             continue;
         }
 
@@ -171,7 +171,7 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
             int channelIndex = srcType->getChannelIndex(ch);
             if (channelIndex < 0 || channelIndex >= static_cast<int>(srcMembers.size()))
             {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1,ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
             }
             membersSwizzled.push_back(srcName + srcMembers[channelIndex]);
         }
@@ -310,7 +310,8 @@ void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
         // Name is not unique so append the counter and keep
         // incrementing until a unique name is found.
         string name2;
-        do {
+        do
+        {
             name2 = name + std::to_string(it->second++);
         } while (identifiers.count(name2));
 
@@ -323,7 +324,7 @@ void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
 
 string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, IdentifierMap& identifiers) const
 {
-    // Default implementation just makes an identifier, but derived 
+    // Default implementation just makes an identifier, but derived
     // classes can override this for custom variable naming.
     string variable = name;
     makeIdentifier(variable, identifiers);
@@ -348,14 +349,14 @@ TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const str
 {
 }
 
- string TypeSyntax::getValue(const ShaderPort* port, bool uniform) const
- {
-     if (!port || !port->getValue())
-     {
-         return getDefaultValue(uniform);
-     }
-     return getValue(*port->getValue(), uniform);
- }
+string TypeSyntax::getValue(const ShaderPort* port, bool uniform) const
+{
+    if (!port || !port->getValue())
+    {
+        return getDefaultValue(uniform);
+    }
+    return getValue(*port->getValue(), uniform);
+}
 
 ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                                    const string& typeAlias, const string& typeDefinition) :
@@ -381,7 +382,6 @@ string ScalarTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) con
     return ss.str();
 }
 
-
 StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                                    const string& typeAlias, const string& typeDefinition) :
     ScalarTypeSyntax(name, defaultValue, uniformDefaultValue, typeAlias, typeDefinition)
@@ -392,7 +392,6 @@ string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
     return "\"" + value.getValueString() + "\"";
 }
-
 
 AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                                          const string& typeAlias, const string& typeDefinition, const StringVec& members) :
@@ -417,7 +416,7 @@ string AggregateTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) 
     // using Value::setFloatFormat() and Value::setFloatPrecision()
     StringStream ss;
     ss << getName() << "(" << values[0];
-    for (size_t i=1; i<values.size(); ++i)
+    for (size_t i = 1; i < values.size(); ++i)
     {
         ss << ", " << values[i];
     }

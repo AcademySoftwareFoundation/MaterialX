@@ -26,7 +26,7 @@ class Shader;
 /// emitted by shader generators.
 ///
 /// The class contains a default implementation using a single shader stage.
-/// Derived shaders can override this, as well as overriding all methods 
+/// Derived shaders can override this, as well as overriding all methods
 /// that add code to the shader.
 ///
 class MX_GENSHADER_API Shader

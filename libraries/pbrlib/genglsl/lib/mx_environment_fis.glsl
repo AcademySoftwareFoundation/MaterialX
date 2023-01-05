@@ -13,8 +13,8 @@ float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamp
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     // Generate tangent frame.
-    vec3 Y = normalize(cross(N, X));
-    X = cross(Y, N);
+    X = normalize(X - dot(X, N) * N);
+    vec3 Y = cross(N, X);
     mat3 tangentToWorld = mat3(X, Y, N);
 
     // Transform the view vector to tangent space.

@@ -18,7 +18,8 @@ ShaderNodeImplPtr CombineNode::create()
 
 void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* in1 = node.getInput(0);
@@ -136,7 +137,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + result, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END
