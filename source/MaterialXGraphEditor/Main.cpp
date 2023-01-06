@@ -23,17 +23,13 @@ static void errorCallback(int error, const char* description)
 mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
+    mx::FilePath parentPath = modulePath.getParentPath();
 
     mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
+    searchPath.append(modulePath);
+    if ((parentPath / "libraries").exists())
     {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
+        searchPath.append(parentPath);
     }
 
     return searchPath;
