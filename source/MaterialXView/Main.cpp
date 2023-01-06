@@ -61,17 +61,13 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
 mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
+    mx::FilePath parentPath = modulePath.getParentPath();
 
     mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
+    searchPath.append(modulePath);
+    if ((parentPath / "libraries").exists())
     {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
+        searchPath.append(parentPath);
     }
 
     return searchPath;
@@ -300,19 +296,21 @@ int main(int argc, char* const argv[])
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
         viewer->initialize();
-        if (!bakeFilename.empty()) 
-        {
-            viewer->bakeTextures();
-            viewer->requestExit();
-        } 
-        else 
-        {            
-            viewer->set_visible(true);
-        }
+
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
+            viewer->draw_all();
             viewer->requestExit();
+        }
+        else if (!bakeFilename.empty())
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        }
+        else
+        {
+            viewer->set_visible(true);
         }
         ng::mainloop(refresh);
     }

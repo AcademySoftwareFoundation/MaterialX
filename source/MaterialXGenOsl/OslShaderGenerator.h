@@ -47,7 +47,7 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// Register metadata that should be exported to the generated shaders.
     void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const override;
 
-protected:
+  protected:
     // Extra file arguments for texture lookup call
     static const string T_FILE_EXTRA_ARGUMENTS;
 
@@ -66,11 +66,13 @@ protected:
 
 namespace OSL
 {
-    /// Identifiers for OSL variable blocks
-    extern MX_GENOSL_API const string UNIFORMS;
-    extern MX_GENOSL_API const string INPUTS;
-    extern MX_GENOSL_API const string OUTPUTS;
-}
+
+/// Identifiers for OSL variable blocks
+extern MX_GENOSL_API const string UNIFORMS;
+extern MX_GENOSL_API const string INPUTS;
+extern MX_GENOSL_API const string OUTPUTS;
+
+} // namespace OSL
 
 MATERIALX_NAMESPACE_END
 

@@ -36,7 +36,6 @@ using ShaderNodePtr = shared_ptr<class ShaderNode>;
 /// A vector of ShaderInput pointers
 using ShaderInputVec = vector<ShaderInput*>;
 
-
 /// Metadata to be exported to generated shader.
 struct MX_GENSHADER_API ShaderMetadata
 {
@@ -47,12 +46,13 @@ struct MX_GENSHADER_API ShaderMetadata
         name(n),
         type(t),
         value(v)
-    {}
+    {
+    }
 };
 using ShaderMetadataVec = vector<ShaderMetadata>;
 using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 
-/// @class ShaderMetadataRegistry 
+/// @class ShaderMetadataRegistry
 /// A registry for metadata that will be exported to the generated shader
 /// if found on nodes and inputs during shader generation.
 class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
@@ -107,7 +107,6 @@ class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
 };
 
 using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
-
 
 /// Flags set on shader ports.
 class MX_GENSHADER_API ShaderPortFlag
@@ -328,7 +327,7 @@ class MX_GENSHADER_API ShaderNode
     /// Flags for classifying nodes into different categories.
     class Classification
     {
-    public:
+      public:
         // Node classes
         static const uint32_t TEXTURE       = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
         static const uint32_t CLOSURE       = 1 << 1;  /// Any node that represents light integration
@@ -375,7 +374,8 @@ class MX_GENSHADER_API ShaderNode
             MULTIPLE
         };
 
-        ScopeInfo() : type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
+        ScopeInfo() :
+            type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) { }
 
         void merge(const ScopeInfo& fromScope);
         void adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask);
@@ -411,7 +411,7 @@ class MX_GENSHADER_API ShaderNode
     ShaderNode(const ShaderGraph* parent, const string& name);
 
     /// Create a new node from a nodedef.
-    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef,
                                 GenContext& context);
 
     /// Create a new node from a node implementation.

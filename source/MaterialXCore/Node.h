@@ -296,7 +296,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// @}
     /// @name Utility
     /// @{
-    
+
     /// Flatten all subgraphs at the root scope of this graph element,
     /// recursively replacing each graph-defined node with its equivalent
     /// node network.

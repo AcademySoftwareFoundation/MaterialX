@@ -3,24 +3,17 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
+
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GLContext.h>
 #include <MaterialXRenderGlsl/GLUtil.h>
+
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-#include <iostream>
-
 MATERIALX_NAMESPACE_BEGIN
-
-const float PI = std::acos(-1.0f);
-
-// View information
-const float FOV_PERSP = 45.0f; // degrees
-const float NEAR_PLANE_PERSP = 0.05f;
-const float FAR_PLANE_PERSP = 100.0f;
 
 //
 // GlslRenderer methods
@@ -34,18 +27,12 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _initialized(false),
-    _eye(0.0f, 0.0f, 3.0f),
-    _center(0.0f, 0.0f, 0.0f),
-    _up(0.0f, 1.0f, 0.0f),
-    _objectScale(1.0f),
     _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {
     _program = GlslProgram::create();
 
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(TinyObjLoader::create());
-
-    _camera = Camera::create();
 }
 
 void GlslRenderer::initialize()
@@ -136,31 +123,15 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
     {
-        if (_framebuffer)
-        {
-            _framebuffer->resize(width, height);
-        }
-        else
+        if (!_framebuffer ||
+             _framebuffer->getWidth() != width ||
+             _framebuffer->getHeight() != height)
         {
             _framebuffer = GLFramebuffer::create(width, height, 4, _baseType);
         }
         _width = width;
         _height = height;
     }
-}
-
-void GlslRenderer::updateViewInformation()
-{
-    float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
-    float fW = fH * 1.0f;
-
-    _camera->setViewMatrix(Camera::createViewMatrix(_eye, _center, _up));
-    _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP));
-}
-
-void GlslRenderer::updateWorldInformation()
-{
-     _camera->setWorldMatrix(Matrix44::createScale(Vector3(_objectScale)));
 }
 
 void GlslRenderer::render()
@@ -179,9 +150,6 @@ void GlslRenderer::render()
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    updateViewInformation();
-    updateWorldInformation();
 
     try
     {

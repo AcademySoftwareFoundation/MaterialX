@@ -51,7 +51,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shader nodes.
-    static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
+    static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element,
                                  GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
@@ -148,7 +148,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Add a unit transform node and connect to the given input.
     void addUnitTransformNode(ShaderInput* input, const UnitTransform& transform, GenContext& context);
-    
+
     /// Add a unit transform node and connect to the given output.
     void addUnitTransformNode(ShaderOutput* output, const UnitTransform& transform, GenContext& context);
 
@@ -210,7 +210,8 @@ class MX_GENSHADER_API ShaderGraphEdge
     ShaderGraphEdge(ShaderOutput* up, ShaderInput* down) :
         upstream(up),
         downstream(down)
-    {}
+    {
+    }
     ShaderOutput* upstream;
     ShaderInput* downstream;
 };
@@ -226,8 +227,8 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
     bool operator==(const ShaderGraphEdgeIterator& rhs) const
     {
         return _upstream == rhs._upstream &&
-            _downstream == rhs._downstream &&
-            _stack == rhs._stack;
+               _downstream == rhs._downstream &&
+               _stack == rhs._stack;
     }
     bool operator!=(const ShaderGraphEdgeIterator& rhs) const
     {
