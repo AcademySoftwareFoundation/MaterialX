@@ -184,7 +184,10 @@ void GraphIo::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> root
                             if (!interfaceInput || // Will occur with functional graphs
                                 (interfaceInput && !interfaceInput->getConnectedNode()))
                             {
-                                string graphInterfaceName = addNodeToSubgraph(subGraphs, upstreamNode, input->getInterfaceName());                        
+                                // Append an extra string on to the interfacename in case the interface name
+                                // is the same as an interior node name. Note that this issue also occurs with
+                                // shader generation.
+                                string graphInterfaceName = addNodeToSubgraph(subGraphs, upstreamNode, input->getInterfaceName() + "INT");
 
                                 const string interiorNodeId = createValidName(upstreamElem->getNamePath());
                                 const string interiorNodeCategory = upstreamElem->getCategory();
