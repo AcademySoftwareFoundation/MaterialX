@@ -18,24 +18,24 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-class GraphIO;
-class DotGraphIO;
-class MermaidGraphIO;
+class GraphIo;
+class DotGraphIo;
+class MermaidGraphIo;
 
-/// A shared pointer to a GraphIO
-using GraphIOPtr = shared_ptr<GraphIO>;
-/// A shared pointer to a const GraphIO
-using ConstGraphIOPtr = shared_ptr<const GraphIO>;
+/// A shared pointer to a GraphIo
+using GraphIoPtr = shared_ptr<GraphIo>;
+/// A shared pointer to a const GraphIo
+using ConstGraphIoPtr = shared_ptr<const GraphIo>;
 
-/// A shared pointer to a DotGraphIO
-using DotGraphIOPtr = shared_ptr<DotGraphIO>;
-/// A shared pointer to a const GraphIO
-using ConstDotGraphIOPtr = shared_ptr<const DotGraphIO>;
+/// A shared pointer to a DotGraphIo
+using DotGraphIoPtr = shared_ptr<DotGraphIo>;
+/// A shared pointer to a const GraphIo
+using ConstDotGraphIoPtr = shared_ptr<const DotGraphIo>;
 
-/// A shared pointer to a MermaidGraphIO
-using MermaidGraphIOPtr = shared_ptr<MermaidGraphIO>;
-/// A shared pointer to a const MermaidGraphIO
-using ConstMermaidGraphIOPtr = shared_ptr<const MermaidGraphIO>;
+/// A shared pointer to a MermaidGraphIo
+using MermaidGraphIoPtr = shared_ptr<MermaidGraphIo>;
+/// A shared pointer to a const MermaidGraphIo
+using ConstMermaidGraphIoPtr = shared_ptr<const MermaidGraphIo>;
 
 /// @class NodeIO
 ///     Node information extracted during graph traversal and 
@@ -69,14 +69,14 @@ class MX_FORMAT_API NodeIO
     NodeShape uishape = NodeShape::BOX;
 };
 
-/// @class GraphIOGenOptions
-///     Generation options for GraphIO generators    
+/// @class GraphIoGenOptions
+///     Generation options for GraphIo generators    
 /// 
-class MX_FORMAT_API GraphIOGenOptions
+class MX_FORMAT_API GraphIoGenOptions
 {
   public:
-    GraphIOGenOptions() {}
-    virtual ~GraphIOGenOptions() {}
+    GraphIoGenOptions() {}
+    virtual ~GraphIoGenOptions() {}
 
     /// Option on whether to write node labels using the category of the node as the label as
     /// opposed to the unique name of the Element. Default is to write category names.
@@ -142,7 +142,7 @@ class MX_FORMAT_API GraphIOGenOptions
     Orientation _orientation = Orientation::TOP_DOWN;
 };
 
-/// @class GraphIO
+/// @class GraphIo
 /// <summary>
 ///     Interface defining classes which interpret a GraphElement and 
 ///     generate output in the desired output format. 
@@ -151,20 +151,20 @@ class MX_FORMAT_API GraphIOGenOptions
 ///     may choose their own runtime representation.
 /// 
 ///     The class indicates which formats are supported via a list of string identifiers.
-///     These identifiers can be used to register the class with a GraphIORegistry.
+///     These identifiers can be used to register the class with a GraphIoRegistry.
 /// 
 ///     The default traversal logic will call into a set of utities
 ///     which are responsible for emitting the appropriate output in the desired format.
 ///     A derived class may chose to implement their own traversal logic as well.
 ///     
 /// </summary>
-class MX_FORMAT_API GraphIO
+class MX_FORMAT_API GraphIo
 {
   public:
-    GraphIO(){};
-    virtual ~GraphIO(){};
+    GraphIo(){};
+    virtual ~GraphIo(){};
 
-    /// Returns a list of formats that the GraphIO can convert from to
+    /// Returns a list of formats that the GraphIo can convert from to
     const StringSet& supportsFormats() const
     {
         return _formats;
@@ -176,7 +176,7 @@ class MX_FORMAT_API GraphIO
     /// Traverse a graph and return a string withe formatted output
     /// Derived classes must implement this method.
     /// @param graph GraphElement to write
-    /// @param roots Optional list of roots to GraphIO what upstream elements to consider>
+    /// @param roots Optional list of roots to GraphIo what upstream elements to consider>
     /// @returns String result
     virtual string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) = 0;
 
@@ -185,13 +185,13 @@ class MX_FORMAT_API GraphIO
     /// @{
 
     /// Get options for generation
-    const GraphIOGenOptions& getGenOptions() const
+    const GraphIoGenOptions& getGenOptions() const
     {
         return _genOptions;
     }
 
     /// Set options for generation
-    void setGenOptions(const GraphIOGenOptions& options)
+    void setGenOptions(const GraphIoGenOptions& options)
     {
         _genOptions = options;
     }
@@ -303,26 +303,26 @@ class MX_FORMAT_API GraphIO
     StringMap _restrictedMap;
 
     /// Write options
-    GraphIOGenOptions _genOptions;
+    GraphIoGenOptions _genOptions;
 
     /// Written output
     string _graphResult;
 };
 
-/// @class DotGraphIO
+/// @class DotGraphIo
 ///     Class which provides support for outputting to GraphViz dot format.
 /// 
-class MX_FORMAT_API DotGraphIO : public GraphIO
+class MX_FORMAT_API DotGraphIo : public GraphIo
 {
 public:
-    DotGraphIO()
+    DotGraphIo()
     {
         // Dot files
         _formats.insert("dot");
     }
-    virtual ~DotGraphIO() = default;
+    virtual ~DotGraphIo() = default;
 
-    static DotGraphIOPtr create();
+    static DotGraphIoPtr create();
 
     string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) override;
 
@@ -346,16 +346,16 @@ public:
 };
     
 
-/// @class MermaidGraphIO
+/// @class MermaidGraphIo
 /// 
 ///     Class which provides support for outputting to Mermaid format.
 ///     Note that the output only includes the Mermaid graph itself and does not include 
 ///     wrappers for embedding into Markdown or HTML.
 /// 
-class MX_FORMAT_API MermaidGraphIO : public GraphIO
+class MX_FORMAT_API MermaidGraphIo : public GraphIo
 {
   public:
-    MermaidGraphIO()
+    MermaidGraphIo()
     {
         // Markdown and Markdown diagrams
         _formats.insert("md");
@@ -364,10 +364,10 @@ class MX_FORMAT_API MermaidGraphIO : public GraphIO
         // Add restricted keywords
         _restrictedMap["default"] = "dfault";
     }
-    virtual ~MermaidGraphIO() = default;
+    virtual ~MermaidGraphIo() = default;
 
     /// Creator
-    static MermaidGraphIOPtr create();
+    static MermaidGraphIoPtr create();
 
     string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) override;
 
@@ -388,47 +388,6 @@ class MX_FORMAT_API MermaidGraphIO : public GraphIO
     void emitSubgraphs(
         std::unordered_map<string, StringSet> subGraphs) override;
     void emitGraphString() override;
-};
-
-/// Map of graph IO
-using GraphIOPtrMap = std::unordered_map<string, std::vector<GraphIOPtr>>;
-
-/// GraphIO registry
-class GraphIORegistry;
-using GraphIORegistryPtr = std::shared_ptr<GraphIORegistry>;
-
-/// @class GraphIORegistry
-/// A registry for graph IO interfaces. 
-/// * GraphUI classes can register for for one or more formats. 
-/// * Latter registrations will override previous ones.
-/// 
-class MX_FORMAT_API GraphIORegistry
-{
-  public:
-    virtual ~GraphIORegistry() { }
-
-    /// Creator
-    static GraphIORegistryPtr create();
-
-    /// Add a graph IO 
-    void addGraphIO(GraphIOPtr graphIO);
-
-    /// Write a GraphElement to a given format
-    /// @param format Target format
-    /// @param graph GraphElement to write
-    /// @param roots List of possible roots
-    /// @param options Write options
-    string write(const string& format, GraphElementPtr graph, const std::vector<OutputPtr> roots, 
-                 const GraphIOGenOptions& options);
-
-  private:
-    GraphIORegistry(const GraphIORegistry&) = delete;
-    GraphIORegistry() { }
-
-    GraphIORegistry& operator=(const GraphIORegistry&) = delete;
-
-  private:
-    GraphIOPtrMap _graphIOs;
 };
 
 MATERIALX_NAMESPACE_END

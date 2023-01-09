@@ -311,11 +311,7 @@ Viewer::Viewer(const std::string& materialFilename,
 #endif
 
     // Register the GLSL implementation for <viewdir> used by the environment shader.
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
-
-    _graphIORegistry = mx::GraphIORegistry::create();    
-    _graphIORegistry->addGraphIO(mx::MermaidGraphIO::create());
-    _graphIORegistry->addGraphIO(mx::DotGraphIO::create());
+    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);    
 }
 
 void Viewer::initialize()
@@ -1636,18 +1632,22 @@ void Viewer::saveDiagrams()
         if (graphNode)
         {
             std::string formatString;
+            mx::GraphIoPtr grapher = nullptr;
             if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)
             {
+                grapher = mx::MermaidGraphIo::create();
                 formatString = "md";
             }
             else
             {
+                grapher = mx::DotGraphIo::create();
                 formatString = "dot";
             }
             
-            mx::GraphIOGenOptions graphOptions;
+            mx::GraphIoGenOptions graphOptions;
             graphOptions.setWriteCategories(_diagramWriteCategoryNames);
-            outputString = _graphIORegistry->write(formatString, graphNode, outputs, graphOptions);
+            grapher->setGenOptions(graphOptions);
+            outputString = grapher->write(graphNode, outputs);
             if (!outputString.empty())
             {
                 if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)

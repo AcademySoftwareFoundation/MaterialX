@@ -15,7 +15,7 @@
 
 #include <MaterialXCore/Unit.h>
 
-#include <MaterialXFormat/GraphIO.h>
+#include <MaterialXFormat/GraphIo.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
@@ -433,7 +433,6 @@ class Viewer : public ng::Screen
     };
     DiagramFormat _diagramFormat;
     bool _diagramWriteCategoryNames;
-    mx::GraphIORegistryPtr _graphIORegistry;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

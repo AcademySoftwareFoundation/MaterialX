@@ -10,12 +10,12 @@
 
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
-#include <MaterialXFormat/GraphIO.h>
+#include <MaterialXFormat/GraphIo.h>
 
 
 namespace mx = MaterialX;
 
-TEST_CASE("GraphIO: Generate Functional Graphs", "[graphio]")
+TEST_CASE("GraphIo: Generate Functional Graphs", "[graphio]")
 {
     mx::FilePathVec libraries = { "libraries/targets", "libraries/stdlib",
                                   "libraries/pbrlib", "libraries/bxdf" };
@@ -43,10 +43,7 @@ TEST_CASE("GraphIO: Generate Functional Graphs", "[graphio]")
 
     bool failedGeneration = false;
 
-    mx::GraphIORegistryPtr graphIORegistry = mx::GraphIORegistry::create();
-    graphIORegistry->addGraphIO(mx::MermaidGraphIO::create());
-    graphIORegistry->addGraphIO(mx::DotGraphIO::create());
-
+    mx::GraphIoPtr graphers[2] = { mx::MermaidGraphIo::create(), mx::DotGraphIo::create() };
     mx::StringVec extensions = { "md", "dot" };
 
     for (const mx::NodeDefPtr& nodedef : stdlib->getNodeDefs())
@@ -71,16 +68,17 @@ TEST_CASE("GraphIO: Generate Functional Graphs", "[graphio]")
             std::vector<mx::OutputPtr> roots;
             std::vector<bool> writeCategoriesList = { true, false };
 
-            for (const std::string& extension : extensions)
+            for (size_t i=0; i<2; i++)
             {
-                mx::GraphIOGenOptions graphOptions;
+                mx::GraphIoGenOptions graphOptions;
                 graphOptions.setWriteSubgraphs(false);
-                graphOptions.setOrientation(mx::GraphIOGenOptions::Orientation::LEFT_RIGHT);
+                graphOptions.setOrientation(mx::GraphIoGenOptions::Orientation::LEFT_RIGHT);
+                graphers[i]->setGenOptions(graphOptions);
 
                 for (auto writeCategories : writeCategoriesList)
                 {
                     graphOptions.setWriteCategories(writeCategories);
-                    std::string graphString = graphIORegistry->write(extension, nodegraph, roots, graphOptions);
+                    std::string graphString = graphers[i]->write(nodegraph, roots);
                     if (!graphString.empty())
                     {
                         logFile << "Wrote " + (!writeCategories ? " instanced " : mx::EMPTY_STRING) + "graph for node '" << nodeName << "'" << std::endl;
@@ -96,12 +94,12 @@ TEST_CASE("GraphIO: Generate Functional Graphs", "[graphio]")
                             }
                         }
 
-                        const std::string filename = nodeName + (!writeCategories ? "_instance" : mx::EMPTY_STRING) + "." + extension;
+                        const std::string filename = nodeName + (!writeCategories ? "_instance" : mx::EMPTY_STRING) + "." + extensions[i];
                         const std::string filepath = (libPath / filename).asString();
                         std::ofstream file;
                         file.open(filepath);
                         REQUIRE(file.is_open());
-                        if (extension == "md")
+                        if (extensions[i] == "md")
                         {
                             std::string result = "```mermaid\n";
                             result += graphString;

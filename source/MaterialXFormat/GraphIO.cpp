@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXFormat/GraphIO.h>
+#include <MaterialXFormat/GraphIo.h>
 
 #include <iostream>
 
@@ -14,7 +14,7 @@ static string GRAPH_QUOTE = "\"";
 
 // Base class methods
 
-string GraphIO::addNodeToSubgraph(std::unordered_map<string, StringSet>& subGraphs, 
+string GraphIo::addNodeToSubgraph(std::unordered_map<string, StringSet>& subGraphs, 
                                   const ElementPtr node, const string& label) const
 {   
     if (!node)
@@ -54,7 +54,7 @@ string GraphIO::addNodeToSubgraph(std::unordered_map<string, StringSet>& subGrap
     return subgraphNodeName;
 }
 
-void GraphIO::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+void GraphIo::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> roots)
 {
     _graphResult.clear();
 
@@ -231,19 +231,19 @@ void GraphIO::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> root
 
 // dot class methods
 
-DotGraphIOPtr DotGraphIO::create()
+DotGraphIoPtr DotGraphIo::create()
 {
-    return std::shared_ptr<DotGraphIO>(new DotGraphIO());
+    return std::shared_ptr<DotGraphIo>(new DotGraphIo());
 }
 
-void DotGraphIO::emitRootNode(const NodeIO& root)
+void DotGraphIo::emitRootNode(const NodeIO& root)
 {
     _graphResult += GRAPH_INDENT + root.identifier + " [label= \"" + root.uilabel + "\"]\n";
     _graphResult += GRAPH_INDENT + root.identifier + "[shape = box];\n";
     _graphResult += GRAPH_INDENT + root.identifier;
 }
 
-void DotGraphIO::emitUpstreamNode(
+void DotGraphIo::emitUpstreamNode(
     const NodeIO& node)
 {
     _graphResult += GRAPH_INDENT + node.identifier + " [label= \"" + node.uilabel + "\"];\n";
@@ -252,7 +252,7 @@ void DotGraphIO::emitUpstreamNode(
     _graphResult += GRAPH_INDENT + node.identifier;
 }
 
-void DotGraphIO::emitConnection(const string& outputName,
+void DotGraphIo::emitConnection(const string& outputName,
                                    const string& outputLabel,
                                    const string& inputName,
                                    const string& channelName)
@@ -280,7 +280,7 @@ void DotGraphIO::emitConnection(const string& outputName,
     _graphResult += result;
 }
 
-void DotGraphIO::emitInterfaceConnection(const string& interfaceId,
+void DotGraphIo::emitInterfaceConnection(const string& interfaceId,
                                          const string& interfaceInputName,
                                          const string& inputName,
                                          const NodeIO& interiorNode)
@@ -295,7 +295,7 @@ void DotGraphIO::emitInterfaceConnection(const string& interfaceId,
     _graphResult += result;
 }
 
-void DotGraphIO::emitDownstreamNode(const NodeIO& node, const string& inputLabel)
+void DotGraphIo::emitDownstreamNode(const NodeIO& node, const string& inputLabel)
 {
     string result;
     result += GRAPH_INDENT + node.identifier;
@@ -312,7 +312,7 @@ void DotGraphIO::emitDownstreamNode(const NodeIO& node, const string& inputLabel
     _graphResult += result;
 }
 
-void DotGraphIO::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
+void DotGraphIo::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
 {
     if (!_genOptions.getWriteSubgraphs() || subGraphs.empty())
     {
@@ -345,13 +345,13 @@ void DotGraphIO::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
     _graphResult = result + _graphResult;
 }
 
-void DotGraphIO::emitGraphString()
+void DotGraphIo::emitGraphString()
 {
     std::unordered_map<int, string> orientations;
-    orientations[(int)GraphIOGenOptions::Orientation::TOP_DOWN] = "  rankdir = TD;\n";
-    orientations[(int)GraphIOGenOptions::Orientation::BOTTOM_UP] = "  rankdir = BT;\n";
-    orientations[(int)GraphIOGenOptions::Orientation::LEFT_RIGHT] = "  rankdir = LR;\n";
-    orientations[(int)GraphIOGenOptions::Orientation::RIGHT_LEFT] = "  rankdir = RL\n";
+    orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "  rankdir = TD;\n";
+    orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "  rankdir = BT;\n";
+    orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "  rankdir = LR;\n";
+    orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "  rankdir = RL\n";
 
     string result = "digraph {\n";
     result += orientations[(int)_genOptions.getOrientation()];
@@ -361,7 +361,7 @@ void DotGraphIO::emitGraphString()
     _graphResult = result;
 }
 
-string DotGraphIO::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+string DotGraphIo::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
 {
     emitGraph(graph, roots);
     return _graphResult;
@@ -369,12 +369,12 @@ string DotGraphIO::write(GraphElementPtr graph, const std::vector<OutputPtr> roo
 
 // Mermaid graph methods
 
-MermaidGraphIOPtr MermaidGraphIO::create()
+MermaidGraphIoPtr MermaidGraphIo::create()
 {
-    return std::shared_ptr<MermaidGraphIO>(new MermaidGraphIO());
+    return std::shared_ptr<MermaidGraphIo>(new MermaidGraphIo());
 }
 
-void MermaidGraphIO::emitUpstreamNode(const NodeIO& node)
+void MermaidGraphIo::emitUpstreamNode(const NodeIO& node)
 {
     string result;
     if (node.group == NodeDef::CONDITIONAL_NODE_GROUP)
@@ -388,7 +388,7 @@ void MermaidGraphIO::emitUpstreamNode(const NodeIO& node)
     _graphResult += result;
 }
 
-void MermaidGraphIO::emitConnection(const string& outputName,
+void MermaidGraphIo::emitConnection(const string& outputName,
                                     const string& outputLabel, 
                                     const string& inputName, 
                                     const string& channelName)
@@ -425,7 +425,7 @@ void MermaidGraphIO::emitConnection(const string& outputName,
     _graphResult += result;
 }
 
-void MermaidGraphIO::emitDownstreamNode(const NodeIO& node, const string& /*inputLabel*/)
+void MermaidGraphIo::emitDownstreamNode(const NodeIO& node, const string& /*inputLabel*/)
 {
     string result;
     if (node.category != Output::CATEGORY)
@@ -447,7 +447,7 @@ void MermaidGraphIO::emitDownstreamNode(const NodeIO& node, const string& /*inpu
     _graphResult += result;
 }
 
-void MermaidGraphIO::emitInterfaceConnection(const string& interfaceId,
+void MermaidGraphIo::emitInterfaceConnection(const string& interfaceId,
                                              const string& interfaceInputName,
                                              const string& inputName,
                                              const NodeIO& interiorNode)
@@ -461,13 +461,13 @@ void MermaidGraphIO::emitInterfaceConnection(const string& interfaceId,
     _graphResult += result;
 }
 
-void  MermaidGraphIO::emitRootNode(const NodeIO& root)
+void  MermaidGraphIo::emitRootNode(const NodeIO& root)
 {
     string result = "   " + root.identifier + "[" + root.uilabel + "]\n";
     _graphResult += result;
 }
 
-void MermaidGraphIO::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
+void MermaidGraphIo::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
 {
     string result = EMPTY_STRING;
     if (!_genOptions.getWriteSubgraphs())
@@ -488,64 +488,23 @@ void MermaidGraphIO::emitSubgraphs(std::unordered_map<string, StringSet> subGrap
     _graphResult += result;
 }
 
-void MermaidGraphIO::emitGraphString()
+void MermaidGraphIo::emitGraphString()
 {
     std::unordered_map<int, string> orientations;
-    orientations[(int)GraphIOGenOptions::Orientation::TOP_DOWN] = "TD";
-    orientations[(int)GraphIOGenOptions::Orientation::BOTTOM_UP] = "BT";
-    orientations[(int)GraphIOGenOptions::Orientation::LEFT_RIGHT] = "LR";
-    orientations[(int)GraphIOGenOptions::Orientation::RIGHT_LEFT] = "RL";
+    orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "TD";
+    orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "BT";
+    orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "LR";
+    orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "RL";
 
     string result = "graph " + orientations[(int)_genOptions.getOrientation()] + "; \n";
     result += _graphResult;
     _graphResult = result;
 }
 
-string MermaidGraphIO::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+string MermaidGraphIo::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
 {
     emitGraph(graph, roots);
     return _graphResult;
-}
-
-GraphIORegistryPtr GraphIORegistry::create()
-{
-    return std::shared_ptr<GraphIORegistry>(new GraphIORegistry());
-}
-
-void GraphIORegistry::addGraphIO(GraphIOPtr graphIO)
-{
-    if (graphIO)
-    {
-        const StringSet& formats = graphIO->supportsFormats();
-        for (const auto& format : formats)
-        {
-            _graphIOs[format].push_back(graphIO);
-        }
-    }
-}
-
-string GraphIORegistry::write(const string& format, GraphElementPtr graph, const std::vector<OutputPtr> roots, 
-                               const GraphIOGenOptions& options)
-
-{
-    string result = EMPTY_STRING;
-    for (GraphIOPtr graphIO : _graphIOs[format])
-    {
-        try
-        {
-            graphIO->setGenOptions(options);
-            result = graphIO->write(graph, roots);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Exception in graph I/O library: " << e.what() << std::endl;
-        }
-        if (!result.empty())
-        {
-            return result;
-        }
-    }    
-    return result;
 }
 
 MATERIALX_NAMESPACE_END
