@@ -81,8 +81,8 @@ def printNodeDefs(doc, opts):
 
     # Crete grapher. Note that we don't need additional subgraphs groupings as the 
     # implemention is a subgraph.
-    graphio = mx.MermaidGraphIO.create()
-    graphOptions = mx.GraphIOGenOptions()
+    graphio = mx.MermaidGraphIo.create()
+    graphOptions = mx.GraphIoGenOptions()
     graphOptions.setWriteSubgraphs(False)
     graphOptions.setOrientation(mx.GraphOrientation.LEFT_RIGHT)
     graphio.setGenOptions(graphOptions)
@@ -114,11 +114,7 @@ def printNodeDefs(doc, opts):
                 ng = nd.getImplementation()
                 if ng and ng.isA(mx.NodeGraph):
                     outputList = ng.getOutputs()
-                    # Don't want subgraph as the implemention is a subgraph
-                    graphOptions = mx.GraphIOGenOptions()
-                    graphOptions.setWriteSubgraphs(False)
-                    graphOptions.setOrientation(mx.GraphOrientation.LEFT_RIGHT)
-                    mdoutput = graphio.write('md', ng, outputList, graphOptions)
+                    mdoutput = graphio.write(ng, outputList)
                     print('<li> <em>Nodegraph</em>: %s' % ng.getName())
                     if mdoutput:
                         print('<pre><code class="language-mermaid"><div class="mermaid">')
