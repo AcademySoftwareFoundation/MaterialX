@@ -10,11 +10,26 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-format-truncation -Wno-use-after-free -Wno-comment -Wno-unused-but-set-variable)
 endif()
 
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
-assign_source_group("Source Files" ${materialx_source})
-assign_source_group("Header Files" ${materialx_headers})
+file(GLOB imgui_source "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/*.cpp")
+file(GLOB imgui_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/*.h*")
+
+set(imgui_source ${imgui_source}
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_glfw.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_opengl3.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/misc/cpp/imgui_stdlib.cpp")
+set(imgui_headers ${imgui_headers}
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_glfw.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_opengl3.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/misc/cpp/imgui_stdlib.h")
+
+file(GLOB imguinode_source "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/*.cpp")
+file(GLOB imguinode_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/include/*.h*")
+
+assign_source_group("Source Files" ${materialx_source} ${imgui_source} ${imguinode_source})
+assign_source_group("Header Files" ${materialx_headers} ${imgui_headers} ${imguinode_headers})
 
 find_package(OpenGL REQUIRED)
 
@@ -24,7 +39,9 @@ if (UNIX AND NOT APPLE)
 endif()
 
 include_directories(${OPENGL_INCLUDE_DIRS})
-include_directories("${DEAR_IMGUI_PREFIX}/include")
+include_directories("${DEAR_IMGUI_PREFIX}")
+include_directories("${DEAR_IMGUI_PREFIX}/backends")
+include_directories("${DEAR_IMGUI_PREFIX}/misc/cpp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser/include")
 
@@ -39,7 +56,13 @@ if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
 endif()
 
-add_executable(MaterialXGraphEditor ${materialx_source} ${materialx_headers})
+add_executable(MaterialXGraphEditor
+    ${materialx_source}
+    ${materialx_headers}
+    ${imgui_source}
+    ${imgui_headers}
+    ${imguinode_source}
+    ${imguinode_headers})
 
 set(MATERIALX_LIBRARIES
     MaterialXFormat
