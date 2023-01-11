@@ -26,7 +26,14 @@ set(imgui_headers ${imgui_headers}
     "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/misc/cpp/imgui_stdlib.h")
 
 file(GLOB imguinode_source "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/*.cpp")
-file(GLOB imguinode_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/include/*.h*")
+file(GLOB imguinode_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/*.h*")
+
+set(imguinode_source ${imguinode_source}
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities/drawing.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities/widgets.cpp")
+set(imguinode_headers ${imguinode_headers}
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities/drawing.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities/widgets.h")
 
 assign_source_group("Source Files" ${materialx_source} ${imgui_source} ${imguinode_source})
 assign_source_group("Header Files" ${materialx_headers} ${imgui_headers} ${imguinode_headers})
@@ -42,7 +49,8 @@ include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories("${DEAR_IMGUI_PREFIX}")
 include_directories("${DEAR_IMGUI_PREFIX}/backends")
 include_directories("${DEAR_IMGUI_PREFIX}/misc/cpp")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser/include")
 
 set(GLFW_BUILD_EXAMPLES OFF)
