@@ -12,6 +12,14 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+namespace
+{
+
+const string INLINE_VARIABLE_PREFIX("{{");
+const string INLINE_VARIABLE_SUFFIX("}}");
+
+} // anonymous namespace
+
 ShaderNodeImplPtr SourceCodeNode::create()
 {
     return std::make_shared<SourceCodeNode>();
@@ -97,17 +105,14 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         {
             // An inline function call
 
-            static const string prefix("{{");
-            static const string postfix("}}");
-
             size_t pos = 0;
-            size_t i = _functionSource.find_first_of(prefix);
+            size_t i = _functionSource.find(INLINE_VARIABLE_PREFIX);
             StringSet variableNames;
             StringVec code;
             while (i != string::npos)
             {
                 code.push_back(_functionSource.substr(pos, i - pos));
-                size_t j = _functionSource.find_first_of(postfix, i + 2);
+                size_t j = _functionSource.find(INLINE_VARIABLE_SUFFIX, i + 2);
                 if (j == string::npos)
                 {
                     throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
@@ -146,7 +151,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 }
 
                 pos = j + 2;
-                i = _functionSource.find_first_of(prefix, pos);
+                i = _functionSource.find(INLINE_VARIABLE_PREFIX, pos);
             }
             code.push_back(_functionSource.substr(pos));
 
