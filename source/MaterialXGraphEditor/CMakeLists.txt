@@ -51,7 +51,7 @@ include_directories("${DEAR_IMGUI_PREFIX}/backends")
 include_directories("${DEAR_IMGUI_PREFIX}/misc/cpp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser")
 
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
