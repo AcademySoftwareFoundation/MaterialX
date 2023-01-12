@@ -61,7 +61,6 @@ bool Material::generateShader(mx::GenContext& context)
     _glProgram->build();
 
     updateUniformsList();
-
     return true;
 }
 

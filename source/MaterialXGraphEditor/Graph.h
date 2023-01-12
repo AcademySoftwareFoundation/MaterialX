@@ -1,6 +1,14 @@
 #ifndef MATERIALX_GRAPH_H
 #define MATERIALX_GRAPH_H
 
+#if defined(_WIN32)
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+#endif
+
+
+
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
@@ -15,6 +23,9 @@
 #include <imgui_stdlib.h>
 #include <iostream>
 #include <stack>
+#include <algorithm>
+
+
 
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
@@ -138,6 +149,9 @@ class Graph
     void searchNodePopup(bool cursor);
     bool readOnly();
     void readOnlyPopup();
+    void selectMaterial(UiNodePtr node);
+    void handleRenderViewInputs(ImVec2 minValue, float width, float height);
+    
     mx::InputPtr findInput(mx::InputPtr input, std::string name);
     // document and intializing information
     mx::FilePath _materialFilename;
@@ -159,6 +173,7 @@ class Graph
     std::vector<Link> _newLinks;
     std::vector<Edge> _currEdge;
 
+   
     // current nodes and nodegraphs
     UiNodePtr _currUiNode;
     UiNodePtr _prevUiNode;
@@ -198,6 +213,8 @@ class Graph
 
     //used for filtering pins when connecting links
     std::string _pinFilterType;
+
+    GLFWwindow* _window;
 };
 
 #endif

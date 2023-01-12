@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "imgui_impl_glfw.h"
+
 #include "imgui_impl_opengl3.h"
 
 #include <iostream>
@@ -23,13 +23,17 @@ static void errorCallback(int error, const char* description)
 mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath parentPath = modulePath.getParentPath();
+    mx::FilePath installRootPath = modulePath.getParentPath();
+    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(modulePath);
-    if ((parentPath / "libraries").exists())
+    if ((devRootPath / "libraries").exists())
     {
-        searchPath.append(parentPath);
+        searchPath.append(devRootPath);
+    }
+    else
+    {
+        searchPath.append(installRootPath);
     }
 
     return searchPath;
@@ -60,6 +64,7 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
 int main(int argc, char* const argv[])
 {
+    
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
@@ -136,7 +141,6 @@ int main(int argc, char* const argv[])
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -157,15 +161,17 @@ int main(int argc, char* const argv[])
     // Main loop
     double xpos, ypos = 0.0;
     xpos = 0.0;
+    
     while (!glfwWindowShouldClose(window))
     {
+        
         glfwPollEvents();
-
+        
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+       
         // Node setup
         if (g_FirstFrame)
         {
@@ -197,13 +203,12 @@ int main(int argc, char* const argv[])
             initialized = true;
             graph->initialize();
         }
+       
         graph->_renderer->drawContents();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
-
         ImGui::Render();
-
         glViewport(0, 0, display_w, display_h);
         glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT);

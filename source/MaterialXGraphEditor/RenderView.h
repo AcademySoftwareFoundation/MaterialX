@@ -12,6 +12,8 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXCore/Unit.h>
 
+#include "imgui_impl_glfw.h"
+
 namespace mx = MaterialX;
 
 class RenderView
@@ -156,6 +158,24 @@ class RenderView
         _exitRequested = true;
     }
 
+    //return user camera enabled
+    bool getUserCameraEnabled()
+    {
+        return _userCameraEnabled;
+    }
+
+    float getCameraZoom()
+    {
+        return _cameraZoom;
+    }
+
+    void setCameraZoom(float amount)
+    {
+        _cameraZoom = amount;
+    }
+
+    
+
     void drawContents();
     mx::ImagePtr getFrameImage();
     unsigned int _textureID;
@@ -167,16 +187,20 @@ class RenderView
     mx::GLFramebufferPtr _renderFrame;
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
-    void updateMaterials(mx::DocumentPtr doc);
+    void updateMaterials(mx::DocumentPtr doc, mx::NodePtr node);
+    void setMouseButtonEvent(int button, bool down, mx::Vector2 pos);
+    void setMouseMotionEvent(mx::Vector2 pos);
+    void setKeyEvent(int key);
+    void setScrollEvent(float scrollY); 
+    void setMaterial(mx::TypedElementPtr elem);
 
   private:
     void initContext(mx::GenContext& context);
     void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
-
     void loadStandardLibraries();
-
+    
     // Mark the given material as currently selected in the viewer.
     void setSelectedMaterial(MaterialPtr material)
     {
@@ -233,6 +257,7 @@ class RenderView
     bool _userCameraEnabled;
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
+    bool _userTranslationActive;
     mx::Vector2 _userTranslationPixel;
 
     // Document management

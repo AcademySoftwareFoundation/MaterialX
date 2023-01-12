@@ -17,6 +17,8 @@
 
 #include <iostream>
 
+#include <GLFW/glfw3.h>
+
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
 const float DEFAULT_CAMERA_ZOOM = 1.f;
@@ -181,6 +183,7 @@ RenderView::RenderView(const std::string& materialFilename,
     _cameraFarDist(5000.0f),
     _cameraZoom(DEFAULT_CAMERA_ZOOM),
     _userCameraEnabled(true),
+    _userTranslationActive(false),
     _lightRotation(0.0f),
     _shadowSoftness(1),
     _ambientOcclusionGain(0.6f),
@@ -265,7 +268,10 @@ void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr mater
     {
         return;
     }
-
+    if (geometry == getSelectedGeometry())
+    {
+        setSelectedMaterial(material);
+    }
     if (material)
     {
         _materialAssignments[geometry] = material;
@@ -593,7 +599,85 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
     }
 }
 
-void RenderView::updateMaterials(mx::DocumentPtr doc)
+void RenderView::setScrollEvent(float scrollY)
+{
+    if (_userCameraEnabled)
+    {
+        _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
+    }
+}
+void RenderView::setKeyEvent(int key)
+{
+    if (_userCameraEnabled)
+    {
+        if (key == ImGuiKey_KeypadAdd)
+        {
+            _cameraZoom *= 1.1f;
+        }
+        if (key == ImGuiKey_KeypadSubtract)
+        {
+            _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
+        }
+    }
+}
+void RenderView::setMouseMotionEvent(mx::Vector2 pos)
+{
+    if (_viewCamera->applyArcballMotion(pos))
+    {
+        return;
+    }
+    if (_userTranslationActive)
+    {
+        updateCameras();
+
+        mx::Vector3 boxMin = _geometryHandler->getMinimumBounds();
+        mx::Vector3 boxMax = _geometryHandler->getMaximumBounds();
+        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
+
+        float viewZ = _viewCamera->projectToViewport(sphereCenter)[2];
+        mx::Vector3 pos1 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(pos[0], (float) _screenWidth - pos[1], viewZ));
+        mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
+            mx::Vector3(_userTranslationPixel[0], (float) _screenWidth - _userTranslationPixel[1], viewZ));
+        _userTranslation = _userTranslationStart + (pos1 - pos0);
+    }
+}
+
+void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
+{
+
+    if ((button == 0) && !ImGui::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT) && !ImGui::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        _viewCamera->arcballButtonEvent(pos, down);
+    }
+    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)))
+    {       
+        _userTranslationStart = _userTranslation;
+        _userTranslationActive = true;
+        _userTranslationPixel = pos;
+    }
+    if ((button == 0) && !down)
+    {
+        _viewCamera->arcballButtonEvent(pos, false);
+    }
+    if (!down)
+    {
+        _userTranslationActive = false;
+    }
+}
+void RenderView::setMaterial(mx::TypedElementPtr elem)
+{
+    // compare graph element to material in order to assign correct one
+    for (MaterialPtr mat : _materials)
+    {
+        mx::TypedElementPtr telem = mat->getElement();
+        if (telem->getNamePath() == elem->getNamePath())
+        {
+            assignMaterial(_geometryList[0], mat);
+        }
+    }
+}
+void RenderView::updateMaterials(mx::DocumentPtr doc, mx::NodePtr matNode)
 {
     // Clear user data on the generator.
     _genContext.clearUserData();
@@ -651,6 +735,10 @@ void RenderView::updateMaterials(mx::DocumentPtr doc)
             mx::ElementPtr elem = doc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             if (!typedElem)
+            {
+                continue;
+            }
+            if (matNode && (matNode != materialNodes[i]))
             {
                 continue;
             }
@@ -784,6 +872,12 @@ void RenderView::reloadShaders()
         for (MaterialPtr material : _materials)
         {
             material->generateShader(_genContext);
+            for (GLenum error = glGetError(); error; error = glGetError())
+            {
+                std::cerr << "OpenGL error "
+                          << "reload"
+                          << ": " << std::to_string(error) << std::endl;
+            }
         }
         return;
     }
@@ -875,6 +969,7 @@ mx::ImagePtr RenderView::getAmbientOcclusionImage(MaterialPtr material)
 
 void RenderView::drawContents()
 {
+
     if (_geometryList.empty() || _materials.empty())
     {
         return;
@@ -904,6 +999,7 @@ void RenderView::drawContents()
             std::cout << "Wrote frame to disk: " << _captureFilename.asString() << std::endl;
         }
     }
+    mx::checkGlErrors("after darw");
 }
 
 void RenderView::applyDirectLights(mx::DocumentPtr doc)
@@ -975,6 +1071,7 @@ void RenderView::loadEnvironmentLight()
 
 void RenderView::renderFrame()
 {
+    mx::checkGlErrors("after renderFrame");
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -983,7 +1080,7 @@ void RenderView::renderFrame()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
-
+    mx::checkGlErrors("after renderFrame2");
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
@@ -1008,12 +1105,14 @@ void RenderView::renderFrame()
 
     // Initialize viewport render.
     if (!_renderFrame ||
-         _renderFrame->getWidth() != _screenWidth ||
-         _renderFrame->getHeight() != _screenHeight)
+        _renderFrame->getWidth() != _screenWidth ||
+        _renderFrame->getHeight() != _screenHeight)
     {
         _renderFrame = mx::GLFramebuffer::create(_screenWidth, _screenHeight, 4, mx::Image::BaseType::UINT8);
     }
+
     _renderFrame->bind();
+
     glClearColor(.70f, .70f, .75f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -1028,6 +1127,7 @@ void RenderView::renderFrame()
     // Opaque pass
     for (const auto& assignment : _materialAssignments)
     {
+
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
@@ -1037,6 +1137,7 @@ void RenderView::renderFrame()
         }
 
         material->bindShader();
+
         material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {
