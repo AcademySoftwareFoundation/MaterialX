@@ -5,7 +5,7 @@
       <input name="color" type="color3" value="1.0, 1.0, 1.0" />
     </uniform_edf>
     <generalized_schlick_edf name="generalized_schlick_edf_1" type="EDF">
-      <input name="color0" type="color3" value="0.0, 0.0, 0.0" />
+      <input name="color0" type="color3" value="0.1, 1.0, 0.1" />
       <input name="color90" type="color3" value="1.0, 0.1, 0.2" />
       <input name="exponent" type="float" value="3.0" />
       <input name="base" type="EDF" nodename="uniform_edf_1" />
