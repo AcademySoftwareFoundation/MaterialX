@@ -5,6 +5,7 @@
     <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
     <input name="roughness" type="float" value="1" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Base" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent" uifolder="Base" />
     <input name="occlusion" type="float" value="1" uimin="0" uimax="1" uiname="Occlusion" uifolder="Base" />
     <input name="transmission" type="float" value="0" uimin="0" uimax="1" uiname="Transmission" uifolder="Base" />
     <input name="specular" type="float" value="1" uimin="0" uimax="1" uiname="Specular" uifolder="Base" />
@@ -120,6 +121,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -128,6 +130,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -156,6 +159,7 @@
       <input name="ior" type="float" interfacename="ior" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
 
@@ -164,6 +168,7 @@
       <input name="color90" type="color3" nodename="dielectric_f90" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
 
@@ -201,6 +206,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </generalized_schlick_bsdf>
 
     <!-- Thin-film + Metal
@@ -211,6 +217,7 @@
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="roughness_uv" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </generalized_schlick_bsdf>
 
     <thin_film_bsdf name="metal_thinfilm_bsdf" type="BSDF">
@@ -298,6 +305,7 @@
       <input name="roughness" type="vector2" nodename="clearcoat_roughness_uv" />
       <input name="ior" type="float" value="1.5" />
       <input name="normal" type="vector3" interfacename="clearcoat_normal" />
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </dielectric_bsdf>
 
     <layer name="clearcoat_layer" type="BSDF">
@@ -356,7 +364,7 @@
   <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
-    <input name="uvindex" type="integer" value="0" uifolder="Image" />	  
+    <input name="uvindex" type="integer" uniform="true" value="0" uifolder="Image" />	  
     <input name="pivot" type="vector2" value="0, 1" uifolder="Image" />
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
@@ -372,26 +380,13 @@
   </nodedef>
 
   <nodegraph name="NG_gltf_colorimage" nodedef="ND_gltf_colorimage">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="1" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
-    <input name="color" type="color4" value="1, 1, 1, 1" />
-    <input name="geomcolor" type="color4" value="1, 1, 1, 1" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
     <gltf_image name="image" type="color4">
       <input name="file" type="filename" uniform="true" interfacename="file" />
       <input name="default" type="color4" interfacename="default" />
-      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="uvindex" type="integer" uniform="true" interfacename="uvindex" />
       <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />
@@ -432,7 +427,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color3" value="1,1,1" />
     <input name="default" type="color3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -444,18 +439,6 @@
     <output name="out" type="color3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_NG_gltf_image_color3_color3_1_0" nodedef="ND_gltf_image_color3_color3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="color3" value="1,1,1" />
-    <input name="default" type="color3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -502,7 +485,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color4" value="1,1,1,1" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -514,18 +497,6 @@
     <output name="out" type="color4" value="0, 0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_color4_color4_1_0" nodedef="ND_gltf_image_color4_color4_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="color4" value="1,1,1,1" />
-    <input name="default" type="color4" value="0, 0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="1" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -572,7 +543,7 @@
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="float" value="1" />
     <input name="default" type="float" value="0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -584,18 +555,6 @@
     <output name="out" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_float_float_1_0" nodedef="ND_gltf_image_float_float_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="factor" type="float" value="1" />
-    <input name="default" type="float" value="0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -641,7 +600,7 @@
   <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -653,17 +612,6 @@
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_image_vector3_vector3_1_0"  nodedef="ND_gltf_image_vector3_vector3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -705,7 +653,7 @@
   <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0.5, 0.5, 1" />
-    <input name="uvindex" type="integer" value="0" />
+    <input name="uvindex" type="integer" uniform="true" value="0" />
     <input name="pivot" type="vector2" value="0, 1" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
@@ -717,17 +665,6 @@
     <output name="out" type="vector3" value="0, 0, 0" />
   </nodedef>
   <nodegraph name="NG_gltf_normalmap_vector3_1_0" nodedef="ND_gltf_normalmap_vector3_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0.5, 0.5, 1" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 1" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
     <texcoord name="texcoord1" type="vector2">
       <input name="index" type="integer" uniform="true" interfacename="uvindex" />
     </texcoord>
@@ -772,7 +709,7 @@
   <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="vector3" value="0, 0, 0" uifolder="Image" />
-    <input name="uvindex" type="integer" value="0" uifolder="Image" />
+    <input name="uvindex" type="integer" uniform="true" value="0" uifolder="Image" />
     <input name="pivot" type="vector2" value="0, 0" uifolder="Image" />
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" uifolder="Image" />
@@ -785,18 +722,6 @@
     <output name="out" type="float" value="0" />
   </nodedef>
   <nodegraph name="NG_gltf_iridescence_thickness_float_1_0" nodedef="ND_gltf_iridescence_thickness_float_1_0">
-    <input name="file" type="filename" uniform="true" value="" />
-    <input name="default" type="vector3" value="0, 0, 0" />
-    <input name="uvindex" type="integer" value="0" />
-    <input name="pivot" type="vector2" value="0, 0" />
-    <input name="scale" type="vector2" value="1, 1" />
-    <input name="rotate" type="float" value="0" />
-    <input name="offset" type="vector2" value="0, 0" />
-    <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="vaddressmode" type="string" uniform="true" value="periodic" />
-    <input name="filtertype" type="string" uniform="true" value="linear" />
-    <input name="thicknessMin" type="float" value="100" />
-    <input name="thicknessMax" type="float" value="400" />
     <mix name="mixThickness" type="float" nodedef="ND_mix_float">
       <input name="fg" type="float" interfacename="thicknessMin" />
       <input name="bg" type="float" interfacename="thicknessMax" />
@@ -805,7 +730,7 @@
     <gltf_image name="thickness_image" type="vector3">
       <input name="file" type="filename" uniform="true" interfacename="file" />
       <input name="default" type="vector3" interfacename="default" />
-      <input name="uvindex" type="integer" interfacename="uvindex" />
+      <input name="uvindex" type="integer" uniform="true" interfacename="uvindex" />
       <input name="pivot" type="vector2" interfacename="pivot" />
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />

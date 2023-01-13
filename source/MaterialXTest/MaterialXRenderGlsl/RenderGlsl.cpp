@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRenderGlsl/TextureBaker.h>
@@ -101,9 +101,7 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     // Apply light settings for render tests.
     _lightHandler->setEnvRadianceMap(envRadiance);
     _lightHandler->setEnvIrradianceMap(envIrradiance);
-    _lightHandler->setEnvSampleCount(1024);
-    _lightHandler->setRefractionEnv(false);
-    _lightHandler->setRefractionColor(_renderer->getScreenColor());
+    _lightHandler->setEnvSampleCount(options.enableReferenceQuality ? 4096 : 1024);
 }
 
 //
@@ -482,15 +480,15 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 // Set geometry
                 mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
                 mx::FilePath geomPath;
-                if (!testOptions.shadedGeometry.isEmpty())
+                if (!testOptions.renderGeometry.isEmpty())
                 {
-                    if (!testOptions.shadedGeometry.isAbsolute())
+                    if (!testOptions.renderGeometry.isAbsolute())
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.shadedGeometry;
+                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.renderGeometry;
                     }
                     else
                     {
-                        geomPath = testOptions.shadedGeometry;
+                        geomPath = testOptions.renderGeometry;
                     }
                 }
                 else

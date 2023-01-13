@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
@@ -641,7 +641,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
 
         // Check declaration was set up properly
-        mx::ConstNodeDefPtr decl = newGraph->getDeclaration();
+        mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
 
         // Arbitrarily add all unconnected inputs as interfaces

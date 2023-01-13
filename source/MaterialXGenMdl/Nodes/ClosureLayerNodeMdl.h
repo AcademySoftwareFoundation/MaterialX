@@ -27,11 +27,10 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public ShaderNodeImpl
     static const string BASE;
 };
 
-
 /// Layerable BSDF node.
 class MX_GENMDL_API LayerableNodeMdl : public SourceCodeNodeMdl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;

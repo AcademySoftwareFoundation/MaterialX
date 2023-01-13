@@ -159,24 +159,20 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         OutputPtr output;
         if (connectedInput)
         {
-            InputPtr interfaceInput = nullptr;
-            if (connectedInput->hasInterfaceName())
+            InputPtr interfaceInput = connectedInput->getInterfaceInput();
+            if (interfaceInput)
             {
-                interfaceInput = connectedInput->getInterfaceInput();
-                if (interfaceInput)
-                {
-                    outputName = interfaceInput->getOutputString();
-                    output = interfaceInput->getConnectedOutput();
-                }
+                output = interfaceInput->getConnectedOutput();
+                outputName = interfaceInput->getOutputString();
             }
-            if (!interfaceInput)
+            else
             {
                 output = connectedInput->getConnectedOutput();
             }
         }
         if (output)
         {
-            if (connectedInput || 
+            if (connectedInput ||
                 output->getParent() == output->getDocument())
             {
                 if (!output->getOutputString().empty())
@@ -259,7 +255,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
         using PortElementVec = vector<PortElementPtr>;
         std::vector<NodePtr> processNodeVec;
         std::unordered_map<NodePtr, NodeGraphPtr> graphImplMap;
-        std::unordered_map<NodePtr, ConstNodeDefPtr> declarationMap;
+        std::unordered_map<NodePtr, ConstInterfaceElementPtr> declarationMap;
         std::unordered_map<NodePtr, PortElementVec> downstreamPortMap;
         for (NodePtr node : nodeQueue)
         {
@@ -348,7 +344,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                         }
                         else
                         {
-                            ConstNodeDefPtr declaration = declarationMap[processNode];
+                            ConstInterfaceElementPtr declaration = declarationMap[processNode];
                             InputPtr declInput = declaration ? declaration->getActiveInput(destInput->getInterfaceName()) : nullptr;
                             if (declInput)
                             {
@@ -471,7 +467,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     return result;
 }
 
-NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix)
 {
     string geomNodeName = namePrefix + "_" + geomPropDef->getName();
     NodePtr geomNode = getNode(geomNodeName);
@@ -665,11 +661,15 @@ void NodeGraph::addInterfaceName(const string& inputPath, const string& interfac
     if (input && !input->getConnectedNode())
     {
         input->setInterfaceName(interfaceName);
-        ValuePtr value = input->getValue();
-        if (value)
+        InputPtr nodeDefInput = nodeDef->getInput(interfaceName);
+        if (!nodeDefInput)
         {
-            InputPtr nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
-            nodeDefInput->setValueString(value->getValueString());
+            nodeDefInput = nodeDef->addInput(interfaceName, input->getType());
+        }
+        if (input->hasValue())
+        {
+            nodeDefInput->setValueString(input->getValueString());
+            input->removeAttribute(Input::VALUE_ATTRIBUTE);
         }
     }
 }
@@ -743,9 +743,18 @@ bool NodeGraph::validate(string* message) const
     return GraphElement::validate(message) && res;
 }
 
-ConstNodeDefPtr NodeGraph::getDeclaration(const string&) const
+ConstInterfaceElementPtr NodeGraph::getDeclaration(const string&) const
 {
-    return getNodeDef();
+    ConstNodeDefPtr nodeDef = getNodeDef();
+    if (nodeDef)
+    {
+        return nodeDef;
+    }
+    if (!hasNodeDefString())
+    {
+        return getSelf()->asA<InterfaceElement>();
+    }
+    return nullptr;
 }
 
 //

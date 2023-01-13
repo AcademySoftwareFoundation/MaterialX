@@ -9,7 +9,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const string CMS_NAME = "default_cms";
 

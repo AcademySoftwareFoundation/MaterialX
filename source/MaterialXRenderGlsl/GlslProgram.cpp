@@ -43,7 +43,7 @@ GlslProgram::GlslProgram() :
 
 GlslProgram::~GlslProgram()
 {
-    deleteProgram();
+    clearBuiltData();
 }
 
 void GlslProgram::setStages(ShaderPtr shader)
@@ -53,8 +53,9 @@ void GlslProgram::setStages(ShaderPtr shader)
         throw ExceptionRenderError("Cannot set stages using null hardware shader");
     }
 
-    // Clear out any old data
-    clearStages();
+    // Clear existing stages and built data
+    _stages.clear();
+    clearBuiltData();
 
     // Extract out the shader code per stage
     _shader = shader;
@@ -63,9 +64,6 @@ void GlslProgram::setStages(ShaderPtr shader)
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
     }
-
-    // A stage change invalidates any cached parsed inputs
-    clearInputLists();
 }
 
 void GlslProgram::addStage(const string& stage, const string& sourceCode)
@@ -83,47 +81,28 @@ const string& GlslProgram::getStageSourceCode(const string& stage) const
     return EMPTY_STRING;
 }
 
-void GlslProgram::clearStages()
+void GlslProgram::build()
 {
-    _stages.clear();
+    clearBuiltData();
 
-    // Clearing stages invalidates any cached inputs
-    clearInputLists();
-}
-
-void GlslProgram::deleteProgram()
-{
-    if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
-    {
-        glUseProgram(0);
-        glDeleteProgram(_programId);
-        _programId = UNDEFINED_OPENGL_RESOURCE_ID;
-    }
-
-    // Program deleted, so also clear cached input lists
-    clearInputLists();
-}
-
-unsigned int GlslProgram::build()
-{
-    deleteProgram();
-
-    GLint GLStatus = GL_FALSE;
-    int GLInfoLogLength = 0;
+    GLint glStatus = GL_FALSE;
+    int glInfoLogLength = 0;
     StringVec errors;
 
     unsigned int stagesBuilt = 0;
     unsigned int desiredStages = 0;
     for (const auto& it : _stages)
     {
-        if (it.second.length())
+        if (!it.second.empty())
+        {
             desiredStages++;
+        }
     }
 
-    // Create vertex shader
+    // Compile vertex shader, if any
     GLuint vertexShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
     const string &vertexShaderSource = _stages[Stage::VERTEX];
-    if (vertexShaderSource.length())
+    if (!vertexShaderSource.empty())
     {
         vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 
@@ -132,16 +111,16 @@ unsigned int GlslProgram::build()
         glShaderSource(vertexShaderId, 1, &vertexChar, nullptr);
         glCompileShader(vertexShaderId);
 
-        // Check Vertex Shader
-        glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &GLStatus);
-        if (GLStatus == GL_FALSE)
+        // Check vertex shader
+        glGetShaderiv(vertexShaderId, GL_COMPILE_STATUS, &glStatus);
+        if (glStatus == GL_FALSE)
         {
             errors.push_back("Error in compiling vertex shader:");
-            glGetShaderiv(vertexShaderId, GL_INFO_LOG_LENGTH, &GLInfoLogLength);
-            if (GLInfoLogLength > 0)
+            glGetShaderiv(vertexShaderId, GL_INFO_LOG_LENGTH, &glInfoLogLength);
+            if (glInfoLogLength > 0)
             {
-                std::vector<char> vsErrorMessage(GLInfoLogLength + 1);
-                glGetShaderInfoLog(vertexShaderId, GLInfoLogLength, nullptr, &vsErrorMessage[0]);
+                std::vector<char> vsErrorMessage((size_t) glInfoLogLength + 1);
+                glGetShaderInfoLog(vertexShaderId, glInfoLogLength, nullptr, &vsErrorMessage[0]);
                 errors.push_back(&vsErrorMessage[0]);
             }
         }
@@ -151,10 +130,10 @@ unsigned int GlslProgram::build()
         }
     }
 
-    // Create fragment shader
+    // Compile fragment shader, if any
     GLuint fragmentShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
     const string& fragmentShaderSource = _stages[Stage::PIXEL];
-    if (fragmentShaderSource.length())
+    if (!fragmentShaderSource.empty())
     {
         fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -164,15 +143,15 @@ unsigned int GlslProgram::build()
         glCompileShader(fragmentShaderId);
 
         // Check fragment shader
-        glGetShaderiv(fragmentShaderId, GL_COMPILE_STATUS, &GLStatus);
-        if (GLStatus == GL_FALSE)
+        glGetShaderiv(fragmentShaderId, GL_COMPILE_STATUS, &glStatus);
+        if (glStatus == GL_FALSE)
         {
             errors.push_back("Error in compiling fragment shader:");
-            glGetShaderiv(fragmentShaderId, GL_INFO_LOG_LENGTH, &GLInfoLogLength);
-            if (GLInfoLogLength > 0)
+            glGetShaderiv(fragmentShaderId, GL_INFO_LOG_LENGTH, &glInfoLogLength);
+            if (glInfoLogLength > 0)
             {
-                std::vector<char> fsErrorMessage(GLInfoLogLength + 1);
-                glGetShaderInfoLog(fragmentShaderId, GLInfoLogLength, nullptr, &fsErrorMessage[0]);
+                std::vector<char> fsErrorMessage((size_t) glInfoLogLength + 1);
+                glGetShaderInfoLog(fragmentShaderId, glInfoLogLength, nullptr, &fsErrorMessage[0]);
                 errors.push_back(&fsErrorMessage[0]);
             }
         }
@@ -182,7 +161,7 @@ unsigned int GlslProgram::build()
         }
     }
 
-    // Link stages to a programs
+    // Link the shader program
     if (stagesBuilt == desiredStages)
     {
         _programId = glCreateProgram();
@@ -191,32 +170,32 @@ unsigned int GlslProgram::build()
         glLinkProgram(_programId);
 
         // Check the program
-        glGetProgramiv(_programId, GL_LINK_STATUS, &GLStatus);
-        if (GLStatus == GL_FALSE)
+        glGetProgramiv(_programId, GL_LINK_STATUS, &glStatus);
+        if (glStatus == GL_FALSE)
         {
             errors.push_back("Error in linking program:");
-            glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &GLInfoLogLength);
-            if (GLInfoLogLength > 0)
+            glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &glInfoLogLength);
+            if (glInfoLogLength > 0)
             {
-                std::vector<char> ProgramErrorMessage(GLInfoLogLength + 1);
-                glGetProgramInfoLog(_programId, GLInfoLogLength, nullptr, &ProgramErrorMessage[0]);
+                std::vector<char> ProgramErrorMessage(glInfoLogLength + 1);
+                glGetProgramInfoLog(_programId, glInfoLogLength, nullptr, &ProgramErrorMessage[0]);
                 errors.push_back(&ProgramErrorMessage[0]);
             }
         }
     }
 
     // Cleanup
-    if (vertexShaderId > UNDEFINED_OPENGL_RESOURCE_ID)
+    if (vertexShaderId != UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
+        if (_programId != UNDEFINED_OPENGL_RESOURCE_ID)
         {
             glDetachShader(_programId, vertexShaderId);
         }
         glDeleteShader(vertexShaderId);
     }
-    if (fragmentShaderId > UNDEFINED_OPENGL_RESOURCE_ID)
+    if (fragmentShaderId != UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
+        if (_programId != UNDEFINED_OPENGL_RESOURCE_ID)
         {
             glDetachShader(_programId, fragmentShaderId);
         }
@@ -230,21 +209,37 @@ unsigned int GlslProgram::build()
     // this after cleanup so keep GL state clean.
     if (!errors.empty() || stagesBuilt != desiredStages)
     {
-        throw ExceptionRenderError("GLSL program creation error", errors);
+        throw ExceptionRenderError("GLSL compilation error", errors);
+    }
+}
+
+bool GlslProgram::hasBuiltData()
+{
+    return _programId != UNDEFINED_OPENGL_RESOURCE_ID;
+}
+
+void GlslProgram::clearBuiltData()
+{
+    if (_programId != UNDEFINED_OPENGL_RESOURCE_ID)
+    {
+        glDeleteProgram(_programId);
+        _programId = UNDEFINED_OPENGL_RESOURCE_ID;
     }
 
-    return _programId;
+    _uniformList.clear();
+    _attributeList.clear();
 }
 
 bool GlslProgram::bind()
 {
-    if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
+    if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        glUseProgram(_programId);
-        checkGlErrors("after program bind");
-        return true;
+        return false;
     }
-    return false;
+
+    glUseProgram(_programId);
+    checkGlErrors("after program bind");
+    return true;
 }
 
 void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mesh)
@@ -371,6 +366,13 @@ void GlslProgram::bindMesh(MeshPtr mesh)
         bindAttribute(foundList, mesh);
     }
 
+    // Bind bitangents
+    findInputs(HW::IN_BITANGENT, attributeList, foundList, true);
+    if (foundList.size())
+    {
+        bindAttribute(foundList, mesh);
+    }
+
     // Bind colors
     // Search for anything that starts with the color prefix
     findInputs(HW::IN_COLOR + "_", attributeList, foundList, false);
@@ -432,11 +434,6 @@ void GlslProgram::unbindGeometry()
     glBindBuffer(GL_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
 
-    // Disable vertex attribute arrays.
-    for (int i : _enabledStreamLocations)
-    {
-        glDisableVertexAttribArray(i);
-    }
     _enabledStreamLocations.clear();
 
     // Release attribute buffers.
@@ -824,22 +821,16 @@ void GlslProgram::bindTimeAndFrame(float time, float frame)
 bool GlslProgram::hasActiveAttributes() const
 {
     GLint activeAttributeCount = 0;
-    if (_programId > UNDEFINED_OPENGL_RESOURCE_ID)
+    if (_programId != UNDEFINED_OPENGL_RESOURCE_ID)
     {
         glGetProgramiv(_programId, GL_ACTIVE_ATTRIBUTES, &activeAttributeCount);
     }
-    return (activeAttributeCount > 0);
+    return activeAttributeCount > 0;
 }
 
 void GlslProgram::unbind() const
 {
-    glUseProgram(0);
-}
-
-void GlslProgram::clearInputLists()
-{
-    _uniformList.clear();
-    _attributeList.clear();
+    glUseProgram(UNDEFINED_OPENGL_RESOURCE_ID);
 }
 
 const GlslProgram::InputMap& GlslProgram::getUniformsList()
@@ -859,7 +850,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
         return _uniformList;
     }
 
-    if (_programId <= UNDEFINED_OPENGL_RESOURCE_ID)
+    if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
         throw ExceptionRenderError("Cannot parse for uniforms without a valid program");
     }
@@ -1053,7 +1044,7 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
         return _attributeList;
     }
 
-    if (_programId <= UNDEFINED_OPENGL_RESOURCE_ID)
+    if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
         throw ExceptionRenderError("Cannot parse for attributes without a valid program");
     }

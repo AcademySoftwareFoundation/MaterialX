@@ -107,9 +107,9 @@ bool NodeDef::isVersionCompatible(const string& version) const
     return false;
 }
 
-ConstNodeDefPtr NodeDef::getDeclaration(const string&) const
+ConstInterfaceElementPtr NodeDef::getDeclaration(const string&) const
 {
-    return getSelf()->asA<NodeDef>();
+    return getSelf()->asA<InterfaceElement>();
 }
 
 //
@@ -140,7 +140,7 @@ bool Implementation::validate(string* message) const
     return InterfaceElement::validate(message) && res;
 }
 
-ConstNodeDefPtr Implementation::getDeclaration(const string&) const
+ConstInterfaceElementPtr Implementation::getDeclaration(const string&) const
 {
     return getNodeDef();
 }

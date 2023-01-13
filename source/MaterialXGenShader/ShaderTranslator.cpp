@@ -44,7 +44,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
                 origOutputs.insert(connectedOutput);
             }
             else if (shaderInput->hasValueString())
-            { 
+            {
                 input->setValueString(shaderInput->getValueString());
             }
             else
@@ -155,7 +155,7 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     const string& sourceCategory = shader->getCategory();
     if (sourceCategory == destCategory)
     {
-        return;
+        throw Exception("The source shader \"" + shader->getNamePath() + "\" category is already \"" + destCategory + "\"");
     }
 
     DocumentPtr doc = shader->getDocument();

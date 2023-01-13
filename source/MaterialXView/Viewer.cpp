@@ -167,7 +167,8 @@ public:
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        {
             mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
             const mx::string prefix = vertexData.getInstance() + ".";
             mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
@@ -176,9 +177,10 @@ public:
                 position->setEmitted();
                 shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
             }
-        END_SHADER_STAGE(stage, mx::Stage::VERTEX)
+        }
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
             mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
             const mx::string prefix = vertexData.getInstance() + ".";
             mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
@@ -186,7 +188,7 @@ public:
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
             shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
             shadergen.emitLineEnd(stage);
-        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        }
     }
 };
 
@@ -288,6 +290,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
+    _genContext.getOptions().hwImplicitBitangents = false;
 
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -523,6 +526,15 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
         return;
     }
 
+    if (geometry == getSelectedGeometry())
+    {
+        setSelectedMaterial(material);
+        if (material)
+        {
+            updateDisplayedProperties();
+        }
+    }
+
     if (material)
     {
         _materialAssignments[geometry] = material;
@@ -531,15 +543,6 @@ void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
     else
     {
         _materialAssignments.erase(geometry);
-    }
-
-    if (geometry == getSelectedGeometry())
-    {
-        setSelectedMaterial(material);
-        if (material)
-        {
-            updateDisplayedProperties();
-        }
     }
 }
 
@@ -743,6 +746,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
+    ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
+    shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
+    shaderInterfaceBox->set_callback([this](bool enable)
+    {
+        mx::ShaderInterfaceType interfaceType = enable ? mx::SHADER_INTERFACE_REDUCED : mx::SHADER_INTERFACE_COMPLETE;
+        setShaderInterfaceType(interfaceType);
+    });    
+
     Widget* albedoGroup = new Widget(advancedPopup);
     albedoGroup->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
     new ng::Label(albedoGroup, "Albedo Method:");
@@ -862,15 +873,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #endif
         for (MaterialPtr material : _materials)
         {
-            material->bindShader();
             material->bindUnits(_unitRegistry, _genContext);
         }
         m_process_events = true;
     });
 
-    ng::Label* loadingLabel = new ng::Label(advancedPopup, "Asset Loading Options");
-    loadingLabel->set_font_size(20);
-    loadingLabel->set_font("sans-bold");
+    ng::Label* meshLoading = new ng::Label(advancedPopup, "Mesh Loading Options");
+    meshLoading->set_font_size(20);
+    meshLoading->set_font("sans-bold");
 
     ng::CheckBox* splitUdimsBox = new ng::CheckBox(advancedPopup, "Split By UDIMs");
     splitUdimsBox->set_checked(_splitByUdims);
@@ -878,6 +888,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _splitByUdims = enable;
     });
+
+    ng::Label* materialLoading = new ng::Label(advancedPopup, "Material Loading Options");
+    materialLoading->set_font_size(20);
+    materialLoading->set_font("sans-bold");
 
     ng::CheckBox* mergeMaterialsBox = new ng::CheckBox(advancedPopup, "Merge Materials");
     mergeMaterialsBox->set_checked(_mergeMaterials);
@@ -899,6 +913,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _flattenSubgraphs = enable;
     });    
+
+    ng::Label* envLoading = new ng::Label(advancedPopup, "Environment Loading Options");
+    envLoading->set_font_size(20);
+    envLoading->set_font("sans-bold");
+
+    ng::CheckBox* normalizeEnvBox = new ng::CheckBox(advancedPopup, "Normalize Environment");
+    normalizeEnvBox->set_checked(_normalizeEnvironment);
+    normalizeEnvBox->set_callback([this](bool enable)
+    {
+        _normalizeEnvironment = enable;
+    });
 
     ng::CheckBox* splitDirectLightBox = new ng::CheckBox(advancedPopup, "Split Direct Light");
     splitDirectLightBox->set_checked(_splitDirectLight);
@@ -1308,11 +1333,15 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                     // Generate a shader for the new material.
                     mat->generateShader(_genContext);
                 }
-
-                mx::NodePtr materialNode = mat->getMaterialNode();
-                if (materialNode)
+            }
+       
+            // Apply material assignments in the order in which they are declared within the document,
+            // with later assignments superseding earlier ones.
+            for (mx::LookPtr look : doc->getLooks())
+            {
+                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
                 {
-                    // Apply geometric assignments specified in the document, if any.
+                    const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)
                     {
                         std::string geom = part->getName();
@@ -1320,13 +1349,40 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         {
                             geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
                         }
-                        if (!getGeometryBindings(materialNode, geom).empty())
+                        if (mx::geomStringsMatch(activeGeom, geom, true))
                         {
-                            assignMaterial(part, mat);
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
+                        }
+                        mx::CollectionPtr coll = matAssign->getCollection();
+                        if (coll && coll->matchesGeomString(geom))
+                        {
+                            for (MaterialPtr mat : newMaterials)
+                            {
+                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                {
+                                    assignMaterial(part, mat);
+                                    break;
+                                }
+                            }
                         }
                     }
+                }
+            }
 
-                    // Apply implicit udim assignments, if any.
+            // Apply implicit udim assignments, if any.
+            for (MaterialPtr mat : newMaterials)
+            {
+                mx::NodePtr materialNode = mat->getMaterialNode();
+                if (materialNode)
+                {
+                    std::string udim = mat->getUdim();
                     if (!udim.empty())
                     {
                         for (mx::MeshPartitionPtr geom : _geometryList)
@@ -1361,10 +1417,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             std::cerr << error << std::endl;
         }
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+        _materialAssignments.clear();
     }
     catch (std::exception& e)
     {
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load material", e.what());
+        _materialAssignments.clear();
     }
 
     // Update material UI.
@@ -1398,7 +1456,7 @@ void Viewer::reloadShaders()
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to reload shaders", e.what());
     }
 
-    _materials.clear();
+    _materialAssignments.clear();
 }
 
 void Viewer::saveShaderSource(mx::GenContext& context)
@@ -1808,6 +1866,11 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
 void Viewer::renderFrame()
 {
+    if (_geometryList.empty() || _materialAssignments.empty())
+    {
+        return;
+    }
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -2143,11 +2206,6 @@ void Viewer::renderTurnable()
 
 void Viewer::draw_contents()
 {    
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
-
     updateCameras();
 
     mx::checkGlErrors("before viewer render");
@@ -2660,4 +2718,18 @@ void Viewer::toggleTurntable(bool enable)
     }
     invalidateShadowMap();
     _turntableStep = 0;
+}
+
+void Viewer::setShaderInterfaceType(mx::ShaderInterfaceType interfaceType)
+{
+    _genContext.getOptions().shaderInterfaceType = interfaceType;
+    _genContextEssl.getOptions().shaderInterfaceType = interfaceType;
+#if MATERIALX_BUILD_GEN_OSL
+    _genContextOsl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+#if MATERIALX_BUILD_GEN_MDL
+    _genContextMdl.getOptions().shaderInterfaceType = interfaceType;
+#endif
+    reloadShaders();
+    updateDisplayedProperties();
 }

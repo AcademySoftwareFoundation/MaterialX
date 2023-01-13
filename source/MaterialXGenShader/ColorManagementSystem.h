@@ -35,7 +35,7 @@ struct MX_GENSHADER_API ColorSpaceTransform
     const TypeDesc* type;
 
     /// Comparison operator
-    bool operator==(const ColorSpaceTransform &other) const
+    bool operator==(const ColorSpaceTransform& other) const
     {
         return sourceSpace == other.sourceSpace &&
                targetSpace == other.targetSpace &&
@@ -67,7 +67,7 @@ class MX_GENSHADER_API ColorManagementSystem
   protected:
     /// Protected constructor
     ColorManagementSystem();
-      
+
     /// Returns an implementation for a given transform
     virtual ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const = 0;
 

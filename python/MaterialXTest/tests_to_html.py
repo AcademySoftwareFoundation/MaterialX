@@ -98,7 +98,7 @@ def main(args=None):
             if curPath != sourcePath:
                 if curPath != "":
                     fh.write("</table>\n")
-                fh.write("<p>" + sourcePath + ":</p>\n")
+                fh.write("<p>" + os.path.normpath(sourcePath) + ":</p>\n")
                 fh.write("<table>\n")
                 curPath = sourcePath
 
@@ -119,12 +119,12 @@ def main(args=None):
 
             fh.write("<tr>\n")
             if fullSourcePath:
-                    fh.write("<td align='center'>" + sourceFile)
+                fh.write("<td align='center'>" + sourceFile)
             if args.ENABLE_TIMESTAMPS and os.path.isfile(fullSourcePath):
                 fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullSourcePath))) + ")")
             fh.write("</td>\n")
             if fullDestPath:
-                    fh.write("<td align='center'>" + destFile)
+                fh.write("<td align='center'>" + destFile)
             if args.ENABLE_TIMESTAMPS and os.path.isfile(fullDestPath):
                 fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullDestPath))) + ")")
             fh.write("</td>\n")
