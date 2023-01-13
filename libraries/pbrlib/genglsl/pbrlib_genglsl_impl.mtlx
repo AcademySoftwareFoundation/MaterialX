@@ -52,8 +52,8 @@
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genglsl" nodedef="ND_uniform_edf" file="mx_uniform_edf.glsl" function="mx_uniform_edf" target="genglsl" />
 
-  <!-- <directional_edf> -->
-  <implementation name="IM_directional_edf_genglsl" nodedef="ND_directional_edf" file="mx_directional_edf.glsl" function="mx_directional_edf" target="genglsl" />
+  <!-- <generalized_schlick_edf> -->
+  <implementation name="IM_generalized_schlick_edf_genglsl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.glsl" function="mx_generalized_schlick_edf" target="genglsl" />
 
   <!-- <surface> -->
   <implementation name="IM_surface_genglsl" nodedef="ND_surface" target="genglsl" />

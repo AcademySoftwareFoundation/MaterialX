@@ -34,8 +34,8 @@
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" sourcecode="{{color}} * emission()" target="genosl" />
 
-  <!-- <directional_edf> -->
-  <implementation name="IM_directional_edf_genosl" nodedef="ND_directional_edf" file="mx_directional_edf.osl" function="mx_directional_edf" target="genosl" />
+  <!-- <generalized_schlick_edf> -->
+  <implementation name="IM_generalized_schlick_edf_genosl" nodedef="ND_generalized_schlick_edf" file="mx_generalized_schlick_edf.osl" function="mx_generalized_schlick_edf" target="genosl" />
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genosl" nodedef="ND_layer_bsdf" target="genosl" />

@@ -37,8 +37,8 @@
   <!-- <measured_edf> -->
   <implementation name="IM_measured_edf_genmdl" nodedef="ND_measured_edf" sourcecode="mx::pbrlib::mx_measured_edf(mxp_color:{{color}}, mxp_normal:{{normal}}, mxp_file:{{file}}" target="genmdl" />
 
-  <!-- <directional_edf> -->
-  <implementation name="IM_directional_edf_genmdl" nodedef="ND_directional_edf" sourcecode="mx::pbrlib::mx_directional_edf(mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}}, mxp_base:{{base}})" target="genmdl" />
+  <!-- <generalized_schlick_edf> -->
+  <implementation name="IM_generalized_schlick_edf_genmdl" nodedef="ND_generalized_schlick_edf" sourcecode="mx::pbrlib::mx_generalized_schlick_edf(mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}}, mxp_base:{{base}})" target="genmdl" />
 
   <!-- <absorption_vdf> -->
   <implementation name="IM_absorption_vdf_genmdl" nodedef="ND_absorption_vdf" sourcecode="mx::pbrlib::mx_absorption_vdf(mxp_absorption:{{absorption}})" target="genmdl" />
