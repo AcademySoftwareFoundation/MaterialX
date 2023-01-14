@@ -192,8 +192,6 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
     // Read in all meshes
     StringSet meshNames;
-    const string MeshPrefix = "Mesh_";
-    const string TransformPrefix = "Transform_";
     for (size_t m = 0; m < data->meshes_count; m++)
     {
         cgltf_mesh* cmesh = &(data->meshes[m]);
