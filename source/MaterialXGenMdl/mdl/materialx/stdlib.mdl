@@ -47,7 +47,9 @@ export material mx_surfacematerial(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
         displacement : mxp_displacement,
         normal: mxp_surfaceshader.geometry.normal
-    )
+    ),
+    ior: mxp_surfaceshader.ior,
+    volume: mxp_surfaceshader.volume
 );
 
 export material mx_surface_unlit(
