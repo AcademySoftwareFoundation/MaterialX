@@ -2,7 +2,6 @@
 
 #include <GLFW/glfw3.h>
 
-
 #include "imgui_impl_opengl3.h"
 
 #include <iostream>
@@ -40,10 +39,10 @@ mx::FileSearchPath getDefaultSearchPath()
 }
 
 const std::string options =
-" Options: \n"
-"    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
-"    --help                         Display the complete list of command-line options\n";
+    " Options: \n"
+    "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
+    "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+    "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
 {
@@ -64,7 +63,7 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
 int main(int argc, char* const argv[])
 {
-    
+
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
@@ -161,17 +160,17 @@ int main(int argc, char* const argv[])
     // Main loop
     double xpos, ypos = 0.0;
     xpos = 0.0;
-    
+
     while (!glfwWindowShouldClose(window))
     {
-        
+
         glfwPollEvents();
-        
+
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-       
+
         // Node setup
         if (g_FirstFrame)
         {
@@ -195,7 +194,7 @@ int main(int argc, char* const argv[])
         ed::SetCurrentEditor(g_Context);
         if (g_FirstFrame)
             ed::NavigateToContent(0.0f);
-            
+
         g_FirstFrame = false;
 
         if (!initialized)
@@ -203,8 +202,8 @@ int main(int argc, char* const argv[])
             initialized = true;
             graph->initialize();
         }
-       
-        graph->_renderer->drawContents();
+
+        graph->getRenderer()->drawContents();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));

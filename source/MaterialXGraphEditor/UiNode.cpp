@@ -38,7 +38,7 @@ UiNode::UiNode(int id) :
 
 UiNodePtr UiNode::getConnectedNode(std::string name)
 {
-    for (Edge edge : edges)
+    for (UiEdge edge : edges)
     {
         if (edge.getInputName() == name)
         {
@@ -49,7 +49,7 @@ UiNodePtr UiNode::getConnectedNode(std::string name)
             return edge.getDown();
         }
     }
-    for (Edge edge : edges)
+    for (UiEdge edge : edges)
     {
 
         if (edge.getInputName() == "")
@@ -98,7 +98,7 @@ float UiNode::getMinX()
 int UiNode::getEdgeIndex(int id)
 {
     int count = 0;
-    for (Edge edge : edges)
+    for (UiEdge edge : edges)
     {
         if (edge.getUp()->getId() == id || edge.getDown()->getId() == id)
         {

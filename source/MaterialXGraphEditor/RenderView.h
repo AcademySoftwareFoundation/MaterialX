@@ -158,7 +158,7 @@ class RenderView
         _exitRequested = true;
     }
 
-    //return user camera enabled
+    // return user camera enabled
     bool getUserCameraEnabled()
     {
         return _userCameraEnabled;
@@ -174,7 +174,15 @@ class RenderView
         _cameraZoom = amount;
     }
 
-    
+    bool getMaterialCompilation()
+    {
+        return _materialCompilation;
+    }
+
+    void setMaterialCompilation(bool mat)
+    {
+        _materialCompilation = mat;
+    }
 
     void drawContents();
     mx::ImagePtr getFrameImage();
@@ -187,11 +195,11 @@ class RenderView
     mx::GLFramebufferPtr _renderFrame;
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
     void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
-    void updateMaterials(mx::DocumentPtr doc, mx::NodePtr node);
+    void updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem);
     void setMouseButtonEvent(int button, bool down, mx::Vector2 pos);
     void setMouseMotionEvent(mx::Vector2 pos);
     void setKeyEvent(int key);
-    void setScrollEvent(float scrollY); 
+    void setScrollEvent(float scrollY);
     void setMaterial(mx::TypedElementPtr elem);
 
   private:
@@ -200,7 +208,7 @@ class RenderView
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
     void loadStandardLibraries();
-    
+
     // Mark the given material as currently selected in the viewer.
     void setSelectedMaterial(MaterialPtr material)
     {
@@ -319,6 +327,7 @@ class RenderView
     // Material options
     bool _mergeMaterials;
     bool _showAllInputs;
+    bool _materialCompilation;
 
     // Unit options
     mx::StringVec _distanceUnitOptions;

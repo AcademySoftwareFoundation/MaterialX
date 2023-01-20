@@ -205,7 +205,7 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
         }
     }
     std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
-    {
+              {
         return a->getName() > b->getName();
     });
     return downstreamPorts;
@@ -414,12 +414,14 @@ vector<ElementPtr> GraphElement::topologicalSort() const
             Edge upstreamEdge = child->getUpstreamEdge(i);
             if (upstreamEdge)
             {
-                ElementPtr elem = upstreamEdge.getUpstreamElement()->getParent();
-                if (elem == child->getParent())
+                if (upstreamEdge.getUpstreamElement())
                 {
-                    connectionCount++;
+                    ElementPtr elem = upstreamEdge.getUpstreamElement()->getParent();
+                    if (elem == child->getParent())
+                    {
+                        connectionCount++;
+                    }
                 }
-                
             }
         }
 

@@ -11,7 +11,7 @@
 namespace mx = MaterialX;
 namespace ed = ax::NodeEditor;
 
-class Edge;
+class UiEdge;
 class Pin;
 
 class UiNode
@@ -139,7 +139,7 @@ class UiNode
     float getAverageY();
     float getMinX();
     int getEdgeIndex(int id);
-    std::vector<Edge> edges;
+    std::vector<UiEdge> edges;
     std::vector<Pin> inputPins;
     std::vector<Pin> outputPins;
     void removeOutputConnection(std::string);
@@ -204,6 +204,14 @@ class Pin
     {
         return _connected;
     }
+    void addConnection(Pin pin)
+    {
+        _connections.push_back(pin);
+    }
+    std::vector<Pin> getConnection()
+    {
+        return _connections;
+    }
     ed::PinId _pinId;
     std::string _name;
     std::string _type;
@@ -211,6 +219,7 @@ class Pin
     ed::PinKind _kind;
     mx::InputPtr _input;
     mx::OutputPtr _output;
+    std::vector<Pin> _connections;
     bool _connected;
 };
 

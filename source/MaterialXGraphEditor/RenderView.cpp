@@ -198,6 +198,7 @@ RenderView::RenderView(const std::string& materialFilename,
     _splitByUdims(true),
     _mergeMaterials(false),
     _showAllInputs(false),
+    _materialCompilation(false),
     _renderTransparency(true),
     _renderDoubleSided(true),
     _drawEnvironment(false),
@@ -508,6 +509,7 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
 
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
+            // _prevMaterials.insert(_prevMaterials.end(), newMaterials.begin(), newMaterials.end());
 
             MaterialPtr udimMaterial = nullptr;
             for (MaterialPtr mat : newMaterials)
@@ -651,7 +653,7 @@ void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
         _viewCamera->arcballButtonEvent(pos, down);
     }
     else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)))
-    {       
+    {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
         _userTranslationPixel = pos;
@@ -677,7 +679,7 @@ void RenderView::setMaterial(mx::TypedElementPtr elem)
         }
     }
 }
-void RenderView::updateMaterials(mx::DocumentPtr doc, mx::NodePtr matNode)
+void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem)
 {
     // Clear user data on the generator.
     _genContext.clearUserData();
@@ -695,75 +697,48 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::NodePtr matNode)
         _materials.clear();
     }
 
+    //_genContext.
     std::vector<MaterialPtr> newMaterials;
     try
     {
-
         _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Apply direct lights.
         applyDirectLights(doc);
 
-        // Apply modifiers to the content document.
+        //// Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
 
-        // Find new renderable elements.
-        mx::StringVec renderablePaths;
-        std::vector<mx::TypedElementPtr> elems;
-        std::vector<mx::NodePtr> materialNodes;
-        mx::findRenderableElements(doc, elems);
-        if (elems.empty())
-        {
-            throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
-        }
-        for (mx::TypedElementPtr elem : elems)
-        {
-            mx::TypedElementPtr renderableElem = elem;
-            mx::NodePtr node = elem->asA<mx::Node>();
-            materialNodes.push_back(node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
-            renderablePaths.push_back(renderableElem->getNamePath());
-        }
-
-        // Check for any udim set.
+        //// Check for any udim set.
         mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        // Create new materials.
+        //// Create new materials.
         mx::TypedElementPtr udimElement;
-        for (size_t i = 0; i < renderablePaths.size(); i++)
+        mx::NodePtr node = typedElem->asA<mx::Node>();
+        mx::NodePtr materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
+        if (udimSetValue && udimSetValue->isA<mx::StringVec>())
         {
-            const auto& renderablePath = renderablePaths[i];
-            mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
-            if (!typedElem)
-            {
-                continue;
-            }
-            if (matNode && (matNode != materialNodes[i]))
-            {
-                continue;
-            }
-            if (udimSetValue && udimSetValue->isA<mx::StringVec>())
-            {
-                for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
-                {
-                    MaterialPtr mat = Material::create();
-                    mat->setDocument(doc);
-                    mat->setElement(typedElem);
-                    mat->setMaterialNode(materialNodes[i]);
-                    mat->setUdim(udim);
-                    newMaterials.push_back(mat);
-
-                    udimElement = typedElem;
-                }
-            }
-            else
+            for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
             {
                 MaterialPtr mat = Material::create();
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
-                mat->setMaterialNode(materialNodes[i]);
+                mat->setMaterialNode(materialNode);
+                // mat->getShader()
+                mat->setUdim(udim);
                 newMaterials.push_back(mat);
+
+                udimElement = typedElem;
             }
+        }
+        else
+        {
+            // MaterialPtr mat = _materials[0];
+            MaterialPtr mat = Material::create();
+            mat->setDocument(doc);
+            mat->setElement(typedElem);
+            mat->setMaterialNode(materialNode);
+            newMaterials.push_back(mat);
         }
 
         if (!newMaterials.empty())
@@ -808,7 +783,6 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::NodePtr matNode)
                     mat->generateShader(_genContext);
                 }
 
-                mx::NodePtr materialNode = mat->getMaterialNode();
                 if (materialNode)
                 {
                     // Apply geometric assignments specified in the document, if any.
@@ -999,7 +973,6 @@ void RenderView::drawContents()
             std::cout << "Wrote frame to disk: " << _captureFilename.asString() << std::endl;
         }
     }
-    mx::checkGlErrors("after darw");
 }
 
 void RenderView::applyDirectLights(mx::DocumentPtr doc)
@@ -1071,7 +1044,7 @@ void RenderView::loadEnvironmentLight()
 
 void RenderView::renderFrame()
 {
-    mx::checkGlErrors("after renderFrame");
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -1080,7 +1053,7 @@ void RenderView::renderFrame()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
     glDisable(GL_FRAMEBUFFER_SRGB);
-    mx::checkGlErrors("after renderFrame2");
+
     // Update lighting state.
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
@@ -1137,7 +1110,6 @@ void RenderView::renderFrame()
         }
 
         material->bindShader();
-
         material->bindMesh(_geometryHandler->findParentMesh(geom));
         if (material->getProgram()->hasUniform(mx::HW::ALPHA_THRESHOLD))
         {

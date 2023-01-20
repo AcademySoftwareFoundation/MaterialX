@@ -46,10 +46,10 @@ struct Link
     }
 };
 
-class Edge
+class UiEdge
 {
   public:
-    Edge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
+    UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
         _uiDown(uiDown),
         _uiUp(uiUp),
         _input(input)
@@ -75,7 +75,7 @@ class Edge
         }
         else
         {
-            return "";
+            return mx::EMPTY_STRING;
         }
     }
     UiNodePtr _uiDown;
@@ -87,10 +87,17 @@ class Graph
 {
   public:
     Graph(const std::string& materialFilename, const mx::FileSearchPath& searchPath, const mx::FilePathVec& libraryFolders);
+
+    RenderViewPtr getRenderer()
+    {
+    
+        return _renderer;
+    
+    }
     void initialize();
     void drawGraph(ImVec2 mousePos);
-    mx::DocumentPtr loadDocument(std::string filename);
-    RenderViewPtr _renderer;
+    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    
     ~Graph(){};
 
   private:
@@ -106,12 +113,12 @@ class Graph
     //arguments for node to set, input in that node
     void setConstant(UiNodePtr node, mx::InputPtr& input);
     int findNode(std::string name, std::string type);
-    bool edgeExists(Edge edge);
+    bool edgeExists(UiEdge edge);
     void addNode(std::string category, std::string name, std::string type);
     void writeText(std::string filename, mx::FilePath filePath);
     bool linkExists(Link newLink);
     //input to update, value to update, if the update will modify uniform or not, if the input is a ui element in a nodegraph node or input ui node
-    void updateMaterials(mx::InputPtr input, mx::ValuePtr value, bool genShader);
+    void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
     std::vector<int> findLinkId(int attrId);
     int findNode(int nodeId);
     void DrawPinIcon(std::string type, bool connected, int alpha);
@@ -141,7 +148,6 @@ class Graph
     void positionPasteBin(ImVec2  pos);
     void copyNodeGraph(UiNodePtr origGraph, UiNodePtr copyGraph);
     void copyUiNode(UiNodePtr node);
-    void cutNodes();
     void deleteLinkInfo(int startAtrr, int endAttr);
     void setUiNodeInfo(UiNodePtr node, std::string type, std::string category);
     void graphButtons();
@@ -149,10 +155,14 @@ class Graph
     void searchNodePopup(bool cursor);
     bool readOnly();
     void readOnlyPopup();
+    void shaderPopup();
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     
     mx::InputPtr findInput(mx::InputPtr input, std::string name);
+
+    RenderViewPtr _renderer;
+
     // document and intializing information
     mx::FilePath _materialFilename;
     mx::DocumentPtr _graphDoc;
@@ -171,7 +181,8 @@ class Graph
     std::vector<Pin> _currPins;
     std::vector<Link> _currLinks;
     std::vector<Link> _newLinks;
-    std::vector<Edge> _currEdge;
+    std::vector<UiEdge> _currEdge;
+    std::unordered_map < UiNodePtr, std::vector<Pin>> _downstreamInputs;
 
    
     // current nodes and nodegraphs
@@ -205,16 +216,16 @@ class Graph
 
     int _graphTotalSize;
     bool _popup;
+    bool _shaderPopup;
     int _searchNodeId;
     bool _addNewNode;
     bool _ctrlClick;
     bool _isCut;
     bool _autoLayout;
 
+    int _frameCount;
     //used for filtering pins when connecting links
     std::string _pinFilterType;
-
-    GLFWwindow* _window;
 };
 
 #endif
