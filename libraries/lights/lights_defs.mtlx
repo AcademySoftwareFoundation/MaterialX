@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-    All rights reserved.  See LICENSE.txt for license.
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
 
     Declarations of common light nodes, used in code generation for hardware
     shading languages that require explicit light loops.
