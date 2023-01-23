@@ -370,7 +370,8 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
     }
 
     // Add default entries.
-    ShaderMetadataVec defaultMetadata = {
+    const ShaderMetadata DEFAULT_METADATA[] =
+    {
         ShaderMetadata(ValueElement::UI_NAME_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UI_FOLDER_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UI_MIN_ATTRIBUTE, nullptr),
@@ -383,7 +384,7 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::COLOR_SPACE_ATTRIBUTE, Type::STRING)
     };
-    for (auto data : defaultMetadata)
+    for (auto data : DEFAULT_METADATA)
     {
         registry->addMetadata(data.name, data.type);
     }
