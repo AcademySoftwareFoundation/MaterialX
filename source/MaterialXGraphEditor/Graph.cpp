@@ -642,9 +642,14 @@ void Graph::setRenderMaterial(UiNodePtr node)
     // set render node right away is node is a material
     if (node->getNode() && node->getNode()->getType() == "material")
     {
-        _currRenderNode = node;
-        _frameCount = ImGui::GetFrameCount();
-        _renderer->setMaterialCompilation(true);
+        //only set new render node if different material has been selected
+        if (_currRenderNode != node)
+        {
+            _currRenderNode = node;
+            _frameCount = ImGui::GetFrameCount();
+            _renderer->setMaterialCompilation(true);
+        }
+        
     }
     else
     {
@@ -664,9 +669,12 @@ void Graph::setRenderMaterial(UiNodePtr node)
                             std::string type = shaderOut[0]->getNode()->getType();
                             if (shaderOut[0]->getNode()->getType() == "material")
                             {
-                                _currRenderNode = shaderOut[0];
-                                _frameCount = ImGui::GetFrameCount();
-                                _renderer->setMaterialCompilation(true);
+                                if (_currRenderNode != shaderOut[0])
+                                {
+                                    _currRenderNode = shaderOut[0];
+                                    _frameCount = ImGui::GetFrameCount();
+                                    _renderer->setMaterialCompilation(true);
+                                }
                             }
                         }
                     }
@@ -677,9 +685,12 @@ void Graph::setRenderMaterial(UiNodePtr node)
                 }
                 else if (outNodes[0]->getNode()->getType() == mx::MATERIAL_TYPE_STRING)
                 {
-                    _currRenderNode = outNodes[0];
-                    _frameCount = ImGui::GetFrameCount();
-                    _renderer->setMaterialCompilation(true);
+                    if (_currRenderNode != outNodes[0])
+                    {
+                        _currRenderNode = outNodes[0];
+                        _frameCount = ImGui::GetFrameCount();
+                        _renderer->setMaterialCompilation(true);
+                    }
                 }
             }
             else
@@ -3273,8 +3284,8 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
         {
             _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
         }
-
-        if (scrollAmt != 0 && !_fileDialogSave.IsOpened())
+        //scrolling not possible if open or save file dialog is open
+        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
         {
             _renderer->setScrollEvent(scrollAmt);
         }
