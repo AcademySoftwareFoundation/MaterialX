@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 // MDL implementation of all Standard Source Nodes of
 //     MaterialX: An Open Standard for Network-Based CG Object Looks
@@ -47,7 +47,9 @@ export material mx_surfacematerial(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
         displacement : mxp_displacement,
         normal: mxp_surfaceshader.geometry.normal
-    )
+    ),
+    ior: mxp_surfaceshader.ior,
+    volume: mxp_surfaceshader.volume
 );
 
 export material mx_surface_unlit(

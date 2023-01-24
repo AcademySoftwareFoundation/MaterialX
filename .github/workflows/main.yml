@@ -111,7 +111,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install libglu1-mesa-dev xorg-dev
+        sudo apt-get install xorg-dev mesa-utils
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
@@ -223,9 +223,8 @@ jobs:
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=llvmpipe" >> $GITHUB_ENV
 
     - name: Render Script Tests
       if: matrix.test_render == 'ON'
@@ -237,8 +236,8 @@ jobs:
     - name: Viewer Tests
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
       working-directory: build/render
 
     - name: Upload Installed Package
