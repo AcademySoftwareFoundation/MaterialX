@@ -85,12 +85,15 @@ void GlslShaderRenderTester::registerLights(mx::DocumentPtr document,
     _lightHandler = mx::LightHandler::create();
 
     // Scan for lights
-    std::vector<mx::NodePtr> lights;
-    _lightHandler->findLights(document, lights);
-    _lightHandler->registerLights(document, lights, context);
+    if (options.enableDirectLighting)
+    {
+        std::vector<mx::NodePtr> lights;
+        _lightHandler->findLights(document, lights);
+        _lightHandler->registerLights(document, lights, context);
 
-    // Set the list of lights on the with the generator
-    _lightHandler->setLightSources(lights);
+        // Set the list of lights on the with the generator
+        _lightHandler->setLightSources(lights);
+    }
 
     // Load environment lights.
     mx::ImagePtr envRadiance = _renderer->getImageHandler()->acquireImage(options.radianceIBLPath);

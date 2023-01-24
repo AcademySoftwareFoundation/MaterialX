@@ -337,7 +337,7 @@ bool Input::validate(string* message) const
     if (parent->isA<Node>())
     {
         bool hasValueBinding = hasValue();
-        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
+        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName() || hasDefaultGeomPropString();
         validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
     }
     else if (parent->isA<NodeGraph>())

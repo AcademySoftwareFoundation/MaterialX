@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <add name="add_vector2" type="vector2">
+    <input name="in1" type="vector2" value="0.0, 0.0" />
+    <input name="in2" type="vector2" value="0.0, 0.0" />
+  </add>
+  <convert name="shader_add_vector2_out" type="surfaceshader">
+    <input name="in" type="vector2" nodename="add_vector2" />
+  </convert>
+  <surfacematerial name="material_add_vector2_out" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shader_add_vector2_out" />
+  </surfacematerial>
+</materialx>

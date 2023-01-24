@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <add name="add_bsdf" type="BSDF">
+    <input name="in1" type="BSDF" value="" nodename="oren_nayar_diffuse_bsdf" />
+    <input name="in2" type="BSDF" value="" nodename="oren_nayar_diffuse_bsdf2" />
+  </add>
+  <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf" type="BSDF" />
+  <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf2" type="BSDF" />
+  <surface name="shader_add_bsdf_out" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="add_bsdf" />
+  </surface>
+  <surfacematerial name="material_add_bsdf_out" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shader_add_bsdf_out" />
+  </surfacematerial>
+</materialx>

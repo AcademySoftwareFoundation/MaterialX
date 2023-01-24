@@ -3846,6 +3846,38 @@
     <input name="in" type="integer" value="0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
+  <nodedef name="ND_convert_color3_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert color3 to shader">
+    <input name="in" type="color3" value="0, 0, 0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_color4_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert color4  to shader">
+    <input name="in" type="color4" value="0, 0, 0, 0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_float_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert float to shader">
+    <input name="in" type="float" value="0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_vector2_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert vector2 to shader">
+    <input name="in" type="vector2" value="0, 0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_vector3_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert vector2 to shader">
+    <input name="in" type="vector3" value="0, 0, 0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_vector4_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert vector4 to shader">
+    <input name="in" type="vector4" value="0, 0, 0, 0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert integer to shader">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_shader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert boolean to shader">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
 
   <!--
     Node: <swizzle>

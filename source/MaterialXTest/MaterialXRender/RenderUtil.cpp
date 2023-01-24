@@ -191,6 +191,10 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     setupTime.endTimer();
 
+    if (!options.enableDirectLighting)
+    {
+        context.getOptions().hwMaxActiveLightSources = 0;
+    }
     registerLights(dependLib, options, context);
 
     // Map to replace "/" in Element path and ":" in namespaced names with "_".
