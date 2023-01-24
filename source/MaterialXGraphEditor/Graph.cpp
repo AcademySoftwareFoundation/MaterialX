@@ -2195,7 +2195,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(1.0);
-                // std::vector<mx::InputPtr> inputs = node->getNodeGraph()->getActiveInputs();
                 for (Pin pin : node->inputPins)
                 {
                     if (node->getConnectedNode(pin._name) != nullptr)
@@ -2717,6 +2716,7 @@ void Graph::graphButtons()
             _currUiNode = nullptr;
         }
         _prevUiNode = nullptr;
+        _currRenderNode = nullptr;
         _isNodeGraph = false;
         _currGraphName.clear();
     }
@@ -3714,6 +3714,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
         addExtraNodes();
         _currGraphElem = _graphDoc;
+        _prevUiNode = nullptr;
         _fileDialog.ClearSelected();
     }
 
