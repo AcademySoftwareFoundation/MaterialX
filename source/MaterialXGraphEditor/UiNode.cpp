@@ -19,7 +19,7 @@ UiNode::UiNode() :
 
 UiNode::UiNode(const std::string name, int id) :
     _level(-1),
-    _showAllInputs(true),
+    _showAllInputs(false),
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _name(name),
@@ -29,7 +29,7 @@ UiNode::UiNode(const std::string name, int id) :
 
 UiNode::UiNode(int id) :
     _level(-1),
-    _showAllInputs(true),
+    _showAllInputs(false),
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _inputNodeNum(0)

@@ -36,7 +36,7 @@ Using the tab key on the editor allows the user to add a certain node by bringin
 
 In order to connect to the nodegraph to a shader add output nodes inside the nodegraph then travel back up outside the nodegraph and connect the corresponding output pin to the surface shader.  By default, the nodegraph does not contain any output nodes or pins. 
 
-Another type of node present in the `Add Node` pop-up is the group node.  The group node can be used to group certain nodes together and label them.
+Another type of node present in the `Add Node` pop-up is the group, or background node.  This background node can be used to group specific nodes and label by them by dragging them on to the background node.
 
 To search the editor window for a specific node use `CTRL` + `F` to bring up the search bar. 
 
@@ -55,7 +55,6 @@ To adjust the relative sizes of the Node Property Editor and Render View windows
 - `TAB`: Add Node Popup
 - `Right Click`: pan along the editor
 - `Double Click on Node`: Dive into node's subgraph if it has one
-- `I`: Dive into selected node’s subgraph
 - `U`: Go up and out of a subgraph
 - `F`: Frame selected node(s) (if no node is selected it will frame the first node in the graph)
 - `Ctrl + F` to search for a node in the editor by name

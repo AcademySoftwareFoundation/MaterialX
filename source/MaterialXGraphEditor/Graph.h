@@ -7,8 +7,6 @@
     #endif
 #endif
 
-
-
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
@@ -25,14 +23,14 @@
 #include <stack>
 #include <algorithm>
 
-
-
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 class UiNode;
 class Pin;
 using UiNodePtr = std::shared_ptr<UiNode>;
 using RenderViewPtr = std::shared_ptr<RenderView>;
+
+// A link connects two pins and includes a unique id and the ids of the two pins it connects
 struct Link
 {
     int id;
@@ -46,8 +44,10 @@ struct Link
     }
 };
 
+// class for edges between uiNodes
 class UiEdge
 {
+    // an edge is made up of two UiNodes and their connecting input
   public:
     UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
         _uiDown(uiDown),
@@ -90,76 +90,100 @@ class Graph
 
     RenderViewPtr getRenderer()
     {
-    
+
         return _renderer;
-    
     }
     void initialize();
     void drawGraph(ImVec2 mousePos);
     mx::DocumentPtr loadDocument(mx::FilePath filename);
-    
+
     ~Graph(){};
 
   private:
     void loadStandardLibraries();
     void buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
+    void buildGroupNode(UiNodePtr node);
+
+    // handling link information
     void linkGraph();
     void connectLinks();
     int findLinkPosition(int id);
-    ImVec2 layoutPosition(UiNodePtr node, ImVec2 pos, bool initialLayout, int level);
-    void layoutInputs();
-    ImColor getPinColor(std::string type);
-    //arguments for node to set, input in that node
-    void setConstant(UiNodePtr node, mx::InputPtr& input);
-    int findNode(std::string name, std::string type);
-    bool edgeExists(UiEdge edge);
-    void addNode(std::string category, std::string name, std::string type);
-    void writeText(std::string filename, mx::FilePath filePath);
-    bool linkExists(Link newLink);
-    //input to update, value to update, if the update will modify uniform or not, if the input is a ui element in a nodegraph node or input ui node
-    void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
     std::vector<int> findLinkId(int attrId);
-    int findNode(int nodeId);
-    void DrawPinIcon(std::string type, bool connected, int alpha);
-    Pin getPin(ed::PinId id);
-    void createInputPin(int attrId, mx::InputPtr input);
-    std::vector<int> createNodes(bool nodegraph);
-    int getNodeId(ed::PinId pinId);
-    void buildGroupNode(UiNodePtr node);
+    bool linkExists(Link newLink);
     void AddLink(ed::PinId inputPinId, ed::PinId outputPinId);
     void deleteLink(ed::LinkId deletedLinkId);
-    void deleteNode(UiNodePtr node);
-    void outputPin(UiNodePtr node, int attrId, std::string outputPin, std::string);
-    void savePosition();
-    bool checkPosition(UiNodePtr node);
+    void deleteLinkInfo(int startAtrr, int endAttr);
+
+    // functions for the layout of the nodes
+    ImVec2 layoutPosition(UiNodePtr node, ImVec2 pos, bool initialLayout, int level);
+    void layoutInputs();
     void findYSpacing(float startPos);
     float totalHeight(int level);
     void setYSpacing(int level, float startingPos);
     float findAvgY(const std::vector<UiNodePtr>& nodes);
+
+    // pin information
+    ImColor getPinColor(std::string type);
+    void DrawPinIcon(std::string type, bool connected, int alpha);
+    Pin getPin(ed::PinId id);
+    void createInputPin(Pin pin);
     ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, Pin input);
-    void setRenderMaterial(UiNodePtr node);
+    void outputPin(UiNodePtr node);
+    void addNodeGraphPins();
+
+    // UiNode functions
+    std::vector<int> createNodes(bool nodegraph);
+    int getNodeId(ed::PinId pinId);
+    int findNode(int nodeId);
+    int findNode(std::string name, std::string type);
+    void addNode(std::string category, std::string name, std::string type);
+    void deleteNode(UiNodePtr node);
+    void setUiNodeInfo(UiNodePtr node, std::string type, std::string category);
+
+    // UiEdge functions
+    bool edgeExists(UiEdge edge);
+    void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+
+    void writeText(std::string filename, mx::FilePath filePath);
+    void savePosition();
+    bool checkPosition(UiNodePtr node);
+
+    void addNodeInput(UiNodePtr node, mx::InputPtr& input);
+    mx::InputPtr findInput(mx::InputPtr input, std::string name);
+
+    // travel up from inside a node graph
     void upNodeGraph();
+
+    // property editor information
+    void setConstant(UiNodePtr node, mx::InputPtr& input);
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
+
+    // set up Ui information for add node popup
     void addExtraNodes();
+
+    // copy and paste functions
     void copyInputs();
-    void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
-    void positionPasteBin(ImVec2  pos);
+    void positionPasteBin(ImVec2 pos);
     void copyNodeGraph(UiNodePtr origGraph, UiNodePtr copyGraph);
     void copyUiNode(UiNodePtr node);
-    void deleteLinkInfo(int startAtrr, int endAttr);
-    void setUiNodeInfo(UiNodePtr node, std::string type, std::string category);
+
+    // renderview window and buttons
     void graphButtons();
+
+    // popup information
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
     bool readOnly();
     void readOnlyPopup();
     void shaderPopup();
+
+    // modifying materials
+    void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
-    
-    mx::InputPtr findInput(mx::InputPtr input, std::string name);
+    void setRenderMaterial(UiNodePtr node);
 
     RenderViewPtr _renderer;
 
@@ -182,9 +206,8 @@ class Graph
     std::vector<Link> _currLinks;
     std::vector<Link> _newLinks;
     std::vector<UiEdge> _currEdge;
-    std::unordered_map < UiNodePtr, std::vector<Pin>> _downstreamInputs;
+    std::unordered_map<UiNodePtr, std::vector<Pin>> _downstreamInputs;
 
-   
     // current nodes and nodegraphs
     UiNodePtr _currUiNode;
     UiNodePtr _prevUiNode;
@@ -194,20 +217,22 @@ class Graph
 
     // for adding new nodes
     std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> _nodesToAdd;
-    std::unordered_map < std::string, std::vector<std::vector < std::string >>> _extraNodes;
+    std::unordered_map<std::string, std::vector<std::vector<std::string>>> _extraNodes;
 
-    // stack to dive into and out of node graphs
+    // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
+    std::stack<std::vector<Pin>> _pinStack;
 
     // map to group and layout nodes
     std::unordered_map<int, std::vector<UiNodePtr>> _levelMap;
 
-    //map for copied nodes
+    // map for copied nodes
     std::map<UiNodePtr, UiNodePtr> _copiedNodes;
 
     bool _initial;
     bool _delete;
 
+    // file dialog information
     ImGui::FileBrowser _fileDialog;
     ImGui::FileBrowser _fileDialogSave;
     ImGui::FileBrowser _fileDialogConstant;
@@ -215,16 +240,20 @@ class Graph
     bool _isNodeGraph;
 
     int _graphTotalSize;
+
+    // popup up variables
     bool _popup;
     bool _shaderPopup;
     int _searchNodeId;
     bool _addNewNode;
     bool _ctrlClick;
     bool _isCut;
+    // auto layout button clicked
     bool _autoLayout;
 
+    // used when updating materials
     int _frameCount;
-    //used for filtering pins when connecting links
+    // used for filtering pins when connecting links
     std::string _pinFilterType;
 };
 

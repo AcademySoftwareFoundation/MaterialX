@@ -509,7 +509,6 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
 
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-            // _prevMaterials.insert(_prevMaterials.end(), newMaterials.begin(), newMaterials.end());
 
             MaterialPtr udimMaterial = nullptr;
             for (MaterialPtr mat : newMaterials)
@@ -713,6 +712,19 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
         //// Create new materials.
+        if (typedElem == nullptr)
+        {
+            std::vector<mx::TypedElementPtr> elems;
+            mx::findRenderableElements(doc, elems);
+            if (elems.empty())
+            {
+                throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
+            }
+            else
+            {
+                typedElem = elems[0];
+            }
+        }
         mx::TypedElementPtr udimElement;
         mx::NodePtr node = typedElem->asA<mx::Node>();
         mx::NodePtr materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
@@ -724,7 +736,6 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
                 mat->setMaterialNode(materialNode);
-                // mat->getShader()
                 mat->setUdim(udim);
                 newMaterials.push_back(mat);
 
@@ -733,7 +744,6 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         }
         else
         {
-            // MaterialPtr mat = _materials[0];
             MaterialPtr mat = Material::create();
             mat->setDocument(doc);
             mat->setElement(typedElem);
