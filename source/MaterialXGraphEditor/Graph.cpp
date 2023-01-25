@@ -65,7 +65,7 @@ void Graph::loadStandardLibraries()
 void Graph::initialize()
 {
     loadStandardLibraries();
-
+    setPinColor();
     // load nodes def to create add node ui
     std::vector<mx::NodeDefPtr> nodeDefs = _stdLib->getNodeDefs();
     for (size_t i = 0; i < nodeDefs.size(); i++)
@@ -507,97 +507,40 @@ void Graph::layoutInputs()
 }
 
 // reutrn pin color based on the type of the value of that pin
-ImColor Graph::getPinColor(std::string type)
+void Graph::setPinColor()
 {
-
-    if (type == "integer")
-    {
-        return ImColor(255, 255, 28, 255);
-    }
-    else if (type == "bool")
-    {
-        return ImColor(255, 0, 255, 255);
-    }
-    else if (type == "float")
-    {
-        return ImColor(50, 100, 255, 255);
-    }
-    else if (type == "color3")
-    {
-        return ImColor(178, 34, 34, 255);
-    }
-    else if (type == "color4")
-    {
-        return ImColor(50, 10, 255, 255);
-    }
-    else if (type == "vector2")
-    {
-        return ImColor(100, 255, 100, 255);
-    }
-    else if (type == "vector3")
-    {
-        return ImColor(0, 255, 0, 255);
-    }
-    else if (type == "vector4")
-    {
-        return ImColor(100, 0, 100, 255);
-    }
-    else if (type == "matrix33")
-    {
-        return ImColor(0, 100, 100, 255);
-    }
-    else if (type == "matrix44")
-    {
-        return ImColor(50, 255, 100, 255);
-    }
-    else if (type == "filename")
-    {
-        return ImColor(255, 184, 28, 255);
-    }
-    else if (type == "intVec")
-    {
-        return ImColor(100, 100, 50, 255);
-    }
-    else if (type == "BoolVec")
-    {
-        return ImColor(121, 60, 180, 255);
-    }
-    else if (type == "FloatVec")
-    {
-        return ImColor(10, 181, 150, 255);
-    }
-    else if (type == "StringVec")
-    {
-        return ImColor(255, 50, 100, 255);
-    }
-    else if (type == "long")
-    {
-        return ImColor(0, 100, 151, 255);
-    }
-    else if (type == "double")
-    {
-        return ImColor(150, 255, 255, 255);
-    }
-    else if (type == "material")
-    {
-        return ImColor(255, 255, 255, 255);
-    }
-    else if (type == "string")
-    {
-        return ImColor(155, 50, 100, 255);
-    }
-    else if (type == "surfaceshader")
-    {
-        return ImColor(155, 150, 100, 255);
-    }
-    else if (type == "")
-    {
-        return ImColor(70, 70, 70);
-    }
-    else
-    {
-        return ImColor(0, 0, 0, 0);
-    }
+    _pinColor.insert(std::make_pair("integer", ImColor(255, 255, 28, 255)));
+    _pinColor.insert(std::make_pair("boolean", ImColor(255, 0, 255, 255)));
+    _pinColor.insert(std::make_pair("float", ImColor(50, 100, 255, 255)));
+    _pinColor.insert(std::make_pair("color3", ImColor(178, 34, 34, 255)));
+    _pinColor.insert(std::make_pair("color4", ImColor(50, 10, 255, 255)));
+    _pinColor.insert(std::make_pair("vector2", ImColor(100, 255, 100, 255)));
+    _pinColor.insert(std::make_pair("vector3", ImColor(0, 255, 0, 255)));
+    _pinColor.insert(std::make_pair("vector4", ImColor(100, 0, 100, 255)));
+    _pinColor.insert(std::make_pair("matrix33", ImColor(0, 100, 100, 255)));
+    _pinColor.insert(std::make_pair("matrix44", ImColor(50, 255, 100, 255)));
+    _pinColor.insert(std::make_pair("filename", ImColor(255, 184, 28, 255)));
+    _pinColor.insert(std::make_pair("string", ImColor(100, 100, 50, 255)));
+    _pinColor.insert(std::make_pair("geomname", ImColor(121, 60, 180, 255)));
+    _pinColor.insert(std::make_pair("BSDF", ImColor(10, 181, 150, 255)));
+    _pinColor.insert(std::make_pair("EDF", ImColor(255, 50, 100, 255)));
+    _pinColor.insert(std::make_pair("VDF", ImColor(0, 100, 151, 255)));
+    _pinColor.insert(std::make_pair("surfaceshader", ImColor(150, 255, 255, 255)));
+    _pinColor.insert(std::make_pair("material", ImColor(255, 255, 255, 255)));
+    _pinColor.insert(std::make_pair(mx::DISPLACEMENT_SHADER_TYPE_STRING, ImColor(155, 50, 100, 255)));
+    _pinColor.insert(std::make_pair(mx::VOLUME_SHADER_TYPE_STRING, ImColor(155, 250, 100, 255)));
+    _pinColor.insert(std::make_pair(mx::LIGHT_SHADER_TYPE_STRING, ImColor(100, 150, 100, 255)));
+    _pinColor.insert(std::make_pair("none", ImColor(140, 70, 70, 255)));
+    _pinColor.insert(std::make_pair(mx::MULTI_OUTPUT_TYPE_STRING, ImColor(70, 70, 70, 255)));
+    _pinColor.insert(std::make_pair("integerarray", ImColor(200, 10, 100, 255)));
+    _pinColor.insert(std::make_pair("floatarray", ImColor(25, 250, 100)));
+    _pinColor.insert(std::make_pair("color3array", ImColor(25, 200, 110)));
+    _pinColor.insert(std::make_pair("color4array", ImColor(50, 240, 110)));
+    _pinColor.insert(std::make_pair("vector2array", ImColor(50, 200, 75)));
+    _pinColor.insert(std::make_pair("vector3array", ImColor(20, 200, 100)));
+    _pinColor.insert(std::make_pair("vector4array", ImColor(100, 200, 100)));
+    _pinColor.insert(std::make_pair("geomnamearray", ImColor(150, 200, 100)));
+    _pinColor.insert(std::make_pair("stringarray", ImColor(120, 180, 100)));
 }
 
 auto showLabel = [](const char* label, ImColor color)
@@ -642,14 +585,13 @@ void Graph::setRenderMaterial(UiNodePtr node)
     // set render node right away is node is a material
     if (node->getNode() && node->getNode()->getType() == "material")
     {
-        //only set new render node if different material has been selected
+        // only set new render node if different material has been selected
         if (_currRenderNode != node)
         {
             _currRenderNode = node;
             _frameCount = ImGui::GetFrameCount();
             _renderer->setMaterialCompilation(true);
         }
-        
     }
     else
     {
@@ -940,7 +882,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterials();
             }
         }
     }
@@ -984,7 +926,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
                 addNodeInput(_currUiNode, input);
                 input->setValueString(temp);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterials();
             }
         }
     }
@@ -1490,15 +1432,11 @@ void Graph::createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connec
     }
     else if (connectingInput)
     {
-
         UiEdge newEdge = UiEdge(upNode, downNode, connectingInput);
-        // if (!edgeExists(newEdge))
-        // {
         downNode->edges.push_back(newEdge);
         downNode->setInputNodeNum(1);
         upNode->setOutputConnection(downNode);
         _currEdge.push_back(newEdge);
-        //  }
     }
 }
 
@@ -1543,8 +1481,7 @@ void Graph::copyUiNode(UiNodePtr node)
         copyNode->setName(nodeGraphName);
         copyNodeGraph(node, copyNode);
     }
-    copyNode->setCategory(node->getCategory());
-    copyNode->setType(node->getType());
+    setUiNodeInfo(copyNode, node->getType(), node->getCategory());
     _copiedNodes[node] = copyNode;
     _graphNodes.push_back(copyNode);
 }
@@ -1806,7 +1743,6 @@ int Graph::getNodeId(ed::PinId pinId)
     {
         if (pin._pinId == pinId)
         {
-            // return pin._pinNode->getId();
             return findNode(pin._pinNode->getId());
         }
     }
@@ -1830,7 +1766,12 @@ Pin Graph::getPin(ed::PinId pinId)
 void Graph::DrawPinIcon(std::string type, bool connected, int alpha)
 {
     ax::Drawing::IconType iconType = ax::Drawing::IconType::Circle;
-    ImColor color = getPinColor(type);
+    ImColor color = ImColor(0, 0, 0, 255);
+    if (_pinColor.find(type) != _pinColor.end())
+    {
+        color = _pinColor[type];
+    }
+
     color.Value.w = alpha / 255.0f;
 
     ax::Widgets::Icon(ImVec2(24, 24), iconType, connected, color, ImColor(32, 32, 32, alpha));
@@ -2472,14 +2413,14 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     {
         mx::NodeDefPtr nodeDef = _graphNodes[downNode]->getNode()->getNodeDef(_graphNodes[downNode]->getNode()->getName());
 
-        for (Pin pin : _graphNodes[downNode]->inputPins)
+        for (Pin& pin : _graphNodes[downNode]->inputPins)
         {
 
             if ((int) pin._pinId.Get() == endAttr)
             {
 
                 mx::ValuePtr val = nodeDef->getActiveInput(pin._input->getName())->getValue();
-                if (_graphNodes[downNode]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                if (_graphNodes[downNode]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING && _graphNodes[upNode]->getNodeGraph())
                 {
                     pin._input->setConnectedOutput(nullptr);
                 }
@@ -2688,9 +2629,11 @@ void Graph::upNodeGraph()
         savePosition();
         _graphNodes = _graphStack.top();
         _currPins = _pinStack.top();
+        _graphTotalSize = _sizeStack.top();
         addNodeGraphPins();
         _graphStack.pop();
         _pinStack.pop();
+        _sizeStack.pop();
         _currGraphName.pop_back();
         _initial = true;
         ed::NavigateToContent();
@@ -3284,7 +3227,7 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
         {
             _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
         }
-        //scrolling not possible if open or save file dialog is open
+        // scrolling not possible if open or save file dialog is open
         if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
         {
             _renderer->setScrollEvent(scrollAmt);
@@ -3603,6 +3546,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     savePosition();
                     _graphStack.push(_graphNodes);
                     _pinStack.push(_currPins);
+                    _sizeStack.push(_graphTotalSize);
                     mx::NodeGraphPtr implGraph = impl->asA<mx::NodeGraph>();
                     _initial = true;
                     _graphNodes.clear();
@@ -3629,6 +3573,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                 savePosition();
                 _graphStack.push(_graphNodes);
                 _pinStack.push(_currPins);
+                _sizeStack.push(_graphTotalSize);
                 mx::NodeGraphPtr implGraph = _currUiNode->getNodeGraph();
                 _currUiNode->getOutputConnections();
                 _initial = true;

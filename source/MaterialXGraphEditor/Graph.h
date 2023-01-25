@@ -124,7 +124,7 @@ class Graph
     float findAvgY(const std::vector<UiNodePtr>& nodes);
 
     // pin information
-    ImColor getPinColor(std::string type);
+    void setPinColor();
     void DrawPinIcon(std::string type, bool connected, int alpha);
     Pin getPin(ed::PinId id);
     void createInputPin(Pin pin);
@@ -207,6 +207,7 @@ class Graph
     std::vector<Link> _newLinks;
     std::vector<UiEdge> _currEdge;
     std::unordered_map<UiNodePtr, std::vector<Pin>> _downstreamInputs;
+    std::unordered_map<std::string, ImColor> _pinColor;
 
     // current nodes and nodegraphs
     UiNodePtr _currUiNode;
@@ -222,6 +223,8 @@ class Graph
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
     std::stack<std::vector<Pin>> _pinStack;
+    // this stack keeps track of the graph total size 
+    std::stack<int> _sizeStack;
 
     // map to group and layout nodes
     std::unordered_map<int, std::vector<UiNodePtr>> _levelMap;
