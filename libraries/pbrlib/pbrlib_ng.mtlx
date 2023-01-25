@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-    All rights reserved.  See LICENSE.txt for license.
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
 
     Graph definitions of standard nodes included in the MaterialX specification.
   -->
