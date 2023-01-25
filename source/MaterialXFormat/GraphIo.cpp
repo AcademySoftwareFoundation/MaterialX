@@ -350,16 +350,25 @@ void DotGraphIo::emitSubgraphs(std::unordered_map<string, StringSet> subGraphs)
 
 void DotGraphIo::emitGraphString()
 {
-    std::unordered_map<int, string> orientations;
-    orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "  rankdir = TD;\n";
-    orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "  rankdir = BT;\n";
-    orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "  rankdir = LR;\n";
-    orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "  rankdir = RL\n";
+    string result;
+    if (_genOptions.getWriteGraphHeader())
+    {
+        std::unordered_map<int, string> orientations;
+        orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "  rankdir = TD;\n";
+        orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "  rankdir = BT;\n";
+        orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "  rankdir = LR;\n";
+        orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "  rankdir = RL\n";
 
-    string result = "digraph {\n";
-    result += orientations[(int)_genOptions.getOrientation()];
+        result = "digraph {\n";
+        result += orientations[(int)_genOptions.getOrientation()];
+    }
+    
     result += _graphResult;
-    result += "}\n";
+
+    if (_genOptions.getWriteGraphHeader())
+    {
+        result += "}\n";
+    }
 
     _graphResult = result;
 }
@@ -493,13 +502,17 @@ void MermaidGraphIo::emitSubgraphs(std::unordered_map<string, StringSet> subGrap
 
 void MermaidGraphIo::emitGraphString()
 {
-    std::unordered_map<int, string> orientations;
-    orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "TD";
-    orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "BT";
-    orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "LR";
-    orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "RL";
+    string result;
+    if (_genOptions.getWriteGraphHeader())
+    {
+        std::unordered_map<int, string> orientations;
+        orientations[(int)GraphIoGenOptions::Orientation::TOP_DOWN] = "TD";
+        orientations[(int)GraphIoGenOptions::Orientation::BOTTOM_UP] = "BT";
+        orientations[(int)GraphIoGenOptions::Orientation::LEFT_RIGHT] = "LR";
+        orientations[(int)GraphIoGenOptions::Orientation::RIGHT_LEFT] = "RL";
 
-    string result = "graph " + orientations[(int)_genOptions.getOrientation()] + "; \n";
+        result = "graph " + orientations[(int)_genOptions.getOrientation()] + "; \n";
+    }
     result += _graphResult;
     _graphResult = result;
 }

@@ -78,6 +78,18 @@ class MX_FORMAT_API GraphIoGenOptions
     GraphIoGenOptions() {}
     virtual ~GraphIoGenOptions() {}
 
+    /// Option on whether to emit the graph header 
+    void setWriteGraphHeader(bool val)
+    {
+        _writeGraphHeader = val;
+    }
+
+    /// Get whether to emit the graph header. This is enabled by default.
+    bool getWriteGraphHeader() const
+    {
+        return _writeGraphHeader;
+    }
+
     /// Option on whether to write node labels using the category of the node as the label as
     /// opposed to the unique name of the Element. Default is to write category names.
     void setWriteCategories(bool val)
@@ -132,6 +144,9 @@ class MX_FORMAT_API GraphIoGenOptions
     }
 
   protected:
+    /// Write greaph head
+    bool _writeGraphHeader = true;
+
     /// Write category labels
     bool _writeCategories = true;
 

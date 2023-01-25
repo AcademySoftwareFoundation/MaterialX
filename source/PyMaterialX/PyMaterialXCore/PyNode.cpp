@@ -26,6 +26,7 @@ void bindPyNode(py::module& mod)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def("addInputFromNodeDef", &mx::Node::addInputFromNodeDef)
         .def("addInputsFromNodeDef", &mx::Node::addInputsFromNodeDef)
+        .def("addValueElementsFromNodeDef", &mx::Node::addValueElementsFromNodeDef)        
         .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
 
     py::class_<mx::GraphElement, mx::GraphElementPtr, mx::InterfaceElement>(mod, "GraphElement")

@@ -41,6 +41,8 @@ void bindPyGraphIo(py::module& mod)
         .export_values();
 
     py::class_<mx::GraphIoGenOptions>(mod, "GraphIoGenOptions")
+        .def("setWriteGraphHeader", &mx::GraphIoGenOptions::setWriteGraphHeader)
+        .def("getWriteGraphHeader", &mx::GraphIoGenOptions::getWriteGraphHeader)        
         .def("setWriteCategories", &mx::GraphIoGenOptions::setWriteCategories)
         .def("getWriteCategories", &mx::GraphIoGenOptions::getWriteCategories)
         .def("setWriteSubgraphs", &mx::GraphIoGenOptions::setWriteSubgraphs)
