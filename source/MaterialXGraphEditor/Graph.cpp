@@ -44,6 +44,7 @@ Graph::Graph(const std::string& materialFilename, const mx::FileSearchPath& sear
     _ctrlClick(false),
     _isCut(false),
     _autoLayout(false),
+    _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
 }

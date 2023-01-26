@@ -14,6 +14,7 @@ const int INVALID_POS = -10000;
 
 UiNode::UiNode() :
     _level(-1),
+    _showAllInputs(false),
     _id(0),
     _nodePos(INVALID_POS, INVALID_POS),
     _inputNodeNum(0),

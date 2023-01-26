@@ -333,7 +333,6 @@ class RenderView
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
-    bool _drawEnvironment;
 
     // Frame capture
     bool _captureRequested;
