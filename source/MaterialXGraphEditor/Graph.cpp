@@ -1015,7 +1015,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
     _graphNodes.push_back(std::move(node));
 }
-void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes)
+void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes, const std::vector<mx::OutputPtr>& outputNodes)
 {
     _graphNodes.clear();
     _currLinks.clear();
@@ -1044,6 +1044,12 @@ void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, co
         auto currNode = std::make_shared<UiNode>(input->getName(), _graphTotalSize);
         currNode->setInput(input);
         setUiNodeInfo(currNode, input->getType(), input->getCategory());
+    }
+    for (mx::OutputPtr output : outputNodes)
+    {
+        auto currNode = std::make_shared<UiNode>(output->getName(), _graphTotalSize);
+        currNode->setOutput(output);
+        setUiNodeInfo(currNode, output->getType(), output->getCategory());
     }
     // creating edges for nodegraphs
     for (mx::NodeGraphPtr graph : nodeGraphs)
@@ -2437,7 +2443,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 }
 
                 pin.setConnected(false);
-                // if a value exists update the infput with it
+                // if a value exists update the input with it
                 if (val)
                 {
                     std::string valString = val->getValueString();
@@ -2465,6 +2471,14 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 pin.setConnected(false);
                 setDefaults(pin._input);
             }
+        }
+    }
+    else if (_graphNodes[downNode]->getOutput())
+    {
+        for (Pin pin : _graphNodes[downNode]->inputPins)
+        {
+            _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
+            pin.setConnected(false);
         }
     }
 }
@@ -3647,10 +3661,11 @@ void Graph::drawGraph(ImVec2 mousePos)
         _initial = true;
         std::vector<mx::NodeGraphPtr> nodeGraphs = _graphDoc->getNodeGraphs();
         std::vector<mx::InputPtr> inputNodes = _graphDoc->getActiveInputs();
+        std::vector<mx::OutputPtr> outputNodes = _graphDoc->getOutputs();
         std::vector<mx::NodePtr> docNodes = _graphDoc->getNodes();
 
         _graphDoc->importLibrary(_stdLib);
-        buildUiBaseGraph(nodeGraphs, docNodes, inputNodes);
+        buildUiBaseGraph(nodeGraphs, docNodes, inputNodes, outputNodes);
         _renderer->loadDocument(fileName, _stdLib);
         if (_nodesToAdd.size() == 0)
         {

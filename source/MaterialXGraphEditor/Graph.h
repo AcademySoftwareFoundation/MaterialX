@@ -101,7 +101,7 @@ class Graph
 
   private:
     void loadStandardLibraries();
-    void buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes);
+    void buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes, const std::vector<mx::OutputPtr>& outputNodes);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
     void buildGroupNode(UiNodePtr node);
 
