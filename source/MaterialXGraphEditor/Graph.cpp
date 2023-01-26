@@ -156,10 +156,10 @@ void Graph::addExtraNodes()
         _extraNodes["Output Nodes"].push_back(output);
     }
     // group node
-    std::vector<std::string> groupNode{ "ND_Group", "", "group" };
+    std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
     // node graph nodes
-    std::vector<std::string> nodeGraph{ "ND_Node Graph", "", "nodegraph" };
+    std::vector<std::string> nodeGraph{ "ND_node graph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
 }
 
@@ -378,12 +378,16 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             }
             else
             {
-                float x = std::stof(node->getMxElement()->getAttribute("xpos"));
-                float y = std::stof(node->getMxElement()->getAttribute("ypos"));
-                x *= DEFAULT_NODE_SIZE.x;
-                y *= DEFAULT_NODE_SIZE.y;
-                ed::SetNodePosition(node->getId(), ImVec2(x, y));
-                node->setPos(ImVec2(x, y));
+                // don't set position of group nodes
+                if (node->getMessage() == "")
+                {
+                    float x = std::stof(node->getMxElement()->getAttribute("xpos"));
+                    float y = std::stof(node->getMxElement()->getAttribute("ypos"));
+                    x *= DEFAULT_NODE_SIZE.x;
+                    y *= DEFAULT_NODE_SIZE.y;
+                    ed::SetNodePosition(node->getId(), ImVec2(x, y));
+                    node->setPos(ImVec2(x, y));
+                }
             }
         }
         return ImVec2(0.f, 0.f);
