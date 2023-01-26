@@ -18,6 +18,7 @@ const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
 const int DEFAULT_ALPHA = 255;
 const int FILTER_ALPHA = 50;
 
+// Function based off ImRect_Expanded function from ImGui Node Editor blueprints-example.cpp
 ImRect expandImRect(const ImRect& rect, float x, float y)
 {
     ImRect result = rect;
@@ -210,8 +211,6 @@ void Graph::linkGraph()
                 UiNodePtr inputNode = node->getConnectedNode(inputName);
                 if (inputNode != nullptr)
                 {
-                    // set current node position
-
                     Link link;
                     // getting the input connections for the current uiNode
                     ax::NodeEditor::PinId id = inputs[i]._pinId;
@@ -474,7 +473,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             {
                 startingPos.x = 1200.f - ((layoutNode->_level) * 350);
                 layoutNode->setPos(ImVec2(startingPos));
-                ////set current node position
+                // set current node position
                 ed::SetNodePosition(layoutNode->getId(), ImVec2(startingPos));
             }
         }
@@ -554,6 +553,7 @@ void Graph::setPinColor()
     _pinColor.insert(std::make_pair("stringarray", ImColor(120, 180, 100)));
 }
 
+// based off of showLabel from ImGui Node Editor blueprints-example.cpp
 auto showLabel = [](const char* label, ImColor color)
 {
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
@@ -1023,6 +1023,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
     _graphNodes.push_back(std::move(node));
 }
+// build the UiNode node graph based off of loading a document
 void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes, const std::vector<mx::OutputPtr>& outputNodes)
 {
     _graphNodes.clear();
@@ -1401,6 +1402,7 @@ int Graph::findNode(std::string name, std::string type)
     return -1;
 }
 
+// set position of pasted nodes based off of original node position
 void Graph::positionPasteBin(ImVec2 pos)
 {
     ImVec2 totalPos = ImVec2(0, 0);
@@ -1774,6 +1776,7 @@ Pin Graph::getPin(ed::PinId pinId)
     return nullPin;
 }
 
+// This function is based off of the pin icon function in the ImGui Node Editor blueprints-example.cpp
 void Graph::DrawPinIcon(std::string type, bool connected, int alpha)
 {
     ax::Drawing::IconType iconType = ax::Drawing::IconType::Circle;
@@ -1788,6 +1791,7 @@ void Graph::DrawPinIcon(std::string type, bool connected, int alpha)
     ax::Widgets::Icon(ImVec2(24, 24), iconType, connected, color, ImColor(32, 32, 32, alpha));
 }
 
+// This function is based off of the comment node in the ImGui Node Editor blueprints-example.cpp
 void Graph::buildGroupNode(UiNodePtr node)
 {
     const float commentAlpha = 0.75f;
@@ -1813,7 +1817,6 @@ void Graph::buildGroupNode(UiNodePtr node)
     ImGui::PopStyleVar();
     if (ed::BeginGroupHint(node->getId()))
     {
-        // auto alpha   = static_cast<int>(commentAlpha * ImGui::GetStyle().Alpha * 255);
         auto bgAlpha = static_cast<int>(ImGui::GetStyle().Alpha * 255);
         auto min = ed::GetGroupMin();
 
@@ -1894,7 +1897,7 @@ mx::InputPtr Graph::findInput(mx::InputPtr nodeInput, std::string name)
     }
     return nullptr;
 }
-//  from node library blueprints-example.cpp
+//  This function is based off the splitter function in the ImGui Node Editor blueprints-example.cpp
 static bool Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size = -1.0f)
 {
     using namespace ImGui;
@@ -1918,7 +1921,6 @@ void Graph::outputPin(UiNodePtr node)
     const float labelWidth = ImGui::CalcTextSize("output").x;
 
     // create node editor pin
-    // Pin outPin = Pin(attrId, &*name.begin(), outputPin, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
     for (Pin pin : node->outputPins)
     {
         ImGui::Indent(nodeWidth - labelWidth);
@@ -1942,11 +1944,8 @@ void Graph::outputPin(UiNodePtr node)
         }
 
         ed::EndPin();
-        // node->outputPins.push_back(outPin);
-        // _currPins.push_back(outPin);
         ImGui::Unindent(nodeWidth - labelWidth);
     }
-    // ++attrId;
 }
 
 void Graph::createInputPin(Pin pin)
@@ -2179,6 +2178,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
     return outputNum;
 }
 
+// add mx::InputPtr to node based off of input pin
 void Graph::addNodeInput(UiNodePtr node, mx::InputPtr& input)
 {
     if (node->getNode())
@@ -2247,11 +2247,11 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
     int start_attr = int(inputPinId.Get());
     Pin inputPin = getPin(outputPinId);
     Pin outputPin = getPin(inputPinId);
-    if (inputPinId && outputPinId && (outputPin._type == inputPin._type)) // both are valid, let's accept link
+    if (inputPinId && outputPinId && (outputPin._type == inputPin._type))
     {
         if (inputPin._connected == false)
         {
-            // _renderer->setMaterialCompilation(true);
+
             int upNode = getNodeId(inputPinId);
             int downNode = getNodeId(outputPinId);
 
@@ -2357,7 +2357,7 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
                             break;
                         }
                     }
-                    ////create new edge and set edge information
+                    // create new edge and set edge information
                     createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
                 }
                 else if (_graphNodes[downNode]->getOutput() != nullptr)
@@ -2400,7 +2400,6 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 {
     int upNode = getNodeId(startAttr);
     int downNode = getNodeId(endAttr);
-    // ok so downNode edge remov
     int num = _graphNodes[downNode]->getEdgeIndex(_graphNodes[upNode]->getId());
     if (num != -1)
     {
@@ -2489,7 +2488,6 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 // delete link from currLink vector and remove any connections in UiNode or MaterialX Nodes to update shader
 void Graph::deleteLink(ed::LinkId deletedLinkId)
 {
-
     // If you agree that link can be deleted, accept deletion.
     if (ed::AcceptDeletedItem())
     {
@@ -2508,7 +2506,6 @@ void Graph::deleteLink(ed::LinkId deletedLinkId)
 
 void Graph::deleteNode(UiNodePtr node)
 {
-
     // delete link
     for (Pin inputPins : node->inputPins)
     {
@@ -2593,6 +2590,7 @@ void Graph::deleteNode(UiNodePtr node)
     _graphNodes.erase(_graphNodes.begin() + nodeNum);
 }
 
+// create pins for outputs/inputs added while inside the node graph
 void Graph::addNodeGraphPins()
 {
     for (UiNodePtr node : _graphNodes)
@@ -3178,6 +3176,7 @@ void Graph::readOnlyPopup()
     }
 }
 
+// compiling shaders message
 void Graph::shaderPopup()
 {
     if (_renderer->getMaterialCompilation())
@@ -3197,6 +3196,7 @@ void Graph::shaderPopup()
     }
 }
 
+// allow for camera manipulation of render view window
 void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
 {
     ImVec2 mousePos = ImGui::GetMousePos();
@@ -3276,10 +3276,8 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     ed::Begin("My Editor");
     {
-        // ImGui::Text("Compiling Shaders");
         ed::Suspend();
         // set up pop ups for adding a node when tab is pressed
-
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.f, 8.f));
         ImGui::SetNextWindowSize({ 250.0f, 300.0f });
         addNodePopup(TextCursor);
@@ -3288,6 +3286,8 @@ void Graph::drawGraph(ImVec2 mousePos)
         ImGui::PopStyleVar();
 
         ed::Resume();
+
+        // Gathering selected nodes / links - from ImGui Node Editor blueprints-example.cpp
         std::vector<ed::NodeId> selectedNodes;
         std::vector<ed::LinkId> selectedLinks;
         selectedNodes.resize(ed::GetSelectedObjectCount());

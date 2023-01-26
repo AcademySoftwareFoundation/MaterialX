@@ -45,10 +45,12 @@ When a node is selected in the graph, its information is displayed on the left-h
 
 This is where a node's properties such as its name and input values can be adjusted.  When an input value is changed the material is automatically updated to reflect that change.  The node info button displays the `doc` string for the selected node and its inputs if they exist. This `doc` string is currently read only.
 
+The show All Inputs checkbox displays all possible inputs for a node. With the box unchecked only inputs that have a connection or have had a value set will be shown. Only these inputs will be saved out when the graph is saved. 
+
 ### Render View
 Above the `Node Property Editor`, the `Render View` displays the current material on the Arnold Shader Ball.  If inside a subgraph it will display the material associated with that subgraph; otherwise it will display the output of the selected node.  It automatically updates when any changes are made to the graph.
 
-To adjust the relative sizes of the Node Property Editor and Render View windows, drag the separator between these windows in the application.
+To adjust the relative sizes of the Node Property Editor and Render View windows, drag the separator between these windows in the application. The render view window camera can be changed using the left or right mouse buttons to manipulate the shader ball. 
 
 ### Keyboard Shortcuts
 
@@ -56,11 +58,13 @@ To adjust the relative sizes of the Node Property Editor and Render View windows
 - `Right Click`: pan along the editor
 - `Double Click on Node`: Dive into node's subgraph if it has one
 - `U`: Go up and out of a subgraph
-- `F`: Frame selected node(s) (if no node is selected it will frame the first node in the graph)
+- `F`: Frame selected node(s)
 - `Ctrl + F` to search for a node in the editor by name
 - `Ctrl/Cmd + C` for Copying Nodes
 - `Ctrl/Cmd+X` for Cutting Nodes
 - `Ctrl/Cmd+V` for Pasting Nodes
+- `+` : Zoom in with the camera when mouse is over the Render View Window.
+- `-` : Zoom out with the camera when mouse is over the Render View Window.
 
 ### Command-Line Options
 
@@ -68,3 +72,6 @@ The following are common command-line options for MaterialXGraphEditor, and a co
 - `--path [FILEPATH]` : Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.
 - `--library [FILEPATH]` : Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.
 
+### Known Limitations
+
+The Graph Editor does not currently support connections with multi-output nodes. 

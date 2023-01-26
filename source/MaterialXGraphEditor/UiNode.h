@@ -170,30 +170,7 @@ class UiNode
     mx::NodeGraphPtr _currNodeGraph;
 };
 
-struct LinkInfo
-{
-    ed::LinkId _id;
-    ed::PinId _inputId;
-    ed::PinId _outputId;
-};
-
-enum class PinType
-{
-    Flow,
-    Bool,
-    Int,
-    Float,
-    String,
-    Object,
-    Function,
-    Delegate,
-};
-
-enum class NodeType
-{
-    Math
-};
-
+// Based off Pin struct from ImGui Node Editor blueprints-examples.cpp
 class Pin
 {
   public:

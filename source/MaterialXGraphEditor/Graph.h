@@ -36,6 +36,7 @@ using UiNodePtr = std::shared_ptr<UiNode>;
 using RenderViewPtr = std::shared_ptr<RenderView>;
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
+// Based off Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
     int id;
