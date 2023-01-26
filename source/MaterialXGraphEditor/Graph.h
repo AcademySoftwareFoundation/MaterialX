@@ -223,7 +223,7 @@ class Graph
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
     std::stack<std::vector<Pin>> _pinStack;
-    // this stack keeps track of the graph total size 
+    // this stack keeps track of the graph total size
     std::stack<int> _sizeStack;
 
     // map to group and layout nodes

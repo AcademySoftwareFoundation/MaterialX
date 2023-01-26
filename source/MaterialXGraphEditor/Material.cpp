@@ -77,7 +77,6 @@ bool Material::generateShader(mx::ShaderPtr hwShader)
     return true;
 }
 
-
 void Material::bindShader()
 {
     if (_glProgram)
@@ -265,7 +264,6 @@ void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPt
     }
 }
 
-
 void Material::drawPartition(mx::MeshPartitionPtr part) const
 {
     if (!part || !bindPartition(part))
@@ -274,7 +272,6 @@ void Material::drawPartition(mx::MeshPartitionPtr part) const
     }
     mx::MeshIndexBuffer& indexData = part->getIndices();
     glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
-    
 }
 
 void Material::unbindGeometry()
