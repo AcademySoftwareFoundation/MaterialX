@@ -140,26 +140,28 @@ class ViewDirGlsl : public mx::GlslImplementation
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::VERTEX)
-        mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
-        const mx::string prefix = vertexData.getInstance() + ".";
-        mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-        if (!position->isEmitted())
+        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
         {
-            position->setEmitted();
-            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
+            mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
+            const mx::string prefix = vertexData.getInstance() + ".";
+            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
+            if (!position->isEmitted())
+            {
+                position->setEmitted();
+                shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
+            }
         }
-        END_SHADER_STAGE(stage, mx::Stage::VERTEX)
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
-        const mx::string prefix = vertexData.getInstance() + ".";
-        mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
-        shadergen.emitLineEnd(stage);
-        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
+            mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
+            const mx::string prefix = vertexData.getInstance() + ".";
+            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
+            shadergen.emitLineBegin(stage);
+            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
+            shadergen.emitLineEnd(stage);
+        }
     }
 };
 
