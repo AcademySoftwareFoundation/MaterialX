@@ -66,6 +66,7 @@ void Graph::loadStandardLibraries()
         return;
     }
 }
+
 void Graph::initialize()
 {
     loadStandardLibraries();
@@ -160,6 +161,7 @@ void Graph::addExtraNodes()
     std::vector<std::string> nodeGraph{ "ND_Node Graph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
 }
+
 // return output pin needed to link the inputs and outputs
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
 {
@@ -328,7 +330,6 @@ float Graph::findAvgY(const std::vector<UiNodePtr>& nodes)
 }
 
 void Graph::findYSpacing(float startY)
-
 {
     // assume level 0 is set
     // for each level find the average y position of the previous level to use as a spacing guide
@@ -359,7 +360,6 @@ void Graph::findYSpacing(float startY)
 // layout the x position by assigning the node levels based off its distance from the first node
 ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool initialLayout, int level)
 {
-
     if (checkPosition(layoutNode) && !_autoLayout)
     {
         for (UiNodePtr node : _graphNodes)

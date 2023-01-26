@@ -68,7 +68,6 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
 int main(int argc, char* const argv[])
 {
-
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
