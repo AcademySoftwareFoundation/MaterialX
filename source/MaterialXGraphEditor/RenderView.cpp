@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGraphEditor/RenderView.h>
+
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
 #include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
@@ -119,52 +120,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
-class ViewDirGlsl : public mx::GlslImplementation
-{
-  public:
-    static mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<ViewDirGlsl>();
-    }
-
-    void createVariables(const mx::ShaderNode&, mx::GenContext&, mx::Shader& shader) const override
-    {
-        mx::ShaderStage& vs = shader.getStage(mx::Stage::VERTEX);
-        mx::ShaderStage& ps = shader.getStage(mx::Stage::PIXEL);
-        addStageInput(mx::HW::VERTEX_INPUTS, mx::Type::VECTOR3, mx::HW::T_IN_POSITION, vs);
-        addStageConnector(mx::HW::VERTEX_DATA, mx::Type::VECTOR3, mx::HW::T_POSITION_WORLD, vs, ps);
-        addStageUniform(mx::HW::PRIVATE_UNIFORMS, mx::Type::VECTOR3, mx::HW::T_VIEW_POSITION, ps);
-    }
-
-    void emitFunctionCall(const mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
-        {
-            mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            if (!position->isEmitted())
-            {
-                position->setEmitted();
-                shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
-            }
-        }
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
 RenderView::RenderView(const std::string& materialFilename,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
@@ -208,7 +163,6 @@ RenderView::RenderView(const std::string& materialFilename,
     _materialCompilation(false),
     _renderTransparency(true),
     _renderDoubleSided(true),
-    _drawEnvironment(false),
     _captureRequested(false),
     _exitRequested(false)
 {
@@ -224,9 +178,6 @@ RenderView::RenderView(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
-
-    // Register the GLSL implementation for <viewdir> used by the environment shader.
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + mx::GlslShaderGenerator::TARGET, ViewDirGlsl::create);
 }
 
 void RenderView::initialize()
@@ -248,12 +199,6 @@ void RenderView::initialize()
     _geometryHandler->addLoader(objLoader);
     _geometryHandler->addLoader(gltfLoader);
     loadMesh(_searchPath.find(_meshFilename));
-
-    // Create environment geometry handler.
-    _envGeometryHandler = mx::GeometryHandler::create();
-    _envGeometryHandler->addLoader(objLoader);
-    mx::FilePath envSphere("resources/Geometry/sphere.obj");
-    _envGeometryHandler->loadGeometry(_searchPath.find(envSphere));
 
     // Initialize environment light.
     loadEnvironmentLight();
@@ -1054,9 +999,6 @@ void RenderView::loadEnvironmentLight()
     {
         _lightRigDoc = nullptr;
     }
-
-    // Invalidate the existing environment material, if any.
-    _envMaterial = nullptr;
 }
 
 void RenderView::renderFrame()

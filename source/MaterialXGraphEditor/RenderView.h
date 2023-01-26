@@ -60,12 +60,6 @@ class RenderView
         _genContext.getOptions().hwShadowMap = enable;
     }
 
-    // Enable or disable drawing environment as the background.
-    void setDrawEnvironment(bool enable)
-    {
-        _drawEnvironment = enable;
-    }
-
     // Set the modifiers to be applied to loaded documents.
     void setDocumentModifiers(const DocumentModifiers& modifiers)
     {
@@ -315,9 +309,7 @@ class RenderView
     mx::ImageHandlerPtr _imageHandler;
     mx::LightHandlerPtr _lightHandler;
 
-    // Supporting materials and geometry.
-    mx::GeometryHandlerPtr _envGeometryHandler;
-    MaterialPtr _envMaterial;
+    // Supporting geometry.
     mx::MeshPtr _quadMesh;
 
     // Shader generator context
