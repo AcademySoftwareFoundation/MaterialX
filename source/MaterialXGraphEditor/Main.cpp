@@ -17,8 +17,6 @@ namespace
 ed::EditorContext* g_Context = nullptr;
 bool g_FirstFrame = true;
 
-} // anonymous namespace
-
 static void errorCallback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -65,6 +63,8 @@ template <class T> void parseToken(std::string token, std::string type, T& res)
 
     res = value->asA<T>();
 }
+
+} // anonymous namespace
 
 int main(int argc, char* const argv[])
 {

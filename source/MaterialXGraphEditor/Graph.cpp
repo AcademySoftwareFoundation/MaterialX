@@ -9,24 +9,26 @@
 
 #include <GLFW/glfw3.h>
 
+namespace
+{
+
 // the default node size is based off the of the size of the dot_color3 node using ed::getNodeSize() on that node
 const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
+
 const int DEFAULT_ALPHA = 255;
 const int FILTER_ALPHA = 50;
-static inline ImRect ImGui_GetItemRect()
-{
-    return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-}
 
-static inline ImRect ImRect_Expanded(const ImRect& rect, float x, float y)
+ImRect expandImRect(const ImRect& rect, float x, float y)
 {
-    auto result = rect;
+    ImRect result = rect;
     result.Min.x -= x;
     result.Min.y -= y;
     result.Max.x += x;
     result.Max.y += y;
     return result;
 }
+
+} // anonymous namespace
 
 Graph::Graph(const std::string& materialFilename, const mx::FileSearchPath& searchPath, const mx::FilePathVec& libraryFolders) :
     _materialFilename(materialFilename),
@@ -1828,8 +1830,8 @@ void Graph::buildGroupNode(UiNodePtr node)
 
         auto drawList = ed::GetHintBackgroundDrawList();
 
-        auto hintBounds = ImGui_GetItemRect();
-        auto hintFrameBounds = ImRect_Expanded(hintBounds, 8, 4);
+        ImRect hintBounds = ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+        ImRect hintFrameBounds = expandImRect(hintBounds, 8, 4);
 
         drawList->AddRectFilled(
             hintFrameBounds.GetTL(),
