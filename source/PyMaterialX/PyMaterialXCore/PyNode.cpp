@@ -37,6 +37,7 @@ void bindPyNode(py::module& mod)
         .def("getNode", &mx::GraphElement::getNode)
         .def("getNodes", &mx::GraphElement::getNodes,
             py::arg("category") = mx::EMPTY_STRING)
+        .def("getNodesOfType", &mx::GraphElement::getNodesOfType)
         .def("removeNode", &mx::GraphElement::removeNode)
         .def("addMaterialNode", &mx::GraphElement::addMaterialNode,
             py::arg("name") = mx::EMPTY_STRING, py::arg("shaderNode") = nullptr)
