@@ -617,7 +617,6 @@ void Graph::setRenderMaterial(UiNodePtr node)
                     {
                         if (shaderOut[0])
                         {
-                            std::string type = shaderOut[0]->getNode()->getType();
                             if (shaderOut[0]->getNode()->getType() == "material")
                             {
                                 if (_currRenderNode != shaderOut[0])
@@ -681,7 +680,6 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             {
                 if (node->getName() == _currRenderNode->getName())
                 {
-                    std::string name = node->getName();
                     materialNodes.push_back(node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
                     renderablePaths = renderableElem->getNamePath();
                     break;
@@ -689,14 +687,13 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             }
             else
             {
-                std::string name = node->getName();
                 materialNodes.push_back(node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
                 renderablePaths = renderableElem->getNamePath();
             }
         }
         else
         {
-            materialNodes.push_back(node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
+            materialNodes.push_back(nullptr);
             renderablePaths = renderableElem->getNamePath();
             if (num2 == 2)
             {
@@ -1065,13 +1062,13 @@ void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, co
     {
         for (mx::InputPtr input : graph->getActiveInputs())
         {
-            int upNum = -1;
             int downNum = -1;
+            int upNum = -1;
             mx::NodePtr connectedNode = input->getConnectedNode();
             if (connectedNode)
             {
-                upNum = findNode(connectedNode->getName(), "node");
                 downNum = findNode(graph->getName(), "nodegraph");
+                upNum = findNode(connectedNode->getName(), "node");
                 if (upNum > -1)
                 {
                     UiEdge newEdge = UiEdge(_graphNodes[upNum], _graphNodes[downNum], input);
@@ -1194,7 +1191,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
 
         // Write out all connections.
         std::set<mx::Edge> processedEdges;
-        mx::StringSet processedInterfaces;
         for (mx::OutputPtr output : nodeGraph->getOutputs())
         {
             for (mx::Edge edge : output->traverseGraph())
@@ -1310,7 +1306,6 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
             mx::NodePtr node = elem->asA<mx::Node>();
             mx::InputPtr inputElem = elem->asA<mx::Input>();
             mx::OutputPtr output = elem->asA<mx::Output>();
-            std::string name = elem->getName();
             if (node)
             {
                 std::vector<mx::InputPtr> inputs = node->getActiveInputs();
@@ -1747,7 +1742,6 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         _currPins.push_back(outPin);
 
         _graphNodes.push_back(std::move(newNode));
-        std::vector<mx::NodePtr> nodes = _graphDoc->getNodes();
         updateMaterials();
     }
 }
@@ -2455,7 +2449,6 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 // if a value exists update the input with it
                 if (val)
                 {
-                    std::string valString = val->getValueString();
                     pin._input->setValueString(val->getValueString());
                 }
             }
@@ -2570,7 +2563,6 @@ void Graph::deleteNode(UiNodePtr node)
         pin.setConnected(false);
         if (val)
         {
-            std::string valString = val->getValueString();
             pin._input->setValueString(val->getValueString());
         }
 
@@ -2677,7 +2669,6 @@ void Graph::graphButtons()
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
 
     // buttons for loading and saving a .mtlx
-    std::string fileName = "";
     // new Material button
     if (ImGui::Button("New Material"))
     {
@@ -2840,7 +2831,6 @@ void Graph::propertyEditor()
                                 {
                                     _currUiNode->getInput()->setName(name);
                                     mx::ValuePtr val = _currUiNode->getInput()->getValue();
-                                    std::string type = _currUiNode->getInput()->getType();
                                     input->setInterfaceName(name);
                                     mx::InputPtr pt = input->getInterfaceInput();
                                 }
@@ -2912,10 +2902,10 @@ void Graph::propertyEditor()
                     docString += ": ";
                     if (tempInt)
                     {
-                        std::string docStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input._input->getName())->getDocString();
-                        if (docString != "")
+                        std::string newStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input._input->getName())->getDocString();
+                        if (newStr != mx::EMPTY_STRING)
                         {
-                            docString += docStr;
+                            docString += newStr;
                         }
                     }
                     docString += "\t \n";
@@ -2986,7 +2976,6 @@ void Graph::propertyEditor()
                     ImGui::SameLine();
                     std::string typeText = " [" + input._input->getType() + "]";
                     ImGui::Text("%s", typeText.c_str());
-                    std::vector<mx::InputPtr> actives = _currUiNode->getNodeGraph()->getActiveInputs();
                     if (!input._input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input._input->getName()))
                     {
                         setConstant(_currUiNode, input._input);
@@ -3268,7 +3257,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         _searchNodeId = -1;
     }
 
-    std::string currName;
     bool TextCursor = false;
     // center imgui window and setting size
     ImGuiIO& io2 = ImGui::GetIO();
@@ -3598,7 +3586,6 @@ void Graph::drawGraph(ImVec2 mousePos)
                 _pinStack.push(_currPins);
                 _sizeStack.push(_graphTotalSize);
                 mx::NodeGraphPtr implGraph = _currUiNode->getNodeGraph();
-                _currUiNode->getOutputConnections();
                 _initial = true;
                 _graphNodes.clear();
                 _isNodeGraph = true;
