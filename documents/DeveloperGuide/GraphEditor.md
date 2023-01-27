@@ -74,4 +74,5 @@ The following are common command-line options for MaterialXGraphEditor, and a co
 
 ### Known Limitations
 
-The Graph Editor does not currently support connections with multi-output nodes. 
+- Creating new connections from multi-output nodes is not yet supported, though existing multi-output connections will be displayed in graphs.
+- Creating new connections using the `channels` string is not yet supported, though existing `channels` connections will be displayed in graphs.
