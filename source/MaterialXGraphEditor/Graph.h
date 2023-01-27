@@ -92,7 +92,10 @@ class UiEdge
 class Graph
 {
   public:
-    Graph(const std::string& materialFilename, const mx::FileSearchPath& searchPath, const mx::FilePathVec& libraryFolders);
+    Graph(const std::string& materialFilename,
+          const std::string& meshFilename,
+          const mx::FileSearchPath& searchPath,
+          const mx::FilePathVec& libraryFolders);
 
     RenderViewPtr getRenderer()
     {

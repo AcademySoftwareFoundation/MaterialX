@@ -44,14 +44,6 @@ set(imguinode_headers ${imguinode_headers}
 assign_source_group("Source Files" ${materialx_source} ${imgui_source} ${imguinode_source})
 assign_source_group("Header Files" ${materialx_headers} ${imgui_headers} ${imguinode_headers})
 
-find_package(OpenGL REQUIRED)
-
-if (UNIX AND NOT APPLE)
-    find_package(Threads REQUIRED)
-    find_package(X11 REQUIRED)
-endif()
-
-include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories("${DEAR_IMGUI_PREFIX}")
 include_directories("${DEAR_IMGUI_PREFIX}/backends")
 include_directories("${DEAR_IMGUI_PREFIX}/misc/cpp")
@@ -87,24 +79,7 @@ target_link_libraries(
     MaterialXGraphEditor
     PRIVATE
     ${MATERIALX_LIBRARIES}
-    ${OPENGL_LIBRARIES}
  	glfw_minimal)
-
-if (UNIX)
-    if (APPLE)
-        target_link_libraries(MaterialXGraphEditor
-            PRIVATE
-                "-framework Cocoa"
-                "-framework IOKit"
-                "-framework CoreVideo")
-    else()
-        target_link_libraries(MaterialXGraphEditor
-            PRIVATE
-                ${CMAKE_THREAD_LIBS_INIT}
-                ${X11_LIBRARIES}
-                ${CMAKE_DL_LIBS})
-    endif()
-endif()
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
