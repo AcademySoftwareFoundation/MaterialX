@@ -182,9 +182,9 @@ RenderView::RenderView(const std::string& materialFilename,
 
 void RenderView::initialize()
 {
-
     // Initialize the standard libraries and color/unit management.
     loadStandardLibraries();
+    
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
@@ -329,9 +329,9 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         }
     }
 }
+
 void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
 {
-
     // Set up read options.
     mx::XmlReadOptions readOptions;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
@@ -559,6 +559,7 @@ void RenderView::setScrollEvent(float scrollY)
         _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
     }
 }
+
 void RenderView::setKeyEvent(int key)
 {
     if (_userCameraEnabled)
@@ -573,6 +574,7 @@ void RenderView::setKeyEvent(int key)
         }
     }
 }
+
 void RenderView::setMouseMotionEvent(mx::Vector2 pos)
 {
     if (_viewCamera->applyArcballMotion(pos))
@@ -618,6 +620,7 @@ void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
         _userTranslationActive = false;
     }
 }
+
 void RenderView::setMaterial(mx::TypedElementPtr elem)
 {
     // compare graph element to material in order to assign correct one
@@ -630,6 +633,7 @@ void RenderView::setMaterial(mx::TypedElementPtr elem)
         }
     }
 }
+
 void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem)
 {
     // Clear user data on the generator.
@@ -801,6 +805,7 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         std::cerr << "Failed to load material" << e.what();
     }
 }
+
 void RenderView::reloadShaders()
 {
     try
@@ -905,7 +910,6 @@ mx::ImagePtr RenderView::getAmbientOcclusionImage(MaterialPtr material)
 
 void RenderView::drawContents()
 {
-
     if (_geometryList.empty() || _materials.empty())
     {
         return;
@@ -1003,7 +1007,6 @@ void RenderView::loadEnvironmentLight()
 
 void RenderView::renderFrame()
 {
-
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
