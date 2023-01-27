@@ -2,6 +2,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(DEAR_IMGUI_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui" CACHE STRING "Path to Dear ImGui")
 
+if (NOT IS_DIRECTORY "${DEAR_IMGUI_PREFIX}/backends")
+    message(FATAL_ERROR "Building the MaterialX graph editor requires the ImGui submodule "
+        "to be present. Update your repository by calling the following:\n"
+        "git submodule update --init --recursive")
+endif()
+
 if(MSVC)
     add_compile_options(-wd4100)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -13,17 +19,17 @@ endif()
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
-file(GLOB imgui_source "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/*.cpp")
-file(GLOB imgui_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/*.h*")
+file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
+file(GLOB imgui_headers "${DEAR_IMGUI_PREFIX}/*.h*")
 
 set(imgui_source ${imgui_source}
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_glfw.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_opengl3.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/misc/cpp/imgui_stdlib.cpp")
+    "${DEAR_IMGUI_PREFIX}/backends/imgui_impl_glfw.cpp"
+    "${DEAR_IMGUI_PREFIX}/backends/imgui_impl_opengl3.cpp"
+    "${DEAR_IMGUI_PREFIX}/misc/cpp/imgui_stdlib.cpp")
 set(imgui_headers ${imgui_headers}
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_glfw.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/backends/imgui_impl_opengl3.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui/misc/cpp/imgui_stdlib.h")
+    "${DEAR_IMGUI_PREFIX}/backends/imgui_impl_glfw.h"
+    "${DEAR_IMGUI_PREFIX}/backends/imgui_impl_opengl3.h"
+    "${DEAR_IMGUI_PREFIX}/misc/cpp/imgui_stdlib.h")
 
 file(GLOB imguinode_source "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/*.cpp")
 file(GLOB imguinode_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/*.h*")
