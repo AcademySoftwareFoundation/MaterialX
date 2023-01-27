@@ -17,9 +17,7 @@ UiNode::UiNode() :
     _showAllInputs(false),
     _id(0),
     _nodePos(INVALID_POS, INVALID_POS),
-    _inputNodeNum(0),
-    _outputConnections()
-
+    _inputNodeNum(0)
 {
 }
 
