@@ -38,6 +38,10 @@ add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
 
+if(MATERIALX_BUILD_SHARED_LIBS)
+    target_compile_definitions(MaterialXRenderGlsl PUBLIC GLAD_GLAPI_EXPORT PRIVATE GLAD_GLAPI_EXPORT_BUILD)
+endif()
+
 set(COMMON_LIBRARIES
     MaterialXRenderHw
     MaterialXGenGlsl
