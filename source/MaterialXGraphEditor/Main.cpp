@@ -43,8 +43,11 @@ mx::FileSearchPath getDefaultSearchPath()
 
 const std::string options =
     " Options: \n"
+    "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
+    "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
     "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+    "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -74,22 +77,36 @@ int main(int argc, char* const argv[])
         tokens.emplace_back(argv[i]);
     }
 
-    std::string materialFilename = "resources//Materials//Examples//StandardSurface//";
+    std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
+    std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
-    mx::FilePathVec libraryFolders = { "libraries" };
+    mx::FilePathVec libraryFolders;
+    std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
         const std::string& token = tokens[i];
         const std::string& nextToken = i + 1 < tokens.size() ? tokens[i + 1] : mx::EMPTY_STRING;
 
-        if (token == "--path")
+        if (token == "--material")
+        {
+            materialFilename = nextToken;
+        }
+        else if (token == "--mesh")
+        {
+            meshFilename = nextToken;
+        }
+        else if (token == "--path")
         {
             searchPath.append(mx::FileSearchPath(nextToken));
         }
         else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
+        }
+        else if (token == "--captureFilename")
+        {
+            parseToken(nextToken, "string", captureFilename);
         }
         else if (token == "--help")
         {
@@ -113,6 +130,9 @@ int main(int argc, char* const argv[])
             i++;
         }
     }
+
+    // Append the standard library folder, giving it a lower precedence than user-supplied libraries.
+    libraryFolders.push_back("libraries");
 
     // Setup window
     glfwSetErrorCallback(errorCallback);
@@ -147,7 +167,6 @@ int main(int argc, char* const argv[])
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    (void) io;
     io.Fonts->AddFontDefault();
 
     // Setup Dear ImGui style
@@ -157,17 +176,21 @@ int main(int argc, char* const argv[])
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    bool initialized = false;
-    Graph* graph = new Graph(materialFilename, searchPath, libraryFolders);
-    ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Create graph editor.
+    Graph* graph = new Graph(materialFilename, meshFilename, searchPath, libraryFolders);
+    if (!captureFilename.empty())
+    {
+        graph->getRenderer()->requestFrameCapture(captureFilename);
+        graph->getRenderer()->requestExit();
+    }
 
     // Main loop
     double xpos, ypos = 0.0;
     xpos = 0.0;
+    ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     while (!glfwWindowShouldClose(window))
     {
-
         glfwPollEvents();
 
         // Start the Dear ImGui frame
@@ -181,33 +204,25 @@ int main(int argc, char* const argv[])
             ed::Config config;
             config.SettingsFile = "BasicInteraction.json";
             g_Context = ed::CreateEditor(&config);
-            const float zoomLevels[] = {
-                0.1f,
-                0.15f,
-                0.20f,
-                0.25f,
-                0.33f,
-                0.5f,
-                0.75f,
-                1.0f,
-            };
-
-            for (auto& level : zoomLevels)
+            const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
+            for (auto& level : ZOOM_LEVELS)
+            {
                 config.CustomZoomLevels.push_back(level);
+            }
         }
         ed::SetCurrentEditor(g_Context);
         if (g_FirstFrame)
+        {
             ed::NavigateToContent(0.0f);
-
+        }
         g_FirstFrame = false;
 
-        if (!initialized)
+        graph->getRenderer()->drawContents();
+        if (!captureFilename.empty())
         {
-            initialized = true;
-            graph->initialize();
+            break;
         }
 
-        graph->getRenderer()->drawContents();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));

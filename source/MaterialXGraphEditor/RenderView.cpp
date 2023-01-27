@@ -933,11 +933,16 @@ void RenderView::drawContents()
     if (_captureRequested)
     {
         _captureRequested = false;
-        mx::ImagePtr frameImage = getFrameImage();
+        mx::ImagePtr frameImage = _renderFrame->getColorImage();
         if (frameImage && _imageHandler->saveImage(_captureFilename, frameImage, true))
         {
             std::cout << "Wrote frame to disk: " << _captureFilename.asString() << std::endl;
         }
+
+        // Restore state for scene rendering.
+        glViewport(0, 0, (int32_t) _screenWidth, (int32_t) _screenHeight);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glDrawBuffer(GL_BACK);
     }
 }
 
@@ -1062,7 +1067,6 @@ void RenderView::renderFrame()
     // Opaque pass
     for (const auto& assignment : _materialAssignments)
     {
-
         mx::MeshPartitionPtr geom = assignment.first;
         MaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
@@ -1125,21 +1129,6 @@ void RenderView::renderFrame()
 
     // Store viewport texture for render.
     _textureID = _renderFrame->getColorTexture();
-}
-
-mx::ImagePtr RenderView::getFrameImage()
-{
-    glFlush();
-
-    // Create an image with dimensions adjusted for device DPI.
-    mx::ImagePtr image = mx::Image::create((unsigned int) (_screenWidth * _pixelRatio),
-                                           (unsigned int) (_screenHeight * _pixelRatio), 3);
-    image->createResourceBuffer();
-
-    // Read pixels into the image buffer.
-    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
-
-    return image;
 }
 
 void RenderView::initCamera()

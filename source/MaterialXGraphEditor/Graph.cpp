@@ -31,7 +31,10 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 
 } // anonymous namespace
 
-Graph::Graph(const std::string& materialFilename, const mx::FileSearchPath& searchPath, const mx::FilePathVec& libraryFolders) :
+Graph::Graph(const std::string& materialFilename,
+             const std::string& meshFilename,
+             const mx::FileSearchPath& searchPath,
+             const mx::FilePathVec& libraryFolders) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -50,32 +53,10 @@ Graph::Graph(const std::string& materialFilename, const mx::FileSearchPath& sear
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
-}
-
-void Graph::loadStandardLibraries()
-{
-    // Initialize the standard library.
-    try
-    {
-        _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
-        if (_xincludeFiles.empty())
-        {
-            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
-        return;
-    }
-}
-
-void Graph::initialize()
-{
     loadStandardLibraries();
     setPinColor();
-    // load nodes def to create add node ui
+
+    // Generate node UI from nodedefs.
     std::vector<mx::NodeDefPtr> nodeDefs = _stdLib->getNodeDefs();
     for (size_t i = 0; i < nodeDefs.size(); i++)
     {
@@ -95,13 +76,31 @@ void Graph::initialize()
     }
 
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
-    std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::Color3 screenColor(1.0f, 0.3f, 0.32f);
 
-    _renderer = std::make_shared<RenderView>(materialFilename, meshFilename, envRadianceFilename, _searchPath, _libraryFolders, 1280, 960);
+    _renderer = std::make_shared<RenderView>(materialFilename, meshFilename, envRadianceFilename,
+                                             _searchPath, _libraryFolders, 256, 256);
     _renderer->initialize();
+}
+
+void Graph::loadStandardLibraries()
+{
+    // Initialize the standard library.
+    try
+    {
+        _stdLib = mx::createDocument();
+        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        if (_xincludeFiles.empty())
+        {
+            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
+        return;
+    }
 }
 
 mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
