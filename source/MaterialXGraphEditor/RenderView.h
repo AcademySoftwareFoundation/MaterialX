@@ -72,16 +72,6 @@ class RenderView
         return _showAllInputs;
     }
 
-    void setScreenWidth(unsigned int width)
-    {
-        _screenWidth = width;
-    }
-
-    void setScreenHeight(unsigned int height)
-    {
-        _screenHeight = height;
-    }
-
     std::vector<mx::MeshPartitionPtr> getGeometryList()
     {
         return _geometryList;
@@ -144,6 +134,7 @@ class RenderView
     }
 
     mx::ElementPredicate getElementPredicate();
+
     // Request a capture of the current frame, writing it to the given filename.
     void requestFrameCapture(const mx::FilePath& filename)
     {
@@ -184,7 +175,6 @@ class RenderView
     }
 
     void drawContents();
-    mx::ImagePtr getFrameImage();
     unsigned int _textureID;
     void reloadShaders();
 
