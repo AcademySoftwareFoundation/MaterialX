@@ -988,16 +988,19 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
         if (node->getNode())
         {
             mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef(node->getNode()->getName());
-            for (mx::InputPtr input : nodeDef->getActiveInputs())
+            if (nodeDef)
             {
-                if (node->getNode()->getInput(input->getName()))
+                for (mx::InputPtr input : nodeDef->getActiveInputs())
                 {
-                    input = node->getNode()->getInput(input->getName());
+                    if (node->getNode()->getInput(input->getName()))
+                    {
+                        input = node->getNode()->getInput(input->getName());
+                    }
+                    Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
+                    node->inputPins.push_back(inPin);
+                    _currPins.push_back(inPin);
+                    ++_graphTotalSize;
                 }
-                Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
-                node->inputPins.push_back(inPin);
-                _currPins.push_back(inPin);
-                ++_graphTotalSize;
             }
         }
         else if (node->getInput())
