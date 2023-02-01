@@ -411,9 +411,17 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            if (child->getUpstreamEdge(i))
+            Edge upstreamEdge = child->getUpstreamEdge(i);
+            if (upstreamEdge)
             {
-                connectionCount++;
+                if (upstreamEdge.getUpstreamElement())
+                {
+                    ElementPtr elem = upstreamEdge.getUpstreamElement()->getParent();
+                    if (elem == child->getParent())
+                    {
+                        connectionCount++;
+                    }
+                }
             }
         }
 
