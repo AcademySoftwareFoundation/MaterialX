@@ -171,7 +171,7 @@ else()
     set(RPATH_RELATIVE_SYMBOL "$ORIGIN")
 endif()
 
-# The following include relative RPATHS, allowing libraries to be relocated, as well as
+# The following include relative RPATHS, allowing shared libraries to be relocated, as well as
 # absolute RPATHS for backwards compatibility.
 
 # For linking to libraries in the same dir - ie, things in "MATX/lib" to each other
