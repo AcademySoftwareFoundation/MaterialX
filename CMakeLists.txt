@@ -165,20 +165,15 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # Set the installation path for shared libraries
-if (APPLE)
+if(APPLE)
     set(RPATH_RELATIVE_SYMBOL "@loader_path")
-else ()
-    # this should just be ignored on windows...
+else()
     set(RPATH_RELATIVE_SYMBOL "$ORIGIN")
 endif()
 
-# We want the RPATHS to be relative, so the libraries can be relocated; however,
-# we also include the absolute RPATH as a last option because:
-# - the github tests copy the python libs to the python site packages directory;
-#   from that location, the python libs can't find the MaterialX libs at their
-#   "standard" relative location
-# - for maximum backward compatibility - in case other end users are relying on
-#   the absolute paths (like the github tests are)
+# The following include relative RPATHS, allowing libraries to be relocated, as well as
+# absolute RPATHS for backwards compatibility.
+
 # For linking to libraries in the same dir - ie, things in "MATX/lib" to each other
 set(MATERIALX_SAME_DIR_RPATH "${RPATH_RELATIVE_SYMBOL};${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}")
 # For linking to libraries where source is one directory deep, ie: "MATX/bin/../lib"
