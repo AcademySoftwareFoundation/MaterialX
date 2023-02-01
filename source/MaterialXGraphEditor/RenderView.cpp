@@ -340,7 +340,15 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
         mx::FilePath resolvedFilename = searchPath.find(filename);
         if (resolvedFilename.exists())
         {
-            readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            try
+            {
+                readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            }
+            catch (mx::Exception& e)
+            {
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
+                    std::string(e.what()) << std::endl;
+            }
         }
         else
         {
@@ -368,7 +376,15 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
     {
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
-        mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+        try
+        {
+            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+        }
+        catch (mx::Exception& e)
+        {
+            std::cerr << "Failed to read file: " << filename.asString() << ". " <<
+                std::string(e.what()) << std::endl;
+        }
         _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Import libraries.
