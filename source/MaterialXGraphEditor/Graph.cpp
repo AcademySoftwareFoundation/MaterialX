@@ -53,6 +53,12 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
+    // Filter for MaterialX files for load and save
+    mx::StringVec mtlxFilter;
+    mtlxFilter.push_back(".mtlx");
+    _fileDialog.SetTypeFilters(mtlxFilter);
+    _fileDialogSave.SetTypeFilters(mtlxFilter);
+
     loadStandardLibraries();
     setPinColor();
 
@@ -115,7 +121,15 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         mx::FilePath resolvedFilename = searchPath.find(filename);
         if (resolvedFilename.exists())
         {
-            readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            try
+            {
+                readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            }
+            catch (mx::Exception& e)
+            {
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
+                    std::string(e.what()) << std::endl;
+            }
         }
         else
         {
@@ -124,7 +138,15 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     };
 
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, materialFilename, _searchPath, &readOptions);
+    try
+    {
+        mx::readFromXmlFile(doc, materialFilename, _searchPath, &readOptions);
+    }
+    catch (mx::Exception& e)
+    {
+        std::cerr << "Failed to read file: " << materialFilename << ". " <<
+            std::string(e.what()) << std::endl;
+    }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<Pin>>();
     return doc;
