@@ -12,6 +12,17 @@ const int INVALID_POS = -10000;
 
 } // anonymous namespace
 
+ void Pin::addConnection(Pin pin)
+ {
+     for (size_t i = 0; i < _connections.size(); i++)
+     {
+         if (_connections[i]._pinId == pin._pinId)
+             return;
+     }
+     std::cerr << "add connection from: " << _name << " to " << pin._name << std::endl;
+     _connections.push_back(pin);
+ }
+
 UiNode::UiNode() :
     _level(-1),
     _showAllInputs(false),

@@ -196,7 +196,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
         mx::OutputPtr output = input._pinNode->getNode()->getConnectedOutput(input._name);
         if (output)
         {
-            std::string outName = input._pinNode->getNode()->getConnectedOutput(input._name)->getName();
+            std::string outName = output->getName();
             for (Pin outputs : upNode->outputPins)
             {
                 if (outputs._name == outName)
@@ -211,7 +211,11 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
     {
         // every other node can just get the first output pin since there is only one
         // This needs to be fixed !
-        return (upNode->outputPins[0]._pinId);
+        if (!upNode->outputPins.empty())
+        {
+            return (upNode->outputPins[0]._pinId);
+        }
+        return ed::PinId();
     }
 }
 
@@ -247,6 +251,10 @@ void Graph::linkGraph()
                     {
                         if (inputNode->outputPins.size() > 0)
                         {
+
+                            // Fix this
+                            std::cerr << "To fix: start = " << std::to_string(start) <<
+                                ". output pin size: " << std::to_string(inputNode->outputPins.size()) << std::endl;
                             inputNode->outputPins[0].setConnected(true);
                             inputNode->outputPins[0].addConnection(inputs[i]);
                             link._startAttr = start;
@@ -1046,6 +1054,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
             node->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
+
         }
         else if (node->getOutput())
         {
@@ -1054,13 +1063,15 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
-        //std::cerr << "Add single output pin: " << type << std::endl;
-        /*
-        Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
-        ++_graphTotalSize;
-        node->outputPins.push_back(outPin);
-        _currPins.push_back(outPin);
-        */
+
+        if (node->getInput() || node->getOutput())
+        {
+            std::cerr << "Add single output pin: " << type << std::endl;
+            Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            ++_graphTotalSize;
+            node->outputPins.push_back(outPin);
+            _currPins.push_back(outPin);
+        }
     }
 
     _graphNodes.push_back(std::move(node));
@@ -2060,9 +2071,28 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     UiNodePtr upUiNode = node->getConnectedNode(pin._name);
                     if (upUiNode)
                     {
+                        // Fix this
+                        size_t pinIndex = 0;
                         if (upUiNode->outputPins.size() > 0)
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            const std::string outputString = pin._input->getOutputString();
+                            if (!outputString.empty())
+                            {
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
+                                {
+                                    Pin& outPin = upUiNode->outputPins[i];
+                                    if (outPin._name == outputString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            //std::cerr << "1. Try add connection to: " << pin._name << " from " <<
+                            //    upUiNode->outputPins[pinIndex]._name << std::endl;
+
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                         pin.setConnected(true);
                     }
