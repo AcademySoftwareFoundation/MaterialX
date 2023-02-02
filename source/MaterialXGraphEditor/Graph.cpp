@@ -1315,7 +1315,8 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     }
                     int upNode = findNode(upName, upstreamType);
                     int downNode = findNode(downName, downstreamType);
-                    if (_graphNodes[downNode]->getOutput() != nullptr)
+                    if (downNode > 0 && upNode > 0 && 
+                        _graphNodes[downNode]->getOutput() != nullptr)
                     {
                         // creating edges for the output nodes
                         UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
