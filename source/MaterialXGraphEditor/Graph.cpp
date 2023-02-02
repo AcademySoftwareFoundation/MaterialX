@@ -210,6 +210,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
     else
     {
         // every other node can just get the first output pin since there is only one
+        // This needs to be fixed !
         return (upNode->outputPins[0]._pinId);
     }
 }
@@ -1021,7 +1022,21 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                     Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ++_graphTotalSize;
+                    ++_graphTotalSize;                    
+                }
+
+                for (mx::OutputPtr output : nodeDef->getActiveOutputs())
+                {
+                    std::cerr << "Add output:" << output->getName() << std::endl;
+                    if (node->getNode()->getOutput(output->getName()))
+                    {
+                        output = node->getNode()->getOutput(output->getName());
+                    }
+                    Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), 
+                    output->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+                    node->outputPins.push_back(outPin);
+                    _currPins.push_back(outPin);
+                    ++_graphTotalSize;                    
                 }
             }
         }
@@ -1039,10 +1054,13 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
+        //std::cerr << "Add single output pin: " << type << std::endl;
+        /*
         Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
         ++_graphTotalSize;
         node->outputPins.push_back(outPin);
         _currPins.push_back(outPin);
+        */
     }
 
     _graphNodes.push_back(std::move(node));
@@ -1763,11 +1781,19 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
+        std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
+        for (mx::OutputPtr output : defOutputs)
+        {
+            Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), output->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            newNode->outputPins.push_back(outPin);
+            _currPins.push_back(outPin);
+            ++_graphTotalSize;
+        }
         // output pin
-        Pin outPin = Pin(_graphTotalSize, &*("ouput"), newNode->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
-        ++_graphTotalSize;
-        newNode->outputPins.push_back(outPin);
-        _currPins.push_back(outPin);
+        //Pin outPin = Pin(_graphTotalSize, &*("ouput"), newNode->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+        //++_graphTotalSize;
+        //newNode->outputPins.push_back(outPin);
+        //_currPins.push_back(outPin);
 
         _graphNodes.push_back(std::move(newNode));
         updateMaterials();
