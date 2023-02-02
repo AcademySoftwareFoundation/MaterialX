@@ -526,7 +526,7 @@ void Viewer::applyDirectLights(mx::DocumentPtr doc)
     }
 }
 
-void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
+void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material)
 {
     if (!geometry || _geometryHandler->getMeshes().empty())
     {
@@ -653,7 +653,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->set_callback([this]()
     {
         m_process_events = false;
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
 
         // Save document
@@ -878,7 +878,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #if MATERIALX_BUILD_GEN_MDL
         _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
-        for (MaterialPtr material : _materials)
+        for (mx::GlslMaterialPtr material : _materials)
         {
             material->bindUnits(_unitRegistry, _genContext);
         }
@@ -1158,7 +1158,7 @@ void Viewer::loadMesh(const mx::FilePath& filename)
 
         // Assign the selected material to all geometries.
         _materialAssignments.clear();
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         if (material)
         {
             for (mx::MeshPartitionPtr geom : _geometryList)
@@ -1220,7 +1220,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         _materials.clear();
     }
 
-    std::vector<MaterialPtr> newMaterials;
+    std::vector<mx::GlslMaterialPtr> newMaterials;
     try
     {
         // Load source document.
@@ -1302,7 +1302,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             {
                 for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
                 {
-                    MaterialPtr mat = Material::create();
+                    mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
                     mat->setDocument(doc);
                     mat->setElement(typedElem);
                     mat->setMaterialNode(materialNodes[i]);
@@ -1314,7 +1314,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
             else
             {
-                MaterialPtr mat = Material::create();
+                mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
                 mat->setMaterialNode(materialNodes[i]);
@@ -1332,8 +1332,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
-            MaterialPtr udimMaterial = nullptr;
-            for (MaterialPtr mat : newMaterials)
+            mx::GlslMaterialPtr udimMaterial = nullptr;
+            for (mx::GlslMaterialPtr mat : newMaterials)
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
@@ -1382,7 +1382,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         }
                         if (mx::geomStringsMatch(activeGeom, geom, true))
                         {
-                            for (MaterialPtr mat : newMaterials)
+                            for (mx::GlslMaterialPtr mat : newMaterials)
                             {
                                 if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
                                 {
@@ -1394,7 +1394,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         mx::CollectionPtr coll = matAssign->getCollection();
                         if (coll && coll->matchesGeomString(geom))
                         {
-                            for (MaterialPtr mat : newMaterials)
+                            for (mx::GlslMaterialPtr mat : newMaterials)
                             {
                                 if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
                                 {
@@ -1408,7 +1408,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
 
             // Apply implicit udim assignments, if any.
-            for (MaterialPtr mat : newMaterials)
+            for (mx::GlslMaterialPtr mat : newMaterials)
             {
                 mx::NodePtr materialNode = mat->getMaterialNode();
                 if (materialNode)
@@ -1428,7 +1428,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             }
 
             // Apply fallback assignments.
-            MaterialPtr fallbackMaterial = newMaterials[0];
+            mx::GlslMaterialPtr fallbackMaterial = newMaterials[0];
             if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
             {
                 for (mx::MeshPartitionPtr geom : _geometryList)
@@ -1468,7 +1468,7 @@ void Viewer::reloadShaders()
 {
     try
     {
-        for (MaterialPtr material : _materials)
+        for (mx::GlslMaterialPtr material : _materials)
         {
             material->generateShader(_genContext);
         }
@@ -1494,7 +1494,7 @@ void Viewer::saveShaderSource(mx::GenContext& context)
 {
     try
     {
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
@@ -1551,7 +1551,7 @@ void Viewer::loadShaderSource()
 {
     try
     {
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
         if (elem)
         {
@@ -1575,8 +1575,8 @@ void Viewer::saveDiagrams()
     try
     {
         mx::FilePath baseFilename = getBaseOutputPath();
-
-        MaterialPtr material = getSelectedMaterial();
+ 
+       mx::GlslMaterialPtr material = getSelectedMaterial();
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
 
         mx::NodePtr shaderNode = nullptr;
@@ -1613,7 +1613,7 @@ void Viewer::saveDiagrams()
             {
                 std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
                 if (!shaderNodes.empty())
-                {
+        {
                     node = shaderNodes[0];
                     if (!node->getOutputCount())
                     {
@@ -1635,20 +1635,20 @@ void Viewer::saveDiagrams()
         std::string outputString;
         std::string outputFilename;
         if (graphNode)
-        {
+            {
             std::string formatString;
             mx::GraphIoPtr grapher = nullptr;
             if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)
-            {
+                {
                 grapher = mx::MermaidGraphIo::create();
                 formatString = "md";
-            }
+                }
             else
             {
                 grapher = mx::DotGraphIo::create();
                 formatString = "dot";
             }
-            
+
             mx::GraphIoGenOptions graphOptions;
             graphOptions.setWriteCategories(_diagramWriteCategoryNames);
             grapher->setGenOptions(graphOptions);
@@ -1677,7 +1677,7 @@ void Viewer::saveDiagrams()
 
 mx::DocumentPtr Viewer::translateMaterial()
 {
-    MaterialPtr material = getSelectedMaterial();
+    mx::GlslMaterialPtr material = getSelectedMaterial();
     mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
     {
@@ -1787,7 +1787,7 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
     // the file system.
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
         mx::FilePath filename = doc ? mx::FilePath(doc->getSourceUri()) : _materialFilename;
         if (modifiers == GLFW_MOD_SHIFT)
@@ -1980,7 +1980,7 @@ void Viewer::renderFrame()
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
     // Update shadow state.
-    ShadowState shadowState;
+    mx::ShadowState shadowState;
     shadowState.ambientOcclusionGain = _ambientOcclusionGain;
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (_genContext.getOptions().hwShadowMap && dirLight)
@@ -2003,7 +2003,7 @@ void Viewer::renderFrame()
     // Environment background
     if (_drawEnvironment)
     {
-        MaterialPtr envMaterial = getEnvironmentMaterial();
+        mx::GlslMaterialPtr envMaterial = getEnvironmentMaterial();
         if (envMaterial)
         {
             const mx::MeshList& meshes = _envGeometryHandler->getMeshes();
@@ -2041,7 +2041,7 @@ void Viewer::renderFrame()
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
-        MaterialPtr material = assignment.second;
+        mx::GlslMaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
         if (!material)
         {
@@ -2069,7 +2069,7 @@ void Viewer::renderFrame()
         for (const auto& assignment : _materialAssignments)
         {
             mx::MeshPartitionPtr geom = assignment.first;
-            MaterialPtr material = assignment.second;
+            mx::GlslMaterialPtr material = assignment.second;
             shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
             if (!material || !material->hasTransparency())
             {
@@ -2100,7 +2100,7 @@ void Viewer::renderFrame()
     // Wireframe pass
     if (_outlineSelection)
     {
-        MaterialPtr wireMaterial = getWireframeMaterial();
+        mx::GlslMaterialPtr wireMaterial = getWireframeMaterial();
         if (wireMaterial)
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -2134,7 +2134,7 @@ mx::ImagePtr Viewer::getFrameImage()
 
 mx::ImagePtr Viewer::renderWedge()
 {
-    MaterialPtr material = getSelectedMaterial();
+    mx::GlslMaterialPtr material = getSelectedMaterial();
     mx::ShaderPort* uniform = material ? material->findUniform(_wedgePropertyName) : nullptr;
     if (!uniform)
     {
@@ -2204,7 +2204,7 @@ mx::ImagePtr Viewer::renderWedge()
 
 void Viewer::bakeTextures()
 {
-    MaterialPtr material = getSelectedMaterial();
+    mx::GlslMaterialPtr material = getSelectedMaterial();
     mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
     {
@@ -2563,7 +2563,7 @@ void Viewer::updateDisplayedProperties()
     perform_layout();
 }
 
-mx::ImagePtr Viewer::getAmbientOcclusionImage(MaterialPtr material)
+mx::ImagePtr Viewer::getAmbientOcclusionImage(mx::GlslMaterialPtr material)
 {
     const mx::string AO_FILENAME_SUFFIX = "_ao";
     const mx::string AO_FILENAME_EXTENSION = "png";
@@ -2602,14 +2602,14 @@ void Viewer::splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirec
     indirectMap = imagePair.first;
 }
 
-MaterialPtr Viewer::getEnvironmentMaterial()
+mx::GlslMaterialPtr Viewer::getEnvironmentMaterial()
 {
     if (!_envMaterial)
     {
         mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/envmap_shader.mtlx"));
         try
         {
-            _envMaterial = Material::create();
+            _envMaterial = mx::GlslMaterial::create();
             _envMaterial->generateEnvironmentShader(_genContext, envFilename, _stdLib, _envRadianceFilename);
         }
         catch (std::exception& e)
@@ -2622,14 +2622,14 @@ MaterialPtr Viewer::getEnvironmentMaterial()
     return _envMaterial;
 }
 
-MaterialPtr Viewer::getWireframeMaterial()
+mx::GlslMaterialPtr Viewer::getWireframeMaterial()
 {
     if (!_wireMaterial)
     {
         try
         {
             mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = Material::create();
+            _wireMaterial = mx::GlslMaterial::create();
             _wireMaterial->generateShader(hwShader);
         }
         catch (std::exception& e)
@@ -2652,7 +2652,7 @@ mx::ImagePtr Viewer::getShadowMap()
             try
             {
                 mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
-                _shadowMaterial = Material::create();
+                _shadowMaterial = mx::GlslMaterial::create();
                 _shadowMaterial->generateShader(hwShader);
             }
             catch (std::exception& e)
@@ -2666,7 +2666,7 @@ mx::ImagePtr Viewer::getShadowMap()
             try
             {
                 mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
-                _shadowBlurMaterial = Material::create();
+                _shadowBlurMaterial = mx::GlslMaterial::create();
                 _shadowBlurMaterial->generateShader(hwShader);
             }
             catch (std::exception& e)
@@ -2756,7 +2756,7 @@ void Viewer::updateAlbedoTable()
 
     // Create shader.
     mx::ShaderPtr hwShader = mx::createAlbedoTableShader(_genContext, _stdLib, "__ALBEDO_TABLE_SHADER__");
-    MaterialPtr material = Material::create();
+    mx::GlslMaterialPtr material = mx::GlslMaterial::create();
     try
     {
         material->generateShader(hwShader);
@@ -2789,7 +2789,7 @@ void Viewer::updateAlbedoTable()
     glDrawBuffer(GL_BACK);
 }
 
-void Viewer::renderScreenSpaceQuad(MaterialPtr material)
+void Viewer::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
 {
     if (!_quadMesh)
         _quadMesh = mx::GeometryHandler::createQuadMesh();
