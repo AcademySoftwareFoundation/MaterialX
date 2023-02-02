@@ -1057,7 +1057,6 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
                 for (mx::OutputPtr output : nodeDef->getActiveOutputs())
                 {
-                    std::cerr << "Add output:" << output->getName() << std::endl;
                     if (node->getNode()->getOutput(output->getName()))
                     {
                         output = node->getNode()->getOutput(output->getName());
@@ -1088,7 +1087,6 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
         if (node->getInput() || node->getOutput())
         {
-            std::cerr << "Add single output pin: " << type << std::endl;
             Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
             ++_graphTotalSize;
             node->outputPins.push_back(outPin);

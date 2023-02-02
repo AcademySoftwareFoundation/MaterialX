@@ -19,7 +19,6 @@ const int INVALID_POS = -10000;
          if (_connections[i]._pinId == pin._pinId)
              return;
      }
-     std::cerr << "add connection from: " << _name << " to " << pin._name << std::endl;
      _connections.push_back(pin);
  }
 
