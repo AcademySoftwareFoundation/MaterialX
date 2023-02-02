@@ -1821,11 +1821,6 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             _currPins.push_back(outPin);
             ++_graphTotalSize;
         }
-        // output pin
-        //Pin outPin = Pin(_graphTotalSize, &*("ouput"), newNode->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
-        //++_graphTotalSize;
-        //newNode->outputPins.push_back(outPin);
-        //_currPins.push_back(outPin);
 
         _graphNodes.push_back(std::move(newNode));
         updateMaterials();
@@ -2108,9 +2103,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                     }
                                 }
                             }
-
-                            //std::cerr << "1. Try add connection to: " << pin._name << " from " <<
-                            //    upUiNode->outputPins[pinIndex]._name << std::endl;
 
                             upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
