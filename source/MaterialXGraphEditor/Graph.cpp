@@ -190,9 +190,9 @@ void Graph::addExtraNodes()
 // return output pin needed to link the inputs and outputs
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
 {
+    // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
     if (upNode->getNodeGraph() != nullptr)
     {
-        // for nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
         mx::OutputPtr output = input._pinNode->getNode()->getConnectedOutput(input._name);
         if (output)
         {
@@ -207,10 +207,30 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
         }
         return ed::PinId();
     }
+
+    // For node need to get the correct ouput pin based on the input's output attribute
+    else if (upNode->getNode())
+    {
+        const std::string outputName = input._input ? input._input->getOutputString() : mx::EMPTY_STRING;
+        if (!outputName.empty())
+        {
+            for (Pin outputs : upNode->outputPins)
+            {
+                if (outputs._name == outputName)
+                {
+                    return outputs._pinId;
+                }
+            }
+        }
+        if (!upNode->outputPins.empty())
+        {
+            return (upNode->outputPins[0]._pinId);
+        }
+        return ed::PinId();
+    }
     else
     {
         // every other node can just get the first output pin since there is only one
-        // This needs to be fixed !
         if (!upNode->outputPins.empty())
         {
             return (upNode->outputPins[0]._pinId);
@@ -245,24 +265,26 @@ void Graph::linkGraph()
                     link._endAttr = end;
                     // get id number of output of node
 
-                    int start = int(getOutputPin(node, inputNode, inputs[i]).Get());
+                    ed::PinId outputId = getOutputPin(node, inputNode, inputs[i]);
+                    int start = int(outputId.Get());
 
                     if (start >= 0)
                     {
-                        if (inputNode->outputPins.size() > 0)
+                        // Connect the correct output pin to this input
+                        for (Pin outPin : inputNode->outputPins)
                         {
-
-                            // Fix this
-                            std::cerr << "To fix: start = " << std::to_string(start) <<
-                                ". output pin size: " << std::to_string(inputNode->outputPins.size()) << std::endl;
-                            inputNode->outputPins[0].setConnected(true);
-                            inputNode->outputPins[0].addConnection(inputs[i]);
-                            link._startAttr = start;
-
-                            if (!linkExists(link))
+                            if (outPin._pinId == outputId)
                             {
-                                _currLinks.push_back(link);
+                                outPin.setConnected(true);
+                                outPin.addConnection(inputs[i]);
                             }
+                        }
+
+                        link._startAttr = start;
+
+                        if (!linkExists(link))
+                        {
+                            _currLinks.push_back(link);
                         }
                     }
                 }
@@ -2071,7 +2093,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     UiNodePtr upUiNode = node->getConnectedNode(pin._name);
                     if (upUiNode)
                     {
-                        // Fix this
                         size_t pinIndex = 0;
                         if (upUiNode->outputPins.size() > 0)
                         {
