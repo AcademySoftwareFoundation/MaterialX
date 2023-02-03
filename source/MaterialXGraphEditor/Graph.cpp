@@ -1593,7 +1593,6 @@ void Graph::copyInputs()
         UiNodePtr copyNode = iter->second;
         for (Pin pin : origNode->inputPins)
         {
-            
             if (origNode->getConnectedNode(pin._name) && !_ctrlClick)
             {
                 // if original node is connected check if connect node is in copied nodes
