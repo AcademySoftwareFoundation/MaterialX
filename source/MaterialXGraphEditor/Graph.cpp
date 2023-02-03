@@ -208,35 +208,37 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
         return ed::PinId();
     }
 
-    // For node need to get the correct ouput pin based on the input's output attribute
-    else if (upNode->getNode())
-    {
-        const std::string outputName = input._input ? input._input->getOutputString() : mx::EMPTY_STRING;
-        if (!outputName.empty())
-        {
-            for (Pin outputs : upNode->outputPins)
-            {
-                if (outputs._name == outputName)
-                {
-                    return outputs._pinId;
-                }
-            }
-        }
-        if (!upNode->outputPins.empty())
-        {
-            return (upNode->outputPins[0]._pinId);
-        }
-        return ed::PinId();
-    }
+    // For node need to get the correct ouput pin based on the appropriate 'output' attribute
     else
     {
-        // every other node can just get the first output pin since there is only one
         if (!upNode->outputPins.empty())
         {
-            return (upNode->outputPins[0]._pinId);
+            std::string outputName = mx::EMPTY_STRING;
+            if (input._input)
+            {
+                outputName = input._input->getOutputString();
+            }
+            else if (input._output)
+            {
+                outputName = input._output->getOutputString();
+            }
+
+            size_t pinIndex = 0;
+            if (!outputName.empty())
+            {
+                for (size_t i = 0; i < upNode->outputPins.size(); i++)
+                {
+                    if (upNode->outputPins[i]._name == outputName)
+                    {
+                        pinIndex = i;
+                        break;
+                    }
+                }
+            }
+            return (upNode->outputPins[pinIndex]._pinId);
         }
         return ed::PinId();
-    }
+    } 
 }
 
 // connect links via connected nodes in UiNodePtr
@@ -1592,7 +1594,7 @@ void Graph::copyInputs()
         UiNodePtr copyNode = iter->second;
         for (Pin pin : origNode->inputPins)
         {
-
+            
             if (origNode->getConnectedNode(pin._name) && !_ctrlClick)
             {
                 // if original node is connected check if connect node is in copied nodes
@@ -2151,7 +2153,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            size_t pinIndex = 0;
+                            if (!outString.empty())  
+                            {
+                                for (size_t i=0; i<upUiNode->outputPins.size(); i++)
+                                {
+                                    if (upUiNode->outputPins[i]._name == outString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                         pin.setConnected(true);
                     }
@@ -2204,7 +2219,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            size_t pinIndex = 0;
+                            if (!outString.empty())  
+                            {
+                                for (size_t i=0; i<upUiNode->outputPins.size(); i++)
+                                {
+                                    if (upUiNode->outputPins[i]._name == outString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                     }
 
