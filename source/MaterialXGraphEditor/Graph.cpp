@@ -190,9 +190,9 @@ void Graph::addExtraNodes()
 // return output pin needed to link the inputs and outputs
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
 {
-    // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
     if (upNode->getNodeGraph() != nullptr)
     {
+        // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
         mx::OutputPtr output = input._pinNode->getNode()->getConnectedOutput(input._name);
         if (output)
         {
@@ -207,10 +207,9 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
         }
         return ed::PinId();
     }
-
-    // For node need to get the correct ouput pin based on the appropriate 'output' attribute
     else
     {
+        // For node need to get the correct ouput pin based on the output attribute
         if (!upNode->outputPins.empty())
         {
             std::string outputName = mx::EMPTY_STRING;
