@@ -186,10 +186,7 @@ class Pin
     {
         return _connected;
     }
-    void addConnection(Pin pin)
-    {
-        _connections.push_back(pin);
-    }
+    void addConnection(Pin pin);
     std::vector<Pin> getConnection()
     {
         return _connections;
