@@ -2155,7 +2155,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                             size_t pinIndex = 0;
                             if (!outString.empty())  
                             {
-                                for (size_t i=0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
                                 {
                                     if (upUiNode->outputPins[i]._name == outString)
                                     {
@@ -2221,7 +2221,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                             size_t pinIndex = 0;
                             if (!outString.empty())  
                             {
-                                for (size_t i=0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
                                 {
                                     if (upUiNode->outputPins[i]._name == outString)
                                     {
