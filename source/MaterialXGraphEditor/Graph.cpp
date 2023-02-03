@@ -1077,7 +1077,6 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
             node->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
-
         }
         else if (node->getOutput())
         {
