@@ -77,5 +77,5 @@ The following are common command-line options for MaterialXGraphEditor, and a co
 
 ### Known Limitations
 
-- Creating new connections from multi-output nodes is not yet supported, though existing multi-output connections will be displayed in graphs.
 - Creating new connections using the `channels` attribute of an input is not yet supported, though existing `channels` connections will be displayed in graphs.
+- Assigning a new `colorspace` attribute to an input is not yet supported, though existing `colorspace` attributes on inputs will be respected by the render view.
