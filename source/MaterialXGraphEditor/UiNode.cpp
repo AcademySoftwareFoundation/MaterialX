@@ -12,16 +12,6 @@ const int INVALID_POS = -10000;
 
 } // anonymous namespace
 
- void Pin::addConnection(Pin pin)
- {
-     for (size_t i = 0; i < _connections.size(); i++)
-     {
-         if (_connections[i]._pinId == pin._pinId)
-             return;
-     }
-     _connections.push_back(pin);
- }
-
 UiNode::UiNode() :
     _level(-1),
     _showAllInputs(false),
@@ -31,21 +21,12 @@ UiNode::UiNode() :
 {
 }
 
-UiNode::UiNode(const std::string name, int id) :
+UiNode::UiNode(const std::string& name, int id) :
     _level(-1),
     _showAllInputs(false),
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _name(name),
-    _inputNodeNum(0)
-{
-}
-
-UiNode::UiNode(int id) :
-    _level(-1),
-    _showAllInputs(false),
-    _id(id),
-    _nodePos(INVALID_POS, INVALID_POS),
     _inputNodeNum(0)
 {
 }
