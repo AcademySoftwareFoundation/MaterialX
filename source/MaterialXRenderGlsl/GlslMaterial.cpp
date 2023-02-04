@@ -1,4 +1,9 @@
-#include <MaterialXView/Material.h>
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+#include <MaterialXRenderGlsl/GlslMaterial.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
@@ -8,23 +13,25 @@
 
 #include <MaterialXFormat/Util.h>
 
+MATERIALX_NAMESPACE_BEGIN
+
 const std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";
 
 //
-// Material methods
+// GlslMaterial methods
 //
 
-bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePath& pixelShaderFile, bool hasTransparency)
+bool GlslMaterial::loadSource(const FilePath& vertexShaderFile, const FilePath& pixelShaderFile, bool hasTransparency)
 {
     _hasTransparency = hasTransparency;
 
-    std::string vertexShader = mx::readFile(vertexShaderFile);
+    std::string vertexShader = readFile(vertexShaderFile);
     if (vertexShader.empty())
     {
         return false;
     }
 
-    std::string pixelShader = mx::readFile(pixelShaderFile);
+    std::string pixelShader = readFile(pixelShaderFile);
     if (pixelShader.empty())
     {
         return false;
@@ -34,29 +41,29 @@ bool Material::loadSource(const mx::FilePath& vertexShaderFile, const mx::FilePa
     // Here we set new source code on the _glProgram without rebuilding 
     // the _hwShader instance. So the _hwShader is not in sync with the
     // _glProgram after this operation.
-    _glProgram = mx::GlslProgram::create();
-    _glProgram->addStage(mx::Stage::VERTEX, vertexShader);
-    _glProgram->addStage(mx::Stage::PIXEL, pixelShader);
+    _glProgram = GlslProgram::create();
+    _glProgram->addStage(Stage::VERTEX, vertexShader);
+    _glProgram->addStage(Stage::PIXEL, pixelShader);
 
     return true;
 }
 
-void Material::clearShader()
+void GlslMaterial::clearShader()
 {
     _hwShader = nullptr;
     _glProgram = nullptr;
 }
 
-bool Material::generateShader(mx::GenContext& context)
+bool GlslMaterial::generateShader(GenContext& context)
 {
     if (!_elem)
     {
         return false;
     }
 
-    _hasTransparency = mx::isTransparentSurface(_elem, context.getShaderGenerator().getTarget());
+    _hasTransparency = isTransparentSurface(_elem, context.getShaderGenerator().getTarget());
 
-    mx::GenContext materialContext = context;
+    GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
 
     // Initialize in case creation fails and throws an exception
@@ -68,46 +75,46 @@ bool Material::generateShader(mx::GenContext& context)
         return false;
     }
 
-    _glProgram = mx::GlslProgram::create();
+    _glProgram = GlslProgram::create();
     _glProgram->setStages(_hwShader);
 
     return true;
 }
 
-bool Material::generateShader(mx::ShaderPtr hwShader)
+bool GlslMaterial::generateShader(ShaderPtr hwShader)
 {
     _hwShader = hwShader;
 
-    _glProgram = mx::GlslProgram::create();
+    _glProgram = GlslProgram::create();
     _glProgram->setStages(hwShader);
 
     return true;
 }
 
-bool Material::generateEnvironmentShader(mx::GenContext& context,
-                                         const mx::FilePath& filename,
-                                         mx::DocumentPtr stdLib,
-                                         const mx::FilePath& imagePath)
+bool GlslMaterial::generateEnvironmentShader(GenContext& context,
+                                             const FilePath& filename,
+                                             DocumentPtr stdLib,
+                                             const FilePath& imagePath)
 {
     // Read in the environment nodegraph. 
-    mx::DocumentPtr doc = mx::createDocument();
+    DocumentPtr doc = createDocument();
     doc->importLibrary(stdLib);
-    mx::DocumentPtr envDoc = mx::createDocument();
-    mx::readFromXmlFile(envDoc, filename);
+    DocumentPtr envDoc = createDocument();
+    readFromXmlFile(envDoc, filename);
     doc->importLibrary(envDoc);
 
-    mx::NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
+    NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
     if (!envGraph)
     {
         return false;
     }
-    mx::NodePtr image = envGraph->getNode("envImage");
+    NodePtr image = envGraph->getNode("envImage");
     if (!image)
     {
         return false;
     }
-    image->setInputValue("file", imagePath.asString(), mx::FILENAME_TYPE_STRING);
-    mx::OutputPtr output = envGraph->getOutput("out");
+    image->setInputValue("file", imagePath.asString(), FILENAME_TYPE_STRING);
+    OutputPtr output = envGraph->getOutput("out");
     if (!output)
     {
         return false;
@@ -123,7 +130,7 @@ bool Material::generateEnvironmentShader(mx::GenContext& context,
     return generateShader(_hwShader);
 }
 
-bool Material::bindShader() const
+bool GlslMaterial::bindShader() const
 {
     if (!_glProgram)
     {
@@ -137,7 +144,7 @@ bool Material::bindShader() const
     return _glProgram->bind();
 }
 
-void Material::bindMesh(mx::MeshPtr mesh)
+void GlslMaterial::bindMesh(MeshPtr mesh)
 {
     if (!mesh || !bindShader())
     {
@@ -152,7 +159,7 @@ void Material::bindMesh(mx::MeshPtr mesh)
     _boundMesh = mesh;
 }
 
-bool Material::bindPartition(mx::MeshPartitionPtr part) const
+bool GlslMaterial::bindPartition(MeshPartitionPtr part) const
 {
     if (!bindShader())
     {
@@ -164,7 +171,7 @@ bool Material::bindPartition(mx::MeshPartitionPtr part) const
     return true;
 }
 
-void Material::bindViewInformation(mx::CameraPtr camera)
+void GlslMaterial::bindViewInformation(CameraPtr camera)
 {
     if (!_glProgram)
     {
@@ -174,15 +181,15 @@ void Material::bindViewInformation(mx::CameraPtr camera)
     _glProgram->bindViewInformation(camera);
 }
 
-void Material::unbindImages(mx::ImageHandlerPtr imageHandler)
+void GlslMaterial::unbindImages(ImageHandlerPtr imageHandler)
 {
-    for (mx::ImagePtr image : _boundImages)
+    for (ImagePtr image : _boundImages)
     {
         imageHandler->unbindImage(image);
     }
 }
 
-void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearchPath& searchPath, bool enableMipmaps)
+void GlslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath& searchPath, bool enableMipmaps)
 {
     if (!_glProgram)
     {
@@ -191,14 +198,14 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
 
     _boundImages.clear();
 
-    const mx::VariableBlock* publicUniforms = getPublicUniforms();
+    const VariableBlock* publicUniforms = getPublicUniforms();
     if (!publicUniforms)
     {
         return;
     }
     for (const auto& uniform : publicUniforms->getVariableOrder())
     {
-        if (uniform->getType() != mx::Type::FILENAME)
+        if (uniform->getType() != Type::FILENAME)
         {
             continue;
         }
@@ -210,13 +217,13 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
         }
 
         // Extract out sampling properties
-        mx::ImageSamplingProperties samplingProperties;
+        ImageSamplingProperties samplingProperties;
         samplingProperties.setProperties(uniformVariable, *publicUniforms);
 
         // Set the requested mipmap sampling property,
         samplingProperties.enableMipmaps = enableMipmaps;
 
-        mx::ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties);
+        ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties);
         if (image)
         {
             _boundImages.push_back(image);
@@ -224,8 +231,8 @@ void Material::bindImages(mx::ImageHandlerPtr imageHandler, const mx::FileSearch
     }
 }
 
-mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string& uniformName, mx::ImageHandlerPtr imageHandler,
-                                 const mx::ImageSamplingProperties& samplingProperties)
+ImagePtr GlslMaterial::bindImage(const FilePath& filePath, const std::string& uniformName, ImageHandlerPtr imageHandler,
+                                 const ImageSamplingProperties& samplingProperties)
 {
     if (!_glProgram)
     {
@@ -233,7 +240,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     }
 
     // Create a filename resolver for geometric properties.
-    mx::StringResolverPtr resolver = mx::StringResolver::create();
+    StringResolverPtr resolver = StringResolver::create();
     if (!getUdim().empty())
     {
         resolver->setUdimString(getUdim());
@@ -241,7 +248,7 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    mx::ImagePtr image = imageHandler->acquireImage(filePath);
+    ImagePtr image = imageHandler->acquireImage(filePath);
     if (!image)
     {
         return nullptr;
@@ -250,18 +257,18 @@ mx::ImagePtr Material::bindImage(const mx::FilePath& filePath, const std::string
     // Bind the image and set its sampling properties.
     if (imageHandler->bindImage(image, samplingProperties))
     {
-        mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+        GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
         int textureLocation = textureHandler->getBoundTextureLocation(image->getResourceId());
         if (textureLocation >= 0)
         {
-            _glProgram->bindUniform(uniformName, mx::Value::createValue(textureLocation), false);
+            _glProgram->bindUniform(uniformName, Value::createValue(textureLocation), false);
             return image;
         }
     }
     return nullptr;
 }
 
-void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr imageHandler, const ShadowState& shadowState)
+void GlslMaterial::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler, const ShadowState& shadowState)
 {
     if (!_glProgram)
     {
@@ -272,62 +279,62 @@ void Material::bindLighting(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPt
     _glProgram->bindLighting(lightHandler, imageHandler);
 
     // Bind shadow map properties
-    if (shadowState.shadowMap && _glProgram->hasUniform(mx::HW::SHADOW_MAP))
+    if (shadowState.shadowMap && _glProgram->hasUniform(HW::SHADOW_MAP))
     {
-        mx::ImageSamplingProperties samplingProperties;
-        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+        ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
 
         // Bind the shadow map.
         if (imageHandler->bindImage(shadowState.shadowMap, samplingProperties))
         {
-            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+            GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
             int textureLocation = textureHandler->getBoundTextureLocation(shadowState.shadowMap->getResourceId());
             if (textureLocation >= 0)
             {
-                _glProgram->bindUniform(mx::HW::SHADOW_MAP, mx::Value::createValue(textureLocation));
+                _glProgram->bindUniform(HW::SHADOW_MAP, Value::createValue(textureLocation));
             }
         }
-        _glProgram->bindUniform(mx::HW::SHADOW_MATRIX, mx::Value::createValue(shadowState.shadowMatrix));
+        _glProgram->bindUniform(HW::SHADOW_MATRIX, Value::createValue(shadowState.shadowMatrix));
     }
 
     // Bind ambient occlusion properties.
-    if (shadowState.ambientOcclusionMap && _glProgram->hasUniform(mx::HW::AMB_OCC_MAP))
+    if (shadowState.ambientOcclusionMap && _glProgram->hasUniform(HW::AMB_OCC_MAP))
     {
-        mx::ImageSamplingProperties samplingProperties;
-        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
-        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
-        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+        ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
+        samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::PERIODIC;
+        samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
 
         // Bind the ambient occlusion map.
         if (imageHandler->bindImage(shadowState.ambientOcclusionMap, samplingProperties))
         {
-            mx::GLTextureHandlerPtr textureHandler = std::static_pointer_cast<mx::GLTextureHandler>(imageHandler);
+            GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);
             int textureLocation = textureHandler->getBoundTextureLocation(shadowState.ambientOcclusionMap->getResourceId());
             if (textureLocation >= 0)
             {
-                _glProgram->bindUniform(mx::HW::AMB_OCC_MAP, mx::Value::createValue(textureLocation));
+                _glProgram->bindUniform(HW::AMB_OCC_MAP, Value::createValue(textureLocation));
             }
         }
-        _glProgram->bindUniform(mx::HW::AMB_OCC_GAIN, mx::Value::createValue(shadowState.ambientOcclusionGain));
+        _glProgram->bindUniform(HW::AMB_OCC_GAIN, Value::createValue(shadowState.ambientOcclusionGain));
     }
 }
 
-void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
+void GlslMaterial::bindUnits(UnitConverterRegistryPtr& registry, const GenContext& context)
 {
     if (!bindShader())
     {
         return;
     }
 
-    mx::ShaderPort* port = nullptr;
-    mx::VariableBlock* publicUniforms = getPublicUniforms();
+    ShaderPort* port = nullptr;
+    VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
     {
         // Scan block based on unit name match predicate
         port = publicUniforms->find(
-            [](mx::ShaderPort* port)
+            [](ShaderPort* port)
         {
             return (port && (port->getName() == DISTANCE_UNIT_TARGET_NAME));
         });
@@ -344,27 +351,27 @@ void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenCo
         int intPortValue = registry->getUnitAsInteger(context.getOptions().targetDistanceUnit);
         if (intPortValue >= 0)
         {
-            port->setValue(mx::Value::createValue(intPortValue));
+            port->setValue(Value::createValue(intPortValue));
             if (_glProgram->hasUniform(DISTANCE_UNIT_TARGET_NAME))
             {
-                _glProgram->bindUniform(DISTANCE_UNIT_TARGET_NAME, mx::Value::createValue(intPortValue));
+                _glProgram->bindUniform(DISTANCE_UNIT_TARGET_NAME, Value::createValue(intPortValue));
             }
         }
     }
 }
 
-void Material::drawPartition(mx::MeshPartitionPtr part) const
+void GlslMaterial::drawPartition(MeshPartitionPtr part) const
 {
     if (!part || !bindPartition(part))
     {
         return;
     }
-    mx::MeshIndexBuffer& indexData = part->getIndices();
+    MeshIndexBuffer& indexData = part->getIndices();
     glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
-    mx::checkGlErrors("after draw partition");
+    checkGlErrors("after draw partition");
 }
 
-void Material::unbindGeometry()
+void GlslMaterial::unbindGeometry()
 {
     if (!_boundMesh)
     {
@@ -378,30 +385,30 @@ void Material::unbindGeometry()
     _boundMesh = nullptr;
 }
 
-mx::VariableBlock* Material::getPublicUniforms() const
+VariableBlock* GlslMaterial::getPublicUniforms() const
 {
     if (!_hwShader)
     {
         return nullptr;
     }
 
-    mx::ShaderStage& stage = _hwShader->getStage(mx::Stage::PIXEL);
-    mx::VariableBlock& block = stage.getUniformBlock(mx::HW::PUBLIC_UNIFORMS);
+    ShaderStage& stage = _hwShader->getStage(Stage::PIXEL);
+    VariableBlock& block = stage.getUniformBlock(HW::PUBLIC_UNIFORMS);
 
     return &block;
 }
 
-mx::ShaderPort* Material::findUniform(const std::string& path) const
+ShaderPort* GlslMaterial::findUniform(const std::string& path) const
 {
-    mx::ShaderPort* port = nullptr;
-    mx::VariableBlock* publicUniforms = getPublicUniforms();
+    ShaderPort* port = nullptr;
+    VariableBlock* publicUniforms = getPublicUniforms();
     if (publicUniforms)
     {
         // Scan block based on path match predicate
         port = publicUniforms->find(
-            [path](mx::ShaderPort* port)
+            [path](ShaderPort* port)
             {
-                return (port && mx::stringEndsWith(port->getPath(), path));
+                return (port && stringEndsWith(port->getPath(), path));
             });
 
         // Check if the uniform exists in the shader program
@@ -413,14 +420,14 @@ mx::ShaderPort* Material::findUniform(const std::string& path) const
     return port;
 }
 
-void Material::modifyUniform(const std::string& path, mx::ConstValuePtr value, std::string valueString)
+void GlslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, std::string valueString)
 {
     if (!bindShader())
     {
         return;
     }
 
-    mx::ShaderPort* uniform = findUniform(path);
+    ShaderPort* uniform = findUniform(path);
     if (!uniform)
     {
         return;
@@ -432,13 +439,13 @@ void Material::modifyUniform(const std::string& path, mx::ConstValuePtr value, s
     {
         valueString = value->getValueString();
     }
-    uniform->setValue(mx::Value::createValueFromStrings(valueString, uniform->getType()->getName()));
+    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType()->getName()));
     if (_doc)
     {
-        mx::ElementPtr element = _doc->getDescendant(uniform->getPath());
+        ElementPtr element = _doc->getDescendant(uniform->getPath());
         if (element)
         {
-            mx::ValueElementPtr valueElement = element->asA<mx::ValueElement>();
+            ValueElementPtr valueElement = element->asA<ValueElement>();
             if (valueElement)
             {
                 valueElement->setValueString(valueString);
@@ -446,3 +453,5 @@ void Material::modifyUniform(const std::string& path, mx::ConstValuePtr value, s
         }
     }
 }
+
+MATERIALX_NAMESPACE_END

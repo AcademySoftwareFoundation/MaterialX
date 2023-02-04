@@ -35,6 +35,7 @@ project(MaterialX)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
+option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
@@ -165,7 +166,21 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # Set the installation path for shared libraries
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if(APPLE)
+    set(RPATH_RELATIVE_SYMBOL "@loader_path")
+else()
+    set(RPATH_RELATIVE_SYMBOL "$ORIGIN")
+endif()
+
+# The following include relative RPATHS, allowing shared libraries to be relocated, as well as
+# absolute RPATHS for backwards compatibility.
+
+# For linking to libraries in the same dir - ie, things in "MATX/lib" to each other
+set(MATERIALX_SAME_DIR_RPATH "${RPATH_RELATIVE_SYMBOL};${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_LIB_PATH}")
+# For linking to libraries where source is one directory deep, ie: "MATX/bin/../lib"
+set(MATERIALX_UP_ONE_RPATH "${RPATH_RELATIVE_SYMBOL}/../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
+# For linking to libraries where source is two directories deep, ie: "MATX/python/MaterialX/../../lib"
+set(MATERIALX_UP_TWO_RPATH "${RPATH_RELATIVE_SYMBOL}/../../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
 
 # Adjust compiler settings
 if(MSVC)
@@ -249,6 +264,9 @@ if(MATERIALX_BUILD_RENDER)
     if(MATERIALX_BUILD_VIEWER)
         add_subdirectory(source/MaterialXView)
     endif()
+    if(MATERIALX_BUILD_GRAPH_EDITOR)
+        add_subdirectory(source/MaterialXGraphEditor)
+    endif()
     add_subdirectory(resources)
 endif()
 
@@ -274,10 +292,10 @@ endif()
 if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
     if(MATERIALX_BUILD_VIEWER)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXView)
-    else()
-        if(MATERIALX_BUILD_TESTS)
-            set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
-        endif()
+    elseif(MATERIALX_BUILD_GRAPH_EDITOR)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXGraphEditor)
+    elseif(MATERIALX_BUILD_TESTS)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT MaterialXTest)
     endif()
 endif()
 
