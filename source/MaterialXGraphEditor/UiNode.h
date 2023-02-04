@@ -131,7 +131,7 @@ class UiNode
 
     friend bool operator==(const UiNodePtr& lhs, const UiNodePtr& rhs)
     {
-        return lhs->getName() == rhs->getName();
+        return lhs != nullptr && rhs != nullptr && lhs->getName() == rhs->getName();
     }
 
     bool operator()(const UiNodePtr& node1, const UiNodePtr& node2) const
@@ -186,10 +186,7 @@ class Pin
     {
         return _connected;
     }
-    void addConnection(Pin pin)
-    {
-        _connections.push_back(pin);
-    }
+    void addConnection(Pin pin);
     std::vector<Pin> getConnection()
     {
         return _connections;

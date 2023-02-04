@@ -74,12 +74,6 @@ class RenderView
         _modifiers = modifiers;
     }
 
-    // Return true if all inputs should be shown in the property editor.
-    bool getShowAllInputs() const
-    {
-        return _showAllInputs;
-    }
-
     std::vector<mx::MeshPartitionPtr> getGeometryList()
     {
         return _geometryList;
@@ -321,7 +315,6 @@ class RenderView
 
     // Material options
     bool _mergeMaterials;
-    bool _showAllInputs;
     bool _materialCompilation;
 
     // Unit options

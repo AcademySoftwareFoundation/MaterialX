@@ -192,11 +192,11 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // for nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
+        // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
         mx::OutputPtr output = input._pinNode->getNode()->getConnectedOutput(input._name);
         if (output)
         {
-            std::string outName = input._pinNode->getNode()->getConnectedOutput(input._name)->getName();
+            std::string outName = output->getName();
             for (Pin outputs : upNode->outputPins)
             {
                 if (outputs._name == outName)
@@ -209,9 +209,35 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
     }
     else
     {
-        // every other node can just get the first output pin since there is only one
-        return (upNode->outputPins[0]._pinId);
-    }
+        // For node need to get the correct ouput pin based on the output attribute
+        if (!upNode->outputPins.empty())
+        {
+            std::string outputName = mx::EMPTY_STRING;
+            if (input._input)
+            {
+                outputName = input._input->getOutputString();
+            }
+            else if (input._output)
+            {
+                outputName = input._output->getOutputString();
+            }
+
+            size_t pinIndex = 0;
+            if (!outputName.empty())
+            {
+                for (size_t i = 0; i < upNode->outputPins.size(); i++)
+                {
+                    if (upNode->outputPins[i]._name == outputName)
+                    {
+                        pinIndex = i;
+                        break;
+                    }
+                }
+            }
+            return (upNode->outputPins[pinIndex]._pinId);
+        }
+        return ed::PinId();
+    } 
 }
 
 // connect links via connected nodes in UiNodePtr
@@ -240,20 +266,26 @@ void Graph::linkGraph()
                     link._endAttr = end;
                     // get id number of output of node
 
-                    int start = int(getOutputPin(node, inputNode, inputs[i]).Get());
+                    ed::PinId outputId = getOutputPin(node, inputNode, inputs[i]);
+                    int start = int(outputId.Get());
 
                     if (start >= 0)
                     {
-                        if (inputNode->outputPins.size() > 0)
+                        // Connect the correct output pin to this input
+                        for (Pin outPin : inputNode->outputPins)
                         {
-                            inputNode->outputPins[0].setConnected(true);
-                            inputNode->outputPins[0].addConnection(inputs[i]);
-                            link._startAttr = start;
-
-                            if (!linkExists(link))
+                            if (outPin._pinId == outputId)
                             {
-                                _currLinks.push_back(link);
+                                outPin.setConnected(true);
+                                outPin.addConnection(inputs[i]);
                             }
+                        }
+
+                        link._startAttr = start;
+
+                        if (!linkExists(link))
+                        {
+                            _currLinks.push_back(link);
                         }
                     }
                 }
@@ -1021,7 +1053,20 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                     Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ++_graphTotalSize;
+                    ++_graphTotalSize;                    
+                }
+
+                for (mx::OutputPtr output : nodeDef->getActiveOutputs())
+                {
+                    if (node->getNode()->getOutput(output->getName()))
+                    {
+                        output = node->getNode()->getOutput(output->getName());
+                    }
+                    Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), 
+                    output->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+                    node->outputPins.push_back(outPin);
+                    _currPins.push_back(outPin);
+                    ++_graphTotalSize;                    
                 }
             }
         }
@@ -1039,10 +1084,14 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
-        Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
-        ++_graphTotalSize;
-        node->outputPins.push_back(outPin);
-        _currPins.push_back(outPin);
+
+        if (node->getInput() || node->getOutput())
+        {
+            Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            ++_graphTotalSize;
+            node->outputPins.push_back(outPin);
+            _currPins.push_back(outPin);
+        }
     }
 
     _graphNodes.push_back(std::move(node));
@@ -1264,7 +1313,8 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     }
                     int upNode = findNode(upName, upstreamType);
                     int downNode = findNode(downName, downstreamType);
-                    if (_graphNodes[downNode]->getOutput() != nullptr)
+                    if (downNode > 0 && upNode > 0 && 
+                        _graphNodes[downNode]->getOutput() != nullptr)
                     {
                         // creating edges for the output nodes
                         UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
@@ -1542,7 +1592,6 @@ void Graph::copyInputs()
         UiNodePtr copyNode = iter->second;
         for (Pin pin : origNode->inputPins)
         {
-
             if (origNode->getConnectedNode(pin._name) && !_ctrlClick)
             {
                 // if original node is connected check if connect node is in copied nodes
@@ -1763,11 +1812,14 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
-        // output pin
-        Pin outPin = Pin(_graphTotalSize, &*("ouput"), newNode->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
-        ++_graphTotalSize;
-        newNode->outputPins.push_back(outPin);
-        _currPins.push_back(outPin);
+        std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
+        for (mx::OutputPtr output : defOutputs)
+        {
+            Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), output->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            newNode->outputPins.push_back(outPin);
+            _currPins.push_back(outPin);
+            ++_graphTotalSize;
+        }
 
         _graphNodes.push_back(std::move(newNode));
         updateMaterials();
@@ -2034,9 +2086,24 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     UiNodePtr upUiNode = node->getConnectedNode(pin._name);
                     if (upUiNode)
                     {
+                        size_t pinIndex = 0;
                         if (upUiNode->outputPins.size() > 0)
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            const std::string outputString = pin._input->getOutputString();
+                            if (!outputString.empty())
+                            {
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
+                                {
+                                    Pin& outPin = upUiNode->outputPins[i];
+                                    if (outPin._name == outputString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                         pin.setConnected(true);
                     }
@@ -2083,7 +2150,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            size_t pinIndex = 0;
+                            if (!outString.empty())  
+                            {
+                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                {
+                                    if (upUiNode->outputPins[i]._name == outString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                         pin.setConnected(true);
                     }
@@ -2136,7 +2216,20 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            upUiNode->outputPins[0].addConnection(pin);
+                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            size_t pinIndex = 0;
+                            if (!outString.empty())  
+                            {
+                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                {
+                                    if (upUiNode->outputPins[i]._name == outString)
+                                    {
+                                        pinIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            upUiNode->outputPins[pinIndex].addConnection(pin);
                         }
                     }
 
