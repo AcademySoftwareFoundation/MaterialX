@@ -7,9 +7,9 @@
 #define MATERIALXVIEW_VIEWER_H
 
 #include <MaterialXView/Editor.h>
-#include <MaterialXView/Material.h>
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
+#include <MaterialXRenderGlsl/GlslMaterial.h>
 
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
@@ -22,6 +22,14 @@
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
+
+class DocumentModifiers
+{
+  public:
+    mx::StringMap remapElements;
+    mx::StringSet skipElements;
+    std::string filePrefixTerminator;
+};
 
 class Viewer : public ng::Screen
 {
@@ -160,7 +168,7 @@ class Viewer : public ng::Screen
     }
 
     // Return the selected material.
-    MaterialPtr getSelectedMaterial() const
+    mx::GlslMaterialPtr getSelectedMaterial() const
     {
         if (_selectedMaterial < _materials.size())
         {
@@ -217,10 +225,10 @@ class Viewer : public ng::Screen
 
     // Assign the given material to the given geometry, or remove any
     // existing assignment if the given material is nullptr.
-    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
+    void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
 
     // Mark the given material as currently selected in the viewer.
-    void setSelectedMaterial(MaterialPtr material)
+    void setSelectedMaterial(mx::GlslMaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
         {
@@ -253,14 +261,14 @@ class Viewer : public ng::Screen
     void createAdvancedSettings(Widget* parent);
 
     // Return the ambient occlusion image, if any, associated with the given material.
-    mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
+    mx::ImagePtr getAmbientOcclusionImage(mx::GlslMaterialPtr material);
     
     // Split the given radiance map into indirect and direct components,
     // returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    MaterialPtr getEnvironmentMaterial();
-    MaterialPtr getWireframeMaterial();
+    mx::GlslMaterialPtr getEnvironmentMaterial();
+    mx::GlslMaterialPtr getWireframeMaterial();
 
     mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
@@ -269,7 +277,7 @@ class Viewer : public ng::Screen
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void renderTurnable();
-    void renderScreenSpaceQuad(MaterialPtr material);
+    void renderScreenSpaceQuad(mx::GlslMaterialPtr material);
 
     // Update the directional albedo table.
     void updateAlbedoTable();
@@ -331,8 +339,8 @@ class Viewer : public ng::Screen
     bool _saveGeneratedLights;
 
     // Shadow mapping
-    MaterialPtr _shadowMaterial;
-    MaterialPtr _shadowBlurMaterial;
+    mx::GlslMaterialPtr _shadowMaterial;
+    mx::GlslMaterialPtr _shadowBlurMaterial;
     mx::ImagePtr _shadowMap;
     unsigned int _shadowSoftness;
 
@@ -346,15 +354,15 @@ class Viewer : public ng::Screen
     ng::ComboBox* _geometrySelectionBox;
 
     // Material selections
-    std::vector<MaterialPtr> _materials;
-    MaterialPtr _wireMaterial;
+    std::vector<mx::GlslMaterialPtr> _materials;
+    mx::GlslMaterialPtr _wireMaterial;
     size_t _selectedMaterial;
     ng::Label* _materialLabel;
     ng::ComboBox* _materialSelectionBox;
     PropertyEditor _propertyEditor;
 
     // Material assignments
-    std::map<mx::MeshPartitionPtr, MaterialPtr> _materialAssignments;
+    std::map<mx::MeshPartitionPtr, mx::GlslMaterialPtr> _materialAssignments;
 
     // Cameras
     mx::CameraPtr _viewCamera;
@@ -368,7 +376,7 @@ class Viewer : public ng::Screen
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
-    MaterialPtr _envMaterial;
+    mx::GlslMaterialPtr _envMaterial;
     mx::MeshPtr _quadMesh;
 
     // Shader generator contexts

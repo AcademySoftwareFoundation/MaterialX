@@ -6,9 +6,9 @@
 #ifndef MATERIALX_RENDERVIEW_H
 #define MATERIALX_RENDERVIEW_H
 
-#include <MaterialXGraphEditor/Material.h>
-
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
+#include <MaterialXRenderGlsl/GlslMaterial.h>
+
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
@@ -20,6 +20,14 @@
 #include "imgui_impl_glfw.h"
 
 namespace mx = MaterialX;
+
+class DocumentModifiers
+{
+  public:
+    mx::StringMap remapElements;
+    mx::StringSet skipElements;
+    std::string filePrefixTerminator;
+};
 
 class RenderView
 {
@@ -66,12 +74,6 @@ class RenderView
         _modifiers = modifiers;
     }
 
-    // Return true if all inputs should be shown in the property editor.
-    bool getShowAllInputs() const
-    {
-        return _showAllInputs;
-    }
-
     std::vector<mx::MeshPartitionPtr> getGeometryList()
     {
         return _geometryList;
@@ -89,7 +91,7 @@ class RenderView
     }
 
     // Return the selected material.
-    MaterialPtr getSelectedMaterial() const
+    mx::GlslMaterialPtr getSelectedMaterial() const
     {
         if (_selectedMaterial < _materials.size())
         {
@@ -113,7 +115,7 @@ class RenderView
         return _genContext;
     }
 
-    std::map<mx::MeshPartitionPtr, MaterialPtr> getMaterialAssignments()
+    std::map<mx::MeshPartitionPtr, mx::GlslMaterialPtr> getMaterialAssignments()
     {
         return _materialAssignments;
     }
@@ -123,7 +125,7 @@ class RenderView
         return _mergeMaterials;
     }
 
-    std::vector<MaterialPtr> getMaterials()
+    std::vector<mx::GlslMaterialPtr> getMaterials()
     {
         return _materials;
     }
@@ -183,7 +185,7 @@ class RenderView
     unsigned int _screenHeight;
     mx::GLFramebufferPtr _renderFrame;
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
-    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
+    void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
     void updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem);
     void setMouseButtonEvent(int button, bool down, mx::Vector2 pos);
     void setMouseMotionEvent(mx::Vector2 pos);
@@ -199,7 +201,7 @@ class RenderView
     void loadStandardLibraries();
 
     // Mark the given material as currently selected in the viewer.
-    void setSelectedMaterial(MaterialPtr material)
+    void setSelectedMaterial(mx::GlslMaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
         {
@@ -221,14 +223,14 @@ class RenderView
     void updateGeometrySelections();
 
     // Return the ambient occlusion image, if any, associated with the given material.
-    mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
-    MaterialPtr getWireframeMaterial();
+    mx::ImagePtr getAmbientOcclusionImage(mx::GlslMaterialPtr material);
+    mx::GlslMaterialPtr getWireframeMaterial();
 
     mx::ImagePtr getShadowMap();
     mx::ImagePtr _renderMap;
 
     void renderFrame();
-    void renderScreenSpaceQuad(MaterialPtr material);
+    void renderScreenSpaceQuad(mx::GlslMaterialPtr material);
 
   private:
     mx::FilePath _materialFilename;
@@ -268,8 +270,8 @@ class RenderView
     float _lightRotation;
 
     // Shadow mapping
-    MaterialPtr _shadowMaterial;
-    MaterialPtr _shadowBlurMaterial;
+    mx::GlslMaterialPtr _shadowMaterial;
+    mx::GlslMaterialPtr _shadowBlurMaterial;
     mx::ImagePtr _shadowMap;
     mx::ImagePtr _graphRender;
     unsigned int _shadowSoftness;
@@ -282,12 +284,12 @@ class RenderView
     size_t _selectedGeom;
 
     // Material selections
-    std::vector<MaterialPtr> _materials;
-    MaterialPtr _wireMaterial;
+    std::vector<mx::GlslMaterialPtr> _materials;
+    mx::GlslMaterialPtr _wireMaterial;
     size_t _selectedMaterial;
 
     // Material assignments
-    std::map<mx::MeshPartitionPtr, MaterialPtr> _materialAssignments;
+    std::map<mx::MeshPartitionPtr, mx::GlslMaterialPtr> _materialAssignments;
 
     // Cameras
     mx::CameraPtr _viewCamera;
@@ -313,7 +315,6 @@ class RenderView
 
     // Material options
     bool _mergeMaterials;
-    bool _showAllInputs;
     bool _materialCompilation;
 
     // Unit options

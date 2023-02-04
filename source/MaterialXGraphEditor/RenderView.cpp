@@ -159,7 +159,6 @@ RenderView::RenderView(const std::string& materialFilename,
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
     _mergeMaterials(false),
-    _showAllInputs(false),
     _materialCompilation(false),
     _renderTransparency(true),
     _renderDoubleSided(true),
@@ -215,7 +214,7 @@ void RenderView::initialize()
     _pixelRatio = 1.f;
 }
 
-void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
+void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material)
 {
     if (!geometry || _geometryHandler->getMeshes().empty())
     {
@@ -309,7 +308,7 @@ void RenderView::loadMesh(const mx::FilePath& filename)
 
         // Assign the selected material to all geometries.
         _materialAssignments.clear();
-        MaterialPtr material = getSelectedMaterial();
+        mx::GlslMaterialPtr material = getSelectedMaterial();
         if (material)
         {
             for (mx::MeshPartitionPtr geom : _geometryList)
@@ -332,6 +331,8 @@ void RenderView::loadMesh(const mx::FilePath& filename)
 
 void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
 {
+    _materialFilename = filename;
+
     // Set up read options.
     mx::XmlReadOptions readOptions;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
@@ -340,7 +341,15 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
         mx::FilePath resolvedFilename = searchPath.find(filename);
         if (resolvedFilename.exists())
         {
-            readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            try
+            {
+                readFromXmlFile(doc, resolvedFilename, searchPath, options);
+            }
+            catch (mx::Exception& e)
+            {
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
+                    std::string(e.what()) << std::endl;
+            }
         }
         else
         {
@@ -348,34 +357,14 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
         }
     };
 
-    // Clear user data on the generator.
-    _genContext.clearUserData();
-
-    // Clear materials if merging is not requested.
-    if (!_mergeMaterials)
-    {
-        for (mx::MeshPartitionPtr geom : _geometryList)
-        {
-            if (_materialAssignments.count(geom))
-            {
-                assignMaterial(geom, nullptr);
-            }
-        }
-        _materials.clear();
-    }
-    std::vector<MaterialPtr> newMaterials;
     try
     {
         // Load source document.
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-        _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Import libraries.
         doc->importLibrary(libraries);
-
-        // Apply direct lights.
-        applyDirectLights(doc);
 
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
@@ -388,156 +377,8 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
             std::cerr << message;
         }
 
-        // If requested, add implicit inputs to top-level nodes.
-        if (_showAllInputs)
-        {
-            for (mx::NodePtr node : doc->getNodes())
-            {
-                node->addInputsFromNodeDef();
-            }
-        }
-
-        // Find new renderable elements.
-        mx::StringVec renderablePaths;
-        std::vector<mx::TypedElementPtr> elems;
-        std::vector<mx::NodePtr> materialNodes;
-        mx::findRenderableElements(doc, elems);
-        if (elems.empty())
-        {
-            throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
-        }
-        for (mx::TypedElementPtr elem : elems)
-        {
-            mx::TypedElementPtr renderableElem = elem;
-            mx::NodePtr node = elem->asA<mx::Node>();
-            materialNodes.push_back(node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
-            renderablePaths.push_back(renderableElem->getNamePath());
-        }
-
-        // Check for any udim set.
-        mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
-
-        // Create new materials.
-        mx::TypedElementPtr udimElement;
-        for (size_t i = 0; i < renderablePaths.size(); i++)
-        {
-            const auto& renderablePath = renderablePaths[i];
-            mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
-            if (!typedElem)
-            {
-                continue;
-            }
-            if (udimSetValue && udimSetValue->isA<mx::StringVec>())
-            {
-                for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
-                {
-                    MaterialPtr mat = Material::create();
-                    mat->setDocument(doc);
-                    mat->setElement(typedElem);
-                    mat->setMaterialNode(materialNodes[i]);
-                    mat->setUdim(udim);
-                    newMaterials.push_back(mat);
-
-                    udimElement = typedElem;
-                }
-            }
-            else
-            {
-                MaterialPtr mat = Material::create();
-                mat->setDocument(doc);
-                mat->setElement(typedElem);
-                mat->setMaterialNode(materialNodes[i]);
-                newMaterials.push_back(mat);
-            }
-        }
-
-        if (!newMaterials.empty())
-        {
-            // Extend the image search path to include material source folders.
-            mx::FileSearchPath extendedSearchPath = _searchPath;
-            extendedSearchPath.append(_materialSearchPath);
-            _imageHandler->setSearchPath(extendedSearchPath);
-
-            // Add new materials to the global vector.
-            _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-
-            MaterialPtr udimMaterial = nullptr;
-            for (MaterialPtr mat : newMaterials)
-            {
-                // Clear cached implementations, in case libraries on the file system have changed.
-                _genContext.clearNodeImplementations();
-
-                mx::TypedElementPtr elem = mat->getElement();
-
-                std::string udim = mat->getUdim();
-                if (!udim.empty())
-                {
-                    if ((udimElement == elem) && udimMaterial)
-                    {
-                        // Reuse existing material for all udims
-                        mat->copyShader(udimMaterial);
-                    }
-                    else
-                    {
-                        // Generate a shader for the new material.
-                        mat->generateShader(_genContext);
-                        if (udimElement == elem)
-                        {
-                            udimMaterial = mat;
-                        }
-                    }
-                }
-                else
-                {
-                    // Generate a shader for the new material.
-                    mat->generateShader(_genContext);
-                }
-
-                mx::NodePtr materialNode = mat->getMaterialNode();
-                if (materialNode)
-                {
-                    // Apply geometric assignments specified in the document, if any.
-                    for (mx::MeshPartitionPtr part : _geometryList)
-                    {
-                        std::string geom = part->getName();
-                        for (const std::string& id : part->getSourceNames())
-                        {
-                            geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
-                        }
-                        if (!getGeometryBindings(materialNode, geom).empty())
-                        {
-                            assignMaterial(part, mat);
-                        }
-                    }
-
-                    // Apply implicit udim assignments, if any.
-                    if (!udim.empty())
-                    {
-                        for (mx::MeshPartitionPtr geom : _geometryList)
-                        {
-                            if (geom->getName() == udim)
-                            {
-                                assignMaterial(geom, mat);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Apply fallback assignments.
-            MaterialPtr fallbackMaterial = newMaterials[0];
-            if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
-            {
-                for (mx::MeshPartitionPtr geom : _geometryList)
-                {
-                    if (!_materialAssignments[geom])
-                    {
-                        assignMaterial(geom, fallbackMaterial);
-                    }
-                }
-            }
-        }
+        // Update materials.
+        updateMaterials(doc, nullptr);
     }
     catch (mx::ExceptionRenderError& e)
     {
@@ -548,7 +389,7 @@ void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libr
     }
     catch (std::exception& e)
     {
-        std::cout << "Failed to load material" << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 }
 
@@ -624,7 +465,7 @@ void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
 void RenderView::setMaterial(mx::TypedElementPtr elem)
 {
     // compare graph element to material in order to assign correct one
-    for (MaterialPtr mat : _materials)
+    for (mx::GlslMaterialPtr mat : _materials)
     {
         mx::TypedElementPtr telem = mat->getElement();
         if (telem->getNamePath() == elem->getNamePath())
@@ -652,17 +493,13 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         _materials.clear();
     }
 
-    //_genContext.
-    std::vector<MaterialPtr> newMaterials;
+    std::vector<mx::GlslMaterialPtr> newMaterials;
     try
     {
         _materialSearchPath = mx::getSourceSearchPath(doc);
 
         // Apply direct lights.
         applyDirectLights(doc);
-
-        //// Apply modifiers to the content document.
-        applyModifiers(doc, _modifiers);
 
         //// Check for any udim set.
         mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
@@ -688,7 +525,7 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         {
             for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
             {
-                MaterialPtr mat = Material::create();
+                mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
                 mat->setDocument(doc);
                 mat->setElement(typedElem);
                 mat->setMaterialNode(materialNode);
@@ -700,7 +537,7 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
         }
         else
         {
-            MaterialPtr mat = Material::create();
+            mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
             mat->setDocument(doc);
             mat->setElement(typedElem);
             mat->setMaterialNode(materialNode);
@@ -717,8 +554,8 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
             // Add new materials to the global vector.
             _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
-            MaterialPtr udimMaterial = nullptr;
-            for (MaterialPtr mat : newMaterials)
+            mx::GlslMaterialPtr udimMaterial = nullptr;
+            for (mx::GlslMaterialPtr mat : newMaterials)
             {
                 // Clear cached implementations, in case libraries on the file system have changed.
                 _genContext.clearNodeImplementations();
@@ -780,7 +617,7 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
             }
 
             // Apply fallback assignments.
-            MaterialPtr fallbackMaterial = newMaterials[0];
+            mx::GlslMaterialPtr fallbackMaterial = newMaterials[0];
             if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
             {
                 for (mx::MeshPartitionPtr geom : _geometryList)
@@ -788,6 +625,19 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
                     if (!_materialAssignments[geom])
                     {
                         assignMaterial(geom, fallbackMaterial);
+                    }
+                }
+            }
+
+            // Validate assigned materials.
+            for (const auto& pair : _materialAssignments)
+            {
+                if (pair.first == getSelectedGeometry())
+                {
+                    mx::GlslMaterialPtr material = pair.second;
+                    if (material)
+                    {
+                        material->bindShader();
                     }
                 }
             }
@@ -802,7 +652,7 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
     }
     catch (std::exception& e)
     {
-        std::cerr << "Failed to load material" << e.what();
+        std::cerr << e.what() << std::endl;
     }
 }
 
@@ -810,7 +660,7 @@ void RenderView::reloadShaders()
 {
     try
     {
-        for (MaterialPtr material : _materials)
+        for (mx::GlslMaterialPtr material : _materials)
         {
             material->generateShader(_genContext);
             for (GLenum error = glGetError(); error; error = glGetError())
@@ -890,7 +740,7 @@ void RenderView::loadStandardLibraries()
     initContext(_genContext);
 }
 
-mx::ImagePtr RenderView::getAmbientOcclusionImage(MaterialPtr material)
+mx::ImagePtr RenderView::getAmbientOcclusionImage(mx::GlslMaterialPtr material)
 {
     const mx::string AO_FILENAME_SUFFIX = "_ao";
     const mx::string AO_FILENAME_EXTENSION = "png";
@@ -1025,7 +875,7 @@ void RenderView::renderFrame()
     _lightHandler->setLightTransform(mx::Matrix44::createRotationY(_lightRotation / 180.0f * PI));
 
     // Update shadow state.
-    ShadowState shadowState;
+    mx::ShadowState shadowState;
     shadowState.ambientOcclusionGain = _ambientOcclusionGain;
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (_genContext.getOptions().hwShadowMap && dirLight)
@@ -1068,7 +918,7 @@ void RenderView::renderFrame()
     for (const auto& assignment : _materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
-        MaterialPtr material = assignment.second;
+        mx::GlslMaterialPtr material = assignment.second;
         shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
         if (!material)
         {
@@ -1083,12 +933,8 @@ void RenderView::renderFrame()
         }
         material->bindViewInformation(_viewCamera);
         material->bindLighting(_lightHandler, _imageHandler, shadowState);
-
         material->bindImages(_imageHandler, _searchPath);
-
-        glEnable(GL_FRAMEBUFFER_SRGB);
         material->drawPartition(geom);
-
         material->unbindImages(_imageHandler);
     }
 
@@ -1100,7 +946,7 @@ void RenderView::renderFrame()
         for (const auto& assignment : _materialAssignments)
         {
             mx::MeshPartitionPtr geom = assignment.first;
-            MaterialPtr material = assignment.second;
+            mx::GlslMaterialPtr material = assignment.second;
             shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
             if (!material || !material->hasTransparency())
             {
@@ -1210,14 +1056,14 @@ void RenderView::updateCameras()
     }
 }
 
-MaterialPtr RenderView::getWireframeMaterial()
+mx::GlslMaterialPtr RenderView::getWireframeMaterial()
 {
     if (!_wireMaterial)
     {
         try
         {
             mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = Material::create();
+            _wireMaterial = mx::GlslMaterial::create();
             _wireMaterial->generateShader(hwShader);
         }
         catch (std::exception& e)
@@ -1230,7 +1076,7 @@ MaterialPtr RenderView::getWireframeMaterial()
     return _wireMaterial;
 }
 
-void RenderView::renderScreenSpaceQuad(MaterialPtr material)
+void RenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
 {
     if (!_quadMesh)
         _quadMesh = mx::GeometryHandler::createQuadMesh();
@@ -1249,7 +1095,7 @@ mx::ImagePtr RenderView::getShadowMap()
             try
             {
                 mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
-                _shadowMaterial = Material::create();
+                _shadowMaterial = mx::GlslMaterial::create();
                 _shadowMaterial->generateShader(hwShader);
             }
             catch (std::exception& e)
@@ -1263,7 +1109,7 @@ mx::ImagePtr RenderView::getShadowMap()
             try
             {
                 mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
-                _shadowBlurMaterial = Material::create();
+                _shadowBlurMaterial = mx::GlslMaterial::create();
                 _shadowBlurMaterial->generateShader(hwShader);
             }
             catch (std::exception& e)
