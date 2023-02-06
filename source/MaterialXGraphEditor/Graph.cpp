@@ -500,10 +500,20 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             layoutNode->_level = level;
         }
 
-        if (_levelMap.find(layoutNode->_level) != _levelMap.end())
+        auto it = _levelMap.find(layoutNode->_level);
+        if (it != _levelMap.end())
         {
             // key already exists add to it
-            if ((!std::count(_levelMap[layoutNode->_level].begin(), _levelMap[layoutNode->_level].end(), layoutNode)))
+            bool nodeFound = false;
+            for (UiNodePtr node : it->second)
+            {
+                if (node && node->getName() == layoutNode->getName())
+                {
+                    nodeFound = true;
+                    break;
+                }
+            }
+            if (!nodeFound)
             {
                 _levelMap[layoutNode->_level].push_back(layoutNode);
             }
@@ -1598,7 +1608,7 @@ void Graph::createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connec
 
 void Graph::copyUiNode(UiNodePtr node)
 {
-    UiNodePtr copyNode = std::make_shared<UiNode>(int(_graphTotalSize + 1));
+    UiNodePtr copyNode = std::make_shared<UiNode>(mx::EMPTY_STRING, int(_graphTotalSize + 1));
     ++_graphTotalSize;
     if (node->getMxElement())
     {
@@ -2714,7 +2724,7 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
     // update downNode info
-    std::vector<Pin> outputConnections = node->outputPins.front().getConnection();
+    std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
 
     for (Pin pin : outputConnections)
     {
