@@ -32,11 +32,10 @@ class DocumentModifiers
 class RenderView
 {
   public:
-    RenderView(const std::string& materialFilename,
+    RenderView(mx::DocumentPtr doc,
                const std::string& meshFilename,
                const std::string& envRadianceFilename,
                const mx::FileSearchPath& searchPath,
-               const mx::FilePathVec& libraryFolders,
                unsigned int screenWidth,
                unsigned int screenHeight);
     ~RenderView() { }
@@ -135,6 +134,10 @@ class RenderView
         return _viewCamera;
     }
 
+    const mx::StringSet& getXincludeFiles() const
+    {
+        return _xincludeFiles;
+    }
     mx::ElementPredicate getElementPredicate();
 
     // Request a capture of the current frame, writing it to the given filename.
@@ -184,9 +187,9 @@ class RenderView
     unsigned int _screenWidth;
     unsigned int _screenHeight;
     mx::GLFramebufferPtr _renderFrame;
-    void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
+    void setDocument(mx::DocumentPtr document);
     void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
-    void updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem);
+    void updateMaterials(mx::TypedElementPtr typedElem);
     void setMouseButtonEvent(int button, bool down, mx::Vector2 pos);
     void setMouseMotionEvent(mx::Vector2 pos);
     void setKeyEvent(int key);
@@ -198,7 +201,6 @@ class RenderView
     void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
-    void loadStandardLibraries();
 
     // Mark the given material as currently selected in the viewer.
     void setSelectedMaterial(mx::GlslMaterialPtr material)
@@ -212,9 +214,6 @@ class RenderView
             }
         }
     }
-
-    // Generate a base output filepath for data derived from the current material.
-    mx::FilePath getBaseOutputPath();
 
     // Return an element predicate for documents written from the viewer.
 
@@ -233,13 +232,11 @@ class RenderView
     void renderScreenSpaceQuad(mx::GlslMaterialPtr material);
 
   private:
-    mx::FilePath _materialFilename;
     mx::FileSearchPath _materialSearchPath;
     mx::FilePath _meshFilename;
     mx::FilePath _envRadianceFilename;
 
     mx::FileSearchPath _searchPath;
-    mx::FilePathVec _libraryFolders;
 
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
@@ -260,7 +257,7 @@ class RenderView
     mx::Vector2 _userTranslationPixel;
 
     // Document management
-    mx::DocumentPtr _stdLib;
+    mx::DocumentPtr _document;
     DocumentModifiers _modifiers;
     mx::StringSet _xincludeFiles;
 
