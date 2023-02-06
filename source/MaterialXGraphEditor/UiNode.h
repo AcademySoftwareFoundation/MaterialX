@@ -25,9 +25,8 @@ class UiNode
 
   public:
     UiNode();
-    UiNode(const std::string name, const int id);
-    UiNode(const int id);
-    ~UiNode(){};
+    UiNode(const std::string& name, int id);
+    ~UiNode() { };
 
     std::string getName()
     {
@@ -45,7 +44,7 @@ class UiNode
     {
         return _id;
     }
-    std::vector<UiNodePtr> getOutputConnections()
+    const std::vector<UiNodePtr>& getOutputConnections()
     {
         return _outputConnections;
     }
@@ -90,12 +89,13 @@ class UiNode
     {
         _outputConnections.push_back(connections);
     }
+
     void setMessage(const std::string& message)
     {
         _message = message;
     }
 
-    std::string getMessage()
+    const std::string& getMessage()
     {
         return _message;
     }
@@ -105,7 +105,7 @@ class UiNode
         _category = category;
     }
 
-    std::string getCategory()
+    const std::string& getCategory()
     {
         return _category;
     }
@@ -115,10 +115,11 @@ class UiNode
         _type = type;
     }
 
-    std::string getType()
+    const std::string& getType()
     {
         return _type;
     }
+
     mx::NodeGraphPtr getNodeGraph()
     {
         return _currNodeGraph;
@@ -129,17 +130,6 @@ class UiNode
         _currNodeGraph = nodeGraph;
     }
 
-    friend bool operator==(const UiNodePtr& lhs, const UiNodePtr& rhs)
-    {
-        return lhs != nullptr && rhs != nullptr && lhs->getName() == rhs->getName();
-    }
-
-    bool operator()(const UiNodePtr& node1, const UiNodePtr& node2) const
-    {
-        return (node1->_level < node2->_level);
-    }
-
-    // functions
     UiNodePtr getConnectedNode(std::string name);
     float getAverageY();
     float getMinX();
@@ -158,7 +148,6 @@ class UiNode
     std::string _name;
     int _inputNodeNum;
     std::vector<std::pair<int, std::string>> _inputs;
-    // used only for nodegraph nodes
     std::vector<std::pair<int, std::string>> _outputs;
     std::vector<UiNodePtr> _outputConnections;
     mx::NodePtr _currNode;
@@ -175,22 +164,45 @@ class Pin
 {
   public:
     Pin(int id, const char* name, std::string type, std::shared_ptr<UiNode> node, ed::PinKind kind, mx::InputPtr input, mx::OutputPtr output) :
-        _pinId(id), _name(name), _type(type), _pinNode(node), _kind(kind), _input(input), _output(output), _connected(false)
+        _pinId(id),
+        _name(name),
+        _type(type),
+        _pinNode(node),
+        _kind(kind),
+        _input(input),
+        _output(output),
+        _connected(false)
     {
     }
+
     void setConnected(bool connected)
     {
         _connected = connected;
     }
+
     bool getConnected()
     {
         return _connected;
     }
-    void addConnection(Pin pin);
-    std::vector<Pin> getConnection()
+
+     void addConnection(const Pin& pin)
+     {
+         for (size_t i = 0; i < _connections.size(); i++)
+         {
+             if (_connections[i]._pinId == pin._pinId)
+             {
+                 return;
+             }
+         }
+         _connections.push_back(pin);
+     }
+
+    const std::vector<Pin>& getConnections()
     {
         return _connections;
     }
+
+  public:
     ed::PinId _pinId;
     std::string _name;
     std::string _type;
