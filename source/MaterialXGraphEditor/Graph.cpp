@@ -62,32 +62,44 @@ Graph::Graph(const std::string& materialFilename,
     loadStandardLibraries();
     setPinColor();
 
-    // Generate node UI from nodedefs.
-    std::vector<mx::NodeDefPtr> nodeDefs = _stdLib->getNodeDefs();
-    for (size_t i = 0; i < nodeDefs.size(); i++)
+    _graphDoc = loadDocument(materialFilename);
+    _graphDoc->importLibrary(_stdLib);
+
+    _initial = true;
+    createNodeUIList(_stdLib);
+
+    if (_graphDoc)
     {
-        // nodeDef is the key for the map
-        std::string group = nodeDefs[i]->getNodeGroup();
-        if (group == "")
-        {
-            group = "extra";
-        }
-        std::unordered_map<std::string, std::vector<mx::NodeDefPtr>>::iterator it = _nodesToAdd.find(group);
-        if (it == _nodesToAdd.end())
-        {
-            std::vector<mx::NodeDefPtr> nodes;
-            _nodesToAdd[group] = nodes;
-        }
-        _nodesToAdd[group].push_back(nodeDefs[i]);
+        buildUiBaseGraph(_graphDoc);
+        _currGraphElem = _graphDoc;
+        _prevUiNode = nullptr;
     }
 
+    // Create a renderer using the initial startup document.
+    // Note that this document may have no nodes in it
+    // if the material file name does not exist.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::Color3 screenColor(1.0f, 0.3f, 0.32f);
-
-    _renderer = std::make_shared<RenderView>(materialFilename, meshFilename, envRadianceFilename,
-                                             _searchPath, _libraryFolders, 256, 256);
+    _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
+                                             _searchPath, 256, 256);
     _renderer->initialize();
+    _renderer->updateMaterials(nullptr);
+    for (const std::string& incl : _renderer->getXincludeFiles())
+    {
+        _xincludeFiles.insert(incl);
+    }
+}
+
+mx::ElementPredicate Graph::getElementPredicate() const
+{
+    return [this](mx::ConstElementPtr elem)
+    {
+        if (elem->hasSourceUri())
+        {
+            return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+        }
+        return true;
+    };
 }
 
 void Graph::loadStandardLibraries()
@@ -111,7 +123,6 @@ void Graph::loadStandardLibraries()
 
 mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 {
-    std::string materialFilename = filename;
     mx::FilePathVec libraryFolders = { "libraries" };
     _libraryFolders = libraryFolders;
     mx::XmlReadOptions readOptions;
@@ -140,12 +151,21 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     mx::DocumentPtr doc = mx::createDocument();
     try
     {
-        mx::readFromXmlFile(doc, materialFilename, _searchPath, &readOptions);
+        if (!filename.isEmpty())
+        {
+            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+            std::string message;
+            if (!doc->validate(&message))
+            {
+                std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
+                std::cerr << message;
+            }
+        }
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << materialFilename << ". " <<
-            std::string(e.what()) << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" <<
+            std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<Pin>>();
@@ -727,16 +747,10 @@ void Graph::setRenderMaterial(UiNodePtr node)
 
 void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 {
-
-    std::string renderablePaths;
+    std::string renderablePath;
     std::vector<mx::TypedElementPtr> elems;
-    std::vector<mx::NodePtr> materialNodes;
     mx::TypedElementPtr renderableElem;
     mx::findRenderableElements(_graphDoc, elems);
-    if (elems.size() > 0 && _renderer->getMaterials().size() == 0)
-    {
-        _renderer->updateMaterials(_graphDoc, nullptr);
-    }
 
     size_t num = 0;
     int num2 = 0;
@@ -750,21 +764,18 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             {
                 if (node->getName() == _currRenderNode->getName())
                 {
-                    materialNodes.push_back(node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
-                    renderablePaths = renderableElem->getNamePath();
+                    renderablePath = renderableElem->getNamePath();
                     break;
                 }
             }
             else
             {
-                materialNodes.push_back(node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
-                renderablePaths = renderableElem->getNamePath();
+                renderablePath = renderableElem->getNamePath();
             }
         }
         else
         {
-            materialNodes.push_back(nullptr);
-            renderablePaths = renderableElem->getNamePath();
+            renderablePath = renderableElem->getNamePath();
             if (num2 == 2)
             {
                 break;
@@ -772,18 +783,23 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             num2++;
         }
     }
-    if (input == nullptr)
+
+    if (renderablePath.empty())
     {
-        if (renderablePaths != "")
-        {
-            mx::ElementPtr elem = _graphDoc->getDescendant(renderablePaths);
-            mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
-            _renderer->updateMaterials(_graphDoc, typedElem);
-        }
+        _renderer->updateMaterials(nullptr);
     }
     else
     {
-        if (renderablePaths != "")
+        if (!input)
+        {
+            mx::ElementPtr elem = nullptr;
+            {
+                elem = _graphDoc->getDescendant(renderablePath);
+            }
+            mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
+            _renderer->updateMaterials(typedElem);
+        }
+        else
         {
             std::string name = input->getNamePath();
             // need to use exact interface name in order for input
@@ -792,6 +808,9 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             {
                 name = interfaceInput->getNamePath();
             }
+            // Note that if there is a topogical change due to
+            // this value change or a transparency change, then
+            // this is not currently caught here.
             _renderer->getMaterials()[num]->modifyUniform(name, value);
         }
     }
@@ -977,6 +996,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             {
                 _fileDialogConstant.SetTitle("Node Input Dialog");
                 _fileDialogConstant.Open();
+                mx::StringSet supportedExtensions = _renderer ? _renderer->getImageHandler()->supportedExtensions() : mx::StringSet();
+                std::vector<std::string> filters;
+                for (const std::string& supportedExtension : supportedExtensions)
+                {
+                    filters.push_back("." + supportedExtension);
+                }
+                _fileDialogConstant.SetTypeFilters(filters);
             }
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth);
@@ -994,6 +1020,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
                 // need to set the file prefix for the input to "" so that it can find the new file
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
                 _fileDialogConstant.ClearSelected();
+                _fileDialogConstant.SetTypeFilters(std::vector<std::string>());
             }
 
             // set input value  and update materials if different from previous value
@@ -1111,9 +1138,40 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
     _graphNodes.push_back(std::move(node));
 }
-// build the UiNode node graph based off of loading a document
-void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes, const std::vector<mx::OutputPtr>& outputNodes)
+
+// Generate node UI from nodedefs.
+void Graph::createNodeUIList(mx::DocumentPtr doc)
 {
+    _nodesToAdd.clear();
+    const std::string EXTRA_GROUP_NAME = "extra";
+    for (mx::NodeDefPtr nodeDef : doc->getNodeDefs())
+    {
+        // nodeDef is the key for the map
+        std::string group = nodeDef->getNodeGroup();
+        if (group.empty())
+        {
+            group = EXTRA_GROUP_NAME;
+        }
+        if (_nodesToAdd.find(group) == _nodesToAdd.end())
+        {
+            _nodesToAdd[group] = std::vector<mx::NodeDefPtr>();
+        }
+        _nodesToAdd[group].push_back(nodeDef);
+    }
+
+    addExtraNodes();
+}
+
+// build the UiNode node graph based off of loading a document
+void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
+{
+    std::vector<mx::NodeGraphPtr> nodeGraphs = doc->getNodeGraphs();
+    std::vector<mx::InputPtr> inputNodes = doc->getActiveInputs();
+    std::vector<mx::OutputPtr> outputNodes = doc->getOutputs();
+    std::vector<mx::NodePtr> docNodes = doc->getNodes();
+
+    mx::ElementPredicate includeElement = getElementPredicate();
+
     _graphNodes.clear();
     _currLinks.clear();
     _currEdge.clear();
@@ -1123,6 +1181,8 @@ void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, co
     // creating uiNodes for nodes that belong to the document so they are not in a nodegraph
     for (mx::NodePtr node : docNodes)
     {
+        if (!includeElement(node))
+            continue;
         std::string name = node->getName();
         auto currNode = std::make_shared<UiNode>(name, _graphTotalSize);
         currNode->setNode(node);
@@ -1131,6 +1191,8 @@ void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, co
     // creating uiNodes for the nodegraph
     for (mx::NodeGraphPtr nodeGraph : nodeGraphs)
     {
+        if (!includeElement(nodeGraph))
+            continue;
         std::string name = nodeGraph->getName();
         auto currNode = std::make_shared<UiNode>(name, _graphTotalSize);
         currNode->setNodeGraph(nodeGraph);
@@ -1138,12 +1200,16 @@ void Graph::buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, co
     }
     for (mx::InputPtr input : inputNodes)
     {
+        if (!includeElement(input))
+            continue;
         auto currNode = std::make_shared<UiNode>(input->getName(), _graphTotalSize);
         currNode->setInput(input);
         setUiNodeInfo(currNode, input->getType(), input->getCategory());
     }
     for (mx::OutputPtr output : outputNodes)
     {
+        if (!includeElement(output))
+            continue;
         auto currNode = std::make_shared<UiNode>(output->getName(), _graphTotalSize);
         currNode->setOutput(output);
         setUiNodeInfo(currNode, output->getType(), output->getCategory());
@@ -2813,7 +2879,10 @@ void Graph::graphButtons()
         _currEdge.clear();
         _newLinks.clear();
         _currPins.clear();
-        _graphDoc = nullptr;
+        _graphDoc = mx::createDocument();
+        _graphDoc->importLibrary(_stdLib);
+        _currGraphElem = _graphDoc;
+
         if (_currUiNode != nullptr)
         {
             ed::DeselectNode(_currUiNode->getId());
@@ -2823,6 +2892,9 @@ void Graph::graphButtons()
         _currRenderNode = nullptr;
         _isNodeGraph = false;
         _currGraphName.clear();
+
+        _renderer->setDocument(_graphDoc);
+        _renderer->updateMaterials(nullptr);
     }
     ImGui::SameLine();
     if (ImGui::Button("Load Material"))
@@ -3149,18 +3221,6 @@ void Graph::addNodePopup(bool cursor)
     }
     if (ImGui::BeginPopup("add node"))
     {
-
-        // check if there is a document
-        if (_graphDoc == nullptr)
-        {
-            // when creating files from scratch
-            mx::DocumentPtr doc = mx::createDocument();
-            doc->importLibrary(_stdLib);
-            _graphDoc = doc;
-            _currGraphElem = _graphDoc;
-            addExtraNodes();
-        }
-
         ImGui::Text("Add Node");
         ImGui::Separator();
         static char input[16]{ "" };
@@ -3620,6 +3680,12 @@ void Graph::drawGraph(ImVec2 mousePos)
             _isCut = false;
         }
 
+        // start the session with content centered
+        if (ImGui::GetFrameCount() == 2)
+        {
+            ed::NavigateToContent(0.0f);
+        }
+
         // hotkey to frame selected node(s)
         if (ImGui::IsKeyReleased(GLFW_KEY_F) && !_fileDialogSave.IsOpened())
         {
@@ -3790,37 +3856,17 @@ void Graph::drawGraph(ImVec2 mousePos)
         _currGraphName.clear();
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
-        mx::DocumentPtr doc = loadDocument(fileName);
-        _graphDoc = doc;
-        _initial = true;
-        std::vector<mx::NodeGraphPtr> nodeGraphs = _graphDoc->getNodeGraphs();
-        std::vector<mx::InputPtr> inputNodes = _graphDoc->getActiveInputs();
-        std::vector<mx::OutputPtr> outputNodes = _graphDoc->getOutputs();
-        std::vector<mx::NodePtr> docNodes = _graphDoc->getNodes();
-
+        _graphDoc = loadDocument(fileName);
         _graphDoc->importLibrary(_stdLib);
-        buildUiBaseGraph(nodeGraphs, docNodes, inputNodes, outputNodes);
-        _renderer->loadDocument(fileName, _stdLib);
-        if (_nodesToAdd.size() == 0)
-        {
-            std::vector<mx::NodeDefPtr> nodeDefs = _stdLib->getNodeDefs();
-            for (size_t i = 0; i < nodeDefs.size(); i++)
-            {
-                // nodeDef group is the key for the map
-                std::string group = nodeDefs[i]->getNodeGroup();
-                std::unordered_map<std::string, std::vector<mx::NodeDefPtr>>::iterator it = _nodesToAdd.find(group);
-                if (it == _nodesToAdd.end())
-                {
-                    std::vector<mx::NodeDefPtr> nodes;
-                    _nodesToAdd[group] = nodes;
-                }
-                _nodesToAdd[group].push_back(nodeDefs[i]);
-            }
-        }
-        addExtraNodes();
+        
+        _initial = true;
+        buildUiBaseGraph(_graphDoc);
         _currGraphElem = _graphDoc;
         _prevUiNode = nullptr;
         _fileDialog.ClearSelected();
+
+        _renderer->setDocument(_graphDoc);
+        _renderer->updateMaterials(nullptr);
     }
 
     _fileDialogConstant.Display();
@@ -3942,6 +3988,6 @@ void Graph::writeText(std::string fileName, mx::FilePath filePath)
     }
 
     mx::XmlWriteOptions writeOptions;
-    writeOptions.elementPredicate = _renderer->getElementPredicate();
+    writeOptions.elementPredicate = getElementPredicate();
     mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
 }
