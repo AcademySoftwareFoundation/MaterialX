@@ -2655,59 +2655,63 @@ void Graph::deleteNode(UiNodePtr node)
             }
         }
     }
-    // update downNode info
-    std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
 
-    for (Pin pin : outputConnections)
+    if (node->outputPins.size() > 0)
     {
-        mx::ValuePtr val;
-        if (pin._pinNode->getNode())
+        // update downNode info
+        std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
+
+        for (Pin pin : outputConnections)
         {
-            mx::NodeDefPtr nodeDef = pin._pinNode->getNode()->getNodeDef(pin._pinNode->getNode()->getName());
-            val = nodeDef->getActiveInput(pin._input->getName())->getValue();
-            if (pin._pinNode->getNode()->getType() == "surfaceshader")
+            mx::ValuePtr val;
+            if (pin._pinNode->getNode())
             {
-                pin._input->setConnectedOutput(nullptr);
+                mx::NodeDefPtr nodeDef = pin._pinNode->getNode()->getNodeDef(pin._pinNode->getNode()->getName());
+                val = nodeDef->getActiveInput(pin._input->getName())->getValue();
+                if (pin._pinNode->getNode()->getType() == "surfaceshader")
+                {
+                    pin._input->setConnectedOutput(nullptr);
+                }
+                else
+                {
+                    pin._input->setConnectedNode(nullptr);
+                }
             }
-            else
+            else if (pin._pinNode->getNodeGraph())
             {
+                if (node->getInput())
+                {
+                    pin._pinNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(node->getInput());
+                }
                 pin._input->setConnectedNode(nullptr);
+                pin.setConnected(false);
+                setDefaults(pin._input);
             }
-        }
-        else if (pin._pinNode->getNodeGraph())
-        {
-            if (node->getInput())
-            {
-                pin._pinNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
-                setDefaults(node->getInput());
-            }
-            pin._input->setConnectedNode(nullptr);
+
             pin.setConnected(false);
-            setDefaults(pin._input);
-        }
-
-        pin.setConnected(false);
-        if (val)
-        {
-            pin._input->setValueString(val->getValueString());
-        }
-
-        int num = pin._pinNode->getEdgeIndex(node->getId());
-        if (num != -1)
-        {
-            if (pin._pinNode->edges.size() == 1)
+            if (val)
             {
-                pin._pinNode->edges.erase(pin._pinNode->edges.begin() + 0);
+                pin._input->setValueString(val->getValueString());
             }
-            else if (pin._pinNode->edges.size() > 1)
-            {
-                pin._pinNode->edges.erase(pin._pinNode->edges.begin() + num);
-            }
-        }
 
-        pin._pinNode->setInputNodeNum(-1);
-        // not really necessary since it will be deleted
-        node->removeOutputConnection(pin._pinNode->getName());
+            int num = pin._pinNode->getEdgeIndex(node->getId());
+            if (num != -1)
+            {
+                if (pin._pinNode->edges.size() == 1)
+                {
+                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + 0);
+                }
+                else if (pin._pinNode->edges.size() > 1)
+                {
+                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + num);
+                }
+            }
+
+            pin._pinNode->setInputNodeNum(-1);
+            // not really necessary since it will be deleted
+            node->removeOutputConnection(pin._pinNode->getName());
+        }
     }
 
     // remove from NodeGraph
