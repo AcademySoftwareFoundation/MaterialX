@@ -3673,6 +3673,12 @@ void Graph::drawGraph(ImVec2 mousePos)
             _isCut = false;
         }
 
+        // start the session with content centered
+        if (ImGui::GetFrameCount() == 2)
+        {
+            ed::NavigateToContent(0.0f);
+        }
+
         // hotkey to frame selected node(s)
         if (ImGui::IsKeyReleased(GLFW_KEY_F) && !_fileDialogSave.IsOpened())
         {
