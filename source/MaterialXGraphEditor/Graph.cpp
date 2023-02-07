@@ -218,7 +218,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
     if (upNode->getNodeGraph() != nullptr)
     {
         // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
-        mx::OutputPtr output = input._pinNode->getNode()->getConnectedOutput(input._name);
+        mx::OutputPtr output = input._pinNode->getNode() ? input._pinNode->getNode()->getConnectedOutput(input._name) : nullptr;
         if (output)
         {
             std::string outName = output->getName();
@@ -1815,8 +1815,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
     }
-    // if shader or material we want to add to the document instead of the node graph
-    else if (type == mx::SURFACE_SHADER_TYPE_STRING)
+    else 
     {
         matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
         for (mx::NodeDefPtr nodedef : matchingNodeDefs)
@@ -1825,43 +1824,12 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             std::string sub = nodedefName.substr(3, nodedefName.length());
             if (sub == name)
             {
-                node = _graphDoc->addNodeInstance(nodedef);
-                node->setName(_graphDoc->createValidChildName(name));
+                node = _currGraphElem->addNodeInstance(nodedef, _currGraphElem->createValidChildName(name));
                 break;
             }
         }
     }
-    else if (type == mx::MATERIAL_TYPE_STRING)
-    {
-        matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
-        for (mx::NodeDefPtr nodedef : matchingNodeDefs)
-        {
-            std::string nodedefName = nodedef->getName();
-            std::string sub = nodedefName.substr(3, nodedefName.length());
-            if (sub == name)
-            {
-                node = _graphDoc->addNodeInstance(nodedef);
-                node->setName(_graphDoc->createValidChildName(name));
-                break;
-            }
-        }
-    }
-    else
-    {
-        matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
-        for (mx::NodeDefPtr nodedef : matchingNodeDefs)
-        {
-            // use substring of name in order to remove ND_
-            std::string nodedefName = nodedef->getName();
-            std::string sub = nodedefName.substr(3, nodedefName.length());
-            if (sub == name)
-            {
 
-                node = _currGraphElem->addNodeInstance(nodedef);
-                node->setName(_currGraphElem->createValidChildName(name));
-            }
-        }
-    }
     if (node)
     {
         int num = 0;
