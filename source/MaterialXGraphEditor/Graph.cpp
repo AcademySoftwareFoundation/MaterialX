@@ -155,35 +155,40 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 // populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
 void Graph::addExtraNodes()
 {
-    std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
-    std::vector<std::string> types{
-        "float", "integer", "vector2", "vector3", "vector4", "color3", "color4", "string", "filename", "bool"
-    };
-    // need to clear vectors if has previously used tab without there being a document, need to use the current graph doc
-    for (std::string group : groups)
+    if (!_graphDoc)
     {
-        if (_extraNodes[group].size() > 0)
-        {
-            _extraNodes[group].clear();
-        }
+        return;
     }
-    for (std::string type : types)
-    {
 
-        std::string nodeName = "ND_input";
-        nodeName += type;
-        std::vector<std::string> input{ nodeName, type, "input" };
-        _extraNodes["Input Nodes"].push_back(input);
-        nodeName = "ND_output";
-        nodeName += type;
-        std::vector<std::string> output{ nodeName, type, "output" };
-        _extraNodes["Output Nodes"].push_back(output);
+    const std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
+
+    // clear any old nodes, if we previously used tab with another graph doc
+    _extraNodes.clear();
+
+    // get all types from the doc
+    std::vector<std::string> types;
+    std::vector<mx::TypeDefPtr> typeDefs = _graphDoc->getTypeDefs();
+    types.reserve(typeDefs.size());
+    for (auto typeDef : typeDefs)
+    {
+        types.push_back(typeDef->getName());
     }
-    // group node
+
+    // add input and output nodes for all types
+    for (const std::string& type : types)
+    {
+        std::string nodeName = "ND_input_" + type;
+        _extraNodes["Input Nodes"].push_back({ nodeName, type, "input" });
+        nodeName = "ND_output_" + type;
+        _extraNodes["Output Nodes"].push_back({ nodeName, type, "output" });
+    }
+
+    // add group node
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
-    // node graph nodes
-    std::vector<std::string> nodeGraph{ "ND_node graph", "", "nodegraph" };
+    
+    // add nodegraph node
+    std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
 }
 
