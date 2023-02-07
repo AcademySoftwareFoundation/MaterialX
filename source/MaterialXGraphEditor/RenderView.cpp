@@ -120,11 +120,19 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
-RenderView::RenderView(const std::string& materialFilename,
+void RenderView::setDocument(mx::DocumentPtr document)
+{   
+    // Set new current document
+    _document = document;
+
+    // Initialize rendering context.
+    initContext(_genContext);
+}
+
+RenderView::RenderView(mx::DocumentPtr doc,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
                        const mx::FileSearchPath& searchPath,
-                       const mx::FilePathVec& libraryFolders,
                        unsigned int screenWidth,
                        unsigned int screenHeight) :
     _textureID(0),
@@ -132,11 +140,9 @@ RenderView::RenderView(const std::string& materialFilename,
     _screenWidth(screenWidth),
     _screenHeight(screenHeight),
     _renderFrame(nullptr),
-    _materialFilename(materialFilename),
     _meshFilename(meshFilename),
     _envRadianceFilename(envRadianceFilename),
     _searchPath(searchPath),
-    _libraryFolders(libraryFolders),
     _meshScale(1.0f),
     _cameraPosition(DEFAULT_CAMERA_POSITION),
     _cameraUp(0.0f, 1.0f, 0.0f),
@@ -169,7 +175,7 @@ RenderView::RenderView(const std::string& materialFilename,
     // current working directory into account.
     mx::FileSearchPath localSearchPath = searchPath;
     localSearchPath.append(mx::FilePath::getCurrentPath());
-    _materialFilename = localSearchPath.find(_materialFilename);
+    //_materialFilename = localSearchPath.find(_materialFilename);
     _meshFilename = localSearchPath.find(_meshFilename);
     _envRadianceFilename = localSearchPath.find(_envRadianceFilename);
 
@@ -177,13 +183,15 @@ RenderView::RenderView(const std::string& materialFilename,
     _genContext.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
+    // Make sure all uniforms are added so value updates can
+    // find the the corresponding uniform.
+    _genContext.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_COMPLETE;
+
+    setDocument(doc);
 }
 
 void RenderView::initialize()
-{
-    // Initialize the standard libraries and color/unit management.
-    loadStandardLibraries();
-    
+{    
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
@@ -208,9 +216,6 @@ void RenderView::initialize()
     // Update geometry selections.
     updateGeometrySelections();
 
-    // Load the requested material document.
-    loadDocument(_materialFilename, _stdLib);
-
     _pixelRatio = 1.f;
 }
 
@@ -233,18 +238,6 @@ void RenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialP
     {
         _materialAssignments.erase(geometry);
     }
-}
-
-mx::FilePath RenderView::getBaseOutputPath()
-{
-    mx::FilePath baseFilename = _searchPath.find(_materialFilename);
-    baseFilename.removeExtension();
-    mx::FilePath outputPath = mx::getEnviron("MATERIALX_VIEW_OUTPUT_PATH");
-    if (!outputPath.isEmpty())
-    {
-        baseFilename = outputPath / baseFilename.getBaseName();
-    }
-    return baseFilename;
 }
 
 mx::ElementPredicate RenderView::getElementPredicate()
@@ -326,70 +319,6 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         {
             _shadowMaterial->unbindGeometry();
         }
-    }
-}
-
-void RenderView::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
-{
-    _materialFilename = filename;
-
-    // Set up read options.
-    mx::XmlReadOptions readOptions;
-    readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
-                                          const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
-    {
-        mx::FilePath resolvedFilename = searchPath.find(filename);
-        if (resolvedFilename.exists())
-        {
-            try
-            {
-                readFromXmlFile(doc, resolvedFilename, searchPath, options);
-            }
-            catch (mx::Exception& e)
-            {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
-                    std::string(e.what()) << std::endl;
-            }
-        }
-        else
-        {
-            std::cerr << "Include file not found: " << filename.asString() << std::endl;
-        }
-    };
-
-    try
-    {
-        // Load source document.
-        mx::DocumentPtr doc = mx::createDocument();
-        mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-
-        // Import libraries.
-        doc->importLibrary(libraries);
-
-        // Apply modifiers to the content document.
-        applyModifiers(doc, _modifiers);
-
-        // Validate the document.
-        std::string message;
-        if (!doc->validate(&message))
-        {
-            std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
-            std::cerr << message;
-        }
-
-        // Update materials.
-        updateMaterials(doc, nullptr);
-    }
-    catch (mx::ExceptionRenderError& e)
-    {
-        for (const std::string& error : e.errorLog())
-        {
-            std::cerr << error << std::endl;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
     }
 }
 
@@ -475,7 +404,7 @@ void RenderView::setMaterial(mx::TypedElementPtr elem)
     }
 }
 
-void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedElem)
+void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
 {
     // Clear user data on the generator.
     _genContext.clearUserData();
@@ -496,52 +425,56 @@ void RenderView::updateMaterials(mx::DocumentPtr doc, mx::TypedElementPtr typedE
     std::vector<mx::GlslMaterialPtr> newMaterials;
     try
     {
-        _materialSearchPath = mx::getSourceSearchPath(doc);
+        _materialSearchPath = mx::getSourceSearchPath(_document);
+
+        // Apply modifiers to the content document.
+        applyModifiers(_document, _modifiers);
 
         // Apply direct lights.
-        applyDirectLights(doc);
+        applyDirectLights(_document);
 
         //// Check for any udim set.
-        mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
+        mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
         //// Create new materials.
-        if (typedElem == nullptr)
+        if (!typedElem)
         {
             std::vector<mx::TypedElementPtr> elems;
-            mx::findRenderableElements(doc, elems);
-            if (elems.empty())
-            {
-                throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
-            }
-            else
+            mx::findRenderableElements(_document, elems);
+            if (!elems.empty())
             {
                 typedElem = elems[0];
             }
         }
-        mx::TypedElementPtr udimElement;
-        mx::NodePtr node = typedElem->asA<mx::Node>();
-        mx::NodePtr materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
-        if (udimSetValue && udimSetValue->isA<mx::StringVec>())
+
+        mx::TypedElementPtr udimElement = nullptr;
+        mx::NodePtr materialNode = nullptr;
+        if (typedElem)
         {
-            for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
+            mx::NodePtr node = typedElem->asA<mx::Node>();
+            materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
+            if (udimSetValue && udimSetValue->isA<mx::StringVec>())
+            {
+                for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
+                {
+                    mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
+                    mat->setDocument(_document);
+                    mat->setElement(typedElem);
+                    mat->setMaterialNode(materialNode);
+                    mat->setUdim(udim);
+                    newMaterials.push_back(mat);
+
+                    udimElement = typedElem;
+                }
+            }
+            else
             {
                 mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
-                mat->setDocument(doc);
+                mat->setDocument(_document);
                 mat->setElement(typedElem);
                 mat->setMaterialNode(materialNode);
-                mat->setUdim(udim);
                 newMaterials.push_back(mat);
-
-                udimElement = typedElem;
             }
-        }
-        else
-        {
-            mx::GlslMaterialPtr mat = mx::GlslMaterial::create();
-            mat->setDocument(doc);
-            mat->setElement(typedElem);
-            mat->setMaterialNode(materialNode);
-            newMaterials.push_back(mat);
         }
 
         if (!newMaterials.empty())
@@ -688,42 +621,11 @@ void RenderView::initContext(mx::GenContext& context)
     // Initialize search path
     context.registerSourceCodeSearchPath(_searchPath);
 
-    // Initialize color management.
-    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
-    cms->loadLibrary(_stdLib);
-    context.getShaderGenerator().setColorManagementSystem(cms);
-
     // Initialize unit management.
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
-    unitSystem->loadLibrary(_stdLib);
-    unitSystem->setUnitConverterRegistry(_unitRegistry);
-    context.getShaderGenerator().setUnitSystem(unitSystem);
-    context.getOptions().targetDistanceUnit = "meter";
-}
-
-void RenderView::loadStandardLibraries()
-{
-    // Initialize the standard library.
-    try
-    {
-        _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
-        if (_xincludeFiles.empty())
-        {
-            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Failed to load standard data libraries: " << e.what() << std::endl;
-        return;
-    }
-
-    // Initialize unit management.
-    mx::UnitTypeDefPtr distanceTypeDef = _stdLib->getUnitTypeDef("distance");
+    mx::UnitTypeDefPtr distanceTypeDef = _document->getUnitTypeDef("distance");
     _distanceUnitConverter = mx::LinearUnitConverter::create(distanceTypeDef);
     _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
-    mx::UnitTypeDefPtr angleTypeDef = _stdLib->getUnitTypeDef("angle");
+    mx::UnitTypeDefPtr angleTypeDef = _document->getUnitTypeDef("angle");
     mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
     _unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
 
@@ -736,8 +638,17 @@ void RenderView::loadStandardLibraries()
         _distanceUnitOptions[location] = unitScale.first;
     }
 
-    // Initialize the generator context.
-    initContext(_genContext);
+    // Initialize color management.
+    mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(context.getShaderGenerator().getTarget());
+    cms->loadLibrary(_document);
+    context.getShaderGenerator().setColorManagementSystem(cms);
+
+    // Initialize unit management.
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
+    unitSystem->loadLibrary(_document);
+    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    context.getShaderGenerator().setUnitSystem(unitSystem);
+    context.getOptions().targetDistanceUnit = "meter";
 }
 
 mx::ImagePtr RenderView::getAmbientOcclusionImage(mx::GlslMaterialPtr material)
@@ -760,11 +671,6 @@ mx::ImagePtr RenderView::getAmbientOcclusionImage(mx::GlslMaterialPtr material)
 
 void RenderView::drawContents()
 {
-    if (_geometryList.empty() || _materials.empty())
-    {
-        return;
-    }
-
     updateCameras();
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
@@ -1062,7 +968,7 @@ mx::GlslMaterialPtr RenderView::getWireframeMaterial()
     {
         try
         {
-            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _stdLib, "__WIRE_SHADER__", mx::Color3(1.0f));
+            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _document, "__WIRE_SHADER__", mx::Color3(1.0f));
             _wireMaterial = mx::GlslMaterial::create();
             _wireMaterial->generateShader(hwShader);
         }
@@ -1094,7 +1000,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _stdLib, "__SHADOW_SHADER__");
+                mx::ShaderPtr hwShader = mx::createDepthShader(_genContext, _document, "__SHADOW_SHADER__");
                 _shadowMaterial = mx::GlslMaterial::create();
                 _shadowMaterial->generateShader(hwShader);
             }
@@ -1108,7 +1014,7 @@ mx::ImagePtr RenderView::getShadowMap()
         {
             try
             {
-                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _stdLib, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
+                mx::ShaderPtr hwShader = mx::createBlurShader(_genContext, _document, "__SHADOW_BLUR_SHADER__", "gaussian", 1.0f);
                 _shadowBlurMaterial = mx::GlslMaterial::create();
                 _shadowBlurMaterial->generateShader(hwShader);
             }

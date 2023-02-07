@@ -109,8 +109,10 @@ class Graph
     ~Graph(){};
 
   private:
+    mx::ElementPredicate getElementPredicate() const;
     void loadStandardLibraries();
-    void buildUiBaseGraph(const std::vector<mx::NodeGraphPtr>& nodeGraphs, const std::vector<mx::NodePtr>& docNodes, const std::vector<mx::InputPtr>& inputNodes, const std::vector<mx::OutputPtr>& outputNodes);
+    void createNodeUIList(mx::DocumentPtr doc);
+    void buildUiBaseGraph(mx::DocumentPtr doc);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
     void buildGroupNode(UiNodePtr node);
 
@@ -193,7 +195,7 @@ class Graph
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     void setRenderMaterial(UiNodePtr node);
-
+    
     RenderViewPtr _renderer;
 
     // document and intializing information
