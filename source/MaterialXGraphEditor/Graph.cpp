@@ -1825,7 +1825,6 @@ void Graph::addNode(std::string category, std::string name, std::string type)
             if (sub == name)
             {
                 node = _currGraphElem->addNodeInstance(nodedef, _currGraphElem->createValidChildName(name));
-                break;
             }
         }
     }
