@@ -648,6 +648,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
+        // optional pre processing by the tester
+        preprocessDocument(doc);
+
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
         // colliding with implementations in previous test cases.
@@ -764,7 +767,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                     {
                         const std::string elementNameSuffix(bindingContextUsed ? LAYOUT_SUFFIX : mx::EMPTY_STRING);
 
-                        mx::FilePath path = element->getActiveSourceUri();
+                        mx::FilePath path = doc->getSourceUri();
                         if (!path.isEmpty())
                         {
                             std::string testFileName = path[path.size() - 1];

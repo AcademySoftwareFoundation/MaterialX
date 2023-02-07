@@ -12,6 +12,9 @@
 
 namespace mx = MaterialX;
 
+class MdlStringResolver;
+using MdlStringResolverPtr = std::shared_ptr<MdlStringResolver>;
+
 class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
   public:
@@ -62,6 +65,9 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
     }
 
+    // Allows the tester to alter the document, e.g., by flattering file names
+    void preprocessDocument(mx::DocumentPtr doc) override;
+
     // Compile MDL with mdlc if specified
     void compileSource(const std::vector<mx::FilePath>& sourceCodePaths) override;
 
@@ -79,6 +85,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
+
+    MdlStringResolverPtr _mdlCustomResolver;
 };
 
 #endif // GENOSL_H
