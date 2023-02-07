@@ -175,37 +175,40 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 // populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
 void Graph::addExtraNodes()
 {
+    if (!_graphDoc)
+    {
+        return;
+    }
+
+    const std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
+
+    // clear any old nodes, if we previously used tab with another graph doc
     _extraNodes.clear();
 
-    std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
-    std::vector<std::string> types{
-        "float", "integer", "vector2", "vector3", "vector4", "color3", "color4", "string", "filename", "bool"
-    };
-    // need to clear vectors if has previously used tab without there being a document, need to use the current graph doc
-    for (std::string group : groups)
+    // get all types from the doc
+    std::vector<std::string> types;
+    std::vector<mx::TypeDefPtr> typeDefs = _graphDoc->getTypeDefs();
+    types.reserve(typeDefs.size());
+    for (auto typeDef : typeDefs)
     {
-        if (_extraNodes[group].size() > 0)
-        {
-            _extraNodes[group].clear();
-        }
+        types.push_back(typeDef->getName());
     }
-    for (std::string type : types)
-    {
 
-        std::string nodeName = "ND_input";
-        nodeName += type;
-        std::vector<std::string> input{ nodeName, type, "input" };
-        _extraNodes["Input Nodes"].push_back(input);
-        nodeName = "ND_output";
-        nodeName += type;
-        std::vector<std::string> output{ nodeName, type, "output" };
-        _extraNodes["Output Nodes"].push_back(output);
+    // add input and output nodes for all types
+    for (const std::string& type : types)
+    {
+        std::string nodeName = "ND_input_" + type;
+        _extraNodes["Input Nodes"].push_back({ nodeName, type, "input" });
+        nodeName = "ND_output_" + type;
+        _extraNodes["Output Nodes"].push_back({ nodeName, type, "output" });
     }
-    // group node
+
+    // add group node
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
-    // node graph nodes
-    std::vector<std::string> nodeGraph{ "ND_node graph", "", "nodegraph" };
+    
+    // add nodegraph node
+    std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
 }
 
@@ -2723,59 +2726,63 @@ void Graph::deleteNode(UiNodePtr node)
             }
         }
     }
-    // update downNode info
-    std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
 
-    for (Pin pin : outputConnections)
+    if (node->outputPins.size() > 0)
     {
-        mx::ValuePtr val;
-        if (pin._pinNode->getNode())
+        // update downNode info
+        std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
+
+        for (Pin pin : outputConnections)
         {
-            mx::NodeDefPtr nodeDef = pin._pinNode->getNode()->getNodeDef(pin._pinNode->getNode()->getName());
-            val = nodeDef->getActiveInput(pin._input->getName())->getValue();
-            if (pin._pinNode->getNode()->getType() == "surfaceshader")
+            mx::ValuePtr val;
+            if (pin._pinNode->getNode())
             {
-                pin._input->setConnectedOutput(nullptr);
+                mx::NodeDefPtr nodeDef = pin._pinNode->getNode()->getNodeDef(pin._pinNode->getNode()->getName());
+                val = nodeDef->getActiveInput(pin._input->getName())->getValue();
+                if (pin._pinNode->getNode()->getType() == "surfaceshader")
+                {
+                    pin._input->setConnectedOutput(nullptr);
+                }
+                else
+                {
+                    pin._input->setConnectedNode(nullptr);
+                }
             }
-            else
+            else if (pin._pinNode->getNodeGraph())
             {
+                if (node->getInput())
+                {
+                    pin._pinNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(node->getInput());
+                }
                 pin._input->setConnectedNode(nullptr);
+                pin.setConnected(false);
+                setDefaults(pin._input);
             }
-        }
-        else if (pin._pinNode->getNodeGraph())
-        {
-            if (node->getInput())
-            {
-                pin._pinNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
-                setDefaults(node->getInput());
-            }
-            pin._input->setConnectedNode(nullptr);
+
             pin.setConnected(false);
-            setDefaults(pin._input);
-        }
-
-        pin.setConnected(false);
-        if (val)
-        {
-            pin._input->setValueString(val->getValueString());
-        }
-
-        int num = pin._pinNode->getEdgeIndex(node->getId());
-        if (num != -1)
-        {
-            if (pin._pinNode->edges.size() == 1)
+            if (val)
             {
-                pin._pinNode->edges.erase(pin._pinNode->edges.begin() + 0);
+                pin._input->setValueString(val->getValueString());
             }
-            else if (pin._pinNode->edges.size() > 1)
-            {
-                pin._pinNode->edges.erase(pin._pinNode->edges.begin() + num);
-            }
-        }
 
-        pin._pinNode->setInputNodeNum(-1);
-        // not really necessary since it will be deleted
-        node->removeOutputConnection(pin._pinNode->getName());
+            int num = pin._pinNode->getEdgeIndex(node->getId());
+            if (num != -1)
+            {
+                if (pin._pinNode->edges.size() == 1)
+                {
+                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + 0);
+                }
+                else if (pin._pinNode->edges.size() > 1)
+                {
+                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + num);
+                }
+            }
+
+            pin._pinNode->setInputNodeNum(-1);
+            // not really necessary since it will be deleted
+            node->removeOutputConnection(pin._pinNode->getName());
+        }
     }
 
     // remove from NodeGraph
