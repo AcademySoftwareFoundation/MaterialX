@@ -202,20 +202,16 @@ int main(int argc, char* const argv[])
         if (g_FirstFrame)
         {
             ed::Config config;
-            config.SettingsFile = "BasicInteraction.json";
+            config.SettingsFile = nullptr;
             g_Context = ed::CreateEditor(&config);
             const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
             for (auto& level : ZOOM_LEVELS)
             {
                 config.CustomZoomLevels.push_back(level);
             }
+            g_FirstFrame = false;
         }
         ed::SetCurrentEditor(g_Context);
-        if (g_FirstFrame)
-        {
-            ed::NavigateToContent(0.0f);
-        }
-        g_FirstFrame = false;
 
         graph->getRenderer()->drawContents();
         if (!captureFilename.empty())
