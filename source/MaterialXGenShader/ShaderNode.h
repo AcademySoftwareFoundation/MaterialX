@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERNODE_H
@@ -357,6 +357,7 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t SAMPLE2D      = 1 << 20; /// Can be sampled in 2D (uv space)
         static const uint32_t SAMPLE3D      = 1 << 21; /// Can be sampled in 3D (position)
         static const uint32_t GEOMETRIC     = 1 << 22; /// Geometric input
+        static const uint32_t DOT           = 1 << 23; /// A dot node
     };
 
     /// @struct ScopeInfo
@@ -390,6 +391,7 @@ class MX_GENSHADER_API ShaderNode
     static const ShaderNodePtr NONE;
 
     static const string CONSTANT;
+    static const string DOT;
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;

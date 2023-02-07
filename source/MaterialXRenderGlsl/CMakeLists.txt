@@ -38,6 +38,10 @@ add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
 
+if(MATERIALX_BUILD_SHARED_LIBS)
+    target_compile_definitions(MaterialXRenderGlsl PUBLIC GLAD_GLAPI_EXPORT PRIVATE GLAD_GLAPI_EXPORT_BUILD)
+endif()
+
 set(COMMON_LIBRARIES
     MaterialXRenderHw
     MaterialXGenGlsl
@@ -69,6 +73,7 @@ set_target_properties(
     OUTPUT_NAME MaterialXRenderGlsl${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+    INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 

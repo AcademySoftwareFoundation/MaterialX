@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderGraph.h>
@@ -1015,9 +1015,10 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT) ||
+            node->hasClassification(ShaderNode::Classification::DOT))
         {
-            // Constant nodes can be removed by moving their value
+            // Constant and dot nodes can be removed by moving their value
             // or connection downstream.
             bypass(context, node, 0);
             ++numEdits;

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderNode.h>
@@ -133,6 +133,7 @@ ShaderNodePtr createEmptyNode()
 const ShaderNodePtr ShaderNode::NONE = createEmptyNode();
 
 const string ShaderNode::CONSTANT = "constant";
+const string ShaderNode::DOT = "dot";
 const string ShaderNode::IMAGE = "image";
 const string ShaderNode::COMPARE = "compare";
 const string ShaderNode::SWITCH = "switch";
@@ -348,6 +349,10 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
+    }    
+    else if (nodeDef.getNodeString() == DOT)
+    {
+        newNode->_classification = Classification::TEXTURE | Classification::DOT;
     }
     else if (nodeDef.getNodeString() == COMPARE)
     {

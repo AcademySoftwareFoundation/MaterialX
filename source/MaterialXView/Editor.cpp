@@ -1,3 +1,8 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #include <MaterialXView/Editor.h>
 
 #include <MaterialXView/Viewer.h>
@@ -194,7 +199,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             comboBox->set_font_size(15);
             comboBox->set_callback([path, viewer, enumeration, enumValues](int index)
             {
-                MaterialPtr material = viewer->getSelectedMaterial();
+                mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
                     if (index >= 0 && static_cast<size_t>(index) < enumValues.size())
@@ -221,7 +226,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             intVar->set_spinnable(editable);
             intVar->set_callback([intVar, path, viewer](int /*unclamped*/)
             {
-                MaterialPtr material = viewer->getSelectedMaterial();
+                mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
                     // https://github.com/wjakob/nanogui/issues/205
@@ -251,7 +256,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         threeColumns->set_layout(_gridLayout3);
         ng::FloatBox<float>* floatBox = createFloatWidget(threeColumns, label, value->asA<float>(), &ui, [viewer, path](float value)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 material->modifyUniform(path, mx::Value::createValue(value));            
@@ -274,7 +279,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         boolVar->set_font_size(15);
         boolVar->set_callback([path, viewer](bool v)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 material->modifyUniform(path, mx::Value::createValue((float) v));
@@ -314,7 +319,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             comboBox->set_font_size(15);
             comboBox->set_callback([path, enumValues, viewer](int index)
             {
-                MaterialPtr material = viewer->getSelectedMaterial();
+                mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
                     if (index < (int) enumValues.size())
@@ -335,7 +340,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             colorVar->set_font_size(15);
             colorVar->set_final_callback([path, viewer](const ng::Color &c)
             {
-                MaterialPtr material = viewer->getSelectedMaterial();
+                mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
                 {
                     mx::Vector3 v(c.r(), c.g(), c.b());
@@ -359,7 +364,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         colorVar->set_font_size(15);
         colorVar->set_final_callback([path, viewer](const ng::Color &c)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector4 v(c.r(), c.g(), c.b(), c.w());
@@ -385,7 +390,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v2->set_font_size(15);
         v1->set_callback([v2, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector2 v(f, v2->value());
@@ -396,7 +401,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v1->set_editable(editable);
         v2->set_callback([v1, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector2 v(v1->value(), f);
@@ -429,7 +434,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 
         v1->set_callback([v2, v3, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector3 v(f, v2->value(), v3->value());
@@ -440,7 +445,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v1->set_editable(editable);
         v2->set_callback([v1, v3, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector3 v(v1->value(), f, v3->value());
@@ -451,7 +456,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v2->set_editable(editable);
         v3->set_callback([v1, v2, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector3 v(v1->value(), v2->value(), f);
@@ -488,7 +493,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
 
         v1->set_callback([v2, v3, v4, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector4 v(f, v2->value(), v3->value(), v4->value());
@@ -498,7 +503,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v1->set_spinnable(editable);
         v2->set_callback([v1, v3, v4, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector4 v(v1->value(), f, v3->value(), v4->value());
@@ -509,7 +514,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v2->set_editable(editable);
         v3->set_callback([v1, v2, v4, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector4 v(v1->value(), v2->value(), f, v4->value());
@@ -520,7 +525,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         v3->set_editable(editable);
         v4->set_callback([v1, v2, v3, path, viewer](float f)
         {
-            MaterialPtr material = viewer->getSelectedMaterial();
+            mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
                 mx::Vector4 v(v1->value(), v2->value(), v3->value(), f);
@@ -548,7 +553,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 buttonVar->set_font_size(15);
                 buttonVar->set_callback([buttonVar, path, viewer]()
                 {
-                    MaterialPtr material = viewer->getSelectedMaterial();
+                    mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                     mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
                     if (uniform)
                     {
@@ -583,7 +588,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 stringVar->set_font_size(15);
                 stringVar->set_callback([path, viewer](const std::string &v)
                 {
-                    MaterialPtr material = viewer->getSelectedMaterial();
+                    mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
                     mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
                     if (uniform)
                     {
@@ -600,7 +605,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
 {
     create(*viewer);
 
-    MaterialPtr material = viewer->getSelectedMaterial();
+    mx::GlslMaterialPtr material = viewer->getSelectedMaterial();
     mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
     if (!material || !elem)
     {
