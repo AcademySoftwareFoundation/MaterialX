@@ -135,7 +135,7 @@ def createMaterialFromNodedef(nodedef, doc, outdoc):
     return node
 
 # Print the document for node definitions in a file
-def createMaterials(doc, filterlist, opts):
+def createMaterials(doc, stdlib, filterlist, opts):
 
     # thin_film_bsdf code generation produces undefined variable names for OSL and GLSL
     ignoreNodeList = [ "thin_film_bsdf", "surfacematerial", "volumematerial", "arrayappend", "dot_filename" ]
@@ -172,6 +172,22 @@ def createMaterials(doc, filterlist, opts):
             continue
 
         outdoc = mx.createDocument()
+
+        # Need to add in the nodedef to the output document
+        # if it's not part of the std library defs. Note
+        # that we need to clear the source URI otherwise an include dependency is added.
+        if opts.copyExtraDefs:
+            nodedefName = nodedef.getName()
+            if not stdlib.getNodeDef(nodedefName):
+                if not outdoc.getNodeDef(nodedefName):
+                    newdef = outdoc.addNodeDef(nodedefName, nodedef.getType());
+                    newdef.copyContentFrom(nodedef)
+                    newdef.setSourceUri('')
+                    impl = nodedef.getImplementation();
+                    if impl: # and impl.isA(mx.NodeGraph):
+                        newimpl = outdoc.addChildOfCategory(impl.getCategory(), impl.getName())
+                        newimpl.copyContentFrom(impl)
+                        newimpl.setSourceUri('')
 
         node = createMaterialFromNodedef(nodedef, doc, outdoc)
 
@@ -210,6 +226,7 @@ def main():
     parser.add_argument(dest='libraryPath', help='Path to MaterialX definitions.')
     parser.add_argument('--inputPath', help='Path containing documents with nodedefs to generate. If not specified the library path will be used')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output material files to.')
+    parser.add_argument('--copyExtraDefs', dest='copyExtraDefs', action='store_true', help='Copy non standard library definitions into output document. Default is to not copy')
     parser.add_argument('--target', dest='target', default='genglsl', help='Shading language target. Default is genglsl')
 
     opts = parser.parse_args()
@@ -237,7 +254,7 @@ def main():
             os.makedirs(opts.outputPath)
 
     # Create material files
-    createMaterials(doc, filterlist, opts) 
+    createMaterials(doc, stdlib, filterlist, opts) 
 
 if __name__ == '__main__':
     main()
