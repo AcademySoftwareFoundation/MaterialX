@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/Nodes/SwizzleNode.h>
@@ -21,14 +21,15 @@ ShaderNodeImplPtr SwizzleNode::create()
 
 void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* in = node.getInput(IN_STRING);
         const ShaderInput* channels = node.getInput(CHANNELS_STRING);
         if (!in || !channels)
         {
-            throw ExceptionShaderGenError("Node '" + node.getName() +"' is not a valid swizzle node");
+            throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid swizzle node");
         }
         if (!in->getConnection() && !in->getValue())
         {
@@ -56,7 +57,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + variableName, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 bool SwizzleNode::isEditable(const ShaderInput& input) const

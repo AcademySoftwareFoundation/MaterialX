@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
@@ -16,14 +16,15 @@ void TransformNormalNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContex
 {
     TransformVectorNodeGlsl::emitFunctionCall(node, context, stage);
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const ShaderOutput* output = node.getOutput();
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(output, false, false, context, stage);
         shadergen.emitString(" = normalize(" + output->getVariable() + ")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 const string& TransformNormalNodeGlsl::getMatrix(const string& fromSpace, const string& toSpace) const

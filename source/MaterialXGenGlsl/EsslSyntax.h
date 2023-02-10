@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_ESSLSYNTAX_H
@@ -16,7 +16,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Syntax class for ESSL (OpenGL ES Shading Language)
 class MX_GENGLSL_API EsslSyntax : public GlslSyntax
 {
-public:
+  public:
     EsslSyntax();
 
     static SyntaxPtr create() { return std::make_shared<EsslSyntax>(); }

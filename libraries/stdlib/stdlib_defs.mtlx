@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-    All rights reserved.  See LICENSE.txt for license.
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
 
     Declarations of standard data types and nodes included in the MaterialX specification.
   -->
@@ -3261,85 +3261,85 @@
   <nodedef name="ND_mix_float" node="mix" nodegroup="compositing">
     <input name="fg" type="float" value="0.0" />
     <input name="bg" type="float" value="0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="float" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_color3" node="mix" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="color3" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_color3_color3" node="mix" nodegroup="compositing">
     <input name="fg" type="color3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="mix" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="color3" value="0.0, 0.0, 0.0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
     <output name="out" type="color3" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_color4" node="mix" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="color4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_color4_color4" node="mix" nodegroup="compositing">
     <input name="fg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="mix" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="color4" value="0.0, 0.0, 0.0, 0.0" uisoftmin="0,0,0,0" uisoftmax="1,1,1,1" />
     <output name="out" type="color4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector2" node="mix" nodegroup="compositing">
     <input name="fg" type="vector2" value="0.0, 0.0" />
     <input name="bg" type="vector2" value="0.0, 0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="vector2" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector2_vector2" node="mix" nodegroup="compositing">
     <input name="fg" type="vector2" value="0.0, 0.0" />
     <input name="bg" type="vector2" value="0.0, 0.0" />
-    <input name="mix" type="vector2" value="0.0, 0.0" />
+    <input name="mix" type="vector2" value="0.0, 0.0" uisoftmin="0,0" uisoftmax="1,1" />
     <output name="out" type="vector2" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector3" node="mix" nodegroup="compositing">
     <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="vector3" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector3_vector3" node="mix" nodegroup="compositing">
     <input name="fg" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="bg" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="mix" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="mix" type="vector3" value="0.0, 0.0, 0.0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
     <output name="out" type="vector3" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector4" node="mix" nodegroup="compositing">
     <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="vector4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_vector4_vector4" node="mix" nodegroup="compositing">
     <input name="fg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="bg" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="mix" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="mix" type="vector4" value="0.0, 0.0, 0.0, 0.0" uisoftmin="0,0,0,0" uisoftmax="1,1,1,1" />
     <output name="out" type="vector4" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_surfaceshader" node="mix" nodegroup="compositing">
     <input name="fg" type="surfaceshader" value="" />
     <input name="bg" type="surfaceshader" value="" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="surfaceshader" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_displacementshader" node="mix" nodegroup="compositing">
     <input name="fg" type="displacementshader" value="" />
     <input name="bg" type="displacementshader" value="" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="displacementshader" defaultinput="bg" />
   </nodedef>
   <nodedef name="ND_mix_volumeshader" node="mix" nodegroup="compositing">
     <input name="fg" type="volumeshader" value="" />
     <input name="bg" type="volumeshader" value="" />
-    <input name="mix" type="float" value="0.0" />
+    <input name="mix" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" />
     <output name="out" type="volumeshader" defaultinput="bg" />
   </nodedef>
 

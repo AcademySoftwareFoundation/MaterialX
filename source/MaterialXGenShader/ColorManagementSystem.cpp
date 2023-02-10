@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
@@ -26,7 +26,6 @@ ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, con
     }
 }
 
-
 ColorManagementSystem::ColorManagementSystem()
 {
 }
@@ -46,7 +45,7 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
     return impl != nullptr;
 }
 
-ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name, 
+ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                                                 GenContext& context) const
 {
     ImplementationPtr impl = getImplementation(transform);

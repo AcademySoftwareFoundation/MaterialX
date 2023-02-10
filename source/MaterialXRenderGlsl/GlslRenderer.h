@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLSLRENDERER_H
@@ -119,20 +119,11 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
   protected:
     GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
-    virtual void updateViewInformation();
-    virtual void updateWorldInformation();
-
   private:
     GlslProgramPtr _program;
-
     GLFramebufferPtr _framebuffer;
 
     bool _initialized;
-
-    const Vector3 _eye;
-    const Vector3 _center;
-    const Vector3 _up;
-    float _objectScale;
 
     SimpleWindowPtr _window;
     GLContextPtr _context;

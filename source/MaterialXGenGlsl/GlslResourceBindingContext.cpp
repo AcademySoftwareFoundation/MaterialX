@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
@@ -73,8 +73,8 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     }
     if (hasValueUniforms)
     {
-        generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) + ") " + 
-                           syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + stage.getName(), 
+        generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) + ") " +
+                               syntax.getUniformQualifier() + " " + uniforms.getName() + "_" + stage.getName(),
                            stage, false);
         generator.emitScopeBegin(stage);
         for (auto uniform : uniforms.getVariableOrder())
@@ -104,7 +104,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     generator.emitLineBreak(stage);
 }
 
-void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms, 
+void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
                                                                 ShaderStage& stage, const std::string& structInstanceName,
                                                                 const std::string& arraySuffix)
 {
@@ -117,10 +117,15 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
 
     const size_t baseAlignment = 16;
     std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
-        { Type::INTEGER, baseAlignment / 4 }, { Type::BOOLEAN, baseAlignment / 4 },
-        { Type::COLOR3, baseAlignment }, { Type::COLOR4, baseAlignment },
-        { Type::VECTOR2, baseAlignment }, { Type::VECTOR3, baseAlignment }, { Type::VECTOR4, baseAlignment },
-        { Type::MATRIX33, baseAlignment * 4 }, { Type::MATRIX44, baseAlignment * 4 } });
+                                                               { Type::INTEGER, baseAlignment / 4 },
+                                                               { Type::BOOLEAN, baseAlignment / 4 },
+                                                               { Type::COLOR3, baseAlignment },
+                                                               { Type::COLOR4, baseAlignment },
+                                                               { Type::VECTOR2, baseAlignment },
+                                                               { Type::VECTOR3, baseAlignment },
+                                                               { Type::VECTOR4, baseAlignment },
+                                                               { Type::MATRIX33, baseAlignment * 4 },
+                                                               { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index
@@ -147,9 +152,10 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
 
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
-        [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b) {
-            return a.first > b.first;
-        });
+              [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
+              {
+                  return a.first > b.first;
+              });
 
     // Emit the struct
     generator.emitLine("struct " + uniforms.getName(), stage, false);
@@ -172,13 +178,11 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     }
     generator.emitScopeEnd(stage, true);
 
-
     // Emit binding information
     generator.emitLineBreak(stage);
     generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
-        ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
-        stage.getName(),
-    stage, false);
+                       ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
+                       stage.getName(), stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_CLOSURELAYERNODEMDL_H
@@ -27,11 +27,10 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public ShaderNodeImpl
     static const string BASE;
 };
 
-
 /// Layerable BSDF node.
 class MX_GENMDL_API LayerableNodeMdl : public SourceCodeNodeMdl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;

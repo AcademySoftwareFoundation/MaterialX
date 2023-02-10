@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/GenContext.h>
@@ -109,7 +109,6 @@ void GenContext::getOutputSuffix(const ShaderOutput* output, string& suffix) con
     }
 }
 
-
 ScopedSetClosureParams::ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct) :
     _cct(cct),
     _node(node),
@@ -147,7 +146,6 @@ ScopedSetClosureParams::~ScopedSetClosureParams()
         _cct->setClosureParams(_node, _oldParams);
     }
 }
-
 
 ScopedSetVariableName::ScopedSetVariableName(const string& name, ShaderPort* port) :
     _port(port),

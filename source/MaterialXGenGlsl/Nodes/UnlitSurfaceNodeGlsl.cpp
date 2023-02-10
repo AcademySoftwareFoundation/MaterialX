@@ -1,6 +1,6 @@
 //
-// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
@@ -19,8 +19,8 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Declare the output variable
         const ShaderOutput* output = node.getOutput();
         shadergen.emitLineBegin(stage);
@@ -33,7 +33,7 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
         const ShaderInput* emission = node.getInput("emission");
         const ShaderInput* emissionColor = node.getInput("emission_color");
         shadergen.emitLine(outColor + " = " + shadergen.getUpstreamResult(emission, context) + " * " + shadergen.getUpstreamResult(emissionColor, context), stage);
-        
+
         const ShaderInput* transmission = node.getInput("transmission");
         const ShaderInput* transmissionColor = node.getInput("transmission_color");
         shadergen.emitLine(outTransparency + " = " + shadergen.getUpstreamResult(transmission, context) + " * " + shadergen.getUpstreamResult(transmissionColor, context), stage);
@@ -42,8 +42,7 @@ void UnlitSurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& 
         const string surfaceOpacity = shadergen.getUpstreamResult(opacity, context);
         shadergen.emitLine(outColor + " *= " + surfaceOpacity, stage);
         shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", " + surfaceOpacity + ")", stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

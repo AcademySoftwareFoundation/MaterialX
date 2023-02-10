@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_ELEMENT_H
@@ -772,7 +772,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         ConstElementPtr scope = parent ? parent : getRoot();
         shared_ptr<T> child = scope->getChildOfType<T>(getQualifiedName(name));
         return child ? child : scope->getChildOfType<T>(name);
-    } 
+    }
 
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.

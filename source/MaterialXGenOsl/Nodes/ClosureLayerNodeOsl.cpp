@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenOsl/Nodes/ClosureLayerNodeOsl.h>
@@ -147,7 +147,6 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     }
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
-
 }
 
 MATERIALX_NAMESPACE_END

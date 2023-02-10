@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_TRANSFORMNORMALNODEGLSL_H
@@ -13,10 +13,10 @@ MATERIALX_NAMESPACE_BEGIN
 /// TransformNormal node implementation for GLSL
 class MX_GENGLSL_API TransformNormalNodeGlsl : public TransformVectorNodeGlsl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
-protected:
+  protected:
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     const string& getMatrix(const string& fromSpace, const string& toSpace) const override;

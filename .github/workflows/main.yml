@@ -45,6 +45,7 @@ jobs:
           compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          static_analysis: ON
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -59,6 +60,7 @@ jobs:
           compiler_version: "14"
           python: 3.9
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          clang_format: ON
           dynamic_analysis: ON
 
         - name: MacOS_Xcode_11_Python37
@@ -79,7 +81,6 @@ jobs:
           compiler: xcode
           compiler_version: "13.3"
           python: 3.9
-          static_analysis: ON
 
         - name: Windows_VS2019_Win32_Python27
           os: windows-2019
@@ -110,7 +111,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install libglu1-mesa-dev xorg-dev
+        sudo apt-get install xorg-dev mesa-utils
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
@@ -171,11 +172,15 @@ jobs:
       with:
          node-version: '16'
 
+    - name: Run Clang Format
+      if: matrix.clang_format == 'ON'
+      run: find source \( -name *.h -o -name *.cpp \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+
     - name: CMake Generate
       run: |
         mkdir build
         cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       run: cmake --build . --target install --config Release --parallel 2
@@ -208,19 +213,18 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
 
     - name: Static Analysis Tests
-      if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
+      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
       run: |
-        brew install cppcheck
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/Catch/* --suppress=*:*/External/* --suppress=*:*/NanoGUI/* --suppress=*:*/PugiXML/*
+        sudo apt-get install cppcheck
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=llvmpipe" >> $GITHUB_ENV
 
     - name: Render Script Tests
       if: matrix.test_render == 'ON'
@@ -229,11 +233,12 @@ jobs:
         python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
         python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
 
-    - name: Viewer Tests
+    - name: Render Application Tests
       if: matrix.test_render == 'ON'
       run: |
-        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
-        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 48 --screenHeight 48 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
+        ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
     - name: Upload Installed Package
@@ -242,6 +247,13 @@ jobs:
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
+
+    - name: Upload Formatted Source
+      if: matrix.clang_format == 'ON'
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_ClangFormat
+        path: source
 
     - name: Upload Reference Shaders
       uses: actions/upload-artifact@v3

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_MDLSHADERGENERATOR_H
@@ -54,10 +54,12 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 
 namespace MDL
 {
-    // Identifiers for MDL variable blocks
-    extern MX_GENMDL_API const string INPUTS;
-    extern MX_GENMDL_API const string OUTPUTS;
-}
+
+// Identifiers for MDL variable blocks
+extern MX_GENMDL_API const string INPUTS;
+extern MX_GENMDL_API const string OUTPUTS;
+
+} // namespace MDL
 
 MATERIALX_NAMESPACE_END
 

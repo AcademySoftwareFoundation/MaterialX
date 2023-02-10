@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -13,7 +13,6 @@
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
-#include <MaterialXGenShader/Nodes/IfNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
@@ -37,34 +36,6 @@ OslShaderGenerator::OslShaderGenerator() :
     ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
-
-    // <!-- <if*> -->
-    static const string SEPARATOR = "_";
-    static const string INT_SEPARATOR = "I_";
-    static const string BOOL_SEPARATOR = "B_";
-    static const StringVec IMPL_PREFIXES = { "IM_ifgreater_", "IM_ifgreatereq_", "IM_ifequal_" };
-    static const vector<CreatorFunction<ShaderNodeImpl>> IMPL_CREATE_FUNCTIONS =
-            { IfGreaterNode::create,  IfGreaterEqNode::create, IfEqualNode::create };
-    static const vector<bool> IMPL_HAS_INTVERSION = { true, true, true };
-    static const vector<bool> IMPL_HAS_BOOLVERSION = { false, false, true };
-    static const StringVec IMPL_TYPES = { "float", "color3", "color4", "vector2", "vector3", "vector4" };
-    for (size_t i = 0; i<IMPL_PREFIXES.size(); i++)
-    {
-        const string& implPrefix = IMPL_PREFIXES[i];
-        for (const string& implType : IMPL_TYPES)
-        {
-            const string implRoot = implPrefix + implType;
-            registerImplementation(implRoot + SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            if (IMPL_HAS_INTVERSION[i])
-            {
-                registerImplementation(implRoot + INT_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            }
-            if (IMPL_HAS_BOOLVERSION[i])
-            {
-                registerImplementation(implRoot + BOOL_SEPARATOR + OslShaderGenerator::TARGET, IMPL_CREATE_FUNCTIONS[i]);
-            }
-        }
-    }
 
     // <!-- <switch> -->
     // <!-- 'which' type : float -->
@@ -251,8 +222,9 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Always emit node information
     emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
     emitLine("string mtlx_category = \"" + element->getCategory() + "\"" + Syntax::COMMA, stage, false);
-    emitLine("string mtlx_name = \"" + element->getQualifiedName(element->getName())+ "\"" + 
-            (haveShaderMetaData ? Syntax::COMMA : EMPTY_STRING), stage, false);
+    emitLine("string mtlx_name = \"" + element->getQualifiedName(element->getName()) + "\"" +
+                 (haveShaderMetaData ? Syntax::COMMA : EMPTY_STRING),
+             stage, false);
 
     // Add any metadata if set on the graph.
     if (haveShaderMetaData)
@@ -335,8 +307,8 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
         {
             const ShaderNode* upstream = socket->getConnection()->getNode();
             if (upstream->getParent() == &graph &&
-                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || 
-                    upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                 upstream->hasClassification(ShaderNode::Classification::SHADER)))
             {
                 emitFunctionCall(*upstream, context, stage);
             }
@@ -403,14 +375,14 @@ void OslShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenConte
     // Rename the standard metadata names to corresponding OSL metadata names.
     const StringMap nameRemapping =
     {
-        {ValueElement::UI_NAME_ATTRIBUTE, "label"},
-        {ValueElement::UI_FOLDER_ATTRIBUTE, "page"},
-        {ValueElement::UI_MIN_ATTRIBUTE, "min"},
-        {ValueElement::UI_MAX_ATTRIBUTE, "max"},
-        {ValueElement::UI_SOFT_MIN_ATTRIBUTE, "slidermin"},
-        {ValueElement::UI_SOFT_MAX_ATTRIBUTE, "slidermax"},
-        {ValueElement::UI_STEP_ATTRIBUTE, "sensitivity"},
-        {ValueElement::DOC_ATTRIBUTE, "help"}
+        { ValueElement::UI_NAME_ATTRIBUTE, "label" },
+        { ValueElement::UI_FOLDER_ATTRIBUTE, "page" },
+        { ValueElement::UI_MIN_ATTRIBUTE, "min" },
+        { ValueElement::UI_MAX_ATTRIBUTE, "max" },
+        { ValueElement::UI_SOFT_MIN_ATTRIBUTE, "slidermin" },
+        { ValueElement::UI_SOFT_MAX_ATTRIBUTE, "slidermax" },
+        { ValueElement::UI_STEP_ATTRIBUTE, "sensitivity" },
+        { ValueElement::DOC_ATTRIBUTE, "help" }
     };
     for (auto it : nameRemapping)
     {
@@ -465,7 +437,7 @@ void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext&
     if ((classification & ShaderNode::Classification::CLOSURE) != 0)
     {
         // Emit function calls for closures connected to the outputs.
-        // These will internally emit other closure function calls 
+        // These will internally emit other closure function calls
         // for upstream nodes if needed.
         for (ShaderGraphOutputSocket* outputSocket : graph.getOutputSockets())
         {
@@ -507,7 +479,7 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
     {
         FilePath path = context.resolveSourceFile(file, FilePath());
 
-        // Force path to use slash since backslash even if escaped 
+        // Force path to use slash since backslash even if escaped
         // gives problems when saving the source code to file.
         string pathStr = path.asString();
         std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
@@ -520,20 +492,22 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
 
 namespace
 {
-    std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
-    {
-        {"Pobject", "transform(\"object\", P)"},
-        {"Pworld", "P"},
-        {"Nobject", "transform(\"object\", N)"},
-        {"Nworld", "N"},
-        {"Tobject", "transform(\"object\", dPdu)"},
-        {"Tworld", "dPdu"},
-        {"Bobject", "transform(\"object\", dPdv)"},
-        {"Bworld", "dPdv"},
-        {"UV0", "{u,v}"},
-        {"Vworld", "I"}
-    };
-}
+
+std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
+{
+    { "Pobject", "transform(\"object\", P)" },
+    { "Pworld", "P" },
+    { "Nobject", "transform(\"object\", N)" },
+    { "Nworld", "N" },
+    { "Tobject", "transform(\"object\", dPdu)" },
+    { "Tworld", "dPdu" },
+    { "Bobject", "transform(\"object\", dPdv)" },
+    { "Bworld", "dPdv" },
+    { "UV0", "{u,v}" },
+    { "Vworld", "I" }
+};
+
+} // anonymous namespace
 
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
@@ -542,16 +516,16 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
         { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
         { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-        { Type::BOOLEAN,  ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
     };
 
     const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
     {
-        Type::VECTOR2, // Custom struct types doesn't support metadata declarations.
-        Type::VECTOR4, //
-        Type::COLOR4,  //
+        Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
+        Type::VECTOR4,  //
+        Type::COLOR4,   //
         Type::FILENAME, //
-        Type::BSDF     //
+        Type::BSDF      //
     };
 
     for (size_t i = 0; i < inputs.size(); ++i)
@@ -559,7 +533,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
 
         const string& type = _syntax->getTypeName(input->getType());
-        string value = _syntax->getValue((ShaderPort*)input, true);
+        string value = _syntax->getValue((ShaderPort*) input, true);
 
         emitLineBegin(stage);
         emitString(type + " " + input->getVariable(), stage);
@@ -647,10 +621,12 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
 
 namespace OSL
 {
-    // Identifiers for OSL variable blocks
-    const string UNIFORMS = "u";
-    const string INPUTS   = "i";
-    const string OUTPUTS  = "o";
-}
+
+// Identifiers for OSL variable blocks
+const string UNIFORMS = "u";
+const string INPUTS = "i";
+const string OUTPUTS = "o";
+
+} // namespace OSL
 
 MATERIALX_NAMESPACE_END

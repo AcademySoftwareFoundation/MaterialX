@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_HWSHADERGENERATOR_H
@@ -81,148 +81,148 @@ Uniform variables :
 /// HW specific identifiers.
 namespace HW
 {
-    /// Token identifiers
-    extern MX_GENSHADER_API const string T_IN_POSITION;
-    extern MX_GENSHADER_API const string T_IN_NORMAL;
-    extern MX_GENSHADER_API const string T_IN_TANGENT;
-    extern MX_GENSHADER_API const string T_IN_BITANGENT;
-    extern MX_GENSHADER_API const string T_IN_TEXCOORD;
-    extern MX_GENSHADER_API const string T_IN_GEOMPROP;
-    extern MX_GENSHADER_API const string T_IN_COLOR;
-    extern MX_GENSHADER_API const string T_POSITION_WORLD;
-    extern MX_GENSHADER_API const string T_NORMAL_WORLD;
-    extern MX_GENSHADER_API const string T_TANGENT_WORLD;
-    extern MX_GENSHADER_API const string T_BITANGENT_WORLD;
-    extern MX_GENSHADER_API const string T_POSITION_OBJECT;
-    extern MX_GENSHADER_API const string T_NORMAL_OBJECT;
-    extern MX_GENSHADER_API const string T_TANGENT_OBJECT;
-    extern MX_GENSHADER_API const string T_BITANGENT_OBJECT;
-    extern MX_GENSHADER_API const string T_TEXCOORD;
-    extern MX_GENSHADER_API const string T_COLOR;
-    extern MX_GENSHADER_API const string T_WORLD_MATRIX;
-    extern MX_GENSHADER_API const string T_WORLD_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string T_WORLD_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_WORLD_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_PROJ_MATRIX;
-    extern MX_GENSHADER_API const string T_PROJ_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string T_PROJ_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_PROJ_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string T_WORLD_VIEW_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_PROJECTION_MATRIX;
-    extern MX_GENSHADER_API const string T_WORLD_VIEW_PROJECTION_MATRIX;
-    extern MX_GENSHADER_API const string T_VIEW_POSITION;
-    extern MX_GENSHADER_API const string T_VIEW_DIRECTION;
-    extern MX_GENSHADER_API const string T_FRAME;
-    extern MX_GENSHADER_API const string T_TIME;
-    extern MX_GENSHADER_API const string T_GEOMPROP;
-    extern MX_GENSHADER_API const string T_ALPHA_THRESHOLD;
-    extern MX_GENSHADER_API const string T_NUM_ACTIVE_LIGHT_SOURCES;
-    extern MX_GENSHADER_API const string T_ENV_MATRIX;
-    extern MX_GENSHADER_API const string T_ENV_RADIANCE;
-    extern MX_GENSHADER_API const string T_ENV_RADIANCE_MIPS;
-    extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLES;
-    extern MX_GENSHADER_API const string T_ENV_IRRADIANCE;
-    extern MX_GENSHADER_API const string T_REFRACTION_ENV;
-    extern MX_GENSHADER_API const string T_REFRACTION_COLOR;
-    extern MX_GENSHADER_API const string T_ALBEDO_TABLE;
-    extern MX_GENSHADER_API const string T_ALBEDO_TABLE_SIZE;
-    extern MX_GENSHADER_API const string T_AMB_OCC_MAP;
-    extern MX_GENSHADER_API const string T_AMB_OCC_GAIN;
-    extern MX_GENSHADER_API const string T_SHADOW_MAP;
-    extern MX_GENSHADER_API const string T_SHADOW_MATRIX;
-    extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
-    extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
+/// Token identifiers
+extern MX_GENSHADER_API const string T_IN_POSITION;
+extern MX_GENSHADER_API const string T_IN_NORMAL;
+extern MX_GENSHADER_API const string T_IN_TANGENT;
+extern MX_GENSHADER_API const string T_IN_BITANGENT;
+extern MX_GENSHADER_API const string T_IN_TEXCOORD;
+extern MX_GENSHADER_API const string T_IN_GEOMPROP;
+extern MX_GENSHADER_API const string T_IN_COLOR;
+extern MX_GENSHADER_API const string T_POSITION_WORLD;
+extern MX_GENSHADER_API const string T_NORMAL_WORLD;
+extern MX_GENSHADER_API const string T_TANGENT_WORLD;
+extern MX_GENSHADER_API const string T_BITANGENT_WORLD;
+extern MX_GENSHADER_API const string T_POSITION_OBJECT;
+extern MX_GENSHADER_API const string T_NORMAL_OBJECT;
+extern MX_GENSHADER_API const string T_TANGENT_OBJECT;
+extern MX_GENSHADER_API const string T_BITANGENT_OBJECT;
+extern MX_GENSHADER_API const string T_TEXCOORD;
+extern MX_GENSHADER_API const string T_COLOR;
+extern MX_GENSHADER_API const string T_WORLD_MATRIX;
+extern MX_GENSHADER_API const string T_WORLD_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string T_WORLD_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_WORLD_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_PROJ_MATRIX;
+extern MX_GENSHADER_API const string T_PROJ_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string T_PROJ_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_PROJ_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string T_WORLD_VIEW_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_PROJECTION_MATRIX;
+extern MX_GENSHADER_API const string T_WORLD_VIEW_PROJECTION_MATRIX;
+extern MX_GENSHADER_API const string T_VIEW_POSITION;
+extern MX_GENSHADER_API const string T_VIEW_DIRECTION;
+extern MX_GENSHADER_API const string T_FRAME;
+extern MX_GENSHADER_API const string T_TIME;
+extern MX_GENSHADER_API const string T_GEOMPROP;
+extern MX_GENSHADER_API const string T_ALPHA_THRESHOLD;
+extern MX_GENSHADER_API const string T_NUM_ACTIVE_LIGHT_SOURCES;
+extern MX_GENSHADER_API const string T_ENV_MATRIX;
+extern MX_GENSHADER_API const string T_ENV_RADIANCE;
+extern MX_GENSHADER_API const string T_ENV_RADIANCE_MIPS;
+extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLES;
+extern MX_GENSHADER_API const string T_ENV_IRRADIANCE;
+extern MX_GENSHADER_API const string T_REFRACTION_ENV;
+extern MX_GENSHADER_API const string T_REFRACTION_COLOR;
+extern MX_GENSHADER_API const string T_ALBEDO_TABLE;
+extern MX_GENSHADER_API const string T_ALBEDO_TABLE_SIZE;
+extern MX_GENSHADER_API const string T_AMB_OCC_MAP;
+extern MX_GENSHADER_API const string T_AMB_OCC_GAIN;
+extern MX_GENSHADER_API const string T_SHADOW_MAP;
+extern MX_GENSHADER_API const string T_SHADOW_MATRIX;
+extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
+extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
 
-    /// Default names for identifiers.
-    /// Replacing above tokens in final code.
-    extern MX_GENSHADER_API const string IN_POSITION;
-    extern MX_GENSHADER_API const string IN_NORMAL;
-    extern MX_GENSHADER_API const string IN_TANGENT;
-    extern MX_GENSHADER_API const string IN_BITANGENT;
-    extern MX_GENSHADER_API const string IN_TEXCOORD;
-    extern MX_GENSHADER_API const string IN_GEOMPROP;
-    extern MX_GENSHADER_API const string IN_COLOR;
-    extern MX_GENSHADER_API const string POSITION_WORLD;
-    extern MX_GENSHADER_API const string NORMAL_WORLD;
-    extern MX_GENSHADER_API const string TANGENT_WORLD;
-    extern MX_GENSHADER_API const string BITANGENT_WORLD;
-    extern MX_GENSHADER_API const string POSITION_OBJECT;
-    extern MX_GENSHADER_API const string NORMAL_OBJECT;
-    extern MX_GENSHADER_API const string TANGENT_OBJECT;
-    extern MX_GENSHADER_API const string BITANGENT_OBJECT;
-    extern MX_GENSHADER_API const string TEXCOORD;
-    extern MX_GENSHADER_API const string COLOR;
-    extern MX_GENSHADER_API const string WORLD_MATRIX;
-    extern MX_GENSHADER_API const string WORLD_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string WORLD_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string WORLD_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string PROJ_MATRIX;
-    extern MX_GENSHADER_API const string PROJ_INVERSE_MATRIX;
-    extern MX_GENSHADER_API const string PROJ_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string PROJ_INVERSE_TRANSPOSE_MATRIX;
-    extern MX_GENSHADER_API const string WORLD_VIEW_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_PROJECTION_MATRIX;
-    extern MX_GENSHADER_API const string WORLD_VIEW_PROJECTION_MATRIX;
-    extern MX_GENSHADER_API const string VIEW_POSITION;
-    extern MX_GENSHADER_API const string VIEW_DIRECTION;
-    extern MX_GENSHADER_API const string FRAME;
-    extern MX_GENSHADER_API const string TIME;
-    extern MX_GENSHADER_API const string GEOMPROP;
-    extern MX_GENSHADER_API const string ALPHA_THRESHOLD;
-    extern MX_GENSHADER_API const string NUM_ACTIVE_LIGHT_SOURCES;
-    extern MX_GENSHADER_API const string ENV_MATRIX;
-    extern MX_GENSHADER_API const string ENV_RADIANCE;
-    extern MX_GENSHADER_API const string ENV_RADIANCE_MIPS;
-    extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLES;
-    extern MX_GENSHADER_API const string ENV_IRRADIANCE;
-    extern MX_GENSHADER_API const string REFRACTION_ENV;
-    extern MX_GENSHADER_API const string REFRACTION_COLOR;
-    extern MX_GENSHADER_API const string ALBEDO_TABLE;
-    extern MX_GENSHADER_API const string ALBEDO_TABLE_SIZE;
-    extern MX_GENSHADER_API const string AMB_OCC_MAP;
-    extern MX_GENSHADER_API const string AMB_OCC_GAIN;
-    extern MX_GENSHADER_API const string SHADOW_MAP;
-    extern MX_GENSHADER_API const string SHADOW_MATRIX;
-    extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
-    extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
-    extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
+/// Default names for identifiers.
+/// Replacing above tokens in final code.
+extern MX_GENSHADER_API const string IN_POSITION;
+extern MX_GENSHADER_API const string IN_NORMAL;
+extern MX_GENSHADER_API const string IN_TANGENT;
+extern MX_GENSHADER_API const string IN_BITANGENT;
+extern MX_GENSHADER_API const string IN_TEXCOORD;
+extern MX_GENSHADER_API const string IN_GEOMPROP;
+extern MX_GENSHADER_API const string IN_COLOR;
+extern MX_GENSHADER_API const string POSITION_WORLD;
+extern MX_GENSHADER_API const string NORMAL_WORLD;
+extern MX_GENSHADER_API const string TANGENT_WORLD;
+extern MX_GENSHADER_API const string BITANGENT_WORLD;
+extern MX_GENSHADER_API const string POSITION_OBJECT;
+extern MX_GENSHADER_API const string NORMAL_OBJECT;
+extern MX_GENSHADER_API const string TANGENT_OBJECT;
+extern MX_GENSHADER_API const string BITANGENT_OBJECT;
+extern MX_GENSHADER_API const string TEXCOORD;
+extern MX_GENSHADER_API const string COLOR;
+extern MX_GENSHADER_API const string WORLD_MATRIX;
+extern MX_GENSHADER_API const string WORLD_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string WORLD_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string WORLD_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string VIEW_MATRIX;
+extern MX_GENSHADER_API const string VIEW_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string VIEW_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string VIEW_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string PROJ_MATRIX;
+extern MX_GENSHADER_API const string PROJ_INVERSE_MATRIX;
+extern MX_GENSHADER_API const string PROJ_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string PROJ_INVERSE_TRANSPOSE_MATRIX;
+extern MX_GENSHADER_API const string WORLD_VIEW_MATRIX;
+extern MX_GENSHADER_API const string VIEW_PROJECTION_MATRIX;
+extern MX_GENSHADER_API const string WORLD_VIEW_PROJECTION_MATRIX;
+extern MX_GENSHADER_API const string VIEW_POSITION;
+extern MX_GENSHADER_API const string VIEW_DIRECTION;
+extern MX_GENSHADER_API const string FRAME;
+extern MX_GENSHADER_API const string TIME;
+extern MX_GENSHADER_API const string GEOMPROP;
+extern MX_GENSHADER_API const string ALPHA_THRESHOLD;
+extern MX_GENSHADER_API const string NUM_ACTIVE_LIGHT_SOURCES;
+extern MX_GENSHADER_API const string ENV_MATRIX;
+extern MX_GENSHADER_API const string ENV_RADIANCE;
+extern MX_GENSHADER_API const string ENV_RADIANCE_MIPS;
+extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLES;
+extern MX_GENSHADER_API const string ENV_IRRADIANCE;
+extern MX_GENSHADER_API const string REFRACTION_ENV;
+extern MX_GENSHADER_API const string REFRACTION_COLOR;
+extern MX_GENSHADER_API const string ALBEDO_TABLE;
+extern MX_GENSHADER_API const string ALBEDO_TABLE_SIZE;
+extern MX_GENSHADER_API const string AMB_OCC_MAP;
+extern MX_GENSHADER_API const string AMB_OCC_GAIN;
+extern MX_GENSHADER_API const string SHADOW_MAP;
+extern MX_GENSHADER_API const string SHADOW_MATRIX;
+extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
+extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
+extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
 
-    /// Variable blocks names.
-    extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
-    extern MX_GENSHADER_API const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
-    extern MX_GENSHADER_API const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
-    extern MX_GENSHADER_API const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by user.
-    extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for light sources.
-    extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
+/// Variable blocks names.
+extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
+extern MX_GENSHADER_API const string VERTEX_DATA;      // Connector block for data transfer from vertex stage to pixel stage.
+extern MX_GENSHADER_API const string PRIVATE_UNIFORMS; // Uniform inputs set privately by application.
+extern MX_GENSHADER_API const string PUBLIC_UNIFORMS;  // Uniform inputs visible in UI and set by user.
+extern MX_GENSHADER_API const string LIGHT_DATA;       // Uniform inputs for light sources.
+extern MX_GENSHADER_API const string PIXEL_OUTPUTS;    // Outputs from the main/pixel stage.
 
-    /// Variable names for lighting parameters.
-    extern MX_GENSHADER_API const string DIR_N;
-    extern MX_GENSHADER_API const string DIR_L;
-    extern MX_GENSHADER_API const string DIR_V;
-    extern MX_GENSHADER_API const string WORLD_POSITION;
-    extern MX_GENSHADER_API const string OCCLUSION;
+/// Variable names for lighting parameters.
+extern MX_GENSHADER_API const string DIR_N;
+extern MX_GENSHADER_API const string DIR_L;
+extern MX_GENSHADER_API const string DIR_V;
+extern MX_GENSHADER_API const string WORLD_POSITION;
+extern MX_GENSHADER_API const string OCCLUSION;
 
-    /// Attribute names.
-    extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
+/// Attribute names.
+extern MX_GENSHADER_API const string ATTR_TRANSPARENT;
 
-    /// User data names.
-    extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
-    extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
-}
+/// User data names.
+extern MX_GENSHADER_API const string USER_DATA_LIGHT_SHADERS;
+extern MX_GENSHADER_API const string USER_DATA_BINDING_CONTEXT;
+} // namespace HW
 
 namespace Stage
 {
-    /// Identifier for vertex stage.
-    extern MX_GENSHADER_API const string VERTEX;
-}
+/// Identifier for vertex stage.
+extern MX_GENSHADER_API const string VERTEX;
+} // namespace Stage
 
 class HwLightShaders;
 class HwShaderGenerator;
@@ -235,7 +235,7 @@ using HwShaderGeneratorPtr = shared_ptr<class HwShaderGenerator>;
 /// Shared pointer to a HwResourceBindingContext
 using HwResourceBindingContextPtr = shared_ptr<class HwResourceBindingContext>;
 
-/// @class HwLightShaders 
+/// @class HwLightShaders
 /// Hardware light shader user data
 class MX_GENSHADER_API HwLightShaders : public GenUserData
 {
@@ -288,7 +288,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 {
   public:
     /// Add the function call for a single node.
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, 
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
                           bool checkScope = true) const override;
 
     /// Emit code for active light count definitions and uniforms
@@ -297,9 +297,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Return the closure contexts defined for the given node.
     void getClosureContexts(const ShaderNode& node, vector<ClosureContext*>& cct) const override;
 
-    /// Bind a light shader to a light type id, for usage in surface shaders created 
-    /// by the generator. The lightTypeId should be a unique identifier for the light 
-    /// type (node definition) and the same id should be used when setting light parameters on a 
+    /// Bind a light shader to a light type id, for usage in surface shaders created
+    /// by the generator. The lightTypeId should be a unique identifier for the light
+    /// type (node definition) and the same id should be used when setting light parameters on a
     /// generated surface shader.
     static void bindLightShader(const NodeDef& nodeDef, unsigned int lightTypeId, GenContext& context);
 
@@ -343,12 +343,12 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 class MX_GENSHADER_API HwResourceBindingContext : public GenUserData
 {
   public:
-    virtual ~HwResourceBindingContext() {}
+    virtual ~HwResourceBindingContext() { }
 
     // Initialize the context before generation starts.
     virtual void initialize() = 0;
 
-    // Emit directives required for binding support 
+    // Emit directives required for binding support
     virtual void emitDirectives(GenContext& context, ShaderStage& stage) = 0;
 
     // Emit uniforms with binding information
@@ -356,9 +356,8 @@ class MX_GENSHADER_API HwResourceBindingContext : public GenUserData
 
     // Emit struct uniforms with binding information
     virtual void emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
-        ShaderStage& stage, const std::string& structInstanceName,
-        const std::string& arraySuffix = EMPTY_STRING) = 0;
-
+                                                ShaderStage& stage, const std::string& structInstanceName,
+                                                const std::string& arraySuffix = EMPTY_STRING) = 0;
 };
 
 MATERIALX_NAMESPACE_END

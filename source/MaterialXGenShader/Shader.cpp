@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/Shader.h>
@@ -40,7 +40,6 @@ bool Shader::hasStage(const string& name)
     auto it = _stagesMap.find(name);
     return (it != _stagesMap.end());
 }
-
 
 ShaderStage& Shader::getStage(const string& name)
 {

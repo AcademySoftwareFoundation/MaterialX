@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_NUMLIGHTSNODEGLSL_H
@@ -13,7 +13,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Utility node for getting number of active lights for GLSL.
 class MX_GENGLSL_API NumLightsNodeGlsl : public GlslImplementation
 {
-public:
+  public:
     NumLightsNodeGlsl();
 
     static ShaderNodeImplPtr create();

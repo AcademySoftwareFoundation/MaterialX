@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_NODE_H
@@ -296,7 +296,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// @}
     /// @name Utility
     /// @{
-    
+
     /// Flatten all subgraphs at the root scope of this graph element,
     /// recursively replacing each graph-defined node with its equivalent
     /// node network.

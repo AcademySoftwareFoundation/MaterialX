@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_LIGHTNODEGLSL_H
@@ -23,7 +23,7 @@ class MX_GENGLSL_API LightNodeGlsl : public GlslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
-      mutable ClosureContext _callEmission;
+    mutable ClosureContext _callEmission;
 };
 
 MATERIALX_NAMESPACE_END

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/UnitSystem.h>
@@ -49,54 +49,55 @@ void ScalarUnitNode::initialize(const InterfaceElement& element, GenContext& /*c
 
 void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    // Emit the helper funtion mx_<unittype>_unit_ratio that embeds a look up table for unit scale
-    vector<float> unitScales;
-    unitScales.reserve(_scalarUnitConverter->getUnitScale().size());
-    auto unitScaleMap = _scalarUnitConverter->getUnitScale();
-    unitScales.resize(unitScaleMap.size());
-    for (auto unitScale : unitScaleMap)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        int location = _scalarUnitConverter->getUnitAsInteger(unitScale.first);
-        unitScales[location] = unitScale.second;
+        // Emit the helper funtion mx_<unittype>_unit_ratio that embeds a look up table for unit scale
+        vector<float> unitScales;
+        unitScales.reserve(_scalarUnitConverter->getUnitScale().size());
+        auto unitScaleMap = _scalarUnitConverter->getUnitScale();
+        unitScales.resize(unitScaleMap.size());
+        for (auto unitScale : unitScaleMap)
+        {
+            int location = _scalarUnitConverter->getUnitAsInteger(unitScale.first);
+            unitScales[location] = unitScale.second;
+        }
+        // See stdlib/gen*/mx_<unittype>_unit. This helper function is called by these shaders.
+        const string VAR_UNIT_SCALE = "u_" + _scalarUnitConverter->getUnitType() + "_unit_scales";
+        VariableBlock unitLUT("unitLUT", EMPTY_STRING);
+        ScopedFloatFormatting fmt(Value::FloatFormatFixed, 15);
+        unitLUT.add(Type::FLOATARRAY, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
+
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
+        shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
+        shadergen.emitFunctionBodyBegin(node, context, stage);
+        shadergen.emitVariableDeclarations(unitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
+        shadergen.emitLine("return (" + VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
+        shadergen.emitFunctionBodyEnd(node, context, stage);
     }
-    // See stdlib/gen*/mx_<unittype>_unit. This helper function is called by these shaders.
-    const string VAR_UNIT_SCALE = "u_" + _scalarUnitConverter->getUnitType() + "_unit_scales";
-    VariableBlock unitLUT("unitLUT", EMPTY_STRING);
-    ScopedFloatFormatting fmt(Value::FloatFormatFixed, 15);
-    unitLUT.add(Type::FLOATARRAY, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
-
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
-    shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);
-    shadergen.emitFunctionBodyBegin(node, context, stage);  
-    shadergen.emitVariableDeclarations(unitLUT, shadergen.getSyntax().getConstantQualifier(), ";", context, stage, true);
-    shadergen.emitLine("return ("+ VAR_UNIT_SCALE + "[unit_from] / " + VAR_UNIT_SCALE + "[unit_to])", stage);
-    shadergen.emitFunctionBodyEnd(node, context, stage);
-
-    END_SHADER_STAGE(shader, Stage::PIXEL)
 }
 
 void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
+        const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    const ShaderInput* in = node.getInput(0);
-    const ShaderInput* from = node.getInput(1);
-    const ShaderInput* to = node.getInput(2);
+        const ShaderInput* in = node.getInput(0);
+        const ShaderInput* from = node.getInput(1);
+        const ShaderInput* to = node.getInput(2);
 
-    shadergen.emitLineBegin(stage);
-    shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-    shadergen.emitString(" = ", stage);
-    shadergen.emitInput(in, context, stage);
-    shadergen.emitString(" * ", stage);
-    shadergen.emitString(_unitRatioFunctionName + "(", stage);
-    shadergen.emitInput(from, context, stage);
-    shadergen.emitString(", ", stage);
-    shadergen.emitInput(to, context, stage);
-    shadergen.emitString(")", stage);
-    shadergen.emitLineEnd(stage);
-END_SHADER_STAGE(shader, Stage::PIXEL)
+        shadergen.emitLineBegin(stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitString(" = ", stage);
+        shadergen.emitInput(in, context, stage);
+        shadergen.emitString(" * ", stage);
+        shadergen.emitString(_unitRatioFunctionName + "(", stage);
+        shadergen.emitInput(from, context, stage);
+        shadergen.emitString(", ", stage);
+        shadergen.emitInput(to, context, stage);
+        shadergen.emitString(")", stage);
+        shadergen.emitLineEnd(stage);
+    }
 }
 
 //
@@ -104,10 +105,10 @@ END_SHADER_STAGE(shader, Stage::PIXEL)
 //
 
 UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc* t, const string& unittype) :
-                             sourceUnit(ss),
-                             targetUnit(ts),
-                             type(t),
-                             unitType(unittype)
+    sourceUnit(ss),
+    targetUnit(ts),
+    type(t),
+    unitType(unittype)
 {
     if (type != Type::FLOAT && type != Type::VECTOR2 && type != Type::VECTOR3 && type != Type::VECTOR4)
     {

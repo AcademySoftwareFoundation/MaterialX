@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Node.h>
@@ -172,7 +172,7 @@ OutputPtr Node::getNodeDefOutput(ElementPtr connectingElement)
         }
         if (output)
         {
-            if (connectedInput || 
+            if (connectedInput ||
                 output->getParent() == output->getDocument())
             {
                 if (!output->getOutputString().empty())
@@ -411,9 +411,17 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         size_t connectionCount = 0;
         for (size_t i = 0; i < child->getUpstreamEdgeCount(); ++i)
         {
-            if (child->getUpstreamEdge(i))
+            Edge upstreamEdge = child->getUpstreamEdge(i);
+            if (upstreamEdge)
             {
-                connectionCount++;
+                if (upstreamEdge.getUpstreamElement())
+                {
+                    ElementPtr elem = upstreamEdge.getUpstreamElement()->getParent();
+                    if (elem == child->getParent())
+                    {
+                        connectionCount++;
+                    }
+                }
             }
         }
 
@@ -467,7 +475,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
     return result;
 }
 
-NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string &namePrefix)
+NodePtr GraphElement::addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix)
 {
     string geomNodeName = namePrefix + "_" + geomPropDef->getName();
     NodePtr geomNode = getNode(geomNodeName);

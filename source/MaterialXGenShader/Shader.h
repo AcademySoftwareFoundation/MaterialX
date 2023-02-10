@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADER_H
@@ -26,7 +26,7 @@ class Shader;
 /// emitted by shader generators.
 ///
 /// The class contains a default implementation using a single shader stage.
-/// Derived shaders can override this, as well as overriding all methods 
+/// Derived shaders can override this, as well as overriding all methods
 /// that add code to the shader.
 ///
 class MX_GENSHADER_API Shader

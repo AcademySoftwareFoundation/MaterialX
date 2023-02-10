@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
@@ -13,8 +13,8 @@ MATERIALX_NAMESPACE_BEGIN
 const string EsslShaderGenerator::TARGET = "essl";
 const string EsslShaderGenerator::VERSION = "300 es"; // Current target is WebGL 2.0
 
-EsslShaderGenerator::EsslShaderGenerator()
-    : GlslShaderGenerator()
+EsslShaderGenerator::EsslShaderGenerator() :
+    GlslShaderGenerator()
 {
     _syntax = EsslSyntax::create();
     // Add in ESSL specific keywords
@@ -47,43 +47,47 @@ void EsslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) 
 
 void EsslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
-    if (!vertexInputs.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
-        emitComment("Inputs block: " + vertexInputs.getName(), stage);
-        emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
-        emitLineBreak(stage);
+        const VariableBlock& vertexInputs = stage.getInputBlock(HW::VERTEX_INPUTS);
+        if (!vertexInputs.empty())
+        {
+            emitComment("Inputs block: " + vertexInputs.getName(), stage);
+            emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
+            emitLineBreak(stage);
+        }
     }
-END_SHADER_STAGE(stage, Stage::VERTEX)
 
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        emitVariableDeclarations(vertexData, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
-        emitLineBreak(stage);
+        const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
+        if (!vertexData.empty())
+        {
+            emitVariableDeclarations(vertexData, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
+            emitLineBreak(stage);
+        }
     }
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 void EsslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) const
 {
-BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
-    const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
-    if (!vertexData.empty())
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
-        emitVariableDeclarations(vertexData,  _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
+        const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
+        if (!vertexData.empty())
+        {
+            emitVariableDeclarations(vertexData, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
+            emitLineBreak(stage);
+        }
+    }
+
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
+        emitComment("Pixel shader outputs", stage);
+        const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
+        emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
         emitLineBreak(stage);
     }
-END_SHADER_STAGE(stage, Stage::VERTEX)
-
-BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
-    emitComment("Pixel shader outputs", stage);
-    const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
-    emitVariableDeclarations(outputs, _syntax->getOutputQualifier(), Syntax::SEMICOLON, context, stage, false);
-    emitLineBreak(stage);
-END_SHADER_STAGE(stage, Stage::PIXEL)
 }
 
 string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
@@ -94,7 +98,7 @@ string EsslShaderGenerator::getVertexDataPrefix(const VariableBlock&) const
 HwResourceBindingContextPtr EsslShaderGenerator::getResourceBindingContext(GenContext& context) const
 {
     HwResourceBindingContextPtr resoureBindingCtx = GlslShaderGenerator::getResourceBindingContext(context);
-    if (resoureBindingCtx) 
+    if (resoureBindingCtx)
     {
         throw ExceptionShaderGenError("The EsslShaderGenerator does not support resource binding.");
     }

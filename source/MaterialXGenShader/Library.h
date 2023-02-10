@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GENSHADERLIBRARY_H
@@ -41,7 +41,7 @@ using ShaderNodeImplPtr = shared_ptr<ShaderNodeImpl>;
 /// Shared pointer to a GenContext
 using GenContextPtr = shared_ptr<GenContext>;
 
-template<class T> using CreatorFunction = shared_ptr<T>(*)();
+template <class T> using CreatorFunction = shared_ptr<T> (*)();
 
 MATERIALX_NAMESPACE_END
 

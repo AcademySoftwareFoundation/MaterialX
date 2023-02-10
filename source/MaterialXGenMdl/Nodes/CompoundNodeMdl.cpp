@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
@@ -31,14 +31,13 @@ void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& co
 
 void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         const Syntax& syntax = shadergen.getSyntax();
 
-        const bool isMaterialExpr = (
-            _rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
-            _rootGraph->hasClassification(ShaderNode::Classification::SHADER)
-        );
+        const bool isMaterialExpr = (_rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                                     _rootGraph->hasClassification(ShaderNode::Classification::SHADER));
 
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
@@ -77,8 +76,8 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& cont
             const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
             const string& type = syntax.getTypeName(input->getType());
             const string value = (input->getValue() ?
-                syntax.getValue(input->getType(), *input->getValue()) :
-                syntax.getDefaultValue(input->getType()));
+                                  syntax.getValue(input->getType(), *input->getValue()) :
+                                  syntax.getDefaultValue(input->getType()));
 
             const string& delim = --count > 0 ? Syntax::COMMA : EMPTY_STRING;
             shadergen.emitLine(qualifier + type + " " + input->getVariable() + " = " + value + delim, stage, false);
@@ -128,13 +127,13 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& cont
         }
 
         shadergen.emitLineBreak(stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         // Begin function call.
@@ -167,7 +166,7 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

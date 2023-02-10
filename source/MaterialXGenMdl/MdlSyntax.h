@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_MDLSYNTAX_H
@@ -69,12 +69,14 @@ class MX_GENMDL_API MdlSyntax : public Syntax
 
 namespace Type
 {
-    extern MX_GENMDL_API const TypeDesc* MDL_ADDRESSMODE;
-    extern MX_GENMDL_API const TypeDesc* MDL_COORDINATESPACE;
-    extern MX_GENMDL_API const TypeDesc* MDL_FILTERLOOKUPMODE;
-    extern MX_GENMDL_API const TypeDesc* MDL_FILTERTYPE;
-    extern MX_GENMDL_API const TypeDesc* MDL_DISTRIBUTIONTYPE;
-}
+
+extern MX_GENMDL_API const TypeDesc* MDL_ADDRESSMODE;
+extern MX_GENMDL_API const TypeDesc* MDL_COORDINATESPACE;
+extern MX_GENMDL_API const TypeDesc* MDL_FILTERLOOKUPMODE;
+extern MX_GENMDL_API const TypeDesc* MDL_FILTERTYPE;
+extern MX_GENMDL_API const TypeDesc* MDL_DISTRIBUTIONTYPE;
+
+} // namespace Type
 
 MATERIALX_NAMESPACE_END
 

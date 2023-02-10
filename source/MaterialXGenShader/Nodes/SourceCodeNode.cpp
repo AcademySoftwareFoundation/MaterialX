@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -11,6 +11,14 @@
 #include <MaterialXFormat/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
+
+namespace
+{
+
+const string INLINE_VARIABLE_PREFIX("{{");
+const string INLINE_VARIABLE_SUFFIX("}}");
+
+} // anonymous namespace
 
 ShaderNodeImplPtr SourceCodeNode::create()
 {
@@ -54,7 +62,7 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
         if (_functionName != validFunctionName)
         {
             throw ExceptionShaderGenError("Function name '" + _functionName +
-                "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
+                                          "' used by implementation '" + impl.getName() + "' is not a valid identifier.");
         }
     }
     else
@@ -69,7 +77,8 @@ void SourceCodeNode::initialize(const InterfaceElement& element, GenContext& con
 
 void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         // Emit function definition for non-inlined functions
         if (!_functionSource.empty())
         {
@@ -84,28 +93,26 @@ void SourceCodeNode::emitFunctionDefinition(const ShaderNode&, GenContext& conte
                 shadergen.emitLineBreak(stage);
             }
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         if (_inlined)
         {
             // An inline function call
 
-            static const string prefix("{{");
-            static const string postfix("}}");
-
             size_t pos = 0;
-            size_t i = _functionSource.find_first_of(prefix);
+            size_t i = _functionSource.find(INLINE_VARIABLE_PREFIX);
             StringSet variableNames;
             StringVec code;
             while (i != string::npos)
             {
                 code.push_back(_functionSource.substr(pos, i - pos));
-                size_t j = _functionSource.find_first_of(postfix, i + 2);
+                size_t j = _functionSource.find(INLINE_VARIABLE_SUFFIX, i + 2);
                 if (j == string::npos)
                 {
                     throw ExceptionShaderGenError("Malformed inline expression in implementation for node " + node.getName());
@@ -116,7 +123,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 if (!input)
                 {
                     throw ExceptionShaderGenError("Could not find an input named '" + variable +
-                        "' on node '" + node.getName() + "'");
+                                                  "' on node '" + node.getName() + "'");
                 }
 
                 if (input->getConnection())
@@ -144,7 +151,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 }
 
                 pos = j + 2;
-                i = _functionSource.find_first_of(prefix, pos);
+                i = _functionSource.find(INLINE_VARIABLE_PREFIX, pos);
             }
             code.push_back(_functionSource.substr(pos));
 
@@ -190,7 +197,7 @@ void SourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
             shadergen.emitString(")", stage);
             shadergen.emitLineEnd(stage);
         }
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

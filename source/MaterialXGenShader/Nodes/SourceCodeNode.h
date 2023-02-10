@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SOURCECODENODE_H
@@ -14,7 +14,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 /// @class SourceCodeNode
 /// Implemention for a node using data-driven static source code.
-/// This is the default implementation used for all nodes that 
+/// This is the default implementation used for all nodes that
 /// do not have a custom ShaderNodeImpl class.
 class MX_GENSHADER_API SourceCodeNode : public ShaderNodeImpl
 {

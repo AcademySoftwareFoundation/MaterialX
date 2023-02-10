@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Element.h>
@@ -433,10 +433,10 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
             }
         }
     }
-    
+
     // Add in token substitutions
     resolver->addTokenSubstitutions(getSelf());
-  
+
     return resolver;
 }
 
@@ -621,14 +621,14 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
     {
         ConstInterfaceElementPtr interfaceElem = parent->asA<InterfaceElement>();
         if (interfaceElem)
-        {       
+        {
             vector<TokenPtr> tokens = interfaceElem->getActiveTokens();
             for (auto token : tokens)
             {
                 string key = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
                 string value = token->getResolvedValueString();
                 if (!_filenameMap.count(key))
-                { 
+                {
                     setFilenameSubstitution(key, value);
                 }
             }

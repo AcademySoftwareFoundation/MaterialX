@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GENCONTEXT_H
@@ -24,7 +24,7 @@ class ClosureContext;
 /// A standard function to allow for handling of application variables for a given node
 using ApplicationVariableHandler = std::function<void(ShaderNode*, GenContext&)>;
 
-/// @class GenContext 
+/// @class GenContext
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
 class MX_GENSHADER_API GenContext
@@ -155,7 +155,7 @@ class MX_GENSHADER_API GenContext
 
     /// Return user data with given name,
     /// or nullptr if no data is found.
-    template<class T>
+    template <class T>
     std::shared_ptr<T> getUserData(const string& name)
     {
         auto it = _userData.find(name);
@@ -190,13 +190,13 @@ class MX_GENSHADER_API GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
-    /// Set handler for application variables 
+    /// Set handler for application variables
     void setApplicationVariableHandler(ApplicationVariableHandler handler)
     {
         _applicationVariableHandler = handler;
     }
 
-    /// Get handler for application variables 
+    /// Get handler for application variables
     ApplicationVariableHandler getApplicationVariableHandler() const
     {
         return _applicationVariableHandler;
@@ -220,7 +220,6 @@ class MX_GENSHADER_API GenContext
     ApplicationVariableHandler _applicationVariableHandler;
 };
 
-
 /// @class ClosureContext
 /// Class representing a context for closure evaluation.
 /// On hardware BSDF closures are evaluated differently in reflection, transmission
@@ -228,7 +227,7 @@ class MX_GENSHADER_API GenContext
 /// and if extra arguments and function decorators are needed for that context.
 class MX_GENSHADER_API ClosureContext
 {
-public:
+  public:
     /// An extra argument for closure functions.
     /// An argument is a pair of strings holding the
     /// 'type' and 'name' of the argument.
@@ -240,7 +239,8 @@ public:
     using ClosureParams = std::unordered_map<string, const ShaderInput*>;
 
     /// Constructor
-    ClosureContext(int type = 0) : _type(type) {}
+    ClosureContext(int type = 0) :
+        _type(type) { }
 
     /// Return the identifier for this context.
     int getType() const { return _type; }
@@ -292,7 +292,7 @@ public:
         return it != _params.end() ? it->second : nullptr;
     }
 
-protected:
+  protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
@@ -305,7 +305,7 @@ protected:
 /// stored in the closure context.
 class MX_GENSHADER_API ScopedSetClosureParams
 {
-public:
+  public:
     /// Constructor for setting explicit parameters for a closure node.
     ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
 
@@ -315,7 +315,7 @@ public:
     /// Destructor restoring the closure parameter state.
     ~ScopedSetClosureParams();
 
-private:
+  private:
     ClosureContext* _cct;
     const ShaderNode* _node;
     const ClosureContext::ClosureParams* _oldParams;
@@ -324,14 +324,14 @@ private:
 /// A RAII class for overriding port variable names.
 class MX_GENSHADER_API ScopedSetVariableName
 {
-public:
+  public:
     /// Constructor for setting a new variable name for a port.
     ScopedSetVariableName(const string& name, ShaderPort* port);
 
     /// Destructor restoring the original variable name.
     ~ScopedSetVariableName();
 
-private:
+  private:
     ShaderPort* _port;
     string _oldName;
 };

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_LIGHTSHADERNODEGLSL_H
@@ -15,7 +15,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Used for all light shaders implemented in source code.
 class MX_GENGLSL_API LightShaderNodeGlsl : public SourceCodeNode
 {
-public:
+  public:
     LightShaderNodeGlsl();
 
     static ShaderNodeImplPtr create();
@@ -28,7 +28,7 @@ public:
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     VariableBlock _lightUniforms;
 };
 

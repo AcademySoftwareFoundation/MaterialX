@@ -1,1 +1,1 @@
-remap({{in}}, {{inlow}}, {{inhigh}}, {{outlow}}, {{outhigh}}, 0)
+mx_remap({{in}}, {{inlow}}, {{inhigh}}, {{outlow}}, {{outhigh}}, 0)

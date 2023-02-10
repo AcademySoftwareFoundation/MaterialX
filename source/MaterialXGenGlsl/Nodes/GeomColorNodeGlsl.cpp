@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
@@ -34,7 +34,8 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
     string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     string variable = HW::T_COLOR + "_" + index;
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* color = vertexData[variable];
@@ -43,9 +44,10 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
             color->setEmitted();
             shadergen.emitLine(prefix + color->getVariable() + " = " + HW::T_IN_COLOR + "_" + index, stage);
         }
-    END_SHADER_STAGE(shader, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         string suffix = "";
         if (output->getType() == Type::FLOAT)
         {
@@ -62,7 +64,7 @@ void GeomColorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& con
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + color->getVariable() + suffix, stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

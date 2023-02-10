@@ -1,3 +1,8 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRender/Util.h>
@@ -300,19 +305,21 @@ int main(int argc, char* const argv[])
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
         viewer->initialize();
-        if (!bakeFilename.empty()) 
-        {
-            viewer->bakeTextures();
-            viewer->requestExit();
-        } 
-        else 
-        {            
-            viewer->set_visible(true);
-        }
+
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
+            viewer->draw_all();
             viewer->requestExit();
+        }
+        else if (!bakeFilename.empty())
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        }
+        else
+        {
+            viewer->set_visible(true);
         }
         ng::mainloop(refresh);
     }

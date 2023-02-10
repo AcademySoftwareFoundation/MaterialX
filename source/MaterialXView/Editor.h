@@ -1,3 +1,8 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #ifndef MATERIALXVIEW_EDITOR_H
 #define MATERIALXVIEW_EDITOR_H
 
