@@ -45,6 +45,7 @@ jobs:
           compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          static_analysis: ON
 
         - name: Linux_Clang_13_Python39
           os: ubuntu-22.04
@@ -80,7 +81,6 @@ jobs:
           compiler: xcode
           compiler_version: "13.3"
           python: 3.9
-          static_analysis: ON
 
         - name: Windows_VS2019_Win32_Python27
           os: windows-2019
@@ -213,9 +213,9 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
 
     - name: Static Analysis Tests
-      if: matrix.static_analysis == 'ON' && runner.os == 'macOS'
+      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
       run: |
-        brew install cppcheck
+        sudo apt-get install cppcheck
         cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
