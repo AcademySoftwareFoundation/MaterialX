@@ -23,11 +23,19 @@ def main():
 
     if opts.stdlib:
         stdlib = mx.createDocument()
-        filePath = os.path.dirname(os.path.abspath(__file__))
-        searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
-        searchPath.append(os.path.dirname(opts.inputFilename))
-        libraryFolders = [ "libraries" ]
-        mx.loadLibraries(libraryFolders, searchPath, stdlib)
+        libraryFolders = []
+        searchPath = mx.FileSearchPath()
+        libraryPath = mx.FilePath(mx.getDefaultLibraryLocation())
+        # Use built in libraries if installed
+        if os.path.exists(libraryPath.asString()):
+            searchPath.append(libraryPath)
+            mx.loadLibraries(libraryFolders, searchPath, stdlib)
+        else:
+            filePath = os.path.dirname(os.path.abspath(__file__))
+            searchPath.append(mx.FileSearchPath(os.path.join(filePath, '..', '..')))
+            searchPath.append(os.path.dirname(opts.inputFilename))
+            libraryFolders = [ "libraries" ]
+            mx.loadLibraries(libraryFolders, searchPath, stdlib)
         doc.importLibrary(stdlib)
 
     (valid, message) = doc.validate()

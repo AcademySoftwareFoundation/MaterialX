@@ -9,7 +9,7 @@ import warnings
 from .PyMaterialXCore import *
 from .PyMaterialXFormat import *
 from .datatype import *
-
+import os
 
 #
 # Element
@@ -292,3 +292,12 @@ stringToValue = _stringToValue
 #
 
 readFromXmlFile = readFromXmlFileBase
+
+
+#
+# Libraries
+#
+def getDefaultLibraryLocation():
+    root_path = os.path.dirname(__file__)
+    lib_path = root_path + '/libraries'
+    return lib_path
