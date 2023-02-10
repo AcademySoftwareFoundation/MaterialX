@@ -22,7 +22,6 @@
     <output name="base_color_out" type="color3" />
     <output name="metallic_out" type="float" />
     <output name="roughness_out" type="float" />
-    <output name="normal_out" type="vector3" />
     <output name="transmission_out" type="float" />
     <output name="thickness_out" type="float" />
     <output name="attenuation_color_out" type="color3" />
@@ -31,6 +30,7 @@
     <output name="clearcoat_out" type="float" />
     <output name="clearcoat_roughness_out" type="float" />
     <output name="emissive_out" type="color3" />
+    <output name="normal_out" type="vector3" />
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
@@ -128,7 +128,6 @@
     <output name="base_color_out" type="color3" nodename="base_color" />
     <output name="metallic_out" type="float" nodename="metallic" />
     <output name="roughness_out" type="float" nodename="roughness" />
-    <output name="normal_out" type="vector3" nodename="normal" />
     <output name="transmission_out" type="float" nodename="transmission" />
     <output name="thickness_out" type="float" nodename="thickness" />
     <output name="attenuation_color_out" type="color3" nodename="attenuation_color" />
@@ -137,6 +136,7 @@
     <output name="clearcoat_out" type="float" nodename="clearcoat" />
     <output name="clearcoat_roughness_out" type="float" nodename="clearcoat_roughness" />
     <output name="emissive_out" type="color3" nodename="emissive" />
+    <output name="normal_out" type="vector3" nodename="normal" />
 
   </nodegraph>
 </materialx>
