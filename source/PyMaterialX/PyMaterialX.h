@@ -12,8 +12,8 @@
 // include within any PyMaterialX source file.
 //
 
+#include <pybind11/functional.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
-#include <pybind11/functional.h> // For std::function callbacks to work properly
 
 #endif
