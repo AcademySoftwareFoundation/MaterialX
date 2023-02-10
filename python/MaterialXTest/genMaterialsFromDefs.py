@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Create a document per node definition such that an instance of that 
+Utility to create a document per node definition such that an instance of that 
 definition is routed to a "material" root. Makes use of "convert"
 nodes for various output types. A material root is created for each
 output on a nodedef, if multiple exist.
@@ -48,7 +48,7 @@ def addMaterialGraphs(node, doc, outdoc, nodedef):
         # Other numeric and boolean can feed into utility "convert" nodes 
         elif outputType in { 'float', 'vector2', 'vector3', 'vector4', 'integer', 'boolean', 'color3', 'color4' }:
 
-            convertDefinition = 'ND_convert_' + outputType + '_shader'
+            convertDefinition = 'ND_convert_' + outputType + '_surfaceshader'
             convertNode = doc.getNodeDef(convertDefinition)
             if not convertNode:
                 print("> Failed to find conversion definition: %s" % convertDefinition)
@@ -135,13 +135,20 @@ def createMaterialFromNodedef(nodedef, doc, outdoc):
     return node
 
 # Print the document for node definitions in a file
-def createMaterials(doc, opts):
+def createMaterials(doc, filterlist, opts):
 
     # thin_film_bsdf code generation produces undefined variable names for OSL and GLSL
     ignoreNodeList = [ "thin_film_bsdf", "surfacematerial", "volumematerial", "arrayappend", "dot_filename" ]
     ignoreTypeList = [ "lightshader" ]
 
-    nodedefs = doc.getNodeDefs()
+    nodedefs = []
+    if filterlist:
+        for name in filterlist:
+            nodedef = doc.getNodeDef(name)
+            if nodedef:
+                nodedefs.append(nodedef)
+    else:
+        doc.getNodeDefs()
     nodedefCount = str(len(nodedefs))
     if nodedefCount == 0:
         print('No definitions to create materials for')
@@ -149,12 +156,6 @@ def createMaterials(doc, opts):
     count = 0
     ignoreList = []
     for nodedef in nodedefs:
-
-        nodeinterface = nodedef.getImplementation(opts.target)
-        if not nodeinterface: 
-            continue
-
-        sourceUri = nodedef.getSourceUri()
 
         skip = False
         for i in ignoreNodeList:
@@ -188,15 +189,32 @@ def createMaterials(doc, opts):
     print('Skipped nodedefs: ', ignoreList)
 
 
+def getNodeDefNames(rootPath, filterdoc):
+    nodedefList = []
+    
+    if not os.path.exists(rootPath):
+        return nodedefList
+
+    if os.path.isdir(rootPath): 
+        mx.loadLibraries([ rootPath ], mx.FileSearchPath(), filterdoc)
+    else:
+        mx.readFromXmlFile(filterdoc, rootPath, mx.FileSearchPath())
+
+    for nd in filterdoc.getNodeDefs():
+        nodedefList.append(nd.getName())
+    
+    return nodedefList
+
 def main():
     parser = argparse.ArgumentParser(description="Create Materialx documents for instances of a nodedef. Each node instance's output is sampled by material node.")
-    parser.add_argument(dest="libraryPath", help="Path for MaterialX libraries.")
+    parser.add_argument(dest='libraryPath', help='Path to MaterialX definitions.')
+    parser.add_argument('--inputPath', help='Path containing documents with nodedefs to generate. If not specified the library path will be used')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output material files to.')
     parser.add_argument('--target', dest='target', default='genglsl', help='Shading language target. Default is genglsl')
 
     opts = parser.parse_args()
 
-    # Read library
+    # Read in library
     rootPath = opts.libraryPath;
     stdlib = mx.createDocument()
     searchPath = rootPath
@@ -204,13 +222,22 @@ def main():
     doc = mx.createDocument()
     doc.importLibrary(stdlib)
 
+    # Get names of documents to generate for.
+    # Make sure to import the files found in case there are additional definitions
+    # which don't exist in the standard libraries. 
+    filterlist = []
+    filterdoc = mx.createDocument()
+    if opts.inputPath:
+        filterlist = getNodeDefNames(opts.inputPath, filterdoc)
+        doc.importLibrary(filterdoc)
+
     # Create output directory
     if opts.outputPath:
         if not os.path.exists(opts.outputPath):
             os.makedirs(opts.outputPath)
 
     # Create material files
-    createMaterials(doc, opts) 
+    createMaterials(doc, filterlist, opts) 
 
 if __name__ == '__main__':
     main()
