@@ -14,9 +14,6 @@
 namespace
 {
 
-ed::EditorContext* g_Context = nullptr;
-bool g_FirstFrame = true;
-
 static void errorCallback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -184,34 +181,25 @@ int main(int argc, char* const argv[])
         graph->getRenderer()->requestExit();
     }
 
-    // Main loop
-    double xpos, ypos = 0.0;
-    xpos = 0.0;
-    ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Create editor config and context.
+    ed::Config config;
+    config.SettingsFile = nullptr;
+    ed::EditorContext* editorContext = ed::CreateEditor(&config);
+    const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
+    for (auto& level : ZOOM_LEVELS)
+    {
+        config.CustomZoomLevels.push_back(level);
+    }
+    ed::SetCurrentEditor(editorContext);
 
+    // Main loop
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        // Node setup
-        if (g_FirstFrame)
-        {
-            ed::Config config;
-            config.SettingsFile = nullptr;
-            g_Context = ed::CreateEditor(&config);
-            const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
-            for (auto& level : ZOOM_LEVELS)
-            {
-                config.CustomZoomLevels.push_back(level);
-            }
-            g_FirstFrame = false;
-        }
-        ed::SetCurrentEditor(g_Context);
 
         graph->getRenderer()->drawContents();
         if (!captureFilename.empty())
@@ -219,15 +207,11 @@ int main(int argc, char* const argv[])
             break;
         }
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
-        glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwGetCursorPos(window, &xpos, &ypos);
         glfwSwapBuffers(window);
     }
 
@@ -235,10 +219,10 @@ int main(int argc, char* const argv[])
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    if (g_Context)
+    if (editorContext)
     {
-        ed::DestroyEditor(g_Context);
-        g_Context = nullptr;
+        ed::DestroyEditor(editorContext);
+        editorContext = nullptr;
     }
     glfwDestroyWindow(window);
     glfwTerminate();
