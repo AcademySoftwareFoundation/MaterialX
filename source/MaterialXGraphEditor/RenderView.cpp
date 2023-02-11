@@ -6,7 +6,6 @@
 #include <MaterialXGraphEditor/RenderView.h>
 
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
-#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -18,12 +17,13 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
+#include "imgui_impl_glfw.h"
 
 #include <GLFW/glfw3.h>
+
+#include <iostream>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
