@@ -143,12 +143,12 @@ def createMaterials(doc, stdlib, filterlist, opts):
 
     nodedefs = []
     if filterlist:
-        for name in filterlist:
+           for name in filterlist:
             nodedef = doc.getNodeDef(name)
             if nodedef:
                 nodedefs.append(nodedef)
     else:
-        doc.getNodeDefs()
+        nodedefs = doc.getNodeDefs()
     nodedefCount = str(len(nodedefs))
     if nodedefCount == 0:
         print('No definitions to create materials for')
@@ -184,7 +184,7 @@ def createMaterials(doc, stdlib, filterlist, opts):
                     newdef.copyContentFrom(nodedef)
                     newdef.setSourceUri('')
                     impl = nodedef.getImplementation();
-                    if impl: # and impl.isA(mx.NodeGraph):
+                    if impl:
                         newimpl = outdoc.addChildOfCategory(impl.getCategory(), impl.getName())
                         newimpl.copyContentFrom(impl)
                         newimpl.setSourceUri('')

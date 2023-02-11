@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <convert name="convert_float_surfaceshader" type="surfaceshader" version="1.0">
+    <input name="in" type="float" value="0" />
+  </convert>
+  <surfacematerial name="material_convert_float_surfaceshader_out" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="convert_float_surfaceshader" />
+  </surfacematerial>
+</materialx>
