@@ -481,6 +481,44 @@ class TestMaterialX(unittest.TestCase):
         mx.readFromXmlFile(doc, filename, _searchPath)
         self.assertTrue(doc.validate()[0])
 
+    def test_WriteXml(self):
+
+        # Declare filter predicate
+        def skipLibraryElement(elem):
+            return not elem.hasSourceUri()
+
+        # Create main document
+        doc = mx.createDocument()
+
+        # Read the standard library.
+        lib = mx.createDocument()
+        for filename in _libraryFilenames:
+            mx.readFromXmlFile(lib, filename, _searchPath)
+        doc.importLibrary(lib)
+        nodeDefCount = len(doc.getNodeDefs())
+
+        # Write out document. Add in element predication which
+        # will exclude all elements with a sourceUri.
+        # This will exclude all elements in the document resulting
+        # in an empty document
+        writeOptions = mx.XmlWriteOptions()
+        writeOptions.writeXIncludeEnable = False
+        writeOptions.elementPredicate = skipLibraryElement
+        result = mx.writeToXmlString(doc, writeOptions)
+
+        newdoc = mx.createDocument()
+        mx.readFromXmlString(newdoc, result) 
+        self.assertTrue(len(newdoc.getNodeDefs()) == 0)   
+
+        # Test again without the predicate.
+        # Nodedefs should exist
+        writeOptions.elementPredicate = None
+        result = mx.writeToXmlString(doc, writeOptions)
+        newdoc = mx.createDocument()
+        mx.readFromXmlString(newdoc, result)    
+        self.assertTrue(len(newdoc.getNodeDefs()) == nodeDefCount)
+
+
 #--------------------------------------------------------------------------------
 if __name__ == '__main__':
     unittest.main()
