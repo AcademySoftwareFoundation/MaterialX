@@ -10,6 +10,16 @@ from MaterialX import PyMaterialXGenGlsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
 
+def tobool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def main():
     parser = argparse.ArgumentParser(description="Generate a baked version of each material in the input document.")
     parser.add_argument("--width", dest="width", type=int, default=1024, help="Specify the width of baked textures.")
@@ -18,10 +28,12 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
-    parser.add_argument('--writeSingleDocument', dest='writeSingleDocument', default=False, action="store_true", help='Specify to write all baked materials to a single MaterialX document.')
+    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterialArg', default=True, help='Specify to write all baked materials to a single MaterialX document.')
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     opts = parser.parse_args()
+
+    writeDocumentPerMaterial = tobool(opts.writeDocumentPerMaterialArg)
 
     doc = mx.createDocument()
     try:
@@ -56,8 +68,7 @@ def main():
     baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
     if opts.average:
         baker.setAverageImages(True)
-    if opts.writeSingleDocument:
-        baker.setWriteSeparateDocuments(False)
+    baker.writeDocumentPerMaterial(writeDocumentPerMaterial)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':

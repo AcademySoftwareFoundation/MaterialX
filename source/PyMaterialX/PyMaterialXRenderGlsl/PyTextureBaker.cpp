@@ -43,5 +43,5 @@ void bindPyTextureBaker(py::module& mod)
         .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
         .def("bakeMaterialToDoc", &mx::TextureBaker::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials)
-        .def("setWriteSeparateDocuments", &mx::TextureBaker::setWriteSeparateDocuments);
+        .def("writeDocumentPerMaterial", &mx::TextureBaker::writeDocumentPerMaterial);
 }

@@ -60,7 +60,7 @@ TextureBaker::TextureBaker(unsigned int width, unsigned int height, Image::BaseT
     _textureSpaceMax(1.0f),
     _generator(GlslShaderGenerator::create()),
     _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" }),
-    _writeSeparateDocs(true),
+    _writeDocumentPerMaterial(true),
     _bakedTextureDoc(nullptr)
 {
     if (baseType == Image::BaseType::UINT8)
@@ -320,7 +320,7 @@ DocumentPtr TextureBaker::generateNewDocumentFromShader(NodePtr shader, const St
     }
 
     // Create document.
-    if (!_bakedTextureDoc || _writeSeparateDocs)
+    if (!_bakedTextureDoc || _writeDocumentPerMaterial)
     {
         _bakedTextureDoc = createDocument();
     }
@@ -575,13 +575,13 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         const TypedElementPtr& element = renderableMaterials[i];
         string documentName;
         DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
-        if (_writeSeparateDocs && bakedMaterialDoc)
+        if (_writeDocumentPerMaterial && bakedMaterialDoc)
         {
             bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
         }
     }
 
-    if (_writeSeparateDocs)
+    if (_writeDocumentPerMaterial)
     {
         // Write documents in memory to disk.
         size_t bakeCount = bakedDocuments.size();

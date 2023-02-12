@@ -279,7 +279,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeRequested(false),
     _bakeWidth(0),
     _bakeHeight(0),
-    _bakeSeparateDocuments(true),
+    _bakeDocumentPerMaterial(true),
     _minimumBakeDimension(1024)
 {
     // Resolve input filenames, taking both the provided search path and
@@ -994,11 +994,11 @@ void Viewer::createAdvancedSettings(Widget* parent)
     bakeDimensionBox->set_editable(true);
     
 
-    ng::CheckBox* bakeSeparateDocuments = new ng::CheckBox(advancedPopup, "Bake Separate Documents");
-    bakeSeparateDocuments->set_checked(_bakeSeparateDocuments);
-    bakeSeparateDocuments->set_callback([this](bool enable)
+    ng::CheckBox* bakeDocumentPerMaterial= new ng::CheckBox(advancedPopup, "Bake Document Per Material");
+    bakeDocumentPerMaterial->set_checked(_bakeDocumentPerMaterial);
+    bakeDocumentPerMaterial->set_callback([this](bool enable)
     {
-        _bakeSeparateDocuments = enable;
+        _bakeDocumentPerMaterial = enable;
     });    
 
     ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
@@ -2165,7 +2165,7 @@ void Viewer::bakeTextures()
         baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
         baker->setOptimizeConstants(_bakeOptimize);
-        baker->setWriteSeparateDocuments(_bakeSeparateDocuments);
+        baker->writeDocumentPerMaterial(_bakeDocumentPerMaterial);
 
         // Assign our existing image handler, releasing any existing render resources for cached images.
         _imageHandler->releaseRenderResources();

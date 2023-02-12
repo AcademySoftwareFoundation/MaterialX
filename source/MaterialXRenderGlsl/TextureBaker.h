@@ -236,9 +236,9 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 
     /// Set whether to write a separate document per material when calling bakeAllMaterials.
     /// By default separate documents are written.
-    void setWriteSeparateDocuments(bool value)
+    void writeDocumentPerMaterial(bool value)
     {
-        _writeSeparateDocs = value;
+        _writeDocumentPerMaterial = value;
     }
 
   protected:
@@ -303,7 +303,7 @@ class MX_RENDERGLSL_API TextureBaker : public GlslRenderer
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
 
-    bool _writeSeparateDocs;
+    bool _writeDocumentPerMaterial;
     DocumentPtr _bakedTextureDoc;
 };
 
