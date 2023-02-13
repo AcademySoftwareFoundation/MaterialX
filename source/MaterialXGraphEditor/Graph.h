@@ -6,34 +6,18 @@
 #ifndef MATERIALX_GRAPH_H
 #define MATERIALX_GRAPH_H
 
-#if defined(_WIN32)
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-#endif
-
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
-#include <MaterialXRender/Util.h>
 #include <MaterialXFormat/File.h>
-#include <MaterialXFormat/Util.h>
 
-#include <imgui.h>
 #include <imgui_node_editor.h>
-#include <imgui_node_editor_internal.h>
 #include <imfilebrowser.h>
-#include <imgui_stdlib.h>
-#include <iostream>
+
 #include <stack>
-#include <algorithm>
 
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
-class UiNode;
-class Pin;
-using UiNodePtr = std::shared_ptr<UiNode>;
-using RenderViewPtr = std::shared_ptr<RenderView>;
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
 // Based off Link struct from ImGui Node Editor blueprints-examples.cpp
@@ -50,45 +34,6 @@ struct Link
     }
 };
 
-// class for edges between uiNodes
-class UiEdge
-{
-    // an edge is made up of two UiNodes and their connecting input
-  public:
-    UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
-        _uiDown(uiDown),
-        _uiUp(uiUp),
-        _input(input)
-    {
-    }
-    mx::InputPtr getInput()
-    {
-        return _input;
-    }
-    UiNodePtr getDown()
-    {
-        return _uiDown;
-    }
-    UiNodePtr getUp()
-    {
-        return _uiUp;
-    }
-    std::string getInputName()
-    {
-        if (_input != nullptr)
-        {
-            return _input->getName();
-        }
-        else
-        {
-            return mx::EMPTY_STRING;
-        }
-    }
-    UiNodePtr _uiDown;
-    UiNodePtr _uiUp;
-    mx::InputPtr _input;
-};
-
 class Graph
 {
   public:
@@ -99,7 +44,6 @@ class Graph
 
     RenderViewPtr getRenderer()
     {
-
         return _renderer;
     }
     void initialize();

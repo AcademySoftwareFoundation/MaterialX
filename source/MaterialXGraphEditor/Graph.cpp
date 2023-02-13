@@ -6,8 +6,15 @@
 #include <MaterialXGraphEditor/Graph.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
+#include <MaterialXFormat/Util.h>
+
+#include <imgui_stdlib.h>
+#include <imgui_node_editor_internal.h>
+#include <widgets.h>
 
 #include <GLFW/glfw3.h>
+
+#include <iostream>
 
 namespace
 {
