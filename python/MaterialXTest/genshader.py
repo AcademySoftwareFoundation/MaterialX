@@ -96,10 +96,10 @@ class TestGenShader(unittest.TestCase):
         os.remove(shader.getName() + "_reduced.osl");
 
         # Test custom attributes
-        customAttribute = doc.addAttributeDef("AD_attribute_long_name");
+        customAttribute = doc.addAttributeDef("AD_attribute_node_name");
         self.assertIsNotNone(customAttribute)
         customAttribute.setType("string");
-        customAttribute.setAttrName("attribute_long_name");
+        customAttribute.setAttrName("node_name");
         customAttribute.setExportable(True);
 
         stdSurfNodeDef = doc.getNodeDef("ND_standard_surface_surfaceshader");
@@ -113,11 +113,15 @@ class TestGenShader(unittest.TestCase):
         stdSurf1 = doc.addNodeInstance(stdSurfNodeDef, "standardSurface1");
         self.assertIsNotNone(stdSurf1)
 
-        # Generate
+        # Generate and test that attribute is in the code
         context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
         shader = shadergen.generate(stdSurf1.getName(), stdSurf1, context);
         self.assertIsNotNone(shader)
-        self.assertTrue(len(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)) > 0)
+        code = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
+        self.assertTrue('Standard_Surface_Number_1' in code)
+        self.assertTrue('node_name' in code)
+
+        print()
 
 if __name__ == '__main__':
     unittest.main()
