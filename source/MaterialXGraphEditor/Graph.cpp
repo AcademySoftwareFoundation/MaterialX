@@ -12,8 +12,6 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 
 namespace
@@ -3187,7 +3185,7 @@ void Graph::propertyEditor()
 }
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(GLFW_KEY_TAB);
+    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
     if (open_AddPopup)
     {
         cursor = true;
@@ -3291,7 +3289,7 @@ void Graph::addNodePopup(bool cursor)
 }
 void Graph::searchNodePopup(bool cursor)
 {
-    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(GLFW_KEY_F) && ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL);
+    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(ImGuiKey_F) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     if (open_search)
     {
         cursor = true;
@@ -3622,7 +3620,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         _initial = false;
         _autoLayout = false;
         // delete selected nodes and their links if delete key is pressed or if the shortcut for cut is used
-        if (ImGui::IsKeyReleased(GLFW_KEY_DELETE) || _isCut)
+        if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
         {
 
             if (selectedNodes.size() > 0)
@@ -3661,13 +3659,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(GLFW_KEY_F) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.IsOpened())
         {
             ed::NavigateToSelection();
         }
 
         // go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(GLFW_KEY_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
         {
             upNodeGraph();
         }
