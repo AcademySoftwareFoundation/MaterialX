@@ -9,17 +9,13 @@
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslMaterial.h>
 
-#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/Timer.h>
-
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXCore/Unit.h>
-
-#include "imgui_impl_glfw.h"
 
 namespace mx = MaterialX;
+
+class RenderView;
+using RenderViewPtr = std::shared_ptr<RenderView>;
 
 class DocumentModifiers
 {
