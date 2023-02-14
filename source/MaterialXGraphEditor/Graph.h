@@ -81,9 +81,9 @@ class Graph
     // pin information
     void setPinColor();
     void DrawPinIcon(std::string type, bool connected, int alpha);
-    Pin getPin(ed::PinId id);
-    void createInputPin(Pin pin);
-    ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, Pin input);
+    UiPinPtr getPin(ed::PinId id);
+    void createInputPin(UiPinPtr pin);
+    ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, UiPinPtr input);
     void outputPin(UiNodePtr node);
     void addNodeGraphPins();
 
@@ -157,11 +157,11 @@ class Graph
 
     // containers of node informatin
     std::vector<UiNodePtr> _graphNodes;
-    std::vector<Pin> _currPins;
+    std::vector<UiPinPtr> _currPins;
     std::vector<Link> _currLinks;
     std::vector<Link> _newLinks;
     std::vector<UiEdge> _currEdge;
-    std::unordered_map<UiNodePtr, std::vector<Pin>> _downstreamInputs;
+    std::unordered_map<UiNodePtr, std::vector<UiPinPtr>> _downstreamInputs;
     std::unordered_map<std::string, ImColor> _pinColor;
 
     // current nodes and nodegraphs
@@ -177,7 +177,7 @@ class Graph
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
-    std::stack<std::vector<Pin>> _pinStack;
+    std::stack<std::vector<UiPinPtr>> _pinStack;
     // this stack keeps track of the graph total size
     std::stack<int> _sizeStack;
 

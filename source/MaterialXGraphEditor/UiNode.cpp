@@ -105,7 +105,7 @@ int UiNode::getEdgeIndex(int id)
     return -1;
 }
 
-void UiNode::removeOutputConnection(std::string name)
+void UiNode::removeOutputConnection(const std::string& name)
 {
     for (size_t i = 0; i < _outputConnections.size(); i++)
     {
