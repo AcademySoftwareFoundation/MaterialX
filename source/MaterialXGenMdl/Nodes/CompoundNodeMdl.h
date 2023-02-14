@@ -23,7 +23,9 @@ class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    string _returnStruct;
+      void emitFunctionSignature(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+
+      string _returnStruct;
 };
 
 MATERIALX_NAMESPACE_END
