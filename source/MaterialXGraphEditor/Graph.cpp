@@ -1619,7 +1619,7 @@ void Graph::copyUiNode(UiNodePtr node)
     ++_graphTotalSize;
     if (node->getMxElement())
     {
-        std::string newName = node->getMxElement()->getParent()->createValidChildName(node->getName());
+        std::string newName = _currGraphElem->createValidChildName(node->getName());
         if (node->getNode())
         {
             mx::NodePtr mxNode;
