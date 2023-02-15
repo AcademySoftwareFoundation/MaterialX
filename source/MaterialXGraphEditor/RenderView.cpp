@@ -6,7 +6,6 @@
 #include <MaterialXGraphEditor/RenderView.h>
 
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
-#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -18,12 +17,11 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
+#include <imgui_impl_glfw.h>
 
-#include <GLFW/glfw3.h>
+#include <iostream>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -371,11 +369,11 @@ void RenderView::setMouseMotionEvent(mx::Vector2 pos)
 void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
 {
 
-    if ((button == 0) && !ImGui::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT) && !ImGui::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    if ((button == 0) && !ImGui::IsKeyPressed(ImGuiKey_RightShift) && !ImGui::IsKeyPressed(ImGuiKey_LeftShift))
     {
         _viewCamera->arcballButtonEvent(pos, down);
     }
-    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)))
+    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_RightShift)) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_LeftShift)))
     {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
