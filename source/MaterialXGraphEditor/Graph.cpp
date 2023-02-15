@@ -2769,7 +2769,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = input->getName();
                     auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](UiPinPtr x)
-                                               {
+                    {
                         return x->_name == name;
                     });
                     if (result == node->inputPins.end())
@@ -2787,7 +2787,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = output->getName();
                     auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](UiPinPtr x)
-                                               {
+                    {
                         return x->_name == name;
                     });
                     if (result == node->outputPins.end())
