@@ -139,7 +139,7 @@ class Graph
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     void setRenderMaterial(UiNodePtr node);
-    
+
     RenderViewPtr _renderer;
 
     // document and intializing information
