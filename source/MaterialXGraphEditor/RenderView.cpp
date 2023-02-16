@@ -119,7 +119,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 }
 
 void RenderView::setDocument(mx::DocumentPtr document)
-{   
+{
     // Set new current document
     _document = document;
 
@@ -189,7 +189,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
 }
 
 void RenderView::initialize()
-{    
+{
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
