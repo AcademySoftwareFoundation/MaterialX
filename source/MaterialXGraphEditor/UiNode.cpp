@@ -89,12 +89,12 @@ float UiNode::getMinX()
     return small;
 }
 
-int UiNode::getEdgeIndex(int id)
+int UiNode::getEdgeIndex(int id, UiPinPtr pin)
 {
     int count = 0;
     for (UiEdge edge : edges)
     {
-        if (edge.getUp()->getId() == id || edge.getDown()->getId() == id)
+        if ((edge.getUp()->getId() == id && pin->_input == edge._input) || (edge.getDown()->getId() == id && pin->_input == edge._input))
         {
             return count;
         }

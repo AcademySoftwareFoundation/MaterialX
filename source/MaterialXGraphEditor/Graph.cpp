@@ -143,8 +143,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             }
             catch (mx::Exception& e)
             {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
-                    std::string(e.what()) << std::endl;
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " << std::string(e.what()) << std::endl;
             }
         }
         else
@@ -169,8 +168,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << filename.asString() << ": \"" <<
-            std::string(e.what()) << "\"" << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<UiPinPtr>>();
@@ -2555,11 +2553,10 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
     }
 }
 
-void Graph::deleteLinkInfo(int startAttr, int endAttr)
+// remove node edge based of off connecting input
+void Graph::removeEdge(int downNode, int upNode, UiPinPtr pin)
 {
-    int upNode = getNodeId(startAttr);
-    int downNode = getNodeId(endAttr);
-    int num = _graphNodes[downNode]->getEdgeIndex(_graphNodes[upNode]->getId());
+    int num = _graphNodes[downNode]->getEdgeIndex(_graphNodes[upNode]->getId(), pin);
     if (num != -1)
     {
         if (_graphNodes[downNode]->edges.size() == 1)
@@ -2576,6 +2573,12 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     _graphNodes[downNode]->setInputNodeNum(-1);
     // upNode remove outputconnection
     _graphNodes[upNode]->removeOutputConnection(_graphNodes[downNode]->getName());
+}
+
+void Graph::deleteLinkInfo(int startAttr, int endAttr)
+{
+    int upNode = getNodeId(startAttr);
+    int downNode = getNodeId(endAttr);
     // change input so that is default val
     // change informtion of actual mx::Node
     if (_graphNodes[downNode]->getNode())
@@ -2586,6 +2589,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
         {
             if ((int) pin->_pinId.Get() == endAttr)
             {
+                removeEdge(downNode, upNode, pin);
                 mx::ValuePtr val = nodeDef->getActiveInput(pin->_input->getName())->getValue();
                 if (_graphNodes[downNode]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING && _graphNodes[upNode]->getNodeGraph())
                 {
@@ -2620,7 +2624,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
         {
             if ((int) pin->_pinId.Get() == endAttr)
             {
-
+                removeEdge(downNode, upNode, pin);
                 if (_graphNodes[upNode]->getInput())
                 {
                     _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
@@ -2636,8 +2640,12 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     {
         for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
         {
-            _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
-            pin->setConnected(false);
+            if ((int) pin->_pinId.Get() == endAttr)
+            {
+                removeEdge(downNode, upNode, pin);
+                _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
+                pin->setConnected(false);
+            }
         }
     }
 }
@@ -2669,7 +2677,7 @@ void Graph::deleteNode(UiNodePtr node)
         if (upNode)
         {
             upNode->removeOutputConnection(node->getName());
-            int num = node->getEdgeIndex(upNode->getId());
+            int num = node->getEdgeIndex(upNode->getId(), inputPin);
             // erase edge between node and up node
             if (num != -1)
             {
@@ -2722,7 +2730,7 @@ void Graph::deleteNode(UiNodePtr node)
                 pin->_input->setValueString(val->getValueString());
             }
 
-            int num = pin->_pinNode->getEdgeIndex(node->getId());
+            int num = pin->_pinNode->getEdgeIndex(node->getId(), pin);
             if (num != -1)
             {
                 if (pin->_pinNode->edges.size() == 1)
@@ -2761,7 +2769,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = input->getName();
                     auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](UiPinPtr x)
-                    {
+                                               {
                         return x->_name == name;
                     });
                     if (result == node->inputPins.end())
@@ -2779,7 +2787,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = output->getName();
                     auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](UiPinPtr x)
-                    {
+                                               {
                         return x->_name == name;
                     });
                     if (result == node->outputPins.end())
@@ -3417,7 +3425,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
- 
+
     graphButtons();
 
     ed::Begin("My Editor");
