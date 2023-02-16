@@ -83,17 +83,17 @@ class UiPin
         return _connected;
     }
 
-     void addConnection(UiPinPtr pin)
-     {
-         for (size_t i = 0; i < _connections.size(); i++)
-         {
-             if (_connections[i]->_pinId == pin->_pinId)
-             {
-                 return;
-             }
-         }
-         _connections.push_back(pin);
-     }
+    void addConnection(UiPinPtr pin)
+    {
+        for (size_t i = 0; i < _connections.size(); i++)
+        {
+            if (_connections[i]->_pinId == pin->_pinId)
+            {
+                return;
+            }
+        }
+        _connections.push_back(pin);
+    }
 
     const std::vector<UiPinPtr>& getConnections()
     {
@@ -118,7 +118,7 @@ class UiNode
   public:
     UiNode();
     UiNode(const std::string& name, int id);
-    ~UiNode() { };
+    ~UiNode(){};
 
     std::string getName()
     {
@@ -225,7 +225,7 @@ class UiNode
     UiNodePtr getConnectedNode(std::string name);
     float getAverageY();
     float getMinX();
-    int getEdgeIndex(int id);
+    int getEdgeIndex(int id, UiPinPtr pin);
     std::vector<UiEdge> edges;
     std::vector<UiPinPtr> inputPins;
     std::vector<UiPinPtr> outputPins;
