@@ -50,6 +50,11 @@ class Graph
     void drawGraph(ImVec2 mousePos);
     mx::DocumentPtr loadDocument(mx::FilePath filename);
 
+    void setFontScale(float val)
+    {
+        _fontScale = val;
+    }
+
     ~Graph(){};
 
   private:
@@ -213,6 +218,9 @@ class Graph
     int _frameCount;
     // used for filtering pins when connecting links
     std::string _pinFilterType;
+
+    // DPI scaling for fonts
+    float _fontScale = 1.0f;
 };
 
 #endif

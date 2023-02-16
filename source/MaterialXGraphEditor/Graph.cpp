@@ -163,7 +163,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             if (!doc->validate(&message))
             {
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
-                std::cerr << message;
+                std::cerr << message << std::endl;
             }
         }
     }
@@ -2119,7 +2119,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2129,7 +2129,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(55, 55, 55, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputPin(node);
                 for (UiPinPtr pin : node->inputPins)
@@ -2180,7 +2180,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, -8.0f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2190,7 +2190,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(85, 85, 85, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getInput()->getType();
                 outputPin(node);
@@ -2244,7 +2244,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2254,7 +2254,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1.0);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getOutput()->getType();
                 outputPin(node);
@@ -2313,7 +2313,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2323,7 +2323,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1.0);
+                ImGui::SetWindowFontScale(_fontScale);
                 for (UiPinPtr pin : node->inputPins)
                 {
                     if (node->getConnectedNode(pin->_name) != nullptr)
@@ -2341,7 +2341,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             ed::EndNode();
         }
     }
-    ImGui::SetWindowFontScale(1.0);
+    ImGui::SetWindowFontScale(_fontScale);
     return outputNum;
 }
 
@@ -3427,10 +3427,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
-    // increase default font size
-    ImFont* f = ImGui::GetFont();
-    f->FontSize = 14;
-
+ 
     graphButtons();
 
     ed::Begin("My Editor");
