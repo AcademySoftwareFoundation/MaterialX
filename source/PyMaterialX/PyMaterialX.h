@@ -12,6 +12,7 @@
 // include within any PyMaterialX source file.
 //
 
+#include <pybind11/functional.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
