@@ -182,6 +182,22 @@ int main(int argc, char* const argv[])
         graph->getRenderer()->requestExit();
     }
 
+    // Handle DPI scaling
+    // Note that ScaleAllSizes() only handles things like spacing of elements.
+    // Fonts are not handled, so a global font scale factor is set.
+    // There appears to be no multi-monitor solution so use the primary monitor
+    // for now.
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor)
+    {
+        float xscale = 1.0f, yscale = 1.0f;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        ImGuiStyle& style = ImGui::GetStyle();
+        float dpiScale = xscale > yscale ? xscale : yscale;
+        style.ScaleAllSizes(dpiScale);
+        graph->setFontScale(dpiScale);
+    }
+
     // Create editor config and context.
     ed::Config config;
     config.SettingsFile = nullptr;
