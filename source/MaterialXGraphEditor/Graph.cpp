@@ -143,7 +143,8 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             }
             catch (mx::Exception& e)
             {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " << std::string(e.what()) << std::endl;
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " << 
+                    std::string(e.what()) << std::endl;
             }
         }
         else
@@ -168,7 +169,8 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << 
+            std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<UiPinPtr>>();
@@ -2769,7 +2771,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = input->getName();
                     auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](UiPinPtr x)
-                                               {
+                    {
                         return x->_name == name;
                     });
                     if (result == node->inputPins.end())
@@ -2787,7 +2789,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = output->getName();
                     auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](UiPinPtr x)
-                                               {
+                    {
                         return x->_name == name;
                     });
                     if (result == node->outputPins.end())
@@ -3425,7 +3427,6 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
-
     graphButtons();
 
     ed::Begin("My Editor");
