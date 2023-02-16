@@ -12,16 +12,6 @@ from MaterialX import PyMaterialXGenGlsl as ms_gen_glsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
 
-def tobool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
 def main():
     parser = argparse.ArgumentParser(description="Generate a translated baked version of each material in the input document.")
     parser.add_argument("--width", dest="width", type=int, default=0, help="Specify an optional width for baked textures (defaults to the maximum image height in the source document).")
@@ -29,13 +19,11 @@ def main():
     parser.add_argument("--hdr", dest="hdr", action="store_true", help="Bake images with high dynamic range (e.g. in HDR or EXR format).")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
-    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterialArg', default=True, help='Specify whether to write baked materials to seprate MaterialX documents. Default is True')
+    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterial', type=mx.stringToBoolean, default=True, help='Specify whether to write baked materials to seprate MaterialX documents. Default is True')
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     parser.add_argument(dest="destShader", help="Destination shader for translation")
     opts = parser.parse_args()
-
-    writeDocumentPerMaterial = tobool(opts.writeDocumentPerMaterialArg)
 
     doc = mx.createDocument()
     try:
@@ -99,7 +87,7 @@ def main():
     # Bake translated materials to flat textures.
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
     baker = mx_render_glsl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
-    baker.writeDocumentPerMaterial(writeDocumentPerMaterial)
+    baker.writeDocumentPerMaterial(opts.writeDocumentPerMaterial)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':
