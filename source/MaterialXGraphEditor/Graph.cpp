@@ -211,7 +211,7 @@ void Graph::addExtraNodes()
     // add group node
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
-    
+
     // add nodegraph node
     std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
@@ -267,7 +267,7 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
             return (upNode->outputPins[pinIndex]->_pinId);
         }
         return ed::PinId();
-    } 
+    }
 }
 
 // connect links via connected nodes in UiNodePtr
@@ -1099,7 +1099,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                     UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ++_graphTotalSize;                    
+                    ++_graphTotalSize;
                 }
 
                 for (mx::OutputPtr output : nodeDef->getActiveOutputs())
@@ -1112,7 +1112,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                                                               node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
                     node->outputPins.push_back(outPin);
                     _currPins.push_back(outPin);
-                    ++_graphTotalSize;                    
+                    ++_graphTotalSize;
                 }
             }
         }
@@ -1398,7 +1398,7 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     }
                     int upNode = findNode(upName, upstreamType);
                     int downNode = findNode(downName, downstreamType);
-                    if (downNode > 0 && upNode > 0 && 
+                    if (downNode > 0 && upNode > 0 &&
                         _graphNodes[downNode]->getOutput() != nullptr)
                     {
                         // creating edges for the output nodes
@@ -1818,7 +1818,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
     }
-    else 
+    else
     {
         matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
         for (mx::NodeDefPtr nodedef : matchingNodeDefs)
@@ -2203,9 +2203,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         {
                             std::string outString = pin->_output ? pin->_output->getOutputString() : mx::EMPTY_STRING;
                             size_t pinIndex = 0;
-                            if (!outString.empty())  
+                            if (!outString.empty())
                             {
-                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
                                 {
                                     if (upUiNode->outputPins[i]->_name == outString)
                                     {
@@ -2268,9 +2268,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                         {
                             std::string outString = pin->_output ? pin->_output->getOutputString() : mx::EMPTY_STRING;
                             size_t pinIndex = 0;
-                            if (!outString.empty())  
+                            if (!outString.empty())
                             {
-                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
                                 {
                                     if (upUiNode->outputPins[i]->_name == outString)
                                     {
@@ -2361,17 +2361,14 @@ void Graph::setDefaults(mx::InputPtr input)
 {
     if (input->getType() == "float")
     {
-
         input->setValue(0.f, "float");
     }
     else if (input->getType() == "integer")
     {
-
         input->setValue(0, "integer");
     }
     else if (input->getType() == "color3")
     {
-
         input->setValue(mx::Color3(0.f, 0.f, 0.f), "color3");
     }
     else if (input->getType() == "color4")
@@ -2388,7 +2385,6 @@ void Graph::setDefaults(mx::InputPtr input)
     }
     else if (input->getType() == "vector4")
     {
-
         input->setValue(mx::Vector4(0.f, 0.f, 0.f, 0.f), "vector4");
     }
     else if (input->getType() == "string")
@@ -2397,12 +2393,10 @@ void Graph::setDefaults(mx::InputPtr input)
     }
     else if (input->getType() == "filename")
     {
-
         input->setValue("", "filename");
     }
     else if (input->getType() == "boolean")
     {
-
         input->setValue(false, "boolean");
     }
 }
@@ -2418,7 +2412,6 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
     {
         if (inputPin->_connected == false)
         {
-
             int upNode = getNodeId(inputPinId);
             int downNode = getNodeId(outputPinId);
 
@@ -2455,7 +2448,6 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
 
                 if (_graphNodes[downNode]->getNode() || _graphNodes[downNode]->getNodeGraph())
                 {
-
                     mx::InputPtr connectingInput = nullptr;
                     for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
                     {
@@ -3106,7 +3098,6 @@ void Graph::propertyEditor()
             ImGui::Indent();
             for (size_t i = 0; i < inputs.size(); i++)
             {
-
                 // setting comment help box
                 ImGui::PushID(int(inputs[i]->_pinId.Get()));
                 ImGui::Text("%s", inputs[i]->_input->getName().c_str());
@@ -3410,7 +3401,6 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
 // sets up graph editor
 void Graph::drawGraph(ImVec2 mousePos)
 {
-
     if (_searchNodeId > 0)
     {
         ed::SelectNode(_searchNodeId);
@@ -3665,7 +3655,6 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-
                     AddLink(inputPinId, outputPinId);
                 }
                 else
@@ -3818,7 +3807,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
         _graphDoc = loadDocument(fileName);
         _graphDoc->importLibrary(_stdLib);
-        
+
         _initial = true;
         buildUiBaseGraph(_graphDoc);
         _currGraphElem = _graphDoc;
