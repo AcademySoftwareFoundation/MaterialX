@@ -104,6 +104,7 @@ class Graph
     // UiEdge functions
     bool edgeExists(UiEdge edge);
     void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+    void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void writeText(std::string filename, mx::FilePath filePath);
     void savePosition();
