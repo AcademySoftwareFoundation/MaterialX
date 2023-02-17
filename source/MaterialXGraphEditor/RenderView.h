@@ -192,9 +192,10 @@ class RenderView
     void setScrollEvent(float scrollY);
     void setMaterial(mx::TypedElementPtr elem);
 
+    void loadMesh(const mx::FilePath& filename);
+
   private:
     void initContext(mx::GenContext& context);
-    void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
 

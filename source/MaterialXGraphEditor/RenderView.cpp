@@ -317,6 +317,18 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         {
             _shadowMaterial->unbindGeometry();
         }
+
+        _meshRotation = mx::Vector3();
+        _meshScale = 1.0f;
+        _cameraTarget = mx::Vector3();
+
+        initCamera();
+    
+        if (_shadowMap)
+        {
+            _imageHandler->releaseRenderResources(_shadowMap);
+            _shadowMap = nullptr;
+        }
     }
 }
 

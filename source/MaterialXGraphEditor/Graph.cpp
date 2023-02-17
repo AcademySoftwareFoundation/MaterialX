@@ -58,14 +58,14 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
-    // Filter for MaterialX files for load and save
-    mx::StringVec mtlxFilter;
-    mtlxFilter.push_back(".mtlx");
-    _fileDialog.SetTypeFilters(mtlxFilter);
-    _fileDialogSave.SetTypeFilters(mtlxFilter);
-
     loadStandardLibraries();
     setPinColor();
+
+    // Set up filters load and save
+    _mtlxFilter.push_back(".mtlx");
+    _geomFilter.push_back(".obj");
+    _geomFilter.push_back(".glb");
+    _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
     _graphDoc->importLibrary(_stdLib);
@@ -88,6 +88,11 @@ Graph::Graph(const std::string& materialFilename,
     _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
                                              _searchPath, 256, 256);
     _renderer->initialize();
+    mx::StringSet supportedExtensions = _renderer ? _renderer->getImageHandler()->supportedExtensions() : mx::StringSet();
+    for (const std::string& supportedExtension : supportedExtensions)
+    {
+        _imageFilter.push_back("." + supportedExtension);
+    }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())
     {
@@ -998,15 +1003,9 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             // browser button to select new file
             if (ImGui::Button("Browse"))
             {
-                _fileDialogConstant.SetTitle("Node Input Dialog");
-                _fileDialogConstant.Open();
-                mx::StringSet supportedExtensions = _renderer ? _renderer->getImageHandler()->supportedExtensions() : mx::StringSet();
-                std::vector<std::string> filters;
-                for (const std::string& supportedExtension : supportedExtensions)
-                {
-                    filters.push_back("." + supportedExtension);
-                }
-                _fileDialogConstant.SetTypeFilters(filters);
+                _fileDialogImage.SetTitle("Node Input Dialog");
+                _fileDialogImage.Open();
+                _fileDialogImage.SetTypeFilters(_imageFilter);
             }
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth);
@@ -1016,15 +1015,15 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             ImGui::PopStyleColor();
 
             // create and load document from selected file
-            if (_fileDialogConstant.HasSelected())
+            if (_fileDialogImage.HasSelected())
             {
                 // set the new filename to the complete file path
-                mx::FilePath fileName = mx::FilePath(_fileDialogConstant.GetSelected().string());
+                mx::FilePath fileName = mx::FilePath(_fileDialogImage.GetSelected().string());
                 temp = fileName;
                 // need to set the file prefix for the input to "" so that it can find the new file
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
-                _fileDialogConstant.ClearSelected();
-                _fileDialogConstant.SetTypeFilters(std::vector<std::string>());
+                _fileDialogImage.ClearSelected();
+                _fileDialogImage.SetTypeFilters(std::vector<std::string>());
             }
 
             // set input value  and update materials if different from previous value
@@ -2832,59 +2831,134 @@ void Graph::upNodeGraph()
     }
 }
 
+void Graph::clearGraph()
+{
+    _graphNodes.clear();
+    _currLinks.clear();
+    _currEdge.clear();
+    _newLinks.clear();
+    _currPins.clear();
+    _graphDoc = mx::createDocument();
+    _graphDoc->importLibrary(_stdLib);
+    _currGraphElem = _graphDoc;
+
+    if (_currUiNode != nullptr)
+    {
+        ed::DeselectNode(_currUiNode->getId());
+        _currUiNode = nullptr;
+    }
+    _prevUiNode = nullptr;
+    _currRenderNode = nullptr;
+    _isNodeGraph = false;
+    _currGraphName.clear();
+
+    _renderer->setDocument(_graphDoc);
+    _renderer->updateMaterials(nullptr);
+}
+
+void Graph::loadGraphFromFile()
+{
+    // deselect node before loading new file
+    if (_currUiNode != nullptr)
+    {
+        ed::DeselectNode(_currUiNode->getId());
+        _currUiNode = nullptr;
+    }
+
+    _fileDialog.SetTitle("Open File");
+    _fileDialog.SetTypeFilters(_mtlxFilter);
+    _fileDialog.Open();
+}
+
+void Graph::saveGraphToFile()
+{
+    _fileDialogSave.SetTypeFilters(_mtlxFilter);
+    _fileDialogSave.SetTitle("Save File As");
+    _fileDialogSave.Open();
+}
+
+void Graph::loadGeometry()
+{
+    _fileDialogGeom.SetTitle("Load Geometry");
+    _fileDialogGeom.SetTypeFilters(_geomFilter);
+    _fileDialogGeom.Open();
+}
+
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
 
-    // buttons for loading and saving a .mtlx
-    // new Material button
-    if (ImGui::Button("New Material"))
+    if (ImGui::Button("File"))
     {
-        _graphNodes.clear();
-        _currLinks.clear();
-        _currEdge.clear();
-        _newLinks.clear();
-        _currPins.clear();
-        _graphDoc = mx::createDocument();
-        _graphDoc->importLibrary(_stdLib);
-        _currGraphElem = _graphDoc;
-
-        if (_currUiNode != nullptr)
-        {
-            ed::DeselectNode(_currUiNode->getId());
-            _currUiNode = nullptr;
-        }
-        _prevUiNode = nullptr;
-        _currRenderNode = nullptr;
-        _isNodeGraph = false;
-        _currGraphName.clear();
-
-        _renderer->setDocument(_graphDoc);
-        _renderer->updateMaterials(nullptr);
+        ImGui::OpenPopup("FileMenu");
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Load Material"))
+    if (ImGui::BeginPopup("FileMenu"))
     {
-        // deselect node before loading new file
-        if (_currUiNode != nullptr)
+        // buttons for loading and saving a .mtlx
+        // new Material button
+        if (ImGui::MenuItem("New (^N)"))
         {
-            ed::DeselectNode(_currUiNode->getId());
-            _currUiNode = nullptr;
+            clearGraph();
+        }
+        else if (ImGui::MenuItem("Open (^O)"))
+        {
+            loadGraphFromFile();
         }
 
-        _fileDialog.SetTitle("Open File Window");
-        _fileDialog.Open();
+        if (ImGui::MenuItem("Save (^S)"))
+        {
+            saveGraphToFile();
+        }
+        ImGui::EndPopup();
     }
+
     ImGui::SameLine();
-    if (ImGui::Button("Save Material"))
-    {
-        _fileDialogSave.SetTitle("Save File Window");
-        _fileDialogSave.Open();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Auto Layout"))
+    if (ImGui::Button("Auto Layout (L)"))
     {
         _autoLayout = true;
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Viewer"))
+    {
+        ImGui::OpenPopup("Render View");
+    }
+    if (ImGui::BeginPopup("Render View"))
+    {
+        if (ImGui::MenuItem("Load Geometry"))
+        {
+            loadGeometry();
+        }
+        ImGui::EndPopup();
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Help"))
+    {
+        ImGui::OpenPopup("Help");
+    }
+    if (ImGui::BeginPopup("Help"))
+    {
+        showHelp();
+        ImGui::EndPopup();
+    }
+
+    // Menu keys
+    ImGuiIO& guiIO = ImGui::GetIO();
+    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
+    {
+        if (ImGui::IsKeyReleased(ImGuiKey_O))
+        {
+            loadGraphFromFile();
+        }
+        else if (ImGui::IsKeyReleased(ImGuiKey_N))
+        {
+            clearGraph();
+        }
+        else if (ImGui::IsKeyReleased(ImGuiKey_S))
+        {
+            saveGraphToFile();
+        }
     }
 
     // split window into panes for NodeEditor
@@ -3175,6 +3249,52 @@ void Graph::propertyEditor()
         }
     }
 }
+
+// Helper to display basic user controls.
+void Graph::showHelp() const
+{
+    ImGui::Text("MATERIALX GRAPH EDITOR HELP");   
+    if (ImGui::CollapsingHeader("Graph"))
+    {
+        if (ImGui::TreeNode("Navigation"))
+        {
+            ImGui::BulletText("F : Frame selected nodes in graph.");
+            ImGui::BulletText("L : Format layout of graph.");
+            ImGui::BulletText("RIGHT MOUSE button to pan.");
+            ImGui::BulletText("SCROLL WHEEL to zoom.");
+            ImGui::BulletText("\"<\" BUTTON to view parent of current graph");
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Editing"))
+        {
+            ImGui::BulletText("TAB : Show popup menu to add new nodes.");
+            ImGui::BulletText("CTRL-C : Copy selected nodes to clipboard.");
+            ImGui::BulletText("CTRL-V : Paste clipboard to graph.");
+            ImGui::BulletText("CTRL-S : Search for node by name.");
+            ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
+            ImGui::BulletText("DELETE : Delete selected nodes or connections.");
+            ImGui::TreePop();
+        }
+    }
+    if (ImGui::CollapsingHeader("Preview Window"))
+    {
+        ImGui::BulletText("LEFT MOUSE button to tumble.");
+        ImGui::BulletText("RIGHT MOUSE button to pan.");
+        ImGui::BulletText("SCROLL WHEEL to zoom.");
+        ImGui::BulletText("Keypad +/- to zoom in fixed increments");
+    }
+
+    if (ImGui::CollapsingHeader("Property Editor"))
+    {
+        ImGui::BulletText("UP/DOWN ARROW to move between inputs.");
+        ImGui::BulletText("LEFT-MOUSE DRAG to modify values while entry field is in focus.");
+        ImGui::BulletText("DBL_CLICK or CTRL+CLICK LEFT-MOUSE on entry field to input values.");
+        ImGui::Separator();
+        ImGui::BulletText("\"Show all inputs\" Will toggle between showing all inputs and\n only those that have been modified.");
+        ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
+    }
+}
+
 void Graph::addNodePopup(bool cursor)
 {
     bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
@@ -3651,6 +3771,12 @@ void Graph::drawGraph(ImVec2 mousePos)
             ed::NavigateToSelection();
         }
 
+        // Layout nodes
+        if (ImGui::IsKeyReleased(ImGuiKey_L) && !_fileDialogSave.IsOpened())
+        {
+            _autoLayout = true;
+        }
+
         // go back up from inside a subgraph
         if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
         {
@@ -3806,6 +3932,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     ed::End();
     ImGui::End();
+
     _fileDialog.Display();
     // create and load document from selected file
     if (_fileDialog.HasSelected())
@@ -3827,7 +3954,16 @@ void Graph::drawGraph(ImVec2 mousePos)
         _renderer->updateMaterials(nullptr);
     }
 
-    _fileDialogConstant.Display();
+    _fileDialogGeom.Display();
+    if (_fileDialogGeom.HasSelected())
+    {
+        mx::FilePath fileName = mx::FilePath(_fileDialogGeom.GetSelected().string());
+        _fileDialogGeom.ClearSelected();
+        _renderer->loadMesh(fileName);
+        _renderer->updateMaterials(nullptr);
+    }
+
+    _fileDialogImage.Display();
 }
 
 // return node location in graphNodes vector based off of node id
