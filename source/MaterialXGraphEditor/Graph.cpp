@@ -2904,8 +2904,7 @@ void Graph::graphButtons()
         {
             loadGraphFromFile();
         }
-
-        if (ImGui::MenuItem("Save (^S)"))
+        else if (ImGui::MenuItem("Save (^S)"))
         {
             saveGraphToFile();
         }
@@ -2945,7 +2944,7 @@ void Graph::graphButtons()
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
+    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened() && !_fileDialogGeom.IsOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3276,7 +3275,7 @@ void Graph::showHelp() const
             ImGui::TreePop();
         }
     }
-    if (ImGui::CollapsingHeader("Preview Window"))
+    if (ImGui::CollapsingHeader("Viewer"))
     {
         ImGui::BulletText("LEFT MOUSE button to tumble.");
         ImGui::BulletText("RIGHT MOUSE button to pan.");
@@ -3522,7 +3521,7 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
             _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
         }
         // scrolling not possible if open or save file dialog is open
-        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
+        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
         {
             _renderer->setScrollEvent(scrollAmt);
         }

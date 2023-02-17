@@ -897,10 +897,6 @@ void RenderView::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _screenWidth, (float) _screenHeight));
 
-    // Disable user camera controls when non-centered views are requested.
-    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
-                         _meshScale == 1.0f;
-
     if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
     {
         return;
