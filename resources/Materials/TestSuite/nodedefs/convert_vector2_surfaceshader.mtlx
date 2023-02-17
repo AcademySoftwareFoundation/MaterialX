@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<materialx version="1.38">
-  <convert name="convert_vector2_surfaceshader" type="surfaceshader" version="1.0">
-    <input name="in" type="vector2" value="0, 0" />
-  </convert>
-  <surfacematerial name="material_convert_vector2_surfaceshader_out" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="convert_vector2_surfaceshader" />
-  </surfacematerial>
-</materialx>

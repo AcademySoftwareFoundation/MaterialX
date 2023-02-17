@@ -334,10 +334,10 @@ bool Input::validate(string* message) const
     {
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    if (parent->isA<Node>())
+    else if (parent->isA<Node>())
     {
         bool hasValueBinding = hasValue();
-        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName() || hasDefaultGeomPropString();
+        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
         validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
     }
     else if (parent->isA<NodeGraph>())

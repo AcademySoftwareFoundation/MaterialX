@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<materialx version="1.38">
-  <convert name="convert_boolean_surfaceshader" type="surfaceshader" version="1.0">
-    <input name="in" type="boolean" value="false" />
-  </convert>
-  <surfacematerial name="material_convert_boolean_surfaceshader_out" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="convert_boolean_surfaceshader" />
-  </surfacematerial>
-</materialx>
