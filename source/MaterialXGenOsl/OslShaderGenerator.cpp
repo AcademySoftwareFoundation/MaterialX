@@ -533,7 +533,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
 
         const string& type = _syntax->getTypeName(input->getType());
-        string value = _syntax->getValue((ShaderPort*) input, true);
+        string value = _syntax->getValue(input, true);
 
         emitLineBegin(stage);
         emitString(type + " " + input->getVariable(), stage);
