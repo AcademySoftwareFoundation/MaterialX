@@ -960,26 +960,6 @@ void RenderView::updateCameras()
     }
 }
 
-mx::GlslMaterialPtr RenderView::getWireframeMaterial()
-{
-    if (!_wireMaterial)
-    {
-        try
-        {
-            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _document, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = mx::GlslMaterial::create();
-            _wireMaterial->generateShader(hwShader);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
-            _wireMaterial = nullptr;
-        }
-    }
-
-    return _wireMaterial;
-}
-
 void RenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
 {
     if (!_quadMesh)

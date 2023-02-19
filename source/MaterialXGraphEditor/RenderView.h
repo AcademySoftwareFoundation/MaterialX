@@ -219,7 +219,6 @@ class RenderView
 
     // Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(mx::GlslMaterialPtr material);
-    mx::GlslMaterialPtr getWireframeMaterial();
 
     mx::ImagePtr getShadowMap();
     mx::ImagePtr _renderMap;
