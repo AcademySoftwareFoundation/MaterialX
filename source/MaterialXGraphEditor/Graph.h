@@ -117,7 +117,7 @@ class Graph
     void upNodeGraph();
 
     // property editor information
-    void setConstant(UiNodePtr node, mx::InputPtr& input);
+    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 

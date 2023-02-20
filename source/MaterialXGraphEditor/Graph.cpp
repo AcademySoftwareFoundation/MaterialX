@@ -825,10 +825,14 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
     }
 }
 // set the value of the selected node constants in the node property editor
-void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
+void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
-    std::string inName = input->getName();
+    std::string inName = !uiProperties.uiName.empty()? uiProperties.uiName : input->getName();
     float labelWidth = ImGui::CalcTextSize(inName.c_str()).x;
+
+    mx::ValuePtr minVal = uiProperties.uiMin;
+    mx::ValuePtr maxVal = uiProperties.uiMax;
+
     // if input is a float set the float slider Ui to the value
     if (input->getType() == "float")
     {
@@ -840,7 +844,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             float prev = val->asA<float>(), temp = val->asA<float>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 20);
-            ImGui::DragFloat("##hidelabel", &temp, 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<float>() : 0.f;
+            float max = maxVal ? maxVal->asA<float>() : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -859,7 +866,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             int prev = val->asA<int>(), temp = val->asA<int>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 20);
-            ImGui::DragInt("##hidelabel", &temp, 1, 0, 100);
+            int min = minVal ? minVal->asA<int>() : 0;
+            int max = maxVal ? maxVal->asA<int>() : 100;
+            float speed = (max - min) / 100.0f;
+            ImGui::DragInt("##hidelabel", &temp, speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -878,7 +888,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
             ImGui::PopItemWidth();
@@ -900,7 +913,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             // color edit for the color picker to the right of the color floats
             ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
@@ -922,7 +938,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat2("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -941,7 +960,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -960,7 +982,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 90);
-            ImGui::DragFloat4("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -2887,64 +2912,63 @@ void Graph::loadGeometry()
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
+    ImGui::SetWindowFontScale(_fontScale);
 
-    if (ImGui::Button("File"))
+    if (ImGui::BeginMenuBar())
     {
-        ImGui::OpenPopup("FileMenu");
-    }
-    if (ImGui::BeginPopup("FileMenu"))
-    {
-        // buttons for loading and saving a .mtlx
-        // new Material button
-        if (ImGui::MenuItem("New (^N)"))
+        if (ImGui::BeginMenu("File"))
         {
-            clearGraph();
+            // buttons for loading and saving a .mtlx
+            // new Material button
+            if (ImGui::MenuItem("New", "Ctrl-N"))
+            {
+                clearGraph();
+            }
+            else if (ImGui::MenuItem("Open", "Ctrl-O"))
+            {
+                loadGraphFromFile();
+            }
+            else if (ImGui::MenuItem("Save", "Ctrl-S"))
+            {
+                saveGraphToFile();
+            }
+            ImGui::EndMenu();
         }
-        else if (ImGui::MenuItem("Open (^O)"))
+        
+        if (ImGui::BeginMenu("Graph"))
         {
-            loadGraphFromFile();
+            if (ImGui::MenuItem("Auto Layout"))
+            {
+                _autoLayout = true;
+            }
+            ImGui::EndMenu();
         }
-        else if (ImGui::MenuItem("Save (^S)"))
+        
+        if (ImGui::BeginMenu("Viewer"))
         {
-            saveGraphToFile();
-        }
-        ImGui::EndPopup();
-    }
+            if (ImGui::MenuItem("Load Geometry"))
+            {
+                loadGeometry();
+            }
+            ImGui::EndMenu();
+        }     
 
-    ImGui::SameLine();
-    if (ImGui::Button("Auto Layout (L)"))
-    {
-        _autoLayout = true;
-    }
-
-    ImGui::SameLine();
-    if (ImGui::Button("Viewer"))
-    {
-        ImGui::OpenPopup("Render View");
-    }
-    if (ImGui::BeginPopup("Render View"))
-    {
-        if (ImGui::MenuItem("Load Geometry"))
+        if (ImGui::Button("Help"))
         {
-            loadGeometry();
+            ImGui::OpenPopup("Help");
         }
-        ImGui::EndPopup();
-    }
+        if (ImGui::BeginPopup("Help"))
+        {
+            showHelp();
+            ImGui::EndPopup();
+        }
 
-    ImGui::SameLine();
-    if (ImGui::Button("Help"))
-    {
-        ImGui::OpenPopup("Help");
-    }
-    if (ImGui::BeginPopup("Help"))
-    {
-        showHelp();
-        ImGui::EndPopup();
+        ImGui::EndMenuBar();
     }
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened() && !_fileDialogGeom.IsOpened())
+    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3139,10 +3163,13 @@ void Graph::propertyEditor()
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNode()->getInput(input->_name)))
                 {
+                    mx::UIProperties uiProperties;
+                    mx::getUIProperties(input->_input, mx::EMPTY_STRING, uiProperties);
+                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : input->_input->getName();
                     mx::OutputPtr out = input->_input->getConnectedOutput();
                     // setting comment help box
                     ImGui::PushID(int(input->_pinId.Get()));
-                    ImGui::Text("%s", input->_input->getName().c_str());
+                    ImGui::Text("%s", inputLabel.c_str());
                     mx::InputPtr tempInt = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName());
                     docString += input->_name;
                     docString += ": ";
@@ -3162,7 +3189,7 @@ void Graph::propertyEditor()
                     // setting constant sliders for input values
                     if (!input->getConnected())
                     {
-                        setConstant(_currUiNode, input->_input);
+                        setConstant(_currUiNode, input->_input, uiProperties);
                     }
 
                     ImGui::PopID();
@@ -3181,9 +3208,14 @@ void Graph::propertyEditor()
             ImGui::Indent();
             for (size_t i = 0; i < inputs.size(); i++)
             {
+                mx::InputPtr mxinput = inputs[i]->_input;
+                mx::UIProperties uiProperties;
+                mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
+
                 // setting comment help box
                 ImGui::PushID(int(inputs[i]->_pinId.Get()));
-                ImGui::Text("%s", inputs[i]->_input->getName().c_str());
+                ImGui::Text("%s", inputLabel.c_str());
 
                 ImGui::SameLine();
                 std::string typeText = " [" + inputs[i]->_input->getType() + "]";
@@ -3191,7 +3223,7 @@ void Graph::propertyEditor()
                 // setting constant sliders for input values
                 if (!inputs[i]->getConnected())
                 {
-                    setConstant(_currUiNode, inputs[i]->_input);
+                    setConstant(_currUiNode, inputs[i]->_input, uiProperties);
                 }
                 ImGui::PopID();
             }
@@ -3212,9 +3244,14 @@ void Graph::propertyEditor()
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
                 {
+                    mx::InputPtr mxinput = input->_input;
+                    mx::UIProperties uiProperties;
+                    mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
+
                     // setting comment help box
                     ImGui::PushID(int(input->_pinId.Get()));
-                    ImGui::Text("%s", input->_input->getName().c_str());
+                    ImGui::Text("%s", inputLabel.c_str());
 
                     docString += _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName())->getDocString();
 
@@ -3223,7 +3260,7 @@ void Graph::propertyEditor()
                     ImGui::Text("%s", typeText.c_str());
                     if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
                     {
-                        setConstant(_currUiNode, input->_input);
+                        setConstant(_currUiNode, input->_input, uiProperties);
                     }
 
                     ImGui::PopID();
@@ -3258,7 +3295,6 @@ void Graph::showHelp() const
         if (ImGui::TreeNode("Navigation"))
         {
             ImGui::BulletText("F : Frame selected nodes in graph.");
-            ImGui::BulletText("L : Format layout of graph.");
             ImGui::BulletText("RIGHT MOUSE button to pan.");
             ImGui::BulletText("SCROLL WHEEL to zoom.");
             ImGui::BulletText("\"<\" BUTTON to view parent of current graph");
@@ -3269,7 +3305,7 @@ void Graph::showHelp() const
             ImGui::BulletText("TAB : Show popup menu to add new nodes.");
             ImGui::BulletText("CTRL-C : Copy selected nodes to clipboard.");
             ImGui::BulletText("CTRL-V : Paste clipboard to graph.");
-            ImGui::BulletText("CTRL-S : Search for node by name.");
+            ImGui::BulletText("CTRL-F : Find a node by name.");
             ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
             ImGui::BulletText("DELETE : Delete selected nodes or connections.");
             ImGui::TreePop();
@@ -3542,7 +3578,7 @@ void Graph::drawGraph(ImVec2 mousePos)
     ImGuiIO& io2 = ImGui::GetIO();
     ImGui::SetNextWindowSize(io2.DisplaySize);
     ImGui::SetNextWindowPos(ImVec2(io2.DisplaySize.x * 0.5f, io2.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    ImGui::Begin("MaterialX", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("MaterialX", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
@@ -3768,12 +3804,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.IsOpened())
         {
             ed::NavigateToSelection();
-        }
-
-        // Layout nodes
-        if (ImGui::IsKeyReleased(ImGuiKey_L) && !_fileDialogSave.IsOpened())
-        {
-            _autoLayout = true;
         }
 
         // go back up from inside a subgraph
