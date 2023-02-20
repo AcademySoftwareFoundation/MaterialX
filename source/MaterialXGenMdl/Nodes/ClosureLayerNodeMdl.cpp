@@ -168,13 +168,30 @@ void ClosureLayerNodeMdl::emitBsdfOverBsdfFunctionCalls(
     ShaderNode* base,
     ShaderOutput* output) const
 {
+    // transport the base bsdf further than one layer
+    ShaderNode* baseReceiverNode = top;
+    while (true)
+    {
+        // if the top node is again a layer, we don't want to override the base
+        // parameter but instead aim for the base parameter of layers base
+        if (baseReceiverNode->hasClassification(ShaderNode::Classification::LAYER))
+        {
+            baseReceiverNode = top->getInput(StringConstantsMdl::BASE)->getConnection()->getNode();
+        }
+        else
+        {
+            // we stop at elemental bsdfs
+            // TODO handle mix, add, and multiply
+            break;
+        }
+    }
+
     // Only a subset of the MaterialX BSDF nodes can be layered vertically in MDL.
     // This is because MDL only supports layering through BSDF nesting with a base
     // input, and it's only possible to do this workaround on a subset of the BSDFs.
     // So if the top BSDF doesn't have a base input, we can only emit the top BSDF
     // without any base layering.
-    //
-    ShaderInput* topNodeBaseInput = top->getInput(StringConstantsMdl::BASE);
+    ShaderInput* topNodeBaseInput = baseReceiverNode->getInput(StringConstantsMdl::BASE);
     if (!topNodeBaseInput)
     {
         shadergen.emitComment("Warning: MDL has no support for layering BSDF nodes without a base input. Only the top BSDF will used.", stage);
