@@ -222,7 +222,7 @@ class UiNode
         _currNodeGraph = nodeGraph;
     }
 
-    UiNodePtr getConnectedNode(std::string name);
+    UiNodePtr getConnectedNode(const std::string& name);
     float getAverageY();
     float getMinX();
     int getEdgeIndex(int id, UiPinPtr pin);

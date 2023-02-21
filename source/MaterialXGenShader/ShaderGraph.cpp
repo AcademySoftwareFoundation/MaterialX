@@ -1020,13 +1020,21 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT) ||
-            node->hasClassification(ShaderNode::Classification::DOT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            // Constant and dot nodes can be removed by moving their value
-            // or connection downstream.
+            // Constant nodes can be elided by moving their value downstream.
             bypass(context, node, 0);
             ++numEdits;
+        }
+        else if (node->hasClassification(ShaderNode::Classification::DOT))
+        {
+            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            ShaderInput* in = node->getInput("in");
+            if (in->getChannels().empty())
+            {
+                bypass(context, node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::IFELSE))
         {
