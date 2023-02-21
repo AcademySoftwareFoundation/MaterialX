@@ -50,6 +50,11 @@ class Graph
     void drawGraph(ImVec2 mousePos);
     mx::DocumentPtr loadDocument(mx::FilePath filename);
 
+    void setFontScale(float val)
+    {
+        _fontScale = val;
+    }
+
     ~Graph(){};
 
   private:
@@ -99,6 +104,7 @@ class Graph
     // UiEdge functions
     bool edgeExists(UiEdge edge);
     void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+    void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void writeText(std::string filename, mx::FilePath filePath);
     void savePosition();
@@ -111,7 +117,7 @@ class Graph
     void upNodeGraph();
 
     // property editor information
-    void setConstant(UiNodePtr node, mx::InputPtr& input);
+    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 
@@ -139,7 +145,20 @@ class Graph
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     void setRenderMaterial(UiNodePtr node);
-    
+
+    // File I/O
+    void clearGraph();
+    void loadGraphFromFile();
+    void saveGraphToFile();
+    void loadGeometry();
+
+    mx::StringVec _geomFilter;
+    mx::StringVec _mtlxFilter;
+    mx::StringVec _imageFilter;
+
+    // Help
+    void showHelp() const;
+
     RenderViewPtr _renderer;
 
     // document and intializing information
@@ -193,7 +212,8 @@ class Graph
     // file dialog information
     ImGui::FileBrowser _fileDialog;
     ImGui::FileBrowser _fileDialogSave;
-    ImGui::FileBrowser _fileDialogConstant;
+    ImGui::FileBrowser _fileDialogImage;
+    ImGui::FileBrowser _fileDialogGeom;
 
     bool _isNodeGraph;
 
@@ -213,6 +233,9 @@ class Graph
     int _frameCount;
     // used for filtering pins when connecting links
     std::string _pinFilterType;
+
+    // DPI scaling for fonts
+    float _fontScale = 1.0f;
 };
 
 #endif

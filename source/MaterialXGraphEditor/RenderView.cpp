@@ -119,7 +119,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 }
 
 void RenderView::setDocument(mx::DocumentPtr document)
-{   
+{
     // Set new current document
     _document = document;
 
@@ -189,7 +189,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
 }
 
 void RenderView::initialize()
-{    
+{
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
@@ -316,6 +316,18 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         if (_shadowMaterial)
         {
             _shadowMaterial->unbindGeometry();
+        }
+
+        _meshRotation = mx::Vector3();
+        _meshScale = 1.0f;
+        _cameraTarget = mx::Vector3();
+
+        initCamera();
+    
+        if (_shadowMap)
+        {
+            _imageHandler->releaseRenderResources(_shadowMap);
+            _shadowMap = nullptr;
         }
     }
 }
@@ -885,10 +897,6 @@ void RenderView::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _screenWidth, (float) _screenHeight));
 
-    // Disable user camera controls when non-centered views are requested.
-    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
-                         _meshScale == 1.0f;
-
     if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
     {
         return;
@@ -958,26 +966,6 @@ void RenderView::updateCameras()
             _shadowCamera->setViewMatrix(mx::Camera::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp));
         }
     }
-}
-
-mx::GlslMaterialPtr RenderView::getWireframeMaterial()
-{
-    if (!_wireMaterial)
-    {
-        try
-        {
-            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _document, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = mx::GlslMaterial::create();
-            _wireMaterial->generateShader(hwShader);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
-            _wireMaterial = nullptr;
-        }
-    }
-
-    return _wireMaterial;
 }
 
 void RenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
