@@ -546,7 +546,6 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                 // not top of node graph stop recursion
                 if (pins.size() != 0 && layoutNode->getInput() == nullptr)
                 {
-                    int numNode = 0;
                     for (size_t i = 0; i < pins.size(); i++)
                     {
                         // get upstream node for all inputs
@@ -554,13 +553,9 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                         UiNodePtr nextNode = layoutNode->getConnectedNode(pins[i]->_name);
                         if (nextNode)
                         {
-                            startingPos.x = 1200.f - ((layoutNode->_level) * 350);
-                            // pos.y = 0;
+                            startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
                             ed::SetNodePosition(layoutNode->getId(), startingPos);
                             layoutNode->setPos(ImVec2(startingPos));
-
-                            newPos.x = 1200.f - ((layoutNode->_level + 1) * 75);
-                            ++numNode;
                             // call layout position on upstream node with newPos as -140 to the left of current node
                             layoutPosition(nextNode, ImVec2(newPos.x, startingPos.y), initialLayout, layoutNode->_level + 1);
                         }
@@ -569,7 +564,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             }
             else
             {
-                startingPos.x = 1200.f - ((layoutNode->_level) * 350);
+                startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
                 layoutNode->setPos(ImVec2(startingPos));
                 // set current node position
                 ed::SetNodePosition(layoutNode->getId(), ImVec2(startingPos));
@@ -2065,9 +2060,9 @@ void Graph::outputPin(UiNodePtr node)
 {
     // create output pin
     float nodeWidth = 20 + ImGui::CalcTextSize(node->getName().c_str()).x;
-    if (nodeWidth < 75)
+    if (nodeWidth < 80 * _fontScale)
     {
-        nodeWidth = 75;
+        nodeWidth = 80 * _fontScale;
     }
     const float labelWidth = ImGui::CalcTextSize("output").x;
 
