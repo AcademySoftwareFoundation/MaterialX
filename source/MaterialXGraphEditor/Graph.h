@@ -117,7 +117,7 @@ class Graph
     void upNodeGraph();
 
     // property editor information
-    void setConstant(UiNodePtr node, mx::InputPtr& input);
+    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 
@@ -145,6 +145,19 @@ class Graph
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     void setRenderMaterial(UiNodePtr node);
+
+    // File I/O
+    void clearGraph();
+    void loadGraphFromFile();
+    void saveGraphToFile();
+    void loadGeometry();
+
+    mx::StringVec _geomFilter;
+    mx::StringVec _mtlxFilter;
+    mx::StringVec _imageFilter;
+
+    // Help
+    void showHelp() const;
 
     RenderViewPtr _renderer;
 
@@ -199,7 +212,8 @@ class Graph
     // file dialog information
     ImGui::FileBrowser _fileDialog;
     ImGui::FileBrowser _fileDialogSave;
-    ImGui::FileBrowser _fileDialogConstant;
+    ImGui::FileBrowser _fileDialogImage;
+    ImGui::FileBrowser _fileDialogGeom;
 
     bool _isNodeGraph;
 
