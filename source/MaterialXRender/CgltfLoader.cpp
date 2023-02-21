@@ -75,7 +75,6 @@ using GLTFMeshPathList = std::unordered_map<cgltf_mesh*, StringVec>;
 
 void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath path, size_t nodeCount, size_t meshCount)
 {
-    FilePath prevPath = path;
     string cnodeName = cnode->name ? string(cnode->name) : DEFAULT_NODE_PREFIX + std::to_string(nodeCount++);
     path = path / ( createValidName(cnodeName) + "/" );
 

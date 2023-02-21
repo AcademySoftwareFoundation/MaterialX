@@ -32,7 +32,7 @@ UiNode::UiNode(const std::string& name, int id) :
 }
 
 // return the uiNode connected with input name
-UiNodePtr UiNode::getConnectedNode(std::string name)
+UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {
     for (UiEdge edge : edges)
     {
