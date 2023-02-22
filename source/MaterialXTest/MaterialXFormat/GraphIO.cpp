@@ -65,7 +65,7 @@ TEST_CASE("GraphIo: Generate Functional Graphs", "[graphio]")
 
         try
         {
-            std::vector<mx::OutputPtr> roots;
+            mx::StringVec roots;
             std::vector<bool> writeCategoriesList = { true, false };
 
             for (size_t i=0; i<2; i++)

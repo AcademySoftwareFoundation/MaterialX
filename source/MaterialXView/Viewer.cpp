@@ -1580,25 +1580,21 @@ void Viewer::saveDiagrams()
         mx::TypedElementPtr elem = material ? material->getElement() : nullptr;
 
         mx::NodePtr shaderNode = nullptr;
-        mx::GraphElementPtr graphNode = nullptr;
+        mx::GraphElementPtr graphNode = elem->getDocument();
 
         // Handle an output. Get parent graph
-        std::vector<mx::OutputPtr> outputs;
+        mx::StringVec outputs;
 
         // If element chosen is an output then use that as the starting point (root)
         // and get the parent nodegraph or document (GraphElement)
         mx::OutputPtr rootOutput = elem->asA<mx::Output>();
         if (rootOutput)
         {
-            outputs.push_back(rootOutput);
+            outputs.push_back(rootOutput->getNamePath());
             mx::ElementPtr parentPtr = rootOutput->getParent();
             if (parentPtr->isA<mx::NodeGraph>())
             {
                 graphNode = parentPtr->asA<mx::NodeGraph>();
-            }
-            else
-            {
-                graphNode = elem->getDocument();
             }
         }
 
@@ -1606,36 +1602,29 @@ void Viewer::saveDiagrams()
         //
         else
         {
-            mx::NodePtr node = elem->asA<mx::Node>();
-
-            // Material nodes have no output so traverse upstream to get starting node
-            if (node && node->getType() == mx::MATERIAL_TYPE_STRING)
+            mx::InterfaceElementPtr interfaceElem = elem->asA<mx::InterfaceElement>();
+            if (interfaceElem)
             {
-                std::vector<mx::NodePtr> shaderNodes = mx::getShaderNodes(node);
-                if (!shaderNodes.empty())
-        {
-                    node = shaderNodes[0];
-                    if (!node->getOutputCount())
-                    {
-                        node->addValueElementsFromNodeDef();
-                    }
+                mx::NodePtr node = interfaceElem->asA<mx::Node>();
+                if (node)
+                {
+                    node->addValueElementsFromNodeDef();
+                }
+                for (mx::OutputPtr out : interfaceElem->getActiveOutputs())
+                {
+                    outputs.push_back(out->getNamePath());
                 }
             }
-            if (node)
+            if (outputs.empty())
             {
-                // Get all outputs on the node
-                for (mx::OutputPtr out : node->getActiveOutputs())
-                {
-                    outputs.push_back(out);
-                }
-                graphNode = elem->getDocument();
+                outputs.push_back(elem->getNamePath());
             }
         }
         
         std::string outputString;
         std::string outputFilename;
         if (graphNode)
-            {
+        {
             std::string formatString;
             mx::GraphIoPtr grapher = nullptr;
             if (_diagramFormat == DiagramFormat::MERMAID_FORMAT)

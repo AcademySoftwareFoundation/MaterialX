@@ -56,7 +56,7 @@ def generateGraph(opts, root, outputList):
     # By default we don't want the per graph headers and will add them
     # in as a wrapper outside this function.
     graphOptions = mx.GraphIoGenOptions()
-    graphOptions.setWriteGraphHeader(False)
+    graphOptions.setWriteGraphHeader(True)
     graphOptions.setWriteCategories(False)
     graphOptions.setWriteSubgraphs(True)
     graphOptions.setOrientation(mx.GraphOrientation.LEFT_RIGHT)
@@ -107,39 +107,33 @@ def main():
 
     # Create the graph for each element found.
     for elem in nodes:
-        graphNode = None
-        outputs = []
+        graphNode = elem.getDocument()
+        roots = []
 
         # Check outputs
         if elem.isA(mx.Output):
 
-            outputs.append(elem)
+            roots.append(elem.getNamePath())
             parent = elem.getParent()
             if parent.isA(mx.NodeGraph):
                 graphNode = parent.asA(mx.NodeGraph)
             else:
                 graphNode = elem.getDocument()
 
-        # Check material nodes
-        else:
-            node = None
-            if elem.getType() == 'material':
-                shaderNodes = mx.getShaderNodes(elem)
-                if shaderNodes:
-                    node = shaderNodes[0];
-                    if not node.getOutputCount():
-                        # Try and get rid of this call ?
-                        node.addValueElementsFromNodeDef()
-            if node:
-                for out in node.getActiveOutputs():
-                    outputs.append(out)
-                graphNode = elem.getDocument()
+        # Check nodes
+        elif elem.isA(mx.InterfaceElement):
+            if not elem.getOutputCount():
+                elem.addValueElementsFromNodeDef()
+            for out in elem.getActiveOutputs():
+                roots.append(out.getNamePath())
+            if not roots:
+                roots.append(elem.getNamePath())
         
         # Generate graph for the set of outputs found
         if graphNode:
-            for out in outputs:
-                print('Generate graph for output: ', out.getNamePath())
-            graphOutput += generateGraph(opts, graphNode, outputs)
+            for root in roots:
+                print('Generate graph for root: ', root)
+            graphOutput += generateGraph(opts, graphNode, roots)
 
     graphOutput += footer
     

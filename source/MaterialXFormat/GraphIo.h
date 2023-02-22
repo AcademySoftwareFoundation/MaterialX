@@ -193,7 +193,7 @@ class MX_FORMAT_API GraphIo
     /// @param graph GraphElement to write
     /// @param roots Optional list of roots to GraphIo what upstream elements to consider>
     /// @returns String result
-    virtual string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) = 0;
+    virtual string write(GraphElementPtr graph, const StringVec& roots) = 0;
 
     /// @}
     /// @name Options to set before writing
@@ -220,7 +220,7 @@ class MX_FORMAT_API GraphIo
     /// @param graph GraphElement to traverse
     /// @param roots Optional list of roots indicating what upstream elements to consider.
     ///              If empty, then all of the graph's outputs are traversed.
-    virtual void emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> roots);
+    virtual void emitGraph(GraphElementPtr graph, const StringVec& roots);
       
     /// Emit the root node only. Called when there are no downstream connections.
     /// @param root Root node
@@ -339,7 +339,7 @@ public:
 
     static DotGraphIoPtr create();
 
-    string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) override;
+    string write(GraphElementPtr graph, const StringVec& roots) override;
 
   protected:
     void emitRootNode(const NodeIO& root) override;
@@ -384,7 +384,7 @@ class MX_FORMAT_API MermaidGraphIo : public GraphIo
     /// Creator
     static MermaidGraphIoPtr create();
 
-    string write(GraphElementPtr graph, const std::vector<OutputPtr> roots) override;
+    string write(GraphElementPtr graph, const StringVec& roots) override;
 
   protected:
     void emitRootNode(const NodeIO& root) override;

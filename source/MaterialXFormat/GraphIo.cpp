@@ -54,8 +54,10 @@ string GraphIo::addNodeToSubgraph(std::unordered_map<string, StringSet>& subGrap
     return subgraphNodeName;
 }
 
-void GraphIo::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+void GraphIo::emitGraph(GraphElementPtr graph, const StringVec& roots)
 {
+    DocumentPtr doc = graph->getDocument();
+
     _graphResult.clear();
 
     // Write out all connections.
@@ -63,35 +65,38 @@ void GraphIo::emitGraph(GraphElementPtr graph, const std::vector<OutputPtr> root
     StringSet processedInterfaces;
     std::unordered_map<string, StringSet> subGraphs;
 
-    std::vector<OutputPtr> outputs;
+    std::vector<ElementPtr> outputs;
     if (!roots.empty())
     {
-        for (OutputPtr out : roots)
+        for (const string& root : roots)
         {
-            outputs.push_back(out);
+            ElementPtr elemPtr = doc->getDescendant(root);
+            TypedElementPtr rootPtr = elemPtr->asA<TypedElement>();
+            if (rootPtr)
+            {
+                // The traversal code must start from the node for material
+                if (rootPtr->getType() == MATERIAL_TYPE_STRING)
+                {
+                    outputs.push_back(rootPtr->getParent());
+                }
+                else
+                {
+                    outputs.push_back(rootPtr);
+                }
+            }
         }
     }
     else
     {
-        outputs = graph->getOutputs();
+        for (const OutputPtr out : graph->getOutputs())
+        {
+            outputs.push_back(out);
+        }
     }
 
     bool writeCategoryNames = _genOptions.getWriteCategories();
-    for (OutputPtr output : outputs)
+    for (ElementPtr root : outputs)
     {
-        ElementPtr root;
-        ElementPtr parent = output->getParent();
-        NodePtr node = parent->asA<Node>();
-        if (!parent->isA<NodeGraph>() &&
-            (node && node->getType() != MATERIAL_TYPE_STRING))
-        {
-            root = parent;
-        }
-        else
-        {
-            root = output;
-        }
-
         bool processedAny = false;
         for (Edge edge : root->traverseGraph())
         {
@@ -373,7 +378,7 @@ void DotGraphIo::emitGraphString()
     _graphResult = result;
 }
 
-string DotGraphIo::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+string DotGraphIo::write(GraphElementPtr graph, const StringVec& roots)
 {
     emitGraph(graph, roots);
     return _graphResult;
@@ -517,7 +522,7 @@ void MermaidGraphIo::emitGraphString()
     _graphResult = result;
 }
 
-string MermaidGraphIo::write(GraphElementPtr graph, const std::vector<OutputPtr> roots)
+string MermaidGraphIo::write(GraphElementPtr graph, const StringVec& roots)
 {
     emitGraph(graph, roots);
     return _graphResult;

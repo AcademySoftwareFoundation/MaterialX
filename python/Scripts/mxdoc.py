@@ -113,7 +113,9 @@ def printNodeDefs(doc, opts):
                 mdoutput = ''
                 ng = nd.getImplementation()
                 if ng and ng.isA(mx.NodeGraph):
-                    outputList = ng.getOutputs()
+                    outputList = []
+                    for output in ng.getOutputs():
+                        outputList.append(output.getNamePath())                         
                     mdoutput = graphio.write(ng, outputList)
                     print('<li> <em>Nodegraph</em>: %s' % ng.getName())
                     if mdoutput:
@@ -183,7 +185,9 @@ def printNodeDefs(doc, opts):
                 mdoutput = ''
                 ng = nd.getImplementation()
                 if ng and ng.isA(mx.NodeGraph):
-                    outputList = ng.getOutputs()
+                    outputList = []                    
+                    for output in ng.getOutputs():
+                        outputList.append(output.getNamePath())                         
                     mdoutput = graphio.write(ng, outputList)
                     print('* *Nodegraph*: %s' % ng.getName())
                     if mdoutput:
@@ -251,7 +255,7 @@ def printHeader(opts):
         print('<html>')
         # Add in mermaid support
         if opts.nodegraph:
-            print('<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>')
+            print('<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>')
             print('<script>')
             print('mermaid.initialize({ startOnLoad: true, theme: document.body.classList.contains("vscode-dark") || document.body.classList.contains("vscode-high-contrast") ? "dark" : "default" });')
             print('</script>')        

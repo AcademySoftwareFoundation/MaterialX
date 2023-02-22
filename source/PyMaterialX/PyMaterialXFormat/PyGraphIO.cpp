@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 class PyGraphIo : public mx::GraphIo
 {
   public:
-    std::string write(mx::GraphElementPtr graph, const std::vector<mx::OutputPtr> roots) override
+    std::string write(mx::GraphElementPtr graph, const mx::StringVec& roots) override
     {
         PYBIND11_OVERLOAD_PURE(
             std::string,
@@ -60,17 +60,17 @@ void bindPyGraphIo(py::module& mod)
         .def(py::init<>());
 
     py::class_<mx::GraphIo, PyGraphIo, mx::GraphIoPtr>(mod, "GraphIo")
-        .def("write", (std::string(mx::GraphIo::*)(mx::GraphElementPtr, const std::vector<mx::OutputPtr>)) & mx::GraphIo::write)
+        .def("write", (std::string(mx::GraphIo::*)(mx::GraphElementPtr, const mx::StringVec&)) & mx::GraphIo::write)
         .def("supportsFormats", &mx::GraphIo::supportsFormats)
         .def("setGenOptions", &mx::GraphIo::setGenOptions)
         .def("getGenOptions", &mx::GraphIo::getGenOptions);
 
     py::class_<mx::DotGraphIo, mx::GraphIo, mx::DotGraphIoPtr>(mod, "DotGraphIo")
         .def_static("create", &mx::DotGraphIo::create)
-        .def("write", (std::string (mx::DotGraphIo::*)(mx::GraphElementPtr, const std::vector<mx::OutputPtr>)) &mx::DotGraphIo::write);
+        .def("write", (std::string (mx::DotGraphIo::*)(mx::GraphElementPtr, const mx::StringVec&)) &mx::DotGraphIo::write);
 
     py::class_<mx::MermaidGraphIo, mx::GraphIo, mx::MermaidGraphIoPtr>(mod, "MermaidGraphIo")
         .def_static("create", &mx::MermaidGraphIo::create)
-        .def("write", (std::string (mx::MermaidGraphIo::*)(mx::GraphElementPtr, const std::vector<mx::OutputPtr>)) &mx::MermaidGraphIo::write);
+        .def("write", (std::string (mx::MermaidGraphIo::*)(mx::GraphElementPtr, const mx::StringVec&)) &mx::MermaidGraphIo::write);
 }
 
