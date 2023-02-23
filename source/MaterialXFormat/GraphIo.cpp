@@ -88,7 +88,7 @@ void GraphIo::emitGraph(GraphElementPtr graph, const StringVec& roots)
     }
     else
     {
-        for (const OutputPtr out : graph->getOutputs())
+        for (auto out : graph->getOutputs())
         {
             outputs.push_back(out);
         }
