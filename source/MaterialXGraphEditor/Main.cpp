@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXFormat/Environ.h>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -37,6 +38,38 @@ mx::FileSearchPath getDefaultSearchPath()
     }
 
     return searchPath;
+}
+
+std::filesystem::path getConfigPath()
+{
+    std::filesystem::path config_dir;
+    auto xdg_config_home = mx::getEnviron("XDG_CONFIG_HOME");
+    auto home_directory = mx::getEnviron("HOME");
+    if (!xdg_config_home.empty())
+    {
+        config_dir = std::filesystem::path(xdg_config_home) / "MaterialX";
+    }
+    else if (!home_directory.empty())
+    {
+#if defined(__APPLE__)
+        config_dir = std::filesystem::path(home_directory) / "Library" / "Preferences" / "MaterialX";
+#else
+        config_dir = std::filesystem::path(home_directory) / ".config" / "MaterialX";
+#endif
+    }
+    else
+    {
+        return {};
+    }
+
+    std::filesystem::create_directories(config_dir);
+    if (!std::filesystem::exists(config_dir))
+    {
+        std::cerr << "Failed to create MaterialX config directory at " << config_dir << std::endl;
+        return {};
+    }
+
+    return config_dir / "GraphEditor.imgui.ini";
 }
 
 const std::string options =
@@ -167,6 +200,12 @@ int main(int argc, char* const argv[])
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
 
+    auto configPath = getConfigPath();
+    if (!configPath.empty())
+    {
+        io.IniFilename = (const char*) configPath.c_str();
+    }
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
@@ -224,7 +263,7 @@ int main(int argc, char* const argv[])
             break;
         }
 
-        double xpos, ypos;
+        double xpos = 0.0, ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
