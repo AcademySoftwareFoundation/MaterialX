@@ -6,7 +6,6 @@
 #include <MaterialXGraphEditor/RenderView.h>
 
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
-#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -18,12 +17,11 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
+#include <imgui_impl_glfw.h>
 
-#include <GLFW/glfw3.h>
+#include <iostream>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -121,7 +119,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 }
 
 void RenderView::setDocument(mx::DocumentPtr document)
-{   
+{
     // Set new current document
     _document = document;
 
@@ -191,7 +189,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
 }
 
 void RenderView::initialize()
-{    
+{
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
@@ -319,6 +317,18 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         {
             _shadowMaterial->unbindGeometry();
         }
+
+        _meshRotation = mx::Vector3();
+        _meshScale = 1.0f;
+        _cameraTarget = mx::Vector3();
+
+        initCamera();
+    
+        if (_shadowMap)
+        {
+            _imageHandler->releaseRenderResources(_shadowMap);
+            _shadowMap = nullptr;
+        }
     }
 }
 
@@ -371,11 +381,11 @@ void RenderView::setMouseMotionEvent(mx::Vector2 pos)
 void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
 {
 
-    if ((button == 0) && !ImGui::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT) && !ImGui::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    if ((button == 0) && !ImGui::IsKeyPressed(ImGuiKey_RightShift) && !ImGui::IsKeyPressed(ImGuiKey_LeftShift))
     {
         _viewCamera->arcballButtonEvent(pos, down);
     }
-    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)))
+    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_RightShift)) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_LeftShift)))
     {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
@@ -887,10 +897,6 @@ void RenderView::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _screenWidth, (float) _screenHeight));
 
-    // Disable user camera controls when non-centered views are requested.
-    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
-                         _meshScale == 1.0f;
-
     if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
     {
         return;
@@ -960,26 +966,6 @@ void RenderView::updateCameras()
             _shadowCamera->setViewMatrix(mx::Camera::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp));
         }
     }
-}
-
-mx::GlslMaterialPtr RenderView::getWireframeMaterial()
-{
-    if (!_wireMaterial)
-    {
-        try
-        {
-            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _document, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = mx::GlslMaterial::create();
-            _wireMaterial->generateShader(hwShader);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
-            _wireMaterial = nullptr;
-        }
-    }
-
-    return _wireMaterial;
 }
 
 void RenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)

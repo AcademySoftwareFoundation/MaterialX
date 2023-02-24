@@ -32,7 +32,7 @@ UiNode::UiNode(const std::string& name, int id) :
 }
 
 // return the uiNode connected with input name
-UiNodePtr UiNode::getConnectedNode(std::string name)
+UiNodePtr UiNode::getConnectedNode(const std::string& name)
 {
     for (UiEdge edge : edges)
     {
@@ -47,10 +47,8 @@ UiNodePtr UiNode::getConnectedNode(std::string name)
     }
     for (UiEdge edge : edges)
     {
-
         if (edge.getInputName() == "")
         {
-
             return edge.getDown();
         }
     }
@@ -91,12 +89,12 @@ float UiNode::getMinX()
     return small;
 }
 
-int UiNode::getEdgeIndex(int id)
+int UiNode::getEdgeIndex(int id, UiPinPtr pin)
 {
     int count = 0;
     for (UiEdge edge : edges)
     {
-        if (edge.getUp()->getId() == id || edge.getDown()->getId() == id)
+        if ((edge.getUp()->getId() == id && pin->_input == edge._input) || (edge.getDown()->getId() == id && pin->_input == edge._input))
         {
             return count;
         }
@@ -105,7 +103,7 @@ int UiNode::getEdgeIndex(int id)
     return -1;
 }
 
-void UiNode::removeOutputConnection(std::string name)
+void UiNode::removeOutputConnection(const std::string& name)
 {
     for (size_t i = 0; i < _outputConnections.size(); i++)
     {

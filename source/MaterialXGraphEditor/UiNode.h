@@ -6,27 +6,119 @@
 #ifndef MATERIALX_UINODE_H
 #define MATERIALX_UINODE_H
 
-#include <MaterialXGraphEditor/Graph.h>
-
 #include <MaterialXCore/Unit.h>
 
 #include <imgui_node_editor.h>
-#include <widgets.h>
 
 namespace mx = MaterialX;
 namespace ed = ax::NodeEditor;
 
-class UiEdge;
-class Pin;
+class UiNode;
+class UiPin;
 
+using UiNodePtr = std::shared_ptr<UiNode>;
+using UiPinPtr = std::shared_ptr<UiPin>;
+
+// An edge between two UiNodes, storing the two nodes and connecting input.
+class UiEdge
+{
+  public:
+    UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
+        _uiDown(uiDown),
+        _uiUp(uiUp),
+        _input(input)
+    {
+    }
+    mx::InputPtr getInput()
+    {
+        return _input;
+    }
+    UiNodePtr getDown()
+    {
+        return _uiDown;
+    }
+    UiNodePtr getUp()
+    {
+        return _uiUp;
+    }
+    std::string getInputName()
+    {
+        if (_input != nullptr)
+        {
+            return _input->getName();
+        }
+        else
+        {
+            return mx::EMPTY_STRING;
+        }
+    }
+    UiNodePtr _uiDown;
+    UiNodePtr _uiUp;
+    mx::InputPtr _input;
+};
+
+// A connectable input or output pin of a UiNode.
+class UiPin
+{
+  public:
+    UiPin(int id, const char* name, const std::string& type, std::shared_ptr<UiNode> node, ed::PinKind kind, mx::InputPtr input, mx::OutputPtr output) :
+        _pinId(id),
+        _name(name),
+        _type(type),
+        _pinNode(node),
+        _kind(kind),
+        _input(input),
+        _output(output),
+        _connected(false)
+    {
+    }
+
+    void setConnected(bool connected)
+    {
+        _connected = connected;
+    }
+
+    bool getConnected()
+    {
+        return _connected;
+    }
+
+    void addConnection(UiPinPtr pin)
+    {
+        for (size_t i = 0; i < _connections.size(); i++)
+        {
+            if (_connections[i]->_pinId == pin->_pinId)
+            {
+                return;
+            }
+        }
+        _connections.push_back(pin);
+    }
+
+    const std::vector<UiPinPtr>& getConnections()
+    {
+        return _connections;
+    }
+
+  public:
+    ed::PinId _pinId;
+    std::string _name;
+    std::string _type;
+    std::shared_ptr<UiNode> _pinNode;
+    ed::PinKind _kind;
+    mx::InputPtr _input;
+    mx::OutputPtr _output;
+    std::vector<UiPinPtr> _connections;
+    bool _connected;
+};
+
+// The visual representation of a node in a graph.
 class UiNode
 {
-    using UiNodePtr = std::shared_ptr<UiNode>;
-
   public:
     UiNode();
     UiNode(const std::string& name, int id);
-    ~UiNode() { };
+    ~UiNode(){};
 
     std::string getName()
     {
@@ -130,14 +222,14 @@ class UiNode
         _currNodeGraph = nodeGraph;
     }
 
-    UiNodePtr getConnectedNode(std::string name);
+    UiNodePtr getConnectedNode(const std::string& name);
     float getAverageY();
     float getMinX();
-    int getEdgeIndex(int id);
+    int getEdgeIndex(int id, UiPinPtr pin);
     std::vector<UiEdge> edges;
-    std::vector<Pin> inputPins;
-    std::vector<Pin> outputPins;
-    void removeOutputConnection(std::string);
+    std::vector<UiPinPtr> inputPins;
+    std::vector<UiPinPtr> outputPins;
+    void removeOutputConnection(const std::string& name);
     mx::ElementPtr getMxElement();
     int _level;
     bool _showAllInputs;
@@ -157,61 +249,6 @@ class UiNode
     std::string _message;
     std::string _type;
     mx::NodeGraphPtr _currNodeGraph;
-};
-
-// Based off Pin struct from ImGui Node Editor blueprints-examples.cpp
-class Pin
-{
-  public:
-    Pin(int id, const char* name, std::string type, std::shared_ptr<UiNode> node, ed::PinKind kind, mx::InputPtr input, mx::OutputPtr output) :
-        _pinId(id),
-        _name(name),
-        _type(type),
-        _pinNode(node),
-        _kind(kind),
-        _input(input),
-        _output(output),
-        _connected(false)
-    {
-    }
-
-    void setConnected(bool connected)
-    {
-        _connected = connected;
-    }
-
-    bool getConnected()
-    {
-        return _connected;
-    }
-
-     void addConnection(const Pin& pin)
-     {
-         for (size_t i = 0; i < _connections.size(); i++)
-         {
-             if (_connections[i]._pinId == pin._pinId)
-             {
-                 return;
-             }
-         }
-         _connections.push_back(pin);
-     }
-
-    const std::vector<Pin>& getConnections()
-    {
-        return _connections;
-    }
-
-  public:
-    ed::PinId _pinId;
-    std::string _name;
-    std::string _type;
-    std::shared_ptr<UiNode> _pinNode;
-    ed::PinKind _kind;
-    mx::InputPtr _input;
-    mx::OutputPtr _output;
-    std::vector<Pin> _connections;
-    bool _connected;
 };
 
 #endif

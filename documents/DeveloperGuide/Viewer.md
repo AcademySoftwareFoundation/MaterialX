@@ -23,7 +23,7 @@ Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewe
 
 ### Summary of Viewer Options
 
-1.  **Load Mesh**: Load a new geometry in the OBJ format.
+1.  **Load Mesh**: Load a new geometry in the OBJ or glTF format.
 2.  **Load Material**: Load a material document in the MTLX format.
 3.  **Load Environment**: Load a lat-long environment light in the HDR format.
 4.  **Property Editor**: View or edit properties of the current material.
@@ -78,7 +78,7 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 
 The following are common command-line options for MaterialXView, and a complete list can be displayed with the `--help` option.
 - `--material [FILENAME]` : Specify the filename of the MTLX document to be displayed in the viewer
-- `--mesh [FILENAME]` : Specify the filename of the OBJ mesh to be displayed in the viewer
+- `--mesh [FILENAME]` : Specify the filename of the OBJ or glTF mesh to be displayed in the viewer
 - `--meshRotation [VECTOR3]` : Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)
 - `--meshScale [FLOAT]` : Specify the uniform scale of the displayed mesh
 - `--cameraPosition [VECTOR3]` : Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)

@@ -9,17 +9,13 @@
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslMaterial.h>
 
-#include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
-#include <MaterialXRender/Timer.h>
-
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
-#include <MaterialXCore/Unit.h>
-
-#include "imgui_impl_glfw.h"
 
 namespace mx = MaterialX;
+
+class RenderView;
+using RenderViewPtr = std::shared_ptr<RenderView>;
 
 class DocumentModifiers
 {
@@ -196,9 +192,10 @@ class RenderView
     void setScrollEvent(float scrollY);
     void setMaterial(mx::TypedElementPtr elem);
 
+    void loadMesh(const mx::FilePath& filename);
+
   private:
     void initContext(mx::GenContext& context);
-    void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
 
@@ -223,7 +220,6 @@ class RenderView
 
     // Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(mx::GlslMaterialPtr material);
-    mx::GlslMaterialPtr getWireframeMaterial();
 
     mx::ImagePtr getShadowMap();
     mx::ImagePtr _renderMap;

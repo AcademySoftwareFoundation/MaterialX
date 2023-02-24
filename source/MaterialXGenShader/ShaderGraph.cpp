@@ -56,6 +56,11 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         {
             inputSocket->setUniform();
         }
+        GeomPropDefPtr geomprop = input->getDefaultGeomProp();
+        if (geomprop)
+        {
+            inputSocket->setGeomProp(geomprop->getName());
+        }
     }
 }
 
@@ -252,6 +257,13 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         }
 
         node = geomNode.get();
+
+        // Assign a unique variable name for the node output.
+        const Syntax& syntax = context.getShaderGenerator().getSyntax();
+        ShaderOutput* output = node->getOutput();
+        string variable = output->getFullName();
+        variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+        output->setVariable(variable);
     }
 
     input->makeConnection(node->getOutput());
@@ -1015,13 +1027,21 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT) ||
-            node->hasClassification(ShaderNode::Classification::DOT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            // Constant and dot nodes can be removed by moving their value
-            // or connection downstream.
+            // Constant nodes can be elided by moving their value downstream.
             bypass(context, node, 0);
             ++numEdits;
+        }
+        else if (node->hasClassification(ShaderNode::Classification::DOT))
+        {
+            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            ShaderInput* in = node->getInput("in");
+            if (in->getChannels().empty())
+            {
+                bypass(context, node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::IFELSE))
         {
