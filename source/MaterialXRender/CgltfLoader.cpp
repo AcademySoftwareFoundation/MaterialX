@@ -1,6 +1,6 @@
 //
-// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -75,7 +75,6 @@ using GLTFMeshPathList = std::unordered_map<cgltf_mesh*, StringVec>;
 
 void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath path, size_t nodeCount, size_t meshCount)
 {
-    FilePath prevPath = path;
     string cnodeName = cnode->name ? string(cnode->name) : DEFAULT_NODE_PREFIX + std::to_string(nodeCount++);
     path = path / ( createValidName(cnodeName) + "/" );
 
@@ -192,8 +191,6 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
     // Read in all meshes
     StringSet meshNames;
-    const string MeshPrefix = "Mesh_";
-    const string TransformPrefix = "Transform_";
     for (size_t m = 0; m < data->meshes_count; m++)
     {
         cgltf_mesh* cmesh = &(data->meshes[m]);

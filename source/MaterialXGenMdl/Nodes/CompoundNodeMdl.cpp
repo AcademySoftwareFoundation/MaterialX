@@ -1,9 +1,10 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenMdl/Nodes/CompoundNodeMdl.h>
+#include <MaterialXGenMdl/MdlShaderGenerator.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
@@ -29,12 +30,11 @@ void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& co
     }
 }
 
-void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        const Syntax& syntax = shadergen.getSyntax();
 
         const bool isMaterialExpr = (_rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
                                      _rootGraph->hasClassification(ShaderNode::Classification::SHADER));
@@ -42,49 +42,8 @@ void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode&, GenContext& cont
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
-        if (!_returnStruct.empty())
-        {
-            // Define the output struct.
-            shadergen.emitLine("struct " + _returnStruct, stage, false);
-            shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
-            for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
-            {
-                shadergen.emitLine(syntax.getTypeName(output->getType()) + " mxp_" + output->getName(), stage);
-            }
-            shadergen.emitScopeEnd(stage, true);
-            shadergen.emitLineBreak(stage);
-
-            // Begin function signature.
-            shadergen.emitLine(_returnStruct + " " + _functionName, stage, false);
-        }
-        else
-        {
-            // Begin function signature.
-            const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
-            const string& outputType = syntax.getTypeName(outputSocket->getType());
-            shadergen.emitLine(outputType + " " + _functionName, stage, false);
-        }
-
-        shadergen.emitScopeBegin(stage, Syntax::PARENTHESES);
-
-        const string uniformPrefix = syntax.getUniformQualifier() + " ";
-
-        // Emit all inputs
-        int count = int(_rootGraph->numInputSockets());
-        for (ShaderGraphInputSocket* input : _rootGraph->getInputSockets())
-        {
-            const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
-            const string& type = syntax.getTypeName(input->getType());
-            const string value = (input->getValue() ?
-                                  syntax.getValue(input->getType(), *input->getValue()) :
-                                  syntax.getDefaultValue(input->getType()));
-
-            const string& delim = --count > 0 ? Syntax::COMMA : EMPTY_STRING;
-            shadergen.emitLine(qualifier + type + " " + input->getVariable() + " = " + value + delim, stage, false);
-        }
-
-        // End function signature.
-        shadergen.emitScopeEnd(stage);
+        // Emit function signature.
+        emitFunctionSignature(node, context, stage);
 
         // Special case for material expresions.
         if (isMaterialExpr)
@@ -167,6 +126,68 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
     }
+}
+
+void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& context, ShaderStage& stage) const
+{
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    const Syntax& syntax = shadergen.getSyntax();
+
+    if (!_returnStruct.empty())
+    {
+        // Define the output struct.
+        shadergen.emitLine("struct " + _returnStruct, stage, false);
+        shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
+        for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
+        {
+            shadergen.emitLine(syntax.getTypeName(output->getType()) + " mxp_" + output->getName(), stage);
+        }
+        shadergen.emitScopeEnd(stage, true);
+        shadergen.emitLineBreak(stage);
+
+        // Begin function signature.
+        shadergen.emitLine(_returnStruct + " " + _functionName, stage, false);
+    }
+    else
+    {
+        // Begin function signature.
+        const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
+        const string& outputType = syntax.getTypeName(outputSocket->getType());
+        shadergen.emitLine(outputType + " " + _functionName, stage, false);
+    }
+
+    shadergen.emitScopeBegin(stage, Syntax::PARENTHESES);
+
+    const string uniformPrefix = syntax.getUniformQualifier() + " ";
+
+    // Emit all inputs
+    int count = int(_rootGraph->numInputSockets());
+    for (ShaderGraphInputSocket* input : _rootGraph->getInputSockets())
+    {
+        const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
+        const string& type = syntax.getTypeName(input->getType());
+
+        string value = input->getValue() ? syntax.getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;
+        const string& geomprop = input->getGeomProp();
+        if (!geomprop.empty())
+        {
+            auto it = MdlShaderGenerator::GEOMPROP_DEFINITIONS.find(geomprop);
+            if (it != MdlShaderGenerator::GEOMPROP_DEFINITIONS.end())
+            {
+                value = it->second;
+            }
+        }
+        if (value.empty())
+        {
+            value = syntax.getDefaultValue(input->getType(), true);
+        }
+
+        const string& delim = --count > 0 ? Syntax::COMMA : EMPTY_STRING;
+        shadergen.emitLine(qualifier + type + " " + input->getVariable() + " = " + value + delim, stage, false);
+    }
+
+    // End function signature.
+    shadergen.emitScopeEnd(stage);
 }
 
 MATERIALX_NAMESPACE_END

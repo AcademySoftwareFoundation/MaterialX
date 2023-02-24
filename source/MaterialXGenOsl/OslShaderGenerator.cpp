@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -533,7 +533,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
 
         const string& type = _syntax->getTypeName(input->getType());
-        string value = _syntax->getValue((ShaderPort*) input, true);
+        string value = _syntax->getValue(input, true);
 
         emitLineBegin(stage);
         emitString(type + " " + input->getVariable(), stage);

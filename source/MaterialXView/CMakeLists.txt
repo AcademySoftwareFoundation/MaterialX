@@ -102,6 +102,10 @@ if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
         ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
 endif()
 
+set_target_properties(
+    MaterialXView PROPERTIES
+    INSTALL_RPATH "${MATERIALX_UP_ONE_RPATH}")
+
 install(TARGETS MaterialXView
     EXPORT MaterialX
     RUNTIME DESTINATION bin)

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderGraph.h>
@@ -55,6 +55,11 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         if (input->getIsUniform())
         {
             inputSocket->setUniform();
+        }
+        GeomPropDefPtr geomprop = input->getDefaultGeomProp();
+        if (geomprop)
+        {
+            inputSocket->setGeomProp(geomprop->getName());
         }
     }
 }
@@ -252,6 +257,13 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         }
 
         node = geomNode.get();
+
+        // Assign a unique variable name for the node output.
+        const Syntax& syntax = context.getShaderGenerator().getSyntax();
+        ShaderOutput* output = node->getOutput();
+        string variable = output->getFullName();
+        variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+        output->setVariable(variable);
     }
 
     input->makeConnection(node->getOutput());
@@ -1017,10 +1029,19 @@ void ShaderGraph::optimize(GenContext& context)
     {
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            // Constant nodes can be removed by moving their value
-            // or connection downstream.
+            // Constant nodes can be elided by moving their value downstream.
             bypass(context, node, 0);
             ++numEdits;
+        }
+        else if (node->hasClassification(ShaderNode::Classification::DOT))
+        {
+            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            ShaderInput* in = node->getInput("in");
+            if (in->getChannels().empty())
+            {
+                bypass(context, node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::IFELSE))
         {

@@ -1,3 +1,8 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRender/Util.h>
@@ -61,13 +66,17 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
 mx::FileSearchPath getDefaultSearchPath()
 {
     mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath parentPath = modulePath.getParentPath();
+    mx::FilePath installRootPath = modulePath.getParentPath();
+    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
 
     mx::FileSearchPath searchPath;
-    searchPath.append(modulePath);
-    if ((parentPath / "libraries").exists())
+    if ((devRootPath / "libraries").exists())
     {
-        searchPath.append(parentPath);
+        searchPath.append(devRootPath);
+    }
+    else
+    {
+        searchPath.append(installRootPath);
     }
 
     return searchPath;

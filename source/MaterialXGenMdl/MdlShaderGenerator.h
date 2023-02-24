@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_MDLSHADERGENERATOR_H
@@ -43,6 +43,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 
     /// Unique identifier for this generator target
     static const string TARGET;
+
+    /// Map of code snippets for geomprops in MDL.
+    static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS;
 
   protected:
     // Create and initialize a new MDL shader for shader generation.

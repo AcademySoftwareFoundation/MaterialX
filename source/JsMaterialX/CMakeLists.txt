@@ -92,6 +92,7 @@ set_target_properties(JsMaterialXCore
     OUTPUT_NAME JsMaterialXCore
     COMPILE_FLAGS "${JS_COMPILE_FLAGS}"
     LINK_FLAGS "${JS_LINK_FLAGS_CORE}"
+    INSTALL_RPATH "${MATERIALX_UP_TWO_RPATH}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 set_target_properties(JsMaterialXGenShader
@@ -99,6 +100,7 @@ set_target_properties(JsMaterialXGenShader
     OUTPUT_NAME JsMaterialXGenShader
     COMPILE_FLAGS "${JS_COMPILE_FLAGS}"
     LINK_FLAGS "${JS_LINK_FLAGS_GENSHADER}"
+    INSTALL_RPATH "${MATERIALX_UP_TWO_RPATH}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 target_link_libraries(JsMaterialXCore

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
@@ -31,20 +31,6 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
-std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
-{
-    { "Pobject", "base::transform_point(base::coordinate_internal, base::coordinate_object, state::position())" },
-    { "Pworld", "base::transform_point(base::coordinate_internal, base::coordinate_world, state::position())" },
-    { "Nobject", "base::transform_normal(base::coordinate_internal, base::coordinate_object, state::normal())" },
-    { "Nworld", "base::transform_normal(base::coordinate_internal, base::coordinate_world, state::normal())" },
-    { "Tobject", "base::transform_vector(base::coordinate_internal, base::coordinate_object, state::texture_tangent_u(0))" },
-    { "Tworld", "base::transform_vector(base::coordinate_internal, base::coordinate_world, state::texture_tangent_u(0))" },
-    { "Bobject", "base::transform_vector(base::coordinate_internal, base::coordinate_object, state::texture_tangent_v(0))" },
-    { "Bworld", "base::transform_vector(base::coordinate_internal, base::coordinate_world, state::texture_tangent_v(0))" },
-    { "UV0", "float2(state::texture_coordinate(0).x, state::texture_coordinate(0).y)" },
-    { "Vworld", "state::direction()" }
-};
-
 const string MDL_VERSION = "1.6";
 
 const vector<string> DEFAULT_IMPORTS =
@@ -66,6 +52,20 @@ const vector<string> DEFAULT_IMPORTS =
 } // anonymous namespace
 
 const string MdlShaderGenerator::TARGET = "genmdl";
+
+const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITIONS =
+{
+    { "Pobject", "state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())" },
+    { "Pworld", "state::transform_point(state::coordinate_internal, state::coordinate_world, state::position())" },
+    { "Nobject", "state::transform_normal(state::coordinate_internal, state::coordinate_object, state::normal())" },
+    { "Nworld", "state::transform_normal(state::coordinate_internal, state::coordinate_world, state::normal())" },
+    { "Tobject", "state::transform_vector(state::coordinate_internal, state::coordinate_object, state::texture_tangent_u(0))" },
+    { "Tworld", "state::transform_vector(state::coordinate_internal, state::coordinate_world, state::texture_tangent_u(0))" },
+    { "Bobject", "state::transform_vector(state::coordinate_internal, state::coordinate_object, state::texture_tangent_v(0))" },
+    { "Bworld", "state::transform_vector(state::coordinate_internal, state::coordinate_world, state::texture_tangent_v(0))" },
+    { "UV0", "float2(state::texture_coordinate(0).x, state::texture_coordinate(0).y)" },
+    { "Vworld", "state::direction()" }
+};
 
 //
 // MdlShaderGenerator methods

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXFormat/File.h>
@@ -156,7 +156,7 @@ FilePath FilePath::getNormalized() const
 bool FilePath::exists() const
 {
 #if defined(_WIN32)
-    uint32_t result = GetFileAttributes(asString().c_str());
+    uint32_t result = GetFileAttributesA(asString().c_str());
     return result != INVALID_FILE_ATTRIBUTES;
 #else
     struct stat sb;
@@ -167,7 +167,7 @@ bool FilePath::exists() const
 bool FilePath::isDirectory() const
 {
 #if defined(_WIN32)
-    uint32_t result = GetFileAttributes(asString().c_str());
+    uint32_t result = GetFileAttributesA(asString().c_str());
     if (result == INVALID_FILE_ATTRIBUTES)
         return false;
     return (result & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -184,9 +184,9 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
     FilePathVec files;
 
 #if defined(_WIN32)
-    WIN32_FIND_DATA fd;
+    WIN32_FIND_DATAA fd;
     string wildcard = "*." + extension;
-    HANDLE hFind = FindFirstFile((*this / wildcard).asString().c_str(), &fd);
+    HANDLE hFind = FindFirstFileA((*this / wildcard).asString().c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
@@ -195,7 +195,7 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
             {
                 files.emplace_back(fd.cFileName);
             }
-        } while (FindNextFile(hFind, &fd));
+        } while (FindNextFileA(hFind, &fd));
         FindClose(hFind);
     }
 #else
@@ -226,9 +226,9 @@ FilePathVec FilePath::getSubDirectories() const
     FilePathVec dirs{ *this };
 
 #if defined(_WIN32)
-    WIN32_FIND_DATA fd;
+    WIN32_FIND_DATAA fd;
     string wildcard = "*";
-    HANDLE hFind = FindFirstFile((*this / wildcard).asString().c_str(), &fd);
+    HANDLE hFind = FindFirstFileA((*this / wildcard).asString().c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
@@ -240,7 +240,7 @@ FilePathVec FilePath::getSubDirectories() const
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }
-        } while (FindNextFile(hFind, &fd));
+        } while (FindNextFileA(hFind, &fd));
         FindClose(hFind);
     }
 #else
@@ -300,7 +300,7 @@ FilePath FilePath::getCurrentPath()
 {
 #if defined(_WIN32)
     std::array<char, MAX_PATH> buf;
-    if (!GetCurrentDirectory(MAX_PATH, buf.data()))
+    if (!GetCurrentDirectoryA(MAX_PATH, buf.data()))
     {
         throw Exception("Error in getCurrentPath: " + std::to_string(GetLastError()));
     }
@@ -321,7 +321,7 @@ FilePath FilePath::getModulePath()
     vector<char> buf(MAX_PATH);
     while (true)
     {
-        uint32_t reqSize = GetModuleFileName(NULL, buf.data(), (uint32_t) buf.size());
+        uint32_t reqSize = GetModuleFileNameA(NULL, buf.data(), (uint32_t) buf.size());
         if (!reqSize)
         {
             throw Exception("Error in getModulePath: " + std::to_string(GetLastError()));

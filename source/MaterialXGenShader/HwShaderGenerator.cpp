@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
@@ -250,6 +250,48 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
+
+    // If the given element is a functional nodegraph we may have inputs with 
+    // default geomprops assigned. In order to bind the corresponding geometric 
+    // data to these inputs we can insert geomprop nodes in the graph.
+    ElementPtr parent = element->getParent();
+    if (parent && parent->isA<NodeGraph>())
+    {
+        NodeDefPtr nodedef = parent->asA<NodeGraph>()->getNodeDef();
+        if (nodedef)
+        {
+            // It's a functional nodegraph so check all inputs for geomprop assignments.
+            bool nodeAdded = false;
+            for (ShaderGraphInputSocket* socket : graph->getInputSockets())
+            {
+                if (!socket->getGeomProp().empty())
+                {
+                    InputPtr input = nodedef->getActiveInput(socket->getName());
+                    GeomPropDefPtr geomprop = input ? input->getDefaultGeomProp() : nullptr;
+                    if (geomprop)
+                    {
+                        // A default geomprop was assigned to this graph input.
+                        // For all internal connections to this input, break the connection 
+                        // and assing a geomprop node that generates this data.
+                        // Note: If a geomprop node exists already it is reused, 
+                        // so only a single node per geometry type is created.
+                        ShaderInputVec connections = socket->getConnections();
+                        for (auto connection : connections)
+                        {
+                            connection->breakConnection();
+                            graph->addDefaultGeomNode(connection, *geomprop, context);
+                            nodeAdded = true;
+                        }
+                    }
+                }
+            }
+            // If nodes where added we need to re-sort the nodes in topological order.
+            if (nodeAdded)
+            {
+                graph->topologicalSort();
+            }
+        }
+    }
 
     // Create vertex stage.
     ShaderStagePtr vs = createStage(Stage::VERTEX, *shader);
