@@ -69,6 +69,10 @@ void Syntax::registerInvalidTokens(const StringMap& tokens)
 /// Throws an exception if a type syntax is not defined for the given type.
 const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
 {
+    if (type == nullptr)
+    {
+        throw ExceptionShaderGenError("Cannot lookup type syntax for a nullptr");
+    }
     auto it = _typeSyntaxByType.find(type);
     if (it == _typeSyntaxByType.end())
     {
