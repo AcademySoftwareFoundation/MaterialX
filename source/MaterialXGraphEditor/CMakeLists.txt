@@ -57,6 +57,7 @@ set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
 
 add_subdirectory(External/Glfw)
+add_subdirectory(FileDialog)
 
 if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
@@ -65,6 +66,7 @@ endif()
 add_executable(MaterialXGraphEditor
     ${materialx_source}
     ${materialx_headers}
+    ${materialx_filedialog_sources}
     ${imgui_source}
     ${imgui_headers}
     ${imguinode_source}
@@ -79,7 +81,9 @@ target_link_libraries(
     MaterialXGraphEditor
     PRIVATE
     ${MATERIALX_LIBRARIES}
+    ${materialx_filedialog_libraries}
  	glfw_minimal)
+
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX

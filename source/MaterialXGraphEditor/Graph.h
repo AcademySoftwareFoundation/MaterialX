@@ -16,6 +16,9 @@
 
 #include <stack>
 
+#include <MaterialXGraphEditor/FileDialog/FileDialog.h>
+
+
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -212,10 +215,11 @@ class Graph
     bool _delete;
 
     // file dialog information
-    ImGui::FileBrowser _fileDialog;
-    ImGui::FileBrowser _fileDialogSave;
-    ImGui::FileBrowser _fileDialogImage;
-    ImGui::FileBrowser _fileDialogGeom;
+    ImguiFileDialogAdapter _fileDialog;
+    ImguiFileDialogAdapter _fileDialogSave;
+    ImguiFileDialogAdapter _fileDialogImage;
+    ImguiFileDialogAdapter _fileDialogGeom;
+
 
     bool _isNodeGraph;
 
