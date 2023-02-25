@@ -72,7 +72,8 @@ const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
     auto it = _typeSyntaxByType.find(type);
     if (it == _typeSyntaxByType.end())
     {
-        throw ExceptionShaderGenError("No syntax is defined for the given type '" + type->getName() + "'.");
+        string typeName = type ? type->getName() : "nullptr";
+        throw ExceptionShaderGenError("No syntax is defined for the given type '" + typeName + "'.");
     }
     return *_typeSyntaxes[it->second];
 }
