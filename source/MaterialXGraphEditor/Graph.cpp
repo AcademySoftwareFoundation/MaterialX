@@ -1602,6 +1602,10 @@ void Graph::positionPasteBin(ImVec2 pos)
     offset.y = pos.y - avgPos.y;
     for (auto pasteNode : _copiedNodes)
     {
+        if (!pasteNode.second)
+        {
+            continue;
+        }
         ImVec2 newPos = ImVec2(0, 0);
         newPos.x = ed::GetNodePosition(pasteNode.first->getId()).x + offset.x;
         newPos.y = ed::GetNodePosition(pasteNode.first->getId()).y + offset.y;
