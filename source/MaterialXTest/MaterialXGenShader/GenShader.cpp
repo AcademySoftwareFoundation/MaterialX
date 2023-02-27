@@ -24,6 +24,9 @@
 #ifdef MATERIALX_BUILD_GEN_MDL
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+#include <MaterialXGenMsl/MslShaderGenerator.h>
+#endif
 
 #include <cstdlib>
 #include <iostream>
@@ -316,6 +319,13 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
 #ifdef MATERIALX_BUILD_GEN_MDL
     {
         mx::GenContext context(mx::MdlShaderGenerator::create());
+        context.registerSourceCodeSearchPath(searchPath);
+        testDeterministicGeneration(libraries, context);
+    }
+#endif
+#ifdef MATERIALX_BUILD_GEN_MSL
+    {
+        mx::GenContext context(mx::MslShaderGenerator::create());
         context.registerSourceCodeSearchPath(searchPath);
         testDeterministicGeneration(libraries, context);
     }

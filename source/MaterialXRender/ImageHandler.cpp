@@ -312,4 +312,14 @@ void ImageSamplingProperties::setProperties(const string& fileNameUniform,
     }
 }
 
+bool ImageSamplingProperties::operator==(const ImageSamplingProperties& r) const
+{
+    return
+      (enableMipmaps == r.enableMipmaps &&
+       uaddressMode  == r.uaddressMode  &&
+       vaddressMode  == r.vaddressMode  &&
+       filterType    == r.filterType    &&
+       defaultColor  == r.defaultColor)  ;
+}
+
 MATERIALX_NAMESPACE_END

@@ -2,6 +2,24 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
+set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "")
+
+set(NANOGUI_PREFERRED_BACKEND OpenGL)
+if(APPLE)
+    option(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM "Use OpenGL Backend on Apple Platform" OFF)
+    if(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM)
+        set(NANOGUI_PREFERRED_BACKEND OpenGL)
+	set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "-DMATERIALXVIEW_OPENGL_BACKEND=1")
+    else()
+        set(NANOGUI_PREFERRED_BACKEND Metal)
+	set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "-DMATERIALXVIEW_METAL_BACKEND=1")
+    endif()
+endif()
+
+if("${MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS}" STREQUAL "")
+    set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "-DMATERIALXVIEW_OPENGL_BACKEND=1")
+endif()
+
 if (MATERIALX_NANOGUI_EXTERNAL)
     find_path(NANOGUI_INCLUDE_DIRS
         NAMES
@@ -28,11 +46,15 @@ else()
             "git submodule update --init --recursive")
     endif()
 
-    set(NANOGUI_BACKEND OpenGL CACHE STRING " " FORCE)
+    set(NANOGUI_BACKEND ${NANOGUI_PREFERRED_BACKEND} CACHE STRING " " FORCE)
     set(NANOGUI_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_SHARED OFF CACHE BOOL " " FORCE)
     set(NANOGUI_BUILD_PYTHON OFF CACHE BOOL " " FORCE)
     set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
+    
+    if(APPLE)
+        set(NANOGUI_NATIVE_FLAGS CACHE STRING "" FORCE)
+    endif()
 
     # Locally disable additional warnings for NanoGUI and its dependencies
     set(PREV_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
@@ -65,17 +87,32 @@ else()
     set(CMAKE_CXX_COMPILER_ID PREV_COMPILER_ID)
 endif()
 
-file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+file(GLOB materialx_source       "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB materialx_headers      "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 add_definitions(${NANOGUI_EXTRA_DEFS})
-
-add_executable(MaterialXView ${materialx_source} ${materialx_headers})
+add_definitions(${MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS})
 
 set(MATERIALX_LIBRARIES
     MaterialXFormat
     MaterialXGenGlsl
+    MaterialXRender
     MaterialXRenderGlsl)
+    
+if("${NANOGUI_PREFERRED_BACKEND}" STREQUAL "Metal")
+    set(MATERIALX_LIBRARIES
+        MaterialXFormat
+        MaterialXRender
+        MaterialXGenMsl
+        MaterialXRenderMsl)
+
+    file(GLOB materialx_source 
+        "${CMAKE_CURRENT_SOURCE_DIR}/ViewerCommon.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/ViewerMSL.mm"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Editor.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/MetalState.mm"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp")    
+endif()
 
 if (MATERIALX_BUILD_GEN_OSL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenOsl)
@@ -83,6 +120,8 @@ endif()
 if (MATERIALX_BUILD_GEN_MDL)
     LIST(APPEND MATERIALX_LIBRARIES MaterialXGenMdl)
 endif()
+
+add_executable(MaterialXView ${materialx_source} ${materialx_headers})
 
 target_link_libraries(
     MaterialXView
