@@ -257,6 +257,13 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         }
 
         node = geomNode.get();
+
+        // Assign a unique variable name for the node output.
+        const Syntax& syntax = context.getShaderGenerator().getSyntax();
+        ShaderOutput* output = node->getOutput();
+        string variable = output->getFullName();
+        variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+        output->setVariable(variable);
     }
 
     input->makeConnection(node->getOutput());
