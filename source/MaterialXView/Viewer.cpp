@@ -279,8 +279,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeRequested(false),
     _bakeWidth(0),
     _bakeHeight(0),
-    _bakeDocumentPerMaterial(true),
-    _minimumBakeDimension(1024)
+    _bakeDocumentPerMaterial(true)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -979,20 +978,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _bakeOptimize = enable;
     });
-
-    ng::Widget* bakeDimension = new ng::Widget(advancedPopup);
-    bakeDimension->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
-    mx::UIProperties bakeui;
-    bakeui.uiMin = mx::Value::createValue(4);
-    bakeui.uiMax = mx::Value::createValue(2048);
-    ng::IntBox<int>* bakeDimensionBox = createIntWidget(bakeDimension, "Minimum Bake Size",
-        _minimumBakeDimension, &bakeui, [this](unsigned int value)
-    {
-        _minimumBakeDimension = value;
-    });
-    bakeDimensionBox->set_value(_minimumBakeDimension);
-    bakeDimensionBox->set_editable(true);
-    
 
     ng::CheckBox* bakeDocumentPerMaterial= new ng::CheckBox(advancedPopup, "Bake Document Per Material");
     bakeDocumentPerMaterial->set_checked(_bakeDocumentPerMaterial);
@@ -2147,15 +2132,15 @@ void Viewer::bakeTextures()
         // Compute baking resolution.
         mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
         auto maxImageSize = mx::getMaxDimensions(imageVec);
-        unsigned int bakeWidth = std::max(maxImageSize.first, _minimumBakeDimension);
-        unsigned int bakeHeight = std::max(maxImageSize.second, _minimumBakeDimension);
+        unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
+        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
         if (_bakeWidth)
         {
-            bakeWidth = std::max(_bakeWidth, _minimumBakeDimension);
+            bakeWidth = std::max(_bakeWidth, (unsigned int) 4);
         }
         if (_bakeHeight)
         {
-            bakeHeight = std::max(_bakeHeight, _minimumBakeDimension);
+            bakeHeight = std::max(_bakeHeight, (unsigned int) 4);
         }
 
         // Construct a texture baker.

@@ -435,7 +435,6 @@ class Viewer : public ng::Screen
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
     bool _bakeDocumentPerMaterial;
-    unsigned int _minimumBakeDimension;
     mx::FilePath _bakeFilename;
 };
 

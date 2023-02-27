@@ -3,7 +3,7 @@
 Native Python helper functions for MaterialX data types.
 '''
 
-import sys, argparse
+import sys
 
 from .PyMaterialXCore import *
 
@@ -95,4 +95,4 @@ def stringToBoolean(value):
         return True
     elif value.lower() in ('no', 'false', 'f', '0'):
         return False
-    raise argparse.ArgumentTypeError('Boolean value expected.')
+    raise TypeError('Boolean value expected.')
