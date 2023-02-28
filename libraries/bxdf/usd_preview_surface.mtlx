@@ -95,7 +95,7 @@
 
   <!-- Node: UsdTransform2d -->
   <nodedef name="ND_UsdTransform2d" nodegroup="math" node="UsdTransform2d">
-    <input name="in" type="vector2" value="0,0" />
+    <input name="in" type="vector2" value="0, 0" />
     <input name="rotation" type="float" value="0" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="translation" type="vector2" value="0, 0" />
