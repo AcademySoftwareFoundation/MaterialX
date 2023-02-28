@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
 
-  <nodedef name="ND_standard_surface_to_UsdPreviewSurface" node="standard_surface_to_UsdPreviewSurface">
+  <nodedef name="ND_standard_surface_to_UsdPreviewSurface" node="standard_surface_to_UsdPreviewSurface" nodegroup="translation">
     <input name="metalness" type="float" value="0" />
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
