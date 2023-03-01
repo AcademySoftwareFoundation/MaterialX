@@ -21,7 +21,7 @@
   </nodegraph>
 
   <!-- LamaMix for EDFs -->
-  <nodedef name="ND_lama_mix_edf" node="LamaMix">
+  <nodedef name="ND_lama_mix_edf" node="LamaMix" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="material1" uiname="Material 1" type="EDF"
            doc="First material to mix." />
     <input name="material2" uiname="Material 2" type="EDF"
