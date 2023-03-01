@@ -155,7 +155,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     stdSurfNodeDef->setAttribute("node_category", "shader/surface");
     stdSurfNodeDef->setAttribute("node_type_id", "1234");
 
-    mx::InputPtr baseColor = stdSurfNodeDef->getInput("base_color");
+    mx::InputPtr baseColor = stdSurfNodeDef->getActiveInput("base_color");
     REQUIRE(baseColor != nullptr);
     baseColor->setAttribute("attribute_long_name", "BaseColor");
     baseColor->setAttribute("attribute_short_name", "bc");
