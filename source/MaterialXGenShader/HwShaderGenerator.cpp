@@ -251,46 +251,36 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
 
-    // If the given element is a functional nodegraph we may have inputs with 
-    // default geomprops assigned. In order to bind the corresponding geometric 
-    // data to these inputs we can insert geomprop nodes in the graph.
-    ElementPtr parent = element->getParent();
-    if (parent && parent->isA<NodeGraph>())
+    // Check if there are inputs with default geomprops assigned. In order to bind the
+    // corresponding data to these inputs we insert geomprop nodes in the graph.
+    bool geomNodeAdded = false;
+    for (ShaderGraphInputSocket* socket : graph->getInputSockets())
     {
-        NodeDefPtr nodedef = parent->asA<NodeGraph>()->getNodeDef();
-        if (nodedef)
+        if (!socket->getGeomProp().empty())
         {
-            // It's a functional nodegraph so check all inputs for geomprop assignments.
-            bool nodeAdded = false;
-            for (ShaderGraphInputSocket* socket : graph->getInputSockets())
+            ConstDocumentPtr doc = element->getDocument();
+            GeomPropDefPtr geomprop = doc->getGeomPropDef(socket->getGeomProp());
+            if (geomprop)
             {
-                if (!socket->getGeomProp().empty())
+                // A default geomprop was assigned to this graph input.
+                // For all internal connections to this input, break the connection 
+                // and assign a geomprop node that generates this data.
+                // Note: If a geomprop node exists already it is reused, 
+                // so only a single node per geometry type is created.
+                ShaderInputVec connections = socket->getConnections();
+                for (auto connection : connections)
                 {
-                    InputPtr input = nodedef->getActiveInput(socket->getName());
-                    GeomPropDefPtr geomprop = input ? input->getDefaultGeomProp() : nullptr;
-                    if (geomprop)
-                    {
-                        // A default geomprop was assigned to this graph input.
-                        // For all internal connections to this input, break the connection 
-                        // and assing a geomprop node that generates this data.
-                        // Note: If a geomprop node exists already it is reused, 
-                        // so only a single node per geometry type is created.
-                        ShaderInputVec connections = socket->getConnections();
-                        for (auto connection : connections)
-                        {
-                            connection->breakConnection();
-                            graph->addDefaultGeomNode(connection, *geomprop, context);
-                            nodeAdded = true;
-                        }
-                    }
+                    connection->breakConnection();
+                    graph->addDefaultGeomNode(connection, *geomprop, context);
+                    geomNodeAdded = true;
                 }
             }
-            // If nodes where added we need to re-sort the nodes in topological order.
-            if (nodeAdded)
-            {
-                graph->topologicalSort();
-            }
         }
+    }
+    // If nodes were added we need to re-sort the nodes in topological order.
+    if (geomNodeAdded)
+    {
+        graph->topologicalSort();
     }
 
     // Create vertex stage.
