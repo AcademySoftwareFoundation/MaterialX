@@ -277,7 +277,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             }
         }
     }
-    // If nodes where added we need to re-sort the nodes in topological order.
+    // If nodes were added we need to re-sort the nodes in topological order.
     if (geomNodeAdded)
     {
         graph->topologicalSort();
