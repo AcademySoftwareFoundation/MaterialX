@@ -279,7 +279,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeRequested(false),
     _bakeWidth(0),
     _bakeHeight(0),
-    _bakeDocumentPerMaterial(true)
+    _bakeDocumentPerMaterial(false)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
