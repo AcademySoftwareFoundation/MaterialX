@@ -43,22 +43,22 @@ mx::FileSearchPath getDefaultSearchPath()
 
 mx::FilePath getConfigPath()
 {
-    mx::FilePath config_path;
-    auto xdg_config_home = mx::getEnviron("XDG_CONFIG_HOME");
-    auto home_directory = mx::getEnviron("HOME");
-    if (!xdg_config_home.empty())
+    mx::FilePath configPath;
+    auto xdgConfigHome = mx::getEnviron("XDG_CONFIG_HOME");
+    auto homeDirectory = mx::getEnviron("HOME");
+    if (!xdgConfigHome.empty())
     {
-        config_path = mx::FilePath(xdg_config_home);
+        configPath = mx::FilePath(xdgConfigHome);
     }
-    else if (!home_directory.empty())
+    else if (!homeDirectory.empty())
     {
 #if defined(__APPLE__)
-        config_path = mx::FilePath(home_directory) / "Library" / "Preferences";
+        configPath = mx::FilePath(homeDirectory) / "Library" / "Preferences";
 #else
-        config_path = mx::FilePath(home_directory) / ".config";
-        if (!config_path.exists())
+        configPath = mx::FilePath(homeDirectory) / ".config";
+        if (!configPath.exists())
         {
-            config_path.createDirectory();
+            configPath.createDirectory();
         }
 #endif
     }
@@ -67,16 +67,16 @@ mx::FilePath getConfigPath()
         return {};
     }
 
-    config_path = config_path / "MaterialX";
-    config_path.createDirectory();
+    configPath = configPath / "MaterialX";
+    configPath.createDirectory();
 
-    if (!config_path.exists())
+    if (!configPath.exists())
     {
-        std::cerr << "Failed to create MaterialX config directory at " << config_path.asString() << std::endl;
+        std::cerr << "Failed to create MaterialX config directory at " << configPath.asString() << std::endl;
         return {};
     }
 
-    return config_path / "GraphEditor.imgui.ini";
+    return configPath / "GraphEditor.imgui.ini";
 }
 
 const std::string options =
