@@ -38,7 +38,7 @@ class MX_RENDER_API LightHandler
         _directLighting(true),
         _indirectLighting(true),
         _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
-        _refractionEnv(true)
+        _refractionTwoSided(false)
     {
     }
     virtual ~LightHandler() { }
@@ -125,28 +125,16 @@ class MX_RENDER_API LightHandler
         return _envSampleCount;
     }
 
-    /// Set environment visibility in refractions.
-    void setRefractionEnv(bool enable)
+    /// Set the two-sided refraction property.
+    void setRefractionTwoSided(bool enable)
     {
-        _refractionEnv = enable;
+        _refractionTwoSided = enable;
     }
 
-    /// Return environment visibility in refractions.
-    int getRefractionEnv() const
+    /// Return the two-sided refraction property.
+    int getRefractionTwoSided() const
     {
-        return _refractionEnv;
-    }
-
-    /// Set the uniform refraction color.
-    void setRefractionColor(const Color3& color)
-    {
-        _refractionColor = color;
-    }
-
-    /// Return the uniform refraction color.
-    Color3 getRefractionColor() const
-    {
-        return _refractionColor;
+        return _refractionTwoSided;
     }
 
     /// @}
@@ -233,8 +221,7 @@ class MX_RENDER_API LightHandler
     ImagePtr _envIrradianceMap;
     int _envSampleCount;
 
-    bool _refractionEnv;
-    Color3 _refractionColor;
+    bool _refractionTwoSided;
 
     ImagePtr _albedoTable;
 
