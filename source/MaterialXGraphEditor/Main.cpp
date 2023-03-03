@@ -7,7 +7,6 @@
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
 
-
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -57,7 +56,8 @@ mx::FilePath getConfigPath()
         config_path = mx::FilePath(home_directory) / "Library" / "Preferences";
 #else
         config_path = mx::FilePath(home_directory) / ".config";
-        if (!config_path.exists()) {
+        if (!config_path.exists())
+        {
             config_path.createDirectory();
         }
 #endif
@@ -270,7 +270,8 @@ int main(int argc, char* const argv[])
             break;
         }
 
-        double xpos = 0.0, ypos = 0.0;
+        double xpos = 0.0;
+        double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
