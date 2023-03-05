@@ -2,7 +2,7 @@
 <materialx version="1.38">
   <!-- Tuple conversion tests to feed into surfaceshader conversions 
        Note that as surfaceshader performs most of the basic tuple
-       conversions they are not added explicity here. -->
+       conversions they are not added explicitly here. -->
   <nodegraph name="convert_float_color4">
     <constant name="constant1" type="float">
       <input name="value" type="float" value="0.5000" />
