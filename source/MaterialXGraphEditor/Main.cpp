@@ -207,8 +207,8 @@ int main(int argc, char* const argv[])
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
 
-    auto configPath = getConfigPath();
-    if (!configPath.asString().empty())
+    mx::FilePath configPath = getConfigPath();
+    if (!configPath.isEmpty())
     {
         io.IniFilename = (const char*) configPath.asString().c_str();
     }
