@@ -210,7 +210,7 @@ int main(int argc, char* const argv[])
     mx::FilePath configPath = getConfigPath();
     if (!configPath.isEmpty())
     {
-        io.IniFilename = (const char*) configPath.asString().c_str();
+        io.IniFilename = configPath.asString().c_str();
     }
 
     // Setup Dear ImGui style
