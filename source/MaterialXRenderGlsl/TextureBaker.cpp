@@ -547,8 +547,7 @@ void TextureBaker::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searc
         }
     }
 
-    std::vector<TypedElementPtr> renderableMaterials;
-    findRenderableElements(doc, renderableMaterials);
+    std::vector<TypedElementPtr> renderableMaterials = findRenderableElements(doc);
 
     // Compute the UDIM set.
     ValuePtr udimSetValue = doc->getGeomPropValue(UDIM_SET_PROPERTY);

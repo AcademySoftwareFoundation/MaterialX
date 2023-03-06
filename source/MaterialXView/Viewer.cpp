@@ -1250,13 +1250,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Find new renderable elements.
         mx::StringVec renderablePaths;
-        std::vector<mx::TypedElementPtr> elems;
-        std::vector<mx::NodePtr> materialNodes;
-        mx::findRenderableElements(doc, elems);
+        std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(doc);
         if (elems.empty())
         {
             throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
         }
+        std::vector<mx::NodePtr> materialNodes;
         for (mx::TypedElementPtr elem : elems)
         {
             mx::TypedElementPtr renderableElem = elem;

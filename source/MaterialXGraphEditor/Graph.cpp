@@ -667,8 +667,7 @@ auto showLabel = [](const char* label, ImColor color)
 void Graph::selectMaterial(UiNodePtr uiNode)
 {
     // find renderable element that correspond with material uiNode
-    std::vector<mx::TypedElementPtr> elems;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
     mx::TypedElementPtr typedElem = nullptr;
     for (mx::TypedElementPtr elem : elems)
     {
@@ -752,9 +751,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
 void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 {
     std::string renderablePath;
-    std::vector<mx::TypedElementPtr> elems;
     mx::TypedElementPtr renderableElem;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
 
     size_t num = 0;
     int num2 = 0;

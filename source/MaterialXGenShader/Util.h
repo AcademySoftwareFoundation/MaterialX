@@ -45,22 +45,16 @@ MX_GENSHADER_API bool requiresImplementation(ConstNodeDefPtr nodeDef);
 /// Determine if a given element requires shading / lighting for rendering
 MX_GENSHADER_API bool elementRequiresShading(ConstTypedElementPtr element);
 
-/// Find any material node elements which are renderable (have input shaders)
+/// Find all renderable material nodes in the given document.
 /// @param doc Document to examine
-/// @param elements List of renderable elements (returned)
-/// @param includeReferencedGraphs Whether to check for outputs on referenced graphs
-/// @param processedSources List of elements examined.
-MX_GENSHADER_API void findRenderableMaterialNodes(ConstDocumentPtr doc,
-                                                  vector<TypedElementPtr>& elements,
-                                                  bool includeReferencedGraphs,
-                                                  std::unordered_set<ElementPtr>& processedSources);
+/// @return A vector of renderable material nodes.
+MX_GENSHADER_API vector<TypedElementPtr> findRenderableMaterialNodes(ConstDocumentPtr doc);
 
-/// Find any elements which may be renderable from within a document.
-/// This includes all outputs on node graphs and shader references which are not
-/// part of any included library. Light shaders are not considered to be renderable.
-/// The option to include node graphs referened by shader references is disabled by default.
-MX_GENSHADER_API void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements,
-                                             bool includeReferencedGraphs = false);
+/// Find all renderable elements in the given document, including material nodes if present,
+/// or graph outputs of renderable types if no material nodes are found.
+/// @param doc Document to examine
+/// @return A vector of renderable elements
+MX_GENSHADER_API vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc);
 
 /// Given a node input, return the corresponding input within its matching nodedef.
 /// The optional target string can be used to guide the selection of nodedef declarations.
@@ -91,6 +85,13 @@ MX_GENSHADER_API NodePtr connectsToWorldSpaceNode(OutputPtr output);
 /// @param output Starting node
 /// @param attributes Attributes to test for
 MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& attributes);
+
+//
+// These are deprecated wrappers for older versions of the function interfaces in this module.
+// Clients using these interfaces should update them to the latest API.
+//
+MX_GENSHADER_API void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&);
+MX_GENSHADER_API void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs = false);
 
 MATERIALX_NAMESPACE_END
 
