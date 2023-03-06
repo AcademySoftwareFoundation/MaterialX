@@ -146,24 +146,29 @@ export material mx_dielectric_bsdf(
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx,
+    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx [[ anno::unused() ]],
     uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
-    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
+    float mxp_thinfilm_thickness = 0.0,
+    float mxp_thinfilm_ior = 1.5
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
 = let {
-    bsdf bsdf_R = df::fresnel_layer(
-        ior: mxp_ior,
-        weight: mxp_weight,
-        layer: df::microfacet_ggx_smith_bsdf(
-                    roughness_u: mxp_roughness.x,
-                    roughness_v: mxp_roughness.y,
-                    tint: mxp_tint,
-                    tangent_u: mxp_tangent,
-                    mode: df::scatter_reflect),
-        base: mxp_base.surface.scattering,
-        normal: mxp_normal);
+    bsdf bsdf_R = df::thin_film(
+        thickness: mxp_thinfilm_thickness,
+        ior: color(math::max(0.01, mxp_thinfilm_ior)),
+        base: df::fresnel_layer(
+            ior: mxp_ior,
+            weight: mxp_weight,
+            layer: df::microfacet_ggx_smith_bsdf(
+                roughness_u: mxp_roughness.x,
+                roughness_v: mxp_roughness.y,
+                tint: mxp_tint,
+                tangent_u: mxp_tangent,
+                mode: df::scatter_reflect),
+            base: mxp_base.surface.scattering,
+        normal: mxp_normal));
 
     bsdf bsdf_T = df::weighted_layer(
         weight: mxp_weight,
@@ -177,12 +182,15 @@ export material mx_dielectric_bsdf(
 
     bsdf bsdf_RT = df::weighted_layer(
         weight: mxp_weight,
-        layer: df::microfacet_ggx_smith_bsdf(
-                    roughness_u: mxp_roughness.x,
-                    roughness_v: mxp_roughness.y,
-                    tint: mxp_tint,
-                    tangent_u: mxp_tangent,
-                    mode: df::scatter_reflect_transmit),
+        layer: df::thin_film(
+            thickness: mxp_thinfilm_thickness,
+            ior: color(math::max(0.01, mxp_thinfilm_ior)),
+            base: df::microfacet_ggx_smith_bsdf(
+                roughness_u: mxp_roughness.x,
+                roughness_v: mxp_roughness.y,
+                tint: mxp_tint,
+                tangent_u: mxp_tangent,
+                mode: df::scatter_reflect_transmit)),
         normal: mxp_normal);
 
     bsdf bsdf_selected = (mxp_scatter_mode == mx_scatter_mode_R) ? bsdf_R :
@@ -203,10 +211,9 @@ export material mx_conductor_bsdf(
     float2 mxp_roughness  = float2(0.0),
     float3 mxp_normal     = state::normal(),
     float3 mxp_tangent    = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx
-    [[
-        anno::unused()
-    ]]
+    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx [[ anno::unused() ]],
+    float mxp_thinfilm_thickness = 0.0,
+    float mxp_thinfilm_ior = 1.5
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -215,17 +222,26 @@ export material mx_conductor_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tangent_u: mxp_tangent);
-    bsdf conductor = df::fresnel_factor(mxp_ior, mxp_extinction, ggx_model);
+    bsdf conductor = df::fresnel_factor(
+        ior: mxp_ior,
+        extinction_coefficient: mxp_extinction, 
+        base: ggx_model);
+    bsdf thin_film_conductor = df::thin_film(
+        thickness: mxp_thinfilm_thickness,
+        ior: color(math::max(0.01, mxp_thinfilm_ior)),
+        base: conductor);
 } in material(
     surface: material_surface(
         scattering: df::weighted_layer(
             weight: mxp_weight,
-            layer: conductor,
+            layer: thin_film_conductor,
             normal: mxp_normal
         )
     )
 );
 
+// TODO MDL 1.8 will add support for thin film above a color_custom_curve_layer node
+//      until then, thin_film will have no effect
 export material mx_generalized_schlick_bsdf(
     float  mxp_weight    = 1.0,
     color  mxp_color0    = color(1.0),
@@ -234,9 +250,11 @@ export material mx_generalized_schlick_bsdf(
     float2 mxp_roughness = float2(0.0),
     float3 mxp_normal    = state::normal(),
     float3 mxp_tangent   = state::texture_tangent_u(0),
-    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx,
+    uniform mx_distribution_type mxp_distribution = mx_distribution_type_ggx [[ anno::unused() ]],
     uniform mx_scatter_mode mxp_scatter_mode = mx_scatter_mode_R,
-    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]]
+    material mxp_base = material() [[ anno::usage( "materialx:bsdf") ]],
+    float mxp_thinfilm_thickness = 0.0,
+    float mxp_thinfilm_ior = 1.5
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
@@ -248,18 +266,20 @@ export material mx_generalized_schlick_bsdf(
         tint: color(1.0),
         tangent_u: mxp_tangent,
         mode: mode);
-    bsdf distribution_model =  (mxp_distribution == mx_distribution_type_ggx) 
-                                   ? ggx_model : bsdf();
 } in material(
-    surface: material_surface( 
-        scattering: df::color_custom_curve_layer(
-            normal_reflectivity:  mxp_color0,
-            grazing_reflectivity: mxp_color90,
-            exponent: mxp_exponent,
-            weight: color(mxp_weight),
-            layer: distribution_model,
-            base: mxp_base.surface.scattering,
-            normal: mxp_normal
+    surface: material_surface(
+        scattering: df::thin_film(
+            thickness: mxp_thinfilm_thickness,
+            ior: color(math::max(0.01, mxp_thinfilm_ior)),
+            base: df::color_custom_curve_layer(
+                normal_reflectivity:  mxp_color0,
+                grazing_reflectivity: mxp_color90,
+                exponent: mxp_exponent,
+                weight: color(mxp_weight),
+                layer: ggx_model,
+                base: mxp_base.surface.scattering,
+                normal: mxp_normal
+            )
         )
     ),
     // we need to carry volume properties along for SSS
@@ -621,6 +641,7 @@ export material mx_mix_bsdf(
         )
     ),
     // we need to carry volume properties along for SSS
+    ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
         scattering: df::clamped_mix( 
             df::vdf_component[]( 
@@ -663,7 +684,7 @@ export material mx_mix_vdf(
     anno::usage( "materialx:vdf") 
 ]]
 = material(
-    ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannnot mix here
+    ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
         scattering: df::clamped_mix( 
         df::vdf_component[]( 
