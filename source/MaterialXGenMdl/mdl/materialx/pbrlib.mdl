@@ -159,11 +159,16 @@ export material mx_dielectric_bsdf(
 ]]
 = let {
     float coatIor = mxp_thinfilm_ior <= 0.0 ? 1.0 : mxp_thinfilm_ior;
+    float grazing_refl = math::max((1.0 - math::average(mxp_roughness)), 0.0);
+    float root_r = (mxp_ior-1)/(mxp_ior+1);
     bsdf bsdf_R = df::thin_film(
         thickness: mxp_thinfilm_thickness,
         ior: color(coatIor),
-        base: df::fresnel_layer(
-            ior: mxp_ior,
+        // fresnel layer has issues if base is a diffuse transmission, use custom curve for now
+        // this will break thin_film but improves standard_surface with diffuse transmission
+        base: df::custom_curve_layer(
+            normal_reflectivity: root_r*root_r,
+            grazing_reflectivity: grazing_refl,
             weight: mxp_weight,
             layer: df::microfacet_ggx_smith_bsdf(
                 roughness_u: mxp_roughness.x,
@@ -172,16 +177,16 @@ export material mx_dielectric_bsdf(
                 tangent_u: mxp_tangent,
                 mode: df::scatter_reflect),
             base: mxp_base.surface.scattering,
-        normal: mxp_normal));
+            normal: mxp_normal));
 
     bsdf bsdf_T = df::weighted_layer(
         weight: mxp_weight,
         layer: df::microfacet_ggx_smith_bsdf(
-                    roughness_u: mxp_roughness.x,
-                    roughness_v: mxp_roughness.y,
-                    tint: mxp_tint,
-                    tangent_u: mxp_tangent,
-                    mode: df::scatter_transmit),
+            roughness_u: mxp_roughness.x,
+            roughness_v: mxp_roughness.y,
+            tint: mxp_tint,
+            tangent_u: mxp_tangent,
+            mode: df::scatter_transmit),
         normal: mxp_normal);
 
     bsdf bsdf_RT = df::weighted_layer(
