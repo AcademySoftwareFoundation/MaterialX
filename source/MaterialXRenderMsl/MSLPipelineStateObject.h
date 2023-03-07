@@ -277,9 +277,6 @@ class MX_RENDERMSL_API MslProgram
     // Utility to map a MaterialX type to an METAL type
     static MTLDataType mapTypeToMetalType(const TypeDesc* type);
 
-    // Bind a value to the uniform at the given location.
-    void bindUniformLocation(int location, ConstValuePtr value);
-
   private:
     // Stages used to create program
     // Map of stage name and its source code

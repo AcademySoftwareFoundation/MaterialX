@@ -9,6 +9,6 @@
   <!-- ======================================================================== -->
   <!-- Base target definition for MSL targets using shader generation.          -->
   <!-- ======================================================================== -->
-  <targetdef name="genmsl" />
+  <targetdef name="genmsl" inherit="genglsl" />
 
 </materialx>

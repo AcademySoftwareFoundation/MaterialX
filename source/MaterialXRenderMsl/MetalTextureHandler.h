@@ -27,22 +27,27 @@ using MetalTextureHandlerPtr = std::shared_ptr<class MetalTextureHandler>;
 /// An Metal texture handler class
 class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
 {
+    friend class MslProgram;
   public:
     static MetalTextureHandlerPtr create(id<MTLDevice> device, ImageLoaderPtr imageLoader)
     {
         return MetalTextureHandlerPtr(new MetalTextureHandler(device, imageLoader));
-        //std::make_shared<MetalTextureHandler>(device, imageLoader);// MetalTextureHandlerPtr(imageLoader));
     }
 
+
+    /// This method binds image and its corresponding sampling properties.
+    /// It also creates the underlying resource if needed.
+    /// Actual binding of texture and sampler to command encoder happens autoamt
+    bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
+    
+protected:
     /// Bind an image. This method will bind the texture to an active texture
     /// unit as defined by the corresponding image description. The method
     /// will fail if there are not enough available image units to bind to.
-    bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
-    
     bool bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder,
                    int textureUnit,
                    ImagePtr image);
-    
+public:
     id<MTLSamplerState> getSamplerState(const ImageSamplingProperties& samplingProperties);
     
     /// Unbind an image.

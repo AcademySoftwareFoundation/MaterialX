@@ -11,6 +11,7 @@
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <MaterialXGenShader/HwShaderGenerator.h>
+#include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <iostream>
@@ -559,7 +560,9 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
     return nullptr;
 }
 
-MaterialX::ValuePtr MslProgram::findUniformValue(const string& uniformName, const MslProgram::InputMap& uniformList)
+MaterialX::ValuePtr MslProgram::findUniformValue(
+                                    const string& uniformName,
+                                    const MslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -680,17 +683,10 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
 
     const MslProgram::InputMap& uniformList = getUniformsList();
 
-    // Bind a couple of lights if can find the light information
-    int location = 0;
-
     // Set the number of active light sources
     size_t lightCount = lightHandler->getLightSources().size();
     auto input = uniformList.find(HW::NUM_ACTIVE_LIGHT_SOURCES);
-    if (input != uniformList.end())
-    {
-        location = input->second->location;
-    }
-    else
+    if (input == uniformList.end())
     {
         // No lighting information so nothing further to do
         lightCount = 0;
@@ -714,7 +710,7 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
     };
     for (const auto& env : envLights)
     {
-        auto iblUniform = uniformList.find(env.first + "_tex");
+        auto iblUniform = uniformList.find(TEXTURE_NAME(env.first));
         MslProgram::InputPtr inputPtr = iblUniform != uniformList.end() ? iblUniform->second : nullptr;
         if (inputPtr)
         {
@@ -799,67 +795,16 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
 
     // Bind the directional albedo table, if needed.
     ImagePtr albedoTable = lightHandler->getAlbedoTable();
-    if (albedoTable && hasUniform(HW::ALBEDO_TABLE + "_tex"))
+    if (albedoTable && hasUniform(TEXTURE_NAME(HW::ALBEDO_TABLE)))
     {
         ImageSamplingProperties samplingProperties;
         samplingProperties.uaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
         samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
         samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
         bindTexture(imageHandler,
-                    HW::ALBEDO_TABLE + "_tex",
+                    TEXTURE_NAME(HW::ALBEDO_TABLE),
                     albedoTable,
                     samplingProperties);
-    }
-    
-    const vector<NodePtr> lightList = lightHandler->getLightSources();
-    const std::unordered_map<string, unsigned int>& ids = lightHandler->getLightIdMap();
-
-    size_t index = 0;
-    for (const auto& light : lightList)
-    {
-        auto nodeDef = light->getNodeDef();
-        if (!nodeDef)
-        {
-            continue;
-        }
-        const string& nodeDefName = nodeDef->getName();
-        const string prefix = HW::LIGHT_DATA_INSTANCE + "[" + std::to_string(index) + "]";
-
-        // Set light type id
-        bool boundType = false;
-        input = uniformList.find(prefix + ".type");
-        if (input != uniformList.end())
-        {
-            location = input->second->location;
-            if (location >= 0)
-            {
-                auto it = ids.find(nodeDefName);
-                if (it != ids.end())
-                {
-                    boundType = true;
-                }
-            }
-        }
-        if (!boundType)
-        {
-            continue;
-        }
-
-        // Set all inputs
-        for (const auto& lightInput : light->getInputs())
-        {
-            // Make sure we have a value to set
-            if (lightInput->hasValue())
-            {
-                input = uniformList.find(prefix + "." + lightInput->getName());
-                if (input != uniformList.end())
-                {
-                    bindUniformLocation(input->second->location, lightInput->getValue());
-                }
-            }
-        }
-
-        ++index;
     }
 }
 
@@ -888,21 +833,14 @@ void MslProgram::bindUniform(const string& name, ConstValuePtr value, bool error
         {
             bindUniform(globalNameMapping->second, value, errorIfMissing);
         }
-    }
-}
-
-void MslProgram::bindUniformLocation(int location, ConstValuePtr value)
-{
-    if (_pso == nil)
-    {
-        const string errorType("MSL bind uniform error.");
-        StringVec errors;
-        errors.push_back("Cannot bind without a valid program");
-        throw ExceptionRenderError(errorType, errors);
-    }
-
-    if (location >= 0 && value->getValueString() != EMPTY_STRING)
-    {
+        else
+        {
+            if (errorIfMissing)
+            {
+                throw ExceptionRenderError("Unknown uniform: " + name);
+            }
+            return;
+        }
     }
 }
 
@@ -1110,7 +1048,7 @@ try_again:      if (inputIt != _uniformList.end())
                         ++tries;
                         if(v->getType() == Type::FILENAME)
                         {
-                            inputIt = _uniformList.find(v->getVariable() + "_tex");
+                            inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
                         }
                         else
                         {

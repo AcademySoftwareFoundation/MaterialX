@@ -82,7 +82,7 @@ class MX_RENDER_API Material
     virtual bool generateEnvironmentShader(GenContext& context,
                                            const FilePath& filename,
                                            DocumentPtr stdLib,
-                                           const FilePath& imagePath) = 0;
+                                           const FilePath& imagePath);
     
     /// Return the underlying hardware shader.
     ShaderPtr getShader() const;

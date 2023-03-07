@@ -39,8 +39,8 @@ MetalFramebuffer::MetalFramebuffer(id<MTLDevice> device,
                                    id<MTLTexture> colorTexture,
                                    bool encodeSrgb,
                                    MTLPixelFormat pixelFormat) :
-    _width(width),
-    _height(height),
+    _width(0),
+    _height(0),
     _channelCount(channelCount),
     _baseType(baseType),
     _encodeSrgb(encodeSrgb),
@@ -51,24 +51,7 @@ MetalFramebuffer::MetalFramebuffer(id<MTLDevice> device,
     StringVec errors;
     const string errorType("Metal target creation failure.");
 
-    // Convert texture format to Metal
-    MTLDataType    dataType;
-    if(pixelFormat == MTLPixelFormatInvalid)
-        MetalTextureHandler::mapTextureFormatToMetal(baseType, channelCount, _encodeSrgb, dataType, pixelFormat);
-    
-    MTLTextureDescriptor* texDescriptor = [MTLTextureDescriptor
-                                           texture2DDescriptorWithPixelFormat:pixelFormat width:_width height:_height mipmapped:NO];
-    [texDescriptor setStorageMode:MTLStorageModePrivate];
-    [texDescriptor setUsage:MTLTextureUsageRenderTarget|MTLTextureUsageShaderRead];
-    
-    if(colorTexture == nil)
-    {
-        _colorTexture = [device newTextureWithDescriptor:texDescriptor];
-    }
-    
-    texDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
-    [texDescriptor setUsage:MTLTextureUsageRenderTarget];
-    _depthTexture = [device newTextureWithDescriptor:texDescriptor];
+    resize(width, height, true, pixelFormat, colorTexture);
 }
 
 MetalFramebuffer::~MetalFramebuffer()
@@ -77,25 +60,37 @@ MetalFramebuffer::~MetalFramebuffer()
     [_depthTexture release];
 }
 
-void MetalFramebuffer::resize(unsigned int width, unsigned int height)
+void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forceRecreate,
+                              MTLPixelFormat pixelFormat,
+                              id<MTLTexture> extColorTexture)
 {
     if (width * height <= 0)
     {
         return;
     }
-    if (width != _width || _height != height)
+    if (width != _width || _height != height || forceRecreate)
     {
         // Convert texture format to Metal
-        MTLPixelFormat pixelFormat;
         MTLDataType    dataType;
-        MetalTextureHandler::mapTextureFormatToMetal(_baseType, _channelCount, true, dataType, pixelFormat);
+        if(pixelFormat == MTLPixelFormatInvalid)
+            MetalTextureHandler::mapTextureFormatToMetal(_baseType, _channelCount, _encodeSrgb, dataType, pixelFormat);
 
         MTLTextureDescriptor* texDescriptor = [MTLTextureDescriptor
-                                               texture2DDescriptorWithPixelFormat:pixelFormat width:_width height:_height mipmapped:NO];
+                                               texture2DDescriptorWithPixelFormat:pixelFormat
+                                               width:width
+                                               height:height
+                                               mipmapped:NO];
         [texDescriptor setStorageMode:MTLStorageModePrivate];
         [texDescriptor setUsage:MTLTextureUsageRenderTarget|MTLTextureUsageShaderRead];
         
-        _colorTexture = [_device newTextureWithDescriptor:texDescriptor];
+        if(extColorTexture == nil)
+        {
+            _colorTexture = [_device newTextureWithDescriptor:texDescriptor];
+        }
+        else
+        {
+            _colorTexture = extColorTexture;
+        }
         
         texDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
         [texDescriptor setUsage:MTLTextureUsageRenderTarget];

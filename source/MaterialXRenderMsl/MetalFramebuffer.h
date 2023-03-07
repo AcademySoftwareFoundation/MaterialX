@@ -40,13 +40,19 @@ class MX_RENDERMSL_API MetalFramebuffer
     virtual ~MetalFramebuffer();
 
     /// Resize the framebuffer
-    void resize(unsigned int width, unsigned int height);
+    void resize(unsigned int width, unsigned int height, bool forceRecreate = false,
+                MTLPixelFormat pixelFormat = MTLPixelFormatInvalid,
+                id<MTLTexture> extColorTexture = nil);
 
     /// Set the encode sRGB flag, which controls whether values written
     /// to the framebuffer are encoded to the sRGB color space.
     void setEncodeSrgb(bool encode)
     {
-        _encodeSrgb = encode;
+        if(encode != _encodeSrgb)
+        {
+            _encodeSrgb = encode;
+            resize(_width, _height, true);
+        }
     }
 
     /// Return the encode sRGB flag.

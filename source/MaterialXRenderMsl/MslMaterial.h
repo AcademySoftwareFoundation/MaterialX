@@ -47,12 +47,6 @@ class MX_RENDERMSL_API MslMaterial : public Material
 
     /// Generate a shader from the given hardware shader.
     bool generateShader(ShaderPtr hwShader) override;
-
-    /// Generate an environment background shader
-    bool generateEnvironmentShader(GenContext& context,
-                                   const FilePath& filename,
-                                   DocumentPtr stdLib,
-                                   const FilePath& imagePath) override;
     
     /// Copy shader from one material to this one
     void copyShader(MslMaterialPtr material)

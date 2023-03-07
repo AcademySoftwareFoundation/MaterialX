@@ -176,8 +176,13 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     
     NSUInteger channelCount = image->getChannelCount();
     
-    NSUInteger sourceBytesPerRow = image->getWidth() * channelCount * getTextureBaseTypeSize(image->getBaseType());
-    NSUInteger sourceBytesPerImage = sourceBytesPerRow * image->getHeight();
+    NSUInteger sourceBytesPerRow =
+        image->getWidth() *
+        channelCount *
+        getTextureBaseTypeSize(image->getBaseType());
+    NSUInteger sourceBytesPerImage =
+        sourceBytesPerRow *
+        image->getHeight();
     
     std::vector<float>         rearrangedDataF;
     std::vector<unsigned char> rearrangedDataC;

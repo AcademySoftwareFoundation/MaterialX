@@ -13,6 +13,7 @@
 
 #include <MaterialXRenderMsl/MetalFramebuffer.h>
 #include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MetalTextureHandler.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -45,6 +46,13 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
     /// Create a MSL renderer instance
     static MslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
     
+    /// Create a texture handler for Metal textures
+    ImageHandlerPtr createImageHandler(ImageLoaderPtr imageLoader)
+    {
+        return MetalTextureHandler::create(_device, imageLoader);
+    }
+    
+    /// Returns Metal Device used for rendering
     id<MTLDevice> getMetalDevice() const;
 
     /// Destructor

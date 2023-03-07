@@ -15,15 +15,6 @@ vec3 mx_square(vec3 x)
     return x*x;
 }
 
-float4 linearToSRGB(float4 color_linear)
-{
-    float4 color_srgb;
-    for(int i = 0; i < 3; ++i)
-        color_srgb[i] = (color_linear[i] < 0.0031308) ? (12.92 * color_linear[i]): (1.055 * pow(color_linear[i], 1.0 / 2.4) - 0.055);
-    color_srgb[3] = color_linear[3];
-    return color_srgb;
-}
-
 #ifdef __DECL_GL_MATH_FUNCTIONS__
 
 float radians(float degree) { return (degree * M_PI_F / 180.0f); }
