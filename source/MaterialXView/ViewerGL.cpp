@@ -424,7 +424,7 @@ void Viewer::bakeTextures()
 
         // Construct a texture baker.
         mx::Image::BaseType baseType = _bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-        mx::TextureBakerPtr baker = mx::TextureBaker::create(bakeWidth, bakeHeight, baseType);
+        mx::TextureBakerPtr baker = mx::TextureBakerGlsl::create(bakeWidth, bakeHeight, baseType);
         baker->setupUnitSystem(_stdLib);
         baker->setDistanceUnit(_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_bakeAverage);
