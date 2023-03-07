@@ -667,8 +667,7 @@ auto showLabel = [](const char* label, ImColor color)
 void Graph::selectMaterial(UiNodePtr uiNode)
 {
     // find renderable element that correspond with material uiNode
-    std::vector<mx::TypedElementPtr> elems;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
     mx::TypedElementPtr typedElem = nullptr;
     for (mx::TypedElementPtr elem : elems)
     {
@@ -752,9 +751,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
 void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 {
     std::string renderablePath;
-    std::vector<mx::TypedElementPtr> elems;
     mx::TypedElementPtr renderableElem;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
 
     size_t num = 0;
     int num2 = 0;
@@ -1602,6 +1600,10 @@ void Graph::positionPasteBin(ImVec2 pos)
     offset.y = pos.y - avgPos.y;
     for (auto pasteNode : _copiedNodes)
     {
+        if (!pasteNode.second)
+        {
+            continue;
+        }
         ImVec2 newPos = ImVec2(0, 0);
         newPos.x = ed::GetNodePosition(pasteNode.first->getId()).x + offset.x;
         newPos.y = ed::GetNodePosition(pasteNode.first->getId()).y + offset.y;
