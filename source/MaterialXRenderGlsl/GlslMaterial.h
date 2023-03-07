@@ -47,10 +47,10 @@ class MX_RENDERGLSL_API GlslMaterial : public Material
     bool generateShader(ShaderPtr hwShader) override;
     
     /// Copy shader from one material to this one
-    void copyShader(GlslMaterialPtr material)
+    void copyShader(MaterialPtr material) override
     {
-        _hwShader = material->_hwShader;
-        _glProgram = material->_glProgram;
+        _hwShader = std::static_pointer_cast<GlslMaterial>(material)->_hwShader;
+        _glProgram = std::static_pointer_cast<GlslMaterial>(material)->_glProgram;
     }
 
     /// Return the underlying GLSL program.

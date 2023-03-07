@@ -74,6 +74,9 @@ class MX_RENDER_API Material
     /// Generate a shader from our currently stored element and
     /// the given generator context.
     virtual bool generateShader(GenContext& context) = 0;
+    
+    /// Copies shader and API specific generated program from material to this one.
+    virtual void copyShader(MaterialPtr material) = 0;
 
     /// Generate a shader from the given hardware shader.
     virtual bool generateShader(ShaderPtr hwShader) = 0;
