@@ -28,7 +28,7 @@ using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 /// TODO: Add support for graphs containing geometric nodes such as position
 ///       and normal.
 template<typename Renderer, typename ShaderGen>
-class MX_RENDER_API TextureBaker : public Renderer
+class TextureBaker : public Renderer
 {
   public:
     /// Set the file extension for baked textures.
