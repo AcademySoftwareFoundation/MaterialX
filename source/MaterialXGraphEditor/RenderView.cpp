@@ -449,8 +449,7 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         //// Create new materials.
         if (!typedElem)
         {
-            std::vector<mx::TypedElementPtr> elems;
-            mx::findRenderableElements(_document, elems);
+            std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_document);
             if (!elems.empty())
             {
                 typedElem = elems[0];
