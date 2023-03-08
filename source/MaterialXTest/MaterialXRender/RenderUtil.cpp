@@ -299,7 +299,7 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             std::vector<mx::TypedElementPtr> elements;
             try
             {
-                mx::findRenderableElements(doc, elements);
+                elements = mx::findRenderableElements(doc);
             }
             catch (mx::Exception& e)
             {

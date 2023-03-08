@@ -131,7 +131,7 @@ def main():
         genoptions.targetDistanceUnit = 'meter'
 
         # Look for renderable nodes
-        nodes = mx_gen_shader.findRenderableElements(doc, False)
+        nodes = mx_gen_shader.findRenderableElements(doc)
         if not nodes:
             nodes = doc.getMaterialNodes()
             if not nodes:
