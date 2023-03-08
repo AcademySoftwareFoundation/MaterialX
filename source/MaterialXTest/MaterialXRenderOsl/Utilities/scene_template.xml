@@ -9,12 +9,11 @@
    </ShaderGroup>
    <Background resolution="1024" />
 
-   <!-- Background quad. 
-   %background_color% : is the background color
-   -->
+   <!-- Background quad with raytype test. -->
    <ShaderGroup>
       color Cin %background_color%;
-      shader constant_color layer1;
+      %environment_shader_parameter_overrides%
+      shader raytype_background layer1;
    </ShaderGroup>
    <Quad corner="-340, -340, -800" edge_x="680, 0, 0" edge_y="0, 680, 0" />
 
