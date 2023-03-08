@@ -117,8 +117,7 @@ TEST_CASE("GenShader: Graph + Nodedf Transparent Check", "[genshader]")
     mx::readFromXmlFile(doc, testPath, searchPath);
 
     // Test against nodegraphs using surface shaders
-    std::vector<mx::TypedElementPtr> testElements;
-    mx::findRenderableElements(doc, testElements);
+    std::vector<mx::TypedElementPtr> testElements = mx::findRenderableElements(doc);
     std::string failedElements;
     std::set<mx::NodeGraphPtr> testGraphs;
     for (auto testElement : testElements)
@@ -231,8 +230,7 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
         try
         {
             mx::readFromXmlFile(testDoc, testFile, searchPath);
-            std::vector<mx::TypedElementPtr> renderables;
-            mx::findRenderableElements(testDoc, renderables);
+            std::vector<mx::TypedElementPtr> renderables = mx::findRenderableElements(testDoc);
             for (auto renderable : renderables)
             {
                 mx::NodePtr node = renderable->asA<mx::Node>();

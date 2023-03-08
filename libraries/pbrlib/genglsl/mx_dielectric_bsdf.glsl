@@ -74,7 +74,7 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
 
     if (scatter_mode != 0)
     {
-        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd) * tint * weight;
+        bsdf.response = mx_surface_transmission(N, V, X, safeAlpha, distribution, fd, tint) * weight;
     }
 }
 

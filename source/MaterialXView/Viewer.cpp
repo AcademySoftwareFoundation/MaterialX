@@ -752,6 +752,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
         reloadShaders();
     });
 
+    ng::CheckBox* refractionSidedBox = new ng::CheckBox(advancedPopup, "Refraction Two-Sided");
+    refractionSidedBox->set_checked(_lightHandler->getRefractionTwoSided());
+    refractionSidedBox->set_callback([this](bool enable)
+    {
+        _lightHandler->setRefractionTwoSided(enable);
+    });
+
     ng::CheckBox* shaderInterfaceBox = new ng::CheckBox(advancedPopup, "Reduce Shader Interface");
     shaderInterfaceBox->set_checked(_genContext.getOptions().shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED);
     shaderInterfaceBox->set_callback([this](bool enable)
@@ -1251,13 +1258,12 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Find new renderable elements.
         mx::StringVec renderablePaths;
-        std::vector<mx::TypedElementPtr> elems;
-        std::vector<mx::NodePtr> materialNodes;
-        mx::findRenderableElements(doc, elems);
+        std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(doc);
         if (elems.empty())
         {
             throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
         }
+        std::vector<mx::NodePtr> materialNodes;
         for (mx::TypedElementPtr elem : elems)
         {
             mx::TypedElementPtr renderableElem = elem;
