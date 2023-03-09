@@ -28,6 +28,15 @@ void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& co
     {
         _returnStruct = _functionName + "__result";
     }
+
+    // Materials can not be members of structs. Identify this case in order to handle it.
+    for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
+    {
+        if (output->getType()->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        {
+            _unrollReturnStructMembers = true;
+        }
+    }
 }
 
 void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -94,10 +103,48 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
+        const Syntax& syntax = shadergen.getSyntax();
 
         // Begin function call.
         if (!_returnStruct.empty())
         {
+            // when unrolling structure members, the call that creates the struct needs to skipped
+            if (_unrollReturnStructMembers)
+            {
+                // make sure the upstream definitions are known
+                for (size_t i = 0, n = _rootGraph->numOutputSockets(); i < n; ++i)
+                {
+                    const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(i);
+                    if (!outputSocket->getConnection())
+                        continue;
+
+                    std::string fieldName = outputSocket->getName();
+
+                    // Emit the struct field.
+                    const string& outputType = syntax.getTypeName(outputSocket->getType());
+                    const string resultVariableName = node.getName() + "__" + fieldName;
+
+                    shadergen.emitLineBegin(stage);
+                    shadergen.emitString(outputType + " " + resultVariableName + " = ", stage);
+                    shadergen.emitString(_functionName + "__" + fieldName + "(", stage);
+
+                    // Emit inputs.
+                    string delim = "";
+                    for (ShaderInput* input : node.getInputs())
+                    {
+                        shadergen.emitString(delim, stage);
+                        shadergen.emitInput(input, context, stage);
+                        delim = ", ";
+                    }
+
+                    // End function call
+                    shadergen.emitString(")", stage);
+                    shadergen.emitLineEnd(stage);
+                }
+
+                return;
+            }
+
             // Emit the struct multioutput.
             const string resultVariableName = node.getName() + "_result";
             shadergen.emitLineBegin(stage);
@@ -135,18 +182,32 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
 
     if (!_returnStruct.empty())
     {
-        // Define the output struct.
-        shadergen.emitLine("struct " + _returnStruct, stage, false);
-        shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
-        for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
+        if (_unrollReturnStructMembers)
         {
-            shadergen.emitLine(syntax.getTypeName(output->getType()) + " mxp_" + output->getName(), stage);
-        }
-        shadergen.emitScopeEnd(stage, true);
-        shadergen.emitLineBreak(stage);
+            const auto fieldName = context.getUserData<GenUserDataString>("returnStructFieldName");
 
-        // Begin function signature.
-        shadergen.emitLine(_returnStruct + " " + _functionName, stage, false);
+            // Begin function signature.
+            const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(fieldName->getValue());
+            const string& outputType = syntax.getTypeName(outputSocket->getType());
+            shadergen.emitLine(outputType + " " + _functionName + "__" + fieldName->getValue(), stage, false);
+
+        }
+        else
+        {
+
+            // Define the output struct.
+            shadergen.emitLine("struct " + _returnStruct, stage, false);
+            shadergen.emitScopeBegin(stage, Syntax::CURLY_BRACKETS);
+            for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
+            {
+                shadergen.emitLine(syntax.getTypeName(output->getType()) + " mxp_" + output->getName(), stage);
+            }
+            shadergen.emitScopeEnd(stage, true);
+            shadergen.emitLineBreak(stage);
+
+            // Begin function signature.
+            shadergen.emitLine(_returnStruct + " " + _functionName, stage, false);
+        }
     }
     else
     {

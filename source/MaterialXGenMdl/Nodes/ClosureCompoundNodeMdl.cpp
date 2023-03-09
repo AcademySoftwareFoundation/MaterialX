@@ -30,11 +30,74 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        const bool isMaterialExpr = (_rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
-                                     _rootGraph->hasClassification(ShaderNode::Classification::SHADER));
-
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
+
+        // split all fields into separate functions
+        std::unordered_set<const ShaderNode*> knownUpsteams;
+        if (!_returnStruct.empty() && _unrollReturnStructMembers)
+        {
+            // make sure the upstream definitions are known
+            for (size_t i = 0, n = _rootGraph->numOutputSockets(); i < n; ++i)
+            {
+                const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(i);
+                if (!outputSocket->getConnection())
+                    continue;
+        
+                const ShaderNode* upstream = outputSocket->getConnection()->getNode();
+                const bool isMaterialExpr = (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                                             upstream->hasClassification(ShaderNode::Classification::SHADER));
+
+                // since the emit fuctions are const, the field name to generate a function for is passed via context
+                std::string fieldName = outputSocket->getName();
+                GenUserDataStringPtr fieldNamePtr = std::make_shared<GenUserDataString>(fieldName);
+                context.pushUserData("returnStructFieldName", fieldNamePtr);
+
+                // Emit function signature.
+                emitFunctionSignature(node, context, stage);
+
+                // Special case for material expresions.
+                if (isMaterialExpr)
+                {
+                    shadergen.emitLine(" = let", stage, false);
+                }
+
+                // Function body.
+                shadergen.emitScopeBegin(stage);
+
+                // Emit all texturing nodes. These are inputs to the
+                // closure nodes and need to be emitted first.
+                shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
+
+                // Emit function calls for internal closures nodes connected to the graph sockets.
+                // These will in turn emit function calls for any dependent closure nodes upstream.
+                if (upstream->getParent() == _rootGraph.get() &&
+                    (upstream->hasClassification(ShaderNode::Classification::CLOSURE) || upstream->hasClassification(ShaderNode::Classification::SHADER)))
+                {
+                    shadergen.emitFunctionCall(*upstream, context, stage);
+                }
+
+                // Emit final results
+                if (isMaterialExpr)
+                {
+                    shadergen.emitScopeEnd(stage);
+                    const string result = shadergen.getUpstreamResult(outputSocket, context);
+                    shadergen.emitLine("in material(" + result + ")", stage);
+                }
+                else
+                {
+                    const string result = shadergen.getUpstreamResult(outputSocket, context);
+                    shadergen.emitLine("return " + result, stage);
+                }
+                shadergen.emitLineBreak(stage);
+
+                context.popUserData("returnStructFieldName");
+            }
+            return;
+        }
+
+        const bool isMaterialExpr = (_rootGraph->hasClassification(ShaderNode::Classification::CLOSURE) ||
+                                     _rootGraph->hasClassification(ShaderNode::Classification::SHADER));
 
         // Emit function signature.
         emitFunctionSignature(node, context, stage);

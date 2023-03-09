@@ -390,7 +390,16 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
     if (upstreamNode->numOutputs() > 1)
     {
-        variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+
+        const CompoundNodeMdl* upstreamNodeMdl = dynamic_cast<const CompoundNodeMdl*>(&upstreamNode->getImplementation());
+        if (upstreamNodeMdl && upstreamNodeMdl->unrollReturnStructMembers())
+        {
+            variable = upstreamNode->getName() + "__" + upstreamOutput->getName();
+        }
+        else
+        {
+            variable = upstreamNode->getName() + "_result.mxp_" + upstreamOutput->getName();
+        }
     }
     else
     {
