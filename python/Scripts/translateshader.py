@@ -7,10 +7,14 @@ and the TextureBaker class in the MaterialXRenderGlsl library.
 import sys, os, argparse
 import MaterialX as mx
 
+from sys import platform
 from MaterialX import PyMaterialXGenShader as mx_gen_shader
 from MaterialX import PyMaterialXGenGlsl as ms_gen_glsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
+if platform == "darwin":
+    from MaterialX import PyMaterialXGenMsl as ms_gen_msl
+    from MaterialX import PyMaterialXRenderMsl as mx_render_msl
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a translated baked version of each material in the input document.")
@@ -85,7 +89,10 @@ def main():
         
     # Bake translated materials to flat textures.
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    baker = mx_render_glsl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
+    if platform == "darwin":
+        baker = mx_render_msl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
+    else:
+        baker = mx_render_glsl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':
