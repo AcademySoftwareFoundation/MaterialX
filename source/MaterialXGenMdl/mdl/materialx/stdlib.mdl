@@ -7,12 +7,12 @@
 //     Document v1.37 REV2, January 19, 2020
 //     www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.6
+//     NVIDIA Material Definition Language 1.7
 //     Language Specification
-//     Document version 1.6.1, December 16, 2019
+//     Document version 1.7.2, January 17, 2022
 //     www.nvidia.com/mdl
 
-mdl 1.6;
+mdl 1.7;
 
 using core import *;
 import swizzle::*;
@@ -2781,7 +2781,7 @@ float mx_overlay(float mxp_fg, float mxp_bg)
 {
 	return (mxp_fg < 0.5) ? (2 * mxp_fg * mxp_bg) : (1 - (1 - mxp_fg) * (1 - mxp_bg));
 }
-float2 mx_overlay(float2 mxp_fg, float2 mxp_bg)
+float2 mx_overlay(float2 mxp_fg, float2 mxp_bg) [[ anno::unused() ]]
 {
 	return float2(
 		mx_overlay(mxp_fg.x, mxp_bg.x),
@@ -2964,35 +2964,81 @@ export color4 mx_mix_color4_color4(
 	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), mk_float4(mxp_mix)));
 }
 
+// mix all parts of the material, bsdf, edf, and vdf, geometry
 export material mx_mix_surfaceshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-= mxp_bg; // TODO 
+    material mxp_fg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    float    mxp_mix = 0.0
+) [[
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:surfaceshader") 
+]]
+= material(
+    surface: material_surface( 
+        scattering: df::weighted_layer(
+            weight: mxp_mix,
+            layer:  mxp_fg.surface.scattering,
+            base:   mxp_bg.surface.scattering
+        ),
+        emission: material_emission(
+            emission: df::clamped_mix( 
+            df::edf_component[]( 
+                df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
+                df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
+            ),
+            intensity: mxp_mix * mxp_fg.surface.emission.intensity +
+                       (1.0 - mxp_mix) * mxp_bg.surface.emission.intensity
+        )
+    ),
 
-export material mx_mix_displacementshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-= mxp_bg; // TODO 
+    // we need to carry volume properties along for SSS
+    ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
+    volume: material_volume(
+        scattering: df::clamped_mix( 
+            df::vdf_component[]( 
+                df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
+                df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
+        ),
+        absorption_coefficient: mxp_mix * mxp_fg.volume.absorption_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.absorption_coefficient,
+        scattering_coefficient: mxp_mix * mxp_fg.volume.scattering_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.scattering_coefficient
+    ),
+    geometry: material_geometry(
+        displacement: mxp_mix * mxp_fg.geometry.displacement + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.displacement,
+        cutout_opacity: mxp_mix * mxp_fg.geometry.cutout_opacity + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.cutout_opacity,
+        normal: mxp_mix * mxp_fg.geometry.normal + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.normal
+    )
+);
 
 export material mx_mix_volumeshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-= mxp_bg; // TODO 
+    material mxp_fg = material() [[ anno::usage( "materialx:volumeshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:volumeshader") ]],
+    float    mxp_mix = 0.0
+) [[
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:volumeshader") 
+]]
+= mx_mix_surfaceshader(
+    mxp_fg: mxp_fg,
+    mxp_bg: mxp_bg,
+    mxp_mix: mxp_mix);
+
+export material mx_mix_displacementshader(
+    material mxp_fg = material() [[ anno::usage( "materialx:displacementshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:displacementshader") ]],
+    float    mxp_mix = 0.0
+) [[ 
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:displacementshader") 
+]]
+= mx_mix_surfaceshader(
+    mxp_fg: mxp_fg,
+    mxp_bg: mxp_bg,
+    mxp_mix: mxp_mix);
 
 export float mx_ifgreater_float(
 	float mxp_value1 = float(1.0),
