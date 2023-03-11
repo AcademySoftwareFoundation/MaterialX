@@ -353,7 +353,7 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
 // Phase shift due to a conducting material
 void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
 {
-    if (dot(kappa2, kappa2) == 0.0f && eta2.x == eta2.y && eta2.y == eta2.z) {
+    if (dot(kappa2, kappa2) == 0.0 && eta2.x == eta2.y && eta2.y == eta2.z) {
         // Use dielectric formula to increase performance
         float phiPx, phiSx;
         mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiPx, phiSx);
