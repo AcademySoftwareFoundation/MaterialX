@@ -11,6 +11,7 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <nanogui/metal.h>
 #else
+#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXView/RenderPipelineGL.h>
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #endif
@@ -2066,10 +2067,10 @@ void Viewer::renderTurnable()
 void Viewer::draw_contents()
 {
     updateCameras();
-
-    //mx::checkGlErrors("before viewer render");
-
+    
 #ifndef MATERIALXVIEW_METAL_BACKEND
+    mx::checkGlErrors("before viewer render");
+    
     // Clear the screen.
     clear();
 #endif
@@ -2121,7 +2122,9 @@ void Viewer::draw_contents()
         new ng::MessageDialog(this, ng::MessageDialog::Type::Warning,
             "Failed to render frame: ", e.what());
         _materialAssignments.clear();
-        //glDisable(GL_FRAMEBUFFER_SRGB);
+#ifndef MATERIALXVIEW_METAL_BACKEND
+        glDisable(GL_FRAMEBUFFER_SRGB);
+#endif
     }
 
     // Capture the current frame.
@@ -2154,7 +2157,9 @@ void Viewer::draw_contents()
         set_visible(false);
     }
 
-    //mx::checkGlErrors("after viewer render");
+#ifndef MATERIALXVIEW_METAL_BACKEND
+    mx::checkGlErrors("after viewer render");
+#endif
 }
 
 bool Viewer::scroll_event(const ng::Vector2i& p, const ng::Vector2f& rel)
