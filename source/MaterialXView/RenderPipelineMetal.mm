@@ -477,14 +477,23 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     }
     
 #if MAC_OS_VERSION_11_0
-    if(MTL(supportsTiledPipeline))
+    bool useTiledPipeline = MTL(supportsTiledPipeline);
+    if(useTiledPipeline)
     {
-        [MTL(renderCmdEncoder) setRenderPipelineState:MTL(linearToSRGB_pso)];
-        [MTL(renderCmdEncoder) dispatchThreadsPerTile:MTLSizeMake(
-                                    MTL(renderCmdEncoder).tileWidth,
-                                    MTL(renderCmdEncoder).tileHeight, 1)];
+        if(@available(macOS 11.0, ios 14.0, *))
+        {
+            [MTL(renderCmdEncoder) setRenderPipelineState:MTL(linearToSRGB_pso)];
+            [MTL(renderCmdEncoder) dispatchThreadsPerTile:MTLSizeMake(
+                                        MTL(renderCmdEncoder).tileWidth,
+                                        MTL(renderCmdEncoder).tileHeight, 1)];
+        }
+        else
+        {
+            useTiledPipeline = false;
+        }
     }
-    else
+    
+    if(!useTiledPipeline)
 #endif
     {
         MTL(endEncoder());
