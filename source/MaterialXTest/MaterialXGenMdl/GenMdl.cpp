@@ -304,7 +304,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         std::string renderArgs(MATERIALX_MDL_RENDER_ARGUMENTS);
         if (renderArgs.empty())
         {
-            // Assume df_cuda is being used and set reasonable arguments automatically
+            // Assume MDL example DXR is being used and set reasonable arguments automatically
             renderCommand += " --nogui --res 512 512 --iterations 1024 --max_path_length 3 --noaux --no_firefly_clamp";
             renderCommand += " --background 0.073239 0.073239 0.083535";
         }
