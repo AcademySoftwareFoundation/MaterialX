@@ -82,7 +82,6 @@ jobs:
           compiler_version: "13.3"
           python: 3.9
           test_shaders: ON
-          test_render: ON
 
         - name: Windows_VS2019_Win32_Python27
           os: windows-2019
