@@ -208,7 +208,7 @@ mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
 }
 
 
-void GLRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat)
+void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLightNodeCat)
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
