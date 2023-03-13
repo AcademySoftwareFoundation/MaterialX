@@ -7,6 +7,7 @@
 #define MATERIALXVIEW_VIEWER_H
 
 #include <MaterialXView/Editor.h>
+#include <MaterialXView/RenderPipeline.h>
 
 #include <MaterialXRender/Material.h>
 #include <MaterialXRender/Camera.h>
@@ -31,6 +32,9 @@ class DocumentModifiers
 
 class Viewer : public ng::Screen
 {
+    friend class RenderPipeline;
+    friend class GLRenderPipeline;
+    friend class MetalRenderPipeline;
   public:
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
@@ -198,7 +202,10 @@ class Viewer : public ng::Screen
         _exitRequested = true;
     }
 
-    void bakeTextures();
+    void bakeTextures()
+    {
+        _renderPipeline->bakeTextures();
+    }
 
   private:
     void draw_contents() override;
@@ -206,10 +213,6 @@ class Viewer : public ng::Screen
     bool scroll_event(const ng::Vector2i& p, const ng::Vector2f& rel) override;
     bool mouse_motion_event(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
     bool mouse_button_event(const ng::Vector2i& p, int button, bool down, int modifiers) override;
-
-    void initFramebuffer();
-    void resizeFramebuffer();
-    void initImageHandler();
     
     void initContext(mx::GenContext& context);
     void loadMesh(const mx::FilePath& filename);
@@ -275,7 +278,6 @@ class Viewer : public ng::Screen
     mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
 
-    void renderFrame();
     mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void renderTurnable();
@@ -292,6 +294,7 @@ class Viewer : public ng::Screen
 
   private:
     ng::Window* _window;
+    RenderPipelinePtr _renderPipeline;
 
     mx::FilePath _materialFilename;
     mx::FileSearchPath _materialSearchPath;
@@ -380,7 +383,6 @@ class Viewer : public ng::Screen
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
     mx::MaterialPtr _envMaterial;
-    mx::MeshPtr _quadMesh;
 
     // Shader generator contexts
     mx::GenContext _genContext;
@@ -403,6 +405,9 @@ class Viewer : public ng::Screen
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
+    
+    // Framebuffer Color Texture
+    void* _colorTexture;
 
     // Scene options
     mx::StringVec _distanceUnitOptions;
