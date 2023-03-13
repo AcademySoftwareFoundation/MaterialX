@@ -15,6 +15,11 @@
 
 #include <nanogui/messagedialog.h>
 
+namespace
+{
+const float PI = std::acos(-1.0f);
+}
+
 MetalRenderPipeline::MetalRenderPipeline(Viewer* viewerPtr) :
     RenderPipeline(viewerPtr)
 {

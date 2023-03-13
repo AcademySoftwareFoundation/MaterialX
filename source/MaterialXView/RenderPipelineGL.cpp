@@ -15,12 +15,17 @@
 #include <nanogui/messagedialog.h>
 #include <nanogui/opengl.h>
 
+namespace
+{
+const float PI = std::acos(-1.0f);
+}
+
 GLRenderPipeline::GLRenderPipeline(Viewer* viewerPtr) :
     RenderPipeline(viewerPtr)
 {
 }
 
-void GLRenderPipeline::initialize(void* metal_device, void* metal_cmd_queue)
+void GLRenderPipeline::initialize(void*, void*)
 {
 }
 
@@ -41,14 +46,12 @@ std::shared_ptr<void> GLRenderPipeline::createTextureBaker(unsigned int width,
     return std::static_pointer_cast<void>(mx::TextureBakerGlsl::create(width, height, baseType));
 }
 
-void GLRenderPipeline::initFramebuffer(int width, int height,
-                                          void* color_texture)
+void GLRenderPipeline::initFramebuffer(int, int, void*)
 {
    
 }
 
-void GLRenderPipeline::resizeFramebuffer(int width, int height,
-                                          void* color_texture)
+void GLRenderPipeline::resizeFramebuffer(int, int, void*)
 {
    
 }
@@ -227,7 +230,7 @@ void GLRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, const
     glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Update lighting state.
-    lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * M_PI));
+    lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * PI));
 
     // Update shadow state.
     mx::ShadowState shadowState;
