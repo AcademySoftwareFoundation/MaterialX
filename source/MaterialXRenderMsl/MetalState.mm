@@ -20,7 +20,10 @@ void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQ
     cmdQueue = mtlCmdQueue;
     
 #if MAC_OS_VERSION_11_0
-    supportsTiledPipeline = [device supportsFamily:MTLGPUFamilyApple4];
+    if (@available(macOS 11.0, ios 14.0, *))
+    {
+        supportsTiledPipeline = [device supportsFamily:MTLGPUFamilyApple4];
+    }
 #else
     supportsTiledPipeline = false;
 #endif
@@ -54,49 +57,60 @@ void MetalState::initLinearToSRGBKernel()
     options.fastMathEnabled = true;
     
 #if MAC_OS_VERSION_11_0
-    if(supportsTiledPipeline)
+    bool useTiledPipeline = supportsTiledPipeline;
+    if(useTiledPipeline)
     {
-        NSString* linearToSRGB_kernel =
-        @"#include <metal_stdlib>                                                         \n"
-         "#include <simd/simd.h>                                                          \n"
-         "                                                                                \n"
-         "using namespace metal;                                                          \n"
-         "                                                                                \n"
-         "struct RenderTarget {                                                           \n"
-         "    half4 colorTarget [[color(0)]];                                             \n"
-         "};                                                                              \n"
-         "                                                                                \n"
-         "                                                                                \n"
-         "                                                                                \n"
-         "half4 linearToSRGB(half4 color_linear)                                          \n"
-         "{                                                                               \n"
-         "    half4 color_srgb;                                                           \n"
-         "    for(int i = 0; i < 3; ++i)                                                  \n"
-         "        color_srgb[i] = (color_linear[i] < 0.0031308) ? (12.92 * color_linear[i]): (1.055 * pow(color_linear[i], 1.0h / 2.2h) - 0.055);\n"
-         "    color_srgb[3] = color_linear[3];                                            \n"
-         "    return color_srgb;                                                          \n"
-         "}                                                                               \n"
-         "                                                                                \n"
-         "kernel void LinearToSRGB_kernel(                                                \n"
-         "    imageblock<RenderTarget,imageblock_layout_implicit> imageBlock,             \n"
-         "    ushort2 tid                 [[ thread_position_in_threadgroup ]])           \n"
-         "{                                                                               \n"
-         "    RenderTarget linearValue = imageBlock.read(tid);                            \n"
-         "    RenderTarget srgbValue;                                                     \n"
-         "    srgbValue.colorTarget = linearToSRGB(linearValue.colorTarget);              \n"
-         "    imageBlock.write(srgbValue, tid);                                           \n"
-         "}                                                                               \n";
-
-        id<MTLLibrary> library = [device newLibraryWithSource:linearToSRGB_kernel options:options error:&error];
-        id<MTLFunction> function = [library newFunctionWithName:@"LinearToSRGB_kernel"];
-        
-        MTLTileRenderPipelineDescriptor* renderPipelineDescriptor = [MTLTileRenderPipelineDescriptor new];
-        [renderPipelineDescriptor setRasterSampleCount:1];
-        [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
-        [renderPipelineDescriptor setTileFunction:function];
-        linearToSRGB_pso = [device newRenderPipelineStateWithTileDescriptor:renderPipelineDescriptor options:0 reflection:nil error:&error];
+        if(@available(macOS 11.0, ios 14.0, *))
+        {
+            NSString* linearToSRGB_kernel =
+            @"#include <metal_stdlib>                                                        \n"
+            "#include <simd/simd.h>                                                          \n"
+            "                                                                                \n"
+            "using namespace metal;                                                          \n"
+            "                                                                                \n"
+            "struct RenderTarget {                                                           \n"
+            "    half4 colorTarget [[color(0)]];                                             \n"
+            "};                                                                              \n"
+            "                                                                                \n"
+            "                                                                                \n"
+            "                                                                                \n"
+            "half4 linearToSRGB(half4 color_linear)                                          \n"
+            "{                                                                               \n"
+            "    half4 color_srgb;                                                           \n"
+            "    for(int i = 0; i < 3; ++i)                                                  \n"
+            "        color_srgb[i] = (color_linear[i] < 0.0031308) ?                         \n"
+            "            (12.92 * color_linear[i])                 :                         \n"
+            "            (1.055 * pow(color_linear[i], 1.0h / 2.2h) - 0.055);                \n"
+            "    color_srgb[3] = color_linear[3];                                            \n"
+            "    return color_srgb;                                                          \n"
+            "}                                                                               \n"
+            "                                                                                \n"
+            "kernel void LinearToSRGB_kernel(                                                \n"
+            "    imageblock<RenderTarget,imageblock_layout_implicit> imageBlock,             \n"
+            "    ushort2 tid                 [[ thread_position_in_threadgroup ]])           \n"
+            "{                                                                               \n"
+            "    RenderTarget linearValue = imageBlock.read(tid);                            \n"
+            "    RenderTarget srgbValue;                                                     \n"
+            "    srgbValue.colorTarget = linearToSRGB(linearValue.colorTarget);              \n"
+            "    imageBlock.write(srgbValue, tid);                                           \n"
+            "}                                                                               \n";
+            
+            id<MTLLibrary> library = [device newLibraryWithSource:linearToSRGB_kernel options:options error:&error];
+            id<MTLFunction> function = [library newFunctionWithName:@"LinearToSRGB_kernel"];
+            
+            MTLTileRenderPipelineDescriptor* renderPipelineDescriptor = [MTLTileRenderPipelineDescriptor new];
+            [renderPipelineDescriptor setRasterSampleCount:1];
+            [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+            [renderPipelineDescriptor setTileFunction:function];
+            linearToSRGB_pso = [device newRenderPipelineStateWithTileDescriptor:renderPipelineDescriptor options:0 reflection:nil error:&error];
+        }
+        else
+        {
+            useTiledPipeline = false;
+        }
     }
-    else
+    
+    if(!useTiledPipeline)
 #endif
     {
         NSString* linearToSRGB_kernel =
