@@ -96,10 +96,10 @@ class Graph
     std::vector<int> createNodes(bool nodegraph);
     int getNodeId(ed::PinId pinId);
     int findNode(int nodeId);
-    int findNode(std::string name, std::string type);
-    void addNode(std::string category, std::string name, std::string type);
+    int findNode(const std::string& name, const std::string& type);
+    void addNode(const std::string& category, const std::string& name, const std::string& type);
     void deleteNode(UiNodePtr node);
-    void setUiNodeInfo(UiNodePtr node, std::string type, std::string category);
+    void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
     // UiEdge functions
     bool edgeExists(UiEdge edge);
