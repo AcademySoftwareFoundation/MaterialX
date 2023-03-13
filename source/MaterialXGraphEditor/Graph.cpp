@@ -190,8 +190,6 @@ void Graph::addExtraNodes()
         return;
     }
 
-    const std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
-
     // clear any old nodes, if we previously used tab with another graph doc
     _extraNodes.clear();
 
@@ -468,7 +466,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             else
             {
                 // don't set position of group nodes
-                if (node->getMessage() == "")
+                if (node->getMessage().empty())
                 {
                     float x = std::stof(node->getMxElement()->getAttribute("xpos"));
                     float y = std::stof(node->getMxElement()->getAttribute("ypos"));
@@ -1075,7 +1073,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
     }
 }
 // build the initial graph of a loaded mtlx document including shader, material and nodegraph node
-void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category)
+void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category)
 {
     node->setType(type);
     node->setCategory(category);
@@ -1273,7 +1271,7 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
             mx::OutputPtr connectedOutput = input->getConnectedOutput();
             int upNum = -1;
             int downNum = -1;
-            if (nodeGraphName != "")
+            if (!nodeGraphName.empty())
             {
 
                 upNum = findNode(nodeGraphName, "nodegraph");
@@ -1289,7 +1287,7 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
                 upNum = findNode(connectedOutput->getName(), "output");
                 downNum = findNode(node->getName(), "node");
             }
-            else if (input->getInterfaceName() != "")
+            else if (!input->getInterfaceName().empty())
             {
                 upNum = findNode(input->getInterfaceName(), "input");
                 downNum = findNode(node->getName(), "node");
@@ -1549,7 +1547,7 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
 }
 
 // return node position in _graphNodes based off node name and type to account for input/output UiNodes with same names as mx Nodes
-int Graph::findNode(std::string name, std::string type)
+int Graph::findNode(const std::string& name, const std::string& type)
 {
     int count = 0;
     for (size_t i = 0; i < _graphNodes.size(); i++)
@@ -1787,7 +1785,7 @@ void Graph::copyInputs()
     }
 }
 // add node to graphNodes based off of node def information
-void Graph::addNode(std::string category, std::string name, std::string type)
+void Graph::addNode(const std::string& category, const std::string& name, const std::string& type)
 {
     mx::NodePtr node = nullptr;
     std::vector<mx::NodeDefPtr> matchingNodeDefs;
@@ -3145,7 +3143,7 @@ void Graph::propertyEditor()
         if (_currUiNode->getNode())
         {
             ImGui::Text("%s", _currUiNode->getNode()->getCategory().c_str());
-            docString += _currUiNode->getNode()->getCategory().c_str();
+            docString += _currUiNode->getNode()->getCategory();
             docString += ":";
             docString += _currUiNode->getNode()->getNodeDef()->getDocString() + "\n";
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
