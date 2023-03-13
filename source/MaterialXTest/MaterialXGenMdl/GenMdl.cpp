@@ -133,7 +133,7 @@ public:
         paths.append(currentPath);
         paths.append(coreModulePath);
         paths.append(coreModulePath2);
-        for (const auto addSp : additionalSearchpaths)
+        for (const auto& addSp : additionalSearchpaths)
         {
             paths.append(addSp);
         }
