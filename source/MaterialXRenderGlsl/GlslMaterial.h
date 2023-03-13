@@ -9,7 +9,7 @@
 /// @file
 /// GLSL material helper classes
 
-#include <MaterialXRender/Material.h>
+#include <MaterialXRender/ShaderMaterial.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -21,10 +21,10 @@ using GlslMaterialPtr = std::shared_ptr<class GlslMaterial>;
 
 /// @class GlslMaterial
 /// Helper class for GLSL generation and rendering of a material
-class MX_RENDERGLSL_API GlslMaterial : public Material
+class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
 {
   public:
-    GlslMaterial() : Material()
+    GlslMaterial() : ShaderMaterial()
     {
     }
     ~GlslMaterial() { }

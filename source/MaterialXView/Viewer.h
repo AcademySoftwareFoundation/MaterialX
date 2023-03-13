@@ -9,7 +9,7 @@
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/RenderPipeline.h>
 
-#include <MaterialXRender/Material.h>
+#include <MaterialXRender/ShaderMaterial.h>
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>

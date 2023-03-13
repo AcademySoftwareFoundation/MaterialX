@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_RENDER_MATERIAL_H
-#define MATERIALX_RENDER_MATERIAL_H
+#ifndef MATERIALX_RENDER_SHADER_MATERIAL_H
+#define MATERIALX_RENDER_SHADER_MATERIAL_H
 
 /// @file
-/// Material helper classes
+/// ShaderMaterial helper classes
 
 #include <MaterialXCore/Generated.h>
 #include <MaterialXRender/Image.h>
@@ -21,7 +21,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-using MaterialPtr = std::shared_ptr<class Material>;
+using MaterialPtr = std::shared_ptr<class ShaderMaterial>;
 
 /// @class ShadowState
 /// Helper class representing shadow rendering state
@@ -34,30 +34,30 @@ class MX_RENDER_API ShadowState
     float ambientOcclusionGain = 0.0f;
 };
 
-/// @class Material
-/// Abstract class for shader generation and rendering of a material
-class MX_RENDER_API Material
+/// @class ShaderMaterial
+/// Abstract class for shader generation and rendering of a ShaderMaterial
+class MX_RENDER_API ShaderMaterial
 {
   public:
-    Material();
-    virtual ~Material();
+    ShaderMaterial();
+    virtual ~ShaderMaterial();
 
-    /// Set the renderable element associated with this material
+    /// Set the renderable element associated with this ShaderMaterial
     void setDocument(DocumentPtr doc);
 
-    /// Return the document associated with this material
+    /// Return the document associated with this ShaderMaterial
     DocumentPtr getDocument() const;
 
-    /// Set the renderable element associated with this material
+    /// Set the renderable element associated with this ShaderMaterial
     void setElement(TypedElementPtr val);
 
-    /// Return the renderable element associated with this material
+    /// Return the renderable element associated with this ShaderMaterial
     TypedElementPtr getElement() const;
 
-    /// Set the material node associated with this material
+    /// Set the ShaderMaterial node associated with this ShaderMaterial
     void setMaterialNode(NodePtr node);
 
-    /// Return the material node associated with this material
+    /// Return the ShaderMaterial node associated with this ShaderMaterial
     NodePtr getMaterialNode() const;
 
     /// Set udim identifier
@@ -75,8 +75,8 @@ class MX_RENDER_API Material
     /// the given generator context.
     virtual bool generateShader(GenContext& context) = 0;
     
-    /// Copies shader and API specific generated program from material to this one.
-    virtual void copyShader(MaterialPtr material) = 0;
+    /// Copies shader and API specific generated program from ShaderMaterial to this one.
+    virtual void copyShader(MaterialPtr ShaderMaterial) = 0;
 
     /// Generate a shader from the given hardware shader.
     virtual bool generateShader(ShaderPtr hwShader) = 0;
@@ -90,21 +90,21 @@ class MX_RENDER_API Material
     /// Return the underlying hardware shader.
     ShaderPtr getShader() const;
 
-    /// Return true if this material has transparency.
+    /// Return true if this ShaderMaterial has transparency.
     bool hasTransparency() const;
 
     /// Bind shader
     virtual bool bindShader() const = 0;
 
-    /// Bind viewing information for this material.
+    /// Bind viewing information for this ShaderMaterial.
     virtual void bindViewInformation(CameraPtr camera) = 0;
 
-    /// Bind all images for this material.
+    /// Bind all images for this ShaderMaterial.
     virtual void bindImages(ImageHandlerPtr imageHandler,
                             const FileSearchPath& searchPath,
                             bool enableMipmaps = true) = 0;
 
-    /// Unbbind all images for this material.
+    /// Unbbind all images for this ShaderMaterial.
     virtual void unbindImages(ImageHandlerPtr imageHandler) = 0;
 
     /// Bind a single image.
@@ -122,19 +122,19 @@ class MX_RENDER_API Material
     virtual void bindUnits(UnitConverterRegistryPtr& registry,
                    const GenContext& context) = 0;
 
-    /// Bind the given mesh to this material.
+    /// Bind the given mesh to this ShaderMaterial.
     virtual void bindMesh(MeshPtr mesh) = 0;
 
-    /// Bind a mesh partition to this material.
+    /// Bind a mesh partition to this ShaderMaterial.
     virtual bool bindPartition(MeshPartitionPtr part) const = 0;
 
     /// Draw the given mesh partition.
     virtual void drawPartition(MeshPartitionPtr part) const = 0;
 
-    /// Unbind all geometry from this material.
+    /// Unbind all geometry from this ShaderMaterial.
     virtual void unbindGeometry() = 0;
 
-    /// Return the block of public uniforms for this material.
+    /// Return the block of public uniforms for this ShaderMaterial.
     virtual VariableBlock* getPublicUniforms() const = 0;
 
     /// Find a public uniform from its MaterialX path.

@@ -10,7 +10,7 @@
 /// GLSL material helper classes
 
 #include <MaterialXRenderMsl/Export.h>
-#include <MaterialXRender/Material.h>
+#include <MaterialXRender/ShaderMaterial.h>
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXGenShader/UnitSystem.h>
@@ -23,10 +23,10 @@ using MslMaterialPtr = std::shared_ptr<class MslMaterial>;
 
 /// @class MslMaterial
 /// Helper class for MSL generation and rendering of a material
-class MX_RENDERMSL_API MslMaterial : public Material
+class MX_RENDERMSL_API MslMaterial : public ShaderMaterial
 {
   public:
-    MslMaterial() : Material()
+    MslMaterial() : ShaderMaterial()
     {
     }
     ~MslMaterial() { }

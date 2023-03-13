@@ -3,65 +3,65 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXRender/Material.h>
+#include <MaterialXRender/ShaderMaterial.h>
 #include <MaterialXFormat/XmlIo.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-Material::Material() : _hasTransparency(false) {}
-Material::~Material() {}
+ShaderMaterial::ShaderMaterial() : _hasTransparency(false) {}
+ShaderMaterial::~ShaderMaterial() {}
 
-void Material::setDocument(DocumentPtr doc)
+void ShaderMaterial::setDocument(DocumentPtr doc)
 {
     _doc = doc;
 }
 
-DocumentPtr Material::getDocument() const
+DocumentPtr ShaderMaterial::getDocument() const
 {
     return _doc;
 }
 
-void Material::setElement(TypedElementPtr val)
+void ShaderMaterial::setElement(TypedElementPtr val)
 {
     _elem = val;
 }
 
-TypedElementPtr Material::getElement() const
+TypedElementPtr ShaderMaterial::getElement() const
 {
     return _elem;
 }
 
-void Material::setMaterialNode(NodePtr node)
+void ShaderMaterial::setMaterialNode(NodePtr node)
 {
     _materialNode = node;
 }
 
-NodePtr Material::getMaterialNode() const
+NodePtr ShaderMaterial::getMaterialNode() const
 {
     return _materialNode;
 }
 
-void Material::setUdim(const std::string& val)
+void ShaderMaterial::setUdim(const std::string& val)
 {
     _udim = val;
 }
 
-const std::string& Material::getUdim()
+const std::string& ShaderMaterial::getUdim()
 {
     return _udim;
 }
 
-ShaderPtr Material::getShader() const
+ShaderPtr ShaderMaterial::getShader() const
 {
     return _hwShader;
 }
 
-bool Material::hasTransparency() const
+bool ShaderMaterial::hasTransparency() const
 {
     return _hasTransparency;
 }
 
-bool Material::generateEnvironmentShader(GenContext& context,
+bool ShaderMaterial::generateEnvironmentShader(GenContext& context,
                                          const FilePath& filename,
                                          DocumentPtr stdLib,
                                          const FilePath& imagePath)
