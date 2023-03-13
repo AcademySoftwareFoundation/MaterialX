@@ -11,7 +11,7 @@
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 
-#include "CompileMSL.h"
+#include "CompileMsl.h"
 
 #include <cassert>
 
@@ -57,7 +57,7 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         for(const mx::FilePath& sourceCodePath : sourceCodePaths)
         {
             assert(i == 0 || i == 1);
-            CompileMSLShader(sourceCodePath.asString().c_str(), i == 0 ?  "VertexMain" : "FragmentMain");
+            CompileMslShader(sourceCodePath.asString().c_str(), i == 0 ?  "VertexMain" : "FragmentMain");
             ++i;
         }
     }

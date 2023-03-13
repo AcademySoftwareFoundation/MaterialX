@@ -7,9 +7,9 @@
 #define COMPILEMSL_H
 
 #if __APPLE__
-void CompileMSLShader(const char* pShaderFilePath, const char* pEntryFuncName);
+void CompileMslShader(const char* pShaderFilePath, const char* pEntryFuncName);
 #else
-void CompileMSLShader(const char*, const char* ) {}
+void CompileMslShader(const char*, const char* ) {}
 #endif
 
 #endif // COMPILEMSL_H
