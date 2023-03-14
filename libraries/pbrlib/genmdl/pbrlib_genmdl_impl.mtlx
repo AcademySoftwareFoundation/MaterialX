@@ -37,6 +37,9 @@
   <!-- <measured_edf> -->
   <implementation name="IM_measured_edf_genmdl" nodedef="ND_measured_edf" sourcecode="mx::pbrlib::mx_measured_edf(mxp_color:{{color}}, mxp_normal:{{normal}}, mxp_file:{{file}}" target="genmdl" />
 
+  <!-- <generalized_schlick_edf> -->
+  <implementation name="IM_generalized_schlick_edf_genmdl" nodedef="ND_generalized_schlick_edf" sourcecode="mx::pbrlib::mx_generalized_schlick_edf(mxp_color0:{{color0}}, mxp_color90:{{color90}}, mxp_exponent:{{exponent}}, mxp_base:{{base}})" target="genmdl" />
+
   <!-- <absorption_vdf> -->
   <implementation name="IM_absorption_vdf_genmdl" nodedef="ND_absorption_vdf" sourcecode="mx::pbrlib::mx_absorption_vdf(mxp_absorption:{{absorption}})" target="genmdl" />
 
@@ -69,14 +72,17 @@
   <implementation name="IM_mix_vdf_genmdl" nodedef="ND_mix_vdf" sourcecode="mx::pbrlib::mx_mix_vdf(mxp_fg:{{fg}}, mxp_bg:{{bg}}, mxp_mix:{{mix}})" target="genmdl" />
 
   <!-- <add> -->
-  <implementation name="IM_add_bsdf_genmdl" nodedef="ND_add_bsdf" sourcecode="{{in1}}" target="genmdl" /> <!-- TODO: Implement properly -->
-  <implementation name="IM_add_edf_genmdl" nodedef="ND_add_edf" sourcecode="{{in2}}" target="genmdl" /> <!-- TODO: Implement properly -->
+  <implementation name="IM_add_bsdf_genmdl" nodedef="ND_add_bsdf" sourcecode="mx::pbrlib::mx_add_bsdf(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
+  <implementation name="IM_add_edf_genmdl" nodedef="ND_add_edf" sourcecode="mx::pbrlib::mx_add_edf(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
+  <implementation name="IM_add_vdf_genmdl" nodedef="ND_add_vdf" sourcecode="mx::pbrlib::mx_add_vdf(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
 
   <!-- <multiply> -->
   <implementation name="IM_multiply_bsdfC_genmdl" nodedef="ND_multiply_bsdfC" sourcecode="mx::pbrlib::mx_multiply_bsdf_color3(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
   <implementation name="IM_multiply_bsdfF_genmdl" nodedef="ND_multiply_bsdfF" sourcecode="mx::pbrlib::mx_multiply_bsdf_float(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
-  <implementation name="IM_multiply_edfC_genmdl" nodedef="ND_multiply_edfC" sourcecode="{{in1}}" target="genmdl" /> <!-- TODO: Implement properly -->
-  <implementation name="IM_multiply_edfF_genmdl" nodedef="ND_multiply_edfF" sourcecode="{{in1}}" target="genmdl" /> <!-- TODO: Implement properly -->
+  <implementation name="IM_multiply_edfC_genmdl" nodedef="ND_multiply_edfC" sourcecode="mx::pbrlib::mx_multiply_edf_color3(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
+  <implementation name="IM_multiply_edfF_genmdl" nodedef="ND_multiply_edfF" sourcecode="mx::pbrlib::mx_multiply_edf_float(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
+  <implementation name="IM_multiply_vdfC_genmdl" nodedef="ND_multiply_vdfC" sourcecode="mx::pbrlib::mx_multiply_vdf_color3(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
+  <implementation name="IM_multiply_vdfF_genmdl" nodedef="ND_multiply_vdfF" sourcecode="mx::pbrlib::mx_multiply_vdf_float(mxp_in1:{{in1}}, mxp_in2:{{in2}})" target="genmdl" />
 
   <!-- <roughness_anisotropy> -->
   <implementation name="IM_roughness_anisotropy_genmdl" nodedef="ND_roughness_anisotropy" sourcecode="mx::pbrlib::mx_roughness_anisotropy(mxp_roughness:{{roughness}}, mxp_anisotropy:{{anisotropy}})" target="genmdl" />
