@@ -138,7 +138,7 @@ MeshPtr GeometryHandler::createQuadMesh(const Vector2& uvMin, const Vector2& uvM
                                       -1.0f,  1.0f, 0.0f });
     MeshStreamPtr quadTexCoords = MeshStream::create(HW::IN_TEXCOORD + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
     quadTexCoords->setStride(MeshStream::STRIDE_2D);
-    if(!flipTexCoordsHorizontally)
+    if (!flipTexCoordsHorizontally)
     {
         quadTexCoords->getData().assign({
             uvMax[0], uvMax[1],
