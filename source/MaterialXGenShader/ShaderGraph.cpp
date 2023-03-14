@@ -1347,8 +1347,7 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
     }
 
     const string& sourceColorSpace = input->getActiveColorSpace();
-    // Note that "none" means no transform should be applied.
-    if (shaderPort && !sourceColorSpace.empty() && sourceColorSpace != "none")
+    if (shaderPort && !sourceColorSpace.empty())
     {
         if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
         {
