@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!-- uses normal map -->
+  <nodegraph name="Brass_Wire_Input_Graph">
+    <!-- SurfaceAlbedo -->
+    <adsk:bitmap name="surfacealbedo_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/mesh_wire_spec.png" colorspace="lin_rec709" />
+    </adsk:bitmap>
+    <output name="SurfaceAlbedo_output" type="color3" nodename="surfacealbedo_texturemap" />
+    <!-- SurfaceNormal -->
+    <adsk:normal_map name="normal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/mesh_wire_norm.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="60.0, 60.0" unit="inch" unittype="distance" />
+      <input name="normal_scale" type="float" value="1.0" />
+    </adsk:normal_map>
+    <output name="SurfaceNormal_output" type="vector3" nodename="normal_texturemap" />
+    <!-- SurfaceCutout -->
+    <adsk:bitmap name="surfacecutout_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/mesh_wire_cutout.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="60.0, 60.0" unit="inch" unittype="distance" />
+      <input name="rgbamount" type="float" value="1" />
+      <input name="invert" type="boolean" value="false" />
+    </adsk:bitmap>
+    <output name="SurfaceCutout_output" type="color3" nodename="surfacecutout_texturemap" />
+  </nodegraph>
+  <!-- uses height map -->
+  <nodegraph name="Aluminum_Cast_Input_Graph">
+    <!-- SurfaceNormal -->
+    <adsk:height_map name="heightnormal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/texture_rough_height.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="30, 30" unit="inch" unittype="distance" />
+      <input name="depth" type="float" value="0.075" />
+    </adsk:height_map>
+    <output name="SurfaceNormal_output" type="vector3" nodename="heightnormal_texturemap" />
+    <!-- Surface roughness -->
+    <adsk:bitmap name="surfaceroughness_texturemap" type="float">
+      <input name="file" type="filename" value="textures/texture_rough_smooth_rough.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="30.0, 30.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="SurfaceRoughness_output" type="float" nodename="surfaceroughness_texturemap" />
+  </nodegraph>
+  <nodegraph name="Al_diamond_plate_Input_Graph">
+    <!-- SurfaceNormal -->
+    <adsk:normal_map name="normal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/texture_diamond_plate_3_norm.png" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="30.0, 30.0" unit="inch" unittype="distance" />
+      <input name="normal_scale" type="float" value="1.0" />
+    </adsk:normal_map>
+    <output name="SurfaceNormal_output" type="vector3" nodename="normal_texturemap" />
+  </nodegraph>
+  <adsk:metal name="shaderref0" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.1, 0.3, 0.7" />
+    <input name="surface_roughness" type="float" value="0.122474" />
+    <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+  </adsk:metal>
+  <surfacematerial name="Anodized_Blue_Glossy" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref0" />
+  </surfacematerial>
+  <adsk:metal name="shaderref1" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.848522, 0.614431, 0.546826" />
+    <input name="surface_roughness" type="float" value="0.0774597" />
+    <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+  </adsk:metal>
+  <surfacematerial name="Copper_Polished" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref1" />
+  </surfacematerial>
+  <adsk:metal name="shaderref2" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.7, 0.1, 0.1" />
+    <input name="surface_roughness" type="float" value="0.547723" />
+    <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+  </adsk:metal>
+  <surfacematerial name="Anodized_Red_Rough" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref2" />
+  </surfacematerial>
+  <adsk:metal name="shaderref3" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.9, 0.6, 0.2" />
+    <input name="surface_albedo" type="color3" output="SurfaceAlbedo_output" nodegraph="Brass_Wire_Input_Graph" />
+    <input name="surface_anisotropy" type="float" value="0.95" />
+    <input name="surface_normal" type="vector3" output="SurfaceNormal_output" nodegraph="Brass_Wire_Input_Graph" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="surface_roughness" type="float" value="0.122474" />
+    <input name="surface_cutout" type="color3" output="SurfaceCutout_output" nodegraph="Brass_Wire_Input_Graph" />
+  </adsk:metal>
+  <surfacematerial name="Brass_Wire_Mesh" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref3" />
+  </surfacematerial>
+  <adsk:metal name="shaderref4" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.959822488182, 0.962260225831, 0.965052100317" />
+    <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="surface_anisotropy" type="float" value="0.0" />
+    <input name="surface_normal" type="vector3" output="SurfaceNormal_output" nodegraph="Aluminum_Cast_Input_Graph" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="surface_roughness" type="float" output="SurfaceRoughness_output" nodegraph="Aluminum_Cast_Input_Graph" />
+  </adsk:metal>
+  <surfacematerial name="Aluminum_Cast" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref4" />
+  </surfacematerial>
+  <adsk:metal name="shaderref5" type="surfaceshader">
+    <input name="metal_f0" type="color3" value="0.959822488182, 0.962260225831, 0.965052100317" />
+    <input name="surface_albedo" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="surface_anisotropy" type="float" value="0.0" />
+    <input name="surface_normal" type="vector3" output="SurfaceNormal_output" nodegraph="Al_diamond_plate_Input_Graph" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="surface_roughness" type="float" value="0.122474487139" />
+  </adsk:metal>
+  <surfacematerial name="Aluminum_Diamond_Plate" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref5" />
+  </surfacematerial>
+</materialx>

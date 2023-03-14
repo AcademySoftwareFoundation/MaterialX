@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <adsk:bitmap name="simplebitmap" type="color3">
+    <input name="file" type="filename" value="textures/diagnostic.png" />
+    <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+    <input name="realworld_scale" type="vector2" value="2, 2" unit="inch" unittype="distance" />
+    <input name="rgbamount" type="float" value="1" />
+    <input name="invert" type="boolean" value="false" />
+  </adsk:bitmap>
+  <output name="bitmapoutput" type="color3" nodename="simplebitmap" />
+</materialx>

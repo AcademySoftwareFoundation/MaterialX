@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <adsk:transparent name="archviz_transparent" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0.0" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="transparent_color" type="color3" value="0.977691562089, 0.151703719316, 0.151703719316" />
+    <input name="transparent_distance" type="float" value="2.0" />
+    <input name="transparent_ior" type="float" value="1.77" />
+  </adsk:transparent>
+  <surfacematerial name="Gemstone_Ruby" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_transparent" />
+  </surfacematerial>
+  <adsk:transparent name="archviz_transparent2" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0.0" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="transparent_color" type="color3" value="0.906331753344, 0.906331753344, 0.896243883825" />
+    <input name="transparent_distance" type="float" value="5.0" />
+    <input name="transparent_ior" type="float" value="2.419" />
+  </adsk:transparent>
+  <surfacematerial name="Gemstone_Diamond" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_transparent2" />
+  </surfacematerial>
+</materialx>

@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="Walnut_Input_Graph">
+    <!-- SurfaceNormal -->
+    <adsk:height_map name="heightnormal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/wood_walnut_bump.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6, 12" unit="inch" unittype="distance" />
+      <input name="depth" type="float" value="0.03" unit="inch" unittype="distance" />
+    </adsk:height_map>
+    <output name="SurfaceNormal_output" type="vector3" nodename="heightnormal_texturemap" />
+    <!-- Surface roughness -->
+    <adsk:bitmap name="surfaceroughness_texturemap" type="float">
+      <input name="file" type="filename" value="textures/wood_walnut_rough.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="SurfaceRoughness_output" type="float" nodename="surfaceroughness_texturemap" />
+    <!-- Opaque albedo -->
+    <adsk:bitmap name="opaquealbedo_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/wood_walnut_color.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="OpaqueAlbedo_output" type="color3" nodename="opaquealbedo_texturemap" />
+  </nodegraph>
+  <nodegraph name="Walnut_Gloss_Input_Graph">
+    <!-- SurfaceNormal -->
+    <adsk:height_map name="heightnormal_texturemap" type="vector3">
+      <input name="file" type="filename" value="textures/wood_walnut_bump.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6, 12" unit="inch" unittype="distance" />
+      <input name="depth" type="float" value="0.03" />
+    </adsk:height_map>
+    <output name="SurfaceNormal_output" type="vector3" nodename="heightnormal_texturemap" />
+    <!-- Surface roughness -->
+    <adsk:bitmap name="surfaceroughness_texturemap" type="float">
+      <input name="file" type="filename" value="textures/wood_walnut_varnished_rough.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="SurfaceRoughness_output" type="float" nodename="surfaceroughness_texturemap" />
+    <!-- Opaque albedo -->
+    <adsk:bitmap name="opaquealbedo_texturemap" type="color3">
+      <input name="file" type="filename" value="textures/wood_walnut_color.jpg" />
+      <input name="realworld_offset" type="vector2" value="0, 0" unit="inch" unittype="distance" />
+      <input name="realworld_scale" type="vector2" value="6.0, 12.0" unit="inch" unittype="distance" />
+    </adsk:bitmap>
+    <output name="OpaqueAlbedo_output" type="color3" nodename="opaquealbedo_texturemap" />
+  </nodegraph>
+  <adsk:opaque name="shaderref3" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_normal" type="vector3" output="SurfaceNormal_output" nodegraph="Walnut_Input_Graph" />
+    <input name="surface_roughness" type="float" output="SurfaceRoughness_output" nodegraph="Walnut_Input_Graph" />
+    <input name="surface_anisotropy" type="float" value="0.0" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="opaque_albedo" type="color3" output="OpaqueAlbedo_output" nodegraph="Walnut_Input_Graph" />
+    <input name="opaque_f0" type="float" value="0.0529" />
+    <input name="opaque_translucency" type="boolean" value="false" />
+    <input name="opaque_mfp" type="float" value="0.5" />
+    <input name="opaque_mfp_modifier" type="color3" value="1, 1, 1" />
+    <input name="opaque_emission" type="boolean" value="false" />
+    <input name="opaque_luminance" type="float" value="0.0" />
+  </adsk:opaque>
+  <surfacematerial name="Walnut" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref3" />
+  </surfacematerial>
+  <adsk:opaque name="shaderref4" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_normal" type="vector3" output="SurfaceNormal_output" nodegraph="Walnut_Gloss_Input_Graph" />
+    <input name="surface_roughness" type="float" output="SurfaceRoughness_output" nodegraph="Walnut_Gloss_Input_Graph" />
+    <input name="surface_anisotropy" type="float" value="0.0" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="opaque_albedo" type="color3" output="OpaqueAlbedo_output" nodegraph="Walnut_Gloss_Input_Graph" />
+    <input name="opaque_f0" type="float" value="0.0529" />
+    <input name="opaque_translucency" type="boolean" value="false" />
+    <input name="opaque_mfp" type="float" value="0.5" />
+    <input name="opaque_mfp_modifier" type="color3" value="1, 1, 1" />
+    <input name="opaque_emission" type="boolean" value="false" />
+    <input name="opaque_luminance" type="float" value="0.0" />
+  </adsk:opaque>
+  <surfacematerial name="Walnut_Semigloss" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="shaderref4" />
+  </surfacematerial>
+  <adsk:opaque name="archviz_opaque" type="surfaceshader">
+    <input name="surface_albedo" type="color3" value="1, 1, 1" />
+    <input name="surface_roughness" type="float" value="0.122474487139" />
+    <input name="surface_rotation" type="float" value="0.0" />
+    <input name="opaque_albedo" type="color3" value="0.963976232744, 0.963976232744, 0.954687171886" />
+    <input name="opaque_f0" type="float" value="0.0529" />
+    <input name="opaque_translucency" type="boolean" value="false" />
+    <input name="opaque_mfp" type="float" value="0.5" />
+    <input name="opaque_mfp_modifier" type="color3" value="1, 1, 1" />
+    <input name="opaque_emission" type="boolean" value="false" />
+    <input name="opaque_luminance" type="float" value="0.0" />
+  </adsk:opaque>
+  <surfacematerial name="Plastic_Glossy_White" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="archviz_opaque" />
+  </surfacematerial>
+</materialx>

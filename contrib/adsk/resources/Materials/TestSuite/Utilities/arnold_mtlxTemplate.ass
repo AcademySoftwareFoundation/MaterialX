@@ -1,0 +1,128 @@
+
+options
+{
+ AA_samples 1
+ xres 256
+ yres 256
+ texture_per_file_stats on
+ camera "unit_camera"
+ GI_diffuse_depth 1
+ GI_specular_depth 1
+ GI_transmission_depth 8
+ operator "assign_material"
+ abort_on_error false
+ # For now all bad textures have the same default value as opposed to
+ # per image node in MaterialX
+ error_color_bad_texture 1 0 0
+ error_color_bad_shader 1 0 0
+}
+
+gaussian_filter
+{
+ name filter
+}
+
+
+persp_camera
+{
+ name unit_camera
+ matrix
+ 0.977415919 1.73472348e-18 0.211324796 0
+ 0.0167213697 0.996864617 -0.0773393959 0
+ -0.210662201 0.0791263953 0.974351287 0
+ -0.574842572 0.215915442 2.6587522 1
+ near_clip 0.100000001
+ far_clip 10000
+ shutter_start 0
+ shutter_end 0
+ shutter_type "box"
+ rolling_shutter "off"
+ rolling_shutter_duration 0
+ motion_start 0
+ motion_end 0
+ exposure 0
+ fov 54.4322243
+ uv_remap 0 0 0 1
+ declare dcc_name constant STRING
+ dcc_name "perspShape"
+}
+
+persp_camera
+{
+ name unit_camera2
+ matrix
+ 0.977415919 1.73472348e-18 0.211324796 0
+ 0.0167213697 0.996864617 -0.0773393959 0
+ -0.210662201 0.0791263953 0.974351287 0
+ -0.761838257 0.286152512 3.52364159 1
+ near_clip 0.100000001
+ far_clip 10000
+ shutter_start 0
+ shutter_end 0
+ shutter_type "box"
+ rolling_shutter "off"
+ rolling_shutter_duration 0
+ motion_start 0
+ motion_end 0
+ exposure 0
+ fov 54.4322243
+ uv_remap 0 0 0 1
+}
+
+image
+{
+ name environment_map_name
+ filename "error_invalid_environment_file" 
+}
+
+skydome_light
+{
+ name scene_skydome_light
+ color environment_map_name
+ camera 1
+ transmission 1
+ resolution 1024
+ format "latlong"
+ portal_mode "interior_exterior"
+}
+
+
+#sphere
+#{
+# name geom_sphere1
+# matrix 1 1 MATRIX
+# 2 0 0 0
+# 0 2 0 0
+# 0 0 2 0
+# 0 0 0 1
+#}
+
+procedural
+{
+ name geometry_standin
+ visibility 255
+ matrix
+ 1 0 0 0
+ 0 1 0 0
+ 0 0 1 0
+ 0 0 0 1
+ filename "error_no_geometry_standin"
+}
+
+materialx
+{
+ name assign_material
+ selection "g*"
+ filename "error_no_material_operator" 
+ look "error_no_material_set"
+ assign_type "material"
+}
+
+materialx
+{
+ name assign_look
+ selection "g*"
+ filename "error_no_material_operator"
+ look "error_no_look_set"
+}
+
