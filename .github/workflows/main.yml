@@ -214,7 +214,7 @@ jobs:
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
 
-    - name: Shader Validation Tests (macOS)
+    - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
