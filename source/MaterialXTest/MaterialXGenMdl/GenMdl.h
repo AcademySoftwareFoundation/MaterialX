@@ -72,7 +72,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle",
-            "geompropvalue", "surfacematerial", "volumematerial", "IM_absorption_vdf_", "IM_mix_vdf_",
+            "geompropvalue", "surfacematerial", "volumematerial", 
+            "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
             "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
         };

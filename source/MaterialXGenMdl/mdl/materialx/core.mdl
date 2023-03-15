@@ -22,12 +22,12 @@
 //     Document v1.37 REV2, January 19, 2020
 //     www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.6
+//     NVIDIA Material Definition Language 1.7
 //     Language Specification
-//     Document version 1.6.1, December 16, 2019
+//     Document version 1.7.2, January 17, 2022
 //     www.nvidia.com/mdl
 
-mdl 1.6;
+mdl 1.7;
 
 import ::math::*;
 import ::tex::*;
