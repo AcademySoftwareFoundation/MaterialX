@@ -138,9 +138,9 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
   private:
     MslProgramPtr        _program;
 
-    id<MTLDevice>        _device;
-    id<MTLCommandQueue>  _cmdQueue;
-    id<MTLCommandBuffer> _cmdBuffer;
+    id<MTLDevice>        _device = nil;
+    id<MTLCommandQueue>  _cmdQueue = nil;
+    id<MTLCommandBuffer> _cmdBuffer = nil;
     
     MetalFramebufferPtr  _framebuffer;
 

@@ -283,8 +283,8 @@ class MX_RENDERMSL_API MslProgram
     StringMap _stages;
 
     // Generated pipeline state object. A non-zero number indicates a valid shader program.
-    id<MTLRenderPipelineState> _pso;
-    MTLRenderPipelineReflection* _psoReflection;
+    id<MTLRenderPipelineState> _pso = nil;
+    MTLRenderPipelineReflection* _psoReflection = nil;
 
     // List of program input uniforms
     InputMap _uniformList;
@@ -308,7 +308,7 @@ class MX_RENDERMSL_API MslProgram
     std::unordered_map<string, unsigned int> _programTextures;
     
     // Metal Device Object
-    id<MTLDevice> _device;
+    id<MTLDevice> _device = nil;
     
     bool _alphaBlendingEnabled = false;
     

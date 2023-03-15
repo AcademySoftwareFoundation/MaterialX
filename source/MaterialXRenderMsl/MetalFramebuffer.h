@@ -100,9 +100,9 @@ class MX_RENDERMSL_API MetalFramebuffer
     Image::BaseType _baseType;
     bool _encodeSrgb;
 
-    id<MTLDevice>  _device;
-    id<MTLTexture> _colorTexture;
-    id<MTLTexture> _depthTexture;
+    id<MTLDevice>  _device = nil;
+    id<MTLTexture> _colorTexture = nil;
+    id<MTLTexture> _depthTexture = nil;
 };
 
 MATERIALX_NAMESPACE_END

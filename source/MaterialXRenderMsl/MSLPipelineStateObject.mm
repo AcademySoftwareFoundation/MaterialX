@@ -1386,14 +1386,12 @@ void MslProgram::reset()
     if (_pso != nil)
     {
        [_pso release];
-       _pso = nil;
     }
     _pso = nil;
     
     if(_psoReflection != nil)
     {
        [_psoReflection release];
-       _psoReflection = nil;
     }
     _psoReflection = nil;
 
