@@ -294,7 +294,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     for (const auto& assignment : _viewer->_materialAssignments)
     {
         mx::MeshPartitionPtr geom = assignment.first;
-        mx::GlslMaterialPtr material = std::reinterpret_pointer_cast<mx::GlslMaterial>(assignment.second);
+        mx::GlslMaterialPtr material = std::dynamic_pointer_cast<mx::GlslMaterial>(assignment.second);
         shadowState.ambientOcclusionMap = _viewer->getAmbientOcclusionImage(material);
         if (!material)
         {
@@ -322,7 +322,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
         for (const auto& assignment : _viewer->_materialAssignments)
         {
             mx::MeshPartitionPtr geom = assignment.first;
-            mx::GlslMaterialPtr material = std::reinterpret_pointer_cast<mx::GlslMaterial>(assignment.second);
+            mx::GlslMaterialPtr material = std::dynamic_pointer_cast<mx::GlslMaterial>(assignment.second);
             shadowState.ambientOcclusionMap = _viewer->getAmbientOcclusionImage(material);
             if (!material || !material->hasTransparency())
             {
