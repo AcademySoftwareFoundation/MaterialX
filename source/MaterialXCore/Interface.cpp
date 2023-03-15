@@ -332,10 +332,7 @@ bool Input::validate(string* message) const
 
     if (hasDefaultGeomPropString())
     {
-        if (!parent->isA<NodeDef>())
-        {
-            validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop on non-definition input");
-        }
+        validateRequire(parent->isA<NodeDef>(), res, message, "Invalid defaultgeomprop on non-definition input");
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
     if (parent->isA<Node>())
