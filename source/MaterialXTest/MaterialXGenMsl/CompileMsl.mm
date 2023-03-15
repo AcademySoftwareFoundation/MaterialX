@@ -36,10 +36,11 @@ void CompileMslShader(const char* pShaderFilePath, const char* pEntryFuncName)
         options.languageVersion = MTLLanguageVersion2_0;
     options.fastMathEnabled = true;
     
-    [device newLibraryWithSource:shadersource options:options error:&error];
-    if(error != nil)
+    id<MTLLibrary> library = [device newLibraryWithSource:shadersource options:options error:&error];
+    if(library == nil)
     {
-        throw MaterialX::ExceptionShaderGenError("Failed to create library out of '" + std::string(pShaderFilePath) + "'.");
+        throw MaterialX::ExceptionShaderGenError("Failed to create library out of '" + std::string(pShaderFilePath) + "'." +
+            std::string(error ? [[error localizedDescription] UTF8String] : ""));
         return;
     }
 }

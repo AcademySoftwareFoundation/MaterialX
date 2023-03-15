@@ -532,93 +532,94 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
             }
         }
         else
-        
-        if(!entryFunctionArgs)
         {
-            if (!uniforms.empty())
+            if(!entryFunctionArgs)
             {
-                for (size_t i=0; i<uniforms.size(); ++i)
+                if (!uniforms.empty())
                 {
-                    if(uniforms[i]->getType() != Type::FILENAME)
+                    for (size_t i=0; i<uniforms.size(); ++i)
                     {
-                        emitLineBegin(stage);
-                        emitString(separator, stage);
-                        if(globalContextInit)
+                        if(uniforms[i]->getType() != Type::FILENAME)
                         {
-                            emitString(uniforms.getInstance() + "." + uniforms[i]->getVariable(), stage);
+                            emitLineBegin(stage);
+                            emitString(separator, stage);
+                            if(globalContextInit)
+                            {
+                                emitString(uniforms.getInstance() + "." + uniforms[i]->getVariable(), stage);
+                            }
+                            else if (globalContextMembers || globalContextConstructorParams)
+                            {
+                                emitLine(_syntax->getTypeName(uniforms[i]->getType()) + " " + uniforms[i]->getVariable(), stage, !globalContextConstructorParams);
+                            }
+                            else if (globalContextConstructorInit)
+                            {
+                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
+                            }
+                            emitLineEnd(stage, false);
                         }
-                        else if (globalContextMembers || globalContextConstructorParams)
+                        else
                         {
-                            emitLine(_syntax->getTypeName(uniforms[i]->getType()) + " " + uniforms[i]->getVariable(), stage, !globalContextConstructorParams);
+                            if(globalContextInit)
+                            {
+                                emitString(separator, stage);
+                                emitString("MetalTexture", stage);
+                                emitScopeBegin(stage);
+                                emitString(TEXTURE_NAME(uniforms[i]->getVariable()), stage);
+                                emitString(separator, stage);
+                                emitString(SAMPLER_NAME(uniforms[i]->getVariable()), stage);
+                                emitScopeEnd(stage);
+                            }
+                            else if (globalContextMembers || globalContextConstructorParams)
+                            {
+                                emitString(separator, stage);
+                                emitVariableDeclaration(uniforms[i], EMPTY_STRING, context, stage, false);
+                                emitString(globalContextConstructorParams ? "" : ";", stage);
+                            }
+                            else if (globalContextConstructorInit)
+                            {
+                                emitString(separator, stage);
+                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
+                            }
                         }
-                        else if (globalContextConstructorInit)
-                        {
-                            emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
-                        }
-                        emitLineEnd(stage, false);
+                        
+                        if(globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
+                            separator = ", ";
+                        else if(globalContextMembers)
+                            separator = "\n";
                     }
-                    else
+                }
+            }
+            else
+            {
+                if (!uniforms.empty())
+                {
+                    bool hasUniforms = false;
+                    for (const ShaderPort* uniform : uniforms.getVariableOrder())
                     {
-                        if(globalContextInit)
+                        if (uniform->getType() == Type::FILENAME)
                         {
                             emitString(separator, stage);
-                            emitString("MetalTexture", stage);
-                            emitScopeBegin(stage);
-                            emitString(TEXTURE_NAME(uniforms[i]->getVariable()), stage);
-                            emitString(separator, stage);
-                            emitString(SAMPLER_NAME(uniforms[i]->getVariable()), stage);
-                            emitScopeEnd(stage);
+                            emitString("texture2d<float> " + TEXTURE_NAME(uniform->getVariable()), stage);
+                            emitString(" [[texture(" + std::to_string(tex_slot) + ")]], ", stage);
+                            emitString("sampler " + SAMPLER_NAME(uniform->getVariable()), stage);
+                            emitString(" [[sampler(" + std::to_string(tex_slot++) + ")]]", stage);
+                            emitLineEnd(stage, false);
                         }
-                        else if (globalContextMembers || globalContextConstructorParams)
+                        else
                         {
-                            emitString(separator, stage);
-                            emitVariableDeclaration(uniforms[i], EMPTY_STRING, context, stage, false);
-                            emitString(globalContextConstructorParams ? "" : ";", stage);
-                        }
-                        else if (globalContextConstructorInit)
-                        {
-                            emitString(separator, stage);
-                            emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
+                            hasUniforms = true;
                         }
                     }
                     
-                    if(globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
-                        separator = ", ";
-                    else if(globalContextMembers)
-                        separator = "\n";
-                }
-            }
-        }
-        else
-        {
-            if (!uniforms.empty())
-            {
-                bool hasUniforms = false;
-                for (const ShaderPort* uniform : uniforms.getVariableOrder())
-                {
-                    if (uniform->getType() == Type::FILENAME)
+                    if(hasUniforms)
                     {
                         emitString(separator, stage);
-                        emitString("texture2d<float> " + TEXTURE_NAME(uniform->getVariable()), stage);
-                        emitString(" [[texture(" + std::to_string(tex_slot) + ")]], ", stage);
-                        emitString("sampler " + SAMPLER_NAME(uniform->getVariable()), stage);
-                        emitString(" [[sampler(" + std::to_string(tex_slot++) + ")]]", stage);
-                        emitLineEnd(stage, false);
+                        emitString(_syntax->getUniformQualifier() + " " +
+                                   uniforms.getName() + "& " +
+                                   uniforms.getInstance() +
+                                   "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
+                                   stage);
                     }
-                    else
-                    {
-                        hasUniforms = true;
-                    }
-                }
-                
-                if(hasUniforms)
-                {
-                    emitString(separator, stage);
-                    emitString(_syntax->getUniformQualifier() + " " +
-                               uniforms.getName() + "& " +
-                               uniforms.getInstance() +
-                               "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
-                               stage);
                 }
             }
         }
@@ -627,6 +628,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
             separator = ", ";
         else
             separator = "\n";
+        
     }
     
     if(!isVertexShader)

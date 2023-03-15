@@ -9,9 +9,9 @@ if(APPLE)
     option(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM "Use OpenGL Backend on Apple Platform" OFF)
     
     # Disables MaterialXView Metal Rendering on MacOS version below 11
-    EXEC_PROGRAM("sw_vers" ARGS "--productVersion" OUTPUT_VARIABLE DARWIN_VERSION)
-    STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
-    if(DARWIN_VERSION LESS "11")
+    EXEC_PROGRAM("sw_vers" ARGS "-productVersion" OUTPUT_VARIABLE DARWIN_VERSION)
+    STRING(REGEX MATCH "[0-9]+.[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
+    if(DARWIN_VERSION LESS "10.15")
         set(USE_OPENGL_BACKEND_ON_APPLE_PLATFORM ON)
     endif()
     

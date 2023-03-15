@@ -37,6 +37,8 @@ int MslProgram::Input::INVALID_METAL_TYPE = -1;
 //
 
 MslProgram::MslProgram() :
+    _pso(nil),
+    _psoReflection(nil),
     _shader(nullptr),
     _alphaBlendingEnabled(false)
 {
@@ -170,15 +172,22 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
                                                       options:options
                                                         error:&error];
         
-        if(error)
+        if(library == nil)
         {
             errors.push_back("Error in compiling vertex shader:");
-            errors.push_back([[error localizedDescription] UTF8String]);
+            if(error)
+            {
+                errors.push_back([[error localizedDescription] UTF8String]);
+            }
             return nil;
         }
         
         vertexShaderId = [library newFunctionWithName:@"VertexMain"];
-        stagesBuilt++;
+        
+        if(vertexShaderId)
+        {
+            stagesBuilt++;
+        }
     }
 
     // Create fragment shader
@@ -209,12 +218,7 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
         fragmentShaderId = [library newFunctionWithName:@"FragmentMain"];
         assert(fragmentShaderId);
         
-        if(error)
-        {
-            errors.push_back("Error in compiling fragment shader:");
-            errors.push_back([[error localizedDescription] UTF8String]);
-        }
-        else
+        if(library)
         {
             stagesBuilt++;
         }

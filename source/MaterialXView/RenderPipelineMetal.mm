@@ -321,10 +321,26 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     if(captureFrame)
         MTL_TRIGGER_CAPTURE;
     
+    bool useTiledPipeline;
+    if(@available(macOS 11.0, ios 14.0, *))
+    {
+        useTiledPipeline = MTL(supportsTiledPipeline);
+    }
+    else
+    {
+        useTiledPipeline = false;
+    }
+    
     MTL(beginCommandBuffer());
     MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor new];
-    [renderpassDesc.colorAttachments[0] setTexture:color_texture?
-        (id<MTLTexture>)color_texture : MTL(currentFramebuffer())->getColorTexture()];
+    if(useTiledPipeline)
+    {
+        [renderpassDesc.colorAttachments[0] setTexture:(id<MTLTexture>)color_texture];
+    }
+    else
+    {
+        [renderpassDesc.colorAttachments[0] setTexture:MTL(currentFramebuffer())->getColorTexture()];
+    }
     [renderpassDesc.colorAttachments[0] setClearColor:MTLClearColorMake(
                                         _viewer->m_background[0],
                                         _viewer->m_background[1],
@@ -477,7 +493,6 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     }
     
 #if MAC_OS_VERSION_11_0
-    bool useTiledPipeline = MTL(supportsTiledPipeline);
     if(useTiledPipeline)
     {
         if(@available(macOS 11.0, ios 14.0, *))
@@ -487,16 +502,13 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
                                         MTL(renderCmdEncoder).tileWidth,
                                         MTL(renderCmdEncoder).tileHeight, 1)];
         }
-        else
-        {
-            useTiledPipeline = false;
-        }
     }
     
     if(!useTiledPipeline)
 #endif
     {
         MTL(endEncoder());
+        [renderpassDesc.colorAttachments[0] setTexture:(id<MTLTexture>)color_texture];
         MTL(beginEncoder(renderpassDesc));
         [MTL(renderCmdEncoder) setRenderPipelineState:MTL(linearToSRGB_pso)];
         [MTL(renderCmdEncoder)

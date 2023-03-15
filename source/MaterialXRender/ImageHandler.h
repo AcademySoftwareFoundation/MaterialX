@@ -92,19 +92,14 @@ class MX_RENDER_API ImageSamplingProperties
 /// Class used for hashing ImageSamplingProperties in an unordered_map
 struct MX_RENDER_API ImageSamplingKeyHasher
 {
-  std::size_t operator()(const ImageSamplingProperties& k) const
-  {
-    using std::size_t;
-    using std::hash;
-    using std::string;
-
-    return
-      (std::size_t)(k.enableMipmaps)                         + // 1 bit
-      (((std::size_t)k.filterType & 3)                 << 1) + // 2 bit
-      (((std::size_t)((int)k.uaddressMode + 1)    & 7) << 3) + // 3 bit
-      (((std::size_t)((int)k.vaddressMode + 1)    & 7) << 6) + // 3 bit
-      (((std::size_t)((int)k.defaultColor[0] + 1)    ) << 9) ;
-  }
+    size_t operator()(const ImageSamplingProperties& k) const
+    {
+        return (size_t) k.enableMipmaps                   + // 1 bit
+               (((size_t) k.filterType         & 3) << 1) + // 2 bit
+               ((((size_t) k.uaddressMode + 1) & 7) << 3) + // 3 bit
+               ((((size_t) k.vaddressMode + 1) & 7) << 6) + // 3 bit
+               ((((size_t) k.defaultColor[0] + 1))  << 9) ;
+    }
 };
 
 /// @class ImageLoader
