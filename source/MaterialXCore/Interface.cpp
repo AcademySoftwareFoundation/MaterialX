@@ -332,9 +332,13 @@ bool Input::validate(string* message) const
 
     if (hasDefaultGeomPropString())
     {
+        if (!parent->isA<NodeDef>())
+        {
+            validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop on non-definition input");
+        }
         validateRequire(getDefaultGeomProp() != nullptr, res, message, "Invalid defaultgeomprop string");
     }
-    else if (parent->isA<Node>())
+    if (parent->isA<Node>())
     {
         bool hasValueBinding = hasValue();
         bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
