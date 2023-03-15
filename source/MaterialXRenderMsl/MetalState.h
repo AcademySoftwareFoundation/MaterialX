@@ -49,18 +49,18 @@ struct MetalState
     
     static std::unique_ptr<MetalState> singleton;
     
-    id<MTLDevice>                       device;
-    id<MTLCommandQueue>                 cmdQueue;
-    id<MTLCommandBuffer>                cmdBuffer;
-    id<MTLRenderPipelineState>          linearToSRGB_pso;
-    id<MTLRenderCommandEncoder>         renderCmdEncoder;
+    id<MTLDevice>                       device = nil;
+    id<MTLCommandQueue>                 cmdQueue = nil;
+    id<MTLCommandBuffer>                cmdBuffer = nil;
+    id<MTLRenderPipelineState>          linearToSRGB_pso = nil;
+    id<MTLRenderCommandEncoder>         renderCmdEncoder = nil;
     std::stack<MaterialX::MetalFramebufferPtr> framebufferStack;
     
     bool supportsTiledPipeline;
     
-    id<MTLDepthStencilState> opaqueDepthStencilState;
-    id<MTLDepthStencilState> transparentDepthStencilState;
-    id<MTLDepthStencilState> envMapDepthStencilState;
+    id<MTLDepthStencilState> opaqueDepthStencilState = nil;
+    id<MTLDepthStencilState> transparentDepthStencilState = nil;
+    id<MTLDepthStencilState> envMapDepthStencilState = nil;
     
     std::condition_variable inFlightCV;
     std::mutex              inFlightMutex;

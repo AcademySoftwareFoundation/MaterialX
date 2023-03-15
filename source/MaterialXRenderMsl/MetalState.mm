@@ -19,7 +19,7 @@ void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQ
     device = mtlDevice;
     cmdQueue = mtlCmdQueue;
     
-#if MAC_OS_VERSION_11_0
+#ifdef MAC_OS_VERSION_11_0
     if (@available(macOS 11.0, ios 14.0, *))
     {
         supportsTiledPipeline = [device supportsFamily:MTLGPUFamilyApple4];
@@ -48,7 +48,7 @@ void MetalState::initLinearToSRGBKernel()
 {
     NSError* error = nil;
     MTLCompileOptions* options = [MTLCompileOptions new];
-#if MAC_OS_VERSION_11_0
+#ifdef MAC_OS_VERSION_11_0
     if (@available(macOS 11.0, ios 14.0, *))
         options.languageVersion = MTLLanguageVersion2_3;
     else
@@ -56,7 +56,7 @@ void MetalState::initLinearToSRGBKernel()
         options.languageVersion = MTLLanguageVersion2_0;
     options.fastMathEnabled = true;
     
-#if MAC_OS_VERSION_11_0
+#ifdef MAC_OS_VERSION_11_0
     bool useTiledPipeline = supportsTiledPipeline;
     if(useTiledPipeline)
     {

@@ -436,7 +436,6 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Optical path difference
     float D = 2.0 * eta2 * d * cosTheta2;
-    vec3 Dphi = 2.0 * M_PI * D / vec3(580.0, 550.0, 450.0);
 
     float phi21p, phi21s;
     vec3 phi23p, phi23s, r123s, r123p;

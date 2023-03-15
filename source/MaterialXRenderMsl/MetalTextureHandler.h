@@ -89,7 +89,7 @@ public:
     std::unordered_map<unsigned int, std::pair<ImagePtr, ImageSamplingProperties>> _imageBindingInfo;
     std::unordered_map<ImageSamplingProperties, id<MTLSamplerState>, ImageSamplingKeyHasher> _imageSamplerStateMap;
     
-    id<MTLDevice> _device;
+    id<MTLDevice> _device = nil;
 };
 
 MATERIALX_NAMESPACE_END
