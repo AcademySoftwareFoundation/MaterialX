@@ -149,7 +149,7 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
     }
     
     MTLCompileOptions* options = [MTLCompileOptions new];
-#if MAC_OS_VERSION_11_0
+#ifdef MAC_OS_VERSION_11_0
     if (@available(macOS 11.0, ios 14.0, *))
         options.languageVersion = MTLLanguageVersion2_3;
     else

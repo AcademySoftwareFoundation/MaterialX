@@ -492,7 +492,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
         }
     }
     
-#if MAC_OS_VERSION_11_0
+#ifdef MAC_OS_VERSION_11_0
     if(useTiledPipeline)
     {
         if(@available(macOS 11.0, ios 14.0, *))
