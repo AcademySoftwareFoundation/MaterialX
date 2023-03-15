@@ -34,13 +34,11 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
 
         // split all fields into separate functions
-        std::unordered_set<const ShaderNode*> knownUpsteams;
         if (!_returnStruct.empty() && _unrollReturnStructMembers)
         {
             // make sure the upstream definitions are known
-            for (size_t i = 0, n = _rootGraph->numOutputSockets(); i < n; ++i)
+            for (const ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
             {
-                const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(i);
                 if (!outputSocket->getConnection())
                     continue;
         
@@ -49,9 +47,9 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                                              upstream->hasClassification(ShaderNode::Classification::SHADER));
 
                 // since the emit fuctions are const, the field name to generate a function for is passed via context
-                std::string fieldName = outputSocket->getName();
+                const std::string& fieldName = outputSocket->getName();
                 GenUserDataStringPtr fieldNamePtr = std::make_shared<GenUserDataString>(fieldName);
-                context.pushUserData("returnStructFieldName", fieldNamePtr);
+                context.pushUserData(CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME, fieldNamePtr);
 
                 // Emit function signature.
                 emitFunctionSignature(node, context, stage);
@@ -91,7 +89,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 }
                 shadergen.emitLineBreak(stage);
 
-                context.popUserData("returnStructFieldName");
+                context.popUserData(CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME);
             }
             return;
         }

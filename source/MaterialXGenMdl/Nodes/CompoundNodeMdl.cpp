@@ -14,6 +14,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+const string CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME = "returnStructFieldName";
+
 ShaderNodeImplPtr CompoundNodeMdl::create()
 {
     return std::make_shared<CompoundNodeMdl>();
@@ -112,13 +114,12 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (_unrollReturnStructMembers)
             {
                 // make sure the upstream definitions are known
-                for (size_t i = 0, n = _rootGraph->numOutputSockets(); i < n; ++i)
+                for (const ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
                 {
-                    const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(i);
                     if (!outputSocket->getConnection())
                         continue;
 
-                    std::string fieldName = outputSocket->getName();
+                    const std::string& fieldName = outputSocket->getName();
 
                     // Emit the struct field.
                     const string& outputType = syntax.getTypeName(outputSocket->getType());
@@ -184,13 +185,19 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
     {
         if (_unrollReturnStructMembers)
         {
-            const auto fieldName = context.getUserData<GenUserDataString>("returnStructFieldName");
+            const auto fieldName = context.getUserData<GenUserDataString>(GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME);
 
-            // Begin function signature.
-            const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(fieldName->getValue());
-            const string& outputType = syntax.getTypeName(outputSocket->getType());
-            shadergen.emitLine(outputType + " " + _functionName + "__" + fieldName->getValue(), stage, false);
-
+            if (fieldName)
+            {
+                // Begin function signature.
+                const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket(fieldName->getValue());
+                const string& outputType = syntax.getTypeName(outputSocket->getType());
+                shadergen.emitLine(outputType + " " + _functionName + "__" + fieldName->getValue(), stage, false);
+            }
+            else
+            {
+                throw Exception("Error during transformation of struct: " + _returnStruct);
+            }
         }
         else
         {

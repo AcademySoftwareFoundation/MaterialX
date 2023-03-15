@@ -43,6 +43,8 @@ class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
 
     string _returnStruct;
     bool _unrollReturnStructMembers = false;
+
+    static const string GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME;
 };
 
 MATERIALX_NAMESPACE_END
