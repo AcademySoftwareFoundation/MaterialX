@@ -95,8 +95,8 @@ TEST_CASE("GeomPropDef", "[geom]")
 
     // Create a NodeDef with an input that defaults to the declared world-space
     // normal property.
-    doc->addNodeDef("ND_foo", "color3", "foo");
-    mx::InputPtr input = doc->addInput("input1", "vector3");
+    mx::NodeDefPtr nodedef = doc->addNodeDef("ND_foo", "color3", "foo");
+    mx::InputPtr input = nodedef->addInput("input1", "vector3");
     input->setDefaultGeomPropString(worldNormal->getName());
 
     // Validate connections.
