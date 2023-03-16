@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
-#include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRender/ShaderRenderer.h>
 
 #include <iostream>

@@ -7,7 +7,7 @@
 
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
-#include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRender/Util.h>
 #include <MaterialXFormat/Util.h>
 

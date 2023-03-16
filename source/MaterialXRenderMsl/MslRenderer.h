@@ -12,7 +12,7 @@
 #include <MaterialXRenderMsl/Export.h>
 
 #include <MaterialXRenderMsl/MetalFramebuffer.h>
-#include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
 
 #include <MaterialXRender/ShaderRenderer.h>

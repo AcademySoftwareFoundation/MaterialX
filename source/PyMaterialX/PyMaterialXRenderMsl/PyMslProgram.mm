@@ -5,7 +5,7 @@
 
 #include <PyMaterialX/PyMaterialX.h>
 
-#include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRenderMsl/MetalFramebuffer.h>
 
 namespace py = pybind11;

@@ -5,7 +5,7 @@
 
 #include <MaterialXRenderMsl/MetalFramebuffer.h>
 
-#include <MaterialXRenderMsl/MSLPipelineStateObject.h>
+#include <MaterialXRenderMsl/MslPipelineStateObject.h>
 #include <MaterialXRenderMsl/MslRenderer.h>
 #include <MaterialXRenderMsl/MetalTextureHandler.h>
 
