@@ -52,6 +52,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 context.pushUserData(CompoundNodeMdl::GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME, fieldNamePtr);
 
                 // Emit function signature.
+                shadergen.emitComment("unrolled structure field: " + _returnStruct + "." + fieldName + " (name=\"" + node.getName() + "\")", stage);
                 emitFunctionSignature(node, context, stage);
 
                 // Special case for material expresions.

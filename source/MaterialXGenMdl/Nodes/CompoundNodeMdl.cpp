@@ -114,6 +114,7 @@ void CompoundNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (_unrollReturnStructMembers)
             {
                 // make sure the upstream definitions are known
+                shadergen.emitComment("fill unrolled structure fields: " + _returnStruct + " (name=\"" + node.getName() + "\")", stage);
                 for (const ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
                 {
                     if (!outputSocket->getConnection())
