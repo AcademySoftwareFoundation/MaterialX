@@ -35,7 +35,8 @@ elseif(APPLE)
         MaterialXRender
         ${CMAKE_DL_LIBS}
         "-framework Foundation"
-        "-framework Cocoa")
+        "-framework Cocoa"
+        "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderHw

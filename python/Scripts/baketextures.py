@@ -4,11 +4,14 @@ Generate a baked version of each material in the input document, using the Textu
 '''
 
 import sys, os, argparse
+from sys import platform
 import MaterialX as mx
 from MaterialX import PyMaterialXGenShader
 from MaterialX import PyMaterialXGenGlsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
+if platform == "darwin":
+    from MaterialX import PyMaterialXRenderMsl as mx_render_msl
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a baked version of each material in the input document.")
@@ -18,6 +21,8 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
+    if platform == "darwin":
+        parser.add_argument("--glsl", dest="useGlslBackend", default=False, type=bool, help="Set to True to use GLSL backend (default = Metal).")
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     opts = parser.parse_args()
@@ -52,7 +57,13 @@ def main():
         print(msg)
 
     baseType = mx_render.BaseType.FLOAT if opts.hdr else mx_render.BaseType.UINT8
-    baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
+    
+    
+    if platform == "darwin" and not opts.useGlslBackend:
+        baker = mx_render_msl.TextureBaker.create(opts.width, opts.height, baseType)
+    else:
+        baker = mx_render_glsl.TextureBaker.create(opts.width, opts.height, baseType)
+    
     if opts.average:
         baker.setAverageImages(True)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)

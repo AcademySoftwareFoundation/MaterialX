@@ -339,7 +339,7 @@ FilePath FilePath::getModulePath()
     vector<char> buf(PATH_MAX);
     while (true)
     {
-        uint32_t reqSize = buf.size();
+        uint32_t reqSize = static_cast<uint32_t>(buf.size());
         if (_NSGetExecutablePath(buf.data(), &reqSize) == -1)
         {
             buf.resize((size_t) reqSize);
