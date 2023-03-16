@@ -446,7 +446,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                     }
                     else if (globalContextConstructorInit)
                     {
-                        emitLine(it->getName() + "(" + it->getName() + ")", stage, !globalContextConstructorInit);
+                        emitLine(it->getName() + "(" + it->getName() + ")", stage, false);
                     }
                     
                     if(globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
@@ -473,7 +473,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                 }
                 else if (globalContextConstructorInit)
                 {
-                    emitLine(vertex_inputs.getInstance() + "(" + vertex_inputs.getInstance() + ")", stage, !globalContextConstructorInit);
+                    emitLine(vertex_inputs.getInstance() + "(" + vertex_inputs.getInstance() + ")", stage, false);
                     separator = ", ";
                 }
             }
@@ -553,7 +553,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                             }
                             else if (globalContextConstructorInit)
                             {
-                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
+                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, false);
                             }
                             emitLineEnd(stage, false);
                         }
@@ -578,7 +578,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                             else if (globalContextConstructorInit)
                             {
                                 emitString(separator, stage);
-                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, !globalContextConstructorInit);
+                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, false);
                             }
                         }
                         
