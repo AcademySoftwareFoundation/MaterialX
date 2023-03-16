@@ -3,6 +3,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE materialx_inlined "${CMAKE_CURRENT_SOURCE_DIR}/*.inl")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if(NOT MATERIALX_BUILD_OIIO)
@@ -10,13 +11,14 @@ if(NOT MATERIALX_BUILD_OIIO)
 endif()
 
 assign_source_group("Source Files" ${materialx_source})
+assign_source_group("Source Files" ${materialx_inlined})
 assign_source_group("Header Files" ${materialx_headers})
 
 if(UNIX)
     add_compile_options(-Wno-unused-function)
 endif()
 
-add_library(MaterialXRender ${materialx_source} ${materialx_headers})
+add_library(MaterialXRender ${materialx_source} ${materialx_headers} ${materialx_inlined})
 
 add_definitions(-DMATERIALX_RENDER_EXPORTS)
 

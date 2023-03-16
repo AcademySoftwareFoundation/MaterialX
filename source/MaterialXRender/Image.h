@@ -214,7 +214,7 @@ class MX_RENDER_API Image
 
     void* _resourceBuffer;
     ImageBufferDeallocator _resourceBufferDeallocator;
-    unsigned int _resourceId;
+    unsigned int _resourceId = 0;
 };
 
 /// Create a uniform-color image with the given properties.

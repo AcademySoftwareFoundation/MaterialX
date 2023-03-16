@@ -9,6 +9,7 @@
 /// @file
 /// GLSL material helper classes
 
+#include <MaterialXRender/ShaderMaterial.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
@@ -18,24 +19,12 @@ MATERIALX_NAMESPACE_BEGIN
 
 using GlslMaterialPtr = std::shared_ptr<class GlslMaterial>;
 
-/// @class ShadowState
-/// Helper class representing shadow rendering state
-class MX_RENDERGLSL_API ShadowState
-{
-  public:
-    ImagePtr shadowMap;
-    Matrix44 shadowMatrix;
-    ImagePtr ambientOcclusionMap;
-    float ambientOcclusionGain = 0.0f;
-};
-
 /// @class GlslMaterial
 /// Helper class for GLSL generation and rendering of a material
-class MX_RENDERGLSL_API GlslMaterial
+class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
 {
   public:
-    GlslMaterial() :
-        _hasTransparency(false)
+    GlslMaterial() : ShaderMaterial()
     {
     }
     ~GlslMaterial() { }
@@ -45,83 +34,23 @@ class MX_RENDERGLSL_API GlslMaterial
         return std::make_shared<GlslMaterial>();
     }
 
-    /// Set the renderable element associated with this material
-    void setDocument(DocumentPtr doc)
-    {
-        _doc = doc;
-    }
-
-    /// Return the document associated with this material
-    DocumentPtr getDocument() const
-    {
-        return _doc;
-    }
-
-    /// Set the renderable element associated with this material
-    void setElement(TypedElementPtr val)
-    {
-        _elem = val;
-    }
-
-    /// Return the renderable element associated with this material
-    TypedElementPtr getElement() const
-    {
-        return _elem;
-    }
-
-    /// Set the material node associated with this material
-    void setMaterialNode(NodePtr node)
-    {
-        _materialNode = node;
-    }
-
-    /// Return the material node associated with this material
-    NodePtr getMaterialNode() const
-    {
-        return _materialNode;
-    }
-
-    /// Set udim identifier
-    void setUdim(const std::string& val)
-    {
-        _udim = val;
-    }
-
-    /// Get any associated udim identifier
-    const std::string& getUdim()
-    {
-        return _udim;
-    }
-
     /// Load shader source from file.
     bool loadSource(const FilePath& vertexShaderFile,
                     const FilePath& pixelShaderFile,
-                    bool hasTransparency);
+                    bool hasTransparency) override;
 
     /// Generate a shader from our currently stored element and
     /// the given generator context.
-    bool generateShader(GenContext& context);
+    bool generateShader(GenContext& context) override;
 
     /// Generate a shader from the given hardware shader.
-    bool generateShader(ShaderPtr hwShader);
-
-    /// Generate an environment background shader
-    bool generateEnvironmentShader(GenContext& context,
-                                   const FilePath& filename,
-                                   DocumentPtr stdLib,
-                                   const FilePath& imagePath);
-
+    bool generateShader(ShaderPtr hwShader) override;
+    
     /// Copy shader from one material to this one
-    void copyShader(GlslMaterialPtr material)
+    void copyShader(MaterialPtr material) override
     {
-        _hwShader = material->_hwShader;
-        _glProgram = material->_glProgram;
-    }
-
-    /// Return the underlying hardware shader.
-    ShaderPtr getShader() const
-    {
-        return _hwShader;
+        _hwShader = std::static_pointer_cast<GlslMaterial>(material)->_hwShader;
+        _glProgram = std::static_pointer_cast<GlslMaterial>(material)->_glProgram;
     }
 
     /// Return the underlying GLSL program.
@@ -130,72 +59,63 @@ class MX_RENDERGLSL_API GlslMaterial
         return _glProgram;
     }
 
-    /// Return true if this material has transparency.
-    bool hasTransparency() const
-    {
-        return _hasTransparency;
-    }
-
     /// Bind shader
-    bool bindShader() const;
+    bool bindShader() const override;
 
     /// Bind viewing information for this material.
-    void bindViewInformation(CameraPtr camera);
+    void bindViewInformation(CameraPtr camera) override;
 
     /// Bind all images for this material.
-    void bindImages(ImageHandlerPtr imageHandler, const FileSearchPath& searchPath, bool enableMipmaps = true);
+    void bindImages(ImageHandlerPtr imageHandler,
+                    const FileSearchPath& searchPath,
+                    bool enableMipmaps = true) override;
 
     /// Unbbind all images for this material.
-    void unbindImages(ImageHandlerPtr imageHandler);
+    void unbindImages(ImageHandlerPtr imageHandler) override;
 
     /// Bind a single image.
-    ImagePtr bindImage(const FilePath& filePath, const std::string& uniformName, ImageHandlerPtr imageHandler,
-                           const ImageSamplingProperties& samplingProperties);
+    ImagePtr bindImage(const FilePath& filePath,
+                       const std::string& uniformName,
+                       ImageHandlerPtr imageHandler,
+                       const ImageSamplingProperties& samplingProperties) override;
 
     /// Bind lights to shader.
-    void bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imageHandler, const ShadowState& shadowState);
+    void bindLighting(LightHandlerPtr lightHandler,
+                      ImageHandlerPtr imageHandler,
+                      const ShadowState& shadowState) override;
 
     /// Bind units.
-    void bindUnits(UnitConverterRegistryPtr& registry, const GenContext& context);
+    void bindUnits(UnitConverterRegistryPtr& registry,
+                   const GenContext& context) override;
 
     /// Bind the given mesh to this material.
-    void bindMesh(MeshPtr mesh);
+    void bindMesh(MeshPtr mesh) override;
 
     /// Bind a mesh partition to this material.
-    bool bindPartition(MeshPartitionPtr part) const;
+    bool bindPartition(MeshPartitionPtr part) const override;
 
     /// Draw the given mesh partition.
-    void drawPartition(MeshPartitionPtr part) const;
+    void drawPartition(MeshPartitionPtr part) const override;
 
     /// Unbind all geometry from this material.
-    void unbindGeometry();
+    void unbindGeometry() override;
 
     /// Return the block of public uniforms for this material.
-    VariableBlock* getPublicUniforms() const;
+    VariableBlock* getPublicUniforms() const override;
 
     /// Find a public uniform from its MaterialX path.
-    ShaderPort* findUniform(const std::string& path) const;
+    ShaderPort* findUniform(const std::string& path) const override;
 
     /// Modify the value of the uniform with the given path.
-    void modifyUniform(const std::string& path, ConstValuePtr value, std::string valueString = EMPTY_STRING);
+    void modifyUniform(const std::string& path,
+                       ConstValuePtr value,
+                       std::string valueString = EMPTY_STRING) override;
 
   protected:
-    void clearShader();
+    void clearShader() override;
 
   protected:
-    ShaderPtr _hwShader;
     GlslProgramPtr _glProgram;
-
-    MeshPtr _boundMesh;
-
-    DocumentPtr _doc;
-    TypedElementPtr _elem;
-    NodePtr _materialNode;
-
-    std::string _udim;
-    bool _hasTransparency;
-
-    ImageVec _boundImages;
 };
 
 MATERIALX_NAMESPACE_END

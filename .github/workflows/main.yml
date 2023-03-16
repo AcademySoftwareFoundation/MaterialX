@@ -81,6 +81,7 @@ jobs:
           compiler: xcode
           compiler_version: "13.3"
           python: 3.9
+          test_shaders: ON
 
         - name: Windows_VS2019_Win32_Python27
           os: windows-2019
@@ -202,15 +203,21 @@ jobs:
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target mdl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target msl
       working-directory: python
 
-    - name: Shader Validation Tests
+    - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
+
+    - name: Shader Validation Tests (MacOS)
+      if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
+      run: |
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'Linux'

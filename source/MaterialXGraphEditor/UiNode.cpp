@@ -47,7 +47,7 @@ UiNodePtr UiNode::getConnectedNode(const std::string& name)
     }
     for (UiEdge edge : edges)
     {
-        if (edge.getInputName() == "")
+        if (edge.getInputName().empty())
         {
             return edge.getDown();
         }
