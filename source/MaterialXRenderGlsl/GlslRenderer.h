@@ -13,6 +13,7 @@
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -44,6 +45,12 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// Create a GLSL renderer instance
     static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
+    /// Create a texture handler for OpenGL textures
+    ImageHandlerPtr createImageHandler(ImageLoaderPtr imageLoader)
+    {
+        return GLTextureHandler::create(imageLoader);
+    }
+    
     /// Destructor
     virtual ~GlslRenderer() { }
 
