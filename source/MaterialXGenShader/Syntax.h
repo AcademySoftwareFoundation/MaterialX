@@ -86,7 +86,7 @@ class MX_GENSHADER_API Syntax
     const string& getTypeName(const TypeDesc* type) const;
 
     /// Returns the type name in an output context
-    string getOutputTypeName(const TypeDesc* type) const;
+    virtual string getOutputTypeName(const TypeDesc* type) const;
 
     /// Returns a type alias for the given data type.
     /// If not used returns an empty string.

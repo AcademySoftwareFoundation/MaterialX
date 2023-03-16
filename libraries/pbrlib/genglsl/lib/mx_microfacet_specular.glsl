@@ -30,6 +30,26 @@ struct FresnelData
 
     // Refraction
     bool refraction;
+
+#ifdef __METAL__ 
+FresnelData(int   _model        = 0, 
+            vec3  _ior          = vec3(0.0f),
+            vec3  _extinction   = vec3(0.0f),
+            vec3  _F0           = vec3(0.0f),
+            vec3  _F90          = vec3(0.0f),
+            float _exponent     = 0.0f,
+            float _tf_thickness = 0.0f,
+            float _tf_ior       = 0.0f,
+            bool  _refraction   = false) : 
+                model(_model),
+                ior(_ior),
+                extinction(_extinction),
+                F0(_F0), F90(_F90), exponent(_exponent),
+                tf_thickness(_tf_thickness),
+                tf_ior(_tf_ior),
+                refraction(_refraction) {}
+#endif
+
 };
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
@@ -333,11 +353,12 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
 // Phase shift due to a conducting material
 void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
 {
-    if (kappa2 == vec3(0, 0, 0) && eta2.x == eta2.y && eta2.y == eta2.z) {
+    if (dot(kappa2, kappa2) == 0.0 && eta2.x == eta2.y && eta2.y == eta2.z) {
         // Use dielectric formula to increase performance
-        mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiP.x, phiS.x);
-        phiP = phiP.xxx;
-        phiS = phiS.xxx;
+        float phiPx, phiSx;
+        mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiPx, phiSx);
+        phiP = vec3(phiPx, phiPx, phiPx);
+        phiS = vec3(phiSx, phiSx, phiSx);
         return;
     }
     vec3 k2 = kappa2 / eta2;
@@ -415,7 +436,6 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Optical path difference
     float D = 2.0 * eta2 * d * cosTheta2;
-    vec3 Dphi = 2.0 * M_PI * D / vec3(580.0, 550.0, 450.0);
 
     float phi21p, phi21s;
     vec3 phi23p, phi23s, r123s, r123p;

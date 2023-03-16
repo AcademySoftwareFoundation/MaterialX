@@ -7,7 +7,7 @@
      <output name="out" type="vector3" default="0.0, 0.0, 1.0"/>
    </nodedef>
   <implementation name="IM_viewdir_vector3_genglsl" nodedef="ND_viewdir_vector3" target="genglsl"/>
-
+  <implementation name="IM_viewdir_vector3_genmsl" nodedef="ND_viewdir_vector3"  target="genmsl"/>
    <nodegraph name="environmentDraw">
 
      <!-- Get view direction -->

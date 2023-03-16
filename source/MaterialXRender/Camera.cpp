@@ -22,6 +22,28 @@ Matrix44 Camera::createViewMatrix(const Vector3& eye,
         -x.dot(eye), -y.dot(eye), z.dot(eye), 1.0f);
 }
 
+Matrix44 Camera::createPerspectiveMatrixZP(float left, float right,
+                                         float bottom, float top,
+                                         float nearP, float farP)
+{
+    return Matrix44(
+        (2.0f * nearP) / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
+        0.0f, (2.0f * nearP) / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
+        0.0f, 0.0f, -1 / (farP - nearP), -1.0f,
+        0.0f, 0.0f, -nearP / (farP - nearP), 0.0f);
+}
+
+Matrix44 Camera::createOrthographicMatrixZP(float left, float right,
+                                          float bottom, float top,
+                                          float nearP, float farP)
+{
+    return Matrix44(
+        2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+        0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+        0.0f, 0.0f, -1.0f / (farP - nearP), 0.0f,
+        -(right + left) / (right - left), -(top + bottom) / (top - bottom), -nearP / (farP - nearP), 1.0f);
+}
+
 Matrix44 Camera::createPerspectiveMatrix(float left, float right,
                                          float bottom, float top,
                                          float nearP, float farP)
