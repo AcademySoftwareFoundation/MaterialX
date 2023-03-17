@@ -58,7 +58,8 @@ elseif(APPLE)
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
-        "-framework Cocoa")
+        "-framework Cocoa"
+        "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderGlsl
