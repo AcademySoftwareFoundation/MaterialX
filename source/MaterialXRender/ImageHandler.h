@@ -256,7 +256,7 @@ class MX_RENDER_API ImageHandler
 
     /// Acquire all images referenced by the given document, and return the
     /// images in a vector.
-    ImageVec getReferencedImages(DocumentPtr doc);
+    ImageVec getReferencedImages(ConstDocumentPtr doc);
 
   protected:
     // Protected constructor.
