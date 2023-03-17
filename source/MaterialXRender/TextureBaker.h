@@ -225,6 +225,13 @@ class TextureBaker : public Renderer
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
     
+    /// Set whether to write a separate document per material when calling bakeAllMaterials.
+    /// By default separate documents are written.
+    void writeDocumentPerMaterial(bool value)
+    {
+        _writeDocumentPerMaterial = value;
+    }
+
     string getValueStringFromColor(const Color4& color, const string& type);
 
   protected:
@@ -290,6 +297,9 @@ class TextureBaker : public Renderer
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
     
     bool _flipSavedImage;
+
+    bool _writeDocumentPerMaterial;
+    DocumentPtr _bakedTextureDoc;
 };
 
 MATERIALX_NAMESPACE_END
