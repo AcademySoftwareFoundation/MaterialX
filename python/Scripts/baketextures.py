@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--average", dest="average", action="store_true", help="Average baked images to generate constant values.")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
+    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterial', type=mx.stringToBoolean, default=True, help='Specify whether to write baked materials to seprate MaterialX documents. Default is True')
     if platform == "darwin":
         parser.add_argument("--glsl", dest="useGlslBackend", default=False, type=bool, help="Set to True to use GLSL backend (default = Metal).")
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
@@ -66,6 +67,7 @@ def main():
     
     if opts.average:
         baker.setAverageImages(True)
+    baker.writeDocumentPerMaterial(opts.writeDocumentPerMaterial)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':
