@@ -37,10 +37,12 @@ class RenderPipeline
 {
   public:
     RenderPipeline() = delete;
-    RenderPipeline(Viewer* viewer);
+    RenderPipeline(Viewer* viewer)
+    {
+        _viewer = viewer;
+    }
     virtual ~RenderPipeline() { }
 
-    // Initialize the viewer for rendering.
     virtual void initialize(void* device, void* command_queue) = 0;
     
     virtual mx::ImageHandlerPtr createImageHandler() = 0;
@@ -58,12 +60,10 @@ class RenderPipeline
                                  void* color_texture) = 0;
     virtual void resizeFramebuffer(int width, int height,
                                    void* color_texture) = 0;
-    
-    void renderScreenSpaceQuad(mx::MaterialPtr material);
-    
+
     virtual mx::ImagePtr getShadowMap(int shadowMapSize) = 0;
     
+  public:
     Viewer* _viewer;
-    mx::MeshPtr _quadMesh;
 };
 #endif // RENDER_PIPELINE_H
