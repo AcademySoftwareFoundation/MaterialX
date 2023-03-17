@@ -150,6 +150,9 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Register a shader node implementation for a given implementation element name
     void registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator);
+    
+    /// Register a shader node implementation for a given set of implementation element names
+    void registerImplementation(const StringVec& nameVec, CreatorFunction<ShaderNodeImpl> creator);
 
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;

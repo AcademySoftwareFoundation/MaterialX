@@ -154,13 +154,23 @@ class MX_RENDER_API Camera
                                      const Vector3& target,
                                      const Vector3& up);
 
-    /// Create a perpective projection matrix given a set of clip planes.
+    /// Create a perpective projection matrix given a set of clip planes with [-1,1] projected Z.
     static Matrix44 createPerspectiveMatrix(float left, float right,
                                             float bottom, float top,
                                             float nearP, float farP);
 
-    /// Create an orthographic projection matrix given a set of clip planes.
+    /// Create an orthographic projection matrix given a set of clip planes with [-1,1] projected Z.
     static Matrix44 createOrthographicMatrix(float left, float right,
+                                             float bottom, float top,
+                                             float nearP, float farP);
+    
+    /// Create a perpective projection matrix given a set of clip planes with [0,1] projected Z.
+    static Matrix44 createPerspectiveMatrixZP(float left, float right,
+                                            float bottom, float top,
+                                            float nearP, float farP);
+
+    /// Create an orthographic projection matrix given a set of clip planes with [0,1] projected Z.
+    static Matrix44 createOrthographicMatrixZP(float left, float right,
                                              float bottom, float top,
                                              float nearP, float farP);
  

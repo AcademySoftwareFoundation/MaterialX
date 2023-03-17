@@ -44,14 +44,35 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
         {
             return getDefaultValue(true);
         }
+        // handle the empty texture, the fileprefix is passed
+        // assuming it ends with a slash ...
+        if (outputValue.back() == '/')
+        {
+             return getDefaultValue(true);
+        }
+        // ... or the last segment does not have an extension suffix
+        size_t idx_s = outputValue.find_last_of('/');
+        size_t idx_d = outputValue.find_last_of('.');
+        if (idx_d == std::string::npos || (idx_s != std::string::npos && idx_s > idx_d))
+        {
+            return getDefaultValue(true);
+        }
 
+        // prefix a slash in order to make MDL resource paths absolute i.e. to be found
+        // in the root of an MDL search path
+        // do not add the slash in case the path is explicitly relative
         string pathSeparator("");
         FilePath path(outputValue);
-        if (!path.isAbsolute())
+        size_t len = outputValue.size();
+        if (!path.isAbsolute() &&
+            !(len > 2 && outputValue[0] == '.' && outputValue[1] == '.' && outputValue[2] == '/') &&
+            !(len > 1 && outputValue[0] == '.' && outputValue[1] == '/'))
         {
             pathSeparator = "/";
         }
-        return getName() + "(\"" + pathSeparator + outputValue + "\", tex::gamma_linear)";
+
+        // MDL is using leading slashes as separator
+        return getName() + "(\"" + pathSeparator + path.asString(FilePath::FormatPosix) + "\", tex::gamma_linear)";
     }
 };
 
