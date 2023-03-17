@@ -1651,6 +1651,23 @@ void Viewer::saveDotFiles()
     }
 }
 
+mx::UnsignedIntPair Viewer::computeBakingResolution(mx::ConstDocumentPtr doc)
+{
+    mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
+    mx::UnsignedIntPair bakingRes = mx::getMaxDimensions(imageVec);
+    bakingRes.first = std::max(bakingRes.first, (unsigned int) 4);
+    bakingRes.second = std::max(bakingRes.second, (unsigned int) 4);
+    if (_bakeWidth)
+    {
+        bakingRes.first = std::max(_bakeWidth, (unsigned int) 4);
+    }
+    if (_bakeHeight)
+    {
+        bakingRes.second = std::max(_bakeHeight, (unsigned int) 4);
+    }
+    return bakingRes;
+}
+
 mx::DocumentPtr Viewer::translateMaterial()
 {
     mx::MaterialPtr material = getSelectedMaterial();
@@ -2072,6 +2089,17 @@ void Viewer::renderTurnable()
     _meshRotation[1] = currentRotation;
 }
 
+void Viewer::renderScreenSpaceQuad(mx::MaterialPtr material)
+{
+    if (!_quadMesh)
+    {
+        _quadMesh = mx::GeometryHandler::createQuadMesh();
+    }
+    
+    material->bindMesh(_quadMesh);
+    material->drawPartition(_quadMesh->getPartition(0));
+}
+
 void Viewer::draw_contents()
 {
     updateCameras();
@@ -2155,7 +2183,7 @@ void Viewer::draw_contents()
     if (_bakeRequested)
     {
         _bakeRequested = false;
-        _renderPipeline->bakeTextures();
+        bakeTextures();
     }
 
     // Handle exit requests.

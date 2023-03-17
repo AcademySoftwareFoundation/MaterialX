@@ -74,9 +74,9 @@ ImagePtr createImageStrip(const vector<ImagePtr>& imageVec)
     return imageStrip;
 }
 
-std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec)
+UnsignedIntPair getMaxDimensions(const vector<ImagePtr>& imageVec)
 {
-    std::pair<unsigned int, unsigned int> maxSize(0, 0);
+    UnsignedIntPair maxSize(0, 0);
     for (ImagePtr image : imageVec)
     {
         maxSize.first = std::max(maxSize.first, image->getWidth());
