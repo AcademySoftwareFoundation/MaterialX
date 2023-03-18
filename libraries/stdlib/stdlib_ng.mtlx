@@ -2137,6 +2137,103 @@
   <!-- ======================================================================== -->
 
   <!--
+    Node: <convert>
+    Convert a stream from one type to another; only certain unambiguous conversion
+    types are supported.
+  -->
+  <nodegraph name="NG_convert_color3_surfaceshader" nodedef="ND_convert_color3_surfaceshader">
+    <surface_unlit name="surface" type="surfaceshader" >
+      <input name="emission_color" type="color3" interfacename="in" />
+    </surface_unlit>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color4_surfaceshader" nodedef="ND_convert_color4_surfaceshader">
+    <surface_unlit name="surface" type="surfaceshader" >
+      <input name="emission_color" type="color3" nodename="convert" />
+      <input name="opacity" type="float" nodename="extract" />
+    </surface_unlit>
+    <extract name="extract" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" uniform="true" value="3" />
+    </extract>
+    <convert name="convert" type="color3" >
+      <input name="in" type="color4" interfacename="in" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_float_surfaceshader" nodedef="ND_convert_float_surfaceshader">
+    <convert name="float_to_color3" type="color3">
+      <input name="in" type="float" interfacename="in" />
+    </convert>
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="float_to_color3" />
+    </surface_unlit>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector2_surfaceshader" nodedef="ND_convert_vector2_surfaceshader">
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="vec3_to_color3" />
+    </surface_unlit>
+    <convert name="vec2_to_vec3" type="vector3">
+      <input name="in" type="vector2" interfacename="in" />
+    </convert>
+    <convert name="vec3_to_color3" type="color3">
+      <input name="in" type="vector3" nodename="vec2_to_vec3" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector3_surfaceshader" nodedef="ND_convert_vector3_surfaceshader">
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="vec3_to_color3" />
+    </surface_unlit>
+    <convert name="vec3_to_color3" type="color3">
+      <input name="in" type="vector3" interfacename="in" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector4_surfaceshader" nodedef="ND_convert_vector4_surfaceshader">
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="color4_to_color3" />
+      <input name="opacity" type="float" nodename="color4_to_float" />
+    </surface_unlit>
+    <convert name="vec4_to_color4" type="color4">
+      <input name="in" type="vector4" interfacename="in" />
+    </convert>
+    <extract name="color4_to_float" type="float">
+      <input name="in" type="color4" nodename="vec4_to_color4" />
+      <input name="index" type="integer" uniform="true" value="3" />
+    </extract>
+    <convert name="color4_to_color3" type="color3">
+      <input name="in" type="color4" nodename="vec4_to_color4" />
+    </convert>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_surfaceshader" nodedef="ND_convert_integer_surfaceshader">
+    <convert name="int_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="float_to_color3" type="color3">
+      <input name="in" type="float" nodename="int_to_float" />
+    </convert>
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="float_to_color3" />
+    </surface_unlit>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_surfaceshader" nodedef="ND_convert_boolean_surfaceshader">
+    <convert name="bool_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="float_to_color3" type="color3">
+      <input name="in" type="float" nodename="bool_to_float" />
+    </convert>
+    <surface_unlit name="surface" type="surfaceshader">
+      <input name="emission_color" type="color3" nodename="float_to_color3" />
+    </surface_unlit>
+    <output name="out" type="surfaceshader" nodename="surface" />
+  </nodegraph>
+
+  <!--
     Node: <extract>
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->
