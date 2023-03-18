@@ -148,8 +148,8 @@
       <input name="value2" type="boolean" value="true" />
     </ifequal>
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" defaultgeomprop="Nobject" interfacename="layered_normal" />
-      <input name="coat_normal" type="vector3" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" interfacename="layered_normal" />
+      <input name="coat_normal" type="vector3" interfacename="surface_normal" />
       <input name="opacity" type="color3" interfacename="surface_cutout" />
       <input name="coat" type="float" nodename="coat_value" />
       <input name="metalness" type="float" nodename="layered_fraction_value" />

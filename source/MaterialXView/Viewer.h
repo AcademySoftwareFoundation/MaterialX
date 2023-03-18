@@ -204,6 +204,7 @@ class Viewer : public ng::Screen
         _exitRequested = true;
     }
 
+    // Bake textures to disk using the current render pipeline.
     void bakeTextures()
     {
         _renderPipeline->bakeTextures();
@@ -227,6 +228,9 @@ class Viewer : public ng::Screen
     void loadShaderSource();
     void saveDiagrams();
 
+    // Compute the resolution for texture baking.
+    mx::UnsignedIntPair computeBakingResolution(mx::ConstDocumentPtr doc);
+    
     // Translate the current material to the target shading model.
     mx::DocumentPtr translateMaterial();
 
@@ -385,6 +389,7 @@ class Viewer : public ng::Screen
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
     mx::MaterialPtr _envMaterial;
+    mx::MeshPtr _quadMesh;
 
     // Shader generator contexts
     mx::GenContext _genContext;
@@ -446,6 +451,7 @@ class Viewer : public ng::Screen
     bool _bakeRequested;
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
+    bool _bakeDocumentPerMaterial;
     mx::FilePath _bakeFilename;
 
     // Diagram export
