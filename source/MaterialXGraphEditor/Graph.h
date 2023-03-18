@@ -40,15 +40,17 @@ class Graph
     Graph(const std::string& materialFilename,
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
-          const mx::FilePathVec& libraryFolders);
+          const mx::FilePathVec& libraryFolders,
+          int viewWidth,
+          int viewHeight);
+
+    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
     {
         return _renderer;
     }
-    void initialize();
-    void drawGraph(ImVec2 mousePos);
-    mx::DocumentPtr loadDocument(mx::FilePath filename);
 
     void setFontScale(float val)
     {
