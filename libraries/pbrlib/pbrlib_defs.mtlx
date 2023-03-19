@@ -173,6 +173,19 @@
     <output name="out" type="EDF" />
   </nodedef>
 
+  <!--
+    Node: <generalized_schlick_edf>
+    Modifies an EDF with a directional factor. Attenuates the emission distribution of the base EDF according to
+    a generalized Schlick fresnel function.
+  -->
+  <nodedef name="ND_generalized_schlick_edf" node="generalized_schlick_edf" nodegroup="pbr" doc="Modifies an EDF with a directional factor.">
+    <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="exponent" type="float" value="5.0" />
+    <input name="base" type="EDF" value="" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- VDF Nodes                                                                -->
   <!-- ======================================================================== -->

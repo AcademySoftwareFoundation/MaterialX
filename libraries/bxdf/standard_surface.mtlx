@@ -370,22 +370,44 @@
     </layer>
 
     <!-- Emission Layer -->
+    <subtract name="one_minus_coat_ior" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="coat_IOR" />
+    </subtract>
+    <add name="one_plus_coat_ior" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" interfacename="coat_IOR" />
+    </add>
+    <divide name="coat_ior_to_F0_sqrt" type="float">
+      <input name="in1" type="float" nodename="one_minus_coat_ior" />
+      <input name="in2" type="float" nodename="one_plus_coat_ior" />
+    </divide>
+    <multiply name="coat_ior_to_F0" type="float">
+      <input name="in1" type="float" nodename="coat_ior_to_F0_sqrt" />
+      <input name="in2" type="float" nodename="coat_ior_to_F0_sqrt" />
+    </multiply>
     <multiply name="emission_weight" type="color3">
       <input name="in1" type="color3" interfacename="emission_color" />
       <input name="in2" type="float" interfacename="emission" />
     </multiply>
-    <mix name="coat_emission_attenuation" type="color3">
-      <input name="fg" type="color3" interfacename="coat_color" />
-      <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
+    <uniform_edf name="emission_edf" type="EDF">
+      <input name="color" type="color3" nodename="emission_weight" />
+    </uniform_edf>
+    <multiply name="coat_tinted_emission_edf" type="EDF">
+      <input name="in1" type="EDF" nodename="emission_edf" />
+      <input name="in2" type="color3" interfacename="coat_color" />
+    </multiply>
+    <generalized_schlick_edf name="coat_emission_edf" type="EDF">
+      <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="color90" type="color3" nodename="coat_ior_to_F0" channels="rrr"/>
+      <input name="exponent" type="float" value="5.0" />
+      <input name="base" type="EDF" nodename="coat_tinted_emission_edf" />
+    </generalized_schlick_edf>
+    <mix name="blended_coat_emission_edf" type="EDF">
+      <input name="fg" type="EDF" nodename="coat_emission_edf" />
+      <input name="bg" type="EDF" nodename="emission_edf" />
       <input name="mix" type="float" interfacename="coat" />
     </mix>
-    <multiply name="emission_weight_attenuated" type="color3">
-      <input name="in1" type="color3" nodename="emission_weight" />
-      <input name="in2" type="color3" nodename="coat_emission_attenuation" />
-    </multiply>
-    <uniform_edf name="emission_edf" type="EDF">
-      <input name="color" type="color3" nodename="emission_weight_attenuated" />
-    </uniform_edf>
 
     <!-- Surface construction with opacity -->
     <!-- Node <surface> only supports monochromatic opacity so use the luminance of input opacity color -->
@@ -394,7 +416,7 @@
     </luminance>
     <surface name="shader_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coat_layer" />
-      <input name="edf" type="EDF" nodename="emission_edf" />
+      <input name="edf" type="EDF" nodename="blended_coat_emission_edf" />
       <input name="opacity" type="float" nodename="opacity_luminance" channels="r" />
     </surface>
 

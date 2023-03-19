@@ -10,13 +10,18 @@ import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
 import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
+import MaterialX.PyMaterialXGenMsl as mx_gen_msl
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
-        cmd = codevalidator + ' ' + sourceCodeFile 
+        cmd = codevalidator.split()
+        cmd.append(sourceCodeFile)
         if codevalidatorArgs:
-            cmd += ' ' + codevalidatorArgs
-        print('----- Run Validator: '+ cmd)
+            cmd.append(codevalidatorArgs)
+        cmd_flatten ='----- Run Validator: '
+        for c in cmd:
+            cmd_flatten += c + ' '
+        print(cmd_flatten)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = output.decode(encoding='utf-8')
@@ -96,6 +101,8 @@ def main():
             shadergen = mx_gen_glsl.EsslShaderGenerator.create()
         elif gentarget == 'vulkan':
             shadergen = mx_gen_glsl.VkShaderGenerator.create()
+        elif gentarget == 'msl':
+            shadergen = mx_gen_msl.MslShaderGenerator.create()
         else:
             shadergen = mx_gen_glsl.GlslShaderGenerator.create()
                 
@@ -153,7 +160,7 @@ def main():
             if shader:
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
-                if gentarget in ['glsl', 'essl', 'vulkan']:
+                if gentarget in ['glsl', 'essl', 'vulkan', 'msl']:
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
                     print('--- Wrote pixel shader to: ' + filename)

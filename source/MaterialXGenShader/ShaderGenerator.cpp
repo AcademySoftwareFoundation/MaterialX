@@ -273,6 +273,14 @@ void ShaderGenerator::registerImplementation(const string& name, CreatorFunction
     _implFactory.registerClass(name, creator);
 }
 
+void ShaderGenerator::registerImplementation(const StringVec& nameVec, CreatorFunction<ShaderNodeImpl> creator)
+{
+    for(const string& name : nameVec)
+    {
+        _implFactory.registerClass(name, creator);
+    }
+}
+
 bool ShaderGenerator::implementationRegistered(const string& name) const
 {
     return _implFactory.classRegistered(name);
