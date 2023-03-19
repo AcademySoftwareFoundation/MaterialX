@@ -6,34 +6,18 @@
 #ifndef MATERIALX_GRAPH_H
 #define MATERIALX_GRAPH_H
 
-#if defined(_WIN32)
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-#endif
-
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
-#include <MaterialXRender/Util.h>
 #include <MaterialXFormat/File.h>
-#include <MaterialXFormat/Util.h>
 
-#include <imgui.h>
 #include <imgui_node_editor.h>
-#include <imgui_node_editor_internal.h>
 #include <imfilebrowser.h>
-#include <imgui_stdlib.h>
-#include <iostream>
+
 #include <stack>
-#include <algorithm>
 
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
-class UiNode;
-class Pin;
-using UiNodePtr = std::shared_ptr<UiNode>;
-using RenderViewPtr = std::shared_ptr<RenderView>;
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
 // Based off Link struct from ImGui Node Editor blueprints-examples.cpp
@@ -50,61 +34,28 @@ struct Link
     }
 };
 
-// class for edges between uiNodes
-class UiEdge
-{
-    // an edge is made up of two UiNodes and their connecting input
-  public:
-    UiEdge(UiNodePtr uiDown, UiNodePtr uiUp, mx::InputPtr input) :
-        _uiDown(uiDown),
-        _uiUp(uiUp),
-        _input(input)
-    {
-    }
-    mx::InputPtr getInput()
-    {
-        return _input;
-    }
-    UiNodePtr getDown()
-    {
-        return _uiDown;
-    }
-    UiNodePtr getUp()
-    {
-        return _uiUp;
-    }
-    std::string getInputName()
-    {
-        if (_input != nullptr)
-        {
-            return _input->getName();
-        }
-        else
-        {
-            return mx::EMPTY_STRING;
-        }
-    }
-    UiNodePtr _uiDown;
-    UiNodePtr _uiUp;
-    mx::InputPtr _input;
-};
-
 class Graph
 {
   public:
     Graph(const std::string& materialFilename,
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
-          const mx::FilePathVec& libraryFolders);
+          const mx::FilePathVec& libraryFolders,
+          int viewWidth,
+          int viewHeight);
+
+    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
     {
-
         return _renderer;
     }
-    void initialize();
-    void drawGraph(ImVec2 mousePos);
-    mx::DocumentPtr loadDocument(mx::FilePath filename);
+
+    void setFontScale(float val)
+    {
+        _fontScale = val;
+    }
 
     ~Graph(){};
 
@@ -137,9 +88,9 @@ class Graph
     // pin information
     void setPinColor();
     void DrawPinIcon(std::string type, bool connected, int alpha);
-    Pin getPin(ed::PinId id);
-    void createInputPin(Pin pin);
-    ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, Pin input);
+    UiPinPtr getPin(ed::PinId id);
+    void createInputPin(UiPinPtr pin);
+    ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, UiPinPtr input);
     void outputPin(UiNodePtr node);
     void addNodeGraphPins();
 
@@ -147,14 +98,15 @@ class Graph
     std::vector<int> createNodes(bool nodegraph);
     int getNodeId(ed::PinId pinId);
     int findNode(int nodeId);
-    int findNode(std::string name, std::string type);
-    void addNode(std::string category, std::string name, std::string type);
+    int findNode(const std::string& name, const std::string& type);
+    void addNode(const std::string& category, const std::string& name, const std::string& type);
     void deleteNode(UiNodePtr node);
-    void setUiNodeInfo(UiNodePtr node, std::string type, std::string category);
+    void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
     // UiEdge functions
     bool edgeExists(UiEdge edge);
     void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+    void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void writeText(std::string filename, mx::FilePath filePath);
     void savePosition();
@@ -167,7 +119,7 @@ class Graph
     void upNodeGraph();
 
     // property editor information
-    void setConstant(UiNodePtr node, mx::InputPtr& input);
+    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 
@@ -195,7 +147,20 @@ class Graph
     void selectMaterial(UiNodePtr node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
     void setRenderMaterial(UiNodePtr node);
-    
+
+    // File I/O
+    void clearGraph();
+    void loadGraphFromFile();
+    void saveGraphToFile();
+    void loadGeometry();
+
+    mx::StringVec _geomFilter;
+    mx::StringVec _mtlxFilter;
+    mx::StringVec _imageFilter;
+
+    // Help
+    void showHelp() const;
+
     RenderViewPtr _renderer;
 
     // document and intializing information
@@ -213,11 +178,11 @@ class Graph
 
     // containers of node informatin
     std::vector<UiNodePtr> _graphNodes;
-    std::vector<Pin> _currPins;
+    std::vector<UiPinPtr> _currPins;
     std::vector<Link> _currLinks;
     std::vector<Link> _newLinks;
     std::vector<UiEdge> _currEdge;
-    std::unordered_map<UiNodePtr, std::vector<Pin>> _downstreamInputs;
+    std::unordered_map<UiNodePtr, std::vector<UiPinPtr>> _downstreamInputs;
     std::unordered_map<std::string, ImColor> _pinColor;
 
     // current nodes and nodegraphs
@@ -233,7 +198,7 @@ class Graph
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
-    std::stack<std::vector<Pin>> _pinStack;
+    std::stack<std::vector<UiPinPtr>> _pinStack;
     // this stack keeps track of the graph total size
     std::stack<int> _sizeStack;
 
@@ -249,7 +214,8 @@ class Graph
     // file dialog information
     ImGui::FileBrowser _fileDialog;
     ImGui::FileBrowser _fileDialogSave;
-    ImGui::FileBrowser _fileDialogConstant;
+    ImGui::FileBrowser _fileDialogImage;
+    ImGui::FileBrowser _fileDialogGeom;
 
     bool _isNodeGraph;
 
@@ -269,6 +235,9 @@ class Graph
     int _frameCount;
     // used for filtering pins when connecting links
     std::string _pinFilterType;
+
+    // DPI scaling for fonts
+    float _fontScale = 1.0f;
 };
 
 #endif

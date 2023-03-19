@@ -684,7 +684,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         std::vector<mx::TypedElementPtr> elements;
         try
         {
-            mx::findRenderableElements(doc, elements);
+            elements = mx::findRenderableElements(doc);
         }
         catch (mx::Exception& e)
         {

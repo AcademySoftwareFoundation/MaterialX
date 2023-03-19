@@ -2,6 +2,27 @@
 
 ## [1.38.7] - Development
 
+### Added
+- Added the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md), an example application for visualizing, creating, and editing MaterialX graphs.
+- Added support for the [Metal Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1258) in MaterialX shader generation and rendering.
+- Added support for the [generalized_schlick_edf node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1262), enabling the expression of coated emissive surfaces.
+- Added support for the [adobergb and lin_adobergb](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1118) color spaces in shader generation.
+- Added uisoftmin and uisoftmax attributes to [mix nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1168) and [IOR inputs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1151).
+- Added support for [authored bitangent vectors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1156) in GLSL, selected by the hwImplicitBitangents generator option.
+- Added a [tangent input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1157) to the glTF PBR shading model.
+- Added a [Clang Format](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1174) step to GitHub Actions builds.
+
+### Changed
+- Improved the [support library](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1184) and [node implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1185) for OSL generation.
+- Updated MDL shader generation to support [MDL 1.7](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1273).
+- Improved the handling of [functional graphs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1243) in MDL generation.
+- Upgraded the [NanoGUI version](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1195) in the viewer to support Apple M1 builds.
+
+### Fixed
+- Fixed logic for [tangent basis orthogonalization](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1177) in generated GLSL.
+- Fixed logic for [metallic F90](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1187) and an [opacity edge case](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1186) in UsdPreviewSurface.
+- Fixed parsing of [inline source code variables](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1191) in node implementations.
+
 ## [1.38.6] - 2022-11-04
 
 ### Added

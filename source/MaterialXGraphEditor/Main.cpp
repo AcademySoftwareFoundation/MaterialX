@@ -4,18 +4,18 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXFormat/Environ.h>
+#include <MaterialXFormat/File.h>
+
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include <GLFW/glfw3.h>
-
-#include "imgui_impl_opengl3.h"
 
 #include <iostream>
 
 namespace
 {
-
-ed::EditorContext* g_Context = nullptr;
-bool g_FirstFrame = true;
 
 static void errorCallback(int error, const char* description)
 {
@@ -39,6 +39,44 @@ mx::FileSearchPath getDefaultSearchPath()
     }
 
     return searchPath;
+}
+
+mx::FilePath getConfigPath()
+{
+    mx::FilePath configPath;
+    auto xdgConfigHome = mx::getEnviron("XDG_CONFIG_HOME");
+    auto homeDirectory = mx::getEnviron("HOME");
+    if (!xdgConfigHome.empty())
+    {
+        configPath = mx::FilePath(xdgConfigHome);
+    }
+    else if (!homeDirectory.empty())
+    {
+#if defined(__APPLE__)
+        configPath = mx::FilePath(homeDirectory) / "Library" / "Preferences";
+#else
+        configPath = mx::FilePath(homeDirectory) / ".config";
+        if (!configPath.exists())
+        {
+            configPath.createDirectory();
+        }
+#endif
+    }
+    else
+    {
+        return {};
+    }
+
+    configPath = configPath / "MaterialX";
+    configPath.createDirectory();
+
+    if (!configPath.exists())
+    {
+        std::cerr << "Failed to create MaterialX config directory at " << configPath.asString() << std::endl;
+        return {};
+    }
+
+    return configPath / "GraphEditor.imgui.ini";
 }
 
 const std::string options =
@@ -81,6 +119,8 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders;
+    int viewWidth = 256;
+    int viewHeight = 256;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -103,6 +143,14 @@ int main(int argc, char* const argv[])
         else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
+        }
+        else if (token == "--viewWidth")
+        {
+            parseToken(nextToken, "integer", viewWidth);
+        }
+        else if (token == "--viewHeight")
+        {
+            parseToken(nextToken, "integer", viewHeight);
         }
         else if (token == "--captureFilename")
         {
@@ -169,6 +217,12 @@ int main(int argc, char* const argv[])
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
 
+    mx::FilePath configPath = getConfigPath();
+    if (!configPath.isEmpty())
+    {
+        io.IniFilename = configPath.asString().c_str();
+    }
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
@@ -177,41 +231,53 @@ int main(int argc, char* const argv[])
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Create graph editor.
-    Graph* graph = new Graph(materialFilename, meshFilename, searchPath, libraryFolders);
+    Graph* graph = new Graph(materialFilename,
+                             meshFilename,
+                             searchPath,
+                             libraryFolders,
+                             viewWidth,
+                             viewHeight);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
         graph->getRenderer()->requestExit();
     }
 
-    // Main loop
-    double xpos, ypos = 0.0;
-    xpos = 0.0;
-    ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Handle DPI scaling
+    // Note that ScaleAllSizes() only handles things like spacing of elements.
+    // Fonts are not handled, so a global font scale factor is set.
+    // There appears to be no multi-monitor solution so use the primary monitor
+    // for now.
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (monitor)
+    {
+        float xscale = 1.0f, yscale = 1.0f;
+        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+        ImGuiStyle& style = ImGui::GetStyle();
+        float dpiScale = xscale > yscale ? xscale : yscale;
+        style.ScaleAllSizes(dpiScale);
+        graph->setFontScale(dpiScale);
+    }
 
+    // Create editor config and context.
+    ed::Config config;
+    config.SettingsFile = nullptr;
+    ed::EditorContext* editorContext = ed::CreateEditor(&config);
+    const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
+    for (auto& level : ZOOM_LEVELS)
+    {
+        config.CustomZoomLevels.push_back(level);
+    }
+    ed::SetCurrentEditor(editorContext);
+
+    // Main loop
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        // Node setup
-        if (g_FirstFrame)
-        {
-            ed::Config config;
-            config.SettingsFile = nullptr;
-            g_Context = ed::CreateEditor(&config);
-            const float ZOOM_LEVELS[] = { 0.1f, 0.15f, 0.20f, 0.25f, 0.33f, 0.5f, 0.75f, 1.0f };
-            for (auto& level : ZOOM_LEVELS)
-            {
-                config.CustomZoomLevels.push_back(level);
-            }
-            g_FirstFrame = false;
-        }
-        ed::SetCurrentEditor(g_Context);
 
         graph->getRenderer()->drawContents();
         if (!captureFilename.empty())
@@ -219,15 +285,12 @@ int main(int argc, char* const argv[])
             break;
         }
 
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
+        double xpos = 0.0;
+        double ypos = 0.0;
+        glfwGetCursorPos(window, &xpos, &ypos);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
-        glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwGetCursorPos(window, &xpos, &ypos);
         glfwSwapBuffers(window);
     }
 
@@ -235,10 +298,10 @@ int main(int argc, char* const argv[])
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    if (g_Context)
+    if (editorContext)
     {
-        ed::DestroyEditor(g_Context);
-        g_Context = nullptr;
+        ed::DestroyEditor(editorContext);
+        editorContext = nullptr;
     }
     glfwDestroyWindow(window);
     glfwTerminate();

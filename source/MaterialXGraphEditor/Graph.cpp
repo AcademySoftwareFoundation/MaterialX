@@ -6,8 +6,13 @@
 #include <MaterialXGraphEditor/Graph.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
+#include <MaterialXFormat/Util.h>
 
-#include <GLFW/glfw3.h>
+#include <imgui_stdlib.h>
+#include <imgui_node_editor_internal.h>
+#include <widgets.h>
+
+#include <iostream>
 
 namespace
 {
@@ -34,7 +39,9 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
-             const mx::FilePathVec& libraryFolders) :
+             const mx::FilePathVec& libraryFolders,
+             int viewWidth,
+             int viewHeight) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -53,14 +60,14 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
-    // Filter for MaterialX files for load and save
-    mx::StringVec mtlxFilter;
-    mtlxFilter.push_back(".mtlx");
-    _fileDialog.SetTypeFilters(mtlxFilter);
-    _fileDialogSave.SetTypeFilters(mtlxFilter);
-
     loadStandardLibraries();
     setPinColor();
+
+    // Set up filters load and save
+    _mtlxFilter.push_back(".mtlx");
+    _geomFilter.push_back(".obj");
+    _geomFilter.push_back(".glb");
+    _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
     _graphDoc->importLibrary(_stdLib);
@@ -76,13 +83,15 @@ Graph::Graph(const std::string& materialFilename,
     }
 
     // Create a renderer using the initial startup document.
-    // Note that this document may have no nodes in it
-    // if the material file name does not exist.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
-                                             _searchPath, 256, 256);
+                                             _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
+    for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
+    {
+        _imageFilter.push_back("." + ext);
+    }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())
     {
@@ -158,7 +167,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             if (!doc->validate(&message))
             {
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
-                std::cerr << message;
+                std::cerr << message << std::endl;
             }
         }
     }
@@ -168,7 +177,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
-    _pinStack = std::stack<std::vector<Pin>>();
+    _pinStack = std::stack<std::vector<UiPinPtr>>();
     return doc;
 }
 
@@ -179,8 +188,6 @@ void Graph::addExtraNodes()
     {
         return;
     }
-
-    const std::vector<std::string> groups{ "Input Nodes", "Output Nodes", "Group Nodes", "Node Graph" };
 
     // clear any old nodes, if we previously used tab with another graph doc
     _extraNodes.clear();
@@ -206,27 +213,27 @@ void Graph::addExtraNodes()
     // add group node
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
-    
+
     // add nodegraph node
     std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
 }
 
 // return output pin needed to link the inputs and outputs
-ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
+ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
         // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
-        mx::OutputPtr output = input._pinNode->getNode() ? input._pinNode->getNode()->getConnectedOutput(input._name) : nullptr;
+        mx::OutputPtr output = input->_pinNode->getNode() ? input->_pinNode->getNode()->getConnectedOutput(input->_name) : nullptr;
         if (output)
         {
             std::string outName = output->getName();
-            for (Pin outputs : upNode->outputPins)
+            for (UiPinPtr outputs : upNode->outputPins)
             {
-                if (outputs._name == outName)
+                if (outputs->_name == outName)
                 {
-                    return outputs._pinId;
+                    return outputs->_pinId;
                 }
             }
         }
@@ -238,13 +245,13 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
         if (!upNode->outputPins.empty())
         {
             std::string outputName = mx::EMPTY_STRING;
-            if (input._input)
+            if (input->_input)
             {
-                outputName = input._input->getOutputString();
+                outputName = input->_input->getOutputString();
             }
-            else if (input._output)
+            else if (input->_output)
             {
-                outputName = input._output->getOutputString();
+                outputName = input->_output->getOutputString();
             }
 
             size_t pinIndex = 0;
@@ -252,17 +259,17 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, Pin input)
             {
                 for (size_t i = 0; i < upNode->outputPins.size(); i++)
                 {
-                    if (upNode->outputPins[i]._name == outputName)
+                    if (upNode->outputPins[i]->_name == outputName)
                     {
                         pinIndex = i;
                         break;
                     }
                 }
             }
-            return (upNode->outputPins[pinIndex]._pinId);
+            return (upNode->outputPins[pinIndex]->_pinId);
         }
         return ed::PinId();
-    } 
+    }
 }
 
 // connect links via connected nodes in UiNodePtr
@@ -272,21 +279,21 @@ void Graph::linkGraph()
     // start with bottom of graph
     for (UiNodePtr node : _graphNodes)
     {
-        std::vector<Pin> inputs = node->inputPins;
+        std::vector<UiPinPtr> inputs = node->inputPins;
         if (node->getInput() == nullptr)
         {
             for (size_t i = 0; i < inputs.size(); i++)
             {
                 // get upstream node for all inputs
-                std::string inputName = inputs[i]._name;
+                std::string inputName = inputs[i]->_name;
 
                 UiNodePtr inputNode = node->getConnectedNode(inputName);
                 if (inputNode != nullptr)
                 {
                     Link link;
                     // getting the input connections for the current uiNode
-                    ax::NodeEditor::PinId id = inputs[i]._pinId;
-                    inputs[i].setConnected(true);
+                    ax::NodeEditor::PinId id = inputs[i]->_pinId;
+                    inputs[i]->setConnected(true);
                     int end = int(id.Get());
                     link._endAttr = end;
                     // get id number of output of node
@@ -297,12 +304,12 @@ void Graph::linkGraph()
                     if (start >= 0)
                     {
                         // Connect the correct output pin to this input
-                        for (Pin outPin : inputNode->outputPins)
+                        for (UiPinPtr outPin : inputNode->outputPins)
                         {
-                            if (outPin._pinId == outputId)
+                            if (outPin->_pinId == outputId)
                             {
-                                outPin.setConnected(true);
-                                outPin.addConnection(inputs[i]);
+                                outPin->setConnected(true);
+                                outPin->addConnection(inputs[i]);
                             }
                         }
 
@@ -314,17 +321,17 @@ void Graph::linkGraph()
                         }
                     }
                 }
-                else if (inputs[i]._input)
+                else if (inputs[i]->_input)
                 {
-                    if (inputs[i]._input->getInterfaceInput())
+                    if (inputs[i]->_input->getInterfaceInput())
                     {
 
-                        inputs[i].setConnected(true);
+                        inputs[i]->setConnected(true);
                     }
                 }
                 else
                 {
-                    inputs[i].setConnected(false);
+                    inputs[i]->setConnected(false);
                 }
             }
         }
@@ -458,7 +465,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             else
             {
                 // don't set position of group nodes
-                if (node->getMessage() == "")
+                if (node->getMessage().empty())
                 {
                     float x = std::stof(node->getMxElement()->getAttribute("xpos"));
                     float y = std::stof(node->getMxElement()->getAttribute("ypos"));
@@ -527,7 +534,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             std::vector<UiNodePtr> newValue = { layoutNode };
             _levelMap.insert({ layoutNode->_level, newValue });
         }
-        std::vector<Pin> pins = layoutNode->inputPins;
+        std::vector<UiPinPtr> pins = layoutNode->inputPins;
         if (initialLayout)
         {
             // check number of inputs that are connected to node
@@ -536,21 +543,16 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                 // not top of node graph stop recursion
                 if (pins.size() != 0 && layoutNode->getInput() == nullptr)
                 {
-                    int numNode = 0;
                     for (size_t i = 0; i < pins.size(); i++)
                     {
                         // get upstream node for all inputs
                         newPos = startingPos;
-                        UiNodePtr nextNode = layoutNode->getConnectedNode(pins[i]._name);
+                        UiNodePtr nextNode = layoutNode->getConnectedNode(pins[i]->_name);
                         if (nextNode)
                         {
-                            startingPos.x = 1200.f - ((layoutNode->_level) * 350);
-                            // pos.y = 0;
+                            startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
                             ed::SetNodePosition(layoutNode->getId(), startingPos);
                             layoutNode->setPos(ImVec2(startingPos));
-
-                            newPos.x = 1200.f - ((layoutNode->_level + 1) * 75);
-                            ++numNode;
                             // call layout position on upstream node with newPos as -140 to the left of current node
                             layoutPosition(nextNode, ImVec2(newPos.x, startingPos.y), initialLayout, layoutNode->_level + 1);
                         }
@@ -559,7 +561,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             }
             else
             {
-                startingPos.x = 1200.f - ((layoutNode->_level) * 350);
+                startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
                 layoutNode->setPos(ImVec2(startingPos));
                 // set current node position
                 ed::SetNodePosition(layoutNode->getId(), ImVec2(startingPos));
@@ -585,7 +587,6 @@ void Graph::layoutInputs()
 
         for (UiNodePtr uiNode : _graphNodes)
         {
-
             if (uiNode->getOutputConnections().size() == 0 && (uiNode->getInput() != nullptr))
             {
                 ed::SetNodePosition(uiNode->getId(), ImVec2(startingPos));
@@ -663,8 +664,7 @@ auto showLabel = [](const char* label, ImColor color)
 void Graph::selectMaterial(UiNodePtr uiNode)
 {
     // find renderable element that correspond with material uiNode
-    std::vector<mx::TypedElementPtr> elems;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
     mx::TypedElementPtr typedElem = nullptr;
     for (mx::TypedElementPtr elem : elems)
     {
@@ -748,9 +748,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
 void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 {
     std::string renderablePath;
-    std::vector<mx::TypedElementPtr> elems;
     mx::TypedElementPtr renderableElem;
-    mx::findRenderableElements(_graphDoc, elems);
+    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
 
     size_t num = 0;
     int num2 = 0;
@@ -816,10 +815,14 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
     }
 }
 // set the value of the selected node constants in the node property editor
-void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
+void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
-    std::string inName = input->getName();
+    std::string inName = !uiProperties.uiName.empty()? uiProperties.uiName : input->getName();
     float labelWidth = ImGui::CalcTextSize(inName.c_str()).x;
+
+    mx::ValuePtr minVal = uiProperties.uiMin;
+    mx::ValuePtr maxVal = uiProperties.uiMax;
+
     // if input is a float set the float slider Ui to the value
     if (input->getType() == "float")
     {
@@ -831,7 +834,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             float prev = val->asA<float>(), temp = val->asA<float>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 20);
-            ImGui::DragFloat("##hidelabel", &temp, 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<float>() : 0.f;
+            float max = maxVal ? maxVal->asA<float>() : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -850,7 +856,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             int prev = val->asA<int>(), temp = val->asA<int>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 20);
-            ImGui::DragInt("##hidelabel", &temp, 1, 0, 100);
+            int min = minVal ? minVal->asA<int>() : 0;
+            int max = maxVal ? maxVal->asA<int>() : 100;
+            float speed = (max - min) / 100.0f;
+            ImGui::DragInt("##hidelabel", &temp, speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -869,7 +878,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
             ImGui::PopItemWidth();
@@ -891,7 +903,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat4("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             // color edit for the color picker to the right of the color floats
             ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
@@ -913,7 +928,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat2("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -932,7 +950,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 100);
-            ImGui::DragFloat3("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -951,7 +972,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth + 90);
-            ImGui::DragFloat4("##hidelabel", &temp[0], 0.01f, 0.f, 100.f);
+            float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
+            float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
+            float speed = (max - min) / 1000.0f;
+            ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
             ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -994,15 +1018,9 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             // browser button to select new file
             if (ImGui::Button("Browse"))
             {
-                _fileDialogConstant.SetTitle("Node Input Dialog");
-                _fileDialogConstant.Open();
-                mx::StringSet supportedExtensions = _renderer ? _renderer->getImageHandler()->supportedExtensions() : mx::StringSet();
-                std::vector<std::string> filters;
-                for (const std::string& supportedExtension : supportedExtensions)
-                {
-                    filters.push_back("." + supportedExtension);
-                }
-                _fileDialogConstant.SetTypeFilters(filters);
+                _fileDialogImage.SetTitle("Node Input Dialog");
+                _fileDialogImage.Open();
+                _fileDialogImage.SetTypeFilters(_imageFilter);
             }
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth);
@@ -1012,15 +1030,15 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
             ImGui::PopStyleColor();
 
             // create and load document from selected file
-            if (_fileDialogConstant.HasSelected())
+            if (_fileDialogImage.HasSelected())
             {
                 // set the new filename to the complete file path
-                mx::FilePath fileName = mx::FilePath(_fileDialogConstant.GetSelected().string());
+                mx::FilePath fileName = mx::FilePath(_fileDialogImage.GetSelected().string());
                 temp = fileName;
                 // need to set the file prefix for the input to "" so that it can find the new file
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
-                _fileDialogConstant.ClearSelected();
-                _fileDialogConstant.SetTypeFilters(std::vector<std::string>());
+                _fileDialogImage.ClearSelected();
+                _fileDialogImage.SetTypeFilters(std::vector<std::string>());
             }
 
             // set input value  and update materials if different from previous value
@@ -1054,7 +1072,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input)
     }
 }
 // build the initial graph of a loaded mtlx document including shader, material and nodegraph node
-void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category)
+void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category)
 {
     node->setType(type);
     node->setCategory(category);
@@ -1065,7 +1083,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
         std::vector<mx::OutputPtr> outputs = node->getNodeGraph()->getOutputs();
         for (mx::OutputPtr out : outputs)
         {
-            Pin outPin = Pin(_graphTotalSize, &*out->getName().begin(), out->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            UiPinPtr outPin = std::make_shared<UiPin>(_graphTotalSize, &*out->getName().begin(), out->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
             ++_graphTotalSize;
             node->outputPins.push_back(outPin);
             _currPins.push_back(outPin);
@@ -1073,7 +1091,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
         for (mx::InputPtr input : node->getNodeGraph()->getInputs())
         {
-            Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
+            UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
             node->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
@@ -1092,10 +1110,10 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                     {
                         input = node->getNode()->getInput(input->getName());
                     }
-                    Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
+                    UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
                     node->inputPins.push_back(inPin);
                     _currPins.push_back(inPin);
-                    ++_graphTotalSize;                    
+                    ++_graphTotalSize;
                 }
 
                 for (mx::OutputPtr output : nodeDef->getActiveOutputs())
@@ -1104,24 +1122,24 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
                     {
                         output = node->getNode()->getOutput(output->getName());
                     }
-                    Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), 
-                    output->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+                    UiPinPtr outPin = std::make_shared<UiPin>(_graphTotalSize, &*output->getName().begin(), output->getType(),
+                                                              node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
                     node->outputPins.push_back(outPin);
                     _currPins.push_back(outPin);
-                    ++_graphTotalSize;                    
+                    ++_graphTotalSize;
                 }
             }
         }
         else if (node->getInput())
         {
-            Pin inPin = Pin(_graphTotalSize, &*("Value"), node->getInput()->getType(), node, ax::NodeEditor::PinKind::Input, node->getInput(), nullptr);
+            UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*("Value"), node->getInput()->getType(), node, ax::NodeEditor::PinKind::Input, node->getInput(), nullptr);
             node->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
         }
         else if (node->getOutput())
         {
-            Pin inPin = Pin(_graphTotalSize, &*("input"), node->getOutput()->getType(), node, ax::NodeEditor::PinKind::Input, nullptr, node->getOutput());
+            UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*("input"), node->getOutput()->getType(), node, ax::NodeEditor::PinKind::Input, nullptr, node->getOutput());
             node->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
@@ -1129,7 +1147,7 @@ void Graph::setUiNodeInfo(UiNodePtr node, std::string type, std::string category
 
         if (node->getInput() || node->getOutput())
         {
-            Pin outPin = Pin(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            UiPinPtr outPin = std::make_shared<UiPin>(_graphTotalSize, &*("output"), type, node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
             ++_graphTotalSize;
             node->outputPins.push_back(outPin);
             _currPins.push_back(outPin);
@@ -1252,7 +1270,7 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
             mx::OutputPtr connectedOutput = input->getConnectedOutput();
             int upNum = -1;
             int downNum = -1;
-            if (nodeGraphName != "")
+            if (!nodeGraphName.empty())
             {
 
                 upNum = findNode(nodeGraphName, "nodegraph");
@@ -1268,7 +1286,7 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
                 upNum = findNode(connectedOutput->getName(), "output");
                 downNum = findNode(node->getName(), "node");
             }
-            else if (input->getInterfaceName() != "")
+            else if (!input->getInterfaceName().empty())
             {
                 upNum = findNode(input->getInterfaceName(), "input");
                 downNum = findNode(node->getName(), "node");
@@ -1394,7 +1412,7 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
                     }
                     int upNode = findNode(upName, upstreamType);
                     int downNode = findNode(downName, downstreamType);
-                    if (downNode > 0 && upNode > 0 && 
+                    if (downNode > 0 && upNode > 0 &&
                         _graphNodes[downNode]->getOutput() != nullptr)
                     {
                         // creating edges for the output nodes
@@ -1528,7 +1546,7 @@ void Graph::buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs)
 }
 
 // return node position in _graphNodes based off node name and type to account for input/output UiNodes with same names as mx Nodes
-int Graph::findNode(std::string name, std::string type)
+int Graph::findNode(const std::string& name, const std::string& type)
 {
     int count = 0;
     for (size_t i = 0; i < _graphNodes.size(); i++)
@@ -1579,6 +1597,10 @@ void Graph::positionPasteBin(ImVec2 pos)
     offset.y = pos.y - avgPos.y;
     for (auto pasteNode : _copiedNodes)
     {
+        if (!pasteNode.second)
+        {
+            continue;
+        }
         ImVec2 newPos = ImVec2(0, 0);
         newPos.x = ed::GetNodePosition(pasteNode.first->getId()).x + offset.x;
         newPos.y = ed::GetNodePosition(pasteNode.first->getId()).y + offset.y;
@@ -1615,7 +1637,7 @@ void Graph::copyUiNode(UiNodePtr node)
     ++_graphTotalSize;
     if (node->getMxElement())
     {
-        std::string newName = node->getMxElement()->getParent()->createValidChildName(node->getName());
+        std::string newName = _currGraphElem->createValidChildName(node->getName());
         if (node->getNode())
         {
             mx::NodePtr mxNode;
@@ -1671,33 +1693,33 @@ void Graph::copyInputs()
         int count = 0;
         UiNodePtr origNode = iter->first;
         UiNodePtr copyNode = iter->second;
-        for (Pin pin : origNode->inputPins)
+        for (UiPinPtr pin : origNode->inputPins)
         {
-            if (origNode->getConnectedNode(pin._name) && !_ctrlClick)
+            if (origNode->getConnectedNode(pin->_name) && !_ctrlClick)
             {
                 // if original node is connected check if connect node is in copied nodes
-                if (_copiedNodes.find(origNode->getConnectedNode(pin._name)) != _copiedNodes.end())
+                if (_copiedNodes.find(origNode->getConnectedNode(pin->_name)) != _copiedNodes.end())
                 {
                     // set copy node connected to the value at this key
                     // create an edge
-                    createEdge(_copiedNodes[origNode->getConnectedNode(pin._name)], copyNode, copyNode->inputPins[count]._input);
-                    UiNodePtr upNode = _copiedNodes[origNode->getConnectedNode(pin._name)];
+                    createEdge(_copiedNodes[origNode->getConnectedNode(pin->_name)], copyNode, copyNode->inputPins[count]->_input);
+                    UiNodePtr upNode = _copiedNodes[origNode->getConnectedNode(pin->_name)];
                     if (copyNode->getNode() || copyNode->getNodeGraph())
                     {
 
                         mx::InputPtr connectingInput = nullptr;
-                        copyNode->inputPins[count]._input->copyContentFrom(pin._input);
+                        copyNode->inputPins[count]->_input->copyContentFrom(pin->_input);
                         // update value to be empty
                         if (copyNode->getNode() && copyNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                         {
                             if (upNode->getOutput())
                             {
-                                copyNode->inputPins[count]._input->setConnectedOutput(upNode->getOutput());
+                                copyNode->inputPins[count]->_input->setConnectedOutput(upNode->getOutput());
                             }
                             else if (upNode->getInput())
                             {
 
-                                copyNode->inputPins[count]._input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
                             }
                             else
                             {
@@ -1705,18 +1727,18 @@ void Graph::copyInputs()
                                 if (upNode->getNodeGraph())
                                 {
                                     ed::PinId outputId = getOutputPin(copyNode, upNode, copyNode->inputPins[count]);
-                                    for (Pin outPin : upNode->outputPins)
+                                    for (UiPinPtr outPin : upNode->outputPins)
                                     {
-                                        if (outPin._pinId == outputId)
+                                        if (outPin->_pinId == outputId)
                                         {
-                                            mx::OutputPtr outputs = upNode->getNodeGraph()->getOutput(outPin._name);
-                                            copyNode->inputPins[count]._input->setConnectedOutput(outputs);
+                                            mx::OutputPtr outputs = upNode->getNodeGraph()->getOutput(outPin->_name);
+                                            copyNode->inputPins[count]->_input->setConnectedOutput(outputs);
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    copyNode->inputPins[count]._input->setConnectedNode(upNode->getNode());
+                                    copyNode->inputPins[count]->_input->setConnectedNode(upNode->getNode());
                                 }
                             }
                         }
@@ -1724,17 +1746,16 @@ void Graph::copyInputs()
                         {
                             if (upNode->getInput())
                             {
-
-                                copyNode->inputPins[count]._input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
                             }
                             else
                             {
-                                copyNode->inputPins[count]._input->setConnectedNode(upNode->getNode());
+                                copyNode->inputPins[count]->_input->setConnectedNode(upNode->getNode());
                             }
                         }
 
-                        copyNode->inputPins[count].setConnected(true);
-                        copyNode->inputPins[count]._input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
+                        copyNode->inputPins[count]->setConnected(true);
+                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     }
                     else if (copyNode->getOutput() != nullptr)
                     {
@@ -1746,16 +1767,16 @@ void Graph::copyInputs()
                     copyNode->setInputNodeNum(1);
                     upNode->setOutputConnection(copyNode);
                 }
-                else if (pin._input)
+                else if (pin->_input)
                 {
-                    if (pin._input->getInterfaceInput())
+                    if (pin->_input->getInterfaceInput())
                     {
-                        copyNode->inputPins[count]._input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     }
-                    copyNode->inputPins[count].setConnected(false);
-                    setDefaults(copyNode->inputPins[count]._input);
-                    copyNode->inputPins[count]._input->setConnectedNode(nullptr);
-                    copyNode->inputPins[count]._input->setConnectedOutput(nullptr);
+                    copyNode->inputPins[count]->setConnected(false);
+                    setDefaults(copyNode->inputPins[count]->_input);
+                    copyNode->inputPins[count]->_input->setConnectedNode(nullptr);
+                    copyNode->inputPins[count]->_input->setConnectedOutput(nullptr);
                 }
             }
             count++;
@@ -1763,7 +1784,7 @@ void Graph::copyInputs()
     }
 }
 // add node to graphNodes based off of node def information
-void Graph::addNode(std::string category, std::string name, std::string type)
+void Graph::addNode(const std::string& category, const std::string& name, const std::string& type)
 {
     mx::NodePtr node = nullptr;
     std::vector<mx::NodeDefPtr> matchingNodeDefs;
@@ -1815,7 +1836,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
         return;
     }
-    else 
+    else
     {
         matchingNodeDefs = _graphDoc->getMatchingNodeDefs(category);
         for (mx::NodeDefPtr nodedef : matchingNodeDefs)
@@ -1855,7 +1876,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         ++_graphTotalSize;
         for (mx::InputPtr input : defInputs)
         {
-            Pin inPin = Pin(_graphTotalSize, &*input->getName().begin(), input->getType(), newNode, ax::NodeEditor::PinKind::Input, input, nullptr);
+            UiPinPtr inPin = std::make_shared<UiPin>(_graphTotalSize, &*input->getName().begin(), input->getType(), newNode, ax::NodeEditor::PinKind::Input, input, nullptr);
             newNode->inputPins.push_back(inPin);
             _currPins.push_back(inPin);
             ++_graphTotalSize;
@@ -1863,7 +1884,7 @@ void Graph::addNode(std::string category, std::string name, std::string type)
         std::vector<mx::OutputPtr> defOutputs = matchingNodeDefs[num]->getActiveOutputs();
         for (mx::OutputPtr output : defOutputs)
         {
-            Pin outPin = Pin(_graphTotalSize, &*output->getName().begin(), output->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+            UiPinPtr outPin = std::make_shared<UiPin>(_graphTotalSize, &*output->getName().begin(), output->getType(), newNode, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
             newNode->outputPins.push_back(outPin);
             _currPins.push_back(outPin);
             ++_graphTotalSize;
@@ -1876,27 +1897,27 @@ void Graph::addNode(std::string category, std::string name, std::string type)
 // return node pos
 int Graph::getNodeId(ed::PinId pinId)
 {
-    for (Pin pin : _currPins)
+    for (UiPinPtr pin : _currPins)
     {
-        if (pin._pinId == pinId)
+        if (pin->_pinId == pinId)
         {
-            return findNode(pin._pinNode->getId());
+            return findNode(pin->_pinNode->getId());
         }
     }
     return -1;
 }
 
-// return pin based off of Pin id
-Pin Graph::getPin(ed::PinId pinId)
+// return pin based off of UiPin id
+UiPinPtr Graph::getPin(ed::PinId pinId)
 {
-    for (Pin pin : _currPins)
+    for (UiPinPtr pin : _currPins)
     {
-        if (pin._pinId == pinId)
+        if (pin->_pinId == pinId)
         {
             return pin;
         }
     }
-    Pin nullPin = Pin(-10000, "nullPin", "null", nullptr, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+    UiPinPtr nullPin = std::make_shared<UiPin>(-10000, "nullPin", "null", nullptr, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
     return nullPin;
 }
 
@@ -2038,33 +2059,33 @@ void Graph::outputPin(UiNodePtr node)
 {
     // create output pin
     float nodeWidth = 20 + ImGui::CalcTextSize(node->getName().c_str()).x;
-    if (nodeWidth < 75)
+    if (nodeWidth < 80 * _fontScale)
     {
-        nodeWidth = 75;
+        nodeWidth = 80 * _fontScale;
     }
     const float labelWidth = ImGui::CalcTextSize("output").x;
 
     // create node editor pin
-    for (Pin pin : node->outputPins)
+    for (UiPinPtr pin : node->outputPins)
     {
         ImGui::Indent(nodeWidth - labelWidth);
-        ed::BeginPin(pin._pinId, ed::PinKind::Output);
-        ImGui::Text("%s", pin._name.c_str());
+        ed::BeginPin(pin->_pinId, ed::PinKind::Output);
+        ImGui::Text("%s", pin->_name.c_str());
         ImGui::SameLine();
         if (!_pinFilterType.empty())
         {
-            if (_pinFilterType == pin._type)
+            if (_pinFilterType == pin->_type)
             {
-                DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+                DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
             }
             else
             {
-                DrawPinIcon(pin._type, true, FILTER_ALPHA);
+                DrawPinIcon(pin->_type, true, FILTER_ALPHA);
             }
         }
         else
         {
-            DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
         }
 
         ed::EndPin();
@@ -2072,28 +2093,28 @@ void Graph::outputPin(UiNodePtr node)
     }
 }
 
-void Graph::createInputPin(Pin pin)
+void Graph::createInputPin(UiPinPtr pin)
 {
-    ed::BeginPin(pin._pinId, ed::PinKind::Input);
-    ImGui::PushID(int(pin._pinId.Get()));
+    ed::BeginPin(pin->_pinId, ed::PinKind::Input);
+    ImGui::PushID(int(pin->_pinId.Get()));
     if (!_pinFilterType.empty())
     {
-        if (_pinFilterType == pin._type)
+        if (_pinFilterType == pin->_type)
         {
-            DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
         }
         else
         {
-            DrawPinIcon(pin._type, true, FILTER_ALPHA);
+            DrawPinIcon(pin->_type, true, FILTER_ALPHA);
         }
     }
     else
     {
-        DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+        DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
     }
 
     ImGui::SameLine();
-    ImGui::TextUnformatted(pin._name.c_str());
+    ImGui::TextUnformatted(pin->_name.c_str());
     ed::EndPin();
     ImGui::PopID();
 }
@@ -2116,7 +2137,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2126,24 +2147,24 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(55, 55, 55, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputPin(node);
-                for (Pin pin : node->inputPins)
+                for (UiPinPtr pin : node->inputPins)
                 {
-                    UiNodePtr upUiNode = node->getConnectedNode(pin._name);
+                    UiNodePtr upUiNode = node->getConnectedNode(pin->_name);
                     if (upUiNode)
                     {
                         size_t pinIndex = 0;
                         if (upUiNode->outputPins.size() > 0)
                         {
-                            const std::string outputString = pin._input->getOutputString();
+                            const std::string outputString = pin->_input->getOutputString();
                             if (!outputString.empty())
                             {
                                 for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
                                 {
-                                    Pin& outPin = upUiNode->outputPins[i];
-                                    if (outPin._name == outputString)
+                                    UiPinPtr outPin = upUiNode->outputPins[i];
+                                    if (outPin->_name == outputString)
                                     {
                                         pinIndex = i;
                                         break;
@@ -2151,11 +2172,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                 }
                             }
 
-                            upUiNode->outputPins[pinIndex].addConnection(pin);
+                            upUiNode->outputPins[pinIndex]->addConnection(pin);
                         }
-                        pin.setConnected(true);
+                        pin->setConnected(true);
                     }
-                    if (node->_showAllInputs || (pin.getConnected() || node->getNode()->getInput(pin._name)))
+                    if (node->_showAllInputs || (pin->getConnected() || node->getNode()->getInput(pin->_name)))
                     {
                         createInputPin(pin);
                     }
@@ -2177,7 +2198,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, -8.0f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2187,49 +2208,49 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(85, 85, 85, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getInput()->getType();
                 outputPin(node);
-                for (Pin pin : node->inputPins)
+                for (UiPinPtr pin : node->inputPins)
                 {
                     UiNodePtr upUiNode = node->getConnectedNode(node->getName());
                     if (upUiNode)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            std::string outString = pin->_output ? pin->_output->getOutputString() : mx::EMPTY_STRING;
                             size_t pinIndex = 0;
-                            if (!outString.empty())  
+                            if (!outString.empty())
                             {
-                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
                                 {
-                                    if (upUiNode->outputPins[i]._name == outString)
+                                    if (upUiNode->outputPins[i]->_name == outString)
                                     {
                                         pinIndex = i;
                                         break;
                                     }
                                 }
                             }
-                            upUiNode->outputPins[pinIndex].addConnection(pin);
+                            upUiNode->outputPins[pinIndex]->addConnection(pin);
                         }
-                        pin.setConnected(true);
+                        pin->setConnected(true);
                     }
-                    ed::BeginPin(pin._pinId, ed::PinKind::Input);
+                    ed::BeginPin(pin->_pinId, ed::PinKind::Input);
                     if (!_pinFilterType.empty())
                     {
-                        if (_pinFilterType == pin._type)
+                        if (_pinFilterType == pin->_type)
                         {
-                            DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+                            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
                         }
                         else
                         {
-                            DrawPinIcon(pin._type, true, FILTER_ALPHA);
+                            DrawPinIcon(pin->_type, true, FILTER_ALPHA);
                         }
                     }
                     else
                     {
-                        DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+                        DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
                     }
 
                     ImGui::SameLine();
@@ -2239,10 +2260,9 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             else if (node->getOutput() != nullptr)
             {
-
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2252,50 +2272,50 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1.0);
+                ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getOutput()->getType();
                 outputPin(node);
 
-                for (Pin pin : node->inputPins)
+                for (UiPinPtr pin : node->inputPins)
                 {
                     UiNodePtr upUiNode = node->getConnectedNode("");
                     if (upUiNode)
                     {
                         if (upUiNode->outputPins.size())
                         {
-                            std::string outString = pin._output ? pin._output->getOutputString() : mx::EMPTY_STRING;
+                            std::string outString = pin->_output ? pin->_output->getOutputString() : mx::EMPTY_STRING;
                             size_t pinIndex = 0;
-                            if (!outString.empty())  
+                            if (!outString.empty())
                             {
-                                for (size_t i = 0; i<upUiNode->outputPins.size(); i++)
+                                for (size_t i = 0; i < upUiNode->outputPins.size(); i++)
                                 {
-                                    if (upUiNode->outputPins[i]._name == outString)
+                                    if (upUiNode->outputPins[i]->_name == outString)
                                     {
                                         pinIndex = i;
                                         break;
                                     }
                                 }
                             }
-                            upUiNode->outputPins[pinIndex].addConnection(pin);
+                            upUiNode->outputPins[pinIndex]->addConnection(pin);
                         }
                     }
 
-                    ed::BeginPin(pin._pinId, ed::PinKind::Input);
+                    ed::BeginPin(pin->_pinId, ed::PinKind::Input);
                     if (!_pinFilterType.empty())
                     {
-                        if (_pinFilterType == pin._type)
+                        if (_pinFilterType == pin->_type)
                         {
-                            DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+                            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
                         }
                         else
                         {
-                            DrawPinIcon(pin._type, true, FILTER_ALPHA);
+                            DrawPinIcon(pin->_type, true, FILTER_ALPHA);
                         }
                     }
                     else
                     {
-                        DrawPinIcon(pin._type, true, DEFAULT_ALPHA);
+                        DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
                     }
                     ImGui::SameLine();
                     ImGui::TextUnformatted("input");
@@ -2311,7 +2331,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             {
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
-                ImGui::SetWindowFontScale(1.2f);
+                ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
@@ -2321,14 +2341,14 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
                     ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
-                ImGui::SetWindowFontScale(1.0);
-                for (Pin pin : node->inputPins)
+                ImGui::SetWindowFontScale(_fontScale);
+                for (UiPinPtr pin : node->inputPins)
                 {
-                    if (node->getConnectedNode(pin._name) != nullptr)
+                    if (node->getConnectedNode(pin->_name) != nullptr)
                     {
-                        pin.setConnected(true);
+                        pin->setConnected(true);
                     }
-                    if (node->_showAllInputs || (pin.getConnected() || node->getNodeGraph()->getInput(pin._name)))
+                    if (node->_showAllInputs || (pin->getConnected() || node->getNodeGraph()->getInput(pin->_name)))
                     {
                         createInputPin(pin);
                     }
@@ -2339,7 +2359,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             ed::EndNode();
         }
     }
-    ImGui::SetWindowFontScale(1.0);
+    ImGui::SetWindowFontScale(_fontScale);
     return outputNum;
 }
 
@@ -2359,17 +2379,14 @@ void Graph::setDefaults(mx::InputPtr input)
 {
     if (input->getType() == "float")
     {
-
         input->setValue(0.f, "float");
     }
     else if (input->getType() == "integer")
     {
-
         input->setValue(0, "integer");
     }
     else if (input->getType() == "color3")
     {
-
         input->setValue(mx::Color3(0.f, 0.f, 0.f), "color3");
     }
     else if (input->getType() == "color4")
@@ -2386,7 +2403,6 @@ void Graph::setDefaults(mx::InputPtr input)
     }
     else if (input->getType() == "vector4")
     {
-
         input->setValue(mx::Vector4(0.f, 0.f, 0.f, 0.f), "vector4");
     }
     else if (input->getType() == "string")
@@ -2395,12 +2411,10 @@ void Graph::setDefaults(mx::InputPtr input)
     }
     else if (input->getType() == "filename")
     {
-
         input->setValue("", "filename");
     }
     else if (input->getType() == "boolean")
     {
-
         input->setValue(false, "boolean");
     }
 }
@@ -2410,13 +2424,12 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
 {
     int end_attr = int(outputPinId.Get());
     int start_attr = int(inputPinId.Get());
-    Pin inputPin = getPin(outputPinId);
-    Pin outputPin = getPin(inputPinId);
-    if (inputPinId && outputPinId && (outputPin._type == inputPin._type))
+    UiPinPtr inputPin = getPin(outputPinId);
+    UiPinPtr outputPin = getPin(inputPinId);
+    if (inputPinId && outputPinId && (outputPin->_type == inputPin->_type))
     {
-        if (inputPin._connected == false)
+        if (inputPin->_connected == false)
         {
-
             int upNode = getNodeId(inputPinId);
             int downNode = getNodeId(outputPinId);
 
@@ -2453,38 +2466,37 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
 
                 if (_graphNodes[downNode]->getNode() || _graphNodes[downNode]->getNodeGraph())
                 {
-
                     mx::InputPtr connectingInput = nullptr;
-                    for (Pin& pin : _graphNodes[downNode]->inputPins)
+                    for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
                     {
-                        if (pin._pinId == outputPinId)
+                        if (pin->_pinId == outputPinId)
                         {
-                            addNodeInput(_graphNodes[downNode], pin._input);
+                            addNodeInput(_graphNodes[downNode], pin->_input);
                             // update value to be empty
                             if (_graphNodes[downNode]->getNode() && _graphNodes[downNode]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                             {
                                 if (_graphNodes[upNode]->getOutput() != nullptr)
                                 {
-                                    pin._input->setConnectedOutput(_graphNodes[upNode]->getOutput());
+                                    pin->_input->setConnectedOutput(_graphNodes[upNode]->getOutput());
                                 }
                                 else
                                 {
                                     // node graph
                                     if (_graphNodes[upNode]->getNodeGraph() != nullptr)
                                     {
-                                        for (Pin outPin : _graphNodes[upNode]->outputPins)
+                                        for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
                                         {
                                             // set pin connection to correct output
-                                            if (outPin._pinId == inputPinId)
+                                            if (outPin->_pinId == inputPinId)
                                             {
-                                                mx::OutputPtr outputs = _graphNodes[upNode]->getNodeGraph()->getOutput(outPin._name);
-                                                pin._input->setConnectedOutput(outputs);
+                                                mx::OutputPtr outputs = _graphNodes[upNode]->getNodeGraph()->getOutput(outPin->_name);
+                                                pin->_input->setConnectedOutput(outputs);
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        pin._input->setConnectedNode(_graphNodes[upNode]->getNode());
+                                        pin->_input->setConnectedNode(_graphNodes[upNode]->getNode());
                                     }
                                 }
                             }
@@ -2493,32 +2505,32 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
                                 if (_graphNodes[upNode]->getInput())
                                 {
 
-                                    pin._input->setInterfaceName(_graphNodes[upNode]->getName());
+                                    pin->_input->setInterfaceName(_graphNodes[upNode]->getName());
                                 }
                                 else
                                 {
                                     if (_graphNodes[upNode]->getNode())
                                     {
-                                        pin._input->setConnectedNode(_graphNodes[upNode]->getNode());
+                                        pin->_input->setConnectedNode(_graphNodes[upNode]->getNode());
                                     }
                                     else if (_graphNodes[upNode]->getNodeGraph())
                                     {
-                                        for (Pin outPin : _graphNodes[upNode]->outputPins)
+                                        for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
                                         {
                                             // set pin connection to correct output
-                                            if (outPin._pinId == inputPinId)
+                                            if (outPin->_pinId == inputPinId)
                                             {
-                                                mx::OutputPtr outputs = _graphNodes[upNode]->getNodeGraph()->getOutput(outPin._name);
-                                                pin._input->setConnectedOutput(outputs);
+                                                mx::OutputPtr outputs = _graphNodes[upNode]->getNodeGraph()->getOutput(outPin->_name);
+                                                pin->_input->setConnectedOutput(outputs);
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            pin.setConnected(true);
-                            pin._input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
-                            connectingInput = pin._input;
+                            pin->setConnected(true);
+                            pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
+                            connectingInput = pin->_input;
                             break;
                         }
                     }
@@ -2561,11 +2573,10 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
     }
 }
 
-void Graph::deleteLinkInfo(int startAttr, int endAttr)
+// remove node edge based of off connecting input
+void Graph::removeEdge(int downNode, int upNode, UiPinPtr pin)
 {
-    int upNode = getNodeId(startAttr);
-    int downNode = getNodeId(endAttr);
-    int num = _graphNodes[downNode]->getEdgeIndex(_graphNodes[upNode]->getId());
+    int num = _graphNodes[downNode]->getEdgeIndex(_graphNodes[upNode]->getId(), pin);
     if (num != -1)
     {
         if (_graphNodes[downNode]->edges.size() == 1)
@@ -2582,40 +2593,45 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     _graphNodes[downNode]->setInputNodeNum(-1);
     // upNode remove outputconnection
     _graphNodes[upNode]->removeOutputConnection(_graphNodes[downNode]->getName());
+}
+
+void Graph::deleteLinkInfo(int startAttr, int endAttr)
+{
+    int upNode = getNodeId(startAttr);
+    int downNode = getNodeId(endAttr);
     // change input so that is default val
     // change informtion of actual mx::Node
     if (_graphNodes[downNode]->getNode())
     {
         mx::NodeDefPtr nodeDef = _graphNodes[downNode]->getNode()->getNodeDef(_graphNodes[downNode]->getNode()->getName());
 
-        for (Pin& pin : _graphNodes[downNode]->inputPins)
+        for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
         {
-
-            if ((int) pin._pinId.Get() == endAttr)
+            if ((int) pin->_pinId.Get() == endAttr)
             {
-
-                mx::ValuePtr val = nodeDef->getActiveInput(pin._input->getName())->getValue();
+                removeEdge(downNode, upNode, pin);
+                mx::ValuePtr val = nodeDef->getActiveInput(pin->_input->getName())->getValue();
                 if (_graphNodes[downNode]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING && _graphNodes[upNode]->getNodeGraph())
                 {
-                    pin._input->setConnectedOutput(nullptr);
+                    pin->_input->setConnectedOutput(nullptr);
                 }
                 else
                 {
-                    pin._input->setConnectedNode(nullptr);
+                    pin->_input->setConnectedNode(nullptr);
                 }
                 if (_graphNodes[upNode]->getInput())
                 {
                     // remove interface value in order to set the default of the input
-                    pin._input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
-                    setDefaults(pin._input);
+                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(pin->_input);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
 
-                pin.setConnected(false);
+                pin->setConnected(false);
                 // if a value exists update the input with it
                 if (val)
                 {
-                    pin._input->setValueString(val->getValueString());
+                    pin->_input->setValueString(val->getValueString());
                 }
             }
         }
@@ -2624,29 +2640,32 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     {
         // set default values for nodegraph node pins ie nodegraph inputs
         mx::NodeDefPtr nodeDef = _graphNodes[downNode]->getNodeGraph()->getNodeDef();
-        for (Pin pin : _graphNodes[downNode]->inputPins)
+        for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
         {
-
-            if ((int) pin._pinId.Get() == endAttr)
+            if ((int) pin->_pinId.Get() == endAttr)
             {
-
+                removeEdge(downNode, upNode, pin);
                 if (_graphNodes[upNode]->getInput())
                 {
-                    _graphNodes[downNode]->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
-                pin._input->setConnectedNode(nullptr);
-                pin.setConnected(false);
-                setDefaults(pin._input);
+                pin->_input->setConnectedNode(nullptr);
+                pin->setConnected(false);
+                setDefaults(pin->_input);
             }
         }
     }
     else if (_graphNodes[downNode]->getOutput())
     {
-        for (Pin pin : _graphNodes[downNode]->inputPins)
+        for (UiPinPtr pin : _graphNodes[downNode]->inputPins)
         {
-            _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
-            pin.setConnected(false);
+            if ((int) pin->_pinId.Get() == endAttr)
+            {
+                removeEdge(downNode, upNode, pin);
+                _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
+                pin->setConnected(false);
+            }
         }
     }
 }
@@ -2672,13 +2691,13 @@ void Graph::deleteLink(ed::LinkId deletedLinkId)
 void Graph::deleteNode(UiNodePtr node)
 {
     // delete link
-    for (Pin inputPins : node->inputPins)
+    for (UiPinPtr inputPin : node->inputPins)
     {
-        UiNodePtr upNode = node->getConnectedNode(inputPins._name);
+        UiNodePtr upNode = node->getConnectedNode(inputPin->_name);
         if (upNode)
         {
             upNode->removeOutputConnection(node->getName());
-            int num = node->getEdgeIndex(upNode->getId());
+            int num = node->getEdgeIndex(upNode->getId(), inputPin);
             // erase edge between node and up node
             if (num != -1)
             {
@@ -2697,58 +2716,56 @@ void Graph::deleteNode(UiNodePtr node)
     if (node->outputPins.size() > 0)
     {
         // update downNode info
-        std::vector<Pin> outputConnections = node->outputPins.front().getConnections();
-
-        for (Pin pin : outputConnections)
+        for (UiPinPtr pin : node->outputPins.front()->getConnections())
         {
             mx::ValuePtr val;
-            if (pin._pinNode->getNode())
+            if (pin->_pinNode->getNode())
             {
-                mx::NodeDefPtr nodeDef = pin._pinNode->getNode()->getNodeDef(pin._pinNode->getNode()->getName());
-                val = nodeDef->getActiveInput(pin._input->getName())->getValue();
-                if (pin._pinNode->getNode()->getType() == "surfaceshader")
+                mx::NodeDefPtr nodeDef = pin->_pinNode->getNode()->getNodeDef(pin->_pinNode->getNode()->getName());
+                val = nodeDef->getActiveInput(pin->_input->getName())->getValue();
+                if (pin->_pinNode->getNode()->getType() == "surfaceshader")
                 {
-                    pin._input->setConnectedOutput(nullptr);
+                    pin->_input->setConnectedOutput(nullptr);
                 }
                 else
                 {
-                    pin._input->setConnectedNode(nullptr);
+                    pin->_input->setConnectedNode(nullptr);
                 }
             }
-            else if (pin._pinNode->getNodeGraph())
+            else if (pin->_pinNode->getNodeGraph())
             {
                 if (node->getInput())
                 {
-                    pin._pinNode->getNodeGraph()->getInput(pin._name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    pin->_pinNode->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     setDefaults(node->getInput());
                 }
-                pin._input->setConnectedNode(nullptr);
-                pin.setConnected(false);
-                setDefaults(pin._input);
+                pin->_input->setConnectedNode(nullptr);
+                pin->setConnected(false);
+                setDefaults(pin->_input);
             }
 
-            pin.setConnected(false);
+            pin->setConnected(false);
             if (val)
             {
-                pin._input->setValueString(val->getValueString());
+                pin->_input->setValueString(val->getValueString());
             }
 
-            int num = pin._pinNode->getEdgeIndex(node->getId());
+            int num = pin->_pinNode->getEdgeIndex(node->getId(), pin);
             if (num != -1)
             {
-                if (pin._pinNode->edges.size() == 1)
+                if (pin->_pinNode->edges.size() == 1)
                 {
-                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + 0);
+                    pin->_pinNode->edges.erase(pin->_pinNode->edges.begin() + 0);
                 }
-                else if (pin._pinNode->edges.size() > 1)
+                else if (pin->_pinNode->edges.size() > 1)
                 {
-                    pin._pinNode->edges.erase(pin._pinNode->edges.begin() + num);
+                    pin->_pinNode->edges.erase(pin->_pinNode->edges.begin() + num);
                 }
             }
 
-            pin._pinNode->setInputNodeNum(-1);
+            pin->_pinNode->setInputNodeNum(-1);
             // not really necessary since it will be deleted
-            node->removeOutputConnection(pin._pinNode->getName());
+            node->removeOutputConnection(pin->_pinNode->getName());
         }
     }
 
@@ -2771,13 +2788,13 @@ void Graph::addNodeGraphPins()
                 for (mx::InputPtr input : node->getNodeGraph()->getInputs())
                 {
                     std::string name = input->getName();
-                    auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](const Pin& x)
-                                               {
-                        return x._name == name;
+                    auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](UiPinPtr x)
+                    {
+                        return x->_name == name;
                     });
                     if (result == node->inputPins.end())
                     {
-                        Pin inPin = Pin(++_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
+                        UiPinPtr inPin = std::make_shared<UiPin>(++_graphTotalSize, &*input->getName().begin(), input->getType(), node, ax::NodeEditor::PinKind::Input, input, nullptr);
                         node->inputPins.push_back(inPin);
                         _currPins.push_back(inPin);
                         ++_graphTotalSize;
@@ -2789,13 +2806,13 @@ void Graph::addNodeGraphPins()
                 for (mx::OutputPtr output : node->getNodeGraph()->getOutputs())
                 {
                     std::string name = output->getName();
-                    auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](const Pin& x)
-                                               {
-                        return x._name == name;
+                    auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](UiPinPtr x)
+                    {
+                        return x->_name == name;
                     });
                     if (result == node->outputPins.end())
                     {
-                        Pin outPin = Pin(++_graphTotalSize, &*output->getName().begin(), output->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
+                        UiPinPtr outPin = std::make_shared<UiPin>(++_graphTotalSize, &*output->getName().begin(), output->getType(), node, ax::NodeEditor::PinKind::Output, nullptr, nullptr);
                         ++_graphTotalSize;
                         node->outputPins.push_back(outPin);
                         _currPins.push_back(outPin);
@@ -2833,59 +2850,132 @@ void Graph::upNodeGraph()
     }
 }
 
+void Graph::clearGraph()
+{
+    _graphNodes.clear();
+    _currLinks.clear();
+    _currEdge.clear();
+    _newLinks.clear();
+    _currPins.clear();
+    _graphDoc = mx::createDocument();
+    _graphDoc->importLibrary(_stdLib);
+    _currGraphElem = _graphDoc;
+
+    if (_currUiNode != nullptr)
+    {
+        ed::DeselectNode(_currUiNode->getId());
+        _currUiNode = nullptr;
+    }
+    _prevUiNode = nullptr;
+    _currRenderNode = nullptr;
+    _isNodeGraph = false;
+    _currGraphName.clear();
+
+    _renderer->setDocument(_graphDoc);
+    _renderer->updateMaterials(nullptr);
+}
+
+void Graph::loadGraphFromFile()
+{
+    // deselect node before loading new file
+    if (_currUiNode != nullptr)
+    {
+        ed::DeselectNode(_currUiNode->getId());
+        _currUiNode = nullptr;
+    }
+
+    _fileDialog.SetTitle("Open File");
+    _fileDialog.SetTypeFilters(_mtlxFilter);
+    _fileDialog.Open();
+}
+
+void Graph::saveGraphToFile()
+{
+    _fileDialogSave.SetTypeFilters(_mtlxFilter);
+    _fileDialogSave.SetTitle("Save File As");
+    _fileDialogSave.Open();
+}
+
+void Graph::loadGeometry()
+{
+    _fileDialogGeom.SetTitle("Load Geometry");
+    _fileDialogGeom.SetTypeFilters(_geomFilter);
+    _fileDialogGeom.Open();
+}
+
 void Graph::graphButtons()
 {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
+    ImGui::SetWindowFontScale(_fontScale);
 
-    // buttons for loading and saving a .mtlx
-    // new Material button
-    if (ImGui::Button("New Material"))
+    if (ImGui::BeginMenuBar())
     {
-        _graphNodes.clear();
-        _currLinks.clear();
-        _currEdge.clear();
-        _newLinks.clear();
-        _currPins.clear();
-        _graphDoc = mx::createDocument();
-        _graphDoc->importLibrary(_stdLib);
-        _currGraphElem = _graphDoc;
-
-        if (_currUiNode != nullptr)
+        if (ImGui::BeginMenu("File"))
         {
-            ed::DeselectNode(_currUiNode->getId());
-            _currUiNode = nullptr;
+            // buttons for loading and saving a .mtlx
+            // new Material button
+            if (ImGui::MenuItem("New", "Ctrl-N"))
+            {
+                clearGraph();
+            }
+            else if (ImGui::MenuItem("Open", "Ctrl-O"))
+            {
+                loadGraphFromFile();
+            }
+            else if (ImGui::MenuItem("Save", "Ctrl-S"))
+            {
+                saveGraphToFile();
+            }
+            ImGui::EndMenu();
         }
-        _prevUiNode = nullptr;
-        _currRenderNode = nullptr;
-        _isNodeGraph = false;
-        _currGraphName.clear();
-
-        _renderer->setDocument(_graphDoc);
-        _renderer->updateMaterials(nullptr);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Load Material"))
-    {
-        // deselect node before loading new file
-        if (_currUiNode != nullptr)
+        
+        if (ImGui::BeginMenu("Graph"))
         {
-            ed::DeselectNode(_currUiNode->getId());
-            _currUiNode = nullptr;
+            if (ImGui::MenuItem("Auto Layout"))
+            {
+                _autoLayout = true;
+            }
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Viewer"))
+        {
+            if (ImGui::MenuItem("Load Geometry"))
+            {
+                loadGeometry();
+            }
+            ImGui::EndMenu();
+        }     
+
+        if (ImGui::Button("Help"))
+        {
+            ImGui::OpenPopup("Help");
+        }
+        if (ImGui::BeginPopup("Help"))
+        {
+            showHelp();
+            ImGui::EndPopup();
         }
 
-        _fileDialog.SetTitle("Open File Window");
-        _fileDialog.Open();
+        ImGui::EndMenuBar();
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Save Material"))
+
+    // Menu keys
+    ImGuiIO& guiIO = ImGui::GetIO();
+    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
     {
-        _fileDialogSave.SetTitle("Save File Window");
-        _fileDialogSave.Open();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Auto Layout"))
-    {
-        _autoLayout = true;
+        if (ImGui::IsKeyReleased(ImGuiKey_O))
+        {
+            loadGraphFromFile();
+        }
+        else if (ImGui::IsKeyReleased(ImGuiKey_N))
+        {
+            clearGraph();
+        }
+        else if (ImGui::IsKeyReleased(ImGuiKey_S))
+        {
+            saveGraphToFile();
+        }
     }
 
     // split window into panes for NodeEditor
@@ -2921,11 +3011,11 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0));
     ImVec2 windowPos = ImGui::GetWindowPos();
     // renderView window
-    ImVec2 wsize = ImVec2((float) _renderer->_screenWidth, (float) _renderer->_screenHeight);
-    float aspectRatio = _renderer->_pixelRatio;
+    ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
+    float aspectRatio = _renderer->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
-    _renderer->_screenWidth = (unsigned int) screenSize[0];
-    _renderer->_screenHeight = (unsigned int) screenSize[1];
+    _renderer->setViewWidth((int) screenSize[0]);
+    _renderer->setViewHeight((int) screenSize[1]);
 
     if (_renderer != nullptr)
     {
@@ -2964,7 +3054,6 @@ void Graph::propertyEditor()
         {
             if (temp != original)
             {
-
                 std::string name = _currUiNode->getNode()->getParent()->createValidChildName(temp);
 
                 std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
@@ -3053,7 +3142,7 @@ void Graph::propertyEditor()
         if (_currUiNode->getNode())
         {
             ImGui::Text("%s", _currUiNode->getNode()->getCategory().c_str());
-            docString += _currUiNode->getNode()->getCategory().c_str();
+            docString += _currUiNode->getNode()->getCategory();
             docString += ":";
             docString += _currUiNode->getNode()->getNodeDef()->getDocString() + "\n";
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
@@ -3064,20 +3153,23 @@ void Graph::propertyEditor()
             ImGui::Text("Inputs:");
             ImGui::Indent();
 
-            for (Pin& input : _currUiNode->inputPins)
+            for (UiPinPtr input : _currUiNode->inputPins)
             {
-                if (_currUiNode->_showAllInputs || (input.getConnected() || _currUiNode->getNode()->getInput(input._name)))
+                if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNode()->getInput(input->_name)))
                 {
-                    mx::OutputPtr out = input._input->getConnectedOutput();
+                    mx::UIProperties uiProperties;
+                    mx::getUIProperties(input->_input, mx::EMPTY_STRING, uiProperties);
+                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : input->_input->getName();
+                    mx::OutputPtr out = input->_input->getConnectedOutput();
                     // setting comment help box
-                    ImGui::PushID(int(input._pinId.Get()));
-                    ImGui::Text("%s", input._input->getName().c_str());
-                    mx::InputPtr tempInt = _currUiNode->getNode()->getNodeDef()->getActiveInput(input._input->getName());
-                    docString += input._name;
+                    ImGui::PushID(int(input->_pinId.Get()));
+                    ImGui::Text("%s", inputLabel.c_str());
+                    mx::InputPtr tempInt = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName());
+                    docString += input->_name;
                     docString += ": ";
                     if (tempInt)
                     {
-                        std::string newStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input._input->getName())->getDocString();
+                        std::string newStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName())->getDocString();
                         if (newStr != mx::EMPTY_STRING)
                         {
                             docString += newStr;
@@ -3085,13 +3177,13 @@ void Graph::propertyEditor()
                     }
                     docString += "\t \n";
                     ImGui::SameLine();
-                    std::string typeText = " [" + input._input->getType() + "]";
+                    std::string typeText = " [" + input->_input->getType() + "]";
                     ImGui::Text("%s", typeText.c_str());
 
                     // setting constant sliders for input values
-                    if (!input.getConnected())
+                    if (!input->getConnected())
                     {
-                        setConstant(_currUiNode, input._input);
+                        setConstant(_currUiNode, input->_input, uiProperties);
                     }
 
                     ImGui::PopID();
@@ -3105,23 +3197,27 @@ void Graph::propertyEditor()
         else if (_currUiNode->getInput() != nullptr)
         {
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
-            std::vector<Pin> inputs = _currUiNode->inputPins;
+            std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("Inputs:");
             ImGui::Indent();
             for (size_t i = 0; i < inputs.size(); i++)
             {
+                mx::InputPtr mxinput = inputs[i]->_input;
+                mx::UIProperties uiProperties;
+                mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
 
                 // setting comment help box
-                ImGui::PushID(int(inputs[i]._pinId.Get()));
-                ImGui::Text("%s", inputs[i]._input->getName().c_str());
+                ImGui::PushID(int(inputs[i]->_pinId.Get()));
+                ImGui::Text("%s", inputLabel.c_str());
 
                 ImGui::SameLine();
-                std::string typeText = " [" + inputs[i]._input->getType() + "]";
+                std::string typeText = " [" + inputs[i]->_input->getType() + "]";
                 ImGui::Text("%s", typeText.c_str());
                 // setting constant sliders for input values
-                if (!inputs[i].getConnected())
+                if (!inputs[i]->getConnected())
                 {
-                    setConstant(_currUiNode, inputs[i]._input);
+                    setConstant(_currUiNode, inputs[i]->_input, uiProperties);
                 }
                 ImGui::PopID();
             }
@@ -3133,27 +3229,32 @@ void Graph::propertyEditor()
         }
         else if (_currUiNode->getNodeGraph() != nullptr)
         {
-            std::vector<Pin> inputs = _currUiNode->inputPins;
+            std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             ImGui::Text("Inputs:");
             ImGui::Indent();
             int count = 0;
-            for (Pin input : inputs)
+            for (UiPinPtr input : inputs)
             {
-                if (_currUiNode->_showAllInputs || (input.getConnected() || _currUiNode->getNodeGraph()->getInput(input._name)))
+                if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
                 {
-                    // setting comment help box
-                    ImGui::PushID(int(input._pinId.Get()));
-                    ImGui::Text("%s", input._input->getName().c_str());
+                    mx::InputPtr mxinput = input->_input;
+                    mx::UIProperties uiProperties;
+                    mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
 
-                    docString += _currUiNode->getNodeGraph()->getActiveInput(input._input->getName())->getDocString();
+                    // setting comment help box
+                    ImGui::PushID(int(input->_pinId.Get()));
+                    ImGui::Text("%s", inputLabel.c_str());
+
+                    docString += _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName())->getDocString();
 
                     ImGui::SameLine();
-                    std::string typeText = " [" + input._input->getType() + "]";
+                    std::string typeText = " [" + input->_input->getType() + "]";
                     ImGui::Text("%s", typeText.c_str());
-                    if (!input._input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input._input->getName()))
+                    if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
                     {
-                        setConstant(_currUiNode, input._input);
+                        setConstant(_currUiNode, input->_input, uiProperties);
                     }
 
                     ImGui::PopID();
@@ -3178,9 +3279,54 @@ void Graph::propertyEditor()
         }
     }
 }
+
+// Helper to display basic user controls.
+void Graph::showHelp() const
+{
+    ImGui::Text("MATERIALX GRAPH EDITOR HELP");   
+    if (ImGui::CollapsingHeader("Graph"))
+    {
+        if (ImGui::TreeNode("Navigation"))
+        {
+            ImGui::BulletText("F : Frame selected nodes in graph.");
+            ImGui::BulletText("RIGHT MOUSE button to pan.");
+            ImGui::BulletText("SCROLL WHEEL to zoom.");
+            ImGui::BulletText("\"<\" BUTTON to view parent of current graph");
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Editing"))
+        {
+            ImGui::BulletText("TAB : Show popup menu to add new nodes.");
+            ImGui::BulletText("CTRL-C : Copy selected nodes to clipboard.");
+            ImGui::BulletText("CTRL-V : Paste clipboard to graph.");
+            ImGui::BulletText("CTRL-F : Find a node by name.");
+            ImGui::BulletText("CTRL-X : Delete selected nodes and add to clipboard.");
+            ImGui::BulletText("DELETE : Delete selected nodes or connections.");
+            ImGui::TreePop();
+        }
+    }
+    if (ImGui::CollapsingHeader("Viewer"))
+    {
+        ImGui::BulletText("LEFT MOUSE button to tumble.");
+        ImGui::BulletText("RIGHT MOUSE button to pan.");
+        ImGui::BulletText("SCROLL WHEEL to zoom.");
+        ImGui::BulletText("Keypad +/- to zoom in fixed increments");
+    }
+
+    if (ImGui::CollapsingHeader("Property Editor"))
+    {
+        ImGui::BulletText("UP/DOWN ARROW to move between inputs.");
+        ImGui::BulletText("LEFT-MOUSE DRAG to modify values while entry field is in focus.");
+        ImGui::BulletText("DBL_CLICK or CTRL+CLICK LEFT-MOUSE on entry field to input values.");
+        ImGui::Separator();
+        ImGui::BulletText("\"Show all inputs\" Will toggle between showing all inputs and\n only those that have been modified.");
+        ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
+    }
+}
+
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(GLFW_KEY_TAB);
+    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
     if (open_AddPopup)
     {
         cursor = true;
@@ -3284,7 +3430,7 @@ void Graph::addNodePopup(bool cursor)
 }
 void Graph::searchNodePopup(bool cursor)
 {
-    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(GLFW_KEY_F) && ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL);
+    const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(ImGuiKey_F) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     if (open_search)
     {
         cursor = true;
@@ -3344,7 +3490,7 @@ void Graph::shaderPopup()
 {
     if (_renderer->getMaterialCompilation())
     {
-        ImGui::SetNextWindowPos(ImVec2((float) _renderer->_screenWidth - 135, (float) _renderer->_screenHeight + 5));
+        ImGui::SetNextWindowPos(ImVec2((float) _renderer->getViewWidth() - 135, (float) _renderer->getViewHeight() + 5));
         ImGui::SetNextWindowBgAlpha(80.f);
         ImGui::OpenPopup("Shaders");
     }
@@ -3405,7 +3551,7 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
             _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
         }
         // scrolling not possible if open or save file dialog is open
-        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened())
+        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
         {
             _renderer->setScrollEvent(scrollAmt);
         }
@@ -3414,7 +3560,6 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
 // sets up graph editor
 void Graph::drawGraph(ImVec2 mousePos)
 {
-
     if (_searchNodeId > 0)
     {
         ed::SelectNode(_searchNodeId);
@@ -3427,14 +3572,10 @@ void Graph::drawGraph(ImVec2 mousePos)
     ImGuiIO& io2 = ImGui::GetIO();
     ImGui::SetNextWindowSize(io2.DisplaySize);
     ImGui::SetNextWindowPos(ImVec2(io2.DisplaySize.x * 0.5f, io2.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    ImGui::Begin("MaterialX", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("MaterialX", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
 
     io2.ConfigFlags = ImGuiConfigFlags_IsSRGB | ImGuiConfigFlags_NavEnableKeyboard;
     io2.MouseDoubleClickTime = .5;
-    // increase default font size
-    ImFont* f = ImGui::GetFont();
-    f->FontSize = 14;
-
     graphButtons();
 
     ed::Begin("My Editor");
@@ -3615,7 +3756,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         _initial = false;
         _autoLayout = false;
         // delete selected nodes and their links if delete key is pressed or if the shortcut for cut is used
-        if (ImGui::IsKeyReleased(GLFW_KEY_DELETE) || _isCut)
+        if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
         {
 
             if (selectedNodes.size() > 0)
@@ -3654,13 +3795,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(GLFW_KEY_F) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.IsOpened())
         {
             ed::NavigateToSelection();
         }
 
         // go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(GLFW_KEY_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
         {
             upNodeGraph();
         }
@@ -3672,7 +3813,6 @@ void Graph::drawGraph(ImVec2 mousePos)
             {
                 if (!readOnly())
                 {
-
                     AddLink(inputPinId, outputPinId);
                 }
                 else
@@ -3682,9 +3822,9 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             if (ed::QueryNewNode(&filterPinId))
             {
-                if (getPin(filterPinId)._type != "null")
+                if (getPin(filterPinId)->_type != "null")
                 {
-                    _pinFilterType = getPin(filterPinId)._type;
+                    _pinFilterType = getPin(filterPinId)->_type;
                 }
             }
         }
@@ -3815,6 +3955,7 @@ void Graph::drawGraph(ImVec2 mousePos)
 
     ed::End();
     ImGui::End();
+
     _fileDialog.Display();
     // create and load document from selected file
     if (_fileDialog.HasSelected())
@@ -3825,7 +3966,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
         _graphDoc = loadDocument(fileName);
         _graphDoc->importLibrary(_stdLib);
-        
+
         _initial = true;
         buildUiBaseGraph(_graphDoc);
         _currGraphElem = _graphDoc;
@@ -3836,7 +3977,16 @@ void Graph::drawGraph(ImVec2 mousePos)
         _renderer->updateMaterials(nullptr);
     }
 
-    _fileDialogConstant.Display();
+    _fileDialogGeom.Display();
+    if (_fileDialogGeom.HasSelected())
+    {
+        mx::FilePath fileName = mx::FilePath(_fileDialogGeom.GetSelected().string());
+        _fileDialogGeom.ClearSelected();
+        _renderer->loadMesh(fileName);
+        _renderer->updateMaterials(nullptr);
+    }
+
+    _fileDialogImage.Display();
 }
 
 // return node location in graphNodes vector based off of node id

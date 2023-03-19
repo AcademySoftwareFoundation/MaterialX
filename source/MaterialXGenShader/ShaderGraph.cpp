@@ -56,6 +56,11 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         {
             inputSocket->setUniform();
         }
+        GeomPropDefPtr geomprop = input->getDefaultGeomProp();
+        if (geomprop)
+        {
+            inputSocket->setGeomProp(geomprop->getName());
+        }
     }
 }
 
@@ -252,6 +257,13 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
         }
 
         node = geomNode.get();
+
+        // Assign a unique variable name for the node output.
+        const Syntax& syntax = context.getShaderGenerator().getSyntax();
+        ShaderOutput* output = node->getOutput();
+        string variable = output->getFullName();
+        variable = syntax.getVariableName(variable, output->getType(), _identifiers);
+        output->setVariable(variable);
     }
 
     input->makeConnection(node->getOutput());
@@ -700,40 +712,49 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
             }
 
             // Handle node input ports
-            for (const ValueElementPtr& nodedefPort : nodeDef->getActiveValueElements())
+            for (const InputPtr& nodedefInput : nodeDef->getActiveInputs())
             {
-                InputPtr nodedefInputPort = nodedefPort->asA<Input>();
-                if (!nodedefInputPort)
-                {
-                    continue;
-                }
-
-                ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodedefPort->getName());
-                ShaderInput* input = newNode->getInput(nodedefPort->getName());
+                ShaderGraphInputSocket* inputSocket = graph->getInputSocket(nodedefInput->getName());
+                ShaderInput* input = newNode->getInput(nodedefInput->getName());
                 if (!inputSocket || !input)
                 {
-                    throw ExceptionShaderGenError("Node port '" + nodedefPort->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
+                    throw ExceptionShaderGenError("Node input '" + nodedefInput->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
                 }
 
-                ValueElementPtr nodePort = node->getValueElement(nodedefPort->getName());
-                if (nodePort)
+                // Copy data from node element to shadergen representation
+                InputPtr nodeInput = node->getInput(nodedefInput->getName());
+                if (nodeInput)
                 {
-                    ValuePtr value = nodePort->getResolvedValue();
+                    ValuePtr value = nodeInput->getResolvedValue();
                     if (value)
                     {
-                        inputSocket->setValue(value);
+                        const string& valueString = value->getValueString();
+                        std::pair<const TypeDesc*, ValuePtr> enumResult;
+                        const TypeDesc* type = TypeDesc::get(nodedefInput->getType());
+                        const string& enumNames = nodedefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                        if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+                        {
+                            inputSocket->setValue(enumResult.second);
+                        }
+                        else
+                        {
+                            inputSocket->setValue(value);
+                        }
                     }
 
-                    inputSocket->setPath(nodePort->getNamePath());
-                    input->setPath(inputSocket->getPath());
-
-                    const string& unit = nodePort->getUnit();
+                    const string path = nodeInput->getNamePath();
+                    if (!path.empty())
+                    {
+                        inputSocket->setPath(path);
+                        input->setPath(path);
+                    }
+                    const string& unit = nodeInput->getUnit();
                     if (!unit.empty())
                     {
                         inputSocket->setUnit(unit);
                         input->setUnit(unit);
                     }
-                    const string& colorSpace = nodePort->getColorSpace();
+                    const string& colorSpace = nodeInput->getColorSpace();
                     if (!colorSpace.empty())
                     {
                         inputSocket->setColorSpace(colorSpace);
@@ -741,17 +762,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     }
                 }
 
-                if (nodedefPort->isA<Input>())
-                {
-                    GeomPropDefPtr geomprop = nodedefPort->asA<Input>()->getDefaultGeomProp();
-                    if (geomprop)
-                    {
-                        inputSocket->setGeomProp(geomprop->getName());
-                        input->setGeomProp(geomprop->getName());
-                    }
-                }
-
-                // Connect to the graph input
+                // Connect graph socket to the node input
                 inputSocket->makeConnection(input);
 
                 // Share metadata.
@@ -1015,13 +1026,21 @@ void ShaderGraph::optimize(GenContext& context)
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
     {
-        if (node->hasClassification(ShaderNode::Classification::CONSTANT) ||
-            node->hasClassification(ShaderNode::Classification::DOT))
+        if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
-            // Constant and dot nodes can be removed by moving their value
-            // or connection downstream.
+            // Constant nodes can be elided by moving their value downstream.
             bypass(context, node, 0);
             ++numEdits;
+        }
+        else if (node->hasClassification(ShaderNode::Classification::DOT))
+        {
+            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            ShaderInput* in = node->getInput("in");
+            if (in->getChannels().empty())
+            {
+                bypass(context, node, 0);
+                ++numEdits;
+            }
         }
         else if (node->hasClassification(ShaderNode::Classification::IFELSE))
         {

@@ -6,7 +6,6 @@
 #include <MaterialXGraphEditor/RenderView.h>
 
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
-#include <MaterialXRenderGlsl/GLUtil.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -18,12 +17,11 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
-#include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
-#include <iostream>
+#include <imgui_impl_glfw.h>
 
-#include <GLFW/glfw3.h>
+#include <iostream>
 
 const mx::Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 5.0f);
 const float DEFAULT_CAMERA_VIEW_ANGLE = 45.0f;
@@ -121,7 +119,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
 }
 
 void RenderView::setDocument(mx::DocumentPtr document)
-{   
+{
     // Set new current document
     _document = document;
 
@@ -133,13 +131,9 @@ RenderView::RenderView(mx::DocumentPtr doc,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
                        const mx::FileSearchPath& searchPath,
-                       unsigned int screenWidth,
-                       unsigned int screenHeight) :
+                       int viewWidth,
+                       int viewHeight) :
     _textureID(0),
-    _pixelRatio(1.0f),
-    _screenWidth(screenWidth),
-    _screenHeight(screenHeight),
-    _renderFrame(nullptr),
     _meshFilename(meshFilename),
     _envRadianceFilename(envRadianceFilename),
     _searchPath(searchPath),
@@ -150,11 +144,12 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _cameraNearDist(0.05f),
     _cameraFarDist(5000.0f),
     _cameraZoom(DEFAULT_CAMERA_ZOOM),
-    _userCameraEnabled(true),
+    _pixelRatio(1.0f),
+    _viewWidth(viewWidth),
+    _viewHeight(viewHeight),
     _userTranslationActive(false),
     _lightRotation(0.0f),
     _shadowSoftness(1),
-    _ambientOcclusionGain(0.6f),
     _selectedGeom(0),
     _selectedMaterial(0),
     _viewCamera(mx::Camera::create()),
@@ -191,7 +186,7 @@ RenderView::RenderView(mx::DocumentPtr doc,
 }
 
 void RenderView::initialize()
-{    
+{
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
 #if MATERIALX_BUILD_OIIO
@@ -319,29 +314,35 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         {
             _shadowMaterial->unbindGeometry();
         }
+
+        _meshRotation = mx::Vector3();
+        _meshScale = 1.0f;
+        _cameraTarget = mx::Vector3();
+
+        initCamera();
+    
+        if (_shadowMap)
+        {
+            _imageHandler->releaseRenderResources(_shadowMap);
+            _shadowMap = nullptr;
+        }
     }
 }
 
 void RenderView::setScrollEvent(float scrollY)
 {
-    if (_userCameraEnabled)
-    {
-        _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
-    }
+    _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
 }
 
 void RenderView::setKeyEvent(int key)
 {
-    if (_userCameraEnabled)
+    if (key == ImGuiKey_KeypadAdd)
     {
-        if (key == ImGuiKey_KeypadAdd)
-        {
-            _cameraZoom *= 1.1f;
-        }
-        if (key == ImGuiKey_KeypadSubtract)
-        {
-            _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
-        }
+        _cameraZoom *= 1.1f;
+    }
+    if (key == ImGuiKey_KeypadSubtract)
+    {
+        _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
     }
 }
 
@@ -361,9 +362,9 @@ void RenderView::setMouseMotionEvent(mx::Vector2 pos)
 
         float viewZ = _viewCamera->projectToViewport(sphereCenter)[2];
         mx::Vector3 pos1 = _viewCamera->unprojectFromViewport(
-            mx::Vector3(pos[0], (float) _screenWidth - pos[1], viewZ));
+            mx::Vector3(pos[0], (float) _viewWidth - pos[1], viewZ));
         mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
-            mx::Vector3(_userTranslationPixel[0], (float) _screenWidth - _userTranslationPixel[1], viewZ));
+            mx::Vector3(_userTranslationPixel[0], (float) _viewWidth - _userTranslationPixel[1], viewZ));
         _userTranslation = _userTranslationStart + (pos1 - pos0);
     }
 }
@@ -371,11 +372,11 @@ void RenderView::setMouseMotionEvent(mx::Vector2 pos)
 void RenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
 {
 
-    if ((button == 0) && !ImGui::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT) && !ImGui::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    if ((button == 0) && !ImGui::IsKeyPressed(ImGuiKey_RightShift) && !ImGui::IsKeyPressed(ImGuiKey_LeftShift))
     {
         _viewCamera->arcballButtonEvent(pos, down);
     }
-    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_RIGHT_SHIFT)) || ((button == 0) && ImGui::IsKeyDown(GLFW_KEY_LEFT_SHIFT)))
+    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_RightShift)) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_LeftShift)))
     {
         _userTranslationStart = _userTranslation;
         _userTranslationActive = true;
@@ -439,8 +440,7 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         //// Create new materials.
         if (!typedElem)
         {
-            std::vector<mx::TypedElementPtr> elems;
-            mx::findRenderableElements(_document, elems);
+            std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_document);
             if (!elems.empty())
             {
                 typedElem = elems[0];
@@ -651,24 +651,6 @@ void RenderView::initContext(mx::GenContext& context)
     context.getOptions().targetDistanceUnit = "meter";
 }
 
-mx::ImagePtr RenderView::getAmbientOcclusionImage(mx::GlslMaterialPtr material)
-{
-    const mx::string AO_FILENAME_SUFFIX = "_ao";
-    const mx::string AO_FILENAME_EXTENSION = "png";
-
-    if (!material || !_genContext.getOptions().hwAmbientOcclusion)
-    {
-        return nullptr;
-    }
-
-    std::string aoSuffix = material->getUdim().empty() ? AO_FILENAME_SUFFIX : AO_FILENAME_SUFFIX + "_" + material->getUdim();
-    mx::FilePath aoFilename = _meshFilename;
-    aoFilename.removeExtension();
-    aoFilename = aoFilename.asString() + aoSuffix;
-    aoFilename.addExtension(AO_FILENAME_EXTENSION);
-    return _imageHandler->acquireImage(aoFilename);
-}
-
 void RenderView::drawContents()
 {
     updateCameras();
@@ -696,7 +678,7 @@ void RenderView::drawContents()
         }
 
         // Restore state for scene rendering.
-        glViewport(0, 0, (int32_t) _screenWidth, (int32_t) _screenHeight);
+        glViewport(0, 0, (int32_t) _viewWidth, (int32_t) _viewHeight);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glDrawBuffer(GL_BACK);
     }
@@ -782,7 +764,6 @@ void RenderView::renderFrame()
 
     // Update shadow state.
     mx::ShadowState shadowState;
-    shadowState.ambientOcclusionGain = _ambientOcclusionGain;
     mx::NodePtr dirLight = _lightHandler->getFirstLightOfCategory(DIR_LIGHT_NODE_CATEGORY);
     if (_genContext.getOptions().hwShadowMap && dirLight)
     {
@@ -801,10 +782,11 @@ void RenderView::renderFrame()
 
     // Initialize viewport render.
     if (!_renderFrame ||
-        _renderFrame->getWidth() != _screenWidth ||
-        _renderFrame->getHeight() != _screenHeight)
+        _renderFrame->getWidth() != (unsigned int) _viewWidth ||
+        _renderFrame->getHeight() != (unsigned int) _viewHeight)
     {
-        _renderFrame = mx::GLFramebuffer::create(_screenWidth, _screenHeight, 4, mx::Image::BaseType::UINT8);
+        _renderFrame = mx::GLFramebuffer::create((unsigned int) _viewWidth, (unsigned int) _viewHeight,
+                                                 4, mx::Image::BaseType::UINT8);
     }
 
     _renderFrame->bind();
@@ -825,7 +807,6 @@ void RenderView::renderFrame()
     {
         mx::MeshPartitionPtr geom = assignment.first;
         mx::GlslMaterialPtr material = assignment.second;
-        shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
         if (!material)
         {
             continue;
@@ -853,7 +834,6 @@ void RenderView::renderFrame()
         {
             mx::MeshPartitionPtr geom = assignment.first;
             mx::GlslMaterialPtr material = assignment.second;
-            shadowState.ambientOcclusionMap = getAmbientOcclusionImage(material);
             if (!material || !material->hasTransparency())
             {
                 continue;
@@ -885,13 +865,9 @@ void RenderView::renderFrame()
 
 void RenderView::initCamera()
 {
-    _viewCamera->setViewportSize(mx::Vector2((float) _screenWidth, (float) _screenHeight));
+    _viewCamera->setViewportSize(mx::Vector2((float) _viewWidth, (float) _viewHeight));
 
-    // Disable user camera controls when non-centered views are requested.
-    _userCameraEnabled = _cameraTarget == mx::Vector3(0.0) &&
-                         _meshScale == 1.0f;
-
-    if (!_userCameraEnabled || _geometryHandler->getMeshes().empty())
+    if ( _geometryHandler->getMeshes().empty())
     {
         return;
     }
@@ -910,7 +886,7 @@ void RenderView::initCamera()
 void RenderView::updateCameras()
 {
     mx::Matrix44 viewMatrix, projectionMatrix;
-    float aspectRatio = (float) _screenHeight / _screenHeight;
+    float aspectRatio = (float) _viewHeight / _viewHeight;
     if (_cameraViewAngle != 0.0f)
     {
         viewMatrix = mx::Camera::createViewMatrix(_cameraPosition, _cameraTarget, _cameraUp);
@@ -929,12 +905,7 @@ void RenderView::updateCameras()
     mx::Matrix44 meshRotation = mx::Matrix44::createRotationZ(_meshRotation[2] / 180.0f * PI) *
                                 mx::Matrix44::createRotationY(_meshRotation[1] / 180.0f * PI) *
                                 mx::Matrix44::createRotationX(_meshRotation[0] / 180.0f * PI);
-
-    mx::Matrix44 arcball = mx::Matrix44::IDENTITY;
-    if (_userCameraEnabled)
-    {
-        arcball = _viewCamera->arcballMatrix();
-    }
+    mx::Matrix44 arcball = _viewCamera->arcballMatrix();
 
     _viewCamera->setWorldMatrix(meshRotation *
                                 mx::Matrix44::createTranslation(_meshTranslation + _userTranslation) *
@@ -960,26 +931,6 @@ void RenderView::updateCameras()
             _shadowCamera->setViewMatrix(mx::Camera::createViewMatrix(dir * -r, mx::Vector3(0.0f), _cameraUp));
         }
     }
-}
-
-mx::GlslMaterialPtr RenderView::getWireframeMaterial()
-{
-    if (!_wireMaterial)
-    {
-        try
-        {
-            mx::ShaderPtr hwShader = mx::createConstantShader(_genContext, _document, "__WIRE_SHADER__", mx::Color3(1.0f));
-            _wireMaterial = mx::GlslMaterial::create();
-            _wireMaterial->generateShader(hwShader);
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "Failed to generate wireframe shader: " << e.what() << std::endl;
-            _wireMaterial = nullptr;
-        }
-    }
-
-    return _wireMaterial;
 }
 
 void RenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
@@ -1072,7 +1023,7 @@ mx::ImagePtr RenderView::getShadowMap()
             }
 
             // Restore state for scene rendering.
-            glViewport(0, 0, (int32_t) _screenWidth, (int32_t) _screenHeight);
+            glViewport(0, 0, (int32_t) _viewWidth, (int32_t) _viewHeight);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
             glDrawBuffer(GL_BACK);
         }
