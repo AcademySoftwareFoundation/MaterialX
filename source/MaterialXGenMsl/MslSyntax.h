@@ -29,7 +29,7 @@ class MX_GENMSL_API MslSyntax : public Syntax
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
     const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
     const string& getStructKeyword() const { return STRUCT_KEYWORD; }
-    
+
     string getOutputTypeName(const TypeDesc* type) const override;
 
     bool typeSupported(const TypeDesc* type) const override;
