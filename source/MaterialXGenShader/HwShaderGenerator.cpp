@@ -59,8 +59,7 @@ const string T_ENV_RADIANCE                   = "$envRadiance";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
-const string T_REFRACTION_ENV                 = "$refractionEnv";
-const string T_REFRACTION_COLOR               = "$refractionColor";
+const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
 const string T_ALBEDO_TABLE                   = "$albedoTable";
 const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
 const string T_AMB_OCC_MAP                    = "$ambOccMap";
@@ -114,8 +113,7 @@ const string ENV_RADIANCE                     = "u_envRadiance";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
-const string REFRACTION_ENV                   = "u_refractionEnv";
-const string REFRACTION_COLOR                 = "u_refractionColor";
+const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
 const string ALBEDO_TABLE                     = "u_albedoTable";
 const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
 const string AMB_OCC_MAP                      = "u_ambOccMap";
@@ -215,8 +213,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_ENV_RADIANCE_MIPS] = HW::ENV_RADIANCE_MIPS;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLES] = HW::ENV_RADIANCE_SAMPLES;
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE;
-    _tokenSubstitutions[HW::T_REFRACTION_ENV] = HW::REFRACTION_ENV;
-    _tokenSubstitutions[HW::T_REFRACTION_COLOR] = HW::REFRACTION_COLOR;
+    _tokenSubstitutions[HW::T_REFRACTION_TWO_SIDED] = HW::REFRACTION_TWO_SIDED;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE] = HW::ALBEDO_TABLE;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = HW::ALBEDO_TABLE_SIZE;
     _tokenSubstitutions[HW::T_SHADOW_MAP] = HW::SHADOW_MAP;
@@ -250,6 +247,38 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     // Create the root shader graph
     ShaderGraphPtr graph = ShaderGraph::create(nullptr, name, element, context);
     ShaderPtr shader = std::make_shared<Shader>(name, graph);
+
+    // Check if there are inputs with default geomprops assigned. In order to bind the
+    // corresponding data to these inputs we insert geomprop nodes in the graph.
+    bool geomNodeAdded = false;
+    for (ShaderGraphInputSocket* socket : graph->getInputSockets())
+    {
+        if (!socket->getGeomProp().empty())
+        {
+            ConstDocumentPtr doc = element->getDocument();
+            GeomPropDefPtr geomprop = doc->getGeomPropDef(socket->getGeomProp());
+            if (geomprop)
+            {
+                // A default geomprop was assigned to this graph input.
+                // For all internal connections to this input, break the connection 
+                // and assign a geomprop node that generates this data.
+                // Note: If a geomprop node exists already it is reused, 
+                // so only a single node per geometry type is created.
+                ShaderInputVec connections = socket->getConnections();
+                for (auto connection : connections)
+                {
+                    connection->breakConnection();
+                    graph->addDefaultGeomNode(connection, *geomprop, context);
+                    geomNodeAdded = true;
+                }
+            }
+        }
+    }
+    // If nodes were added we need to re-sort the nodes in topological order.
+    if (geomNodeAdded)
+    {
+        graph->topologicalSort();
+    }
 
     // Create vertex stage.
     ShaderStagePtr vs = createStage(Stage::VERTEX, *shader);
@@ -319,8 +348,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
-        psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_ENV);
-        psPrivateUniforms->add(Type::COLOR3, HW::T_REFRACTION_COLOR);
+        psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_TWO_SIDED);
     }
 
     // Add uniforms for the directional albedo table.

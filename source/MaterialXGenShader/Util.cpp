@@ -363,78 +363,62 @@ bool elementRequiresShading(ConstTypedElementPtr element)
     return colorClosures.count(elementType) > 0;
 }
 
-void findRenderableMaterialNodes(ConstDocumentPtr doc,
-                                 vector<TypedElementPtr>& elements,
-                                 bool includeReferencedGraphs,
-                                 std::unordered_set<ElementPtr>& processedSources)
+vector<TypedElementPtr> findRenderableMaterialNodes(ConstDocumentPtr doc)
 {
-    for (const NodePtr& material : doc->getMaterialNodes())
+    vector<TypedElementPtr> renderableNodes;
+    for (NodePtr materialNode : doc->getMaterialNodes())
     {
-        // Scan for any upstream shader outputs and put them on the "processed" list
-        // if we don't want to consider them for rendering.
-        vector<NodePtr> shaderNodes = getShaderNodes(material);
-        if (!shaderNodes.empty())
+        if (!getShaderNodes(materialNode).empty())
         {
-            // Push the material node only once if any shader nodes are found
-            elements.push_back(material);
-            processedSources.insert(material);
+            renderableNodes.push_back(materialNode);
+        }
+    }
+    return renderableNodes;
+}
 
-            if (!includeReferencedGraphs)
+vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc)
+{
+    vector<TypedElementPtr> renderableElements = findRenderableMaterialNodes(doc);
+    if (renderableElements.empty())
+    {
+        // Collect all graph outputs in the content document.
+        vector<OutputPtr> graphOutputs;
+        for (NodeGraphPtr graph : doc->getNodeGraphs())
+        {
+            for (OutputPtr output : graph->getOutputs())
             {
-                for (NodePtr shaderNode : shaderNodes)
+                if (output->getActiveSourceUri() == doc->getActiveSourceUri())
                 {
-                    for (InputPtr input : shaderNode->getActiveInputs())
-                    {
-                        OutputPtr outputPtr = input->getConnectedOutput();
-                        if (outputPtr && !outputPtr->hasSourceUri() && !processedSources.count(outputPtr))
-                        {
-                            processedSources.insert(outputPtr);
-                        }
-                    }
+                    graphOutputs.push_back(output);
                 }
             }
         }
-    }
-}
-
-void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
-{
-    std::unordered_set<ElementPtr> processedSources;
-    findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedSources);
-    if (!elements.empty())
-    {
-        return;
-    }
-
-    // Find all node graph outputs in the content document.
-    vector<OutputPtr> graphOutputs;
-    for (OutputPtr output : doc->getOutputs())
-    {
-        if (output->getActiveSourceUri() == doc->getActiveSourceUri())
-        {
-            graphOutputs.push_back(output);
-        }
-    }
-    for (NodeGraphPtr graph : doc->getNodeGraphs())
-    {
-        for (OutputPtr output : graph->getOutputs())
+        for (OutputPtr output : doc->getOutputs())
         {
             if (output->getActiveSourceUri() == doc->getActiveSourceUri())
             {
                 graphOutputs.push_back(output);
             }
         }
-    }
 
-    // Add renderable graph outputs to the return vector.
-    for (OutputPtr output : graphOutputs)
-    {
-        NodePtr node = output->getConnectedNode();
-        if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
+        // Filter out unconnected outputs and unsupported data types.
+        const StringSet UNSUPPORTED_TYPES =
         {
-            elements.push_back(output);
+            BSDF_TYPE_STRING,
+            EDF_TYPE_STRING,
+            VDF_TYPE_STRING,
+            LIGHT_SHADER_TYPE_STRING
+        };
+        for (OutputPtr output : graphOutputs)
+        {
+            NodePtr node = output->getConnectedNode();
+            if (node && !UNSUPPORTED_TYPES.count(node->getType()))
+            {
+                renderableElements.push_back(output);
+            }
         }
     }
+    return renderableElements;
 }
 
 InputPtr getNodeDefInput(InputPtr nodeInput, const string& target)
@@ -602,6 +586,15 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
         }
     }
     return false;
+}
+
+void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&)
+{
+    elements = findRenderableMaterialNodes(doc);
+}
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool)
+{
+    elements = findRenderableElements(doc);
 }
 
 MATERIALX_NAMESPACE_END

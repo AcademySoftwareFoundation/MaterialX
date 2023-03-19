@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXFormat/Environ.h>
+#include <MaterialXFormat/File.h>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -37,6 +39,44 @@ mx::FileSearchPath getDefaultSearchPath()
     }
 
     return searchPath;
+}
+
+mx::FilePath getConfigPath()
+{
+    mx::FilePath configPath;
+    auto xdgConfigHome = mx::getEnviron("XDG_CONFIG_HOME");
+    auto homeDirectory = mx::getEnviron("HOME");
+    if (!xdgConfigHome.empty())
+    {
+        configPath = mx::FilePath(xdgConfigHome);
+    }
+    else if (!homeDirectory.empty())
+    {
+#if defined(__APPLE__)
+        configPath = mx::FilePath(homeDirectory) / "Library" / "Preferences";
+#else
+        configPath = mx::FilePath(homeDirectory) / ".config";
+        if (!configPath.exists())
+        {
+            configPath.createDirectory();
+        }
+#endif
+    }
+    else
+    {
+        return {};
+    }
+
+    configPath = configPath / "MaterialX";
+    configPath.createDirectory();
+
+    if (!configPath.exists())
+    {
+        std::cerr << "Failed to create MaterialX config directory at " << configPath.asString() << std::endl;
+        return {};
+    }
+
+    return configPath / "GraphEditor.imgui.ini";
 }
 
 const std::string options =
@@ -79,6 +119,8 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders;
+    int viewWidth = 256;
+    int viewHeight = 256;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -101,6 +143,14 @@ int main(int argc, char* const argv[])
         else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
+        }
+        else if (token == "--viewWidth")
+        {
+            parseToken(nextToken, "integer", viewWidth);
+        }
+        else if (token == "--viewHeight")
+        {
+            parseToken(nextToken, "integer", viewHeight);
         }
         else if (token == "--captureFilename")
         {
@@ -167,6 +217,12 @@ int main(int argc, char* const argv[])
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
 
+    mx::FilePath configPath = getConfigPath();
+    if (!configPath.isEmpty())
+    {
+        io.IniFilename = configPath.asString().c_str();
+    }
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
@@ -175,7 +231,12 @@ int main(int argc, char* const argv[])
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Create graph editor.
-    Graph* graph = new Graph(materialFilename, meshFilename, searchPath, libraryFolders);
+    Graph* graph = new Graph(materialFilename,
+                             meshFilename,
+                             searchPath,
+                             libraryFolders,
+                             viewWidth,
+                             viewHeight);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
@@ -224,7 +285,8 @@ int main(int argc, char* const argv[])
             break;
         }
 
-        double xpos, ypos;
+        double xpos = 0.0;
+        double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
         graph->drawGraph(ImVec2((float) xpos, (float) ypos));
         ImGui::Render();
