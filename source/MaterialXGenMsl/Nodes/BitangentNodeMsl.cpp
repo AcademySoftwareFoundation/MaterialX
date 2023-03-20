@@ -51,7 +51,6 @@ void BitangentNodeMsl::createVariables(const ShaderNode& node, GenContext& conte
     }
 }
 
-
 void BitangentNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
