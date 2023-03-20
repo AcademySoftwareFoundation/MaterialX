@@ -17,10 +17,10 @@ class GenUserDataString : public GenUserData
 {
   public:
     GenUserDataString(const std::string& value) : _value(value) {}
-    const std::string& getValue() const { return _value; }
+    const string& getValue() const { return _value; }
 
   private:
-    std::string _value;
+    string _value;
 };
 
 /// Shared pointer to a GenUserDataString
