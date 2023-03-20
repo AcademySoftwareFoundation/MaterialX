@@ -59,7 +59,6 @@ void TransformVectorNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext
         shadergen.emitString(getHomogeneousCoordinate(inInput, context), stage);
         shadergen.emitString(").xyz", stage);
         shadergen.emitLineEnd(stage);
-
     }
 }
 

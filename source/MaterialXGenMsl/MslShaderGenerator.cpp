@@ -60,17 +60,17 @@ MslShaderGenerator::MslShaderGenerator() :
     //
 
     StringVec elementNames;
-    
+
     // <!-- <switch> -->
     elementNames = {
         // <!-- 'which' type : float -->
-        "IM_switch_float_"   + MslShaderGenerator::TARGET,
-        "IM_switch_color3_"  + MslShaderGenerator::TARGET,
-        "IM_switch_color4_"  + MslShaderGenerator::TARGET,
+        "IM_switch_float_" + MslShaderGenerator::TARGET,
+        "IM_switch_color3_" + MslShaderGenerator::TARGET,
+        "IM_switch_color4_" + MslShaderGenerator::TARGET,
         "IM_switch_vector2_" + MslShaderGenerator::TARGET,
         "IM_switch_vector3_" + MslShaderGenerator::TARGET,
         "IM_switch_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- 'which' type : integer -->
         "IM_switch_floatI_" + MslShaderGenerator::TARGET,
         "IM_switch_color3I_" + MslShaderGenerator::TARGET,
@@ -89,7 +89,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_swizzle_float_vector2_" + MslShaderGenerator::TARGET,
         "IM_swizzle_float_vector3_" + MslShaderGenerator::TARGET,
         "IM_swizzle_float_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color3 -->
         "IM_swizzle_color3_float_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color3_color3_" + MslShaderGenerator::TARGET,
@@ -97,7 +97,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_swizzle_color3_vector2_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector3_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color4 -->
         "IM_swizzle_color4_float_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color4_color3_" + MslShaderGenerator::TARGET,
@@ -105,7 +105,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_swizzle_color4_vector2_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector3_" + MslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector2 -->
         "IM_swizzle_vector2_float_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector2_color3_" + MslShaderGenerator::TARGET,
@@ -113,7 +113,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_swizzle_vector2_vector2_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector3_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector3 -->
         "IM_swizzle_vector3_float_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector3_color3_" + MslShaderGenerator::TARGET,
@@ -121,7 +121,7 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_swizzle_vector3_vector2_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector3_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector4_" + MslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector4 -->
         "IM_swizzle_vector4_float_" + MslShaderGenerator::TARGET,
         "IM_swizzle_vector4_color3_" + MslShaderGenerator::TARGET,
@@ -293,7 +293,7 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
         context.pushUserData(HW::USER_DATA_BINDING_CONTEXT, MslResourceBindingContext::create());
         resourceBindingCtx = context.getUserData<HwResourceBindingContext>(HW::USER_DATA_BINDING_CONTEXT);
     }
-    
+
     // Make sure we initialize/reset the binding context before generation.
     if (resourceBindingCtx)
     {
@@ -309,7 +309,7 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderStage& ps = shader->getStage(Stage::PIXEL);
     emitPixelStage(shader->getGraph(), context, ps);
     replaceTokens(_tokenSubstitutions, ps);
-    
+
     MetalizeGeneratedShader(ps);
 
     return shader;
@@ -318,29 +318,35 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
 void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
 {
     std::string sourceCode = shaderStage.getSourceCode();
-    
+
     // Used to convert shared code between GLSL pass by reference parameters to MSL pass by reference.
     // Converts "inout/out Type variableName" to "thread Type& variableName"
     size_t pos = 0;
     {
         std::array<string, 2> refKeywords = { "out", "inout" };
-        for(const auto& keyword : refKeywords)
+        for (const auto& keyword : refKeywords)
         {
             pos = sourceCode.find(keyword);
-            while(pos != std::string::npos)
+            while (pos != std::string::npos)
             {
-                char preceeding = sourceCode[pos - 1], succeeding = sourceCode[pos+keyword.length()];
+                char preceeding = sourceCode[pos - 1], succeeding = sourceCode[pos + keyword.length()];
                 bool isOutKeyword =
                     (preceeding == '(' || preceeding == ',' || std::isspace(preceeding)) &&
                     std::isspace(succeeding) &&
                     succeeding != '\n';
                 size_t beg = pos;
                 pos += keyword.length();
-                if(isOutKeyword)
+                if (isOutKeyword)
                 {
-                    while(std::isspace(sourceCode[pos])) { ++pos; }
+                    while (std::isspace(sourceCode[pos]))
+                    {
+                        ++pos;
+                    }
                     size_t typename_beg = pos;
-                    while(!std::isspace(sourceCode[pos])) { ++pos; }
+                    while (!std::isspace(sourceCode[pos]))
+                    {
+                        ++pos;
+                    }
                     size_t typename_end = pos;
                     std::string typeName = sourceCode.substr(typename_beg, typename_end - typename_beg);
                     sourceCode.replace(beg, typename_end - beg, "thread " + typeName + "&");
@@ -349,34 +355,34 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
             }
         }
     }
-    
+
     // Renames GLSL constructs that are used in shared code to MSL equivalent constructs.
     std::unordered_map<string, string> replaceTokens;
     replaceTokens["sampler2D"] = "MetalTexture";
     replaceTokens["dFdy"] = "dfdy";
     replaceTokens["dFdx"] = "dfdx";
-    
+
     auto isAllowedAfterToken = [](char ch) -> bool
     {
         return std::isspace(ch) || ch == '(' || ch == ')' || ch == ',';
     };
-    
+
     auto isAllowedBeforeToken = [](char ch) -> bool
     {
         return std::isspace(ch) || ch == '(' || ch == ',';
     };
-    
-    for(const auto& t : replaceTokens)
+
+    for (const auto& t : replaceTokens)
     {
         pos = sourceCode.find(t.first);
-        while(pos != std::string::npos)
+        while (pos != std::string::npos)
         {
-            bool isOutKeyword = isAllowedBeforeToken(sourceCode[pos-1]);
+            bool isOutKeyword = isAllowedBeforeToken(sourceCode[pos - 1]);
             size_t beg = pos;
             pos += t.first.length();
             isOutKeyword &= isAllowedAfterToken(sourceCode[pos]);
-            
-            if(isOutKeyword)
+
+            if (isOutKeyword)
             {
                 sourceCode.replace(beg, t.first.length(), t.second);
                 pos = sourceCode.find(t.first, beg + t.second.length());
@@ -387,7 +393,7 @@ void MslShaderGenerator::MetalizeGeneratedShader(ShaderStage& shaderStage) const
             }
         }
     }
-    
+
     shaderStage.setSourceCode(sourceCode);
 }
 
@@ -397,27 +403,27 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                                              bool isVertexShader, bool needsLightData) const
 {
     int tex_slot = 0;
-    int buffer_slot = isVertexShader ? std::max(static_cast<int>(stage.getInputBlock(HW::VERTEX_INPUTS).size()), 0)  : 0;
-    
-    bool entryFunctionArgs              =
+    int buffer_slot = isVertexShader ? std::max(static_cast<int>(stage.getInputBlock(HW::VERTEX_INPUTS).size()), 0) : 0;
+
+    bool entryFunctionArgs =
         situation == EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES;
-    bool globalContextInit              =
+    bool globalContextInit =
         situation == EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT;
-    bool globalContextMembers           =
+    bool globalContextMembers =
         situation == EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL;
     bool globalContextConstructorParams =
         situation == EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS;
-    bool globalContextConstructorInit   =
+    bool globalContextConstructorInit =
         situation == EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT;
 
     std::string separator = "";
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        if(globalContextMembers)
+        if (globalContextMembers)
         {
             emitLine("vec4 gl_FragCoord", stage);
         }
-        if(globalContextConstructorInit)
+        if (globalContextConstructorInit)
         {
             emitString("gl_FragCoord(", stage);
             emitLine(stage.getInputBlock(HW::VERTEX_DATA).getInstance() + ".pos)", stage, false);
@@ -428,15 +434,14 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
     {
         auto vertex_inputs = isVertexShader ? stage.getInputBlock(HW::VERTEX_INPUTS)
                                             : stage.getInputBlock(HW::VERTEX_DATA);
-        if(!entryFunctionArgs)
+        if (!entryFunctionArgs)
         {
-            if(isVertexShader)
+            if (isVertexShader)
             {
-                
-                for(const auto& it : vertex_inputs.getVariableOrder())
+                for (const auto& it : vertex_inputs.getVariableOrder())
                 {
                     emitString(separator, stage);
-                    if(globalContextInit)
+                    if (globalContextInit)
                     {
                         emitString(vertex_inputs.getInstance() + "." + it->getName(), stage);
                     }
@@ -448,17 +453,17 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                     {
                         emitLine(it->getName() + "(" + it->getName() + ")", stage, false);
                     }
-                    
-                    if(globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
+
+                    if (globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
                         separator = ", ";
-                    else if(globalContextMembers)
+                    else if (globalContextMembers)
                         separator = "\n";
                 }
             }
             else
             {
                 emitString(separator, stage);
-                if(globalContextInit)
+                if (globalContextInit)
                 {
                     emitString(vertex_inputs.getInstance(), stage);
                     separator = ", ";
@@ -466,7 +471,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                 else if (globalContextMembers || globalContextConstructorParams)
                 {
                     emitLine(vertex_inputs.getName() + " " + vertex_inputs.getInstance(), stage, !globalContextConstructorParams);
-                    if(globalContextConstructorParams)
+                    if (globalContextConstructorParams)
                         separator = ", ";
                     else
                         separator = "\n";
@@ -484,48 +489,50 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
             separator = ", ";
         }
     }
-    
+
     // Add all uniforms
     for (const auto& it : stage.getUniformBlocks())
     {
         const VariableBlock& uniforms = *it.second;
         bool isLightData = uniforms.getName() == HW::LIGHT_DATA;
-        
-        if(!needsLightData && isLightData) continue;
-        
-        if(isLightData)
+
+        if (!needsLightData && isLightData)
+            continue;
+
+        if (isLightData)
         {
             emitString(separator, stage);
-            if(entryFunctionArgs)
+            if (entryFunctionArgs)
             {
                 emitString(_syntax->getUniformQualifier() + " " +
-                           uniforms.getName() + "_" + stage.getName() + "& " +
-                           uniforms.getInstance() +
-                           "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
+                               uniforms.getName() + "_" + stage.getName() + "& " +
+                               uniforms.getInstance() +
+                               "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
                            stage);
             }
-            else if(globalContextInit)
+            else if (globalContextInit)
             {
                 emitLine(uniforms.getInstance() + "." + uniforms.getInstance(), stage, false);
             }
-            else if(globalContextMembers || globalContextConstructorParams)
+            else if (globalContextMembers || globalContextConstructorParams)
             {
                 const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
                 emitLine((globalContextConstructorParams ? (_syntax->getUniformQualifier() + " ") : std::string()) +
-                         uniforms.getName() + " " +
-                         uniforms.getInstance() +
-                         structArraySuffix, stage, !globalContextConstructorParams);
+                             uniforms.getName() + " " +
+                             uniforms.getInstance() +
+                             structArraySuffix,
+                         stage, !globalContextConstructorParams);
             }
-            else if(globalContextConstructorInit)
+            else if (globalContextConstructorInit)
             {
                 const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
                 emitLine(uniforms.getInstance(), stage, false);
                 emitScopeBegin(stage);
-                for(unsigned int l = 0; l < maxLights; ++l)
+                for (unsigned int l = 0; l < maxLights; ++l)
                 {
                     emitString(l == 0 ? "" : ", ", stage);
                     emitLine(uniforms.getInstance() +
-                             "["+ std::to_string(l)  +"]",
+                                 "[" + std::to_string(l) + "]",
                              stage, false);
                 }
                 emitScopeEnd(stage);
@@ -533,17 +540,17 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
         }
         else
         {
-            if(!entryFunctionArgs)
+            if (!entryFunctionArgs)
             {
                 if (!uniforms.empty())
                 {
-                    for (size_t i=0; i<uniforms.size(); ++i)
+                    for (size_t i = 0; i < uniforms.size(); ++i)
                     {
-                        if(uniforms[i]->getType() != Type::FILENAME)
+                        if (uniforms[i]->getType() != Type::FILENAME)
                         {
                             emitLineBegin(stage);
                             emitString(separator, stage);
-                            if(globalContextInit)
+                            if (globalContextInit)
                             {
                                 emitString(uniforms.getInstance() + "." + uniforms[i]->getVariable(), stage);
                             }
@@ -559,7 +566,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                         }
                         else
                         {
-                            if(globalContextInit)
+                            if (globalContextInit)
                             {
                                 emitString(separator, stage);
                                 emitString("MetalTexture", stage);
@@ -581,10 +588,10 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                                 emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, false);
                             }
                         }
-                        
-                        if(globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
+
+                        if (globalContextInit || globalContextConstructorParams || globalContextConstructorInit)
                             separator = ", ";
-                        else if(globalContextMembers)
+                        else if (globalContextMembers)
                             separator = "\n";
                     }
                 }
@@ -610,33 +617,32 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                             hasUniforms = true;
                         }
                     }
-                    
-                    if(hasUniforms)
+
+                    if (hasUniforms)
                     {
                         emitString(separator, stage);
                         emitString(_syntax->getUniformQualifier() + " " +
-                                   uniforms.getName() + "& " +
-                                   uniforms.getInstance() +
-                                   "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
+                                       uniforms.getName() + "& " +
+                                       uniforms.getInstance() +
+                                       "[[ buffer(" + std::to_string(buffer_slot++) + ") ]]",
                                    stage);
                     }
                 }
             }
         }
-        
-        if(globalContextInit || entryFunctionArgs || globalContextConstructorParams || globalContextConstructorInit)
+
+        if (globalContextInit || entryFunctionArgs || globalContextConstructorParams || globalContextConstructorInit)
             separator = ", ";
         else
             separator = "\n";
-        
     }
-    
-    if(!isVertexShader)
+
+    if (!isVertexShader)
     {
         const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
-        for(auto& it : outputs.getVariableOrder())
+        for (auto& it : outputs.getVariableOrder())
         {
-            if(globalContextMembers)
+            if (globalContextMembers)
             {
                 emitLine(_syntax->getTypeName(it->getType()) + " " + it->getVariable(), stage, true);
             }
@@ -662,7 +668,7 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
 
     // Add vertex data outputs block
     emitOutputs(context, stage);
-    
+
     emitLine("struct GlobalContext", stage, false);
     emitScopeBegin(stage);
     {
@@ -671,11 +677,11 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
         emitLine(") : ", stage, false);
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, true, false);
         emitLine("{}", stage, false);
-        
+
         emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, true, false);
-        
+
         emitFunctionDefinitions(graph, context, stage);
-        
+
         const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         emitLine(vertexData.getName() + " VertexMain()", stage, false);
         emitScopeBegin(stage);
@@ -715,7 +721,6 @@ void MslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& c
     }
     emitScopeEnd(stage);
     emitLineBreak(stage);
-
 }
 
 void MslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const
@@ -762,25 +767,25 @@ void MslShaderGenerator::emitDirectives(GenContext&, ShaderStage& stage) const
 {
     // Add directives
     emitLine("//Metal Shading Language version " + getVersion(), stage, false);
-    emitLine("#define __METAL__ ",      stage, false);
+    emitLine("#define __METAL__ ", stage, false);
     emitLine("#include <metal_stdlib>", stage, false);
-    emitLine("#include <simd/simd.h>",  stage, false);
-    emitLine("using namespace metal;",  stage, false);
-    
-    emitLine("#define vec2 float2",  stage, false);
-    emitLine("#define vec3 float3",  stage, false);
-    emitLine("#define vec4 float4",  stage, false);
-    emitLine("#define ivec2 int2",   stage, false);
-    emitLine("#define ivec3 int3",   stage, false);
-    emitLine("#define ivec4 int4",   stage, false);
-    emitLine("#define uvec2 uint2",  stage, false);
-    emitLine("#define uvec3 uint3",  stage, false);
-    emitLine("#define uvec4 uint4",  stage, false);
-    emitLine("#define bvec2 bool2",  stage, false);
-    emitLine("#define bvec3 bool3",  stage, false);
-    emitLine("#define bvec4 bool4",  stage, false);
-    emitLine("#define mat3 float3x3",stage, false);
-    emitLine("#define mat4 float4x4",stage, false);
+    emitLine("#include <simd/simd.h>", stage, false);
+    emitLine("using namespace metal;", stage, false);
+
+    emitLine("#define vec2 float2", stage, false);
+    emitLine("#define vec3 float3", stage, false);
+    emitLine("#define vec4 float4", stage, false);
+    emitLine("#define ivec2 int2", stage, false);
+    emitLine("#define ivec3 int3", stage, false);
+    emitLine("#define ivec4 int4", stage, false);
+    emitLine("#define uvec2 uint2", stage, false);
+    emitLine("#define uvec3 uint3", stage, false);
+    emitLine("#define uvec4 uint4", stage, false);
+    emitLine("#define bvec2 bool2", stage, false);
+    emitLine("#define bvec3 bool3", stage, false);
+    emitLine("#define bvec4 bool4", stage, false);
+    emitLine("#define mat3 float3x3", stage, false);
+    emitLine("#define mat4 float4x4", stage, false);
 
     emitLineBreak(stage);
 }
@@ -805,9 +810,9 @@ void MslShaderGenerator::emitConstantBufferDeclarations(GenContext& context,
         const VariableBlock& uniforms = *it.second;
         if (!uniforms.empty())
         {
-            if(uniforms.getName() == HW::LIGHT_DATA)
+            if (uniforms.getName() == HW::LIGHT_DATA)
                 continue;
-            
+
             emitComment("Uniform block: " + uniforms.getName(), stage);
             if (resourceBindingCtx)
             {
@@ -831,7 +836,7 @@ void MslShaderGenerator::emitLightData(GenContext& context, ShaderStage& stage) 
 {
     const VariableBlock& lightData = stage.getUniformBlock(HW::LIGHT_DATA);
     const string structArraySuffix = "[" + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + "]";
-    const string structName        = lightData.getInstance();
+    const string structName = lightData.getInstance();
     HwResourceBindingContextPtr resourceBindingCtx = getResourceBindingContext(context);
     if (resourceBindingCtx)
     {
@@ -855,13 +860,13 @@ void MslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage, con
     emitComment("Inputs block: " + inputs.getName(), stage);
     emitLine("struct " + inputs.getName(), stage, false);
     emitScopeBegin(stage);
-    
+
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         emitLine("float4 pos [[position]]", stage);
     }
-    
-    for (size_t i=0; i<inputs.size(); ++i)
+
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         string line = "";
         line += context.getShaderGenerator().getSyntax().getTypeName(inputs[i]->getType());
@@ -872,11 +877,10 @@ void MslShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage, con
             line += std::to_string(i);
             line += ")]]";
         };
-        
+
         emitLine(line, stage, true);
     }
-    
-    
+
     emitScopeEnd(stage, true, false);
     emitLineBreak(stage);
 }
@@ -924,7 +928,7 @@ void MslShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) co
             emitLineBreak(stage);
         }
     };
-    
+
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
         const VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
@@ -953,8 +957,8 @@ bool MslShaderGenerator::requiresLighting(const ShaderGraph& graph) const
 {
     const bool isBsdf = graph.hasClassification(ShaderNode::Classification::BSDF);
     const bool isLitSurfaceShader = graph.hasClassification(ShaderNode::Classification::SHADER) &&
-                              graph.hasClassification(ShaderNode::Classification::SURFACE) &&
-                              !graph.hasClassification(ShaderNode::Classification::UNLIT);
+                                    graph.hasClassification(ShaderNode::Classification::SURFACE) &&
+                                    !graph.hasClassification(ShaderNode::Classification::UNLIT);
     return isBsdf || isLitSurfaceShader;
 }
 
@@ -976,10 +980,10 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
     emitLineBreak(stage);
 
     emitMetalTextureClass(context, stage);
-    
+
     // Add type definitions
     emitTypeDefinitions(context, stage);
-    
+
     emitConstantBufferDeclarations(context, resourceBindingCtx, stage);
 
     // Add all constants
@@ -991,17 +995,17 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
     // Add the pixel shader output. This needs to be a float4 for rendering
     // and upstream connection will be converted to float4 if needed in emitFinalOutput()
     emitOutputs(context, stage);
-    
+
     // Determine whether lighting is required
     bool lighting = requiresLighting(graph);
-    
+
     // Define directional albedo approach
     if (lighting || context.getOptions().hwWriteAlbedoTable)
     {
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
     }
-    
+
     // Add lighting support
     if (lighting)
     {
@@ -1010,51 +1014,53 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             const unsigned int maxLights = std::max(1u, context.getOptions().hwMaxActiveLightSources);
             emitLine("#define " + HW::LIGHT_DATA_MAX_LIGHT_SOURCES + " " + std::to_string(maxLights), stage, false);
         }
-        
+
         if (context.getOptions().hwMaxActiveLightSources > 0)
         {
             emitLightData(context, stage);
         }
     }
     
+    bool needsLightBuffer = lighting && context.getOptions().hwMaxActiveLightSources > 0;
+
     emitMathMatrixScalarMathOperators(context, stage);
     emitLine("struct GlobalContext", stage, false);
     emitScopeBegin(stage);
     {
         emitLine("GlobalContext(", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS, false, needsLightBuffer);
         emitLine(") : ", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, false, needsLightBuffer);
         emitLine("{}", stage, false);
-        
+
         // Add common math functions
         emitLine("#define __DECL_GL_MATH_FUNCTIONS__", stage, false);
         emitLibraryInclude("stdlib/genmsl/lib/mx_math.metal", context, stage);
         emitLineBreak(stage);
-        
-        if(lighting)
+
+        if (lighting)
         {
             emitSpecularEnvironment(context, stage);
             emitTransmissionRender(context, stage);
         }
-        
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, false, lighting);
-        
+
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, false, needsLightBuffer);
+
         // Add shadowing support
         bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
-        context.getOptions().hwWriteDepthMoments;
+                         context.getOptions().hwWriteDepthMoments;
         if (shadowing)
         {
             emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
         }
-        
+
         // Emit directional albedo table code.
         if (context.getOptions().hwWriteAlbedoTable)
         {
             emitLibraryInclude("pbrlib/genglsl/lib/mx_table.glsl", context, stage);
             emitLineBreak(stage);
         }
-        
+
         // Set the include file to use for uv transformations,
         // depending on the vertical flip flag.
         if (context.getOptions().fileTextureVerticalFlip)
@@ -1065,25 +1071,25 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         {
             _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV] = "mx_transform_uv.glsl";
         }
-        
+
         // Emit uv transform code globally if needed.
         if (context.getOptions().hwAmbientOcclusion)
         {
             emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
         }
-        
+
         emitLightFunctionDefinitions(graph, context, stage);
-        
+
         // Emit function definitions for all nodes in the graph.
         emitFunctionDefinitions(graph, context, stage);
-        
+
         const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket();
-        
+
         // Add main function
         const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
         emitLine(outputs.getName() + " FragmentMain()", stage, false);
         emitFunctionBodyBegin(graph, context, stage);
-        
+
         if (graph.hasClassification(ShaderNode::Classification::CLOSURE) &&
             !graph.hasClassification(ShaderNode::Classification::SHADER))
         {
@@ -1110,7 +1116,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 // Emit all texturing nodes. These are inputs to any
                 // closure/shader nodes and need to be emitted first.
                 emitFunctionCalls(graph, context, stage, ShaderNode::Classification::TEXTURE);
-                
+
                 // Emit function calls for "root" closure/shader nodes.
                 // These will internally emit function calls for any dependent closure nodes upstream.
                 for (ShaderGraphOutputSocket* socket : graph.getOutputSockets())
@@ -1133,7 +1139,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 // function calls in order.
                 emitFunctionCalls(graph, context, stage);
             }
-            
+
             // Emit final output
             const ShaderOutput* outputConnection = outputSocket->getConnection();
             if (outputConnection)
@@ -1144,7 +1150,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 {
                     finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
                 }
-                
+
                 if (graph.hasClassification(ShaderNode::Classification::SURFACE))
                 {
                     if (context.getOptions().hwTransparency)
@@ -1173,8 +1179,8 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             else
             {
                 string outputValue = outputSocket->getValue() ?
-                    _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
-                    _syntax->getDefaultValue(outputSocket->getType());
+                                    _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
+                                    _syntax->getDefaultValue(outputSocket->getType());
                 if (!outputSocket->getType()->isFloat4())
                 {
                     string finalOutput = outputSocket->getVariable() + "_tmp";
@@ -1188,36 +1194,34 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 }
             }
         }
-        
-        
+
         {
             std::string separator = "";
             emitString("return " + outputs.getName() + "{", stage);
-            for(auto it : outputs.getVariableOrder())
+            for (auto it : outputs.getVariableOrder())
             {
                 emitString(separator + it->getVariable(), stage);
                 separator = ", ";
             }
             emitLine("}", stage, true);
         }
-        
+
         // End main function
         emitFunctionBodyEnd(graph, context, stage);
-        
     }
     emitScopeEnd(stage, true, true);
-    
+
     // Add main function
     {
         setFunctionName("FragmentMain", stage);
         const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
         emitLine("fragment " + outputs.getName() + " FragmentMain(", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES, false, needsLightBuffer);
         emitLine(")", stage, false);
         emitScopeBegin(stage);
         {
             emitString("\tGlobalContext ctx {", stage);
-            emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, false, lighting);
+            emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, false, needsLightBuffer);
             emitLine("}", stage, true);
             emitLine("return ctx.FragmentMain()", stage, true);
         }
@@ -1230,7 +1234,7 @@ void MslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, 
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
-        
+
         // Emit Light functions if requested
         if (requiresLighting(graph) && context.getOptions().hwMaxActiveLightSources > 0)
         {
@@ -1281,9 +1285,9 @@ void MslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     }
 }
 
-void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier, 
-                                                  GenContext&, ShaderStage& stage,
-                                                  bool assignValue) const
+void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
+                                                 GenContext&, ShaderStage& stage,
+                                                 bool assignValue) const
 {
     // A file texture input needs special handling on MSL
     if (variable->getType() == Type::FILENAME)
@@ -1308,18 +1312,19 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
         {
             str += " : " + variable->getSemantic();
         }
-        
+
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0) {
+        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        {
             str += "[[ " + MslSyntax::FLAT_QUALIFIER + " ]]";
         }
 
         if (assignValue)
         {
             const string valueStr = (variable->getValue() ?
-                _syntax->getValue(variable->getType(), *variable->getValue(), true) :
-                _syntax->getDefaultValue(variable->getType(), true));
+                                    _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                                    _syntax->getDefaultValue(variable->getType(), true));
             str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
         }
 
@@ -1398,7 +1403,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     return impl;
 }
 
-
 const string MslImplementation::SPACE = "space";
 const string MslImplementation::TO_SPACE = "tospace";
 const string MslImplementation::FROM_SPACE = "fromspace";
@@ -1410,14 +1414,16 @@ const string MslImplementation::GEOMPROP = "geomprop";
 
 namespace
 {
-    // List name of inputs that are not to be editable and
-    // published as shader uniforms in MSL.
-    const std::set<string> IMMUTABLE_INPUTS = 
-    {
-        // Geometric node inputs are immutable since a shader needs regeneration if they change.
-        "index", "space", "attrname"
-    };
-}
+
+// List name of inputs that are not to be editable and
+// published as shader uniforms in MSL.
+const std::set<string> IMMUTABLE_INPUTS =
+{
+    // Geometric node inputs are immutable since a shader needs regeneration if they change.
+    "index", "space", "attrname"
+};
+
+} // namespace
 
 const string& MslImplementation::getTarget() const
 {

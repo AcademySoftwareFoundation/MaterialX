@@ -47,7 +47,7 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
-    /// Determine the prefix of vertex data variables. 
+    /// Determine the prefix of vertex data variables.
     virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
 
   public:
@@ -67,31 +67,31 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     virtual void emitLightData(GenContext& context, ShaderStage& stage) const;
     virtual void emitInputs(GenContext& context, ShaderStage& stage) const;
     virtual void emitOutputs(GenContext& context, ShaderStage& stage) const;
-    
+
     virtual void emitMathMatrixScalarMathOperators(GenContext& context, ShaderStage& stage) const;
     virtual void MetalizeGeneratedShader(ShaderStage& shaderStage) const;
- 
+
     void emitConstantBufferDeclarations(GenContext& context,
                                         HwResourceBindingContextPtr resourceBindingCtx,
                                         ShaderStage& stage) const;
-    
+
     enum EmitGlobalScopeContext
     {
         EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES = 0,
-        EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT              = 1,
-        EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL              = 2,
-        EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS         = 3,
-        EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT         = 4
+        EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT = 1,
+        EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL = 2,
+        EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS = 3,
+        EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT = 4
     };
-    
+
     void emitGlobalVariables(GenContext& context, ShaderStage& stage,
                              EmitGlobalScopeContext situation,
                              bool isVertexShader,
                              bool needsLightData) const;
-    
+
     void emitInputs(GenContext& context, ShaderStage& stage,
                     const VariableBlock& inputs) const;
-    
+
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
     /// Logic to indicate whether code to support direct lighting should be emitted.
@@ -114,7 +114,6 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     vector<ShaderNodePtr> _lightSamplingNodes;
 };
 
-
 /// Base class for common MSL node implementations
 class MX_GENMSL_API MslImplementation : public ShaderNodeImpl
 {
@@ -124,16 +123,16 @@ class MX_GENMSL_API MslImplementation : public ShaderNodeImpl
     bool isEditable(const ShaderInput& input) const override;
 
   protected:
-    MslImplementation() {}
+    MslImplementation() { }
 
     // Integer identifiers for coordinate spaces.
     // The order must match the order given for
     // the space enum string in stdlib.
     enum Space
     {
-        MODEL_SPACE  = 0,
+        MODEL_SPACE = 0,
         OBJECT_SPACE = 1,
-        WORLD_SPACE  = 2
+        WORLD_SPACE = 2
     };
 
     /// Internal string constants
