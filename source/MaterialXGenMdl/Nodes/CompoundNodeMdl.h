@@ -12,6 +12,20 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+/// Generator context data class to pass strings.
+class GenUserDataString : public GenUserData
+{
+  public:
+    GenUserDataString(const std::string& value) : _value(value) {}
+    const string& getValue() const { return _value; }
+
+  private:
+    string _value;
+};
+
+/// Shared pointer to a GenUserDataString
+using GenUserDataStringPtr = std::shared_ptr<GenUserDataString>;
+
 /// Compound node implementation
 class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
 {
@@ -22,10 +36,15 @@ class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
+    bool unrollReturnStructMembers() const { return _unrollReturnStructMembers; }
+
   protected:
     void emitFunctionSignature(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
 
     string _returnStruct;
+    bool _unrollReturnStructMembers = false;
+
+    static const string GEN_USER_DATA_RETURN_STRUCT_FIELD_NAME;
 };
 
 MATERIALX_NAMESPACE_END

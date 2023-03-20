@@ -32,8 +32,8 @@ class RenderView
                const std::string& meshFilename,
                const std::string& envRadianceFilename,
                const mx::FileSearchPath& searchPath,
-               unsigned int screenWidth,
-               unsigned int screenHeight);
+               int viewWidth,
+               int viewHeight);
     ~RenderView() { }
 
     // Initialize the viewer for rendering.
@@ -77,6 +77,36 @@ class RenderView
     mx::FileSearchPath getMaterialSearchPath()
     {
         return _materialSearchPath;
+    }
+
+    // Set the view width.
+    void setViewWidth(int width)
+    {
+        _viewWidth = width;
+    }
+
+    // Return the view width.
+    int getViewWidth() const
+    {
+        return _viewWidth;
+    }
+
+    // Set the view height.
+    void setViewHeight(int height)
+    {
+        _viewHeight = height;
+    }
+
+    // Return the view height.
+    int getViewHeight() const
+    {
+        return _viewHeight;
+    }
+
+    // Return the pixel ratio.
+    float getPixelRatio() const
+    {
+        return _pixelRatio;
     }
 
     // Return the active image handler.
@@ -149,12 +179,6 @@ class RenderView
         _exitRequested = true;
     }
 
-    // return user camera enabled
-    bool getUserCameraEnabled()
-    {
-        return _userCameraEnabled;
-    }
-
     float getCameraZoom()
     {
         return _cameraZoom;
@@ -179,10 +203,6 @@ class RenderView
     unsigned int _textureID;
     void reloadShaders();
 
-    float _pixelRatio;
-    unsigned int _screenWidth;
-    unsigned int _screenHeight;
-    mx::GLFramebufferPtr _renderFrame;
     void setDocument(mx::DocumentPtr document);
     void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
     void updateMaterials(mx::TypedElementPtr typedElem);
@@ -199,7 +219,7 @@ class RenderView
     void loadEnvironmentLight();
     void applyDirectLights(mx::DocumentPtr doc);
 
-    // Mark the given material as currently selected in the viewer.
+    // Mark the given material as currently selected in the view.
     void setSelectedMaterial(mx::GlslMaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
@@ -212,14 +232,9 @@ class RenderView
         }
     }
 
-    // Return an element predicate for documents written from the viewer.
-
     void initCamera();
     void updateCameras();
     void updateGeometrySelections();
-
-    // Return the ambient occlusion image, if any, associated with the given material.
-    mx::ImagePtr getAmbientOcclusionImage(mx::GlslMaterialPtr material);
 
     mx::ImagePtr getShadowMap();
     mx::ImagePtr _renderMap;
@@ -246,7 +261,11 @@ class RenderView
     float _cameraFarDist;
     float _cameraZoom;
 
-    bool _userCameraEnabled;
+    float _pixelRatio;
+    int _viewWidth;
+    int _viewHeight;
+    mx::GLFramebufferPtr _renderFrame;
+
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
     bool _userTranslationActive;
@@ -268,9 +287,6 @@ class RenderView
     mx::ImagePtr _shadowMap;
     mx::ImagePtr _graphRender;
     unsigned int _shadowSoftness;
-
-    // Ambient occlusion
-    float _ambientOcclusionGain;
 
     // Geometry selections
     std::vector<mx::MeshPartitionPtr> _geometryList;

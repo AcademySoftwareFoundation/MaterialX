@@ -39,7 +39,9 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
-             const mx::FilePathVec& libraryFolders) :
+             const mx::FilePathVec& libraryFolders,
+             int viewWidth,
+             int viewHeight) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -81,17 +83,14 @@ Graph::Graph(const std::string& materialFilename,
     }
 
     // Create a renderer using the initial startup document.
-    // Note that this document may have no nodes in it
-    // if the material file name does not exist.
     mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     _renderer = std::make_shared<RenderView>(_graphDoc, meshFilename, envRadianceFilename,
-                                             _searchPath, 256, 256);
+                                             _searchPath, viewWidth, viewHeight);
     _renderer->initialize();
-    mx::StringSet supportedExtensions = _renderer ? _renderer->getImageHandler()->supportedExtensions() : mx::StringSet();
-    for (const std::string& supportedExtension : supportedExtensions)
+    for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
     {
-        _imageFilter.push_back("." + supportedExtension);
+        _imageFilter.push_back("." + ext);
     }
     _renderer->updateMaterials(nullptr);
     for (const std::string& incl : _renderer->getXincludeFiles())
@@ -3012,11 +3011,11 @@ void Graph::graphButtons()
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0));
     ImVec2 windowPos = ImGui::GetWindowPos();
     // renderView window
-    ImVec2 wsize = ImVec2((float) _renderer->_screenWidth, (float) _renderer->_screenHeight);
-    float aspectRatio = _renderer->_pixelRatio;
+    ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
+    float aspectRatio = _renderer->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
-    _renderer->_screenWidth = (unsigned int) screenSize[0];
-    _renderer->_screenHeight = (unsigned int) screenSize[1];
+    _renderer->setViewWidth((int) screenSize[0]);
+    _renderer->setViewHeight((int) screenSize[1]);
 
     if (_renderer != nullptr)
     {
@@ -3491,7 +3490,7 @@ void Graph::shaderPopup()
 {
     if (_renderer->getMaterialCompilation())
     {
-        ImGui::SetNextWindowPos(ImVec2((float) _renderer->_screenWidth - 135, (float) _renderer->_screenHeight + 5));
+        ImGui::SetNextWindowPos(ImVec2((float) _renderer->getViewWidth() - 135, (float) _renderer->getViewHeight() + 5));
         ImGui::SetNextWindowBgAlpha(80.f);
         ImGui::OpenPopup("Shaders");
     }

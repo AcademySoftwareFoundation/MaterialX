@@ -246,32 +246,32 @@ jobs:
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
-        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --captureFilename GraphEditor_MarbleSolid.png
+        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
 
     - name: Upload Installed Package
       if: matrix.dynamic_analysis != 'ON'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
       if: matrix.clang_format == 'ON'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: MaterialX_ClangFormat
         path: source
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.1
       if: matrix.upload_shaders == 'ON'
       with:
         name: Reference_Shaders_${{ matrix.name }}
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.1
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
@@ -314,7 +314,7 @@ jobs:
 
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
