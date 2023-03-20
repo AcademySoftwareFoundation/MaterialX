@@ -1020,15 +1020,17 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             emitLightData(context, stage);
         }
     }
+    
+    bool needsLightBuffer = lighting && context.getOptions().hwMaxActiveLightSources > 0;
 
     emitMathMatrixScalarMathOperators(context, stage);
     emitLine("struct GlobalContext", stage, false);
     emitScopeBegin(stage);
     {
         emitLine("GlobalContext(", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_ARGS, false, needsLightBuffer);
         emitLine(") : ", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_CONSTRUCTOR_INIT, false, needsLightBuffer);
         emitLine("{}", stage, false);
 
         // Add common math functions
@@ -1042,7 +1044,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             emitTransmissionRender(context, stage);
         }
 
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_DECL, false, needsLightBuffer);
 
         // Add shadowing support
         bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
@@ -1214,12 +1216,12 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         setFunctionName("FragmentMain", stage);
         const VariableBlock& outputs = stage.getOutputBlock(HW::PIXEL_OUTPUTS);
         emitLine("fragment " + outputs.getName() + " FragmentMain(", stage, false);
-        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES, false, lighting);
+        emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_ENTRY_FUNCTION_RESOURCES, false, needsLightBuffer);
         emitLine(")", stage, false);
         emitScopeBegin(stage);
         {
             emitString("\tGlobalContext ctx {", stage);
-            emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, false, lighting);
+            emitGlobalVariables(context, stage, EMIT_GLOBAL_SCOPE_CONTEXT_MEMBER_INIT, false, needsLightBuffer);
             emitLine("}", stage, true);
             emitLine("return ctx.FragmentMain()", stage, true);
         }
