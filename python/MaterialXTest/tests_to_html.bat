@@ -1,1 +1,1 @@
-python tests_to_html.py -i ../../build --destlang2 mdl
+python tests_to_html.py -i ../../build
