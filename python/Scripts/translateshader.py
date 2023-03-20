@@ -23,8 +23,10 @@ def main():
     parser.add_argument("--hdr", dest="hdr", action="store_true", help="Bake images with high dynamic range (e.g. in HDR or EXR format).")
     parser.add_argument("--path", dest="paths", action='append', nargs='+', help="An additional absolute search path location (e.g. '/projects/MaterialX')")
     parser.add_argument("--library", dest="libraries", action='append', nargs='+', help="An additional relative path to a custom data library folder (e.g. 'libraries/custom')")
+    parser.add_argument('--writeDocumentPerMaterial', dest='writeDocumentPerMaterial', type=mx.stringToBoolean, default=True, help='Specify whether to write baked materials to seprate MaterialX documents. Default is True')
     if platform == "darwin":
         parser.add_argument("--glsl", dest="useGlslBackend", default=False, type=bool, help="Set to True to use GLSL backend (default = Metal).")
+
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     parser.add_argument(dest="outputFilename", help="Filename of the output document.")
     parser.add_argument(dest="destShader", help="Destination shader for translation")
@@ -95,6 +97,7 @@ def main():
         baker = mx_render_msl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
     else:
         baker = mx_render_glsl.TextureBaker.create(bakeWidth, bakeHeight, baseType)
+    baker.writeDocumentPerMaterial(opts.writeDocumentPerMaterial)
     baker.bakeAllMaterials(doc, searchPath, opts.outputFilename)
 
 if __name__ == '__main__':

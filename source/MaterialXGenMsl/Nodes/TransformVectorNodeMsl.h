@@ -13,14 +13,14 @@ MATERIALX_NAMESPACE_BEGIN
 /// TransformVector node implementation for MSL
 class MX_GENMSL_API TransformVectorNodeMsl : public MslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const;
     virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
 };

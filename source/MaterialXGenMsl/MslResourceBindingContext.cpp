@@ -14,7 +14,8 @@ MslResourceBindingContext::MslResourceBindingContext(
     size_t uniformBindingLocation, size_t samplerBindingLocation) :
     _hwInitUniformBindLocation(uniformBindingLocation),
     _hwInitSamplerBindLocation(samplerBindingLocation)
-{}
+{
+}
 
 void MslResourceBindingContext::initialize()
 {
@@ -64,26 +65,25 @@ void MslResourceBindingContext::emitResourceBindings(GenContext& context, const 
     generator.emitLineBreak(stage);
 }
 
-void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms, 
-                                                                ShaderStage& stage, const std::string& structInstanceName,
-                                                                const std::string& arraySuffix)
+void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& context, const VariableBlock& uniforms,
+                                                               ShaderStage& stage, const std::string& structInstanceName,
+                                                               const std::string& arraySuffix)
 {
     ShaderGenerator& generator = context.getShaderGenerator();
 
     const size_t baseAlignment = 16;
     // Values are adjusted based on
     // https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf
-    std::unordered_map<const TypeDesc*, size_t> alignmentMap({
-        { Type::FLOAT, baseAlignment / 4 },
-        { Type::INTEGER, baseAlignment / 4 },
-        { Type::BOOLEAN, baseAlignment / 4 },
-        { Type::COLOR3, baseAlignment },
-        { Type::COLOR4, baseAlignment },
-        { Type::VECTOR2, baseAlignment / 2 },
-        { Type::VECTOR3, baseAlignment },
-        { Type::VECTOR4, baseAlignment },
-        { Type::MATRIX33, baseAlignment * 4 },
-        { Type::MATRIX44, baseAlignment * 4 } });
+    std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
+                                                               { Type::INTEGER, baseAlignment / 4 },
+                                                               { Type::BOOLEAN, baseAlignment / 4 },
+                                                               { Type::COLOR3, baseAlignment },
+                                                               { Type::COLOR4, baseAlignment },
+                                                               { Type::VECTOR2, baseAlignment / 2 },
+                                                               { Type::VECTOR3, baseAlignment },
+                                                               { Type::VECTOR4, baseAlignment },
+                                                               { Type::MATRIX33, baseAlignment * 4 },
+                                                               { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index
@@ -110,9 +110,10 @@ void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& conte
 
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
-        [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b) {
-            return a.first > b.first;
-        });
+              [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
+    {
+        return a.first > b.first;
+    });
 
     // Emit the struct
     generator.emitLine("struct " + uniforms.getName(), stage, false);
@@ -135,12 +136,11 @@ void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& conte
     }
     generator.emitScopeEnd(stage, true);
 
-
     // Emit binding information
     generator.emitLineBreak(stage);
     generator.emitLine("struct " + uniforms.getName() + "_" +
-        stage.getName(),
-    stage, false);
+                           stage.getName(),
+                       stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);

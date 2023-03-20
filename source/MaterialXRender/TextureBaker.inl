@@ -60,7 +60,9 @@ TextureBaker<Renderer, ShaderGen>::TextureBaker(unsigned int width, unsigned int
     _textureSpaceMax(1.0f),
     _generator(ShaderGen::create()),
     _permittedOverrides({ "$ASSET", "$MATERIAL", "$UDIMPREFIX" }),
-    _flipSavedImage(flipSavedImage)
+    _flipSavedImage(flipSavedImage),
+    _writeDocumentPerMaterial(true),
+    _bakedTextureDoc(nullptr)
 {
     if (baseType == Image::BaseType::UINT8)
     {
@@ -327,35 +329,38 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
     }
 
     // Create document.
-    DocumentPtr bakedTextureDoc = createDocument();
+    if (!_bakedTextureDoc || _writeDocumentPerMaterial)
+    {
+        _bakedTextureDoc = createDocument();
+    }
     if (shader->getDocument()->hasColorSpace())
     {
-        bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
+        _bakedTextureDoc->setColorSpace(shader->getDocument()->getColorSpace());
     }
 
     // Create node graph and geometry info.
     NodeGraphPtr bakedNodeGraph;
     if (!_bakedImageMap.empty())
     {
-        _bakedGraphName = bakedTextureDoc->createValidChildName(_bakedGraphName);
-        bakedNodeGraph = bakedTextureDoc->addNodeGraph(_bakedGraphName);
+        _bakedGraphName = _bakedTextureDoc->createValidChildName(_bakedGraphName);
+        bakedNodeGraph = _bakedTextureDoc->addNodeGraph(_bakedGraphName);
         bakedNodeGraph->setColorSpace(_colorSpace);
     }
-    _bakedGeomInfoName = bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
-    GeomInfoPtr bakedGeom = !udimSet.empty() ? bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
+    _bakedGeomInfoName = _bakedTextureDoc->createValidChildName(_bakedGeomInfoName);
+    GeomInfoPtr bakedGeom = !udimSet.empty() ? _bakedTextureDoc->addGeomInfo(_bakedGeomInfoName) : nullptr;
     if (bakedGeom)
     {
         bakedGeom->setGeomPropValue(UDIM_SET_PROPERTY, udimSet, "stringarray");
     }
 
     // Create a shader node.
-    NodePtr bakedShader = bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
+    NodePtr bakedShader = _bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
-        NodePtr bakedMaterial = bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
+        NodePtr bakedMaterial = _bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
             const string& sourceMaterialInputName = sourceMaterialInput->getName();
@@ -475,7 +480,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
     _material = nullptr;
 
     // Return the baked document on success.
-    return bakedTextureDoc;
+    return _bakedTextureDoc;
 }
 
 template<typename Renderer, typename ShaderGen>
@@ -580,12 +585,14 @@ void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const 
         const TypedElementPtr& element = renderableMaterials[i];
         string documentName;
         DocumentPtr bakedMaterialDoc = bakeMaterialToDoc(doc, searchPath, element->getNamePath(), udimSet, documentName);
-        if (bakedMaterialDoc)
+        if (_writeDocumentPerMaterial && bakedMaterialDoc)
         {
             bakedDocuments.push_back(make_pair(documentName, bakedMaterialDoc));
         }
     }
 
+    if (_writeDocumentPerMaterial)
+    {
     // Write documents in memory to disk.
     size_t bakeCount = bakedDocuments.size();
     for (size_t i = 0; i < bakeCount; i++)
@@ -608,6 +615,15 @@ void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const 
             {
                 *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
             }
+        }
+    }
+}
+    else if (_bakedTextureDoc)
+    {
+        writeToXmlFile(_bakedTextureDoc, outputFilename);
+        if (_outputStream)
+        {
+            *_outputStream << "Wrote baked document: " << outputFilename.asString() << std::endl;
         }
     }
 }

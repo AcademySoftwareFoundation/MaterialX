@@ -17,7 +17,8 @@ namespace
 class MslStringTypeSyntax : public StringTypeSyntax
 {
   public:
-    MslStringTypeSyntax() : StringTypeSyntax("int", "0", "0") {}
+    MslStringTypeSyntax() :
+        StringTypeSyntax("int", "0", "0") { }
 
     string getValue(const Value& /*value*/, bool /*uniform*/) const override
     {
@@ -30,7 +31,8 @@ class MslArrayTypeSyntax : public ScalarTypeSyntax
   public:
     MslArrayTypeSyntax(const string& name) :
         ScalarTypeSyntax(name, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING)
-    {}
+    {
+    }
 
     string getValue(const Value& value, bool /*uniform*/) const override
     {
@@ -50,7 +52,7 @@ class MslArrayTypeSyntax : public ScalarTypeSyntax
         }
 
         string result = "{" + values[0];
-        for (size_t i = 1; i<values.size(); ++i)
+        for (size_t i = 1; i < values.size(); ++i)
         {
             result += ", " + values[i] + "f";
         }
@@ -68,7 +70,8 @@ class MslFloatArrayTypeSyntax : public MslArrayTypeSyntax
   public:
     explicit MslFloatArrayTypeSyntax(const string& name) :
         MslArrayTypeSyntax(name)
-    {}
+    {
+    }
 
   protected:
     size_t getSize(const Value& value) const override
@@ -83,7 +86,8 @@ class MslIntegerArrayTypeSyntax : public MslArrayTypeSyntax
   public:
     explicit MslIntegerArrayTypeSyntax(const string& name) :
         MslArrayTypeSyntax(name)
-    {}
+    {
+    }
 
   protected:
     size_t getSize(const Value& value) const override
@@ -114,30 +118,28 @@ MslSyntax::MslSyntax()
 {
     // Add in all reserved words and keywords in MSL
     registerReservedWords(
-    {
-        "centroid", "flat", "smooth", "noperspective", "patch", "sample",
-        "break", "continue", "do", "for", "while", "switch", "case", "default",
-        "if", "else,", "subroutine", "in", "out", "inout",
-        "float", "double", "int", "void", "bool", "true", "false",
-        "invariant", "discard_fragment", "return",
-        "float2x2", "float2x3", "float2x4",
-        "float3x2", "float3x3", "float3x4",
-        "float4x2", "float4x3", "float4x4",
-        "float2", "float3", "float4", "int2", "int3", "int4", "bool2", "bool3", "bool4",
-        "uint", "uint2", "uint3", "uint4",
-        "lowp", "mediump", "highp", "precision",
-        "sampler",
-        "common", "partition", "active", "asm",
-        "struct", "class", "union", "enum", "typedef", "template", "this", "packed",
-        "inline", "noinline", "volatile", "public", "static", "extern", "external", "interface",
-        "long", "short", "half", "fixed", "unsigned", "superp", "input", "output",
-        "half2", "half3", "half4",
-        "sampler3DRect", "filter",
-        "texture1d", "texture2d", "texture3d", "textureCube",
-        "buffer",
-        "sizeof", "cast", "namespace", "using", "row_major",
-        "mix", "sampler"
-    });
+        { "centroid", "flat", "smooth", "noperspective", "patch", "sample",
+          "break", "continue", "do", "for", "while", "switch", "case", "default",
+          "if", "else,", "subroutine", "in", "out", "inout",
+          "float", "double", "int", "void", "bool", "true", "false",
+          "invariant", "discard_fragment", "return",
+          "float2x2", "float2x3", "float2x4",
+          "float3x2", "float3x3", "float3x4",
+          "float4x2", "float4x3", "float4x4",
+          "float2", "float3", "float4", "int2", "int3", "int4", "bool2", "bool3", "bool4",
+          "uint", "uint2", "uint3", "uint4",
+          "lowp", "mediump", "highp", "precision",
+          "sampler",
+          "common", "partition", "active", "asm",
+          "struct", "class", "union", "enum", "typedef", "template", "this", "packed",
+          "inline", "noinline", "volatile", "public", "static", "extern", "external", "interface",
+          "long", "short", "half", "fixed", "unsigned", "superp", "input", "output",
+          "half2", "half3", "half4",
+          "sampler3DRect", "filter",
+          "texture1d", "texture2d", "texture3d", "textureCube",
+          "buffer",
+          "sizeof", "cast", "namespace", "using", "row_major",
+          "mix", "sampler" });
 
     // Register restricted tokens in MSL
     StringMap tokens;
@@ -151,49 +153,38 @@ MslSyntax::MslSyntax()
     // Register syntax handlers for each data type.
     //
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::FLOAT,
         std::make_shared<ScalarTypeSyntax>(
             "float",
             "0.0",
-            "0.0")
-    );
+            "0.0"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::FLOATARRAY,
         std::make_shared<MslFloatArrayTypeSyntax>(
-            "float")
-    );
+            "float"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::INTEGER,
         std::make_shared<ScalarTypeSyntax>(
             "int",
             "0",
-            "0")
-    );
+            "0"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::INTEGERARRAY,
         std::make_shared<MslIntegerArrayTypeSyntax>(
-            "int")
-    );
+            "int"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::BOOLEAN,
         std::make_shared<ScalarTypeSyntax>(
             "bool",
             "false",
-            "false")
-    );
+            "false"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::COLOR3,
         std::make_shared<AggregateTypeSyntax>(
             "vec3",
@@ -201,11 +192,9 @@ MslSyntax::MslSyntax()
             "vec3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            VEC3_MEMBERS)
-    );
+            VEC3_MEMBERS));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::COLOR4,
         std::make_shared<AggregateTypeSyntax>(
             "vec4",
@@ -213,11 +202,9 @@ MslSyntax::MslSyntax()
             "vec4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            VEC4_MEMBERS)
-    );
+            VEC4_MEMBERS));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::VECTOR2,
         std::make_shared<AggregateTypeSyntax>(
             "vec2",
@@ -225,11 +212,9 @@ MslSyntax::MslSyntax()
             "vec2(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            VEC2_MEMBERS)
-    );
+            VEC2_MEMBERS));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::VECTOR3,
         std::make_shared<AggregateTypeSyntax>(
             "vec3",
@@ -237,11 +222,9 @@ MslSyntax::MslSyntax()
             "vec3(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            VEC3_MEMBERS)
-    );
+            VEC3_MEMBERS));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::VECTOR4,
         std::make_shared<AggregateTypeSyntax>(
             "vec4",
@@ -249,127 +232,102 @@ MslSyntax::MslSyntax()
             "vec4(0.0)",
             EMPTY_STRING,
             EMPTY_STRING,
-            VEC4_MEMBERS)
-    );
+            VEC4_MEMBERS));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::MATRIX33,
         std::make_shared<AggregateTypeSyntax>(
             "mat3",
             "mat3(1.0)",
-            "mat3(1.0)")
-    );
+            "mat3(1.0)"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::MATRIX44,
         std::make_shared<AggregateTypeSyntax>(
             "mat4",
             "mat4(1.0)",
-            "mat4(1.0)")
-    );
+            "mat4(1.0)"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::STRING,
-        std::make_shared<MslStringTypeSyntax>()
-    );
+        std::make_shared<MslStringTypeSyntax>());
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::FILENAME,
         std::make_shared<ScalarTypeSyntax>(
             "MetalTexture",
             EMPTY_STRING,
-            EMPTY_STRING)
-    );
+            EMPTY_STRING));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
             "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { float3 response; float3 throughput; float thickness; float ior; };")
-    );
+            "struct BSDF { float3 response; float3 throughput; float thickness; float ior; };"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::EDF,
         std::make_shared<AggregateTypeSyntax>(
             "EDF",
             "EDF(0.0)",
             "EDF(0.0)",
             "float3",
-            "#define EDF float3")
-    );
+            "#define EDF float3"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
             "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
-            EMPTY_STRING)
-    );
+            EMPTY_STRING));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::SURFACESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "surfaceshader",
             "surfaceshader{float3(0.0),float3(0.0)}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct surfaceshader { float3 color; float3 transparency; };")
-    );
+            "struct surfaceshader { float3 color; float3 transparency; };"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::VOLUMESHADER,
         std::make_shared<AggregateTypeSyntax>(
             "volumeshader",
             "volumeshader{float3(0.0),float3(0.0)}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct volumeshader { float3 color; float3 transparency; };")
-    );
+            "struct volumeshader { float3 color; float3 transparency; };"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::DISPLACEMENTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "displacementshader",
             "displacementshader{float3(0.0),1.0}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct displacementshader { float3 offset; float scale; };")
-    );
+            "struct displacementshader { float3 offset; float scale; };"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::LIGHTSHADER,
         std::make_shared<AggregateTypeSyntax>(
             "lightshader",
             "lightshader{float3(0.0),float3(0.0)}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct lightshader { float3 intensity; float3 direction; };")
-    );
+            "struct lightshader { float3 intensity; float3 direction; };"));
 
-    registerTypeSyntax
-    (
+    registerTypeSyntax(
         Type::MATERIAL,
         std::make_shared<AggregateTypeSyntax>(
             "material",
             "material{float3(0.0),float3(0.0)}",
             EMPTY_STRING,
             "surfaceshader",
-            "#define material surfaceshader")
-    );
+            "#define material surfaceshader"));
 }
 
 string MslSyntax::getOutputTypeName(const TypeDesc* type) const
@@ -382,7 +340,6 @@ bool MslSyntax::typeSupported(const TypeDesc* type) const
 {
     return type != Type::STRING;
 }
-
 
 bool MslSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
 {
@@ -409,7 +366,7 @@ bool MslSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     if (!value.empty())
     {
         StringVec valueElemEnumsVec = splitString(enumNames, ",");
-        for (size_t i=0; i<valueElemEnumsVec.size(); i++)
+        for (size_t i = 0; i < valueElemEnumsVec.size(); i++)
         {
             valueElemEnumsVec[i] = trimSpaces(valueElemEnumsVec[i]);
         }

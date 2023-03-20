@@ -37,6 +37,9 @@ using ImagePair = std::pair<ImagePtr, ImagePtr>;
 /// A function to perform image buffer deallocation
 using ImageBufferDeallocator = std::function<void(void*)>;
 
+/// A pair of unsigned integers.
+using UnsignedIntPair = std::pair<unsigned int, unsigned int>;
+
 /// @class Image
 /// Class representing an image in system memory
 class MX_RENDER_API Image
@@ -224,7 +227,7 @@ MX_RENDER_API ImagePtr createUniformImage(unsigned int width, unsigned int heigh
 MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 
 /// Compute the maximum width and height of all images in the given vector.
-MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
+MX_RENDER_API UnsignedIntPair getMaxDimensions(const vector<ImagePtr>& imageVec);
 
 MATERIALX_NAMESPACE_END
 

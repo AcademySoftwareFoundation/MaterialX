@@ -13,7 +13,7 @@ using GLRenderPipelinePtr = std::shared_ptr<class GLRenderPipeline>;
 
 class GLRenderPipeline : public RenderPipeline
 {
-public:
+  public:
     ~GLRenderPipeline() { }
     
     static GLRenderPipelinePtr create(Viewer* viewer)
@@ -37,10 +37,10 @@ public:
     void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) override;
     void bakeTextures() override;
     
-public:
+  public:
     GLRenderPipeline(Viewer* viewerPtr);
     
-protected:
+  protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
 };
     

@@ -43,10 +43,10 @@ ShaderNodeImplPtr SurfaceNodeMsl::create()
 
 void SurfaceNodeMsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
-    // TODO: 
-    // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
+    // TODO:
+    // The surface shader needs position, normal, view position and light sources. We should solve this by adding some
     // dependency mechanism so this implementation can be set to depend on the PositionNodeMsl, NormalNodeMsl
-    // ViewDirectionNodeMsl and LightNodeMsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // ViewDirectionNodeMsl and LightNodeMsl nodes instead? This is where the MaterialX attribute "internalgeomprops"
     // is needed.
     //
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
@@ -135,7 +135,7 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             {
                 shadergen.emitLine("float3 shadowCoord = (" + HW::T_SHADOW_MATRIX + " * float4(" + prefix + HW::T_POSITION_WORLD + ", 1.0)).xyz", stage);
                 shadergen.emitLine("shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5", stage);
-               
+
                 shadergen.emitLine("float2 shadowMoments = texture(" + HW::T_SHADOW_MAP + ", shadowCoord.xy).xy", stage);
                 shadergen.emitLine("float occlusion = mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z)", stage);
             }
@@ -225,13 +225,12 @@ void SurfaceNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
-
     }
 }
 
 void SurfaceNodeMsl::emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const
 {
-    // 
+    //
     // Generate Light loop if requested
     //
     if (context.getOptions().hwMaxActiveLightSources > 0)

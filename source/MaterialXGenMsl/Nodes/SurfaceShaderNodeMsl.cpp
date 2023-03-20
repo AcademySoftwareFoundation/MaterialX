@@ -22,10 +22,10 @@ const string& SurfaceShaderNodeMsl::getTarget() const
 
 void SurfaceShaderNodeMsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
-    // TODO: 
-    // The surface shader needs position, view position and light sources. We should solve this by adding some 
-    // dependency mechanism so this implementation can be set to depend on the PositionNodeMsl,  
-    // ViewDirectionNodeMsl and LightNodeMsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // TODO:
+    // The surface shader needs position, view position and light sources. We should solve this by adding some
+    // dependency mechanism so this implementation can be set to depend on the PositionNodeMsl,
+    // ViewDirectionNodeMsl and LightNodeMsl nodes instead? This is where the MaterialX attribute "internalgeomprops"
     // is needed.
     //
     ShaderStage& vs = shader.getStage(Stage::VERTEX);

@@ -174,7 +174,7 @@ void ImageHandler::releaseRenderResources(ImagePtr)
 {
 }
 
-ImageVec ImageHandler::getReferencedImages(DocumentPtr doc)
+ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
 {
     ImageVec imageVec;
     for (ElementPtr elem : doc->traverseTree())

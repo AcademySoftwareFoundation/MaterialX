@@ -17,7 +17,7 @@ using MetalRenderPipelinePtr = std::shared_ptr<class MetalRenderPipeline>;
 
 class MetalRenderPipeline : public RenderPipeline
 {
-public:
+  public:
     ~MetalRenderPipeline() { }
     
     static MetalRenderPipelinePtr create(Viewer* viewer)
@@ -41,10 +41,10 @@ public:
     void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) override;
     void bakeTextures() override;
     
-public:
+  public:
     MetalRenderPipeline(Viewer* viewerPtr);
     
-protected:
+  protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
     mx::MetalFramebufferPtr  _shadowMapFramebuffer;
 };

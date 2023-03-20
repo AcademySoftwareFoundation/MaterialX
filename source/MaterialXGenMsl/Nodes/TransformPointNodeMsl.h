@@ -13,10 +13,10 @@ MATERIALX_NAMESPACE_BEGIN
 /// TransformPoint node implementation for MSL
 class MX_GENMSL_API TransformPointNodeMsl : public TransformVectorNodeMsl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
-protected:
+  protected:
     virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const override;
 };
 
