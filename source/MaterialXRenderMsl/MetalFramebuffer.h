@@ -72,6 +72,22 @@ class MX_RENDERMSL_API MetalFramebuffer
     {
         return _colorTexture;
     }
+    
+    void setColorTexture(id<MTLTexture> newColorTexture)
+    {
+        auto sameDim = [](id<MTLTexture> tex0, id<MTLTexture> tex1) -> bool
+        {
+            return  [tex0 width]  == [tex1 width] &&
+                    [tex0 height] == [tex1 height];
+        };
+        if((!_colorTextureOwned || sameDim(_colorTexture, newColorTexture)) &&
+           sameDim(newColorTexture, _depthTexture))
+        {
+            if(_colorTextureOwned)
+                [_colorTexture release];
+            _colorTexture = newColorTexture;
+        }
+    }
 
     /// Return our depth texture handle.
     id<MTLTexture> getDepthTexture() const
@@ -103,6 +119,8 @@ class MX_RENDERMSL_API MetalFramebuffer
     id<MTLDevice>  _device = nil;
     id<MTLTexture> _colorTexture = nil;
     id<MTLTexture> _depthTexture = nil;
+    
+    bool _colorTextureOwned = false;
 };
 
 MATERIALX_NAMESPACE_END

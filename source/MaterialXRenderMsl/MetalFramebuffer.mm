@@ -86,10 +86,12 @@ void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forc
         if(extColorTexture == nil)
         {
             _colorTexture = [_device newTextureWithDescriptor:texDescriptor];
+            _colorTextureOwned = true;
         }
         else
         {
             _colorTexture = extColorTexture;
+            _colorTextureOwned = false;
         }
         
         texDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
