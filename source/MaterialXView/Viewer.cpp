@@ -293,7 +293,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeOptimize(true),
     _bakeRequested(false),
     _bakeWidth(0),
-    _bakeHeight(0)
+    _bakeHeight(0),
+    _bakeDocumentPerMaterial(false)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -311,7 +312,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContext.getOptions().fileTextureVerticalFlip = true;
     _genContext.getOptions().hwShadowMap = true;
     _genContext.getOptions().hwImplicitBitangents = false;
-    
+
 #ifdef MATERIALXVIEW_METAL_BACKEND
     _renderPipeline = MetalRenderPipeline::create(this);
     _renderPipeline->initialize(ng::metal_device(),
@@ -430,7 +431,7 @@ void Viewer::initialize()
 
     // Update geometry selections.
     updateGeometrySelections();
-    
+
     // Load the requested material document.
     loadDocument(_materialFilename, _stdLib);
 
@@ -1020,6 +1021,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _bakeOptimize = enable;
     });
+
+    ng::CheckBox* bakeDocumentPerMaterial= new ng::CheckBox(advancedPopup, "Bake Document Per Material");
+    bakeDocumentPerMaterial->set_checked(_bakeDocumentPerMaterial);
+    bakeDocumentPerMaterial->set_callback([this](bool enable)
+    {
+        _bakeDocumentPerMaterial = enable;
+    });    
 
     ng::Label* wedgeLabel = new ng::Label(advancedPopup, "Wedge Render Options (W)");
     wedgeLabel->set_font_size(20);
@@ -1643,6 +1651,23 @@ void Viewer::saveDotFiles()
     }
 }
 
+mx::UnsignedIntPair Viewer::computeBakingResolution(mx::ConstDocumentPtr doc)
+{
+    mx::ImageVec imageVec = _imageHandler->getReferencedImages(doc);
+    mx::UnsignedIntPair bakingRes = mx::getMaxDimensions(imageVec);
+    bakingRes.first = std::max(bakingRes.first, (unsigned int) 4);
+    bakingRes.second = std::max(bakingRes.second, (unsigned int) 4);
+    if (_bakeWidth)
+    {
+        bakingRes.first = std::max(_bakeWidth, (unsigned int) 4);
+    }
+    if (_bakeHeight)
+    {
+        bakingRes.second = std::max(_bakeHeight, (unsigned int) 4);
+    }
+    return bakingRes;
+}
+
 mx::DocumentPtr Viewer::translateMaterial()
 {
     mx::MaterialPtr material = getSelectedMaterial();
@@ -2064,13 +2089,24 @@ void Viewer::renderTurnable()
     _meshRotation[1] = currentRotation;
 }
 
+void Viewer::renderScreenSpaceQuad(mx::MaterialPtr material)
+{
+    if (!_quadMesh)
+    {
+        _quadMesh = mx::GeometryHandler::createQuadMesh();
+    }
+    
+    material->bindMesh(_quadMesh);
+    material->drawPartition(_quadMesh->getPartition(0));
+}
+
 void Viewer::draw_contents()
 {
     updateCameras();
-    
+
 #ifndef MATERIALXVIEW_METAL_BACKEND
     mx::checkGlErrors("before viewer render");
-    
+
     // Clear the screen.
     clear();
 #endif
@@ -2147,7 +2183,7 @@ void Viewer::draw_contents()
     if (_bakeRequested)
     {
         _bakeRequested = false;
-        _renderPipeline->bakeTextures();
+        bakeTextures();
     }
 
     // Handle exit requests.

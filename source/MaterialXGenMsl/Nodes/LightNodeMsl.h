@@ -23,7 +23,7 @@ class MX_GENMSL_API LightNodeMsl : public MslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   private:
-      mutable ClosureContext _callEmission;
+    mutable ClosureContext _callEmission;
 };
 
 MATERIALX_NAMESPACE_END

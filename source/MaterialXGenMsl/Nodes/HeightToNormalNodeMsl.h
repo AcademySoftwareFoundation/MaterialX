@@ -28,7 +28,7 @@ class MX_GENMSL_API HeightToNormalNodeMsl : public ConvolutionNode
     bool acceptsInputType(const TypeDesc* type) const override;
 
     /// Compute offset strings for sampling
-    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+    void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 };
 

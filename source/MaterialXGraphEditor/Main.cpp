@@ -119,6 +119,8 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = getDefaultSearchPath();
     mx::FilePathVec libraryFolders;
+    int viewWidth = 256;
+    int viewHeight = 256;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -141,6 +143,14 @@ int main(int argc, char* const argv[])
         else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
+        }
+        else if (token == "--viewWidth")
+        {
+            parseToken(nextToken, "integer", viewWidth);
+        }
+        else if (token == "--viewHeight")
+        {
+            parseToken(nextToken, "integer", viewHeight);
         }
         else if (token == "--captureFilename")
         {
@@ -221,7 +231,12 @@ int main(int argc, char* const argv[])
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Create graph editor.
-    Graph* graph = new Graph(materialFilename, meshFilename, searchPath, libraryFolders);
+    Graph* graph = new Graph(materialFilename,
+                             meshFilename,
+                             searchPath,
+                             libraryFolders,
+                             viewWidth,
+                             viewHeight);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);

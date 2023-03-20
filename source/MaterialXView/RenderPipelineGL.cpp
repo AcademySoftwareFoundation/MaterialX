@@ -17,7 +17,9 @@
 
 namespace
 {
+
 const float PI = std::acos(-1.0f);
+
 }
 
 GLRenderPipeline::GLRenderPipeline(Viewer* viewerPtr) :
@@ -40,20 +42,18 @@ mx::MaterialPtr GLRenderPipeline::createMaterial()
 }
 
 std::shared_ptr<void> GLRenderPipeline::createTextureBaker(unsigned int width,
-                                             unsigned int height,
-                                             mx::Image::BaseType baseType)
+                                                           unsigned int height,
+                                                           mx::Image::BaseType baseType)
 {
     return std::static_pointer_cast<void>(mx::TextureBakerGlsl::create(width, height, baseType));
 }
 
 void GLRenderPipeline::initFramebuffer(int, int, void*)
 {
-   
 }
 
 void GLRenderPipeline::resizeFramebuffer(int, int, void*)
 {
-   
 }
 
 void GLRenderPipeline::updateAlbedoTable(int tableSize)
@@ -94,7 +94,7 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
         std::static_pointer_cast<mx::GlslMaterial>(material)->getProgram()
             ->bindUniform(mx::HW::ALBEDO_TABLE_SIZE, mx::Value::createValue(tableSize));
     }
-    renderScreenSpaceQuad(material);
+    _viewer->renderScreenSpaceQuad(material);
 
     // Store albedo table image.
     imageHandler->releaseRenderResources(lightHandler->getAlbedoTable());
@@ -192,7 +192,7 @@ mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
                     }
                 }
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-                renderScreenSpaceQuad(_viewer->_shadowBlurMaterial);
+                _viewer->renderScreenSpaceQuad(_viewer->_shadowBlurMaterial);
                 imageHandler->releaseRenderResources(_viewer->_shadowMap);
                 _viewer->_shadowMap = framebuffer->getColorImage();
             }
@@ -373,7 +373,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
 void GLRenderPipeline::bakeTextures()
 {
     auto& imageHandler = _viewer->_imageHandler;
-    
+
     mx::MaterialPtr material = _viewer->getSelectedMaterial();
     mx::DocumentPtr doc = material ? material->getDocument() : nullptr;
     if (!doc)
@@ -382,27 +382,15 @@ void GLRenderPipeline::bakeTextures()
     }
 
     {
-        // Compute baking resolution.
-        mx::ImageVec imageVec = imageHandler->getReferencedImages(doc);
-        auto maxImageSize = mx::getMaxDimensions(imageVec);
-        unsigned int bakeWidth = std::max(maxImageSize.first, (unsigned int) 4);
-        unsigned int bakeHeight = std::max(maxImageSize.second, (unsigned int) 4);
-        if (_viewer->_bakeWidth)
-        {
-            bakeWidth = std::max(_viewer->_bakeWidth, (unsigned int) 4);
-        }
-        if (_viewer->_bakeHeight)
-        {
-            bakeHeight = std::max(_viewer->_bakeHeight, (unsigned int) 4);
-        }
-
         // Construct a texture baker.
         mx::Image::BaseType baseType = _viewer->_bakeHdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-        mx::TextureBakerPtr baker = std::static_pointer_cast<mx::TextureBakerPtr::element_type>(createTextureBaker(bakeWidth, bakeHeight, baseType));
+        mx::UnsignedIntPair bakingRes = _viewer->computeBakingResolution(doc);
+        mx::TextureBakerPtr baker = std::static_pointer_cast<mx::TextureBakerPtr::element_type>(createTextureBaker(bakingRes.first, bakingRes.second, baseType));
         baker->setupUnitSystem(_viewer->_stdLib);
         baker->setDistanceUnit(_viewer->_genContext.getOptions().targetDistanceUnit);
         baker->setAverageImages(_viewer->_bakeAverage);
         baker->setOptimizeConstants(_viewer->_bakeOptimize);
+        baker->writeDocumentPerMaterial(_viewer->_bakeDocumentPerMaterial);
 
         // Assign our existing image handler, releasing any existing render resources for cached images.
         imageHandler->releaseRenderResources();

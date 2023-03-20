@@ -42,5 +42,6 @@ void bindPyTextureBaker(py::module& mod)
         .def("getTextureSpaceMax", &mx::TextureBakerGlsl::getTextureSpaceMax)
         .def("setupUnitSystem", &mx::TextureBakerGlsl::setupUnitSystem)
         .def("bakeMaterialToDoc", &mx::TextureBakerGlsl::bakeMaterialToDoc)
-        .def("bakeAllMaterials", &mx::TextureBakerGlsl::bakeAllMaterials);
+        .def("bakeAllMaterials", &mx::TextureBakerGlsl::bakeAllMaterials)
+        .def("writeDocumentPerMaterial", &mx::TextureBakerGlsl::writeDocumentPerMaterial);
 }

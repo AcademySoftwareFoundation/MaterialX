@@ -13,7 +13,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Bitangent node implementation for MSL
 class MX_GENMSL_API BitangentNodeMsl : public MslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
