@@ -2243,7 +2243,11 @@ bool Viewer::mouse_motion_event(const ng::Vector2i& p,
             mx::Vector3(pos[0], (float) m_size.y() - pos[1], viewZ));
         mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
             mx::Vector3(_userTranslationPixel[0], (float) m_size.y() - _userTranslationPixel[1], viewZ));
-        _userTranslation = _userTranslationStart + (pos1 - pos0);
+        mx::Vector3 translation = (pos1 - pos0);
+#ifdef MATERIALXVIEW_METAL_BACKEND
+        translation[1] = -translation[1];
+#endif
+        _userTranslation = _userTranslationStart + translation;
 
         return true;
     }
