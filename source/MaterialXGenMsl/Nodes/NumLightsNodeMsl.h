@@ -13,7 +13,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Utility node for getting number of active lights for MSL.
 class MX_GENMSL_API NumLightsNodeMsl : public MslImplementation
 {
-public:
+  public:
     NumLightsNodeMsl();
 
     static ShaderNodeImplPtr create();

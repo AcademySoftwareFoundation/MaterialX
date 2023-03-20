@@ -50,7 +50,7 @@ void LightCompoundNodeMsl::createVariables(const ShaderNode&, GenContext& contex
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms
-    for (size_t i = 0; i<_lightUniforms.size(); ++i)
+    for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
         ShaderPort* u = const_cast<ShaderPort*>(_lightUniforms[i]);
         lightData.add(u->getSelf());
@@ -65,10 +65,10 @@ void LightCompoundNodeMsl::emitFunctionDefinition(const ShaderNode& node, GenCon
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
-        
+
         // Emit functions for all child nodes
         shadergen.emitFunctionDefinitions(*_rootGraph, context, stage);
-        
+
         // Find any closure contexts used by this node
         // and emit the function for each context.
         vector<ClosureContext*> ccts;

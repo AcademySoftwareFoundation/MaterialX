@@ -15,7 +15,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Used for all light shaders implemented in source code.
 class MX_GENMSL_API LightShaderNodeMsl : public SourceCodeNode
 {
-public:
+  public:
     LightShaderNodeMsl();
 
     static ShaderNodeImplPtr create();
@@ -28,7 +28,7 @@ public:
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     VariableBlock _lightUniforms;
 };
 

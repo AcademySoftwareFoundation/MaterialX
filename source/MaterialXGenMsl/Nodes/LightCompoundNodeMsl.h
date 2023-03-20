@@ -19,7 +19,7 @@ class MslShaderGenerator;
 /// LightCompound node implementation for MSL
 class MX_GENMSL_API LightCompoundNodeMsl : public CompoundNode
 {
-public:
+  public:
     LightCompoundNodeMsl();
 
     static ShaderNodeImplPtr create();
@@ -34,7 +34,7 @@ public:
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 
     VariableBlock _lightUniforms;

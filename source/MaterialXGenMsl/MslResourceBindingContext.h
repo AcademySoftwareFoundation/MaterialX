@@ -26,7 +26,7 @@ class MX_GENMSL_API MslResourceBindingContext : public HwResourceBindingContext
     MslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
     static MslResourceBindingContextPtr create(
-        size_t uniformBindingLocation=0, size_t samplerBindingLocation=0)
+        size_t uniformBindingLocation = 0, size_t samplerBindingLocation = 0)
     {
         return std::make_shared<MslResourceBindingContext>(
             uniformBindingLocation, samplerBindingLocation);
