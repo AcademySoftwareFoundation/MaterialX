@@ -53,9 +53,9 @@ void SwizzleNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
                 // apply the same channel mask to the names of the struct fields
                 variableName = in->getConnection()->getVariable();
                 size_t pos = variableName.find_last_of('_');
-                if (pos != std::string::npos)
+                if (pos != string::npos)
                 {
-                    std::string channelMask = variableName.substr(pos);
+                    string channelMask = variableName.substr(pos);
                     variableName = upstreamNode->getName() + "_result.mxp" + channelMask;
                 }
             }
