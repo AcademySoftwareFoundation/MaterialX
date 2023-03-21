@@ -175,7 +175,7 @@ jobs:
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
-      run: find source \( -name *.h -o -name *.cpp \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+      run: find source \( -name *.h -o -name *.cpp -o -name *.mm \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
       run: |
