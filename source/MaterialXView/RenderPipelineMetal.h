@@ -12,6 +12,8 @@ MATERIALX_NAMESPACE_BEGIN
 using MetalFramebufferPtr = std::shared_ptr<class MetalFramebuffer>;
 MATERIALX_NAMESPACE_END
 
+#define SHADOWMAP_TEX_COUNT 2
+
 class Viewer;
 using MetalRenderPipelinePtr = std::shared_ptr<class MetalRenderPipeline>;
 
@@ -48,6 +50,7 @@ class MetalRenderPipeline : public RenderPipeline
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
     mx::MetalFramebufferPtr  _shadowMapFramebuffer;
+    mx::ImagePtr             _shadowMap[SHADOWMAP_TEX_COUNT];
 };
     
 #endif // RENDER_PIPELINE_METAL_H
