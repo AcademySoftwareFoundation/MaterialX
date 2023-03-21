@@ -63,6 +63,8 @@ class RenderPipeline
 
     virtual mx::ImagePtr getShadowMap(int shadowMapSize) = 0;
     
+    virtual mx::ImagePtr getFrameImage() = 0;
+    
   public:
     Viewer* _viewer;
 };
