@@ -60,7 +60,13 @@ class MX_RENDERMSL_API MetalFramebuffer
     {
         return _encodeSrgb;
     }
+    
+    /// Return the framebuffer width
+    unsigned int getWidth() const { return _width; }
 
+    /// Return the framebuffer height
+    unsigned int getHeight() const { return _height; }
+    
     /// Bind the framebuffer for rendering.
     void bind(MTLRenderPassDescriptor* renderpassDesc);
 
