@@ -77,6 +77,8 @@ public:
                                         MTLDataType& dataType, MTLPixelFormat& pixelFormat);
     
     static size_t getTextureBaseTypeSize(Image::BaseType baseType);
+    
+    id<MTLTexture> getAssociatedMetalTexture(ImagePtr image);
 
   protected:
     // Protected constructor

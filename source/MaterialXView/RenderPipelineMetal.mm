@@ -165,6 +165,23 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
     auto& geometryHandler = _viewer->_geometryHandler;
     auto& identityCamera  = _viewer->_identityCamera;
     
+    mx::MetalTextureHandlerPtr mtlImageHandler =
+        std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
+    
+    id<MTLTexture> shadowMapTex[SHADOWMAP_TEX_COUNT];
+    for(int i = 0; i < SHADOWMAP_TEX_COUNT; ++i)
+    {
+        if(!_shadowMap[i] || _shadowMap[i]->getWidth() != shadowMapSize ||
+           !mtlImageHandler->getAssociatedMetalTexture(_shadowMap[i]))
+        {
+            _shadowMap[i] = mx::Image::create(shadowMapSize, shadowMapSize, 2, mx::Image::BaseType::FLOAT);
+            _viewer->_imageHandler->createRenderResources(_shadowMap[i], false);
+        }
+        
+        shadowMapTex[i] =
+            mtlImageHandler->getAssociatedMetalTexture(_shadowMap[i]);
+    }
+    
     if (!_viewer->_shadowMap)
     {
         // Create framebuffer.
@@ -175,7 +192,8 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
                                                        shadowMapSize,
                                                        shadowMapSize,
                                                        2,
-                                                       mx::Image::BaseType::FLOAT);
+                                                       mx::Image::BaseType::FLOAT,
+                                                       shadowMapTex[0]);
         }
         MTL_PUSH_FRAMEBUFFER(_shadowMapFramebuffer);
         
@@ -217,6 +235,7 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             
             MTL(beginCommandBuffer());
             MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor new];
+            _shadowMapFramebuffer->setColorTexture(shadowMapTex[0]);
             _shadowMapFramebuffer->bind(renderpassDesc);
             MTL(beginEncoder(renderpassDesc));
             [MTL(renderCmdEncoder) setDepthStencilState:MTL_DEPTHSTENCIL_STATE(opaque)];
@@ -242,11 +261,6 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             
             MTL(endCommandBuffer());
             
-            _viewer->_shadowMap = _shadowMapFramebuffer->getColorImage(MTL(cmdQueue));
-            
-            MTL(beginCommandBuffer());
-            MTL(beginEncoder(renderpassDesc));
-
             // Apply Gaussian blurring.
             mx::ImageSamplingProperties blurSamplingProperties;
             blurSamplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
@@ -254,13 +268,17 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             blurSamplingProperties.filterType = mx::ImageSamplingProperties::FilterType::CLOSEST;
             for (unsigned int i = 0; i < _viewer->_shadowSoftness; i++)
             {
+                MTL(beginCommandBuffer());
+                _shadowMapFramebuffer->setColorTexture(shadowMapTex[(i+1) % 2]);
+                _shadowMapFramebuffer->bind(renderpassDesc);
+                MTL(beginEncoder(renderpassDesc));
                 _shadowMapFramebuffer->bind(renderpassDesc);
                 _viewer->_shadowBlurMaterial->bindShader();
                 std::static_pointer_cast<mx::MslMaterial>
                 (_viewer->_shadowBlurMaterial)->getProgram()->bindTexture(
                     _viewer->_imageHandler,
                     "image_file_tex",
-                    _viewer->_shadowMap,
+                    _shadowMap[i % 2],
                     blurSamplingProperties);
                 std::static_pointer_cast<mx::MslMaterial>
                 (_viewer->_shadowBlurMaterial)->prepareUsedResources(
@@ -270,18 +288,18 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
                     lightHandler);
                 _viewer->_shadowBlurMaterial->unbindGeometry();
                 _viewer->renderScreenSpaceQuad(_viewer->_shadowBlurMaterial);
-                _viewer->_imageHandler->releaseRenderResources(_viewer->_shadowMap);
-                _viewer->_shadowMap = _shadowMapFramebuffer->getColorImage(MTL(cmdQueue));
+                MTL(endCommandBuffer());
             }
             
-            MTL(endCommandBuffer());
-
             MTL_POP_FRAMEBUFFER();
             if(captureShadowGeneration)
                 MTL_STOP_CAPTURE;
+            
+            [renderpassDesc release];
         }
     }
 
+    _viewer->_shadowMap = _shadowMap[_viewer->_shadowSoftness % 2];
     return _viewer->_shadowMap;
 }
 
@@ -523,6 +541,8 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     
     if(captureFrame)
         MTL_STOP_CAPTURE;
+    
+    [renderpassDesc release];
 }
 
 void MetalRenderPipeline::bakeTextures()
