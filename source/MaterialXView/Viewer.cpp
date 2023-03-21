@@ -1957,21 +1957,6 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
     return false;
 }
 
-mx::ImagePtr Viewer::getFrameImage()
-{
-    glFlush();
-
-    // Create an image with dimensions adjusted for device DPI.
-    mx::ImagePtr image = mx::Image::create((unsigned int) (m_size.x() * m_pixel_ratio),
-                                           (unsigned int) (m_size.y() * m_pixel_ratio), 3);
-    image->createResourceBuffer();
-
-    // Read pixels into the image buffer.
-    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
-
-    return image;
-}
-
 mx::ImagePtr Viewer::renderWedge()
 {
     mx::MaterialPtr material = getSelectedMaterial();
@@ -2040,7 +2025,7 @@ mx::ImagePtr Viewer::renderWedge()
                                                  DIR_LIGHT_NODE_CATEGORY.c_str());
                 }
 
-                imageVec.push_back(getFrameImage());
+                imageVec.push_back(_renderPipeline->getFrameImage());
             }
         }
 
@@ -2072,7 +2057,7 @@ void Viewer::renderTurnable()
                                      SHADOW_MAP_SIZE,
                                      DIR_LIGHT_NODE_CATEGORY.c_str());
 
-        mx::ImagePtr frameImage = getFrameImage();
+        mx::ImagePtr frameImage = _renderPipeline->getFrameImage();
         if (frameImage)
         {
             std::stringstream intfmt;
@@ -2167,7 +2152,7 @@ void Viewer::draw_contents()
     if (_captureRequested && !_turntableEnabled)
     {
         _captureRequested = false;
-        mx::ImagePtr frameImage = getFrameImage();
+        mx::ImagePtr frameImage = _renderPipeline->getFrameImage();
         if (frameImage && _imageHandler->saveImage(_captureFilename, frameImage, true))
         {
             std::cout << "Wrote frame to disk: " << _captureFilename.asString() << std::endl;
@@ -2243,7 +2228,11 @@ bool Viewer::mouse_motion_event(const ng::Vector2i& p,
             mx::Vector3(pos[0], (float) m_size.y() - pos[1], viewZ));
         mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
             mx::Vector3(_userTranslationPixel[0], (float) m_size.y() - _userTranslationPixel[1], viewZ));
-        _userTranslation = _userTranslationStart + (pos1 - pos0);
+        mx::Vector3 translation = (pos1 - pos0);
+#ifdef MATERIALXVIEW_METAL_BACKEND
+        translation[1] = -translation[1];
+#endif
+        _userTranslation = _userTranslationStart + translation;
 
         return true;
     }
