@@ -335,6 +335,12 @@ void GlslProgram::bindMesh(MeshPtr mesh)
         throw ExceptionRenderError("No mesh to bind");
     }
 
+    if (mesh != _boundMesh)
+    {
+        unbindGeometry();
+    }
+    _boundMesh = mesh;
+
     GlslProgram::InputMap foundList;
     const GlslProgram::InputMap& attributeList = getAttributesList();
 
