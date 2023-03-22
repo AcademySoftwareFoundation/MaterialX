@@ -112,7 +112,7 @@ void GlslMaterial::bindMesh(MeshPtr mesh)
         return;
     }
 
-    if (_boundMesh && mesh->getName() != _boundMesh->getName())
+    if (mesh != _boundMesh)
     {
         _glProgram->unbindGeometry();
     }
