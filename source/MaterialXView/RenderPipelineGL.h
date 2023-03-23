@@ -36,6 +36,7 @@ class GLRenderPipeline : public RenderPipeline
                                              mx::Image::BaseType baseType) override;
     void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) override;
     void bakeTextures() override;
+    mx::ImagePtr getFrameImage() override;
     
   public:
     GLRenderPipeline(Viewer* viewerPtr);

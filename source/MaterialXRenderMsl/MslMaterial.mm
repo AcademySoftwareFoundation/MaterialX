@@ -175,38 +175,9 @@ void MslMaterial::bindImages(ImageHandlerPtr imageHandler, const FileSearchPath&
     }
 
     _boundImages.clear();
-
-    const VariableBlock* publicUniforms = getPublicUniforms();
-    if (!publicUniforms)
-    {
-        return;
-    }
-    for (const auto& uniform : publicUniforms->getVariableOrder())
-    {
-        if (uniform->getType() != Type::FILENAME)
-        {
-            continue;
-        }
-        const std::string& uniformVariable = uniform->getVariable();
-        std::string filename;
-        if (uniform->getValue())
-        {
-            filename = searchPath.find(uniform->getValue()->getValueString());
-        }
-
-        // Extract out sampling properties
-        ImageSamplingProperties samplingProperties;
-        samplingProperties.setProperties(uniformVariable, *publicUniforms);
-
-        // Set the requested mipmap sampling property,
-        samplingProperties.enableMipmaps = enableMipmaps;
-
-        ImagePtr image = bindImage(filename, uniformVariable, imageHandler, samplingProperties);
-        if (image)
-        {
-            _boundImages.push_back(image);
-        }
-    }
+    _glProgram->setEnableMipMaps(enableMipmaps);
+    
+    // Texture and Samplers being bound to the right texture and sampler in MslPipelineStateObject automatically.
 }
 
 ImagePtr MslMaterial::bindImage(const FilePath& filePath,
