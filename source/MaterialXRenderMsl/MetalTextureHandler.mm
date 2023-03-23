@@ -77,6 +77,17 @@ bool MetalTextureHandler::bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder
     return true;
 }
 
+id<MTLTexture> MetalTextureHandler::getAssociatedMetalTexture(ImagePtr image)
+{
+    if(image)
+    {
+        auto tex = _metalTextureMap.find(image->getResourceId());
+        if(tex != _metalTextureMap.end())
+            return (tex->second);
+    }
+    return nil;
+}
+
 id<MTLTexture> MetalTextureHandler::getMTLTextureForImage(unsigned int index) const
 {
     auto imageInfo = _imageBindingInfo.find(index);
@@ -137,24 +148,30 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.width = image->getWidth();
         texDesc.height = image->getHeight();
         texDesc.mipmapLevelCount = generateMipMaps ? image->getMaxMipCount() : 1;
-        texDesc.usage = MTLTextureUsageShaderRead;
+        texDesc.usage = MTLTextureUsageShaderRead |
+            // For now, we set generate mip maps flag off,
+            // when we want to use the texture as render target
+            (!generateMipMaps ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
         texDesc.pixelFormat = pixelFormat;
-        if(image->getChannelCount() == 1)
+        if(generateMipMaps)
         {
-            texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                                            MTLTextureSwizzleRed,
-                                            MTLTextureSwizzleRed,
-                                            MTLTextureSwizzleRed,
-                                            MTLTextureSwizzleRed);
-        }
-        else if(image->getChannelCount() == 2)
-        {
-            texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                                            MTLTextureSwizzleRed,
-                                            MTLTextureSwizzleGreen,
-                                            MTLTextureSwizzleRed,
-                                            MTLTextureSwizzleGreen);
+            if(image->getChannelCount() == 1)
+            {
+                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
+                        MTLTextureSwizzleRed,
+                        MTLTextureSwizzleRed,
+                        MTLTextureSwizzleRed,
+                        MTLTextureSwizzleRed);
+            }
+            else if(image->getChannelCount() == 2)
+            {
+                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
+                        MTLTextureSwizzleRed,
+                        MTLTextureSwizzleGreen,
+                        MTLTextureSwizzleRed,
+                        MTLTextureSwizzleGreen);
+            }
         }
         texture = [_device newTextureWithDescriptor:texDesc];
         _metalTextureMap[resourceId] = texture;
@@ -275,6 +292,11 @@ void MetalTextureHandler::releaseRenderResources(ImagePtr image)
 
     unbindImage(image);
     unsigned int resourceId = image->getResourceId();
+    auto tex = _metalTextureMap.find(resourceId);
+    if(tex != _metalTextureMap.end())
+    {
+        [tex->second release];
+    }
     _metalTextureMap.erase(resourceId);
     image->setResourceId(MslProgram::UNDEFINED_METAL_RESOURCE_ID);
 }
