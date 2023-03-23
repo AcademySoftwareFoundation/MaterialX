@@ -250,31 +250,31 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.dynamic_analysis != 'ON'
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
       if: matrix.clang_format == 'ON'
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_ClangFormat
         path: source
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@v3
       if: matrix.upload_shaders == 'ON'
       with:
         name: Reference_Shaders_${{ matrix.name }}
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@v3
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
-        path: build/render/
+        path: build/render/*.png
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
@@ -313,7 +313,7 @@ jobs:
 
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@v3
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
