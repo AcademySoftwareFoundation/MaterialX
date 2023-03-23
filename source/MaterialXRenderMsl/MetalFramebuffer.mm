@@ -86,10 +86,12 @@ void MetalFramebuffer::resize(unsigned int width, unsigned int height, bool forc
         if(extColorTexture == nil)
         {
             _colorTexture = [_device newTextureWithDescriptor:texDescriptor];
+            _colorTextureOwned = true;
         }
         else
         {
             _colorTexture = extColorTexture;
+            _colorTextureOwned = false;
         }
         
         texDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
@@ -160,6 +162,21 @@ ImagePtr MetalFramebuffer::getColorImage(id<MTLCommandQueue> cmdQueue, ImagePtr 
 
     std::vector<unsigned char> imageData(bytesPerImage);
     memcpy(imageData.data(), [buffer contents], bytesPerImage);
+    
+    if([_colorTexture pixelFormat] == MTLPixelFormatBGRA8Unorm)
+    {
+        for(unsigned int j = 0; j < _height; ++j)
+        {
+            unsigned int rawStart = j * (_width * _channelCount);
+            for(unsigned int i = 0; i < _width; ++i)
+            {
+                unsigned int offset = rawStart + _channelCount * i;
+                unsigned char tmp = imageData[offset + 0];
+                imageData[offset + 0] = imageData[offset + 2];
+                imageData[offset + 2] = tmp;
+            }
+        }
+    }
     
     memcpy(image->getResourceBuffer(), imageData.data(), bytesPerImage);
     [buffer release];
