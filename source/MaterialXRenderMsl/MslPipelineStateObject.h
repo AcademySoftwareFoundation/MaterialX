@@ -225,6 +225,9 @@ class MX_RENDERMSL_API MslProgram
     
     /// Returns if alpha blending is enabled.
     bool isTransparent() const { return _alphaBlendingEnabled; }
+    
+    /// Specify textures bound to this program shouldn't be mip mapped.
+    void setEnableMipMaps(bool enableMipMapping) { _enableMipMapping = enableMipMapping; }
 
     /// Print all uniforms to the given stream.
     void printUniforms(std::ostream& outputStream);
@@ -314,6 +317,8 @@ class MX_RENDERMSL_API MslProgram
     
     float _time = 0.0f;
     float _frame = 0.0f;
+    
+    bool _enableMipMapping = true;
 };
 
 MATERIALX_NAMESPACE_END

@@ -282,7 +282,6 @@ class Viewer : public ng::Screen
     mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
 
-    mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
     void renderTurnable();
     void renderScreenSpaceQuad(mx::MaterialPtr material);
