@@ -648,6 +648,7 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                             uniformNameWithoutPostfix = uniformNameWithoutPostfix.substr(0, pos);
                     }
                     samplingProperties.setProperties(uniformNameWithoutPostfix, publicUniforms);
+                    samplingProperties.enableMipmaps = _enableMipMapping;
                     bindTexture(renderCmdEncoder, (unsigned int)arg.index, fileName, samplingProperties, imageHandler);
                 }
             }
