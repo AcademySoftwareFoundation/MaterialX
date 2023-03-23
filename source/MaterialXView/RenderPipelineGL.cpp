@@ -421,3 +421,21 @@ void GLRenderPipeline::bakeTextures()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 }
+
+mx::ImagePtr GLRenderPipeline::getFrameImage()
+{
+    glFlush();
+    
+    const auto& size = _viewer->m_size;
+    const auto& pixel_ratio = _viewer->m_pixel_ratio;
+
+    // Create an image with dimensions adjusted for device DPI.
+    mx::ImagePtr image = mx::Image::create((unsigned int) (size.x() * pixel_ratio),
+                                           (unsigned int) (size.y() * pixel_ratio), 3);
+    image->createResourceBuffer();
+
+    // Read pixels into the image buffer.
+    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+
+    return image;
+}
