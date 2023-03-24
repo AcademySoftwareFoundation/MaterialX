@@ -107,13 +107,12 @@ class TestGenShader(unittest.TestCase):
         stdSurfNodeDef.setAttribute("node_name", "Standard_Surface_Number_1");
         self.assertTrue(stdSurfNodeDef.getAttribute("node_name") == "Standard_Surface_Number_1")
 
-        # Add in meta data
+        # Register shader metadata
         shadergen.registerShaderMetadata(doc, context);
 
+        # Generate and test that attribute is in the code
         stdSurf1 = doc.addNodeInstance(stdSurfNodeDef, "standardSurface1");
         self.assertIsNotNone(stdSurf1)
-
-        # Generate and test that attribute is in the code
         context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
         shader = shadergen.generate(stdSurf1.getName(), stdSurf1, context);
         self.assertIsNotNone(shader)
