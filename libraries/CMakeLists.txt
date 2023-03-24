@@ -12,11 +12,9 @@ endif()
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/pbrlib/genosl/pbrlib_genosl_impl.${PBRLIB_SUFFIX}"
         DESTINATION "${MATERIALX_INSTALL_STDLIB_PATH}/pbrlib/genosl/" RENAME pbrlib_genosl_impl.mtlx)
 
-if (MATERIALX_INCLUDE_PYTHON_STDLIB)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-            DESTINATION "python/MaterialX/${MATERIALX_INSTALL_STDLIB_PATH}" 
-            PATTERN "CMakeLists.txt" EXCLUDE
-            PATTERN "pbrlib_genosl_impl.*" EXCLUDE)
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/pbrlib/genosl/pbrlib_genosl_impl.${PBRLIB_SUFFIX}"
-            DESTINATION "python/MaterialX/${MATERIALX_INSTALL_STDLIB_PATH}/pbrlib/genosl/" RENAME pbrlib_genosl_impl.mtlx)
-endif()    
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION "python/MaterialX/${MATERIALX_INSTALL_STDLIB_PATH}" 
+        PATTERN "CMakeLists.txt" EXCLUDE
+        PATTERN "pbrlib_genosl_impl.*" EXCLUDE)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/pbrlib/genosl/pbrlib_genosl_impl.${PBRLIB_SUFFIX}"
+        DESTINATION "python/MaterialX/${MATERIALX_INSTALL_STDLIB_PATH}/pbrlib/genosl/" RENAME pbrlib_genosl_impl.mtlx)

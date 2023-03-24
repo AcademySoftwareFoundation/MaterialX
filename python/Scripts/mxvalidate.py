@@ -26,16 +26,12 @@ def main():
         libraryFolders = []
         searchPath = mx.FileSearchPath()
         libraryPath = mx.FilePath(mx.getDefaultLibraryLocation())
-        # Use built in libraries if installed
-        if os.path.exists(libraryPath.asString()):
-            searchPath.append(libraryPath)
+        searchPath.append(libraryPath)
+        try:
             mx.loadLibraries(libraryFolders, searchPath, stdlib)
-        else:
-            filePath = os.path.dirname(os.path.abspath(__file__))
-            searchPath.append(mx.FileSearchPath(os.path.join(filePath, '..', '..')))
-            searchPath.append(os.path.dirname(opts.inputFilename))
-            libraryFolders = [ "libraries" ]
-            mx.loadLibraries(libraryFolders, searchPath, stdlib)
+        except err:
+            print(err)
+            sys.exit(0)
         doc.importLibrary(stdlib)
 
     (valid, message) = doc.validate()
