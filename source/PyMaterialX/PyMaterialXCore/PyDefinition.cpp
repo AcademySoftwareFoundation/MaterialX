@@ -82,4 +82,19 @@ void bindPyDefinition(py::module& mod)
     py::class_<mx::UnitTypeDef, mx::UnitTypeDefPtr, mx::Element>(mod, "UnitTypeDef")
         .def("getUnitDefs", &mx::UnitTypeDef::getUnitDefs)
         .def_readonly_static("CATEGORY", &mx::UnitTypeDef::CATEGORY);
+
+    py::class_<mx::AttributeDef, mx::AttributeDefPtr, mx::TypedElement>(mod, "AttributeDef")
+        .def("setAttrName", &mx::AttributeDef::setAttrName)
+        .def("hasAttrName", &mx::AttributeDef::hasAttrName)
+        .def("getAttrName", &mx::AttributeDef::getAttrName)
+        .def("setValueString", &mx::AttributeDef::setValueString)
+        .def("hasValueString", &mx::AttributeDef::hasValueString)
+        .def("getValueString", &mx::AttributeDef::getValueString) 
+        .def("setExportable", &mx::AttributeDef::setExportable)         
+        .def("getExportable", &mx::AttributeDef::getExportable)         
+        .def_readonly_static("CATEGORY", &mx::AttributeDef::CATEGORY);
+
+    py::class_<mx::TargetDef, mx::TargetDefPtr, mx::TypedElement>(mod, "TargetDef")
+        .def("getMatchingTargets", &mx::TargetDef::getMatchingTargets)
+        .def_readonly_static("CATEGORY", &mx::TargetDef::CATEGORY);
 }
