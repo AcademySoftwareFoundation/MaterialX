@@ -25,13 +25,13 @@ const string MIX_CATEGORY("mix");
 const string MIX_FG_INPUT("fg");
 const string MIX_BG_INPUT("bg");
 
-bool isEqual(const float& v1, const float& v2)
+bool isEqual(float v1, float v2)
 {
     const float EPSILON = 0.00001f;
     return std::abs(v1 - v2) < EPSILON;
 }
 
-bool isEqual(ValuePtr value, const float& f)
+bool isEqual(ValuePtr value, float f)
 {
     if (value->isA<float>() && isEqual(value->asA<float>(), f))
     {
