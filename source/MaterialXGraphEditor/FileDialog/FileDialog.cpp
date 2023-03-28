@@ -10,6 +10,7 @@
         #  define NOMINMAX 1
     #  endif
     #  include <windows.h>
+    #  include <commdlg.h>
 #endif
 
 ImguiFileDialogAdapter::ImguiFileDialogAdapter(ImGuiFileBrowserFlags flags) :
@@ -24,6 +25,7 @@ void ImguiFileDialogAdapter::SetTitle(std::string title)
 
 void ImguiFileDialogAdapter::SetTypeFilters(const std::vector<std::string>& typeFilters)
 {
+    filetypes_.clear();
 
     for (auto typefilter : typeFilters)
     {
