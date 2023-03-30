@@ -27,7 +27,8 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
     ShaderRenderer(width, height, baseType),
     _initialized(false),
-    _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
+    _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709),
+    _sharedContextHandle(nullptr)
 {
     _program = GlslProgram::create();
 
@@ -48,7 +49,7 @@ void GlslRenderer::initialize()
         }
 
         // Create offscreen context
-        _context = GLContext::create(_window);
+        _context = GLContext::create(_window, _sharedContextHandle);
         if (!_context)
         {
             throw ExceptionRenderError("Failed to create OpenGL context for renderer");
@@ -132,6 +133,11 @@ void GlslRenderer::setSize(unsigned int width, unsigned int height)
         _width = width;
         _height = height;
     }
+}
+
+void GlslRenderer::setSharedContextHandle(HardwareContextHandle sharedContextHandle)
+{
+    _sharedContextHandle = sharedContextHandle;
 }
 
 void GlslRenderer::render()

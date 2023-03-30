@@ -119,6 +119,8 @@ set_target_properties(
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
+add_definitions(-DNOMINMAX)
+
 target_link_libraries(
     MaterialXTest
     ${CMAKE_DL_LIBS})
