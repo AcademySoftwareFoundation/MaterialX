@@ -14,7 +14,7 @@
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
-#include <MaterialXRenderGlsl/GLContext.h>
+
 #include <MaterialXRender/ShaderRenderer.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -81,10 +81,6 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// Set the size of the rendered image
     void setSize(unsigned int width, unsigned int height) override;
 
-    /// Set an external context for the renderer to use
-    /// The shared contexts handle should be set before initializing the renderer.
-    void setSharedContextHandle(HardwareContextHandle sharedContextHandle);
-
     /// Render the current program to an offscreen buffer.
     void render() override;
 
@@ -139,7 +135,6 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     SimpleWindowPtr _window;
     GLContextPtr _context;
     Color3 _screenColor;
-    HardwareContextHandle _sharedContextHandle;
 };
 
 MATERIALX_NAMESPACE_END
