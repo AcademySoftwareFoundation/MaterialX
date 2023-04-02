@@ -19,6 +19,11 @@ endif()
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
+if (APPLE)
+    list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm)
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm" PROPERTIES LANGUAGE CXX)
+endif ()
+
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
 file(GLOB imgui_headers "${DEAR_IMGUI_PREFIX}/*.h*")
 
@@ -57,7 +62,6 @@ set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
 
 add_subdirectory(External/Glfw)
-add_subdirectory(FileDialog)
 
 if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
@@ -66,7 +70,6 @@ endif()
 add_executable(MaterialXGraphEditor
     ${materialx_source}
     ${materialx_headers}
-    ${materialx_filedialog_sources}
     ${imgui_source}
     ${imgui_headers}
     ${imguinode_source}
@@ -77,13 +80,16 @@ set(MATERIALX_LIBRARIES
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
+if (APPLE)
+    find_library(CORE_FOUNDATION Foundation REQUIRED)
+    list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
+endif ()
+
 target_link_libraries(
     MaterialXGraphEditor
     PRIVATE
     ${MATERIALX_LIBRARIES}
-    ${materialx_filedialog_libraries}
  	glfw_minimal)
-
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX

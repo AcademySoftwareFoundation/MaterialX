@@ -5,12 +5,10 @@
 
 #pragma once
 
-#include <MaterialXGraphEditor/UiNode.h>
-#include <filesystem>
+#include <imgui.h>
 #include <imfilebrowser.h>
 
-namespace ed = ax::NodeEditor;
-namespace mx = MaterialX;
+#include <filesystem>
 
 // A class to substitute the Imgui file browser with a native implementation.
 // Implements just the class methods used in the GraphEditor to reduce code divergence

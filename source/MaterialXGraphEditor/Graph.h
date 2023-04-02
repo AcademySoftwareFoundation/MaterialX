@@ -14,10 +14,9 @@
 #include <imgui_node_editor.h>
 #include <imfilebrowser.h>
 
+#include <MaterialXGraphEditor/FileDialog.h>
+
 #include <stack>
-
-#include <MaterialXGraphEditor/FileDialog/FileDialog.h>
-
 
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
