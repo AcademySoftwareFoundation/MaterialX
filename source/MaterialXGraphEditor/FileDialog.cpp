@@ -79,7 +79,7 @@ void FileDialog::Display()
     bool save = !(flags_ & FileDialogFlags_SelectDirectory) &&
                 (flags_ & FileDialogFlags_EnterNewFilename);
 
-    auto path = file_dialog(filetypes_, save);
+    auto path = launchFileDialog(filetypes_, save);
     if (!path.empty())
     {
         selectedFilenames_.insert(path);
@@ -89,14 +89,14 @@ void FileDialog::Display()
 }
 
 // Copied from NanogUI/src/common.cpp
-std::string file_dialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save)
+std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save)
 {
-    auto result = file_dialog(filetypes, save, false);
+    auto result = launchFileDialog(filetypes, save, false);
     return result.empty() ? "" : result.front();
 }
 
 #if !defined(__APPLE__)
-std::vector<std::string> file_dialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
+std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
 {
     static const int FILE_DIALOG_MAX_BUFFER = 16384;
     if (save && multiple)

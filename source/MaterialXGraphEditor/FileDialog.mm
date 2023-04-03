@@ -7,12 +7,10 @@
 #import <Cocoa/Cocoa.h>
 
 // Copied from NanogUI/src/darwin.mm
-std::vector<std::string>
-file_dialog(const std::vector<std::pair<std::string, std::string>>& filetypes,
-            bool save, bool multiple)
+std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
 {
     if (save && multiple)
-        throw std::invalid_argument("file_dialog(): 'save' and 'multiple' must not both be true.");
+        throw std::invalid_argument("launchFileDialog(): 'save' and 'multiple' must not both be true.");
 
     std::vector<std::string> result;
     if (save)

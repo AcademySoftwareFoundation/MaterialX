@@ -46,7 +46,5 @@ class FileDialog
 };
 
 // Copied from NanogUI/src/common.cpp
-std::string file_dialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save);
-std::vector<std::string>
-file_dialog(const std::vector<std::pair<std::string, std::string>>& filetypes,
-            bool save, bool multiple);
+std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save);
+std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple);
