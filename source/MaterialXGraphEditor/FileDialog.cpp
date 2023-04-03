@@ -5,9 +5,8 @@
 
 #include "FileDialog.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <commdlg.h>
+#if defined(_WIN32)
+    #include <windows.h>
 #endif
 
 FileDialog::FileDialog(int flags) :
