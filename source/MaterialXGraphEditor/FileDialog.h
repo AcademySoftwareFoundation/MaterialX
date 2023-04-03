@@ -3,11 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#pragma once
+#ifndef MATERIALX_FILEDIALOG_H
+#define MATERIALX_FILEDIALOG_H
 
 #include <MaterialXFormat/File.h>
-
-#include <MaterialXCore/Exception.h>
 
 namespace mx = MaterialX;
 
@@ -48,3 +47,5 @@ class FileDialog
 
 std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save);
 mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple);
+
+#endif

@@ -5,6 +5,8 @@
 
 #include "FileDialog.h"
 
+#include <MaterialXCore/Exception.h>
+
 #if defined(_WIN32)
     #include <windows.h>
 #endif
