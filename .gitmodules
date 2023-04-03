@@ -7,6 +7,3 @@
 [submodule "source/MaterialXGraphEditor/External/ImGuiNodeEditor"]
 	path = source/MaterialXGraphEditor/External/ImGuiNodeEditor
 	url = https://github.com/thedmd/imgui-node-editor
-[submodule "source/MaterialXGraphEditor/External/ImGuiFileBrowser"]
-	path = source/MaterialXGraphEditor/External/ImGuiFileBrowser
-	url = https://github.com/AirGuanZ/imgui-filebrowser
