@@ -20,7 +20,7 @@ void FileDialog::setTitle(const std::string& title)
     _title = title;
 }
 
-void FileDialog::setTypeFilters(const std::vector<std::string>& typeFilters)
+void FileDialog::setTypeFilters(const mx::StringVec& typeFilters)
 {
     _filetypes.clear();
 
@@ -48,7 +48,7 @@ bool FileDialog::hasSelected()
     return !_selectedFilenames.empty();
 }
 
-std::filesystem::path FileDialog::getSelected()
+mx::FilePath FileDialog::getSelected()
 {
     if (_selectedFilenames.empty())
     {
@@ -76,10 +76,10 @@ void FileDialog::display()
     bool save = !(_flags & FileDialogFlags_SelectDirectory) &&
                 (_flags & FileDialogFlags_EnterNewFilename);
 
-    auto path = launchFileDialog(_filetypes, save);
+    std::string path = launchFileDialog(_filetypes, save);
     if (!path.empty())
     {
-        _selectedFilenames.insert(path);
+        _selectedFilenames.push_back(path);
     }
 
     _isOpened = false;
@@ -87,17 +87,17 @@ void FileDialog::display()
 
 std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save)
 {
-    auto result = launchFileDialog(filetypes, save, false);
+    mx::StringVec result = launchFileDialog(filetypes, save, false);
     return result.empty() ? "" : result.front();
 }
 
 #if !defined(__APPLE__)
-std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
+mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
 {
     static const int FILE_DIALOG_MAX_BUFFER = 16384;
     if (save && multiple)
     {
-        throw std::invalid_argument("save and multiple must not both be true.");
+        throw mx::Exception("save and multiple must not both be true.");
     }
 
     #if defined(EMSCRIPTEN)
@@ -165,7 +165,7 @@ std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::strin
     }
 
     size_t i = 0;
-    std::vector<std::string> result;
+    mx::StringVec result;
     while (tmp[i] != '\0')
     {
         result.emplace_back(&tmp[i]);
@@ -223,7 +223,7 @@ std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::strin
     std::string paths(buffer);
     paths.erase(std::remove(paths.begin(), paths.end(), '\n'), paths.end());
 
-    std::vector<std::string> result;
+    mx::StringVec result;
     while (!paths.empty())
     {
         size_t end = paths.find("//");

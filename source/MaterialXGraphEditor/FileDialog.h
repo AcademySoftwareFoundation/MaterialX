@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include <MaterialXCore/Library.h>
+#include <MaterialXFormat/File.h>
+#include <MaterialXCore/Exception.h>
 
-#include <filesystem>
+namespace mx = MaterialX;
 
 enum FileDialogFlags
 {
@@ -27,12 +28,12 @@ class FileDialog
   public:
     FileDialog(int flags = 0);
     void setTitle(const std::string& title);
-    void setTypeFilters(const std::vector<std::string>& typeFilters);
+    void setTypeFilters(const mx::StringVec& typeFilters);
     void open();
     bool isOpened();
     void display();
     bool hasSelected();
-    std::filesystem::path getSelected();
+    mx::FilePath getSelected();
     void clearSelected();
 
   private:
@@ -40,9 +41,9 @@ class FileDialog
     std::string _title;
     bool _openFlag = false;
     bool _isOpened = false;
-    std::set<std::filesystem::path> _selectedFilenames;
+    std::vector<mx::FilePath> _selectedFilenames;
     std::vector<std::pair<std::string, std::string>> _filetypes;
 };
 
 std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save);
-std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple);
+mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple);

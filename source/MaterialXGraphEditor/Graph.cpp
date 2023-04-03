@@ -1033,7 +1033,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             if (_fileDialogImage.hasSelected())
             {
                 // set the new filename to the complete file path
-                mx::FilePath fileName = mx::FilePath(_fileDialogImage.getSelected().string());
+                mx::FilePath fileName = _fileDialogImage.getSelected();
                 temp = fileName;
                 // need to set the file prefix for the input to "" so that it can find the new file
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
@@ -3940,8 +3940,8 @@ void Graph::drawGraph(ImVec2 mousePos)
             std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
             std::cerr << message;
         }
-        std::string fileName = _fileDialogSave.getSelected().string();
-        mx::FilePath name = _fileDialogSave.getSelected().string();
+        std::string fileName = _fileDialogSave.getSelected();
+        mx::FilePath name = _fileDialogSave.getSelected();
         ed::Resume();
         savePosition();
 
@@ -3960,7 +3960,7 @@ void Graph::drawGraph(ImVec2 mousePos)
     // create and load document from selected file
     if (_fileDialog.hasSelected())
     {
-        mx::FilePath fileName = mx::FilePath(_fileDialog.getSelected().string());
+        mx::FilePath fileName = _fileDialog.getSelected();
         _currGraphName.clear();
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
@@ -3980,7 +3980,7 @@ void Graph::drawGraph(ImVec2 mousePos)
     _fileDialogGeom.display();
     if (_fileDialogGeom.hasSelected())
     {
-        mx::FilePath fileName = mx::FilePath(_fileDialogGeom.getSelected().string());
+        mx::FilePath fileName = _fileDialogGeom.getSelected();
         _fileDialogGeom.clearSelected();
         _renderer->loadMesh(fileName);
         _renderer->updateMaterials(nullptr);
