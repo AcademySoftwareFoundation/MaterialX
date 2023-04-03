@@ -20,7 +20,8 @@ class MX_GENMDL_API SwizzleNodeMdl : public SwizzleNode
   public:
     static ShaderNodeImplPtr create();
 
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
+  protected:
+    string getVariableName(const ShaderInput* input) const final;
 };
 
 MATERIALX_NAMESPACE_END
