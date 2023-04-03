@@ -5,6 +5,8 @@
 
 #include "FileDialog.h"
 
+#include <MaterialXCore/Exception.h>
+
 #import <Cocoa/Cocoa.h>
 
 mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple)
