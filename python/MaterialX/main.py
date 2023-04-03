@@ -304,8 +304,8 @@ def getDefaultDataSearchPath():
     root_path = os.path.dirname(__file__)
     return root_path
 
-def getDefaultLibraryFolder():
+def getDefaultDataLibraryFolders():
     """
-    Return name of the folder containing the standard data libraries
+    Return list of default data library folders
     """
-    return 'libraries'
+    return [ 'libraries' ]
