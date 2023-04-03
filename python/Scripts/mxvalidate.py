@@ -23,9 +23,9 @@ def main():
 
     if opts.stdlib:
         stdlib = mx.createDocument()
-        libraryFolders = [ mx.FilePath(mx.getDefaultDataLibraryPath()) ]
+        libraryFolders = [ mx.FilePath(mx.getDefaultLibraryFolder()) ]
         try:
-            mx.loadLibraries(libraryFolders, mx.FileSearchPath(), stdlib)
+            mx.loadLibraries(libraryFolders, mx.getDefaultDataSearchPath(), stdlib)            
         except err:
             print(err)
             sys.exit(0)

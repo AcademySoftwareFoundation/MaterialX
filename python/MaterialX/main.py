@@ -295,9 +295,17 @@ readFromXmlFile = readFromXmlFileBase
 
 
 #
-# Data Libraries
+# Data Search Paths
 #
-def getDefaultDataLibraryPath():
+def getDefaultDataSearchPath():
+    """
+    Return the default data search path.
+    """
     root_path = os.path.dirname(__file__)
-    lib_path = root_path + '/libraries'
-    return lib_path
+    return root_path
+
+def getDefaultLibraryFolder():
+    """
+    Return name of the folder containing the standard data libraries
+    """
+    return 'libraries'
