@@ -14,9 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-static const string IN_STRING("in");
-static const string CHANNELS_STRING("channels");
-
 ShaderNodeImplPtr SwizzleNodeMdl::create()
 {
     return std::make_shared<SwizzleNodeMdl>();
