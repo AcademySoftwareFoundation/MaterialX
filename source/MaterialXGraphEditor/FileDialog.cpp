@@ -6,11 +6,8 @@
 #include "FileDialog.h"
 
 #if defined(_WIN32)
-    #  ifndef NOMINMAX
-        #  define NOMINMAX 1
-    #  endif
-    #  include <windows.h>
-    #  include <commdlg.h>
+    #include <windows.h>
+    #include <commdlg.h>
 #endif
 
 FileDialog::FileDialog(int flags) :
