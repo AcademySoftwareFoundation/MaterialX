@@ -5,87 +5,86 @@
 
 #include "FileDialog.h"
 
-#if defined(_WIN32)
-    #include <windows.h>
-    #include <commdlg.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <commdlg.h>
 #endif
 
 FileDialog::FileDialog(int flags) :
-    flags_(flags)
+    _flags(flags)
 {
 }
 
-void FileDialog::SetTitle(std::string title)
+void FileDialog::setTitle(const std::string& title)
 {
-    title_ = title;
+    _title = title;
 }
 
-void FileDialog::SetTypeFilters(const std::vector<std::string>& typeFilters)
+void FileDialog::setTypeFilters(const std::vector<std::string>& typeFilters)
 {
-    filetypes_.clear();
+    _filetypes.clear();
 
     for (auto typefilter : typeFilters)
     {
         std::string minus_ext = typefilter.substr(1, typefilter.size() - 1);
         std::pair<std::string, std::string> filterPair = { minus_ext, minus_ext };
-        filetypes_.push_back(filterPair);
+        _filetypes.push_back(filterPair);
     }
 }
 
-void FileDialog::Open()
+void FileDialog::open()
 {
-    ClearSelected();
-    openFlag_ = true;
+    clearSelected();
+    _openFlag = true;
 }
 
-bool FileDialog::IsOpened()
+bool FileDialog::isOpened()
 {
-    return isOpened_;
+    return _isOpened;
 }
 
-bool FileDialog::HasSelected()
+bool FileDialog::hasSelected()
 {
-    return !selectedFilenames_.empty();
+    return !_selectedFilenames.empty();
 }
 
-std::filesystem::path FileDialog::GetSelected()
+std::filesystem::path FileDialog::getSelected()
 {
-    if (selectedFilenames_.empty())
+    if (_selectedFilenames.empty())
     {
         return {};
     }
 
-    return *selectedFilenames_.begin();
+    return *_selectedFilenames.begin();
 }
 
-void FileDialog::ClearSelected()
+void FileDialog::clearSelected()
 {
-    selectedFilenames_.clear();
+    _selectedFilenames.clear();
 }
 
-void FileDialog::Display()
+void FileDialog::display()
 {
     // Only call the dialog if it's not already displayed
-    if (!openFlag_ || isOpened_)
+    if (!_openFlag || _isOpened)
     {
         return;
     }
-    openFlag_ = false;
+    _openFlag = false;
 
     // Check if we want to save or open
-    bool save = !(flags_ & FileDialogFlags_SelectDirectory) &&
-                (flags_ & FileDialogFlags_EnterNewFilename);
+    bool save = !(_flags & FileDialogFlags_SelectDirectory) &&
+                (_flags & FileDialogFlags_EnterNewFilename);
 
-    auto path = launchFileDialog(filetypes_, save);
+    auto path = launchFileDialog(_filetypes, save);
     if (!path.empty())
     {
-        selectedFilenames_.insert(path);
+        _selectedFilenames.insert(path);
     }
 
-    isOpened_ = false;
+    _isOpened = false;
 }
 
-// Copied from NanogUI/src/common.cpp
 std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save)
 {
     auto result = launchFileDialog(filetypes, save, false);

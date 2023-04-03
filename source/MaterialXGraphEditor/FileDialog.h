@@ -21,30 +21,28 @@ enum FileDialogFlags
     FileDialogFlags_MultipleSelection = 1 << 7, // allow user to select multiple files. this will hide FileDialogFlags_EnterNewFilename
 };
 
-// A class to substitute the Imgui file browser with a native implementation.
-// Implements just the class methods used in the GraphEditor to reduce code divergence
+// A native file browser class, based on the implementation in NanoGUI.
 class FileDialog
 {
   public:
     FileDialog(int flags = 0);
-    void SetTitle(std::string title);
-    void SetTypeFilters(const std::vector<std::string>& typeFilters);
-    void Open();
-    bool IsOpened();
-    void Display();
-    bool HasSelected();
-    std::filesystem::path GetSelected();
-    void ClearSelected();
+    void setTitle(const std::string& title);
+    void setTypeFilters(const std::vector<std::string>& typeFilters);
+    void open();
+    bool isOpened();
+    void display();
+    bool hasSelected();
+    std::filesystem::path getSelected();
+    void clearSelected();
 
   private:
-    int flags_;
-    std::string title_;
-    bool openFlag_ = false;
-    bool isOpened_ = false;
-    std::set<std::filesystem::path> selectedFilenames_;
-    std::vector<std::pair<std::string, std::string>> filetypes_;
+    int _flags;
+    std::string _title;
+    bool _openFlag = false;
+    bool _isOpened = false;
+    std::set<std::filesystem::path> _selectedFilenames;
+    std::vector<std::pair<std::string, std::string>> _filetypes;
 };
 
-// Copied from NanogUI/src/common.cpp
 std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save);
 std::vector<std::string> launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save, bool multiple);
