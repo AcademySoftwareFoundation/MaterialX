@@ -6,14 +6,11 @@
 #ifndef MATERIALX_GRAPH_H
 #define MATERIALX_GRAPH_H
 
+#include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
-#include <MaterialXFormat/File.h>
-
 #include <imgui_node_editor.h>
-
-#include <MaterialXGraphEditor/FileDialog.h>
 
 #include <stack>
 

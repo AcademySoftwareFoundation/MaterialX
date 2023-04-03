@@ -6,6 +6,7 @@
 #pragma once
 
 #include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Exception.h>
 
 namespace mx = MaterialX;
