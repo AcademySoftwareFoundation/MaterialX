@@ -100,9 +100,7 @@ mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::str
         throw mx::Exception("save and multiple must not both be true.");
     }
 
-    #if defined(EMSCRIPTEN)
-    throw std::runtime_error("Opening files is not supported when NanoGUI is compiled via Emscripten");
-    #elif defined(_WIN32)
+    #if defined(_WIN32)
     OPENFILENAME ofn;
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
@@ -216,7 +214,7 @@ mx::StringVec launchFileDialog(const std::vector<std::pair<std::string, std::str
     cmd += "\"";
     FILE* output = popen(cmd.c_str(), "r");
     if (output == nullptr)
-        throw std::runtime_error("popen() failed -- could not launch zenity!");
+        throw mx::Exception("popen() failed -- could not launch zenity!");
     while (fgets(buffer, FILE_DIALOG_MAX_BUFFER, output) != NULL)
         ;
     pclose(output);
