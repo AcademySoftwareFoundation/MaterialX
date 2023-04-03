@@ -47,7 +47,7 @@ Graph::Graph(const std::string& materialFilename,
     _libraryFolders(libraryFolders),
     _initial(false),
     _delete(false),
-    _fileDialogSave(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir),
+    _fileDialogSave(FileDialogFlags_EnterNewFilename | FileDialogFlags_CreateNewDir),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -1018,9 +1018,9 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             // browser button to select new file
             if (ImGui::Button("Browse"))
             {
-                _fileDialogImage.SetTitle("Node Input Dialog");
-                _fileDialogImage.Open();
-                _fileDialogImage.SetTypeFilters(_imageFilter);
+                _fileDialogImage.setTitle("Node Input Dialog");
+                _fileDialogImage.open();
+                _fileDialogImage.setTypeFilters(_imageFilter);
             }
             ImGui::SameLine();
             ImGui::PushItemWidth(labelWidth);
@@ -1030,15 +1030,15 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             ImGui::PopStyleColor();
 
             // create and load document from selected file
-            if (_fileDialogImage.HasSelected())
+            if (_fileDialogImage.hasSelected())
             {
                 // set the new filename to the complete file path
-                mx::FilePath fileName = mx::FilePath(_fileDialogImage.GetSelected().string());
+                mx::FilePath fileName = _fileDialogImage.getSelected();
                 temp = fileName;
                 // need to set the file prefix for the input to "" so that it can find the new file
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
-                _fileDialogImage.ClearSelected();
-                _fileDialogImage.SetTypeFilters(std::vector<std::string>());
+                _fileDialogImage.clearSelected();
+                _fileDialogImage.setTypeFilters(std::vector<std::string>());
             }
 
             // set input value  and update materials if different from previous value
@@ -2884,23 +2884,23 @@ void Graph::loadGraphFromFile()
         _currUiNode = nullptr;
     }
 
-    _fileDialog.SetTitle("Open File");
-    _fileDialog.SetTypeFilters(_mtlxFilter);
-    _fileDialog.Open();
+    _fileDialog.setTitle("Open File");
+    _fileDialog.setTypeFilters(_mtlxFilter);
+    _fileDialog.open();
 }
 
 void Graph::saveGraphToFile()
 {
-    _fileDialogSave.SetTypeFilters(_mtlxFilter);
-    _fileDialogSave.SetTitle("Save File As");
-    _fileDialogSave.Open();
+    _fileDialogSave.setTypeFilters(_mtlxFilter);
+    _fileDialogSave.setTitle("Save File As");
+    _fileDialogSave.open();
 }
 
 void Graph::loadGeometry()
 {
-    _fileDialogGeom.SetTitle("Load Geometry");
-    _fileDialogGeom.SetTypeFilters(_geomFilter);
-    _fileDialogGeom.Open();
+    _fileDialogGeom.setTitle("Load Geometry");
+    _fileDialogGeom.setTypeFilters(_geomFilter);
+    _fileDialogGeom.open();
 }
 
 void Graph::graphButtons()
@@ -2962,7 +2962,7 @@ void Graph::graphButtons()
 
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
+    if (guiIO.KeyCtrl && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3551,7 +3551,7 @@ void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
             _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
         }
         // scrolling not possible if open or save file dialog is open
-        if (scrollAmt != 0 && !_fileDialogSave.IsOpened() && !_fileDialog.IsOpened() && !_fileDialogGeom.IsOpened())
+        if (scrollAmt != 0 && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
         {
             _renderer->setScrollEvent(scrollAmt);
         }
@@ -3795,13 +3795,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
         {
             ed::NavigateToSelection();
         }
 
         // go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.IsOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
         {
             upNodeGraph();
         }
@@ -3929,9 +3929,9 @@ void Graph::drawGraph(ImVec2 mousePos)
     }
 
     ed::Suspend();
-    _fileDialogSave.Display();
+    _fileDialogSave.display();
     // saving file
-    if (_fileDialogSave.HasSelected())
+    if (_fileDialogSave.hasSelected())
     {
 
         std::string message;
@@ -3940,13 +3940,13 @@ void Graph::drawGraph(ImVec2 mousePos)
             std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
             std::cerr << message;
         }
-        std::string fileName = _fileDialogSave.GetSelected().string();
-        mx::FilePath name = _fileDialogSave.GetSelected().string();
+        std::string fileName = _fileDialogSave.getSelected();
+        mx::FilePath name = _fileDialogSave.getSelected();
         ed::Resume();
         savePosition();
 
         writeText(fileName, name);
-        _fileDialogSave.ClearSelected();
+        _fileDialogSave.clearSelected();
     }
     else
     {
@@ -3956,11 +3956,11 @@ void Graph::drawGraph(ImVec2 mousePos)
     ed::End();
     ImGui::End();
 
-    _fileDialog.Display();
+    _fileDialog.display();
     // create and load document from selected file
-    if (_fileDialog.HasSelected())
+    if (_fileDialog.hasSelected())
     {
-        mx::FilePath fileName = mx::FilePath(_fileDialog.GetSelected().string());
+        mx::FilePath fileName = _fileDialog.getSelected();
         _currGraphName.clear();
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
@@ -3971,22 +3971,22 @@ void Graph::drawGraph(ImVec2 mousePos)
         buildUiBaseGraph(_graphDoc);
         _currGraphElem = _graphDoc;
         _prevUiNode = nullptr;
-        _fileDialog.ClearSelected();
+        _fileDialog.clearSelected();
 
         _renderer->setDocument(_graphDoc);
         _renderer->updateMaterials(nullptr);
     }
 
-    _fileDialogGeom.Display();
-    if (_fileDialogGeom.HasSelected())
+    _fileDialogGeom.display();
+    if (_fileDialogGeom.hasSelected())
     {
-        mx::FilePath fileName = mx::FilePath(_fileDialogGeom.GetSelected().string());
-        _fileDialogGeom.ClearSelected();
+        mx::FilePath fileName = _fileDialogGeom.getSelected();
+        _fileDialogGeom.clearSelected();
         _renderer->loadMesh(fileName);
         _renderer->updateMaterials(nullptr);
     }
 
-    _fileDialogImage.Display();
+    _fileDialogImage.display();
 }
 
 // return node location in graphNodes vector based off of node id
