@@ -13,17 +13,17 @@
     #  include <commdlg.h>
 #endif
 
-ImguiFileDialogAdapter::ImguiFileDialogAdapter(ImGuiFileBrowserFlags flags) :
+FileDialog::FileDialog(int flags) :
     flags_(flags)
 {
 }
 
-void ImguiFileDialogAdapter::SetTitle(std::string title)
+void FileDialog::SetTitle(std::string title)
 {
     title_ = title;
 }
 
-void ImguiFileDialogAdapter::SetTypeFilters(const std::vector<std::string>& typeFilters)
+void FileDialog::SetTypeFilters(const std::vector<std::string>& typeFilters)
 {
     filetypes_.clear();
 
@@ -35,23 +35,23 @@ void ImguiFileDialogAdapter::SetTypeFilters(const std::vector<std::string>& type
     }
 }
 
-void ImguiFileDialogAdapter::Open()
+void FileDialog::Open()
 {
     ClearSelected();
     openFlag_ = true;
 }
 
-bool ImguiFileDialogAdapter::IsOpened()
+bool FileDialog::IsOpened()
 {
     return isOpened_;
 }
 
-bool ImguiFileDialogAdapter::HasSelected()
+bool FileDialog::HasSelected()
 {
     return !selectedFilenames_.empty();
 }
 
-std::filesystem::path ImguiFileDialogAdapter::GetSelected()
+std::filesystem::path FileDialog::GetSelected()
 {
     if (selectedFilenames_.empty())
     {
@@ -61,12 +61,12 @@ std::filesystem::path ImguiFileDialogAdapter::GetSelected()
     return *selectedFilenames_.begin();
 }
 
-void ImguiFileDialogAdapter::ClearSelected()
+void FileDialog::ClearSelected()
 {
     selectedFilenames_.clear();
 }
 
-void ImguiFileDialogAdapter::Display()
+void FileDialog::Display()
 {
     // Only call the dialog if it's not already displayed
     if (!openFlag_ || isOpened_)
@@ -76,8 +76,8 @@ void ImguiFileDialogAdapter::Display()
     openFlag_ = false;
 
     // Check if we want to save or open
-    bool save = !(flags_ & ImGuiFileBrowserFlags_SelectDirectory) &&
-                (flags_ & ImGuiFileBrowserFlags_EnterNewFilename);
+    bool save = !(flags_ & FileDialogFlags_SelectDirectory) &&
+                (flags_ & FileDialogFlags_EnterNewFilename);
 
     auto path = file_dialog(filetypes_, save);
     if (!path.empty())
