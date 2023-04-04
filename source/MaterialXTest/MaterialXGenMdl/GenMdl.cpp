@@ -284,11 +284,11 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 
         mx::FilePath currentPath = mx::FilePath::getCurrentPath();
         // set environment
-        std::string iblFile = (currentPath / "resources/lights/san_giuseppe_bridge_rot90.hdr").asString();
-        renderCommand += " --hdr \"" + iblFile + "\"";
+        std::string iblFile = (currentPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
+        renderCommand += " --hdr \"" + iblFile + "\" --hdr_rotate 90";
         // set scene
-        std::string sceneFile = (currentPath / "resources/Geometry/sphere.gltf").asString();
-        renderCommand += " \"" + sceneFile + "\"";
+        renderCommand += " --uv_scale 0.5 1.0 --uv_offset 0.0 0.0 --uv_repeat";
+        renderCommand += " --camera 0 0 3 0 0 0 --fov 45";
 
         // set the material
         // compute the MDL module name as fully qualified name wrt to the "currentPath/resources" as MDL search path
