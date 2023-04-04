@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include "FileDialog.h"
+#include <MaterialXGraphEditor/FileDialog.h>
 
 #include <MaterialXCore/Exception.h>
 
@@ -27,8 +27,8 @@ void FileDialog::setTypeFilters(const mx::StringVec& typeFilters)
 
     for (auto typefilter : typeFilters)
     {
-        std::string minus_ext = typefilter.substr(1, typefilter.size() - 1);
-        std::pair<std::string, std::string> filterPair = { minus_ext, minus_ext };
+        std::string minusExt = typefilter.substr(1, typefilter.size() - 1);
+        std::pair<std::string, std::string> filterPair = { minusExt, minusExt };
         _filetypes.push_back(filterPair);
     }
 }
@@ -51,12 +51,7 @@ bool FileDialog::hasSelected()
 
 mx::FilePath FileDialog::getSelected()
 {
-    if (_selectedFilenames.empty())
-    {
-        return {};
-    }
-
-    return *_selectedFilenames.begin();
+    return _selectedFilenames.empty() ? mx::FilePath() : _selectedFilenames[0];
 }
 
 void FileDialog::clearSelected()
@@ -74,22 +69,16 @@ void FileDialog::display()
     _openFlag = false;
 
     // Check if we want to save or open
-    bool save = !(_flags & FileDialogFlags_SelectDirectory) &&
-                (_flags & FileDialogFlags_EnterNewFilename);
+    bool save = !(_flags & SelectDirectory) && (_flags & EnterNewFilename);
 
-    std::string path = launchFileDialog(_filetypes, save);
+    mx::StringVec result = launchFileDialog(_filetypes, save, false);
+    std::string path = result.empty() ? "" : result.front();
     if (!path.empty())
     {
         _selectedFilenames.push_back(path);
     }
 
     _isOpened = false;
-}
-
-std::string launchFileDialog(const std::vector<std::pair<std::string, std::string>>& filetypes, bool save)
-{
-    mx::StringVec result = launchFileDialog(filetypes, save, false);
-    return result.empty() ? "" : result.front();
 }
 
 #if !defined(__APPLE__)
