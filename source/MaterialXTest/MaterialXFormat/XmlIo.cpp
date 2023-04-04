@@ -159,7 +159,7 @@ TEST_CASE("Load content", "[xmlio]")
     mx::readFromXmlFile(envDoc, filename, mx::FileSearchPath(), &readOptions);
     REQUIRE(*doc == *envDoc);
     mx::removeEnviron(mx::MATERIALX_SEARCH_PATH_ENV_VAR);
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(envDoc, filename, mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(envDoc, filename, mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing);
 
     // Serialize to XML with a custom predicate that skips images.
     auto skipImages = [](mx::ConstElementPtr elem)
@@ -237,7 +237,7 @@ TEST_CASE("Load content", "[xmlio]")
 
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
-    REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing&);
+    REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing);
 }
 
 TEST_CASE("Locale region testing", "[xmlio]")
