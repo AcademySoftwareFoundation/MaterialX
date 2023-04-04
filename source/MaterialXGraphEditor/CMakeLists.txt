@@ -19,6 +19,11 @@ endif()
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
+if (APPLE)
+    list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm)
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm" PROPERTIES LANGUAGE CXX)
+endif ()
+
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
 file(GLOB imgui_headers "${DEAR_IMGUI_PREFIX}/*.h*")
 
@@ -49,7 +54,6 @@ include_directories("${DEAR_IMGUI_PREFIX}/backends")
 include_directories("${DEAR_IMGUI_PREFIX}/misc/cpp")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiNodeEditor/examples/blueprints-example/utilities")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/External/ImGuiFileBrowser")
 
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
@@ -74,6 +78,11 @@ set(MATERIALX_LIBRARIES
     MaterialXFormat
     MaterialXGenGlsl
     MaterialXRenderGlsl)
+
+if (APPLE)
+    find_library(CORE_FOUNDATION Foundation REQUIRED)
+    list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
+endif ()
 
 target_link_libraries(
     MaterialXGraphEditor
