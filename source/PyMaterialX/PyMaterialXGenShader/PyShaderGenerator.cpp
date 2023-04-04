@@ -20,5 +20,7 @@ void bindPyShaderGenerator(py::module& mod)
         .def("setColorManagementSystem", &mx::ShaderGenerator::setColorManagementSystem)
         .def("getColorManagementSystem", &mx::ShaderGenerator::getColorManagementSystem)
         .def("setUnitSystem", &mx::ShaderGenerator::setUnitSystem)
-        .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem);
+        .def("getUnitSystem", &mx::ShaderGenerator::getUnitSystem)
+        .def("getTokenSubstitutions", &mx::ShaderGenerator::getTokenSubstitutions)
+        .def("registerShaderMetadata", &mx::ShaderGenerator::registerShaderMetadata);
 }

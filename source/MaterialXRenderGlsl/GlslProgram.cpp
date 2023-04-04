@@ -339,7 +339,6 @@ void GlslProgram::bindMesh(MeshPtr mesh)
     {
         unbindGeometry();
     }
-    _boundMesh = mesh;
 
     GlslProgram::InputMap foundList;
     const GlslProgram::InputMap& attributeList = getAttributesList();
@@ -430,11 +429,19 @@ void GlslProgram::bindMesh(MeshPtr mesh)
         }
     }
 
+    // Store the bound mesh.
+    _boundMesh = mesh;
+
     checkGlErrors("after program bind mesh");
 }
 
 void GlslProgram::unbindGeometry()
 {
+    if (!_boundMesh)
+    {
+        return;
+    }
+
     // Unbind all geometry buffers.
     glBindVertexArray(UNDEFINED_OPENGL_RESOURCE_ID);
     glBindBuffer(GL_ARRAY_BUFFER, UNDEFINED_OPENGL_RESOURCE_ID);
@@ -470,6 +477,9 @@ void GlslProgram::unbindGeometry()
         }
     }
     _indexBufferIds.clear();
+
+    // Clear the bound mesh.
+    _boundMesh = nullptr;
 
     checkGlErrors("after program unbind geometry");
 }
