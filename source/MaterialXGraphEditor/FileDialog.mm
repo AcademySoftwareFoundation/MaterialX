@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include "FileDialog.h"
+#include <MaterialXGraphEditor/FileDialog.h>
 
 #include <MaterialXCore/Exception.h>
 
