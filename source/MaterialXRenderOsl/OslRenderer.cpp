@@ -309,7 +309,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     }
 }
 
-void OslRenderer::createProgram(const ShaderPtr shader)
+void OslRenderer::createProgram(ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     createProgram(stages);

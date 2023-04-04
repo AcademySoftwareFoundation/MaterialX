@@ -222,10 +222,7 @@ class MX_FORMAT_API FileSearchPath
     using ConstIterator = FilePathVec::const_iterator;
 
   public:
-    FileSearchPath()
-    {
-    }
-    ~FileSearchPath() { }
+    FileSearchPath() = default;
 
     /// Construct a search path from a string.
     /// @param searchPath A string containing a sequence of file paths joined

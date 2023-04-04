@@ -261,6 +261,9 @@ class MX_RENDERGLSL_API GlslProgram
     // Attribute vertex array handle
     unsigned int _vertexArray;
 
+    // Currently bound mesh
+    MeshPtr _boundMesh;
+
     // Program texture map
     std::unordered_map<string, unsigned int> _programTextures;
 
