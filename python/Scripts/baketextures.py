@@ -36,8 +36,7 @@ def main():
         sys.exit(0)
 
     stdlib = mx.createDocument()
-    filePath = os.path.dirname(os.path.abspath(__file__))
-    searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
+    searchPath = mx.getDefaultDataSearchPath()
     searchPath.append(os.path.dirname(opts.inputFilename))
     libraryFolders = []
     if opts.paths:
@@ -48,7 +47,7 @@ def main():
         for libraryList in opts.libraries:
             for library in libraryList:
                 libraryFolders.append(library)
-    libraryFolders.append("libraries")
+    libraryFolders.extend(mx.getDefaultDataLibraryFolders())
     mx.loadLibraries(libraryFolders, searchPath, stdlib)
     doc.importLibrary(stdlib)
 

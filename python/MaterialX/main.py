@@ -295,14 +295,14 @@ readFromXmlFile = readFromXmlFileBase
 
 
 #
-# Data Search Paths
+# Default Data Paths
 #
+
 def getDefaultDataSearchPath():
     """
     Return the default data search path.
     """
-    root_path = os.path.dirname(__file__)
-    return root_path
+    return FileSearchPath(os.path.dirname(__file__))
 
 def getDefaultDataLibraryFolders():
     """
