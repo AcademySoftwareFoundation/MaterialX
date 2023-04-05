@@ -6,13 +6,11 @@
 #ifndef MATERIALX_GRAPH_H
 #define MATERIALX_GRAPH_H
 
+#include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
-#include <MaterialXFormat/File.h>
-
 #include <imgui_node_editor.h>
-#include <imfilebrowser.h>
 
 #include <stack>
 
@@ -212,10 +210,11 @@ class Graph
     bool _delete;
 
     // file dialog information
-    ImGui::FileBrowser _fileDialog;
-    ImGui::FileBrowser _fileDialogSave;
-    ImGui::FileBrowser _fileDialogImage;
-    ImGui::FileBrowser _fileDialogGeom;
+    FileDialog _fileDialog;
+    FileDialog _fileDialogSave;
+    FileDialog _fileDialogImage;
+    FileDialog _fileDialogGeom;
+
 
     bool _isNodeGraph;
 
