@@ -67,7 +67,8 @@ def main():
         print('---------- Generate code for file: ', inputFilename, '--------------------')
 
         stdlib = mx.createDocument()
-        searchPath = mx.FileSearchPath(os.path.dirname(inputFilename))
+        searchPath = mx.getDefaultDataSearchPath()
+        searchPath.append(os.path.dirname(inputFilename))
         libraryFolders = []
         if opts.paths:
             for pathList in opts.paths:
@@ -77,7 +78,7 @@ def main():
             for libraryList in opts.libraries:
                 for library in libraryList:
                     libraryFolders.append(library)
-        libraryFolders.append("libraries")
+        libraryFolders.extend(mx.getDefaultDataLibraryFolders())
         try:
             mx.loadLibraries(libraryFolders, searchPath, stdlib)
             doc.importLibrary(stdlib)
