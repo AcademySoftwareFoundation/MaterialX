@@ -9,7 +9,7 @@ import warnings
 from .PyMaterialXCore import *
 from .PyMaterialXFormat import *
 from .datatype import *
-
+import os
 
 #
 # Element
@@ -292,3 +292,20 @@ stringToValue = _stringToValue
 #
 
 readFromXmlFile = readFromXmlFileBase
+
+
+#
+# Data Search Paths
+#
+def getDefaultDataSearchPath():
+    """
+    Return the default data search path.
+    """
+    root_path = os.path.dirname(__file__)
+    return root_path
+
+def getDefaultDataLibraryFolders():
+    """
+    Return list of default data library folders
+    """
+    return [ 'libraries' ]
