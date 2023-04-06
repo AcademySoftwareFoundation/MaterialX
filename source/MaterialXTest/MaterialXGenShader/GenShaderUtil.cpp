@@ -648,7 +648,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     size_t documentIndex = 0;
     for (const auto& doc : _documents)
     {
-        // optional pre processing by the tester
+        // Apply optional preprocessing.
         preprocessDocument(doc);
 
         // For each new file clear the implementation cache.
