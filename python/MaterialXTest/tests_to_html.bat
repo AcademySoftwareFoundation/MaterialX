@@ -1,1 +1,1 @@
-python tests_to_html.py -i ../../build
+python tests_to_html.py -i1 ../../build
