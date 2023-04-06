@@ -99,7 +99,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
 class MdlStringResolver : public mx::StringResolver
 {
-public:
+  public:
     /// Create a new string resolver.
     static MdlStringResolverPtr create()
     {
@@ -196,7 +196,7 @@ public:
 
     const  mx::FileSearchPath& getMdlSearchPaths() const { return _mdl_searchPaths; }
 
-private:
+  private:
     // list of MDL search paths from which we can locate resources.
     mx::FileSearchPath _mdl_searchPaths;
 
