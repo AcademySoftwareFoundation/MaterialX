@@ -61,13 +61,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
-    void initialize() override;
-
-    /// Internal initialization of stages and OpenGL constructs using a shared context
-    /// required for program validation and rendering.
-    /// An exception is thrown on failure.
-    /// The exception will contain a list of initialization errors.
-    void initialize(void* sharedContextHandle);
+    void initialize(SharedContextHandle sharedcontext = nullptr) override;
 
     /// @}
     /// @name Rendering

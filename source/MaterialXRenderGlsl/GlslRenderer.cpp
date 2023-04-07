@@ -35,7 +35,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler->addLoader(TinyObjLoader::create());
 }
 
-void GlslRenderer::initialize(void* sharedContextHandle)
+void GlslRenderer::initialize(SharedContextHandle sharedContextHandle)
 {
     if (!_initialized)
     {
@@ -68,11 +68,6 @@ void GlslRenderer::initialize(void* sharedContextHandle)
             _initialized = true;
         }
     }
-}
-
-void GlslRenderer::initialize()
-{
-    initialize(nullptr);
 }
 
 void GlslRenderer::createProgram(ShaderPtr shader)

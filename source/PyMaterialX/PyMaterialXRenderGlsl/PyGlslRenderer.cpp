@@ -14,7 +14,6 @@ void bindPyGlslRenderer(py::module& mod)
 {
     py::class_<mx::GlslRenderer, mx::ShaderRenderer, mx::GlslRendererPtr>(mod, "GlslRenderer")
         .def_static("create", &mx::GlslRenderer::create)
-        .def("initialize", static_cast<void (mx::GlslRenderer::*)()>(&mx::GlslRenderer::initialize))
         .def("initialize", static_cast<void (mx::GlslRenderer::*)(void*)>(&mx::GlslRenderer::initialize))
         .def("createProgram", static_cast<void (mx::GlslRenderer::*)(const mx::ShaderPtr)>(&mx::GlslRenderer::createProgram))
         .def("createProgram", static_cast<void (mx::GlslRenderer::*)(const mx::GlslRenderer::StageMap&)>(&mx::GlslRenderer::createProgram))
