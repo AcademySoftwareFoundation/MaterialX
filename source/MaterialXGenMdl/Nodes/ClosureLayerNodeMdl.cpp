@@ -283,7 +283,6 @@ void ClosureLayerNodeMdl::emitBsdfOverBsdfFunctionCalls_thinFilm(
     baseNodeIorInput->breakConnection();
 }
 
-
 ShaderNodeImplPtr LayerableNodeMdl::create()
 {
     return std::make_shared<LayerableNodeMdl>();
@@ -295,12 +294,10 @@ void LayerableNodeMdl::addInputs(ShaderNode& node, GenContext& /*context*/) cons
     node.addInput(StringConstantsMdl::BASE, Type::BSDF);
 }
 
-
 ShaderNodeImplPtr ThinFilmReceiverNodeMdl::create()
 {
     return std::make_shared<ThinFilmReceiverNodeMdl>();
 }
-
 
 void ThinFilmCombineNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context, ShaderStage& stage) const
 {
@@ -363,7 +360,6 @@ void ThinFilmCombineNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContex
     }
 }
 
-
 ShaderNodeImplPtr MixBsdfNodeMdl::create()
 {
     return std::make_shared<MixBsdfNodeMdl>();
@@ -381,7 +377,6 @@ const string& MixBsdfNodeMdl::getOperatorName(size_t index) const
         return StringConstantsMdl::EMPTY;
     }
 }
-
 
 ShaderNodeImplPtr AddOrMultiplyBsdfNodeMdl::create()
 {
