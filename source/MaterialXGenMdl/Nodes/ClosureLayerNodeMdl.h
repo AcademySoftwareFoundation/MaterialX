@@ -41,8 +41,7 @@ class MX_GENMDL_API StringConstantsMdl
 /// thin_film_bsdf through layers and mixers, etc., to the elemental bsdfs that support thin film.
 /// Because thin-film can not be layered on any BSDF in MDL, we try to push down the parameters to
 /// the nodes that support thin-film.
-template<typename TBase>
-class CarryThinFilmParameters : public TBase
+template<typename TBase> class CarryThinFilmParameters : public TBase
 {
   public:
     /// Add the thin film inputs for transporting the parameter.
