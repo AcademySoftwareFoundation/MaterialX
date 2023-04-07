@@ -28,7 +28,6 @@ const string StringConstantsMdl::THIN_FILM_IOR = "thinfilm_ior";
 
 const string StringConstantsMdl::EMPTY = "";
 
-
 ShaderNodeImplPtr ClosureLayerNodeMdl::create()
 {
     return std::make_shared<ClosureLayerNodeMdl>();
