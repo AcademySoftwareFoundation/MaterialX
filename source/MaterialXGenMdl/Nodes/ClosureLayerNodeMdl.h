@@ -19,7 +19,7 @@ class MX_GENMDL_API StringConstantsMdl
 {
     StringConstantsMdl() = delete;
 
-public:
+  public:
     /// String constants
     static const string TOP; ///< layer parameter name of the top component
     static const string BASE; ///< layer parameter name of the base component
@@ -44,7 +44,7 @@ public:
 template<typename TBase>
 class CarryThinFilmParameters : public TBase
 {
-public:
+  public:
     /// Add the thin film inputs for transporting the parameter.
     /// `addInputs` for the injected base class is called first.
     void addInputs(ShaderNode& node, GenContext& context) const override
@@ -101,7 +101,7 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public CarryThinFilmParameters<ShaderN
 /// Note, not all elemental bsdfs support this kind of transformation.
 class MX_GENMDL_API LayerableNodeMdl : public SourceCodeNodeMdl
 {
-public:
+  public:
     virtual ~LayerableNodeMdl() = default;
     static ShaderNodeImplPtr create();
 
@@ -113,7 +113,7 @@ class MX_GENMDL_API ThinFilmReceiverNodeMdl : public CarryThinFilmParameters<Lay
 {
     using Base = CarryThinFilmParameters<LayerableNodeMdl>;
 
-public:
+  public:
     static ShaderNodeImplPtr create();
 };
 
@@ -122,32 +122,32 @@ class ThinFilmCombineNodeMdl : public CarryThinFilmParameters<SourceCodeNodeMdl>
 {
     using Base = CarryThinFilmParameters<SourceCodeNodeMdl>;
 
-public:
+  public:
     virtual ~ThinFilmCombineNodeMdl() = default;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     virtual const string& getOperatorName(size_t index) const = 0;
 };
 
 /// Used for mix_bsdf nodes.
 class MX_GENMDL_API MixBsdfNodeMdl : public ThinFilmCombineNodeMdl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
-protected:
+  protected:
     virtual const string& getOperatorName(size_t index) const final;
 };
 
 /// Used for add_bsdf and multpli_bsdf nodes.
 class MX_GENMDL_API AddOrMultiplyBsdfNodeMdl : public ThinFilmCombineNodeMdl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
-protected:
+  protected:
     virtual const string& getOperatorName(size_t index) const final;
 };
 
