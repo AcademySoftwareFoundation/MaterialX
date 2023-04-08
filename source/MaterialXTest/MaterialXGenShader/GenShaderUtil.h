@@ -223,6 +223,9 @@ class ShaderGeneratorTester
     // Run test for source code generation
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
+    // Allow the tester to alter the document, e.g., by flattening file names.
+    virtual void preprocessDocument(mx::DocumentPtr doc) {};
+
     // Compile generated source code. Default implementation does nothing.
     virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};
 

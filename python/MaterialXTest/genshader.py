@@ -12,10 +12,8 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 class TestGenShader(unittest.TestCase):
     def test_ShaderInterface(self):
         doc = mx.createDocument()
-
-        filePath = os.path.dirname(os.path.abspath(__file__))
-        searchPath = os.path.join(filePath, "..", "..")
-        mx.loadLibraries(["libraries"], searchPath, doc)
+        searchPath = mx.getDefaultDataSearchPath()
+        mx.loadLibraries(mx.getDefaultDataLibraryFolders(), searchPath, doc)
 
         exampleName = u"shader_interface"
 
