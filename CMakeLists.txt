@@ -79,6 +79,13 @@ set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler b
 set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
 
+set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
+
+if(SKBUILD)
+    set(MATERIALX_INSTALL_STDLIB_PATH "${SKBUILD_PLATLIB_DIR}/MaterialX/libraries")
+    set(MATERIALX_PYTHON_FOLDER_NAME "MaterialX")
+endif()
+
 # Helpers for MDL validation
 if (MATERIALX_BUILD_GEN_MDL)
     set(MATERIALX_MDLC_EXECUTABLE "" CACHE FILEPATH "Full path to the mdlc binary.")
@@ -309,26 +316,28 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
 endif()
 
 # Install root-level documents
-install(FILES LICENSE CHANGELOG.md README.md THIRD-PARTY.md
-        DESTINATION .)
+if(NOT SKBUILD)
+    install(FILES LICENSE CHANGELOG.md README.md THIRD-PARTY.md
+            DESTINATION .)
 
-set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
+    set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
-                              ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
-                              INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
-                              PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
-write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-                                 VERSION ${MATERIALX_LIBRARY_VERSION}
-                                 COMPATIBILITY AnyNewerVersion)
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
+                                ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                                INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+                                PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
+    write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+                                    VERSION ${MATERIALX_LIBRARY_VERSION}
+                                    COMPATIBILITY AnyNewerVersion)
 
-# Install the auto-generated CMake configuration files:
+    # Install the auto-generated CMake configuration files:
 
-install(EXPORT MaterialX
-        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
-        FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
+    install(EXPORT MaterialX
+            DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+            FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
 
-install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-        "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
-        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
+    install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+            "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+            DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
+endif()

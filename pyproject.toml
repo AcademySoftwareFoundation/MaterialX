@@ -1,0 +1,78 @@
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "MaterialX"
+version = "0.0.0.dev1"  # TODO: Change version
+authors = [
+  { name="Contributors to the MaterialX project", email="materialx-discussion@lists.aswf.io" },
+]
+readme = "README.md"
+
+# TODO: Should it also support Python 2?
+requires-python = ">=3.7"
+
+# OCIO is not required. But if you want to eventually add it,
+# uncomment this, bundle the OCIO config and python/MaterialX/colorspace.py
+# will just work.
+# dependencies = [
+#     "opencolorio"
+# ]
+
+# TODO: Add more classifier.
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://materialx.org"
+"Source" = "https://github.com/AcademySoftwareFoundation/MaterialX"
+"Bug Tracker" = "https://github.com/AcademySoftwareFoundation/MaterialX/issues"
+
+[project.scripts]
+baketextures = "MaterialX._scripts.baketextures:main"
+generateshader = "MaterialX._scripts.generateshader:main"
+genmdl = "MaterialX._scripts.genmdl:main"
+mxdoc = "MaterialX._scripts.mxdoc:main"
+mxupdate = "MaterialX._scripts.mxupdate:main"
+mxvalidate = "MaterialX._scripts.mxvalidate:main"
+translateshader = "MaterialX._scripts.translateshader:main"
+writenodegraphs = "MaterialX._scripts.writenodegraphs:main"
+
+[tool.scikit-build]
+cmake.minimum-version = "3.18"
+cmake.verbose = false
+cmake.build-type = "Release"
+
+# Uncoment when developing locally to enable inplace builds.
+# build-dir = "build/"
+
+logging.level = "INFO"
+
+# Since the python package doesn't live in a standard directory
+# in the source (i.e ./src or ./), we need to manually specify
+# where the package is.
+wheel.packages = ["python/MaterialX"]
+
+sdist.exclude = [
+    "/build",
+    "/dist",
+    "/resources",
+    "/javascript",
+    "/documents",
+    "/.github",
+    "MANIFEST.in"
+
+]
+
+[tool.scikit-build.cmake.define]
+MATERIALX_BUILD_SHARED_LIBS = 'OFF' # Be explicit
+MATERIALX_BUILD_PYTHON = 'ON'
+MATERIALX_TEST_RENDER = 'OFF'
+MATERIALX_WARNINGS_AS_ERRORS = 'ON'
+
+# TODO: How could we harmonize this variable with SKBUILD?
+MATERIALX_INSTALL_PYTHON = 'OFF'
