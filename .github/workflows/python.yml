@@ -2,7 +2,12 @@ name: python
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
 
 concurrency:
   cancel-in-progress: true
@@ -10,6 +15,7 @@ concurrency:
 
 jobs:
   # Generate the sdist first. We'll use it to created the wheels.
+  # https://packaging.python.org/en/latest/flow#the-source-distribution-sdist
   sdist:
     name: Generate sdist
     runs-on: ubuntu-latest
@@ -39,6 +45,7 @@ jobs:
         path: ./dist/*.tar.gz
 
   # Create the wheels. It'll use the sdist to confirm that we can ocnpile MaterialX from the sdist.
+  # https://packaging.python.org/en/latest/flow#the-built-distributions-wheels
   wheels:
     name: Generate wheels
     runs-on: ${{ matrix.os }}
@@ -57,6 +64,7 @@ jobs:
         path: sdist
 
     - name: Build wheels
+      # https://cibuildwheel.readthedocs.io/en/stable/
       uses: pypa/cibuildwheel@v2.12.1
       with:
         # Build from the sdist. We want to make sure it's valid and works as expected.
@@ -101,9 +109,7 @@ jobs:
         path: wheels
 
     - name: Install wheel
-      # Note that pip will install the right wheel. It's able to select the wheel based on the current
-      # platform, python version, etc.
-      run: python -m pip install wheels/*.whl
+      run: python -m pip install --find-links wheels --no-index
 
     - name: Python tests
       run: |
