@@ -24,7 +24,7 @@ At least four distinct interrelated data relationships are required to specify t
 
 **MaterialX** addresses the need for an open, platform-independent, well-defined standard for specifying the "look" of computer graphics objects built using node networks by defining a material content schema along with a corresponding XML-based file format to read and write MaterialX content.  The MaterialX schema defines a number of primary element types plus several supplemental and sub-element types, as well as a set of **standard nodes** with specific functionality for defining data-processing graphs, shaders and materials.
 
-This document describes the core MaterialX specification.  Companion documents [**MaterialX Physically Based Shading Nodes**](https://github.com/dbsmythe/Mtlx_Markdown_Test/blob/main/MaterialX.v1.39.PBRSpec.md), **MaterialX Geometry Extensions** and **MaterialX Supplemental Notes** describe additional node and element types and other information about the library.
+This document describes the core MaterialX specification.  Companion documents [**MaterialX Physically Based Shading Nodes**](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.39.PBRSpec.md), [**MaterialX Geometry Extensions**](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.39.GeomExts.md) and [**MaterialX Supplemental Notes**](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.38.Supplement.pdf) describe additional node and element types and other information about the library.
 
 
 
@@ -76,8 +76,8 @@ This document describes the core MaterialX specification.  Companion documents [
  [Custom Attributes and Inputs](#custom-attributes-and-inputs)  
 
  [Custom Nodes](#custom-nodes)  
-  [Custom Node Declaration: NodeDef Elements](#custom-node-declaration-nodedef-elements)  
-  [Custom Node Definition: Implementation Elements](#custom-node-definition-implementation-elements)  
+  [Custom Node Declaration NodeDef Elements](#custom-node-declaration-nodedef-elements)  
+  [Custom Node Definition Using Implementation Elements](#custom-node-definition-using-implementation-elements)  
    [Implementation AOV Elements](#implementation-aov-elements)  
   [Custom Node Definition Using Node Graphs](#custom-node-definition-using-node-graphs)  
    [Functional Nodegraphs](#functional-nodegraphs)  
@@ -374,7 +374,7 @@ The &lt;unittypedef> defines the name of a unittype, while the &lt;unitdef> defi
 
 Any input or other floating-point value may specify a `unit` and/or `unittype` attribute subject to guidelines clarified throughout this document.  Units and unittypes may also be provided for floatarray, vector<em>N</em> and vector<em>N</em>array quantities, with all components of the vector or all values in the array using the same unit, and for "filename"-type input, in which case the `unit` and/or `unittype` attribute applies to the float or vector<em>N</em> values read from those files.  It is not expected that all inputs will have defined units or unittypes; in fact, it is expected that the vast majority of inputs will have neither.  Units and unittypes should only be specified where specific units are important and it is reasonably expected that unit conversion may need to take place.
 
-Please refer to the [Inputs](#inputs), [Custom Node Declaration: NodeDef Elements](#custom-node-declaration-nodedef-elements), [Geometric Properties](#geometric-properties) and [Geometric Nodes](#geometric-nodes) sections below and in the MaterialX Geometry Extensions document for additional specific requirements for the use of units.
+Please refer to the [Inputs](#inputs), [Custom Node Declaration NodeDef Elements](#custom-node-declaration-nodedef-elements), [Geometric Properties](#geometric-properties) and [Geometric Nodes](#geometric-nodes) sections below and in the MaterialX Geometry Extensions document for additional specific requirements for the use of units.
 
 
 
@@ -539,7 +539,7 @@ Individual node elements have the form:
 
 where _nodecategory_ is the general "category" of the node (e.g. "image", "add" or "mix"), `name` (string, required) defines the name of this instance of the node, which must be unique within the scope it appears in, and `type` (string, required) specifies the MaterialX type (typically float, color<em>N</em>, or vector<em>N</em>) of the output of that node.  If the application uses a different name for this instance of the node in the user interface, a `uiname` attribute may be added to the &lt;_nodecategory_> element to indicate the name of the node as it appears to the user.
 
-Node elements may optionally specify a `version` string attribute in "_major_[._minor_]" format, requesting that a specific version of that node's definition be used instead of the default version.  Normally, the types of a node's inputs and outputs are sufficient to disambiguate which signature of the applicable version of a node is intended, but if necessary, a node instantiation may also declare a specific nodedef name to precisely define exactly which node signature is desired.  Please refer to the [Custom Node Declaration: NodeDef Elements](#custom-node-declaration-nodedef-elements) section below for further details.
+Node elements may optionally specify a `version` string attribute in "_major_[._minor_]" format, requesting that a specific version of that node's definition be used instead of the default version.  Normally, the types of a node's inputs and outputs are sufficient to disambiguate which signature of the applicable version of a node is intended, but if necessary, a node instantiation may also declare a specific nodedef name to precisely define exactly which node signature is desired.  Please refer to the [Custom Node Declaration NodeDef Elements](#custom-node-declaration-nodedef-elements) section below for further details.
 
 MaterialX defines a number of Standard Nodes which all implementations should support as described to the degree their architecture and capabilities allow.  One can define new nodes by declaring their parameter interfaces and providing portable or target-specific implementations.  Please see the [Custom Nodes](#custom-nodes) section for notes and implementation details.
 
@@ -1293,7 +1293,7 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 ### Shader Nodes
 
-Shader nodes construct a shader (a node with a shader semantic output type) from the specified inputs, which may then be connected to a material.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](https://github.com/dbsmythe/Mtlx_Markdown_Test/blob/main/MaterialX.v1.39.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
+Shader nodes construct a shader (a node with a shader semantic output type) from the specified inputs, which may then be connected to a material.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.39.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
 
 
 * **`surface`**: Constructs a surface shader for an unlit surface with a plain unshaded color value. Useful for visualizing texture data or rendering non-PBR materials. Output type "surfaceshader".
@@ -1544,7 +1544,7 @@ When using a node, the definition appropriate for the current target will automa
 Specific applications will commonly support sources and operators that do not map directly to standard MaterialX nodes.  Individual implementations may provide their own custom nodes, with &lt;nodedef> elements to declare their parameter interfaces, and &lt;implementation> and/or &lt;nodegraph> elements to define their behaviors.
 
 
-### Custom Node Declaration: NodeDef Elements
+### Custom Node Declaration NodeDef Elements
 
 Each custom node must be explicitly declared with a &lt;nodedef> element, with child &lt;input>, &lt;token> and &lt;output> elements specifying the expected names and types of the node’s inputs and output(s).
 
@@ -1597,7 +1597,7 @@ Attributes for NodeDef Input elements:
 * `uniform` (boolean, optional): if set to "true", then this input can only take uniform values and may only be connected to the outputs of &lt;constant> nodes or any other node whose output is explicitly declared to be "uniform" (optionally through a number of &lt;dot> nodes), but not be connected to the outputs of other (non-"uniform") nodes.  `uniform` must be set to true for string and filename-type inputs.
 * `defaultgeomprop` (string, optional): for vector2 or vector3 inputs, the name of an intrinsic geometric property that provides the default value for this input, must be one of "position", "normal", "tangent", "bitangent" or "texcoord" or vector3-type custom geometric property for vector3 inputs, or "texcoord" or vector2-type custom geometric property for vector2 inputs.  For standard geometric properties, this is effectively the same as declaring a default connection of the input to a Geometric Node with default input values.  May not be specified on uniform inputs.
 * `enum` (stringarray, optional): a comma-separated non-exclusive list of string value descriptors that the input couldmayis allowed to take: for string- and stringarray-type inputs, these are the actual values (or values per array index for stringarrays); for other types, these are the "enum" labels e.g. as shown in the application user interface for each of the actual underlying values specified by `enumvalues`.  The enum list can be thought of as a list of commonly used values or UI labels for the input rather than a strict list, and MaterialX itself does not enforce that a specified input enum value is actually in this list, with the exception that if the input is a "string" (or "stringarray") type and an enum list is provided, then the value(s) must in fact be one of the enum stringarray values.
-* `enumvalues` (<em>type</em>array, optional): for non-string/stringarray types, a comma-separated list of values of the same base type as the &lt;input>, representing the values that would be used if the corresponding `enum` string was chosen in the UI.  MaterialX itself does not enforce that a specified input value is actually in this list.  Note that implementations are allowed to redefine `enumvalues` (but not `enum`) for specific targets: see the [Custom Node Definition: Implementation Elements](#custom-node-definition-implementation-elements) section below.
+* `enumvalues` (<em>type</em>array, optional): for non-string/stringarray types, a comma-separated list of values of the same base type as the &lt;input>, representing the values that would be used if the corresponding `enum` string was chosen in the UI.  MaterialX itself does not enforce that a specified input value is actually in this list.  Note that implementations are allowed to redefine `enumvalues` (but not `enum`) for specific targets: see the [Custom Node Definition: Using Implementation Elements](#custom-node-definition-using-implementation-elements) section below.
 * `colorspace` (string, optional): for color3- or color4-type inputs, the expected colorspace for this input.  Nodedef inputs do not typically specify a colorspace; the most common use case is to specify `colorspace="none"` for inputs that are color-like but which should not be affected by colorspace conversions.
 * `unittype` (string, optional): the type of unit for this input, e.g. "distance", which must be defined by a &lt;unittypedef>.  Default is to not specify a unittype.  Only float-, vector<em>N</em>- and filename-type inputs may specify a `unittype`.
 * `unit` (string, optional): the specific unit for this input.  Nodedef inputs do not typically specify a unit; if it does, that would indicate that the implementation of that node expects values to be specified in that unit, and that any invocation of that node using a different unit should be converted to the nodedef-specified unit for that input rather than to the application's scene unit.  The most common instance of this is for angular values, where a nodedef might specify that it expects values to be given in degrees.
@@ -1630,11 +1630,11 @@ Attributes for NodeDef Token elements:
 * `type` (string, required): the MaterialX type of the token; when the token's value is substituted into a filename, the token value will be cast to a string, so string or integer types are recommended for tokens, although any MaterialX type is permitted.
 * `value` (same type as `type`, optional): a default value for this token, to be used if the node is invoked without a value defined for this token.  If a default value is not defined, then the token becomes required, so any invocation of the custom node without a value assigned to that token would be in error.
 * enum (stringarray, optional): a comma-separated non-exclusive list of string value descriptors that the token could take: for string-type tokens, these are the actual values; for other types, these are the "enum" labels e.g. as shown in the application user interface for each of the actual underlying values specified by enumvalues.  The enum list can be thought of as a list of commonly used values or UI labels for the input rather than a strict list, and MaterialX itself does not enforce that a specified token enum value is actually in this list, with the exception that if the input is a "string" (or "stringarray") type and an enum list is provided, then the value(s) must in fact be one of the enum stringarray values.
-* enumvalues (<em>type</em>array, optional): for non-string types, a comma-separated list of values of the same base type as the &lt;token>, representing the values that would be used if the corresponding enum string was chosen in the UI.  MaterialX itself does not enforce that a specified token value is actually in this list.  Note that implementations are allowed to redefine enumvalues (but not enum) for specific targets: see the [Custom Node Definition: Implementation Elements](#custom-node-definition-implementation-elements) section below.
+* enumvalues (<em>type</em>array, optional): for non-string types, a comma-separated list of values of the same base type as the &lt;token>, representing the values that would be used if the corresponding enum string was chosen in the UI.  MaterialX itself does not enforce that a specified token value is actually in this list.  Note that implementations are allowed to redefine enumvalues (but not enum) for specific targets: see the [Custom Node Definition Using Implementation Elements](#custom-node-definition-using-implementation-elements) section below.
 * `uiname` (string, optional): an alternative name for this token as it appears in the UI.  If `uiname` is not provided, then `name` is the presumed UI name for the token.
 * `uifolder` (string, optional): the pathed name of the folder in which this token appears in the UI, using a "/" character as a separator for nested UI folders.
 
-Please see the [Example Pre-Shader Compositing Material](https://github.com/dbsmythe/Mtlx_Markdown_Test/blob/main/mtlx1.39_spec.md#example-pre-shader-compositing-material) in the [Material Nodes](#material-nodes) section below for an example of how Tokens are used.
+Please see the [Example Pre-Shader Compositing Material](#example-pre-shader-compositing-material) in the [Material Nodes](#material-nodes) section below for an example of how Tokens are used.
 
 
 #### NodeDef Output Elements
@@ -1656,7 +1656,7 @@ The &lt;output> elements for NodeDefs are similar to those for NodeGraph outputs
 
 
 
-### Custom Node Definition: Implementation Elements
+### Custom Node Definition Using Implementation Elements
 
 Once the parameter interface of a custom node has been declared through a &lt;nodedef>, MaterialX provides two methods for precisely defining its functionality: via an &lt;implementation> element that references external source code, or via a &lt;nodegraph> element that composes the required functionality from existing nodes.  Providing a definition for a custom node is optional in MaterialX, but is recommended for maximum clarity and portability.
 
