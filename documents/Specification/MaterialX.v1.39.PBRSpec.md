@@ -13,7 +13,7 @@ April 7, 2022
 
 # Introduction
 
-The [**MaterialX Specification**](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.39.Spec.md) describes a number of standard nodes that may be used to construct node graphs for the processing of images, procedurally-generated values, coordinates and other data.  With the addition of user-defined custom nodes, it is possible to describe complete rendering shaders using node graphs. Up to this point, there has been no standardization of the specific shader-semantic nodes used in these node graph shaders, although with the widespread shift toward physically-based shading, it appears that the industry is settling upon a number of specific BSDF and other functions with standardized parameters and functionality.
+The [**MaterialX Specification**](./MaterialX.v1.39.Spec.md) describes a number of standard nodes that may be used to construct node graphs for the processing of images, procedurally-generated values, coordinates and other data.  With the addition of user-defined custom nodes, it is possible to describe complete rendering shaders using node graphs. Up to this point, there has been no standardization of the specific shader-semantic nodes used in these node graph shaders, although with the widespread shift toward physically-based shading, it appears that the industry is settling upon a number of specific BSDF and other functions with standardized parameters and functionality.
 
 This document describes a number of shader-semantic nodes implementing widely-used surface scattering, emission and volume distribution functions and utility nodes useful in constructing complex layered rendering shaders using node graphs.  These nodes in combination with other nodes may be used with the MaterialX shader generation (ShaderGen[^1]) system.
 
@@ -27,7 +27,7 @@ This document describes a number of shader-semantic nodes implementing widely-us
  [Color Management](#color-management)  
  [Surfaces](#surfaces)  
   [Layering](#layering)  
-  [Bump/Normal Mapping](#bumpnormal-mapping)  
+  [Bump and Normal Mapping](#bump-and-normal-mapping)  
   [Surface Thickness](#surface-thickness)  
  [Volumes](#volumes)  
  [Lights](#lights)  
@@ -106,10 +106,10 @@ In order to simplify authoring of complex materials, our model supports the noti
 
 * Horizontal Layering: A simple way of layering is using per-shading-point linear mixing of different BSDFs where a mix factor is given per BSDF controlling its contribution. Since the weight is calculated per shading point it can be used as a mask to hide contributions on different parts of a surface. The weight can also be calculated dependent on view angle to simulate approximate Fresnel behavior. This type of layering can be done both on a BSDF level and on a surface shader level. The latter is useful for mixing complete shaders which internally contain many BSDFs, e.g. to put dirt over a car paint, grease over a rusty metal or adding decals to a plastic surface. We refer to this type of layering as **horizontal layering** and the various &lt;mix> nodes in the PBS library can be used to achieve this (see below).
 * Vertical Layering: A more physically correct form of layering is also supported where a top BSDF layer is placed over another base BSDF layer, and the light not reflected by the top layer is assumed to be transmitted to the base layer; for example, adding a dielectric coating layer over a substrate. The refraction index and roughness of the coating will then affect the attenuation of light reaching the substrate. The substrate can be a transmissive BSDF to transmit the light further, or a reflective BSDF to reflect the light back up through the coating. The substrate can in turn be a reflective BSDF to simulate multiple specular lobes. We refer to this type of layering as **vertical layering** and it can be achieved using the &lt;layer> node in the PBS library. See &lt;dielectric_bsdf>, &lt;sheen_bsdf> and &lt;thin_film_bsdf> below.
-* Shader Input Blending: Calculating and blending many BSDFs or separate surface shaders can be expensive. In some situations good results can be achieved by blending the texture/value inputs instead, before any illumination calculations. Typically one would use this with an über-shader that can simulate many different materials, and by masking or blending its inputs over the surface you get the appearance of having multiple layers, but with less expensive texture or value blending. Examples of this are given in the main [MaterialX Specification "Pre-Shader Compositing Example"](https://github.com/dbsmythe/MaterialX/blob/main/documents/Specification/MaterialX.v1.39.Spec.md#example-pre-shader-compositing-material).
+* Shader Input Blending: Calculating and blending many BSDFs or separate surface shaders can be expensive. In some situations good results can be achieved by blending the texture/value inputs instead, before any illumination calculations. Typically one would use this with an über-shader that can simulate many different materials, and by masking or blending its inputs over the surface you get the appearance of having multiple layers, but with less expensive texture or value blending. Examples of this are given in the main [MaterialX Specification "Pre-Shader Compositing Example"](./MaterialX.v1.39.Spec.md#example-pre-shader-compositing-material).
 
 
-### Bump/Normal Mapping
+### Bump and Normal Mapping
 
 The surface normal used for shading calculations is supplied as input to each BSDF that requires it. The normal can be perturbed by bump or normal mapping, before it is given to the BSDF. As a result, one can supply different normals for different BSDFs for the same shading point. When layering BSDFs, each layer can use different bump and normal maps.
 
