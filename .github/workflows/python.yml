@@ -29,9 +29,10 @@ jobs:
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-        # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
+        # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
+        MACOSX_DEPLOYMENT_TARGET: '10.13'
 
     - name: Store wheels
       uses: actions/upload-artifact@v3
