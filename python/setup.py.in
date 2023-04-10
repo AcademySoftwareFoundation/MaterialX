@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
