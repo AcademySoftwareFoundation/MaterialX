@@ -8,7 +8,7 @@ MaterialX Supplemental Notes v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-October 25, 2022  
+March 25, 2023  
 
 
 
