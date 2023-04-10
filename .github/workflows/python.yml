@@ -44,7 +44,7 @@ jobs:
         name: sdist
         path: ./dist/*.tar.gz
 
-  # Create the wheels. It'll use the sdist to confirm that we can ocnpile MaterialX from the sdist.
+  # Create the wheels. It'll use the sdist to confirm that we can compile MaterialX from the sdist.
   # https://packaging.python.org/en/latest/flow#the-built-distributions-wheels
   wheels:
     name: Generate wheels
