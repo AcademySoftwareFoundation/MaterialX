@@ -82,7 +82,6 @@ set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (
 set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
 
 if(SKBUILD)
-    set(MATERIALX_INSTALL_STDLIB_PATH "${SKBUILD_PLATLIB_DIR}/MaterialX/libraries")
     set(MATERIALX_PYTHON_FOLDER_NAME "MaterialX")
 endif()
 
