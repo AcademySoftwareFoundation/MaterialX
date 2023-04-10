@@ -50,7 +50,7 @@ cmake.build-type = "Release"
 # Uncoment when developing locally to enable inplace builds.
 # build-dir = "build/"
 
-logging.level = "INFO"
+logging.level = "DEBUG"
 
 # Since the python package doesn't live in a standard directory
 # in the source (i.e ./src or ./), we need to manually specify
@@ -73,6 +73,7 @@ MATERIALX_BUILD_SHARED_LIBS = 'OFF' # Be explicit
 MATERIALX_BUILD_PYTHON = 'ON'
 MATERIALX_TEST_RENDER = 'OFF'
 MATERIALX_WARNINGS_AS_ERRORS = 'ON'
+MATERIALX_BUILD_RENDER = 'OFF'
 
 # TODO: How could we harmonize this variable with SKBUILD?
 MATERIALX_INSTALL_PYTHON = 'OFF'

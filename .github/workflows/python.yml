@@ -1,0 +1,100 @@
+name: python
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  wheels:
+    name: Generate wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['37', '38', '39', '310', '311']
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v2.12.1
+      with:
+        output-dir: dist
+      env:
+        CIBW_BUILD: 'cp${{ matrix.python-version }}-*'
+        CIBW_SKIP: '*musllinux*'
+        CIBW_ARCHS: 'auto64'
+        CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+        # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
+        CIBW_BUILD_VERBOSITY: 1
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
+
+    - name: Store wheels
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: ./dist/*.whl
+
+  sdist:
+    name: Generate sdist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install build command
+      run: python -m pip install build
+
+    - name: Create sdist
+      run: python -m build -s . --outdir dist
+
+    - name: Store sdist
+      uses: actions/upload-artifact@v3
+      with:
+        name: sdist
+        path: ./dist/*.tar.gz
+
+  test:
+    name: Test wheels
+    needs: ['wheels']
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Download wheels
+      uses: actions/download-artifact@v3
+      with:
+        name: wheels
+        path: dist
+
+    - name: Install wheel
+      run: python -m pip install dist/*.whl
+
+    - name: Python tests
+      run: |
+        python python/MaterialXTest/main.py
+        python python/MaterialXTest/genshader.py
+        python python/Scripts/mxupdate.py resources/Materials/TestSuite/stdlib/upgrade --yes
+        python python/Scripts/mxvalidate.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
+        python python/Scripts/mxdoc.py --docType md libraries/pbrlib/pbrlib_defs.mtlx
+        python python/Scripts/mxdoc.py --docType html libraries/bxdf/standard_surface.mtlx
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target osl
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target mdl
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl
