@@ -9,21 +9,59 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
+  # Generate the sdist first. We'll use it to created the wheels.
+  sdist:
+    name: Generate sdist
+    runs-on: ubuntu-latest
+    outputs:
+      sdist_filename: ${{ steps.generate.outputs.filename }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install build command
+      run: python -m pip install build
+
+    - name: Generate sdist
+      id: generate
+      run: |
+        python -m build -s . --outdir dist
+        echo "filename=$(ls dist)" >> "$GITHUB_OUTPUT"
+
+    - name: Store sdist
+      uses: actions/upload-artifact@v3
+      with:
+        name: sdist
+        path: ./dist/*.tar.gz
+
+  # Create the wheels. It'll use the sdist to confirm that we can ocnpile MaterialX from the sdist.
   wheels:
     name: Generate wheels
     runs-on: ${{ matrix.os }}
+    needs: ['sdist']
     strategy:
       fail-fast: false
       matrix:
         python-version: ['37', '38', '39', '310']
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Download sdist
+      uses: actions/download-artifact@v3
+      with:
+        name: sdist
+        path: sdist
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.12.1
       with:
-        output-dir: dist
+        # Build from the sdist. We want to make sure it's valid and works as expected.
+        package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
+        output-dir: wheels
       env:
         CIBW_BUILD: 'cp${{ matrix.python-version }}-*'
         CIBW_SKIP: '*musllinux*'
@@ -38,29 +76,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: wheels
-        path: ./dist/*.whl
-
-  sdist:
-    name: Generate sdist
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-
-    - name: Install build command
-      run: python -m pip install build
-
-    - name: Create sdist
-      run: python -m build -s . --outdir dist
-
-    - name: Store sdist
-      uses: actions/upload-artifact@v3
-      with:
-        name: sdist
-        path: ./dist/*.tar.gz
+        path: ./wheels/*.whl
 
   test:
     name: Test wheels
@@ -82,10 +98,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: wheels
-        path: dist
+        path: wheels
 
     - name: Install wheel
-      run: python -m pip install dist/*.whl
+      # Note that pip will install the right wheel. It's able to select the wheel based on the current
+      # platform, python version, etc.
+      run: python -m pip install wheels/*.whl
 
     - name: Python tests
       run: |
