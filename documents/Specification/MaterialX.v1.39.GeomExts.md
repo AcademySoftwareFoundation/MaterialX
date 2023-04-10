@@ -8,7 +8,7 @@ MaterialX Geometry Extensions v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-October 21 2022  
+October 21, 2022  
 
 
 # Introduction
