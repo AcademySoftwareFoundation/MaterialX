@@ -18,8 +18,9 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Shared context handle 
-using SharedContextHandle = void*;
+/// Render context handle
+/// Provides a provision for an application to share any renderer specific settings
+using RenderContextHandle = void*;
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
@@ -39,7 +40,7 @@ class MX_RENDER_API ShaderRenderer
     /// @{
 
     /// Initialize the renderer.
-    virtual void initialize(SharedContextHandle) { }
+    virtual void initialize(RenderContextHandle) { }
 
     /// Set the camera.
     void setCamera(CameraPtr camera)

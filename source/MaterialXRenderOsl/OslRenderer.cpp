@@ -46,7 +46,7 @@ void OslRenderer::setSize(unsigned int width, unsigned int height)
     }
 }
 
-void OslRenderer::initialize(SharedContextHandle)
+void OslRenderer::initialize(RenderContextHandle)
 {
     if (_oslIncludePath.isEmpty())
     {

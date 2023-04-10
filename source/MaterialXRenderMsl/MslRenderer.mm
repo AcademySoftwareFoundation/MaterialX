@@ -52,7 +52,7 @@ MslRenderer::MslRenderer(unsigned int width, unsigned int height, Image::BaseTyp
     _camera = Camera::create();
 }
 
-void MslRenderer::initialize(SharedContextHandle)
+void MslRenderer::initialize(RenderContextHandle)
 {
     if (!_initialized)
     {
