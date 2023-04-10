@@ -174,19 +174,19 @@ def main(args=None):
             fh.write("<tr>\n")
             if fullPath1:
                 fh.write("<td align='center'>" + file1)
-            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath1):
-                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath1))) + ")")
-            fh.write("</td>\n")
+                if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath1):
+                    fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath1))) + ")")
+                fh.write("</td>\n")
             if fullPath2:
                 fh.write("<td align='center'>" + file2)
-            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath2):
-                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath2))) + ")")
-            fh.write("</td>\n")
+                if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath2):
+                    fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath2))) + ")")
+                fh.write("</td>\n")
             if fullPath3:
                 fh.write("<td align='center'>" + file3)
-            if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath3):
-                fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")")
-            fh.write("</td>\n")
+                if args.ENABLE_TIMESTAMPS and os.path.isfile(fullPath3):
+                    fh.write("<br>(" + str(datetime.datetime.fromtimestamp(os.path.getmtime(fullPath3))) + ")")
+                fh.write("</td>\n")
             if diffPath1:
                 fh.write("<td align='center'>Difference " + args.lang1 + " vs. " + args.lang2 + " </td>\n")
             if diffPath2:
