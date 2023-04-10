@@ -6,6 +6,7 @@
 
     Declarations for msl implementations of standard nodes included in the MaterialX specification.
   -->
+  
   <!-- ======================================================================== -->
   <!-- Shader nodes                                                             -->
   <!-- ======================================================================== -->
