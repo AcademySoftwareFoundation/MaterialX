@@ -521,6 +521,7 @@
   <!-- ======================================================================== -->
   <!-- Compositing nodes                                                        -->
   <!-- ======================================================================== -->
+
   <!-- <premult> -->
   <implementation name="IM_premult_color4_genosl" nodedef="ND_premult_color4" file="mx_premult_color4.osl" function="mx_premult_color4" target="genosl" />
 
