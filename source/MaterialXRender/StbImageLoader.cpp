@@ -16,6 +16,11 @@
 #define STB_IMAGE_STATIC 1
 #include <MaterialXRender/External/StbImage/stb_image.h>
 
+#if defined(__APPLE__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_STATIC 1
 #include <MaterialXRender/External/StbImage/stb_image_write.h>
@@ -116,5 +121,9 @@ ImagePtr StbImageLoader::loadImage(const FilePath& filePath)
     image->setResourceBufferDeallocator(&stbi_image_free);
     return image;
 }
+
+#if defined(__APPLE__)
+    #pragma clang diagnostic pop
+#endif
 
 MATERIALX_NAMESPACE_END
