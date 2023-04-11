@@ -61,7 +61,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
-    /// @param RenderContextHandle allows initializing the GlslRenderer with a Shared OpenGL Context
+    /// @param renderContextHandle allows initializing the GlslRenderer with a Shared OpenGL Context
     void initialize(RenderContextHandle renderContextHandle = nullptr) override;
 
     /// @}
