@@ -774,6 +774,7 @@
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
   <!-- ======================================================================== -->
+
   <!-- <dot> -->
   <implementation name="IM_dot_float_genglsl" nodedef="ND_dot_float" target="genglsl" sourcecode="{{in}}" />
   <implementation name="IM_dot_color3_genglsl" nodedef="ND_dot_color3" target="genglsl" sourcecode="{{in}}" />
