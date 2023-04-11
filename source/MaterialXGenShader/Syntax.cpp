@@ -193,7 +193,7 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
     {
         if (i == channels.size() - 1)
         {
-            delimiter = "";
+            delimiter.clear();
         }
 
         const char ch = channels[i];

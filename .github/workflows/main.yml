@@ -197,13 +197,13 @@ jobs:
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
         python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
-        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
+        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target glsl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target osl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target mdl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --path .. --target msl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
       working-directory: python
 
     - name: Shader Validation Tests (Windows)
@@ -211,13 +211,13 @@ jobs:
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator glslangValidator.exe
 
     - name: Shader Validation Tests (MacOS)
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --path . --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
@@ -237,8 +237,8 @@ jobs:
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/render
-        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
-        python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
+        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
+        python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
     - name: Render Application Tests
       if: matrix.test_render == 'ON'
