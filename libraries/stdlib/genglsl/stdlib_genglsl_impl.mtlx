@@ -204,6 +204,7 @@
   <!-- ======================================================================== -->
   <!-- Math nodes                                                               -->
   <!-- ======================================================================== -->
+
   <!-- <add> -->
   <implementation name="IM_add_float_genglsl" nodedef="ND_add_float" target="genglsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3_genglsl" nodedef="ND_add_color3" target="genglsl" sourcecode="{{in1}} + {{in2}}" />
