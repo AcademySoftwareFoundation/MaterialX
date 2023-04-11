@@ -699,14 +699,12 @@
   <implementation name="IM_convert_integer_float_genmsl" nodedef="ND_convert_integer_float" target="genmsl" />
 
   <!-- <swizzle> -->
-
   <!-- from type: float -->
   <implementation name="IM_swizzle_float_color3_genmsl" nodedef="ND_swizzle_float_color3" target="genmsl" />
   <implementation name="IM_swizzle_float_color4_genmsl" nodedef="ND_swizzle_float_color4" target="genmsl" />
   <implementation name="IM_swizzle_float_vector2_genmsl" nodedef="ND_swizzle_float_vector2" target="genmsl" />
   <implementation name="IM_swizzle_float_vector3_genmsl" nodedef="ND_swizzle_float_vector3" target="genmsl" />
   <implementation name="IM_swizzle_float_vector4_genmsl" nodedef="ND_swizzle_float_vector4" target="genmsl" />
-
   <!-- from type: color3 -->
   <implementation name="IM_swizzle_color3_float_genmsl" nodedef="ND_swizzle_color3_float" target="genmsl" />
   <implementation name="IM_swizzle_color3_color3_genmsl" nodedef="ND_swizzle_color3_color3" target="genmsl" />
@@ -714,7 +712,6 @@
   <implementation name="IM_swizzle_color3_vector2_genmsl" nodedef="ND_swizzle_color3_vector2" target="genmsl" />
   <implementation name="IM_swizzle_color3_vector3_genmsl" nodedef="ND_swizzle_color3_vector3" target="genmsl" />
   <implementation name="IM_swizzle_color3_vector4_genmsl" nodedef="ND_swizzle_color3_vector4" target="genmsl" />
-
   <!-- from type: color4 -->
   <implementation name="IM_swizzle_color4_float_genmsl" nodedef="ND_swizzle_color4_float" target="genmsl" />
   <implementation name="IM_swizzle_color4_color3_genmsl" nodedef="ND_swizzle_color4_color3" target="genmsl" />
@@ -722,7 +719,6 @@
   <implementation name="IM_swizzle_color4_vector2_genmsl" nodedef="ND_swizzle_color4_vector2" target="genmsl" />
   <implementation name="IM_swizzle_color4_vector3_genmsl" nodedef="ND_swizzle_color4_vector3" target="genmsl" />
   <implementation name="IM_swizzle_color4_vector4_genmsl" nodedef="ND_swizzle_color4_vector4" target="genmsl" />
-
   <!-- from type: vector2 -->
   <implementation name="IM_swizzle_vector2_float_genmsl" nodedef="ND_swizzle_vector2_float" target="genmsl" />
   <implementation name="IM_swizzle_vector2_color3_genmsl" nodedef="ND_swizzle_vector2_color3" target="genmsl" />
@@ -730,7 +726,6 @@
   <implementation name="IM_swizzle_vector2_vector2_genmsl" nodedef="ND_swizzle_vector2_vector2" target="genmsl" />
   <implementation name="IM_swizzle_vector2_vector3_genmsl" nodedef="ND_swizzle_vector2_vector3" target="genmsl" />
   <implementation name="IM_swizzle_vector2_vector4_genmsl" nodedef="ND_swizzle_vector2_vector4" target="genmsl" />
-
   <!-- from type: vector3 -->
   <implementation name="IM_swizzle_vector3_float_genmsl" nodedef="ND_swizzle_vector3_float" target="genmsl" />
   <implementation name="IM_swizzle_vector3_color3_genmsl" nodedef="ND_swizzle_vector3_color3" target="genmsl" />
@@ -738,7 +733,6 @@
   <implementation name="IM_swizzle_vector3_vector2_genmsl" nodedef="ND_swizzle_vector3_vector2" target="genmsl" />
   <implementation name="IM_swizzle_vector3_vector3_genmsl" nodedef="ND_swizzle_vector3_vector3" target="genmsl" />
   <implementation name="IM_swizzle_vector3_vector4_genmsl" nodedef="ND_swizzle_vector3_vector4" target="genmsl" />
-
   <!-- from type: vector4 -->
   <implementation name="IM_swizzle_vector4_float_genmsl" nodedef="ND_swizzle_vector4_float" target="genmsl" />
   <implementation name="IM_swizzle_vector4_color3_genmsl" nodedef="ND_swizzle_vector4_color3" target="genmsl" />
