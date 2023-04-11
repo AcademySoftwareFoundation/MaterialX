@@ -23,11 +23,11 @@ def main():
 
     if opts.stdlib:
         stdlib = mx.createDocument()
-        filePath = os.path.dirname(os.path.abspath(__file__))
-        searchPath = mx.FileSearchPath(os.path.join(filePath, '..', '..'))
-        searchPath.append(os.path.dirname(opts.inputFilename))
-        libraryFolders = [ "libraries" ]
-        mx.loadLibraries(libraryFolders, searchPath, stdlib)
+        try:
+            mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
+        except err:
+            print(err)
+            sys.exit(0)
         doc.importLibrary(stdlib)
 
     (valid, message) = doc.validate()
