@@ -6,6 +6,7 @@
 #include <MaterialXGraphEditor/Graph.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -20,25 +21,6 @@ namespace
 static void errorCallback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
-
-mx::FileSearchPath getDefaultSearchPath()
-{
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
-
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
-    {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
-    }
-
-    return searchPath;
 }
 
 mx::FilePath getConfigPath()
@@ -117,7 +99,8 @@ int main(int argc, char* const argv[])
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
-    mx::FileSearchPath searchPath = getDefaultSearchPath();
+    mx::FilePath currentPath = mx::FilePath::getModulePath();
+    mx::FileSearchPath searchPath = mx::getDefaultLibraryPath(currentPath);
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;
