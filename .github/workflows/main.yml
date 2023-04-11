@@ -4,9 +4,13 @@ on:
   push:
     paths-ignore:
       - '**.md'
+      - 'pyproject.toml'
+      - '.github/workflows/python.yml'
   pull_request:
     paths-ignore:
       - '**.md'
+      - 'pyproject.toml'
+      - '.github/workflows/python.yml'
   workflow_dispatch:
 
 concurrency:

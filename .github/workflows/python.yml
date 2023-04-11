@@ -74,11 +74,15 @@ jobs:
         CIBW_BUILD: 'cp${{ matrix.python-version }}-*'
         CIBW_SKIP: '*musllinux*'
         CIBW_ARCHS: 'auto64'
+        # https://github.com/pypa/manylinux
+        # manylinux2014 is CentOS 7 based. Which means GCC 10 and glibc 2.17.
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
+        CIBW_BEFORE_ALL_MACOS: sudo xcode-select -switch /Applications/Xcode_13.4.app
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
-        MACOSX_DEPLOYMENT_TARGET: '10.13'
+        MACOSX_DEPLOYMENT_TARGET: '10.15'
 
     - name: Store wheels
       uses: actions/upload-artifact@v3

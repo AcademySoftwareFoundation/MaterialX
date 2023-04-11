@@ -282,7 +282,9 @@ if(MATERIALX_BUILD_RENDER)
     if(MATERIALX_BUILD_GRAPH_EDITOR)
         add_subdirectory(source/MaterialXGraphEditor)
     endif()
-    add_subdirectory(resources)
+    if(NOT SKBUILD)
+        add_subdirectory(resources)
+    endif()
 endif()
 
 # Add test subdirectory
