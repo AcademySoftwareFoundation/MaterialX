@@ -40,7 +40,7 @@ class MX_RENDER_API ShaderRenderer
     /// @{
 
     /// Initialize the renderer.
-    virtual void initialize(RenderContextHandle) { }
+    virtual void initialize(RenderContextHandle = nullptr) { }
 
     /// Set the camera.
     void setCamera(CameraPtr camera)
