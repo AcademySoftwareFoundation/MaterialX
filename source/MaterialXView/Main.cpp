@@ -73,8 +73,7 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::FilePath currentPath = mx::FilePath::getModulePath();
-    mx::FileSearchPath searchPath = mx::getDefaultLibraryPath(currentPath);
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;

@@ -99,8 +99,7 @@ int main(int argc, char* const argv[])
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
-    mx::FilePath currentPath = mx::FilePath::getModulePath();
-    mx::FileSearchPath searchPath = mx::getDefaultLibraryPath(currentPath);
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;

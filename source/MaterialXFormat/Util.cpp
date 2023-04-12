@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXFormat/Util.h>
+#include <MaterialXFormat/File.h>
 
 #include <fstream>
 #include <iostream>
@@ -222,17 +223,22 @@ FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
     return searchPath;
 }
 
-FileSearchPath getDefaultLibraryPath(const FilePath& startPath)
+FileSearchPath getDefaultDataSearchPath(const FilePath& startPath)
 {
     FileSearchPath searchPath;
     const FilePath libPath("libraries");
 
     FilePath currentPath = startPath;
+    if (currentPath.isEmpty())
+    {
+        currentPath = FilePath::getModulePath();
+    }
     while (!currentPath.isEmpty())
     {
         if ((currentPath / libPath).exists())
         {
             searchPath.append(currentPath);
+            break;
         }
         currentPath = currentPath.getParentPath();
     }   

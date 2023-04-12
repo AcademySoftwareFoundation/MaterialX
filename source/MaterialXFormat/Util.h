@@ -60,11 +60,12 @@ MX_FORMAT_API void flattenFilenames(DocumentPtr doc, const FileSearchPath& searc
 /// Return a file search path containing the parent folder of each source URI in the given document.
 MX_FORMAT_API FileSearchPath getSourceSearchPath(ConstDocumentPtr doc);
 
-/// Return a file search path containing the parent folder to the default library folder.
+/// Return a file search path to the default data library folder.
 /// All parent paths of a given start path will be examined to until either there is
-/// no parent or the library folder is found.
+/// no parent or the library folder is found. If an empty path is specified,
+/// then the start path is the module path.
 /// @param startPath The path to start searching from. 
-MX_FORMAT_API FileSearchPath getDefaultLibraryPath(const FilePath& startPath);
+MX_FORMAT_API FileSearchPath getDefaultDataSearchPath(const FilePath& startPath = FilePath());
 
 MATERIALX_NAMESPACE_END
 
