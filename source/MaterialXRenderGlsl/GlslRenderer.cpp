@@ -179,10 +179,9 @@ void GlslRenderer::render()
                 _program->bindTextures(_imageHandler);
                 _program->bindLighting(_lightHandler, _imageHandler);
                 _program->bindTimeAndFrame();
-                
-                bool isTransparent = _program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT);
 
                 // Set blend state for the given material.
+                bool isTransparent = _program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT);
                 if (isTransparent)
                 {
                     glEnable(GL_BLEND);
@@ -202,17 +201,16 @@ void GlslRenderer::render()
                         MeshPartitionPtr part = mesh->getPartition(i);
                         _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
-                        
-                        if(isTransparent)
+
+                        if (isTransparent)
                         {
                             glEnable(GL_CULL_FACE);
                             glCullFace(GL_FRONT);
-                            glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
+                            glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
                             glCullFace(GL_BACK);
                             glDisable(GL_CULL_FACE);
                         }
-                        
-                        glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
+                        glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
                     }
                 }
 
