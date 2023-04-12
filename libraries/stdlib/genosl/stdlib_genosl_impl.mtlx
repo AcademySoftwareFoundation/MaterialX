@@ -659,7 +659,6 @@
   <implementation name="IM_ifequal_vector4B_genosl" nodedef="ND_ifequal_vector4B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
 
   <!-- <switch> -->
-
   <!-- 'which' type : float -->
   <implementation name="IM_switch_float_genosl" nodedef="ND_switch_float" target="genosl" />
   <implementation name="IM_switch_color3_genosl" nodedef="ND_switch_color3" target="genosl" />
@@ -667,7 +666,6 @@
   <implementation name="IM_switch_vector2_genosl" nodedef="ND_switch_vector2" target="genosl" />
   <implementation name="IM_switch_vector3_genosl" nodedef="ND_switch_vector3" target="genosl" />
   <implementation name="IM_switch_vector4_genosl" nodedef="ND_switch_vector4" target="genosl" />
-
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genosl" nodedef="ND_switch_floatI" target="genosl" />
   <implementation name="IM_switch_color3I_genosl" nodedef="ND_switch_color3I" target="genosl" />
@@ -700,14 +698,12 @@
   <implementation name="IM_convert_integer_float_genosl" nodedef="ND_convert_integer_float" target="genosl" />
 
   <!-- <swizzle> -->
-
   <!-- from type: float -->
   <implementation name="IM_swizzle_float_color3_genosl" nodedef="ND_swizzle_float_color3" target="genosl" />
   <implementation name="IM_swizzle_float_color4_genosl" nodedef="ND_swizzle_float_color4" target="genosl" />
   <implementation name="IM_swizzle_float_vector2_genosl" nodedef="ND_swizzle_float_vector2" target="genosl" />
   <implementation name="IM_swizzle_float_vector3_genosl" nodedef="ND_swizzle_float_vector3" target="genosl" />
   <implementation name="IM_swizzle_float_vector4_genosl" nodedef="ND_swizzle_float_vector4" target="genosl" />
-
   <!-- from type: color3 -->
   <implementation name="IM_swizzle_color3_float_genosl" nodedef="ND_swizzle_color3_float" target="genosl" />
   <implementation name="IM_swizzle_color3_color3_genosl" nodedef="ND_swizzle_color3_color3" target="genosl" />
@@ -715,7 +711,6 @@
   <implementation name="IM_swizzle_color3_vector2_genosl" nodedef="ND_swizzle_color3_vector2" target="genosl" />
   <implementation name="IM_swizzle_color3_vector3_genosl" nodedef="ND_swizzle_color3_vector3" target="genosl" />
   <implementation name="IM_swizzle_color3_vector4_genosl" nodedef="ND_swizzle_color3_vector4" target="genosl" />
-
   <!-- from type: color4 -->
   <implementation name="IM_swizzle_color4_float_genosl" nodedef="ND_swizzle_color4_float" target="genosl" />
   <implementation name="IM_swizzle_color4_color3_genosl" nodedef="ND_swizzle_color4_color3" target="genosl" />
@@ -723,7 +718,6 @@
   <implementation name="IM_swizzle_color4_vector2_genosl" nodedef="ND_swizzle_color4_vector2" target="genosl" />
   <implementation name="IM_swizzle_color4_vector3_genosl" nodedef="ND_swizzle_color4_vector3" target="genosl" />
   <implementation name="IM_swizzle_color4_vector4_genosl" nodedef="ND_swizzle_color4_vector4" target="genosl" />
-
   <!-- from type: vector2 -->
   <implementation name="IM_swizzle_vector2_float_genosl" nodedef="ND_swizzle_vector2_float" target="genosl" />
   <implementation name="IM_swizzle_vector2_color3_genosl" nodedef="ND_swizzle_vector2_color3" target="genosl" />
@@ -731,7 +725,6 @@
   <implementation name="IM_swizzle_vector2_vector2_genosl" nodedef="ND_swizzle_vector2_vector2" target="genosl" />
   <implementation name="IM_swizzle_vector2_vector3_genosl" nodedef="ND_swizzle_vector2_vector3" target="genosl" />
   <implementation name="IM_swizzle_vector2_vector4_genosl" nodedef="ND_swizzle_vector2_vector4" target="genosl" />
-
   <!-- from type: vector3 -->
   <implementation name="IM_swizzle_vector3_float_genosl" nodedef="ND_swizzle_vector3_float" target="genosl" />
   <implementation name="IM_swizzle_vector3_color3_genosl" nodedef="ND_swizzle_vector3_color3" target="genosl" />
@@ -739,7 +732,6 @@
   <implementation name="IM_swizzle_vector3_vector2_genosl" nodedef="ND_swizzle_vector3_vector2" target="genosl" />
   <implementation name="IM_swizzle_vector3_vector3_genosl" nodedef="ND_swizzle_vector3_vector3" target="genosl" />
   <implementation name="IM_swizzle_vector3_vector4_genosl" nodedef="ND_swizzle_vector3_vector4" target="genosl" />
-
   <!-- from type: vector4 -->
   <implementation name="IM_swizzle_vector4_float_genosl" nodedef="ND_swizzle_vector4_float" target="genosl" />
   <implementation name="IM_swizzle_vector4_color3_genosl" nodedef="ND_swizzle_vector4_color3" target="genosl" />
