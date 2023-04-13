@@ -5,8 +5,6 @@
 
 #include <MaterialXFormat/Util.h>
 
-#include <MaterialXFormat/File.h>
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
