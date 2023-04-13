@@ -6,7 +6,7 @@
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRender/Util.h>
-
+#include <MaterialXFormat/Util.h>
 #include <MaterialXCore/Util.h>
 
 #include <iostream>
@@ -63,25 +63,6 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
     res = value->asA<T>();
 }
 
-mx::FileSearchPath getDefaultSearchPath()
-{
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
-
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
-    {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
-    }
-
-    return searchPath;
-}
-
 int main(int argc, char* const argv[])
 {  
     std::vector<std::string> tokens;
@@ -93,7 +74,7 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::FileSearchPath searchPath = getDefaultSearchPath();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;
