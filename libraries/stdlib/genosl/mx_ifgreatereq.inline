@@ -1,1 +1,0 @@
-mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})
