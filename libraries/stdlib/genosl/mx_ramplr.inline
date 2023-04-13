@@ -1,1 +1,0 @@
-mix({{valuel}}, {{valuer}}, clamp({{texcoord}}.x, 0, 1))
