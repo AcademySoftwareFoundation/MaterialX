@@ -222,4 +222,19 @@ FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
     return searchPath;
 }
 
+FileSearchPath getDefaultDataSearchPath()
+{
+    const FilePath DEFAULT_LIBRARY_FOLDER("libraries");
+    FilePath currentPath = FilePath::getModulePath();
+    while (!currentPath.isEmpty())
+    {
+        if ((currentPath / DEFAULT_LIBRARY_FOLDER).exists())
+        {
+            return FileSearchPath(currentPath);
+        }
+        currentPath = currentPath.getParentPath();
+    }
+    return FileSearchPath();    
+}
+
 MATERIALX_NAMESPACE_END
