@@ -55,6 +55,8 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(MaterialXGenMdl)
     target_link_libraries(MaterialXTest MaterialXGenMdl)
+    get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
+    target_compile_definitions(MaterialXTest PRIVATE -DMATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\")
   endif()
   if(MATERIALX_BUILD_GEN_MSL)
     add_subdirectory(MaterialXGenMsl)

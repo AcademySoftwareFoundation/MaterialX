@@ -74,10 +74,10 @@ TEST_CASE("Value strings", "[value]")
     REQUIRE(mx::fromValueString<std::string>("text") == "text");
 
     // Verify that invalid conversions throw exceptions.
-    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError&);
+    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError);
 }
 
 TEST_CASE("Typed values", "[value]")

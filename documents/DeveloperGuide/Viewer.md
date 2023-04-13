@@ -89,8 +89,8 @@ The following are common command-line options for MaterialXView, and a complete 
 - `--envMethod [INTEGER]` : Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)
 - `--envSampleCount [INTEGER]` :  Specify the environment sample count (defaults to 16)
 - `--lightRotation [FLOAT]` : Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)
-- `--path [FILEPATH]` : Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.
-- `--library [FILEPATH]` : Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.
+- `--path [FILEPATH]` : Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.
+- `--library [FILEPATH]` : Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.
 - `--screenWidth [INTEGER]` : Specify the width of the screen image in pixels (defaults to 1280)
 - `--screenHeight [INTEGER]` : Specify the height of the screen image in pixels (defaults to 960)
 - `--screenColor [VECTOR3]` : Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)
