@@ -35,7 +35,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler->addLoader(TinyObjLoader::create());
 }
 
-void GlslRenderer::initialize()
+void GlslRenderer::initialize(RenderContextHandle renderContextHandle)
 {
     if (!_initialized)
     {
@@ -48,7 +48,7 @@ void GlslRenderer::initialize()
         }
 
         // Create offscreen context
-        _context = GLContext::create(_window);
+        _context = GLContext::create(_window, (HardwareContextHandle) renderContextHandle);
         if (!_context)
         {
             throw ExceptionRenderError("Failed to create OpenGL context for renderer");
