@@ -4,9 +4,10 @@
 //
 
 #include <MaterialXView/Viewer.h>
+
 #include <MaterialXRender/Util.h>
-#include <MaterialXCore/Util.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXCore/Util.h>
 
 #include <iostream>
 
