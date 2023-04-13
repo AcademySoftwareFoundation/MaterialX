@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 void bindPyShaderRenderer(py::module& mod)
 {
     py::class_<mx::ShaderRenderer, mx::ShaderRendererPtr>(mod, "ShaderRenderer")
-        .def("initialize", &mx::ShaderRenderer::initialize)
+        .def("initialize", &mx::ShaderRenderer::initialize, py::arg("renderContextHandle") = nullptr)
         .def("setCamera", &mx::ShaderRenderer::setCamera)
         .def("getCamera", &mx::ShaderRenderer::getCamera)
         .def("setImageHandler", &mx::ShaderRenderer::setImageHandler)
