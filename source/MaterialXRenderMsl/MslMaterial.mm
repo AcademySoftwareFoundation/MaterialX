@@ -128,7 +128,7 @@ void MslMaterial::bindMesh(MeshPtr mesh)
     }
 
     _glProgram->bind(MTL(renderCmdEncoder));
-    if (_boundMesh && mesh->getName() != _boundMesh->getName())
+    if (_boundMesh && mesh != _boundMesh)
     {
         _glProgram->unbindGeometry();
     }

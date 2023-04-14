@@ -233,6 +233,8 @@ void MslRenderer::render()
             // Draw all the partitions of all the meshes in the handler
             for (const auto& mesh : _geometryHandler->getMeshes())
             {
+                _program->bindMesh(renderCmdEncoder, mesh);
+
                 for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                 {
                     auto part = mesh->getPartition(i);
