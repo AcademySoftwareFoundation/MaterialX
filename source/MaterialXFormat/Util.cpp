@@ -224,11 +224,11 @@ FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
 
 FileSearchPath getDefaultDataSearchPath()
 {
-    const FilePath DEFAULT_LIBRARY_FOLDER("libraries");
+    const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
     FilePath currentPath = FilePath::getModulePath();
     while (!currentPath.isEmpty())
     {
-        if ((currentPath / DEFAULT_LIBRARY_FOLDER).exists())
+        if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
         {
             return FileSearchPath(currentPath);
         }
