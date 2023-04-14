@@ -465,7 +465,6 @@ void MslProgram::bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr 
         unbindGeometry();
     }
     _boundMesh = mesh;
-    
 
     MslProgram::InputMap foundList;
     const MslProgram::InputMap& attributeList = getAttributesList();
