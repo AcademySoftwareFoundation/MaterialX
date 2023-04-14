@@ -347,14 +347,6 @@ void MslProgram::prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncod
     
     // Bind based on inputs found
     bindViewInformation(cam);
-    if(geometryHandler)
-    {
-        for (const auto& mesh : geometryHandler->getMeshes())
-        {
-            bindMesh(renderCmdEncoder, mesh);
-        }
-    }
-
     bindTimeAndFrame();
     bindLighting(lightHandler, imageHandler);
     bindTextures(renderCmdEncoder, lightHandler, imageHandler);
@@ -467,6 +459,12 @@ void MslProgram::bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr 
         errors.push_back("No mesh to bind");
         throw ExceptionRenderError(errorType, errors);
     }
+
+    if (_boundMesh && mesh != _boundMesh)
+    {
+        unbindGeometry();
+    }
+    _boundMesh = mesh;
 
     MslProgram::InputMap foundList;
     const MslProgram::InputMap& attributeList = getAttributesList();
