@@ -76,7 +76,7 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public CarryThinFilmParameters<ShaderN
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     void emitBsdfOverBsdfFunctionCalls(
-        ShaderNode& node,
+        const ShaderNode& node,
         GenContext& context,
         ShaderStage& stage,
         const ShaderGenerator& shadergen,
@@ -85,7 +85,7 @@ class MX_GENMDL_API ClosureLayerNodeMdl : public CarryThinFilmParameters<ShaderN
         ShaderOutput* output) const;
 
     void emitBsdfOverBsdfFunctionCalls_thinFilm(
-        ShaderNode& node,
+        const ShaderNode& node,
         GenContext& context,
         ShaderStage& stage,
         const ShaderGenerator& shadergen,
