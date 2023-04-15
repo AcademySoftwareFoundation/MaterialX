@@ -85,7 +85,7 @@ class MX_GENSHADER_API UnitSystem
 
   protected:
     // Protected constructor
-    UnitSystem(const string& language);
+    UnitSystem(const string& target);
 
   protected:
     UnitConverterRegistryPtr _unitRegistry;
