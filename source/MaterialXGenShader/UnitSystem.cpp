@@ -118,9 +118,9 @@ UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc*
 
 const string UnitSystem::UNITSYTEM_NAME = "default_unit_system";
 
-UnitSystem::UnitSystem(const string& target)
+UnitSystem::UnitSystem(const string& target) :
+    _target(createValidName(target))
 {
-    _target = createValidName(target);
 }
 
 void UnitSystem::loadLibrary(DocumentPtr document)
