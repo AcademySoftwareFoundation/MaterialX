@@ -313,6 +313,9 @@ class MX_RENDERMSL_API MslProgram
     // Metal Device Object
     id<MTLDevice> _device = nil;
     
+    // Currently bound mesh
+    MeshPtr _boundMesh = nullptr;
+
     bool _alphaBlendingEnabled = false;
     
     float _time = 0.0f;

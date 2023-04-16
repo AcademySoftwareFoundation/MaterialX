@@ -3509,13 +3509,12 @@ void Graph::shaderPopup()
 void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
 {
     ImVec2 mousePos = ImGui::GetMousePos();
-    mx::Vector2 mxMousePos = mx::Vector2(mousePos.x, mousePos.y);
-    ImVec2 dragDelta = ImGui::GetMouseDragDelta();
-    float scrollAmt = ImGui::GetIO().MouseWheel;
-    int button = -1;
-    bool down = false;
     if (mousePos.x > minValue.x && mousePos.x < (minValue.x + width) && mousePos.y > minValue.y && mousePos.y < (minValue.y + height))
     {
+        mx::Vector2 mxMousePos = mx::Vector2(mousePos.x, mousePos.y);
+        float scrollAmt = ImGui::GetIO().MouseWheel;
+        int button = -1;
+        bool down = false;
         if (ImGui::IsMouseDragging(0) || ImGui::IsMouseDragging(1))
         {
             _renderer->setMouseMotionEvent(mxMousePos);
