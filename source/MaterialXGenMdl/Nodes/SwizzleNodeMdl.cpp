@@ -32,7 +32,7 @@ string SwizzleNodeMdl::getVariableName(const ShaderInput* input) const
     // Allow swizzles also on custom types, like UsdUVTexture.
     // Special handling is required because struct field names follow a special naming scheme in this generator.
     const ShaderNode* upstreamNode = input->getConnection()->getNode();
-    if (upstreamNode)
+    if (upstreamNode && !upstreamNode->isAGraph())
     {
         const CompoundNodeMdl* upstreamNodeMdl = dynamic_cast<const CompoundNodeMdl*>(&upstreamNode->getImplementation());
         if (upstreamNodeMdl && upstreamNodeMdl->isReturnStruct())
