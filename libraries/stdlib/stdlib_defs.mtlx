@@ -1024,6 +1024,17 @@
     <output name="out" type="float" />
   </nodedef>
 
+  <!--
+    Node: <checkers2d>
+    A 2D checkerboard pattern.
+  -->
+  <nodedef name="ND_checkers2d_float" node="checkers2d" nodegroup="procedural2d">
+    <input name="freq" type="vector2" uiname="Frequency" value="8, 8" doc="The frequency of checkers, with higher values producing smaller squares. Default is (8, 8)." />
+    <input name="offset" type="vector2" uiname="Offset" value="0, 0"  doc="Shift the pattern in 2d space. Default is (0, 0)." />
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
