@@ -388,7 +388,7 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
 
     string variable;
     const ShaderNode* upstreamNode = upstreamOutput->getNode();
-    if (upstreamNode->numOutputs() > 1)
+    if (!upstreamNode->isAGraph() && upstreamNode->numOutputs() > 1)
     {
         const CompoundNodeMdl* upstreamNodeMdl = dynamic_cast<const CompoundNodeMdl*>(&upstreamNode->getImplementation());
         if (upstreamNodeMdl && upstreamNodeMdl->unrollReturnStructMembers())
