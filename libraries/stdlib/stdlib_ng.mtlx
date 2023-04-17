@@ -1161,11 +1161,11 @@
   </nodegraph>
 
   <!--
-    <checkers2d>
+    <checkerboard>
     A 2D checkerboard pattern.
   -->
 
-  <nodegraph name="NG_checkers2d_float" nodedef="ND_checkers2d_float">
+  <nodegraph name="NG_checkerboard_float" nodedef="ND_checkerboard_float">
     <separate2 name="N_mtlxseparate2" type="multioutput">
       <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
     </separate2>
