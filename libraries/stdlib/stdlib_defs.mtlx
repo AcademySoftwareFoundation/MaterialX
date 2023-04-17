@@ -1039,17 +1039,17 @@
     <output name="out" type="float" />
   </nodedef>
   <nodedef name="ND_randomfloat_color3" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="color3" uiname="Input" value="0" />
+    <input name="in" type="color3" uiname="Input" value="0.0, 0.0, 0.0" />
     <input name="seed" type="float" uiname="Seed" value="0.0" />
     <output name="out" type="float" />
   </nodedef>
   <nodedef name="ND_randomfloat_vector3" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="vector3" uiname="Input" value="0" />
+    <input name="in" type="vector3" uiname="Input" value="0.0, 0.0, 0.0" />
     <input name="seed" type="float" uiname="Seed" value="0.0" />
     <output name="out" type="float" />
   </nodedef>
   <nodedef name="ND_randomfloat_vector2" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="vector2" uiname="Input" value="0" />
+    <input name="in" type="vector2" uiname="Input" value="0.0, 0.0" />
     <input name="seed" type="float" uiname="Seed" value="0.0" />
     <output name="out" type="float" />
   </nodedef>
@@ -1061,7 +1061,7 @@
     color or vector3. The output is an RGB color.
   -->
   <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0" />
+    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
     <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
@@ -1083,7 +1083,7 @@
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_randomcolor_color3" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="color3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="in" type="color3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
     <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
@@ -1094,7 +1094,7 @@
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_randomcolor_vector3" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="in" type="vector3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
     <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
@@ -1105,7 +1105,7 @@
     <output name="out" type="color3" />
   </nodedef>
   <nodedef name="ND_randomcolor_vector2" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector2" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="in" type="vector2" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
     <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
