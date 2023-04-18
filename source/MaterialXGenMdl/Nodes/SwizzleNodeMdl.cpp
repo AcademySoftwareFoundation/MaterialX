@@ -11,7 +11,6 @@
 
 #include <MaterialXGenShader/GenContext.h>
 
-
 MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr SwizzleNodeMdl::create()
@@ -50,4 +49,3 @@ string SwizzleNodeMdl::getVariableName(const ShaderInput* input) const
 }
 
 MATERIALX_NAMESPACE_END
-
