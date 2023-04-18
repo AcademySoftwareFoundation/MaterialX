@@ -1200,9 +1200,6 @@
     <place2d name="N_mtlxplace2d1" type="vector2">
       <input name="texcoord" type="vector2" nodename="N_mult" />
       <input name="offset" type="vector2" interfacename="offset" />
-      <input name="pivot" type="vector2" value="0, 0" />
-      <input name="scale" type="vector2" value="1, 1" />
-      <input name="rotate" type="float" value="0" />
     </place2d>
     <output name="out" type="float" nodename="N_mtlxifequal2" />
   </nodegraph>
