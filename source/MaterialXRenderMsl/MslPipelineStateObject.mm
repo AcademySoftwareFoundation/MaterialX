@@ -1235,7 +1235,9 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         return false;
     };
 
-    auto setValue = [](MaterialX::ValuePtr value, std::vector<unsigned char>& data, size_t offset)
+    std::function<void(MaterialX::MslProgram::InputPtr, MaterialX::ValuePtr, std::vector<unsigned char>&, size_t)> setValue;
+    
+    setValue = [&setValue](MaterialX::MslProgram::InputPtr input,  MaterialX::ValuePtr value, std::vector<unsigned char>& data, size_t offset)
     {
         if (value->getTypeString() == "float")
         {
@@ -1293,6 +1295,11 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         else if (value->getTypeString() == "string")
         {
             // Bound differently. Ignored here!
+            if(input)
+            {
+                ValuePtr v = Value::createValueFromStrings(value->getValueString(), input->typeString);
+                setValue(nullptr, v, data, offset);
+            }
         }
         else
         {
@@ -1312,10 +1319,11 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
             {
                 if(!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
                 {
-                    MaterialX::ValuePtr value = _uniformList[string(arg.name.UTF8String) + "." + member.name.UTF8String]->value;
+                    MaterialX::MslProgram::InputPtr input = _uniformList[string(arg.name.UTF8String) + "." + member.name.UTF8String];
+                    MaterialX::ValuePtr value = input->value;
                     if(value)
                     {
-                        setValue(value, uniformBufferData, member.offset);
+                        setValue(input, value, uniformBufferData, member.offset);
                     }
                 }
             }
@@ -1329,7 +1337,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
-            std::vector<unsigned char> uniformBufferData(arg.bufferDataSize);
+            std::vector<unsigned char> uniformBufferData(arg.bufferDataSize, 0);
     
             for (MTLStructMember* member in arg.bufferStructType.members)
             {
@@ -1343,7 +1351,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
                         MaterialX::ValuePtr value = uniformInfo->second->value;
                         if(value)
                         {
-                            setValue(value, uniformBufferData, member.offset);
+                            setValue(uniformInfo->second, value, uniformBufferData, member.offset);
                         }
                     }
                     else
@@ -1366,7 +1374,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
                                 MaterialX::ValuePtr value = uniformInfo->second->value;
                                 if(value)
                                 {
-                                    setValue(value, uniformBufferData, member.offset + i * arrayMember.stride + ArrayOfStructMember.offset);
+                                    setValue(uniformInfo->second, value, uniformBufferData, member.offset + i * arrayMember.stride + ArrayOfStructMember.offset);
                                 }
                             }
                         }
