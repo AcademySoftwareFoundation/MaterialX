@@ -59,11 +59,15 @@ class Graph
 
   private:
     mx::ElementPredicate getElementPredicate() const;
-    void loadStandardLibraries();
-    void createNodeUIList(mx::DocumentPtr doc);
     void buildUiBaseGraph(mx::DocumentPtr doc);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
     void buildGroupNode(UiNodePtr node);
+
+    // Definition handling
+    void initializeDataLibraries();
+    void loadStandardLibraries();
+    void createNodeUIList(mx::DocumentPtr doc);
+    void publishSelectedNodeGraph();
 
     // handling link information
     void linkGraph();
@@ -122,7 +126,7 @@ class Graph
     void setDefaults(mx::InputPtr input);
 
     // set up Ui information for add node popup
-    void addExtraNodes();
+    void addExtraNodes(mx::DocumentPtr dataLibrary);
 
     // copy and paste functions
     void copyInputs();
@@ -151,6 +155,7 @@ class Graph
     void loadGraphFromFile();
     void saveGraphToFile();
     void loadGeometry();
+    void publishDefinition();
 
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -214,7 +219,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
-
+    FileDialog _fileDialogPublish;
 
     bool _isNodeGraph;
 

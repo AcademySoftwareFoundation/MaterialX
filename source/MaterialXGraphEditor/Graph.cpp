@@ -48,6 +48,7 @@ Graph::Graph(const std::string& materialFilename,
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
+    _fileDialogPublish(FileDialog::EnterNewFilename),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -60,7 +61,6 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
-    loadStandardLibraries();
     setPinColor();
 
     // Set up filters load and save
@@ -70,10 +70,10 @@ Graph::Graph(const std::string& materialFilename,
     _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
+    initializeDataLibraries();
     _graphDoc->importLibrary(_stdLib);
 
     _initial = true;
-    createNodeUIList(_stdLib);
 
     if (_graphDoc)
     {
@@ -99,6 +99,12 @@ Graph::Graph(const std::string& materialFilename,
     }
 }
 
+void Graph::initializeDataLibraries()
+{
+    loadStandardLibraries();
+    createNodeUIList(_stdLib);
+}
+
 mx::ElementPredicate Graph::getElementPredicate() const
 {
     return [this](mx::ConstElementPtr elem)
@@ -116,6 +122,19 @@ void Graph::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
+        // Emit the folders and search path if custom libraries are specified.
+        if (_libraryFolders.size() > 1)
+        {
+            std::cout << "> Load data libraries:" << std::endl;
+            for (auto x : _libraryFolders)
+            {
+                std::cout << " - " + x.asString() << std::endl;
+            }
+        }
+        if (_searchPath.size() > 1)
+        {
+            std::cout << "> Search path: " + _searchPath.asString() << std::endl;
+        }
         _stdLib = mx::createDocument();
         _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
@@ -132,8 +151,6 @@ void Graph::loadStandardLibraries()
 
 mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 {
-    mx::FilePathVec libraryFolders = { "libraries" };
-    _libraryFolders = libraryFolders;
     mx::XmlReadOptions readOptions;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
@@ -181,24 +198,125 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     return doc;
 }
 
-// populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
-void Graph::addExtraNodes()
+void Graph::publishSelectedNodeGraph()
 {
-    if (!_graphDoc)
+    if (_currUiNode != nullptr)
     {
-        return;
+        mx::NodeGraphPtr nodeGraph = _currUiNode->getNodeGraph();
+        if (nodeGraph)
+        {
+            mx::DocumentPtr doc = nodeGraph->getDocument();
+            std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
+            if (doc && !outputs.empty())
+            {
+                mx::FilePath fileName = _fileDialogPublish.getSelected();
+                _fileDialogPublish.clearSelected();
+
+                // Build definition and graph names which match the convention used for standard libraries.
+                // 
+                // 1. Use NG_ and ND_ for prefixes 
+                // 2. Append the category name 
+                // 3. Append output type(s). 
+                // 
+                // Additional information could be used to make the signature unique. E.g. input type
+                // differentiation could be added.
+                std::string nodeGraphName = nodeGraph->getName();
+                std::string newNodeCategory = nodeGraphName;
+                std::string newNodeDefName(std::string("ND_") + nodeGraphName);
+                std::string newNodeGraphName(std::string("NG_") + nodeGraphName);
+                for (mx::OutputPtr output : outputs)
+                {
+                    const std::string& outputType = output->getType();
+                    newNodeDefName += "_" + outputType;
+                    newNodeGraphName += "_" + outputType;
+                }
+                mx::NodeDefPtr tempDef = nullptr;
+                mx::NodeGraphPtr tempGraph = nullptr;
+                std::string errorString;
+                try
+                {
+                    // Version and group have been left off for now. Can be specified via
+                    // some new UI.
+                    tempDef = doc->addNodeDefFromGraph(nodeGraph, newNodeDefName,
+                        newNodeCategory, mx::EMPTY_STRING, false, mx::EMPTY_STRING, newNodeGraphName);
+                    tempGraph = doc->getNodeGraph(newNodeGraphName);
+
+                    if (!tempDef || !tempGraph || !tempDef->validate() || !tempGraph->validate())
+                    {
+                        errorString = "Definition is not valid";
+                    }
+                }
+                catch (mx::Exception& e)
+                {
+                    errorString = std::string(e.what());
+                }
+                if (!errorString.empty())
+                {
+                    std::cerr << "Failed to create new definition: " << newNodeDefName << ". " <<
+                        errorString << std::endl;
+                    return;
+                }
+
+                // Create a new document with just the new definition and save to disk
+                // Re-initialize data libraries.
+                mx::DocumentPtr defDoc = mx::createDocument();
+                // Note: that addNodeDef() will automatically add an output if a type is specified
+                // so leave this empty. The outputs will be copied when the content is copied over.
+                mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
+                newDef->copyContentFrom(tempDef);
+
+                mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
+                newGraph->copyContentFrom(tempGraph);
+                for (auto node : newGraph->getChildren())
+                {
+                    node->removeAttribute("xpos");
+                    node->removeAttribute("ypos");
+                }
+
+                std::string error;
+                if (!newGraph->validate(&error))
+                {
+                    std::cerr << "Could not create valid definition: " + error << std::endl;
+                }
+                else
+                {
+                    mx::XmlWriteOptions writeOptions;
+                    writeOptions.elementPredicate = getElementPredicate();
+                    mx::writeToXmlFile(defDoc, fileName, &writeOptions);
+                }
+
+                // Clean up temporary elements as they should not be part of the
+                // working document.
+                if (tempDef)
+                {
+                    doc->removeChild(tempDef->getName());
+                }
+                if (tempGraph)
+                {
+                    doc->removeChild(tempGraph->getName());
+                }
+            }
+        }
     }
+}
+
+// populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
+void Graph::addExtraNodes(mx::DocumentPtr dataLibrary)
+{
 
     // clear any old nodes, if we previously used tab with another graph doc
     _extraNodes.clear();
 
     // get all types from the doc
     std::vector<std::string> types;
-    std::vector<mx::TypeDefPtr> typeDefs = _graphDoc->getTypeDefs();
-    types.reserve(typeDefs.size());
-    for (auto typeDef : typeDefs)
+    if (dataLibrary)
     {
-        types.push_back(typeDef->getName());
+        std::vector<mx::TypeDefPtr> typeDefs = dataLibrary->getTypeDefs();
+        types.reserve(typeDefs.size());
+        for (auto typeDef : typeDefs)
+        {
+            types.push_back(typeDef->getName());
+        }
     }
 
     // add input and output nodes for all types
@@ -1177,7 +1295,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         _nodesToAdd[group].push_back(nodeDef);
     }
 
-    addExtraNodes();
+    addExtraNodes(doc);
 }
 
 // build the UiNode node graph based off of loading a document
@@ -2889,6 +3007,13 @@ void Graph::loadGraphFromFile()
     _fileDialog.open();
 }
 
+void Graph::publishDefinition()
+{
+    _fileDialogPublish.setTypeFilters(_mtlxFilter);
+    _fileDialogPublish.setTitle("Publish Definition");
+    _fileDialogPublish.open();
+}
+
 void Graph::saveGraphToFile()
 {
     _fileDialogSave.setTypeFilters(_mtlxFilter);
@@ -2925,6 +3050,15 @@ void Graph::graphButtons()
             else if (ImGui::MenuItem("Save", "Ctrl-S"))
             {
                 saveGraphToFile();
+            }
+            else if (ImGui::MenuItem("Publish Definition", ""))
+            {
+                publishDefinition();
+            }
+            else if (ImGui::MenuItem("Reload Definitions", ""))
+            {
+                initializeDataLibraries();
+                clearGraph();
             }
             ImGui::EndMenu();
         }
@@ -3983,6 +4117,12 @@ void Graph::drawGraph(ImVec2 mousePos)
         _fileDialogGeom.clearSelected();
         _renderer->loadMesh(fileName);
         _renderer->updateMaterials(nullptr);
+    }
+
+    _fileDialogPublish.display();
+    if (_fileDialogPublish.hasSelected())
+    {
+        publishSelectedNodeGraph();
     }
 
     _fileDialogImage.display();
