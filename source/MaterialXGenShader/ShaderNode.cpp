@@ -159,68 +159,6 @@ ShaderNode::ShaderNode(const ShaderGraph* parent, const string& name) :
 {
 }
 
-bool ShaderNode::referencedConditionally() const
-{
-    if (_scopeInfo.type == ShaderNode::ScopeInfo::SINGLE)
-    {
-        int numBranches = 0;
-        uint32_t mask = _scopeInfo.conditionBitmask;
-        for (; mask != 0; mask >>= 1)
-        {
-            if (mask & 1)
-            {
-                numBranches++;
-            }
-        }
-        return numBranches > 0;
-    }
-    return false;
-}
-
-void ShaderNode::ScopeInfo::adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask)
-{
-    if (type == ScopeInfo::GLOBAL || (type == ScopeInfo::SINGLE && conditionBitmask == fullConditionMask))
-    {
-        type = ScopeInfo::SINGLE;
-        conditionalNode = condNode;
-        conditionBitmask = 1 << branch;
-        fullConditionMask = fullMask;
-    }
-    else if (type == ScopeInfo::SINGLE)
-    {
-        type = ScopeInfo::MULTIPLE;
-        conditionalNode = nullptr;
-    }
-}
-
-void ShaderNode::ScopeInfo::merge(const ScopeInfo& fromScope)
-{
-    if (type == ScopeInfo::UNKNOWN || fromScope.type == ScopeInfo::GLOBAL)
-    {
-        *this = fromScope;
-    }
-    else if (type == ScopeInfo::GLOBAL)
-    {
-    }
-    else if (type == ScopeInfo::SINGLE && fromScope.type == ScopeInfo::SINGLE && conditionalNode == fromScope.conditionalNode)
-    {
-        conditionBitmask |= fromScope.conditionBitmask;
-
-        // This node is needed for all branches so it is no longer conditional
-        if (conditionBitmask == fullConditionMask)
-        {
-            type = ScopeInfo::GLOBAL;
-            conditionalNode = nullptr;
-        }
-    }
-    else
-    {
-        // NOTE: Right now multiple scopes is not really used, it works exactly as ScopeInfo::GLOBAL
-        type = ScopeInfo::MULTIPLE;
-        conditionalNode = nullptr;
-    }
-}
-
 ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, GenContext& context)
 {
     ShaderNodePtr newNode = std::make_shared<ShaderNode>(parent, name);
