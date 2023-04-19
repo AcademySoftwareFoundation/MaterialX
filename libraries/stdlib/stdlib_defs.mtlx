@@ -2453,6 +2453,17 @@
     <output name="out" type="stringarray" defaultinput="in1" />
   </nodedef>
 
+  <!--
+    Node: <ping-pong>
+    Moving between 0.0 and the Scale based on the input value.
+  -->
+
+  <nodedef name="ND_pingpong_float" node="pingpong" nodegroup="math">
+    <input name="input" type="float" value="0" />
+    <input name="scale" type="float" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
