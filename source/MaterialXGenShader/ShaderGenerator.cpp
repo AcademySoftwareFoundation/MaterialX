@@ -101,8 +101,7 @@ void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenConte
     }
 }
 
-void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                                       bool /*checkScope*/) const
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     // Check if it's emitted already.
     if (!stage.isEmitted(node, context))

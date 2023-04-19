@@ -456,7 +456,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     return shader;
 }
 
-void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool /*checkScope*/) const
+void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     // Check if it's emitted already.
     if (stage.isEmitted(node, context))
