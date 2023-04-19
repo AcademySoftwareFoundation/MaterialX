@@ -2453,6 +2453,19 @@
     <output name="out" type="stringarray" defaultinput="in1" />
   </nodedef>
 
+  <!--
+    Node: <Distance>
+    Measures the distance between two point in (X, Y).
+  -->
+
+  <nodedef name="ND_Distance_float" node="Distance" nodegroup="math">
+    <input name="x1" type="float" uiname="x1" value="0" />
+    <input name="x2" type="float" uiname="x2" value="0" />
+    <input name="y1" type="float" uiname="y1" value="0" />
+    <input name="y2" type="float" uiname="y2" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
