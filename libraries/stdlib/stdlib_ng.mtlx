@@ -1243,6 +1243,11 @@
     <output name="out" type="vector2" nodename="N_switch_operationorder" />
   </nodegraph>
 
+  <!--
+    Node: <Distance>
+    Measures the distance between two point in (X, Y).
+  -->
+  
     <nodegraph name="NG_Distance_float" nodedef="ND_Distance_float">
     <sqrt name="N_mtlxsqrt" type="float">
       <input name="in" type="float" nodename="N_mtlxadd" />
