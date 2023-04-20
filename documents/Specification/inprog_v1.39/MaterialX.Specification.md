@@ -24,7 +24,7 @@ At least four distinct interrelated data relationships are required to specify t
 
 **MaterialX** addresses the need for an open, platform-independent, well-defined standard for specifying the "look" of computer graphics objects built using node networks by defining a material content schema along with a corresponding XML-based file format to read and write MaterialX content.  The MaterialX schema defines a number of primary element types plus several supplemental and sub-element types, as well as a set of **standard nodes** with specific functionality for defining data-processing graphs, shaders and materials.
 
-This document describes the core MaterialX specification.  Companion documents [**MaterialX Physically Based Shading Nodes**](./MaterialX.v1.39.PBRSpec.md), [**MaterialX Geometry Extensions**](./MaterialX.v1.39.GeomExts.md) and [**MaterialX Supplemental Notes**](./MaterialX.v1.39.Supplement.md) describe additional node and element types and other information about the library.
+This document describes the core MaterialX specification.  Companion documents [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md), [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) and [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) describe additional node and element types and other information about the library.
 
 
 
@@ -1293,7 +1293,7 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 
 ### Shader Nodes
 
-Shader nodes construct a shader (a node with a shader semantic output type) from the specified inputs, which may then be connected to a material.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.v1.39.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
+Shader nodes construct a shader (a node with a shader semantic output type) from the specified inputs, which may then be connected to a material.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
 
 
 * **`surface`**: Constructs a surface shader for an unlit surface with a plain unshaded color value. Useful for visualizing texture data or rendering non-PBR materials. Output type "surfaceshader".
