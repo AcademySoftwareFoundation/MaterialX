@@ -951,14 +951,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             // updates the value to the default for new nodes
             float prev = val->asA<float>(), temp = val->asA<float>();
-            //ImGui::SameLine();
-            
-            //ImGui::PushItemWidth(labelWidth + 20);
             float min = minVal ? minVal->asA<float>() : 0.f;
             float max = maxVal ? maxVal->asA<float>() : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -974,13 +970,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<int>())
         {
             int prev = val->asA<int>(), temp = val->asA<int>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 20);
             int min = minVal ? minVal->asA<int>() : 0;
             int max = maxVal ? maxVal->asA<int>() : 100;
             float speed = (max - min) / 100.0f;
             ImGui::DragInt("##hidelabel", &temp, speed, min, max);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -996,15 +989,12 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
-            //ImGui::PopItemWidth();
 
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -1021,16 +1011,12 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color4>())
         {
             mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            //ImGui::SameLine();
             // color edit for the color picker to the right of the color floats
             ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (temp != prev)
             {
@@ -1046,13 +1032,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector2>())
         {
             mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1068,13 +1051,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector3>())
         {
             mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1090,13 +1070,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector4>())
         {
             mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth + 90);
             float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1112,10 +1089,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<std::string>())
         {
             std::string prev = val->asA<std::string>(), temp = val->asA<std::string>();
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth);
             ImGui::InputText("##constant", &temp);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1132,7 +1106,6 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<std::string>())
         {
             std::string temp = val->asA<std::string>(), prev = val->asA<std::string>();
-            ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.2f, .4f, .6f, 1.0f));
             // browser button to select new file
@@ -1142,10 +1115,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 _fileDialogImage.open();
                 _fileDialogImage.setTypeFilters(_imageFilter);
             }
-            //ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth);
             ImGui::Text("%s", mx::FilePath(temp).getBaseName().c_str());
-            //ImGui::PopItemWidth();
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
 
@@ -1177,10 +1147,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<bool>())
         {
             bool prev = val->asA<bool>(), temp = val->asA<bool>();
-           // ImGui::SameLine();
-            //ImGui::PushItemWidth(labelWidth);
             ImGui::Checkbox("", &temp);
-            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -3179,13 +3146,10 @@ void Graph::propertyEditor()
     {
         // set and edit name
         ImGui::Text("Name: ");
-        //ImGui::NextColumn();
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
-        //ImGui::PushItemWidth(100.0f);
         ImGui::InputText("##edit", &temp);
-        //ImGui::PopItemWidth();
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
         {
@@ -3272,7 +3236,7 @@ void Graph::propertyEditor()
         }
 
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        const int SCROLL_LINE_COUNT= 15;
+        const int SCROLL_LINE_COUNT= 20;
 
         ImGui::Text("Category:");
         ImGui::SameLine();
@@ -3300,6 +3264,7 @@ void Graph::propertyEditor()
                     count++;
                 }
             }
+            const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
             bool haveTable = ImGui::BeginTable("inputs1", 2, ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody,
                 ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count+1)));
             if (haveTable)
@@ -3340,7 +3305,6 @@ void Graph::propertyEditor()
                         }
                         else
                         {
-                            //ImGui::SameLine();
                             std::string typeText = " [" + input->_input->getType() + "]";
                             ImGui::Text("%s", typeText.c_str());
                         }
@@ -3469,7 +3433,9 @@ void Graph::propertyEditor()
 
         if (ImGui::BeginPopup("docstring"))
         {
+            ImGui::SetWindowFontScale(1.2f * _fontScale);
             ImGui::Text("%s", docString.c_str());
+            ImGui::SetWindowFontScale(1.0f);
             ImGui::EndPopup();
         }
     }
