@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.38.7] - Development
+## [1.38.7] - 2023-04-21
 
 ### Added
 - Added the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md), an example application for visualizing, creating, and editing MaterialX graphs.
@@ -11,6 +11,7 @@
 - Added support for [authored bitangent vectors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1156) in GLSL, selected by the hwImplicitBitangents generator option.
 - Added a [tangent input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1157) to the glTF PBR shading model.
 - Added a [Clang Format](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1174) step to GitHub Actions builds.
+- Added support for [Xcode 14](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1326).
 
 ### Changed
 - Included the [standard data libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1237) in MaterialX Python packages.
