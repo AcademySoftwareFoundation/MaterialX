@@ -13,6 +13,7 @@
 #include <widgets.h>
 
 #include <iostream>
+#include <algorithm>
 
 namespace
 {
@@ -936,7 +937,7 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     std::string inName = !uiProperties.uiName.empty()? uiProperties.uiName : input->getName();
-    float labelWidth = ImGui::CalcTextSize(inName.c_str()).x;
+    //float labelWidth = ImGui::CalcTextSize(inName.c_str()).x;
 
     mx::ValuePtr minVal = uiProperties.uiMin;
     mx::ValuePtr maxVal = uiProperties.uiMax;
@@ -950,13 +951,14 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         {
             // updates the value to the default for new nodes
             float prev = val->asA<float>(), temp = val->asA<float>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 20);
+            //ImGui::SameLine();
+            
+            //ImGui::PushItemWidth(labelWidth + 20);
             float min = minVal ? minVal->asA<float>() : 0.f;
             float max = maxVal ? maxVal->asA<float>() : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat("##hidelabel", &temp, speed, min, max);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -972,13 +974,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<int>())
         {
             int prev = val->asA<int>(), temp = val->asA<int>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 20);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 20);
             int min = minVal ? minVal->asA<int>() : 0;
             int max = maxVal ? maxVal->asA<int>() : 100;
             float speed = (max - min) / 100.0f;
             ImGui::DragInt("##hidelabel", &temp, speed, min, max);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -994,15 +996,15 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color3>())
         {
             mx::Color3 prev = val->asA<mx::Color3>(), temp = val->asA<mx::Color3>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 100);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Color3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
             ImGui::SameLine();
             ImGui::ColorEdit3("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
 
             // set input value  and update materials if different from previous value
             if (prev != temp)
@@ -1019,16 +1021,16 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Color4>())
         {
             mx::Color4 prev = val->asA<mx::Color4>(), temp = val->asA<mx::Color4>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 100);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Color4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Color4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::SameLine();
+            //ImGui::SameLine();
             // color edit for the color picker to the right of the color floats
             ImGui::ColorEdit4("##color", &temp[0], ImGuiColorEditFlags_NoInputs);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (temp != prev)
             {
@@ -1044,13 +1046,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector2>())
         {
             mx::Vector2 prev = val->asA<mx::Vector2>(), temp = val->asA<mx::Vector2>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 100);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Vector2>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector2>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat2("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1066,13 +1068,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector3>())
         {
             mx::Vector3 prev = val->asA<mx::Vector3>(), temp = val->asA<mx::Vector3>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 100);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 100);
             float min = minVal ? minVal->asA<mx::Vector3>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector3>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat3("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1088,13 +1090,13 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<mx::Vector4>())
         {
             mx::Vector4 prev = val->asA<mx::Vector4>(), temp = val->asA<mx::Vector4>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth + 90);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth + 90);
             float min = minVal ? minVal->asA<mx::Vector4>()[0] : 0.f;
             float max = maxVal ? maxVal->asA<mx::Vector4>()[0] : 100.f;
             float speed = (max - min) / 1000.0f;
             ImGui::DragFloat4("##hidelabel", &temp[0], speed, min, max);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1110,10 +1112,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<std::string>())
         {
             std::string prev = val->asA<std::string>(), temp = val->asA<std::string>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth);
             ImGui::InputText("##constant", &temp);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -1140,10 +1142,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 _fileDialogImage.open();
                 _fileDialogImage.setTypeFilters(_imageFilter);
             }
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth);
+            //ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth);
             ImGui::Text("%s", mx::FilePath(temp).getBaseName().c_str());
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
 
@@ -1175,10 +1177,10 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
         if (val && val->isA<bool>())
         {
             bool prev = val->asA<bool>(), temp = val->asA<bool>();
-            ImGui::SameLine();
-            ImGui::PushItemWidth(labelWidth);
+           // ImGui::SameLine();
+            //ImGui::PushItemWidth(labelWidth);
             ImGui::Checkbox("", &temp);
-            ImGui::PopItemWidth();
+            //ImGui::PopItemWidth();
             // set input value  and update materials if different from previous value
             if (prev != temp)
             {
@@ -3177,12 +3179,13 @@ void Graph::propertyEditor()
     {
         // set and edit name
         ImGui::Text("Name: ");
+        //ImGui::NextColumn();
         ImGui::SameLine();
         std::string original = _currUiNode->getName();
         std::string temp = original;
-        ImGui::PushItemWidth(100.0f);
+        //ImGui::PushItemWidth(100.0f);
         ImGui::InputText("##edit", &temp);
-        ImGui::PopItemWidth();
+        //ImGui::PopItemWidth();
         std::string docString = "NodeDef Doc String: \n";
         if (_currUiNode->getNode())
         {
@@ -3268,6 +3271,9 @@ void Graph::propertyEditor()
             }
         }
 
+        const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+        const int SCROLL_LINE_COUNT= 15;
+
         ImGui::Text("Category:");
         ImGui::SameLine();
         // change button color to match background
@@ -3275,6 +3281,7 @@ void Graph::propertyEditor()
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(.1f, .1f, .1f, 1.0f));
         if (_currUiNode->getNode())
         {
+            ImGui::NextColumn();
             ImGui::Text("%s", _currUiNode->getNode()->getCategory().c_str());
             docString += _currUiNode->getNode()->getCategory();
             docString += ":";
@@ -3285,46 +3292,66 @@ void Graph::propertyEditor()
             }
 
             ImGui::Text("Inputs:");
-            ImGui::Indent();
-
+            int count = 0;
             for (UiPinPtr input : _currUiNode->inputPins)
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNode()->getInput(input->_name)))
                 {
-                    mx::UIProperties uiProperties;
-                    mx::getUIProperties(input->_input, mx::EMPTY_STRING, uiProperties);
-                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : input->_input->getName();
-                    mx::OutputPtr out = input->_input->getConnectedOutput();
-                    // setting comment help box
-                    ImGui::PushID(int(input->_pinId.Get()));
-                    ImGui::Text("%s", inputLabel.c_str());
-                    mx::InputPtr tempInt = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName());
-                    docString += input->_name;
-                    docString += ": ";
-                    if (tempInt)
-                    {
-                        std::string newStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName())->getDocString();
-                        if (newStr != mx::EMPTY_STRING)
-                        {
-                            docString += newStr;
-                        }
-                    }
-                    docString += "\t \n";
-                    ImGui::SameLine();
-                    std::string typeText = " [" + input->_input->getType() + "]";
-                    ImGui::Text("%s", typeText.c_str());
-
-                    // setting constant sliders for input values
-                    if (!input->getConnected())
-                    {
-                        setConstant(_currUiNode, input->_input, uiProperties);
-                    }
-
-                    ImGui::PopID();
+                    count++;
                 }
             }
+            bool haveTable = ImGui::BeginTable("inputs1", 2, ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody,
+                ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count+1)));
+            if (haveTable)
+            {
+                ImGui::SetWindowFontScale(_fontScale);
+                for (UiPinPtr input : _currUiNode->inputPins)
+                {
+                    if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNode()->getInput(input->_name)))
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
 
-            ImGui::Unindent();
+                        mx::UIProperties uiProperties;
+                        mx::getUIProperties(input->_input, mx::EMPTY_STRING, uiProperties);
+                        std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : input->_input->getName();
+                        mx::OutputPtr out = input->_input->getConnectedOutput();
+                        // setting comment help box
+                        ImGui::PushID(int(input->_pinId.Get()));
+                        ImGui::Text("%s", inputLabel.c_str());
+                        mx::InputPtr tempInt = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName());
+                        docString += input->_name;
+                        docString += ": ";
+                        if (tempInt)
+                        {
+                            std::string newStr = _currUiNode->getNode()->getNodeDef()->getActiveInput(input->_input->getName())->getDocString();
+                            if (newStr != mx::EMPTY_STRING)
+                            {
+                                docString += newStr;
+                            }
+                        }
+                        docString += "\t \n";
+
+                        // setting constant sliders for input values
+                        ImGui::TableNextColumn();
+                        if (!input->getConnected())
+                        {
+                            setConstant(_currUiNode, input->_input, uiProperties);
+                        }
+                        else
+                        {
+                            //ImGui::SameLine();
+                            std::string typeText = " [" + input->_input->getType() + "]";
+                            ImGui::Text("%s", typeText.c_str());
+                        }
+
+                        ImGui::PopID();
+                    }
+                }
+
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f);
+            }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
 
@@ -3333,29 +3360,44 @@ void Graph::propertyEditor()
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("Inputs:");
-            ImGui::Indent();
-            for (size_t i = 0; i < inputs.size(); i++)
+
+            int count = static_cast<int>(inputs.size());
+            bool haveTable = ImGui::BeginTable("inputs1", 2, ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody,
+                ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count+1)));
+            if (haveTable)
             {
-                mx::InputPtr mxinput = inputs[i]->_input;
-                mx::UIProperties uiProperties;
-                mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
-                std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
-
-                // setting comment help box
-                ImGui::PushID(int(inputs[i]->_pinId.Get()));
-                ImGui::Text("%s", inputLabel.c_str());
-
-                ImGui::SameLine();
-                std::string typeText = " [" + inputs[i]->_input->getType() + "]";
-                ImGui::Text("%s", typeText.c_str());
-                // setting constant sliders for input values
-                if (!inputs[i]->getConnected())
+                ImGui::SetWindowFontScale(_fontScale);
+                for (size_t i = 0; i < inputs.size(); i++)
                 {
-                    setConstant(_currUiNode, inputs[i]->_input, uiProperties);
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+
+                    mx::InputPtr mxinput = inputs[i]->_input;
+                    mx::UIProperties uiProperties;
+                    mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
+
+                    // setting comment help box
+                    ImGui::PushID(int(inputs[i]->_pinId.Get()));
+                    ImGui::Text("%s", inputLabel.c_str());
+
+                    ImGui::TableNextColumn();
+
+                    // setting constant sliders for input values
+                    if (!inputs[i]->getConnected())
+                    {
+                        setConstant(_currUiNode, inputs[i]->_input, uiProperties);
+                    }
+                    else
+                    {
+                        std::string typeText = " [" + inputs[i]->_input->getType() + "]";
+                        ImGui::Text("%s", typeText.c_str());
+                    }
+                    ImGui::PopID();
                 }
-                ImGui::PopID();
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f);
             }
-            ImGui::Unindent();
         }
         else if (_currUiNode->getOutput() != nullptr)
         {
@@ -3366,36 +3408,55 @@ void Graph::propertyEditor()
             std::vector<UiPinPtr> inputs = _currUiNode->inputPins;
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             ImGui::Text("Inputs:");
-            ImGui::Indent();
             int count = 0;
+
             for (UiPinPtr input : inputs)
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
                 {
-                    mx::InputPtr mxinput = input->_input;
-                    mx::UIProperties uiProperties;
-                    mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
-                    std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
-
-                    // setting comment help box
-                    ImGui::PushID(int(input->_pinId.Get()));
-                    ImGui::Text("%s", inputLabel.c_str());
-
-                    docString += _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName())->getDocString();
-
-                    ImGui::SameLine();
-                    std::string typeText = " [" + input->_input->getType() + "]";
-                    ImGui::Text("%s", typeText.c_str());
-                    if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
-                    {
-                        setConstant(_currUiNode, input->_input, uiProperties);
-                    }
-
-                    ImGui::PopID();
                     count++;
                 }
             }
-            ImGui::Unindent();
+            bool haveTable = ImGui::BeginTable("inputs1", 2, ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody,
+                ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count+1)));
+            if (haveTable)
+            {
+                ImGui::SetWindowFontScale(_fontScale);
+                for (UiPinPtr input : inputs)
+                {
+                    if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+
+                        mx::InputPtr mxinput = input->_input;
+                        mx::UIProperties uiProperties;
+                        mx::getUIProperties(mxinput, mx::EMPTY_STRING, uiProperties);
+                        std::string inputLabel = !uiProperties.uiName.empty() ? uiProperties.uiName : mxinput->getName();
+
+                        // setting comment help box
+                        ImGui::PushID(int(input->_pinId.Get()));
+                        ImGui::Text("%s", inputLabel.c_str());
+
+                        docString += _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName())->getDocString();
+
+                        ImGui::TableNextColumn();
+                        if (!input->_input->getConnectedNode() && _currUiNode->getNodeGraph()->getActiveInput(input->_input->getName()))
+                        {
+                            setConstant(_currUiNode, input->_input, uiProperties);
+                        }
+                        else
+                        {
+                            std::string typeText = " [" + input->_input->getType() + "]";
+                            ImGui::Text("%s", typeText.c_str());
+                        }
+
+                        ImGui::PopID();
+                    }
+                }
+                ImGui::EndTable();
+                ImGui::SetWindowFontScale(1.0f);
+            }
             ImGui::Checkbox("Show all inputs", &_currUiNode->_showAllInputs);
         }
         ImGui::PopStyleColor();
