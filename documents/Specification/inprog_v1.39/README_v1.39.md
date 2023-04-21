@@ -66,8 +66,6 @@ A new standard &lt;surface> constructor node for unlit surfaces has been added t
 
 Additionally, the standard &lt;surfacematerial> material now supports both single- or double-sided surfaces with the addition of a separate `backsurface` input.
 
-(check??) Additionally, a new &lt;surfacematerial_twosided> material has been added, with separate inputs for front and back surfaceshaders, and a boolean "thin_walled" switch.  Previously, there was a separate &lt;thin_surface> shader to attempt to handle thin-walled double-sided surfaces, but it was difficult to implement in certain shading languages.  The new mechanism is more closely aligned with current thin-walled shading paradigms.
-
 
 **Inheritance and Hints for Typedefs**
 
