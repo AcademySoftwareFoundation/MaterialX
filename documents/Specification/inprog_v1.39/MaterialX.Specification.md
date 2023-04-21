@@ -77,17 +77,25 @@ This document describes the core MaterialX specification.  Companion documents [
 
  [Custom Nodes](#custom-nodes)  
   [Custom Node Declaration NodeDef Elements](#custom-node-declaration-nodedef-elements)  
+   [NodeDef Parameter Interface](#nodedef-parameter-interface)  
+   [NodeDef Input Elements](#nodedef-input-elements)  
+   [NodeDef Token Elements](#nodedef-token-elements)  
+   [NodeDef Output Elements](#nodedef-output-elements)  
   [Custom Node Definition Using Implementation Elements](#custom-node-definition-using-implementation-elements)  
    [Implementation AOV Elements](#implementation-aov-elements)  
+   [Example Custom Nodes Defined by External File Implementations](#example-custom-nodes-defined-by-external-file-implementations)  
   [Custom Node Definition Using Node Graphs](#custom-node-definition-using-node-graphs)  
    [Functional Nodegraphs](#functional-nodegraphs)  
    [Compound Nodegraphs](#compound-nodegraphs)  
+   [Example Custom Node Defined by a Nodegraph](#example-custom-node-defined-by-a-nodegraph)  
   [Custom Node Use](#custom-node-use)  
  [Shader Nodes](#shader-nodes)  
   [Standard Shader-Semantic Operator Nodes](#standard-shader-semantic-operator-nodes)  
   [AOV Output Elements](#aov-output-elements)   
+   [AOVOutput Example](#aovoutput-example)   
  [Material Nodes](#material-nodes)  
   [Material Inheritance](#material-inheritance)  
+  [Example Pre-Shader Compositing Material](#example-pre-shader-compositing-material)  
  [Material Variants](#material-variants)  
 
 **[References](#references)**
@@ -270,10 +278,10 @@ Attributes for &lt;typedef> elements:
 * `name` (string, required): the name of this type.  Cannot be the same as a built-in MaterialX type.
 * `semantic` (string, optional): the semantic for this type (see above); the default semantic is "default".
 * `context` (string, optional): a semantic-specific context in which this type should be applied.  For "shader" semantic types, `context` defines the rendering context in which the shader output is interpreted; please see the [Shader Nodes](#shader-nodes) section for details.
-* inherit (string, optional): the name of another type that this type inherits from, which can be either a built-in type or a custom type.  Applications that do not have a definition for this type can use the inherited type as a "fallback" type.
-* hint  (string, optional): A hint to help those creating code generators understand how the type might be defined.  The following hints for typedefs are currently defined:
+* `inherit` (string, optional): the name of another type that this type inherits from, which can be either a built-in type or a custom type.  Applications that do not have a definition for this type can use the inherited type as a "fallback" type.
+* `hint` (string, optional): A hint to help those creating code generators understand how the type might be defined.  The following hints for typedefs are currently defined:
     * "halfprecision": the values within this type are half-precision
-* "doubleprecision: the values within this type are double-precision
+    * "doubleprecision: the values within this type are double-precision
 
 Once a custom type is defined by a &lt;typedef>, it can then be used in any MaterialX element that allows "any MaterialX type"; the list of MaterialX types is effectively expanded to include the new custom type.  It should be noted however that the &lt;typedef> is only declaring the existence of the type and perhaps some hints about its intended definition, but it is up to each application and code generator to provide its own precise definition for any type.
 
@@ -547,7 +555,7 @@ MaterialX defines a number of Standard Nodes which all implementations should su
 
 ## Inputs
 
-Node elements contain zero or more &lt;input> elements defining the name, type, and value or connection for each node input.  Input elements can assign an explicit uniform value by providing a `value` attribute, make a connection to the output of another node by providing a `nodename` attribute, or make a connection to the output of a nodegraph by providing a `nodegraph` attribute.  An optional `output` attribute may also be provided for &lt;input> elements, allowing the input to connect to a specific, named output of the referenced upstream node or nodegraph.  If the referenced node/nodegraph has multiple outputs, `output` is required; if it has only one output, the `output` attribute of the &lt;input> is ignored.  Input elements may be defined to only accept uniform values, in which case the input may provide a `value` or a `nodename` connection to the output of a &lt;constant> node (possibly through one or more no-op &lt;dot> nodes) or any other node whose output is explicitly declared to be "uniform" (such as &lt;geompropvalueuniform>`)`, but may not provide a `nodename` or `nodegraph` connection to any arbitrary node output or to any nodegraph output.  String- and filename-type inputs are required to be "uniform", as are any array-typed inputs.  Input elements may be connected to an external parameter interface in the node definition, allowing them to be assigned values from materials or node instantiations; this includes "uniform" and string/filename-type inputs, however, the same connectability restrictions listed above apply to the inputs of the material or node instance.  Inputs may only be connected to node/nodegraph outputs or nodedef interface inputs of the same type, though it is permissible for a `string`-type output to be connected to a `filename`-type input (but not the other way around).
+Node elements contain zero or more &lt;input> elements defining the name, type, and value or connection for each node input.  Input elements can assign an explicit uniform value by providing a `value` attribute, make a connection to the output of another node by providing a `nodename` attribute, or make a connection to the output of a nodegraph by providing a `nodegraph` attribute.  An optional `output` attribute may also be provided for &lt;input> elements, allowing the input to connect to a specific, named output of the referenced upstream node or nodegraph.  If the referenced node/nodegraph has multiple outputs, `output` is required; if it has only one output, the `output` attribute of the &lt;input> is ignored.  Input elements may be defined to only accept uniform values, in which case the input may provide a `value` or a `nodename` connection to the output of a &lt;constant> node (possibly through one or more no-op &lt;dot> nodes) or any other node whose output is explicitly declared to be "uniform" (such as `<geompropvalueuniform>`), but may not provide a `nodename` or `nodegraph` connection to any arbitrary node output or to any nodegraph output.  String- and filename-type inputs are required to be "uniform", as are any array-typed inputs.  Input elements may be connected to an external parameter interface in the node definition, allowing them to be assigned values from materials or node instantiations; this includes "uniform" and string/filename-type inputs, however, the same connectability restrictions listed above apply to the inputs of the material or node instance.  Inputs may only be connected to node/nodegraph outputs or nodedef interface inputs of the same type, though it is permissible for a `string`-type output to be connected to a `filename`-type input (but not the other way around).
 
 A float/vector<em>N</em> input of a node, or a "filename"-type input referring to an image file containing float or vector<em>N</em> values, may specify a unit for its value by providing a `unit` attribute, and that unit must be one associated with the `unittype` for that input in the nodedef, if specified; please see the [Units](#units) section above for details on declaring units and unittypes.  If the nodedef for a node (see the [Custom Nodes](#custom-nodes) section below) does not declare a `unittype` for an input, the node may do so; it is not permissible to provide a `unit` for a node input without a compatible `unittype` being defined on either the node or applicable nodedef.
 
@@ -673,7 +681,7 @@ Texture nodes using `file*` inputs also support the following inputs to handle b
 
 Arbitrary frame number expressions and speed changes are not supported.
 
-Additional texture nodes, including **`<tiledimage>`** and **`<triplanarprojection>`**, may be found in the **MaterialX Supplemental Notes** document.
+Additional texture nodes, including **`<tiledimage>`** and **`<triplanarprojection>`**, may be found in the [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md#supplemental-texture-nodes) document.
 
 
 
@@ -776,7 +784,7 @@ Standard Procedural nodes:
 
 To scale or offset the noise pattern generated by `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset `ramp<em>X</em>`, `split<em>X</em>`, `noise2d` or `cellnoise2d` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
 
-Additional source nodes, including **`<ramp4>`**, may be found in the **MaterialX Supplemental Notes** document.
+Additional procedural nodes, including **`<ramp4>`**, may be found in the [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md#supplemental-procedural-nodes) document.
 
 
 
@@ -924,7 +932,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 * **`modulo`**: the remaining fraction after dividing an incoming float/color/vector by a value and subtracting the integer portion.  Modulo always returns a non-negative result, matching the interpretation of the GLSL and OSL `mod()` function (not `fmod()`).
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels
+    * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels, which effectively returns the fractional part of a float value
 
 * **`absval`**: the per-channel absolute value of the incoming float/color/vector.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
@@ -1069,6 +1077,8 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant>, &lt;tokenvalue> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
     * `in` (any type): the nodename to be connected to the Dot node's "in" input.  Unlike inputs on other node types, the &lt;dot> node's input is specifically disallowed to provide a `channels` attribute: input data can only be passed through unmodified.
 
+Additional math nodes, including **`<place2d>`**, **`<safepower>`** and **`<triplanarblend>`** may be found in the [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md#supplemental-math-nodes) document.
+
 
 
 ### Adjustment Nodes
@@ -1109,7 +1119,7 @@ Adjustment nodes have one input named "in", and apply a specified function to va
 * **`hsvtorgb`**: (color3 or color4 only) convert an incoming color from HSV to RGB space; the alpha channel is left unchanged if present.  This conversion is not affected by the current color space.
     * `in` (color3/color4): the input value or nodename
 
-Additional adjustment nodes, including **`<contrast>`**, **`<range>`**, **`<saturate>`** and **`<hsvadjust>`** may be found in the **MaterialX Supplemental Notes** document.
+Additional adjustment nodes, including **`<contrast>`**, **`<range>`**, **`<hsvadjust>`**, **`<saturate>`**, **`<colorcorrect>`**, **`<curveadjust>`** and **`<curvelookup>`** may be found in the [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md#supplemental-adjustment-nodes) document.
 
 
 
@@ -1270,7 +1280,7 @@ Table of allowable input/output types for **`combine2`**, **`combine3`**, **`com
 | `combine2` | `vector4` | `vector2` "xy" | `vector2` "zw" | n/a | n/a | "xyzw" |
 
 
-Additional channel nodes, including **`<extract>`** and **`<separateN>`**, may be found in the **MaterialX Supplemental Notes** document.
+Additional channel nodes, including **`<extract>`** and **`<separateN>`**, may be found in the [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md#supplemental-channel-nodes) document.
 
 
 
@@ -1895,8 +1905,7 @@ Custom nodes that output data types with a "shader" semantic are referred to in 
 
 The attributes for &lt;nodedef> elements as they pertain to the declaration of shaders are:
 
-* `name` (string, required): a user-chosen name for this shader node definition element.
-
+* `name` (string, required): a user-chosen name for this shader node definition element.  
 * `node` (string, required): the name of the shader node being defined, which typically matches the name of an associated shader function such as “blinn_phong”, “Disney_BRDF_2012”, “volumecloud_vol”.  Just as for custom nodes, this shading program may be defined precisely through an &lt;implementation> or &lt;nodegraph>, or left to the application to locate by name using any shader definition method that it chooses.
 
 The child &lt;output> element within the &lt;nodedef> defines the "data type" of the output for this shader, which must have been defined with a "shader" semantic; see the [Custom Data Types](#custom-data-types) section above and discussion below for details.
@@ -2034,7 +2043,7 @@ Custom nodes that output data types with a "material" semantic are referred to i
 
 The attributes for &lt;nodedef> elements as they pertain to the declaration of materials are:
 
-* `name` (string, required): a user-chosen name for this material node definition element.
+* `name` (string, required): a user-chosen name for this material node definition element.  
 * `node` (string, required): the name of the material node class being defined.
 
 The standard MaterialX distribution includes a single material type definition used as the output type for all material nodes:
