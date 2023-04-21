@@ -78,27 +78,27 @@ Typedefs may now inherit from other types, including built-in types, and may pro
 
 The following new standard operator nodes have been added:
 
-* Procedural nodes: **tokenvalue**, **fractal2d**, **cellnoise1d**
-* Geometric nodes: **bump**, **geompropvalueuniform**
-* Math nodes: boolean **and**, **or**, **not**; **transformcolor**, **creatematrix**
-* Adjustment nodes: **curveinversecubic**, **curveuniformlinear** and **curveuniformcubic**
-* Conditional nodes: boolean-output variants of **ifgreater**, **ifgreatereq** and **ifequal**; new **ifelse** node
-* Channel nodes: **extractrowvector**
+* [Procedural nodes](./MaterialX.Specification.md#procedural-nodes): **tokenvalue**, **fractal2d**, **cellnoise1d**
+* [Geometric nodes](./MaterialX.Specification.md#geometric-nodes): **bump**, **geompropvalueuniform**
+* [Math nodes](./MaterialX.Specification.md#math-nodes): boolean **and**, **or**, **not**; **transformcolor**, **creatematrix**
+* [Adjustment nodes](./MaterialX.Specification.md#adjustment-nodes): **curveinversecubic**, **curveuniformlinear** and **curveuniformcubic**
+* [Conditional nodes](./MaterialX.Specification.md#conditional-nodes): boolean-output variants of **ifgreater**, **ifgreatereq** and **ifequal**; new **ifelse** node
+* [Channel nodes](./MaterialX.Specification.md#channel-nodes): **extractrowvector**
 
 Additionally, the following new supplemental nodes have been added:
 
-* Procedural nodes: **unifiednoise2d**, **unifiednoise3d**
-* Math nodes: **triplanarblend**
-* Adjustment nodes: **colorcorrect**
-* Channel nodes: **separatecolor4**
+* [Procedural nodes](./MaterialX.Supplement.md#supplemental-procedural-nodes): **unifiednoise2d**, **unifiednoise3d**
+* [Math nodes](./MaterialX.Supplement.md#supplemental-math-nodes): **triplanarblend**
+* [Adjustment nodes](./MaterialX.Supplement.md#supplemental-adjustment-nodes): **colorcorrect**
+* [Channel nodes](./MaterialX.Supplement.md#supplemental-channel-nodes): **separatecolor4**
 
 
 **New Physically Based Shading Nodes**
 
 The following new standard physically based shading nodes have been added:
 
-* EDF nodes: **generalized_schlick_edf**
-* Shader nodes: **environment** (latlong environment light source)
+* [EDF nodes](./MaterialX.PBRSpec.md#edf-nodes): **generalized_schlick_edf**
+* [Shader nodes](./MaterialX.PBRSpec.md#shader-nodes): **environment** (latlong environment light source)
 
 
 **Other Changes**
