@@ -8,7 +8,7 @@ MaterialX Specification v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-April 7, 2023
+April 20, 2023
 
 
 # Introduction
