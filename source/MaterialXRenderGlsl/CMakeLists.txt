@@ -59,7 +59,7 @@ if(WIN32)
             ${COMMON_LIBRARIES}
             Opengl32
             gdi32)
-    endif(MSVC)
+    endif()
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
