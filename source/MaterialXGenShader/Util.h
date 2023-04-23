@@ -90,8 +90,8 @@ MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& at
 // These are deprecated wrappers for older versions of the function interfaces in this module.
 // Clients using these interfaces should update them to the latest API.
 //
-MX_GENSHADER_API void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&);
-MX_GENSHADER_API void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs = false);
+MX_GENSHADER_API [[deprecated]] void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&);
+MX_GENSHADER_API [[deprecated]] void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs = false);
 
 MATERIALX_NAMESPACE_END
 
