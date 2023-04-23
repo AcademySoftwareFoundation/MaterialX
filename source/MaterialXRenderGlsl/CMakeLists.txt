@@ -90,10 +90,10 @@ set_target_properties(
 
 target_include_directories(MaterialXRenderGlsl
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-    $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
     PRIVATE
-    ${EXTERNAL_INCLUDE_DIRS})
+        ${EXTERNAL_INCLUDE_DIRS})
 
 install(TARGETS MaterialXRenderGlsl
     EXPORT MaterialX
