@@ -19,7 +19,6 @@ if(APPLE)
     add_compile_options(-DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
     find_package(X11 REQUIRED)
-
     # Note - can't just require the Xt component because FindX11 in cmake 3.1
     # doesn't support it
     if(NOT X11_Xt_FOUND)
