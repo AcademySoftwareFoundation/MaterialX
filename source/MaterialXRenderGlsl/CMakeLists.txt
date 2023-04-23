@@ -47,11 +47,19 @@ set(COMMON_LIBRARIES
     MaterialXGenGlsl
     ${CMAKE_DL_LIBS})
 
-if(MSVC)
-    target_link_libraries(
-        MaterialXRenderGlsl
-        ${COMMON_LIBRARIES}
-        Opengl32)
+if(WIN32)
+    if(MSVC)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32)
+    elseif(MINGW)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32
+            gdi32)
+    endif()
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
