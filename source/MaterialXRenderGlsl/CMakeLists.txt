@@ -19,6 +19,7 @@ if(APPLE)
     add_compile_options(-DGL_SILENCE_DEPRECATION)
 elseif(UNIX)
     find_package(X11 REQUIRED)
+
     # Note - can't just require the Xt component because FindX11 in cmake 3.1
     # doesn't support it
     if(NOT X11_Xt_FOUND)
@@ -47,11 +48,21 @@ set(COMMON_LIBRARIES
     MaterialXGenGlsl
     ${CMAKE_DL_LIBS})
 
-if(MSVC)
-    target_link_libraries(
-        MaterialXRenderGlsl
-        ${COMMON_LIBRARIES}
-        Opengl32)
+if(WIN32)
+    if(MSVC)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32
+        )
+    elseif(MINGW)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32
+            gdi32
+        )
+    endif(MSVC)
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
@@ -80,10 +91,10 @@ set_target_properties(
 
 target_include_directories(MaterialXRenderGlsl
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-        $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+    $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
     PRIVATE
-        ${EXTERNAL_INCLUDE_DIRS})
+    ${EXTERNAL_INCLUDE_DIRS})
 
 install(TARGETS MaterialXRenderGlsl
     EXPORT MaterialX
