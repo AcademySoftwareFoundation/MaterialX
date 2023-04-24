@@ -1024,6 +1024,17 @@
     <output name="out" type="float" />
   </nodedef>
 
+  <!--
+    Node: <Herringbone>
+    Creates Herringbone Tilling.
+  -->
+  <nodedef name="ND_Herringbone_float" node="Herringbone" nodegroup="procedural2d">
+    <input name="scale" type="float" uiname="scale" value="20" />
+    <input name="block_length" type="integer" uiname="block length" value="3" />
+    <input name="edge_gap" type="float" uiname="edge gap" value="0.98" />
+    <input name="edge_blur" type="float" uiname="edge blur" value="0.95" />
+    <output name="out" type="float" default="0.0"/>
+  </nodedef>
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
