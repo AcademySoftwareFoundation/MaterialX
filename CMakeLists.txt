@@ -33,7 +33,7 @@ endif()
 
 project(MaterialX)
 
-option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 2.7 or greater." OFF)
+option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
@@ -55,9 +55,9 @@ option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analys
 option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." ON)
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
-    "Python version to be used in building the MaterialX Python package (e.g. '2.7').")
+    "Python version to be used in building the MaterialX Python package (e.g. '3.9').")
 set(MATERIALX_PYTHON_EXECUTABLE "" CACHE FILEPATH
-    "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python27/python.exe').")
+    "Python executable to be used in building the MaterialX Python package (e.g. 'C:/Python39/python.exe').")
 set(MATERIALX_PYTHON_OCIO_DIR "" CACHE PATH
     "Path to a folder containing the default OCIO configuration to be packaged with MaterialX Python (e.g. 'D:/Projects/OpenColorIO-Configs/aces_1.0.3').")
 set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
