@@ -1273,11 +1273,11 @@
       <input name="in2" type="float" interfacename="scale" />
     </multiply>
     <texcoord name="N_mtlxtexcoord" type="vector2">
-      <input name="index" type="integer" />
+      <input name="index" type="integer" value="0" />
     </texcoord>
     <output name="out" type="float" nodename="N_mtlxmin" />
   </nodegraph>
-  
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
