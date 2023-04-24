@@ -17,7 +17,7 @@ The MaterialX codebase requires a compiler with support for C++14, and can be bu
 - GCC 6 or newer
 - Clang 6 or newer
 
-The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 2.7 and 3.x.
+The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.6 and greater.
 
 ### Building MaterialX
 
@@ -36,8 +36,8 @@ See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/Mate
 
 By default, the `MATERIALX_BUILD_PYTHON` option will use the active version of Python in the developer's path.  To select a specific version of Python, use one or more of the following advanced options:
 
-- `MATERIALX_PYTHON_VERSION`: Python version to be used in building the MaterialX Python package (e.g. `2.7`)
-- `MATERIALX_PYTHON_EXECUTABLE`: Python executable to be used in building the MaterialX Python package (e.g. `C:/Python27/python.exe`)
+- `MATERIALX_PYTHON_VERSION`: Python version to be used in building the MaterialX Python package (e.g. `3.9`)
+- `MATERIALX_PYTHON_EXECUTABLE`: Python executable to be used in building the MaterialX Python package (e.g. `C:/Python39/python.exe`)
 
 Additional options for the generation of MaterialX Python include the following:
 
