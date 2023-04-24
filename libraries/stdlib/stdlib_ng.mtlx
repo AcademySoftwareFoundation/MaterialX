@@ -1199,7 +1199,7 @@
     <combine3 name="N_mtlxcombine1" type="color3">
       <input name="in1" type="float" nodename="N_mtlxpingpong1" />
       <input name="in2" type="float" nodename="N_mtlxpingpong" />
-      <input name="in3" type="float" />
+      <input name="in3" type="float" value="0" />
     </combine3>
     <pingpong name="N_mtlxpingpong1" type="float">
       <input name="input" type="float" nodename="N_mtlxmix1" />
@@ -1235,7 +1235,7 @@
       <input name="value1" type="float" nodename="N_mtlxconvert" />
       <input name="value2" type="float" nodename="N_mtlxmodulo" />
       <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" />
+      <input name="in2" type="float" value="0" />
     </ifgreater>
     <convert name="N_mtlxconvert" type="float">
       <input name="in" type="integer" interfacename="block_length" />
@@ -1269,12 +1269,9 @@
       <input name="in" type="float" nodename="N_mtlxseparate" output="outy" />
     </floor>
     <multiply name="N_mtlxmultiply1" type="vector2">
-      <input name="in1" type="vector2" nodename="N_mtlxtexcoord" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="float" interfacename="scale" />
     </multiply>
-    <texcoord name="N_mtlxtexcoord" type="vector2">
-      <input name="index" type="integer" value="0" />
-    </texcoord>
     <output name="out" type="float" nodename="N_mtlxmin" />
   </nodegraph>
 
