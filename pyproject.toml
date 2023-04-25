@@ -9,9 +9,7 @@ authors = [
   { name="Contributors to the MaterialX project", email="materialx-discussion@lists.aswf.io" },
 ]
 readme = "README.md"
-
-# TODO: Should it also support Python 2?
-requires-python = ">=3.7"
+requires-python = ">=3.6"
 
 # OCIO is not required. But if you want to eventually add it,
 # uncomment this, bundle the OCIO config and python/MaterialX/colorspace.py
