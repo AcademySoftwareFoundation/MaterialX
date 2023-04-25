@@ -15,7 +15,7 @@ void bindPyMslRenderer(py::module& mod)
 {
     py::class_<mx::MslRenderer, mx::ShaderRenderer, mx::MslRendererPtr>(mod, "MslRenderer")
         .def_static("create", &mx::MslRenderer::create)
-        .def("initialize", &mx::MslRenderer::initialize)
+        .def("initialize", &mx::MslRenderer::initialize, py::arg("renderContextHandle") = nullptr)
         .def("createProgram", static_cast<void (mx::MslRenderer::*)(const mx::ShaderPtr)>(&mx::MslRenderer::createProgram))
         .def("createProgram", static_cast<void (mx::MslRenderer::*)(const mx::MslRenderer::StageMap&)>(&mx::MslRenderer::createProgram))
         .def("validateInputs", &mx::MslRenderer::validateInputs)

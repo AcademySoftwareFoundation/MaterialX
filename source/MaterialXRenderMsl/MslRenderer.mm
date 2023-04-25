@@ -52,7 +52,7 @@ MslRenderer::MslRenderer(unsigned int width, unsigned int height, Image::BaseTyp
     _camera = Camera::create();
 }
 
-void MslRenderer::initialize()
+void MslRenderer::initialize(RenderContextHandle)
 {
     if (!_initialized)
     {
@@ -233,6 +233,8 @@ void MslRenderer::render()
             // Draw all the partitions of all the meshes in the handler
             for (const auto& mesh : _geometryHandler->getMeshes())
             {
+                _program->bindMesh(renderCmdEncoder, mesh);
+
                 for (size_t i = 0; i < mesh->getPartitionCount(); i++)
                 {
                     auto part = mesh->getPartition(i);

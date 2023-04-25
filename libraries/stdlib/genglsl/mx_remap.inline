@@ -1,1 +1,0 @@
-{{outlow}} + ({{in}} - {{inlow}}) * ({{outhigh}} - {{outlow}}) / ({{inhigh}} - {{inlow}})

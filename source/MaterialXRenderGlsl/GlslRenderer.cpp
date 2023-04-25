@@ -35,7 +35,7 @@ GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseT
     _geometryHandler->addLoader(TinyObjLoader::create());
 }
 
-void GlslRenderer::initialize()
+void GlslRenderer::initialize(RenderContextHandle renderContextHandle)
 {
     if (!_initialized)
     {
@@ -48,7 +48,7 @@ void GlslRenderer::initialize()
         }
 
         // Create offscreen context
-        _context = GLContext::create(_window);
+        _context = GLContext::create(_window, (HardwareContextHandle) renderContextHandle);
         if (!_context)
         {
             throw ExceptionRenderError("Failed to create OpenGL context for renderer");
@@ -181,7 +181,8 @@ void GlslRenderer::render()
                 _program->bindTimeAndFrame();
 
                 // Set blend state for the given material.
-                if (_program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT))
+                bool isTransparent = _program->getShader()->hasAttribute(HW::ATTR_TRANSPARENT);
+                if (isTransparent)
                 {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -200,7 +201,16 @@ void GlslRenderer::render()
                         MeshPartitionPtr part = mesh->getPartition(i);
                         _program->bindPartition(part);
                         MeshIndexBuffer& indexData = part->getIndices();
-                        glDrawElements(GL_TRIANGLES, (GLsizei)indexData.size(), GL_UNSIGNED_INT, (void*)0);
+
+                        if (isTransparent)
+                        {
+                            glEnable(GL_CULL_FACE);
+                            glCullFace(GL_FRONT);
+                            glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
+                            glCullFace(GL_BACK);
+                            glDisable(GL_CULL_FACE);
+                        }
+                        glDrawElements(GL_TRIANGLES, (GLsizei) indexData.size(), GL_UNSIGNED_INT, (void*) 0);
                     }
                 }
 

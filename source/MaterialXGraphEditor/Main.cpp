@@ -6,6 +6,7 @@
 #include <MaterialXGraphEditor/Graph.h>
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -20,25 +21,6 @@ namespace
 static void errorCallback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
-
-mx::FileSearchPath getDefaultSearchPath()
-{
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
-
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
-    {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
-    }
-
-    return searchPath;
 }
 
 mx::FilePath getConfigPath()
@@ -83,8 +65,8 @@ const std::string options =
     " Options: \n"
     "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
     "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
-    "    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-    "    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+    "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
+    "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --help                         Display the complete list of command-line options\n";
 
@@ -117,7 +99,7 @@ int main(int argc, char* const argv[])
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
-    mx::FileSearchPath searchPath = getDefaultSearchPath();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;
