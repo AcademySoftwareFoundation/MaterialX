@@ -444,7 +444,7 @@ void OslShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext&
             const ShaderNode* upstream = outputSocket->getConnection() ? outputSocket->getConnection()->getNode() : nullptr;
             if (upstream && upstream->hasClassification(classification))
             {
-                emitFunctionCall(*upstream, context, stage, false);
+                emitFunctionCall(*upstream, context, stage);
             }
         }
     }

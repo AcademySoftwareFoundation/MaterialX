@@ -6,7 +6,7 @@
 #include <MaterialXView/Viewer.h>
 
 #include <MaterialXRender/Util.h>
-
+#include <MaterialXFormat/Util.h>
 #include <MaterialXCore/Util.h>
 
 #include <iostream>
@@ -30,8 +30,8 @@ const std::string options =
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
 "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
-"    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+"    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
+"    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
@@ -63,25 +63,6 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
     res = value->asA<T>();
 }
 
-mx::FileSearchPath getDefaultSearchPath()
-{
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
-
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
-    {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
-    }
-
-    return searchPath;
-}
-
 int main(int argc, char* const argv[])
 {  
     std::vector<std::string> tokens;
@@ -93,7 +74,7 @@ int main(int argc, char* const argv[])
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::FileSearchPath searchPath = getDefaultSearchPath();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;

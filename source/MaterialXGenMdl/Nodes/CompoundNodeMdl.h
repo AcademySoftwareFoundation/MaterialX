@@ -36,6 +36,7 @@ class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
+    bool isReturnStruct() const { return !_returnStruct.empty(); }
     bool unrollReturnStructMembers() const { return _unrollReturnStructMembers; }
 
   protected:
