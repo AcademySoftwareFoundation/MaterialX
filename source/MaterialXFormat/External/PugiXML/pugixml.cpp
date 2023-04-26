@@ -3436,7 +3436,6 @@ PUGI__NS_BEGIN
 							for (size_t i=1; i<lineCount; i++)
 							{
 								PUGI__PUSHNODE(node_blank);
-								cursor->value = "\n";
 								PUGI__POPNODE();
 							}
 						}
