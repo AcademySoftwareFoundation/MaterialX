@@ -14,10 +14,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  # Generate the sdist first. We'll use it to created the wheels.
+  # Generate the sdist first. We'll use it to create the wheels.
   # https://packaging.python.org/en/latest/flow#the-source-distribution-sdist
   sdist:
-    name: Generate sdist
+    name: Generate Source Distribution
     runs-on: ubuntu-latest
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
@@ -47,7 +47,7 @@ jobs:
   # Create the wheels. It'll use the sdist to confirm that we can compile MaterialX from the sdist.
   # https://packaging.python.org/en/latest/flow#the-built-distributions-wheels
   wheels:
-    name: Generate wheels
+    name: Generate Wheel
     runs-on: ${{ matrix.os }}
     needs: ['sdist']
     strategy:
@@ -91,7 +91,7 @@ jobs:
         path: ./wheels/*.whl
 
   test:
-    name: Test wheels
+    name: Test Wheel
     needs: ['wheels']
     runs-on: ${{ matrix.os }}
     strategy:
