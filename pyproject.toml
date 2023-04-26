@@ -11,14 +11,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.6"
 
-# OCIO is not required. But if you want to eventually add it,
-# uncomment this, bundle the OCIO config and python/MaterialX/colorspace.py
-# will just work.
-# dependencies = [
-#     "opencolorio"
-# ]
-
-# TODO: Add more classifier.
+# TODO: Add more classifiers.
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
