@@ -144,7 +144,8 @@ namespace pugi
 		node_comment,		// Comment tag, i.e. '<!-- text -->'
 		node_pi,			// Processing instruction, i.e. '<?name?>'
 		node_declaration,	// Document declaration, i.e. '<?xml version="1.0"?>'
-		node_doctype		// Document type declaration, i.e. '<!DOCTYPE doc>'
+		node_doctype,		// Document type declaration, i.e. '<!DOCTYPE doc>'
+		node_blank              // A blank line
 	};
 
 	// Parsing options
@@ -200,6 +201,9 @@ namespace pugi
 	// the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments.
 	// This flag is off by default.
 	const unsigned int parse_embed_pcdata = 0x2000;
+
+	// This flag determines if blank lines are added to the DOM tree. This flag is off by default.
+	const unsigned int parse_blank_lines = 0x4000;
 
 	// The default parsing mode.
 	// Elements, PCDATA and CDATA sections are added to the DOM tree, character/reference entities are expanded,

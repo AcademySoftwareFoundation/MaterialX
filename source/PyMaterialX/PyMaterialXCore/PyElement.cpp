@@ -186,6 +186,9 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
         .def_readonly_static("CATEGORY", &mx::Token::CATEGORY);
 
+    py::class_<mx::BlankLineElement, mx::BlankLineElementPtr, mx::Element>(mod, "BlankLineElement")
+        .def_readonly_static("CATEGORY", &mx::BlankLineElement::CATEGORY);
+
     py::class_<mx::CommentElement, mx::CommentElementPtr, mx::Element>(mod, "CommentElement")
         .def_readonly_static("CATEGORY", &mx::CommentElement::CATEGORY);
 

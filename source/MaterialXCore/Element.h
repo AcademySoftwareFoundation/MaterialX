@@ -21,6 +21,7 @@ class Element;
 class TypedElement;
 class ValueElement;
 class Token;
+class BlankLineElement;
 class CommentElement;
 class GenericElement;
 class StringResolver;
@@ -45,6 +46,11 @@ using ConstValueElementPtr = shared_ptr<const ValueElement>;
 using TokenPtr = shared_ptr<Token>;
 /// A shared pointer to a const Token
 using ConstTokenPtr = shared_ptr<const Token>;
+
+/// A shared pointer to a BlankLineElement
+using BlankLineElementPtr = shared_ptr<BlankLineElement>;
+/// A shared pointer to a const BlankLineElement
+using ConstBlankLineElementPtr = shared_ptr<const BlankLineElement>;
 
 /// A shared pointer to a CommentElement
 using CommentElementPtr = shared_ptr<CommentElement>;
@@ -1152,6 +1158,23 @@ class MX_CORE_API CommentElement : public Element
   public:
     static const string CATEGORY;
 };
+
+/// @class BlankLineElement
+/// An element representing empty line within a document.
+///
+class MX_CORE_API BlankLineElement : public Element
+{
+  public:
+    BlankLineElement(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~BlankLineElement() { }
+
+  public:
+    static const string CATEGORY;
+};
+
 
 /// @class GenericElement
 /// A generic element subclass, for instantiating elements with unrecognized categories.

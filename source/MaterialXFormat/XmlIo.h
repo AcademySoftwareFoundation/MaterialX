@@ -38,6 +38,10 @@ class MX_FORMAT_API XmlReadOptions
     /// Defaults to false.
     bool readComments;
 
+    /// If true, then XML blank lines will be read into documents as comment elements.
+    /// Defaults to false.
+    bool readBlankLines;
+
     /// If true, then documents from earlier versions of MaterialX will be upgraded
     /// to the current version.  Defaults to true.
     bool upgradeVersion;

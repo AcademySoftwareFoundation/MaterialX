@@ -40,6 +40,12 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     // Create child elements and recurse.
     for (const xml_node& xmlChild : xmlNode.children())
     {
+        bool addBlank = false;
+        if (xmlChild.type() == node_blank)
+        {
+            addBlank = true;
+        }
+
         string category = xmlChild.name();
         string name;
         for (const xml_attribute& xmlAttr : xmlChild.attributes())
@@ -63,10 +69,16 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         elementFromXml(xmlChild, child, readOptions);
 
         // Handle the interpretation of XML comments.
-        if (readOptions && readOptions->readComments && category.empty())
+        if (readOptions && readOptions->readComments && category.empty() && !addBlank)
         {
             child = elem->changeChildCategory(child, CommentElement::CATEGORY);
             child->setDocString(xmlChild.value());
+        }
+
+        if (readOptions && readOptions->readBlankLines && category.empty() && addBlank)
+        {
+            child = elem->changeChildCategory(child, BlankLineElement::CATEGORY);
+            child->setDocString("\n");
         }
     }
 }
@@ -121,6 +133,14 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
                 }
                 continue;
             }
+        }
+
+        // Write blank lines.
+        if (child->getCategory() == BlankLineElement::CATEGORY)
+        {
+            xml_node xmlChild = xmlNode.append_child(node_blank);
+            xmlChild.set_value("\n");
+            continue;
         }
 
         // Write XML comments.
@@ -253,9 +273,16 @@ void validateParseResult(const xml_parse_result& result, const FilePath& filenam
 unsigned int getParseOptions(const XmlReadOptions* readOptions)
 {
     unsigned int parseOptions = parse_default;
-    if (readOptions && readOptions->readComments)
+    if (readOptions)
     {
-        parseOptions |= parse_comments;
+        if (readOptions->readComments)
+        {
+            parseOptions |= parse_comments;
+        }
+        if (readOptions->readBlankLines)
+        {
+            parseOptions |= parse_blank_lines;
+        }
     }
     return parseOptions;
 }

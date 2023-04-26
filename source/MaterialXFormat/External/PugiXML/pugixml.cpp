@@ -3419,7 +3419,32 @@ PUGI__NS_BEGIN
 				{
 					mark = s; // Save this offset while searching for a terminator.
 
-					PUGI__SKIPWS(); // Eat whitespace if no genuine PCDATA here.
+					// Add a new node per new blank line, while eating whitespace
+					if (PUGI__OPTSET(parse_blank_lines))
+					{
+						if (PUGI__IS_CHARTYPE(*s, ct_space))
+						{
+							unsigned int lineCount = 0;
+							while (PUGI__IS_CHARTYPE(*s, ct_space))
+							{
+								if (s[0] == '\n')
+								{
+									lineCount++;
+								}
+								++s;
+							}
+							for (size_t i=1; i<lineCount; i++)
+							{
+								PUGI__PUSHNODE(node_blank);
+								cursor->value = "\n";
+								PUGI__POPNODE();
+							}
+						}
+					}
+					else
+					{
+						PUGI__SKIPWS(); // Eat whitespace if no genuine PCDATA here.
+					}
 
 					if (*s == '<' || !*s)
 					{

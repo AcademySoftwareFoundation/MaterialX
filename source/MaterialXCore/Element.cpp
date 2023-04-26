@@ -718,6 +718,7 @@ INSTANTIATE_SUBCLASS(ValueElement)
 
 INSTANTIATE_CONCRETE_SUBCLASS(AttributeDef, "attributedef")
 INSTANTIATE_CONCRETE_SUBCLASS(Backdrop, "backdrop")
+INSTANTIATE_CONCRETE_SUBCLASS(BlankLineElement, "blankline")
 INSTANTIATE_CONCRETE_SUBCLASS(Collection, "collection")
 INSTANTIATE_CONCRETE_SUBCLASS(CommentElement, "comment")
 INSTANTIATE_CONCRETE_SUBCLASS(Document, "materialx")
