@@ -51,7 +51,7 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 ### Supplemental Texture Nodes
 
-* **`tiledimage`**: samples data from a single image, with provisions for tiling and offsetting the image across uv space.
+* **`<a id="node-tiledimage">tiledimage</a>`**: samples data from a single image, with provisions for tiling and offsetting the image across uv space.
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in **Filename Substitutions** in the main Specification document.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
     * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
@@ -70,7 +70,7 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     </tiledimage>
     ```
 
-* **`triplanarprojection`**: samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
+* **`<a id="node-triplanarprojection">triplanarprojection</a>`**: samples data from three images (or layers within multi-layer images), and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
     * `filex` (uniform filename): the URI of an image file to be projected in the direction from the +X axis back toward the origin.
     * `filey` (uniform filename): the URI of an image file to be projected in the direction from the +Y axis back toward the origin with the +X axis to the right.
     * `filez` (uniform filename): the URI of an image file to be projected in the direction from the +Z axis back toward the origin.
