@@ -21,7 +21,13 @@ def main():
                 try:
                     readOptions = mx.XmlReadOptions()
                     readOptions.readComments = True
+                    readOptions.readBlankLines = True
                     mx.readFromXmlFile(doc, filename, mx.FileSearchPath(), readOptions)
+                    for c in doc.getChildren():
+                        if c.getCategory() == 'comment':
+                            print(c)
+                        if c.getCategory() == 'blankline':
+                            print(c)
                     validDocs[filename] = doc
                 except mx.Exception:
                     pass
