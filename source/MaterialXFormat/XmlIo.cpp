@@ -295,6 +295,7 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 
 XmlReadOptions::XmlReadOptions() :
     readComments(false),
+    readBlankLines(false),
     upgradeVersion(true),
     readXIncludeFunction(readFromXmlFile)
 {
