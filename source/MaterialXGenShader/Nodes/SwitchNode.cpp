@@ -23,7 +23,6 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        const ShaderGraph& graph = *node.getParent();
 
         // Declare the output variable
         shadergen.emitLineBegin(stage);
@@ -58,23 +57,11 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
             shadergen.emitLineEnd(stage, false);
 
             shadergen.emitScopeBegin(stage);
-
-            // Emit nodes that are ONLY needed in this scope
-            for (const ShaderNode* otherNode : graph.getNodes())
-            {
-                const ShaderNode::ScopeInfo& scope = otherNode->getScopeInfo();
-                if (scope.conditionalNode == &node && scope.usedByBranch(branch))
-                {
-                    shadergen.emitFunctionCall(*otherNode, context, stage, false);
-                }
-            }
-
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), false, false, context, stage);
             shadergen.emitString(" = ", stage);
             shadergen.emitInput(input, context, stage);
             shadergen.emitLineEnd(stage);
-
             shadergen.emitScopeEnd(stage);
         }
     }
