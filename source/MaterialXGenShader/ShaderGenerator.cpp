@@ -110,6 +110,12 @@ void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& conte
     }
 }
 
+// Wrapper for deprecated version of this method.
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool /*checkScope*/) const
+{
+    emitFunctionCall(node, context, stage);
+}
+
 void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const
 {
     for (ShaderNode* node : graph.getNodes())
