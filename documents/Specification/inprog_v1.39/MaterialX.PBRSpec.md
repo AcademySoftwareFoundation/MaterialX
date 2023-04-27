@@ -129,7 +129,7 @@ VDFs can also be used to describe the interior of a surface. A typical example w
 
 Light sources can be divided into environment lights and local lights. Environment lights represent contributions coming from infinitely far away. All other lights are local lights and have a position and extent in space.
 
-Local lights are specified as light shaders assigned to a locator, modeling an explicit light source, or in the form of emissive geometry using an emissive surface shader. The [&lt;light> node](#node-light) in the PBS library constructs a light shader from an EDF. There are also nodes to construct various EDFs as well as nodes to combine them to build more complex ones. Emissive properties of surface shaders are also modelled using EDFs; see the [EDF Nodes](#edf-nodes) section below for more information.
+Local lights are specified as light shaders assigned to a locator, modeling an explicit light source, or in the form of emissive geometry using an emissive surface shader. The [&lt;light> node](#node-light) in the PBS library constructs a light shader from an EDF. There are also nodes to construct various EDFs as well as nodes to combine them to build more complex ones. Emissive properties of surface shaders are also modelled using EDFs; see the [**EDF Nodes**](#edf-nodes) section below for more information.
 
 Light contributions coming from far away are handled by environment lights. These are typically photographically-captured or procedurally-generated images that surround the whole scene. This category of lights also includes sources like the sun, where the long distance traveled makes the light essentially directional and without falloff. For all shading points, an environment is seen as being infinitely far away.
 
@@ -192,7 +192,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-conductor-bsdf"> </a>
 
-* **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^5]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^6] is needed the &lt;artistic_ior> utility node can be connected to handle this.
+* **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^5]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^6] is needed the [&lt;artistic_ior> utility node](#node-artistic-ior) can be connected to handle this.
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
@@ -227,8 +227,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-subsurface-bsdf"> </a>
 
-* **`subsurface_bsdf`**: Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods as well as approximate empirical methods[^8]. Note that this category of subsurface scattering can be defined more rigorously as a BSDF vertically layered over an <anisotropic_vdf>, and we expect these two descriptions of the scattering-surface distribution function to be unified in future versions of MaterialX.
-
+* **`subsurface_bsdf`**: Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods as well as approximate empirical methods[^8]. Note that this category of subsurface scattering can be defined more rigorously as a BSDF vertically layered over an [<anisotropic_vdf>](#node-anisotropic-vdf), and we expect these two descriptions of the scattering-surface distribution function to be unified in future versions of MaterialX.
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color` (color3): Diffuse reflectivity (albedo). Defaults to (0.18, 0.18, 0.18).
@@ -238,7 +237,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-sheen-bsdf"> </a>
 
-* **`sheen_bsdf`**: Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a &lt;layer> node. All energy that is not reflected will be transmitted to the base layer[^9].
+* **`sheen_bsdf`**: Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a [&lt;layer> node](#node-layer). All energy that is not reflected will be transmitted to the base layer[^9].
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
@@ -248,7 +247,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-thin-film-bsdf"> </a>
 
-* **`thin_film_bsdf`**: Adds an iridescent thin film layer over a microfacet base BSDF[^10]. The thin film node must be layered over the base BSDF using a &lt;layer> node, as the node is a modifier and cannot be used as a standalone BSDF.
+* **`thin_film_bsdf`**: Adds an iridescent thin film layer over a microfacet base BSDF[^10]. The thin film node must be layered over the base BSDF using a [&lt;layer> node](#node-layer), as the node is a modifier and cannot be used as a standalone BSDF.
 
 
     * `thickness` (float): Thickness of the thin film layer in nanometers.  Default is 550 nm.
@@ -308,7 +307,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-surface"> </a>
 
-* **`surface`**: Constructs a surface shader describing light scattering and emission for surfaces. By default the node will construct a shader for a closed surface, representing an interface to a solid volume. In this mode refraction and scattering is enabled for any transmissive BSDFs connected to this surface. By setting thin_walled to "true" the node will instead construct a thin-walled surface, representing a surface with an infinitely thin volume. In thin-walled mode refraction and scattering will be disabled. Thin-walled mode must be enabled to construct a double-sided material with different surface shaders on the front and back side of geometry (using &lt;surfacematerial> in the standard library).  Output type "surfaceshader".
+* **`surface`**: Constructs a surface shader describing light scattering and emission for surfaces. By default the node will construct a shader for a closed surface, representing an interface to a solid volume. In this mode refraction and scattering is enabled for any transmissive BSDFs connected to this surface. By setting thin_walled to "true" the node will instead construct a thin-walled surface, representing a surface with an infinitely thin volume. In thin-walled mode refraction and scattering will be disabled. Thin-walled mode must be enabled to construct a double-sided material with different surface shaders on the front and back side of geometry (using [&lt;surfacematerial>](./MaterialX.Specification.md#node-surfacematerial) in the standard library).  Output type "surfaceshader".
     * `bsdf` (BSDF): Bidirectional scattering distribution function for the surface.  Default is "".
     * `edf` (EDF): Emission distribution function for the surface.  If unconnected, then no emission will occur.
     * `opacity` (float): Cutout opacity for the surface. Defaults to 1.0.
@@ -347,7 +346,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-layer"> </a>
 
-* **`layer`**: Vertically layer a layerable BSDF such as `dielectric_bsdf`, `generalized_schlick_bsdf`, `sheen_bsdf` or `thin_film_bsdf` over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
+* **`layer`**: Vertically layer a layerable BSDF such as [`dielectric_bsdf`](#node-dielectric-bsdf), [`generalized_schlick_bsdf`](#node-generalized-schlick-bsdf), [`sheen_bsdf`](#node-sheen-bsdf) or [`thin_film_bsdf`](#node-thin-film-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
     * `top` (BSDF): The top BSDF.  Defaults to "".
     * `base` (BSDF or VDF): The base BSDF or VDF.  Defaults to "".
 
@@ -387,7 +386,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-artistic-ior"> </a>
 
-* **`artistic_ior`**: Converts the artistic parameterization reflectivity and edge_color to complex IOR values. To be used with the &lt;conductor_bsdf> node.
+* **`artistic_ior`**: Converts the artistic parameterization reflectivity and edge_color to complex IOR values. To be used with the [&lt;conductor_bsdf> node](#node-conductor-bsdf).
     * `reflectivity` (color3): Reflectivity per color component at facing angles.  Default is (0.947, 0.776, 0.371).
     * `edge_color` (color3): Reflectivity per color component at grazing angles.  Default is (1.0, 0.982, 0.753).
     * `ior` (**output**, vector3): Computed index of refraction.
