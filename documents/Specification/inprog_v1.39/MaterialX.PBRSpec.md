@@ -76,20 +76,20 @@ In general, a color given as input to the renderer is considered to represent a 
 
 ## Color Management
 
-MaterialX supports the use of color management systems to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
+MaterialX supports the use of [color management systems](./MaterialX.Specification.md#color-spaces-and-color-management-systems) to associate colors with specific color spaces. A MaterialX document typically specifies the working color space that is to be used for the document as well as the color space in which input values and textures are given. If these color spaces are different from the working color space, it is the application's and shader generator's responsibility to transform them.
 
 The ShaderGen module has an interface that can be used to integrate support for different color management systems. A simplified implementation with some popular and commonly used color transformations is supplied and enabled by default. A full integration of OpenColorIO ([http://opencolorio.org](http://opencolorio.org)) is planned for the future.
 
 
 ## Surfaces
 
-In our surface shading model the scattering and emission of light is controlled by distribution functions. Incident light can be reflected off, transmitted through, or absorbed by a surface. This is represented by a Bidirectional Scattering Distribution Function (BSDF). Light can also be emitted from a surface, for instance from a light source or glowing material. This is represented by an Emission Distribution Function (EDF). The PBS library introduces the data types `BSDF` and `EDF` to represent the distribution functions, and there are nodes for constructing, combining and manipulating them.
+In our surface shading model the scattering and emission of light is controlled by distribution functions. Incident light can be reflected off, transmitted through, or absorbed by a surface. This is represented by a Bidirectional Scattering Distribution Function (BSDF). Light can also be emitted from a surface, for instance from a light source or glowing material. This is represented by an Emission Distribution Function (EDF). The PBS library introduces the [data types](#data-types) `BSDF` and `EDF` to represent the distribution functions, and there are nodes for constructing, combining and manipulating them.
 
 ![Physically Based Shading Diagram](media/PBSdiagram.png "Physically Based Shading Diagram")
 
 Another important property is the **index of refraction** (IOR), which describes how light is propagated through a medium. It controls how much a light ray is bent when crossing the interface between two media of different refractive indices. It also determines the amount of light that is reflected and transmitted when reaching the interface, as described by the Fresnel equations.
 
-A surface shader is represented with the data type `surfaceshader`. In the PBS library there is a &lt;surface> node that constructs a surface shader from a BSDF and an EDF. Since there are nodes to combine and modify them, you can easily build surface shaders from different combinations of distribution functions. Inputs on the distribution function nodes can be connected, and nodes from the standard library can be combined into complex calculations, giving flexibility for the artist to author material variations over the surfaces.
+A surface shader is represented with the data type `surfaceshader`. In the PBS library there is a [&lt;surface> node](#node-surface) that constructs a surface shader from a BSDF and an EDF. Since there are nodes to combine and modify them, you can easily build surface shaders from different combinations of distribution functions. Inputs on the distribution function nodes can be connected, and nodes from the standard library can be combined into complex calculations, giving flexibility for the artist to author material variations over the surfaces.
 
 It is common for shading models to differentiate between closed surfaces and thin-walled surfaces. A closed surface represents a closed watertight interface with a solid interior. A typical example is a solid glass object. A thin-walled surface on the other hand has an infinitely thin volume, as with a sheet of paper or a soap bubble. For a closed surface there can be no backside visible if the material is opaque. In the case of a transparent closed surface a backside hit is treated as light exiting the closed interface. For a thin-walled surface both the front and back side are visible and it can either have the same material on both sides or different materials on each side. If the material is transparent in this case the thin wall makes the light transmit without refraction or scattering. By default the &lt;surface> node constructs a surface shader for a closed surface, but there is a boolean switch to make it thin-walled.
 
@@ -156,6 +156,8 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 ## BSDF Nodes
 
+<a id="node-oren-nayar-diffuse-bsdf"> </a>
+
 * **`oren_nayar_diffuse_bsdf`**: Constructs a diffuse reflection BSDF based on the Oren-Nayar reflectance model[^2]. A roughness of 0.0 gives Lambertian reflectance.
 
 
@@ -164,6 +166,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `roughness `(float): Surface roughness, range [0.0, 1.0]. Defaults to 0.0.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
 
+<a id="node-burley-diffuse-bsdf"> </a>
+
 * **`burley_diffuse_bsdf`**: Constructs a diffuse reflection BSDF based on the corresponding component of the Disney Principled model[^3].
 
 
@@ -171,6 +175,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `color` (color3): Diffuse reflectivity (albedo). Defaults to (0.18, 0.18, 0.18).
     * `roughness` (float): Surface roughness, range [0.0, 1.0]. Defaults to 0.0.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
+
+<a id="node-dielectric-bsdf"> </a>
 
 * **`dielectric_bsdf`**: Constructs a reflection and/or transmission BSDF based on a microfacet reflectance model and a Fresnel curve for dielectrics[^4]. If reflection scattering is enabled the node may be layered vertically over a base BSDF for the surface beneath the dielectric layer. By chaining multiple &lt;dielectric_bsdf> nodes you can describe a surface with multiple specular lobes. If transmission scattering is enabled the node may be layered over a VDF describing the surface interior to handle absorption and scattering inside the medium, useful for colored glass, turbid water, etc.
 
@@ -184,6 +190,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
     * `scatter_mode` (uniform string): Scattering mode, specifying whether the BSDF supports reflection "R", transmission "T" or both reflection and transmission "RT". With "RT", reflection and transmission occur both when entering and leaving a surface, with their respective intensities controlled by the Fresnel curve. Depending on the IOR and incident angle, it is possible for total internal reflection to occur, generating no transmission even if "T" or "RT" is selected. Defaults to "R".
 
+<a id="node-conductor-bsdf"> </a>
+
 * **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^5]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^6] is needed the &lt;artistic_ior> utility node can be connected to handle this.
 
 
@@ -194,6 +202,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `tangent` (vector3): Tangent vector of the surface. Defaults to world space tangent.
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
+
+<a id="node-generalized-schlick-bsdf"> </a>
 
 * **`generalized_schlick_bsdf`**: Constructs a reflection and/or transmission BSDF based on a microfacet model and a generalized Schlick Fresnel curve[^7]. If reflection scattering is enabled the node may be layered vertically over a base BSDF for the surface beneath the dielectric layer. By chaining multiple &lt;generalized_schlick_bsdf> nodes you can describe a surface with multiple specular lobes. If transmission scattering is enabled the node may be layered over a VDF describing the surface interior to handle absorption and scattering inside the medium, useful for colored glass, turbid water, etc.
 
@@ -208,10 +218,14 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
     * `scatter_mode` (uniform string): Scattering mode, specifying whether the BSDF supports reflection "R", transmission "T" or both reflection and transmission "RT". With "RT", reflection and transmission occur both when entering and leaving a surface, with their respective intensities controlled by the Fresnel curve. Depending on the IOR and incident angle, it is possible for total internal reflection to occur, generating no transmission even if "T" or "RT" is selected. Defaults to "R".
 
+<a id="node-translucent-bsdf"> </a>
+
 * **`translucent_bsdf`**: Constructs a translucent (diffuse transmission) BSDF based on the Lambert reflectance model.
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color` (color3): Diffuse transmittance. Defaults to (1.0, 1.0, 1.0).
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
+
+<a id="node-subsurface-bsdf"> </a>
 
 * **`subsurface_bsdf`**: Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods as well as approximate empirical methods[^8]. Note that this category of subsurface scattering can be defined more rigorously as a BSDF vertically layered over an <anisotropic_vdf>, and we expect these two descriptions of the scattering-surface distribution function to be unified in future versions of MaterialX.
 
@@ -222,6 +236,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `anisotropy` (float): Anisotropy factor, controlling the scattering direction, range [-1.0, 1.0]. Negative values give backwards scattering, positive values give forward scattering, and a value of zero gives uniform scattering. Defaults to 0.0.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
 
+<a id="node-sheen-bsdf"> </a>
+
 * **`sheen_bsdf`**: Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a &lt;layer> node. All energy that is not reflected will be transmitted to the base layer[^9].
 
 
@@ -229,6 +245,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `color` (color3): Sheen reflectivity. Defaults to (1.0, 1.0, 1.0).
     * `roughness` (float): Surface roughness, range [0.0, 1.0]. Defaults to 0.3.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
+
+<a id="node-thin-film-bsdf"> </a>
 
 * **`thin_film_bsdf`**: Adds an iridescent thin film layer over a microfacet base BSDF[^10]. The thin film node must be layered over the base BSDF using a &lt;layer> node, as the node is a modifier and cannot be used as a standalone BSDF.
 
@@ -239,8 +257,12 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 ## EDF Nodes
 
+<a id="node-uniform-edf"> </a>
+
 * **`uniform_edf`**: Constructs an EDF emitting light uniformly in all directions.
     * `color` (color3): Radiant emittance of light leaving the surface.  Default is (1, 1, 1).
+
+<a id="node-conical-edf"> </a>
 
 * **`conical_edf`**: Constructs an EDF emitting light inside a cone around the normal direction.
     * `color` (color3): Radiant emittance of light leaving the surface.  Default is (1, 1, 1).
@@ -248,12 +270,16 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `inner_angle` (uniform float): Angle of inner cone where intensity falloff starts (given in degrees). Defaults to 60.
     * `outer_angle` (uniform float): Angle of outer cone where intensity goes to zero (given in degrees). If set to a smaller value than inner angle no falloff will occur within the cone. Defaults to 0.
 
+<a id="node-measured-edf"> </a>
+
 * **`measured_edf`**: Constructs an EDF emitting light according to a measured IES light profile[^11].
 
 
     * `color` (color3): Radiant emittance of light leaving the surface.  Default is (1, 1, 1).
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `file` (uniform filename): Path to a file containing IES light profile data.  Default is "".
+
+<a id="node-generalized-schlick-edf"> </a>
 
 * **`generalized_schlick_edf`**: Adds a directionally varying factor to an EDF. Scales the emission distribution of the base EDF according to a generalized Schlick Fresnel curve.
     * `color0` (color3): Scale factor for emittance at facing angles. Default is (1, 1, 1).
@@ -264,11 +290,14 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 ## VDF Nodes
 
+<a id="node-absorption-vdf"> </a>
+
 * **`absorption_vdf`**: Constructs a VDF for pure light absorption.
     * `absorption` (color3): Absorption rate for the medium (rate per distance traveled in the medium, given in _m<sup>−1</sup>_). Set for each color component/wavelength separately. Default is (0, 0, 0).
 
-* **`anisotropic_vdf`**: Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function[^12]. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
+<a id="node-anisotropic-vdf"> </a>
 
+* **`anisotropic_vdf`**: Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function[^12]. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
 
     * `absorption` (color3): Absorption rate for the medium (rate per distance traveled in the medium, given in _m<sup>−1</sup>_). Set for each color component/wavelength separately. Default is (0, 0, 0).
     * `scattering` (color3): Scattering rate for the medium (rate per distance traveled in the medium, given in _m<sup>−1</sup>_). Set for each color component/wavelength separately. Default is (0, 0, 0).
@@ -277,20 +306,28 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 ## Shader Nodes
 
+<a id="node-surface"> </a>
+
 * **`surface`**: Constructs a surface shader describing light scattering and emission for surfaces. By default the node will construct a shader for a closed surface, representing an interface to a solid volume. In this mode refraction and scattering is enabled for any transmissive BSDFs connected to this surface. By setting thin_walled to "true" the node will instead construct a thin-walled surface, representing a surface with an infinitely thin volume. In thin-walled mode refraction and scattering will be disabled. Thin-walled mode must be enabled to construct a double-sided material with different surface shaders on the front and back side of geometry (using &lt;surfacematerial> in the standard library).  Output type "surfaceshader".
     * `bsdf` (BSDF): Bidirectional scattering distribution function for the surface.  Default is "".
     * `edf` (EDF): Emission distribution function for the surface.  If unconnected, then no emission will occur.
     * `opacity` (float): Cutout opacity for the surface. Defaults to 1.0.
     * `thin_walled` (boolean): Set to "true" to make the surface thin-walled.  Default is "false".
 
+<a id="node-volume"> </a>
+
 * **`volume`**: Constructs a volume shader describing a participating medium.  Output type "volumeshader".
     * `vdf` (VDF): Volume distribution function for the medium.  Default is "".
     * `edf` (EDF): Emission distribution function for the medium.  If unconnected, then no emission will occur.
+
+<a id="node-light"> </a>
 
 * **`light`**: Constructs a light shader describing an explicit light source. The light shader will emit light according to the connected EDF. If the shader is attached to geometry both sides will be considered for light emission and the EDF controls if light is emitted from both sides or not. Output type "lightshader".
     * `edf` (EDF): Emission distribution function for the light source.  Default is no emission.
     * `intensity` (color3): Intensity multiplier for the EDF’s emittance. Defaults to (1.0, 1.0, 1.0).
     * `exposure` (float): Exposure control for the EDF’s emittance. Defaults to 0.0.
+
+<a id="node-environment"> </a>
 
 * **`environment`**: Constructs a light shader describing an environment or IBL light source. The light shader will emit light coming from all directions according to the specified lat/long environment image file, in which the bottom edge is the "downward" direction, the top edge is the "upward" direction, and the left/right edge "seam" in the environment image is aligned with the "toward camera" axis.  E.g. in applications where +Y is "up" and +Z is "toward camera", latitudes -pi/2 and +pi/2 correspond to the negative and positive y direction; latitude 0, longitude 0 points into positive z direction; and latitude 0, longitude pi/2 points into positive x direction. Output type "lightshader".
     * `in` (color3): the latlong environment/IBL texture for the light source.  Defaults to (0,0,0), producing no emission.
@@ -301,36 +338,54 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 ## Utility Nodes
 
+<a id="node-mix"> </a>
+
 * **`mix`**: Mix two same-type distribution functions according to a weight. Performs horizontal layering by linear interpolation between the two inputs, using the function "bg∗(1−mix) + fg∗mix".
     * `bg` (BSDF or EDF or VDF): The first distribution function.  Defaults to "".
     * `fg` (same type as `bg`): The second distribution function.  Defaults to "".
     * `mix` (float): The mixing weight, range [0.0, 1.0].  Default is 0.
 
+<a id="node-layer"> </a>
+
 * **`layer`**: Vertically layer a layerable BSDF such as `dielectric_bsdf`, `generalized_schlick_bsdf`, `sheen_bsdf` or `thin_film_bsdf` over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
     * `top` (BSDF): The top BSDF.  Defaults to "".
     * `base` (BSDF or VDF): The base BSDF or VDF.  Defaults to "".
+
+<a id="node-add"> </a>
 
 * **`add`**: Additively blend two distribution functions of the same type.
     * `in1` (BSDF or EDF or VDF): The first distribution function.  Defaults to "".
     * `in2` (same type as `in1`): The second distribution function.  Defaults to "".
 
+<a id="node-multiply"> </a>
+
 * **`multiply`**: Multiply the contribution of a distribution function by a scaling weight. The weight is either a float to attenuate the channels uniformly, or a color which can attenuate the channels separately. To be energy conserving the scaling weight should be no more than 1.0 in any channel.
     * `in1` (BSDF or EDF or VDF): The distribution function to scale.  Defaults to "".
     * `in2` (float or color3): The scaling weight.  Default is 1.0.
+
+<a id="node-roughness-anisotropy"> </a>
 
 * **`roughness_anisotropy`**: Calculates anisotropic surface roughness from a scalar roughness and anisotropy parameterization. An anisotropy value above 0.0 stretches the roughness in the direction of the surface's "tangent" vector. An anisotropy value of 0.0 gives isotropic roughness. The roughness value is squared to achieve a more linear roughness look over the input range [0,1].  Output type "vector2".
     * `roughness` (float): Roughness value, range [0.0, 1.0]. Defaults to 0.0.
     * `anisotropy` (float): Amount of anisotropy, range [0.0, 1.0]. Defaults to 0.0.
 
+<a id="node-roughness-dual"> </a>
+
 * **`roughness_dual`**: Calculates anisotropic surface roughness from a dual surface roughness parameterization. The roughness is squared to achieve a more linear roughness look over the input range [0,1].  Output type "vector2".
     * `roughness` (vector2): Roughness in x and y directions, range [0.0, 1.0]. Defaults to (0.0, 0.0).
+
+<a id="node-glossiness-anisotropy"> </a>
 
 * **`glossiness_anisotropy`**: Calculates anisotropic surface roughness from a scalar glossiness and anisotropy parameterization. This node gives the same result as roughness anisotropy except that the glossiness value is an inverted roughness value. To be used as a convenience for shading models using the glossiness parameterization.  Output type "vector2".
     * `glossiness` (float): Roughness value, range [0.0, 1.0]. Defaults to 0.0.
     * `anisotropy` (float): Amount of anisotropy, range [0.0, 1.0]. Defaults to 0.0.
 
+<a id="node-blackbody"> </a>
+
 * **`blackbody`**: Returns the radiant emittance of a blackbody radiator with the given temperature.  Output type "color3".
     * `temperature` (float): Temperature in Kelvin.  Default is 5000.
+
+<a id="node-artistic-ior"> </a>
 
 * **`artistic_ior`**: Converts the artistic parameterization reflectivity and edge_color to complex IOR values. To be used with the &lt;conductor_bsdf> node.
     * `reflectivity` (color3): Reflectivity per color component at facing angles.  Default is (0.947, 0.776, 0.371).
