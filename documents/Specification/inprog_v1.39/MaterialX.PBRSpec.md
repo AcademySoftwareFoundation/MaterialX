@@ -346,7 +346,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-layer"> </a>
 
-* **`layer`**: Vertically layer a layerable BSDF such as [`dielectric_bsdf`](#node-dielectric-bsdf), [`generalized_schlick_bsdf`](#node-generalized-schlick-bsdf), [`sheen_bsdf`](#node-sheen-bsdf) or [`thin_film_bsdf`](#node-thin-film-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
+* **`layer`**: Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf), [&lt;sheen_bsdf>](#node-sheen-bsdf) or [&lt;thin_film_bsdf>](#node-thin-film-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
     * `top` (BSDF): The top BSDF.  Defaults to "".
     * `base` (BSDF or VDF): The base BSDF or VDF.  Defaults to "".
 
