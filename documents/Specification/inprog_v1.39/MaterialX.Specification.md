@@ -2054,13 +2054,19 @@ The standard MaterialX distribution includes a single material type definition u
 
 as well as definitions for three standard material nodes, all outputting type "material":
 
+<a id="node-surfacematerial"> </a>
+
 * **`surfacematerial`**: a surface shading material.
     * `surfaceshader` (surfaceshader): the name of the surfaceshader node.
     * `backsurfaceshader` (surfaceshader): the name of the surfaceshader node to be used for the back surface of an object, if the geometry is two-sided.  Default is "", meaning the `surfaceshader` shader will be used for both sides of a surface if the geometry is two-sided.
     * `displacementshader` (displacementshader): the name of the displacementshader node to use; default is "" for no displacement.
 
+<a id="node-volumematerial"> </a>
+
 * **`volumematerial`**: a volume shading material.
     * `volumeshader` (volumeshader): the name of the volumeshader node.
+
+<a id="node-lightmaterial"> </a>
 
 * **`lightmaterial`**: a light shader material.
     * `lightshader` (lightshader): the name of the lightshader node.
