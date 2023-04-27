@@ -54,7 +54,7 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 <a id="node-tiledimage"> </a>
 
-* <a id="mytest">link</a> **`tiledimage`**: samples data from a single image, with provisions for tiling and offsetting the image across uv space.
+* **`tiledimage`**: samples data from a single image, with provisions for tiling and offsetting the image across uv space.
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in **Filename Substitutions** in the main Specification document.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
     * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the image data is read.  Default is to use the current u,v coordinate.
@@ -99,12 +99,16 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 ### Supplemental Procedural Nodes
 
+<a id="node-ramp4"> </a>
+
 * **`ramp4`**: a 4-corner bilinear value ramp.
     * `valuetl` (float or color<em>N</em> or vector<em>N</em>): the value at the top-left (U0V1) corner
     * `valuetr` (float or color<em>N</em> or vector<em>N</em>): the value at the top-right (U1V1) corner
     * `valuebl` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom-left (U0V0) corner
     * `valuebr` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom-right (U1V0) corner
     * `texcoord` (vector2, optional): the name of a vector2-type node specifying the 2D texture coordinate at which the ramp interpolation is evaluated.  Default is to use the first set of texture coordinates.
+
+<a id="node-unifiednoise2d"> </a>
 
 * **`unifiednoise2d`**: a single node supporting 2D Perlin, Cell, Worley or Fractal noise in a unified interface.
     * `type` (integer): The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal); default is Perlin.
@@ -118,6 +122,8 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     * `octaves` (integer): The number of octaves of Fractal noise to be generated. Default is 3.
     * `lacunarity` (float): The exponential scale between successive octaves of Fractal noise. Default is 2.0.
     * `diminish` (float): The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5.
+
+<a id="node-unifiednoise3d"> </a>
 
 * **`unifiednoise3d`**: a single node supporting 3D Perlin, Cell, Worley or Fractal noise in a unified interface.
     * `type` (integer): The type of noise function to use.  One of 0 (Perlin), 1 (Cell), 2 (Worley), or 3 (Fractal); default is Perlin.
@@ -136,6 +142,8 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 ### Supplemental Math Nodes
 
+<a id="node-place2d"> </a>
+
 * **`place2d`**: transform incoming UV texture coordinates for 2D texture placement.
     * `texcoord` (vector2): the input UV coordinate to transform; defaults to the current surface index=0 uv coordinate.
     * `pivot` (vector2): the pivot coordinate for scale and rotate: this is subtracted from u,v before applying scale/rotate, then added back after.  Default is (0,0).
@@ -144,9 +152,13 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     * `offset` (vector2): subtract this amount from the scaled/rotated/“pivot added back” UV coordinate; since U0,V0 is typically the lower left corner, a positive offset moves the texture image up and right.  Default is (0,0).
     * `operationorder` (integer enum): the order in which to perform the transform operations. "0" or "SRT" performs <em>-pivot scale rotate translate +pivot</em> as per the original implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs <em>-pivot translate rotate scale +pivot</em> which does not introduce texture shear.  Default is 0 "SRT" for backward compatibility.
 
+<a id="node-safepower"> </a>
+
 * **`safepower`**: raise incoming float/color values to the specified exponent.  Unlike the standard &lt;power> node, negative `in1` values for &lt;safepower> will result in negative output values, e.g. `out = sign(in1)*pow(abs(in1),in2)`.
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
     * `in2` (same type as `in` or float): exponent value or nodename; default is 1.0 in all channels
+
+<a id="node-triplanarblend"> </a>
 
 * **`triplanarblend`**: samples data from three inputs, and projects a tiled representation of the images along each of the three respective coordinate axes, computing a weighted blend of the three samples using the geometric normal.
     * inx (float or colorN): the image to be projected in the direction from the +X axis back toward the origin.  Default is 0 in all channels.
@@ -160,10 +172,14 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 ### Supplemental Adjustment Nodes
 
+<a id="node-contrast"> </a>
+
 * **`contrast`**: increase or decrease contrast of incoming float/color values using a linear slope multiplier.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
     * `amount` (same type as `in` or float): slope multiplier for contrast adjustment, 0.0 to infinity range.  Values greater than 1.0 increase contrast, values between 0.0 and 1.0 reduce contrast.  Default is 1.0 in all channels.
     * `pivot` (same type as `in` or float): center pivot value of contrast adjustment; this is the value that will not change as contrast is adjusted.  Default is 0.5 in all channels.
+
+<a id="node-range"> </a>
 
 * **`range`**: remap incoming values from one range of float/color/vector values to another, optionally applying a gamma correction "in the middle".  Input values below `inlow` or above `inhigh` are extrapolated unless `doclamp` is true, in which case the output values will be clamped to the `outlow`..`outhigh` range.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
@@ -174,14 +190,20 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     * `outhigh` (same type as `in` or float): high value for output range.  Default is 1.0 in all channels.
     * `doclamp` (boolean): If true, the output is clamped to the range `outlow`..`outhigh`.  Default is false.
 
+<a id="node-hsvadjust"> </a>
+
 * **`hsvadjust`**: adjust the hue, saturation and value of an RGB color by converting the input color to HSV, adding amount.x to the hue, multiplying the saturation by amount.y, multiplying the value by amount.z, then converting back to RGB.  A positive "amount.x" rotates hue in the "red to green to blue" direction, with amount of 1.0 being the equivalent to a 360 degree (e.g. no-op) rotation.  Negative or greater-than-1.0 hue adjustment values are allowed, wrapping at the 0-1 boundaries.  For color4 inputs, the alpha value is unchanged.
     * `in` (color3 or color4): the input value or nodename
     * `amount` (vector3): the HSV adjustment; a value of (0, 1, 1) is "no change" and is the default.
+
+<a id="node-saturate"> </a>
 
 * **`saturate`**: (color3 or color4 only) adjust the saturation of a color; the alpha channel will be unchanged if present.  Note that this operation is **not** equivalent to the "amount.y" saturation adjustment of `hsvadjust`, as that operator does not take the working or any other colorspace into account.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
     * `amount` (float): a multiplier for saturation; the saturate operator performs a linear interpolation between the luminance of the incoming color value (copied to all three color channels) and the incoming color value itself.  Note that setting amount to 0 will result in an R=G=B gray value equal to the value that the `luminance` node (below) returns.  Default is 1.0.
     * `lumacoeffs` (uniform color3): the luma coefficients of the current working color space; if no specific color space can be determined, the ACEScg (ap1) luma coefficients [0.272287, 0.6740818, 0.0536895] will be used.  Applications which support color management systems may choose to retrieve this value from the CMS to pass to the &lt;saturate> node's implementation directly, rather than exposing it to the user.
+
+<a id="node-colorcorrect"> </a>
 
 * **`colorcorrect`**: Combines various adjustment nodes into one artist-friendly color correction node.  For color4 inputs, the alpha value is unchanged.
     * `in` (color3 or color4): the input color to be adjusted.
@@ -194,11 +216,15 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     * `contrastpivot` (float): Pivot value around which contrast applies. This value will not change as contrast is adjusted; default is 0.5.
     * `exposure` (float): Multplier which increases or decreases color brightness by 2^value; default is 0.
 
+<a id="node-curveadjust"> </a>
+
 * **`curveadjust`**: output a smooth remapping of input values using the centripetal Catmull-Rom cubic spline curve defined by specified knot values, using an inverse spline lookup on input knot values and a forward spline through output knot values.  All channels of the input will be remapped using the same curve.
     * `in` (float or colorN or vectorN): the input value or nodename
     * `numknots` (uniform integer): the number of values in the knots and knotvalues arrays
     * `knots` (uniform floatarray): the list of input values defining the curve for the remapping.  At least 2 and at most 16 values must be provided.
     * `knotvalues` (uniform floatarray): the list of output values defining the curve for the remapping.  Must be the same length as knots.
+
+<a id="node-curvelookup"> </a>
 
 * **`curvelookup`**: output a float, colorN or vectorN value smoothly interpolated between a number of knotvalue values, using the position of in within knots as the knotvalues interpolant.
     * `in` (float): the input interpolant value or nodename
@@ -210,10 +236,14 @@ This section describes a number of supplemental nodes for MaterialX.  These node
 
 ### Supplemental Channel Nodes
 
+<a id="node-separate2"> </a>
+
 * **`separate2`**: output each of the channels of a vector2 as a separate float output.
     * `in` (vector2): the input value or nodename
     * `outx` (**output**, float): the value of x channel.
     * `outy` (**output**, float): the value of y channel.
+
+<a id="node-separate3"> </a>
 
 * **`separate3`**: output each of the channels of a color3 or vector3 as a separate float output.
     * `in` (color3 or vector3): the input value or nodename
@@ -221,12 +251,16 @@ This section describes a number of supplemental nodes for MaterialX.  These node
     * `outg`/`outy` (**output**, float): the value of the green (for color3 streams) or y (for vector3 streams) channel.
     * `outb`/`outz` (**output**, float): the value of the blue (for color3 streams) or z (for vector3 streams) channel.
 
+<a id="node-separate4"> </a>
+
 * **`separate4`**: output each of the channels of a color4 or vector4 as a separate float output.
     * `in` (color4 or vector4): the input value or nodename
     * `outr`/`outx` (**output**, float): the value of the red (for color4 streams) or x (for vector4 streams) channel.
     * `outg`/`outy` (**output**, float): the value of the green (for color4 streams) or y (for vector4 streams) channel.
     * `outb`/`outz` (**output**, float): the value of the blue (for color4 streams) or z (for vector4 streams) channel.
     * `outa`/`outw` (**output**, float): the value of the alpha (for color4 streams) or w (for vector4 streams) channel.
+
+<a id="node-separatecolor4"> </a>
 
 * **`separatecolor4`**: output the RGB and alpha channels of a color4 as separate outputs.
     * `in` (color4): the input value or nodename
