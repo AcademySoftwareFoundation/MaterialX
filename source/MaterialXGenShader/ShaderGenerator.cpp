@@ -101,24 +101,19 @@ void ShaderGenerator::emitFunctionDefinitions(const ShaderGraph& graph, GenConte
     }
 }
 
-void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                                       bool checkScope) const
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     // Check if it's emitted already.
-    if (stage.isEmitted(node, context))
+    if (!stage.isEmitted(node, context))
     {
-        // emitComment("Omitted node '" + node.getName() + "'. Already called above.", stage);
-        return;
+        stage.addFunctionCall(node, context);
     }
-    // Omit node if it's only used inside a conditional branch
-    if (checkScope && node.referencedConditionally())
-    {
-        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-                        node.getScopeInfo().conditionalNode->getName() + "'",
-                    stage);
-        return;
-    }
-    stage.addFunctionCall(node, context);
+}
+
+// Wrapper for deprecated version of this method.
+void ShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool /*checkScope*/) const
+{
+    emitFunctionCall(node, context, stage);
 }
 
 void ShaderGenerator::emitFunctionCalls(const ShaderGraph& graph, GenContext& context, ShaderStage& stage, uint32_t classification) const

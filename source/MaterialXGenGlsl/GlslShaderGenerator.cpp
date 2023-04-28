@@ -336,11 +336,10 @@ void GlslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitLine("vec4 hPositionWorld = " + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_POSITION + ", 1.0)", stage);
     emitLine("gl_Position = " + HW::T_VIEW_PROJECTION_MATRIX + " * hPositionWorld", stage);
 
-    // For vertex stage just emit all function calls in order
-    // and ignore conditional scope.
+    // Emit all function calls in order
     for (const ShaderNode* node : graph.getNodes())
     {
-        emitFunctionCall(*node, context, stage, false);
+        emitFunctionCall(*node, context, stage);
     }
 
     emitFunctionBodyEnd(graph, context, stage);
