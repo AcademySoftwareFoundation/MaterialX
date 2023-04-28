@@ -145,7 +145,7 @@ namespace pugi
 		node_pi,			// Processing instruction, i.e. '<?name?>'
 		node_declaration,	// Document declaration, i.e. '<?xml version="1.0"?>'
 		node_doctype,		// Document type declaration, i.e. '<!DOCTYPE doc>'
-		node_blank              // A blank line
+		node_blank              // MaterialX: A blank line node
 	};
 
 	// Parsing options

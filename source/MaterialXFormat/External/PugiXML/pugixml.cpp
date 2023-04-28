@@ -3419,7 +3419,7 @@ PUGI__NS_BEGIN
 				{
 					mark = s; // Save this offset while searching for a terminator.
 
-					// Add a new node per new blank line, while eating whitespace
+					// MaterialX: Add a new node per new blank line, while eating whitespace
 					if (PUGI__OPTSET(parse_blank_lines))
 					{
 						if (PUGI__IS_CHARTYPE(*s, ct_space))
