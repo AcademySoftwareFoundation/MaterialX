@@ -2454,11 +2454,11 @@
   </nodedef>
 
   <!--
-    Node: <ping-pong>
+    Node: <triangle wave>
     Moving between 0.0 and the Scale based on the input value.
   -->
 
-  <nodedef name="ND_pingpong_float" node="pingpong" nodegroup="math">
+  <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="input" type="float" value="0" />
     <input name="scale" type="float" value="0" />
     <output name="out" type="float" />

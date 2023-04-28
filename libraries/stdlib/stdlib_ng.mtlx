@@ -1245,10 +1245,10 @@
 
 
   <!--
-    Node: <ping-pong>
+    Node: <triangle wave>
     Moving between 0.0 and the Scale based on the input value.
   -->
-  <nodegraph name="NG_pingpong_float" nodedef="ND_pingpong_float">
+  <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <subtract name="N_mtlxsubtract1" type="float">
       <input name="in1" type="float" interfacename="scale" />
       <input name="in2" type="float" nodename="N_mtlxabsval1" />
