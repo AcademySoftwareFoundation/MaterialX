@@ -663,6 +663,8 @@ Standard Texture nodes:
     * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
 
 
+<a id="addressmode-values"> </a>
+
 The following values are supported by `uaddressmode` and `vaddressmode` inputs:
 
 * “constant”: Texture coordinates outside the 0-1 range return the value of the node's `default` input.
@@ -885,6 +887,8 @@ Standard Geometric nodes:
     * `geomprop` (uniform string): the geometric property to be referenced.
     * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
+
+<a id="space-values"> </a>
 
 The following values are supported by the `space` inputs of Geometric nodes and when transforming from one space to another:
 
