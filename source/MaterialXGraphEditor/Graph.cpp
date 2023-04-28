@@ -818,7 +818,6 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
     std::string inName = !uiProperties.uiName.empty()? uiProperties.uiName : input->getName();
-    //float labelWidth = ImGui::CalcTextSize(inName.c_str()).x;
     ImGui::PushItemWidth(-1);
 
     mx::ValuePtr minVal = uiProperties.uiMin;
@@ -3259,7 +3258,6 @@ void Graph::propertyEditor()
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             ImGui::Text("Inputs:");
             int count = 0;
-
             for (UiPinPtr input : inputs)
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
@@ -3322,7 +3320,7 @@ void Graph::propertyEditor()
 
         if (ImGui::BeginPopup("docstring"))
         {
-            ImGui::SetWindowFontScale(1.2f * _fontScale);
+            ImGui::SetWindowFontScale(_fontScale);
             ImGui::Text("%s", docString.c_str());
             ImGui::SetWindowFontScale(1.0f);
             ImGui::EndPopup();
