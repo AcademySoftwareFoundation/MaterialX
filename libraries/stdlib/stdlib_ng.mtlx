@@ -1197,18 +1197,18 @@
       <input name="in3" type="float" interfacename="edge_gap" />
     </combine3>
     <combine3 name="N_mtlxcombine1" type="color3">
-      <input name="in1" type="float" nodename="N_mtlxpingpong1" />
-      <input name="in2" type="float" nodename="N_mtlxpingpong" />
+      <input name="in1" type="float" nodename="N_mtlxtrianglewave1" />
+      <input name="in2" type="float" nodename="N_mtlxtrianglewave" />
       <input name="in3" type="float" value="0" />
     </combine3>
-    <pingpong name="N_mtlxpingpong1" type="float">
+    <trianglewave name="N_mtlxtrianglewave1" type="float">
       <input name="input" type="float" nodename="N_mtlxmix1" />
       <input name="scale" type="float" nodename="N_mtlxdivide" />
-    </pingpong>
-    <pingpong name="N_mtlxpingpong" type="float">
+    </trianglewave>
+    <trianglewave name="N_mtlxtrianglewave" type="float">
       <input name="input" type="float" nodename="N_mtlxmix" />
       <input name="scale" type="float" value="0.5" />
-    </pingpong>
+    </trianglewave>
     <mix name="N_mtlxmix1" type="float">
       <input name="fg" type="float" nodename="N_mtlxmodulo" />
       <input name="bg" type="float" nodename="N_mtlxmodulo1" />
@@ -1360,10 +1360,10 @@
 
 
   <!--
-    Node: <ping-pong>
+    Node: <triangle wave>
     Moving between 0.0 and the Scale based on the input value.
   -->
-  <nodegraph name="NG_pingpong_float" nodedef="ND_pingpong_float">
+  <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <subtract name="N_mtlxsubtract1" type="float">
       <input name="in1" type="float" interfacename="scale" />
       <input name="in2" type="float" nodename="N_mtlxabsval1" />
