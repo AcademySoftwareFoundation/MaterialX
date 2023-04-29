@@ -33,7 +33,7 @@ Previously, MaterialX used custom types with a structure of output variables to 
 
 **Array Types Now Uniform and Static Length**
 
-Many shading languages do not support dynamic array types with a variable length, and so MaterialX now only supports arrays with a fixed maximum length, and all array-type node inputs must be uniform; nodes are no longer permitted to output an array type.  Array-type inputs may be accompanied by a uniform integer input declaring the number of array elements actually used in the array.  Because of this change, the unimplemented &lt;arrayappend> node has been removed.
+Many shading languages do not support dynamic array types with a variable length, so MaterialX now only supports arrays with a fixed maximum length, and all array-type node inputs must be uniform; nodes are no longer permitted to output an array type.  Array-type inputs may be accompanied by a uniform integer input declaring the number of array elements actually used in the array.  Because of this change, the unimplemented &lt;arrayappend> node has been removed.
 
 
 **Connectable Uniform Inputs and New Tokenvalue Node**
@@ -101,7 +101,7 @@ The following new standard physically based shading nodes have been added:
 
 **Other Changes**
 
-* The &lt;member> element for &lt;typedef>s and the "member" attribute for inputs has been removed from the Specification, as it had never been implemented and it was not clear how it could be implemented generally.
+* The &lt;member> element for &lt;typedef>s and the "member" attribute for inputs have been removed from the Specification, as they had never been implemented and it was not clear how they could be implemented generally.
 * The "valuerange" and "valuecurve" attributes describing expressions and function curves have been removed, in favor of using the new &lt;curveinversecubic> / &lt;curveuniformcubic> / etc. nodes.
 * The &lt;cellnoise2d> and &lt;cellnoise3d> nodes now support vector<em>N</em> output types in addition to float output.
 * The &lt;worleynoise2d> and &lt;worleynoise3d> nodes now support a number of different distance metrics.
