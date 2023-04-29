@@ -2525,7 +2525,7 @@ Variants and variantsets are not intrinsically associated with any particular ma
     ...
 ```
 
-Variants and variantsets can be defined in any MaterialX implementation, but because variants are applied to materials within a &lt;look>, they can only be applied in applications supporting MaterialX Geometry Extensions; please see the **Look Assignment Elements** section in that document for information on using material variants.
+Variants and variantsets can be defined in any MaterialX implementation, but because variants are applied to materials within a &lt;look>, they can only be applied in applications supporting MaterialX Geometry Extensions; please see the [**VariantAssign Elements**](./MaterialX.GeomExts.md#variantassign-elements) section in that document for information on using material variants.
 
 
 # References
