@@ -2455,17 +2455,14 @@
 
   <!--
     Node: <Distance>
-    Measures the distance between two point in (X, Y).
+    Measures the distance between two points in (X, Y).
   -->
 
   <nodedef name="ND_Distance_float" node="Distance" nodegroup="math">
-    <input name="x1" type="float" uiname="x1" value="0" />
-    <input name="x2" type="float" uiname="x2" value="0" />
-    <input name="y1" type="float" uiname="y1" value="0" />
-    <input name="y2" type="float" uiname="y2" value="0" />
+    <input name="input1" type="vector2" uiname="input1" value="0, 0" />
+    <input name="input2" type="vector2" uiname="input2" value="0, 0" />
     <output name="out" type="float" />
   </nodedef>
-
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->

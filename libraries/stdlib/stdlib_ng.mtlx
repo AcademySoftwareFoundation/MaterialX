@@ -1245,34 +1245,17 @@
 
   <!--
     Node: <Distance>
-    Measures the distance between two point in (X, Y).
+    Measures the distance between two points in (X, Y).
   -->
-  
-    <nodegraph name="NG_Distance_float" nodedef="ND_Distance_float">
-    <sqrt name="N_mtlxsqrt" type="float">
-      <input name="in" type="float" nodename="N_mtlxadd" />
-    </sqrt>
-    <add name="N_mtlxadd" type="float">
-      <input name="in1" type="float" nodename="N_mtlxmultiply" />
-      <input name="in2" type="float" nodename="N_mtlxmultiply1" />
-    </add>
-    <multiply name="N_mtlxmultiply" type="float">
-      <input name="in1" type="float" nodename="N_mtlxsubtract" />
-      <input name="in2" type="float" nodename="N_mtlxsubtract" />
-    </multiply>
-    <multiply name="N_mtlxmultiply1" type="float">
-      <input name="in1" type="float" nodename="N_mtlxsubtract1" />
-      <input name="in2" type="float" nodename="N_mtlxsubtract1" />
-    </multiply>
-    <subtract name="N_mtlxsubtract" type="float">
-      <input name="in1" type="float" interfacename="x2" />
-      <input name="in2" type="float" interfacename="x1" />
+  <nodegraph name="NG_Distance_float" nodedef="ND_Distance_float">
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <subtract name="N_mtlxsubtract" type="vector2">
+      <input name="in1" type="vector2" interfacename="input1" />
+      <input name="in2" type="vector2" interfacename="input2" />
     </subtract>
-    <subtract name="N_mtlxsubtract1" type="float">
-      <input name="in1" type="float" interfacename="y2" />
-      <input name="in2" type="float" interfacename="y1" />
-    </subtract>
-    <output name="out" type="float" nodename="N_mtlxsqrt" />
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
 
   <!-- ======================================================================== -->
