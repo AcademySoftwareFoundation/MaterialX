@@ -16,7 +16,6 @@ March 25, 2023
 
 This document details additional information about MaterialX and how it may be incorporated into studio pipelines.  The document describes a number of additional Supplemental Nodes providing enhanced functionality over the basic Standard Nodes, as well as a recommended naming convention for node definition elements and a directory structure to define packages of node definitions and implementations from various sources.
 
-Test of <a href="#node-tiledimage">tiledimage node link</a> and <a href="#node-triplanarprojection">triplanarprojection node link</a>.
 
 
 ## Table of Contents
