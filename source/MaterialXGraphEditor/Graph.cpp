@@ -3656,10 +3656,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     // update render material if needed
                     if (_currUiNode->getNode())
                     {
-                        //if (_currUiNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING || _currUiNode->getNode()->getType() == mx::MATERIAL_TYPE_STRING)
-                        {
-                            setRenderMaterial(_currUiNode);
-                        }
+                        setRenderMaterial(_currUiNode);
                     }
                     else if (_currUiNode->getNodeGraph())
                     {
