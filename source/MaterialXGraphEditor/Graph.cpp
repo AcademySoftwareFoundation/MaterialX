@@ -681,10 +681,13 @@ void Graph::selectMaterial(UiNodePtr uiNode)
 // set the node to display in render veiw based off the selected node or nodegraph
 void Graph::setRenderMaterial(UiNodePtr node)
 {
+    // For now surface shaders and materials are considered renderable.
+    // This can be adjusted as desired to includ being able to use outputs,
+    // and / a sub-graph in the nodegraph.
     mx::StringSet renderableTypes = { "material", "surfaceshader" };
 
     // set render node right away is node is a material
-    if (node->getNode() && renderableTypes.count(node->getNode()->getType())
+    if (node->getNode() && renderableTypes.count(node->getNode()->getType()))
     {
         // only set new render node if different material has been selected
         if (_currRenderNode != node)
@@ -696,6 +699,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
     }
     else
     {
+        // Traverse downstream looking for the first renderable item found.
         mx::NodePtr mtlxNode = node->getNode();
         mx::NodeGraphPtr mtlxNodeGraph = node->getNodeGraph();
         mx::OutputPtr mtlxOutput = node->getOutput();
@@ -729,24 +733,22 @@ void Graph::setRenderMaterial(UiNodePtr node)
                 if (testNode)
                 {
                     downstreamPorts = testNode->getDownstreamPorts();
-                    std::cout << "- Test node: " << testNode->getNamePath() << std::endl;
                 }
                 else
                 {
                     mx::NodeGraphPtr testGraph = testElem->asA<mx::NodeGraph>();
                     if (testGraph)
                     {
-                        std::cout << "- Test graph: " << testGraph->getNamePath() << std::endl;
                         downstreamPorts = testGraph->getDownstreamPorts();
                     }
                 }
+                // Test all downstream ports. If the port's node is renderable
+                // then stop searching.
                 for (mx::PortElementPtr downstreamPort : downstreamPorts)
                 {
-                    std::cout << "  - Test downstream port: " << downstreamPort->getNamePath() << std::endl;
                     mx::ElementPtr parent = downstreamPort->getParent();
                     if (parent)
                     {
-                        std::cout << "  - Test downstream node: " << parent->getNamePath() << std::endl;
                         mx::NodePtr downstreamNode = parent->asA<mx::Node>();
                         if (downstreamNode)
                         {
@@ -771,12 +773,15 @@ void Graph::setRenderMaterial(UiNodePtr node)
                     break;
                 }
             }
+
+            // Set up next set of nodes to search downstream
             testPaths = nextPaths;
         }
 
+        // Update rendering. If found use that node, otherwise
+        // use the current fallback of using the first renderable node.
         if (foundNode)
         {
-            std::cout << "Found node:" << foundNode->getNamePath() << std::endl;
             for (auto uiNode : _graphNodes)
             {
                 if (uiNode->getNode() == foundNode)
@@ -790,6 +795,12 @@ void Graph::setRenderMaterial(UiNodePtr node)
                     break;
                 }
             }
+        }
+        else
+        {
+            _currRenderNode = nullptr;
+            _frameCount = ImGui::GetFrameCount();
+            _renderer->setMaterialCompilation(true);
         }
     }
 }
