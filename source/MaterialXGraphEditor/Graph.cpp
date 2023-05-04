@@ -681,8 +681,10 @@ void Graph::selectMaterial(UiNodePtr uiNode)
 // set the node to display in render veiw based off the selected node or nodegraph
 void Graph::setRenderMaterial(UiNodePtr node)
 {
+    mx::StringSet renderableTypes = { "material", "surfaceshader" };
+
     // set render node right away is node is a material
-    if (node->getNode() && node->getNode()->getType() == "material")
+    if (node->getNode() && renderableTypes.count(node->getNode()->getType())
     {
         // only set new render node if different material has been selected
         if (_currRenderNode != node)
@@ -694,53 +696,100 @@ void Graph::setRenderMaterial(UiNodePtr node)
     }
     else
     {
-        // continue downstream using output connections until a material node is found
-        std::vector<UiNodePtr> outNodes = node->getOutputConnections();
-        if (outNodes.size() > 0)
+        mx::NodePtr mtlxNode = node->getNode();
+        mx::NodeGraphPtr mtlxNodeGraph = node->getNodeGraph();
+        mx::OutputPtr mtlxOutput = node->getOutput();
+        if (mtlxOutput)
         {
-            if (outNodes[0]->getNode())
+            mx::ElementPtr parent = mtlxOutput->getParent();
+            if (parent->isA<mx::NodeGraph>())
+                mtlxNodeGraph = parent->asA<mx::NodeGraph>();
+            else if (parent->isA<mx::Node>())
+                mtlxNode = parent->asA<mx::Node>();
+        }
+        mx::StringSet testPaths;
+        if (mtlxNode)
+        {
+            testPaths.insert(mtlxNode->getNamePath());
+        }
+        else if (mtlxNodeGraph)
+        {
+            testPaths.insert(mtlxNodeGraph->getNamePath());
+        }
+
+        mx::NodePtr foundNode = nullptr;
+        while (!testPaths.empty() && !foundNode)
+        {
+            mx::StringSet nextPaths;
+            for (const std::string& testPath : testPaths)
             {
-                if (outNodes[0]->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
+                mx::ElementPtr testElem = _graphDoc->getDescendant(testPath);
+                mx::NodePtr testNode = testElem->asA<mx::Node>();
+                std::vector<mx::PortElementPtr> downstreamPorts;
+                if (testNode)
                 {
-                    std::vector<UiNodePtr> shaderOut = outNodes[0]->getOutputConnections();
-                    if (shaderOut.size() > 0)
+                    downstreamPorts = testNode->getDownstreamPorts();
+                    std::cout << "- Test node: " << testNode->getNamePath() << std::endl;
+                }
+                else
+                {
+                    mx::NodeGraphPtr testGraph = testElem->asA<mx::NodeGraph>();
+                    if (testGraph)
                     {
-                        if (shaderOut[0])
+                        std::cout << "- Test graph: " << testGraph->getNamePath() << std::endl;
+                        downstreamPorts = testGraph->getDownstreamPorts();
+                    }
+                }
+                for (mx::PortElementPtr downstreamPort : downstreamPorts)
+                {
+                    std::cout << "  - Test downstream port: " << downstreamPort->getNamePath() << std::endl;
+                    mx::ElementPtr parent = downstreamPort->getParent();
+                    if (parent)
+                    {
+                        std::cout << "  - Test downstream node: " << parent->getNamePath() << std::endl;
+                        mx::NodePtr downstreamNode = parent->asA<mx::Node>();
+                        if (downstreamNode)
                         {
-                            if (shaderOut[0]->getNode()->getType() == "material")
+                            mx::NodeDefPtr nodeDef = downstreamNode->getNodeDef();
+                            if (nodeDef)
                             {
-                                if (_currRenderNode != shaderOut[0])
+                                if (renderableTypes.count(nodeDef->getType()))
                                 {
-                                    _currRenderNode = shaderOut[0];
-                                    _frameCount = ImGui::GetFrameCount();
-                                    _renderer->setMaterialCompilation(true);
+                                    foundNode = downstreamNode;
+                                    break;
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        _currRenderNode = nullptr;
+                        if (!foundNode)
+                        {
+                            nextPaths.insert(parent->getNamePath());
+                        }
                     }
                 }
-                else if (outNodes[0]->getNode()->getType() == mx::MATERIAL_TYPE_STRING)
+                if (foundNode)
                 {
-                    if (_currRenderNode != outNodes[0])
+                    break;
+                }
+            }
+            testPaths = nextPaths;
+        }
+
+        if (foundNode)
+        {
+            std::cout << "Found node:" << foundNode->getNamePath() << std::endl;
+            for (auto uiNode : _graphNodes)
+            {
+                if (uiNode->getNode() == foundNode)
+                {
+                    if (_currRenderNode != uiNode)
                     {
-                        _currRenderNode = outNodes[0];
+                        _currRenderNode = uiNode;
                         _frameCount = ImGui::GetFrameCount();
                         _renderer->setMaterialCompilation(true);
                     }
+                    break;
                 }
             }
-            else
-            {
-                _currRenderNode = nullptr;
-            }
-        }
-        else
-        {
-            _currRenderNode = nullptr;
         }
     }
 }
@@ -748,38 +797,15 @@ void Graph::setRenderMaterial(UiNodePtr node)
 void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 {
     std::string renderablePath;
-    mx::TypedElementPtr renderableElem;
-    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
-
-    size_t num = 0;
-    int num2 = 0;
-    for (mx::TypedElementPtr elem : elems)
+    if (_currRenderNode)
     {
-        renderableElem = elem;
-        mx::NodePtr node = elem->asA<mx::Node>();
-        if (node)
+        if (_currRenderNode->getNode())
         {
-            if (_currRenderNode)
-            {
-                if (node->getName() == _currRenderNode->getName())
-                {
-                    renderablePath = renderableElem->getNamePath();
-                    break;
-                }
-            }
-            else
-            {
-                renderablePath = renderableElem->getNamePath();
-            }
+            renderablePath = _currRenderNode->getNode()->getNamePath();
         }
-        else
+        else if (_currRenderNode->getOutput())
         {
-            renderablePath = renderableElem->getNamePath();
-            if (num2 == 2)
-            {
-                break;
-            }
-            num2++;
+            renderablePath = _currRenderNode->getOutput()->getNamePath();
         }
     }
 
@@ -810,7 +836,7 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
             // Note that if there is a topogical change due to
             // this value change or a transparency change, then
             // this is not currently caught here.
-            _renderer->getMaterials()[num]->modifyUniform(name, value);
+            _renderer->getMaterials()[0]->modifyUniform(name, value);
         }
     }
 }
@@ -3619,7 +3645,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     // update render material if needed
                     if (_currUiNode->getNode())
                     {
-                        if (_currUiNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING || _currUiNode->getNode()->getType() == mx::MATERIAL_TYPE_STRING)
+                        //if (_currUiNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING || _currUiNode->getNode()->getType() == mx::MATERIAL_TYPE_STRING)
                         {
                             setRenderMaterial(_currUiNode);
                         }

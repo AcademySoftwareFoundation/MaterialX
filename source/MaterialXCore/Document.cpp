@@ -97,6 +97,18 @@ class Document::Cache
                         portElementMap.emplace(portElem->getQualifiedName(nodeName), portElem);
                     }
                 }
+                else
+                {
+                    const string& nodegraphName = elem->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+                    if (!nodegraphName.empty())
+                    {
+                        PortElementPtr portElem = elem->asA<PortElement>();
+                        if (portElem)
+                        {
+                            portElementMap.emplace(portElem->getQualifiedName(nodegraphName), portElem);
+                        }
+                    }
+                }
                 if (!nodeString.empty())
                 {
                     NodeDefPtr nodeDef = elem->asA<NodeDef>();
