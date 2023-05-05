@@ -32,6 +32,52 @@ struct Link
     }
 };
 
+class NodeDefParameters
+{
+  public:
+    const std::string& getIdentifier() const
+    {
+        return _identifier;
+    }
+      
+    const std::string& getNodeDefName() const
+    {
+        return _nodeDefName;
+    }
+
+    const std::string& getNodeGraphName() const
+    {
+        return _nodeGraphName;
+    }
+
+    void initialize()
+    {
+        categoryString.clear();
+        nodeGroupString.clear();
+        namespaceString.clear();
+        versionString.clear();
+        isDefaultVersion = false;
+        useVersion = false;
+        useNamespace = false;
+    }
+
+    bool generateIdentifiers(mx::NodeGraphPtr nodeGraph);
+   
+    std::string categoryString;
+    std::string nodeGroupString;
+    std::string namespaceString;
+    std::string versionString;
+    bool isDefaultVersion = false;
+    bool useVersion = false;
+    bool useNamespace = false;
+
+  protected:
+    std::string _identifier;
+    std::string _nodeDefName;
+    std::string _nodeGraphName;
+
+};
+
 class Graph
 {
   public:
@@ -39,6 +85,7 @@ class Graph
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
+          const mx::FilePath& userlibraryFolder,
           int viewWidth,
           int viewHeight);
 
@@ -67,7 +114,8 @@ class Graph
     void initializeDataLibraries();
     void loadStandardLibraries();
     void createNodeUIList(mx::DocumentPtr doc);
-    void publishSelectedNodeGraph();
+    void publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters);
+    void addPublishPopup();
 
     // handling link information
     void linkGraph();
@@ -155,7 +203,6 @@ class Graph
     void loadGraphFromFile();
     void saveGraphToFile();
     void loadGeometry();
-    void publishDefinition();
 
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
@@ -163,6 +210,8 @@ class Graph
 
     // Help
     void showHelp() const;
+
+    bool isDialogOpen();
 
     RenderViewPtr _renderer;
 
@@ -173,6 +222,7 @@ class Graph
 
     mx::FileSearchPath _searchPath;
     mx::FilePathVec _libraryFolders;
+    mx::FilePath _userLibraryFolder;
     mx::DocumentPtr _stdLib;
 
     // image information

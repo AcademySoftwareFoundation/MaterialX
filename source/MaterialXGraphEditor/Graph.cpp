@@ -37,15 +37,57 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 
 } // anonymous namespace
 
+bool NodeDefParameters::generateIdentifiers(mx::NodeGraphPtr nodeGraph)
+{
+    if (!nodeGraph)
+    {
+        return false;
+    }
+
+    _identifier.clear();
+    _nodeDefName.clear();
+    _nodeGraphName.clear();
+
+    if (categoryString.empty())
+    {
+        categoryString = nodeGraph->getName();
+    }
+
+    _identifier = categoryString;
+    if (useVersion && !versionString.empty())
+    {
+        _identifier += "_" + versionString;
+    }
+    if (useNamespace && !namespaceString.empty())
+    {
+        _identifier = namespaceString + ":" + _identifier;
+    }
+
+    std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
+    for (mx::OutputPtr output : outputs)
+    {
+        const std::string& outputType = output->getType();
+        _identifier += "_" + outputType;
+    }
+
+    // Prefix with "ND_" or "NG_" for definition and graph names
+    _nodeDefName = std::string("ND_") + _identifier;
+    _nodeGraphName = std::string("NG_") + _identifier;
+
+    return true;
+}
+
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
+             const mx::FilePath& userLibraryFolder,
              int viewWidth,
              int viewHeight) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
+    _userLibraryFolder(userLibraryFolder),
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
@@ -124,10 +166,13 @@ void Graph::loadStandardLibraries()
     try
     {
         // Emit the folders and search path if custom libraries are specified.
-        if (_libraryFolders.size() > 1)
+        mx::FilePathVec allFolders = _libraryFolders;
+        allFolders.push_back(_userLibraryFolder);
+
+        if (allFolders.size() > 1)
         {
             std::cout << "> Load data libraries:" << std::endl;
-            for (auto x : _libraryFolders)
+            for (auto x : allFolders)
             {
                 std::cout << " - " + x.asString() << std::endl;
             }
@@ -137,7 +182,7 @@ void Graph::loadStandardLibraries()
             std::cout << "> Search path: " + _searchPath.asString() << std::endl;
         }
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        _xincludeFiles = mx::loadLibraries(allFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
@@ -199,7 +244,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     return doc;
 }
 
-void Graph::publishSelectedNodeGraph()
+void Graph::publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters)
 {
     if (_currUiNode != nullptr)
     {
@@ -210,27 +255,11 @@ void Graph::publishSelectedNodeGraph()
             std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
             if (doc && !outputs.empty())
             {
-                mx::FilePath fileName = _fileDialogPublish.getSelected();
-                _fileDialogPublish.clearSelected();
+                parameters.generateIdentifiers(nodeGraph);
+                std::string newNodeGraphName = mx::createValidName(parameters.getNodeGraphName());
+                std::string newNodeDefName = mx::createValidName(parameters.getNodeDefName());
+                std::string newNodeCategory = mx::createValidName(parameters.categoryString);
 
-                // Build definition and graph names which match the convention used for standard libraries.
-                // 
-                // 1. Use NG_ and ND_ for prefixes 
-                // 2. Append the category name 
-                // 3. Append output type(s). 
-                // 
-                // Additional information could be used to make the signature unique. E.g. input type
-                // differentiation could be added.
-                std::string nodeGraphName = nodeGraph->getName();
-                std::string newNodeCategory = nodeGraphName;
-                std::string newNodeDefName(std::string("ND_") + nodeGraphName);
-                std::string newNodeGraphName(std::string("NG_") + nodeGraphName);
-                for (mx::OutputPtr output : outputs)
-                {
-                    const std::string& outputType = output->getType();
-                    newNodeDefName += "_" + outputType;
-                    newNodeGraphName += "_" + outputType;
-                }
                 mx::NodeDefPtr tempDef = nullptr;
                 mx::NodeGraphPtr tempGraph = nullptr;
                 std::string errorString;
@@ -265,6 +294,14 @@ void Graph::publishSelectedNodeGraph()
                 // so leave this empty. The outputs will be copied when the content is copied over.
                 mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
                 newDef->copyContentFrom(tempDef);
+                if (!parameters.nodeGroupString.empty())
+                {
+                    newDef->setNodeGroup(parameters.nodeGroupString);
+                }
+                if (!parameters.versionString.empty() && parameters.useVersion)
+                {
+                    newDef->setVersionString(parameters.versionString);
+                }
 
                 mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
                 newGraph->copyContentFrom(tempGraph);
@@ -283,7 +320,23 @@ void Graph::publishSelectedNodeGraph()
                 {
                     mx::XmlWriteOptions writeOptions;
                     writeOptions.elementPredicate = getElementPredicate();
-                    mx::writeToXmlFile(defDoc, fileName, &writeOptions);
+                    mx::FilePath folderLocation;
+                    if (_userLibraryFolder.isAbsolute())
+                    {
+                        folderLocation = _userLibraryFolder;
+                    }
+                    else
+                    {
+                        folderLocation = mx::getDefaultDataSearchPath()[0];
+                        folderLocation = folderLocation / _userLibraryFolder;
+                        if (!folderLocation.exists())
+                        {
+                            folderLocation.createDirectory();
+                        }
+                    }
+                    mx::FilePath fileLocation = folderLocation / fileName;
+                    std::cout << "Write definition to file: " << fileLocation.asString() << std::endl;
+                    mx::writeToXmlFile(defDoc, fileLocation, &writeOptions);
                 }
 
                 // Clean up temporary elements as they should not be part of the
@@ -2986,13 +3039,6 @@ void Graph::loadGraphFromFile()
     _fileDialog.open();
 }
 
-void Graph::publishDefinition()
-{
-    _fileDialogPublish.setTypeFilters(_mtlxFilter);
-    _fileDialogPublish.setTitle("Publish Definition");
-    _fileDialogPublish.open();
-}
-
 void Graph::saveGraphToFile()
 {
     _fileDialogSave.setTypeFilters(_mtlxFilter);
@@ -3012,6 +3058,7 @@ void Graph::graphButtons()
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
     ImGui::SetWindowFontScale(_fontScale);
 
+    bool publishOpen = false;
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -3032,7 +3079,7 @@ void Graph::graphButtons()
             }
             else if (ImGui::MenuItem("Publish Definition", ""))
             {
-                publishDefinition();
+                publishOpen = true;
             }
             else if (ImGui::MenuItem("Reload Definitions", ""))
             {
@@ -3073,9 +3120,19 @@ void Graph::graphButtons()
         ImGui::EndMenuBar();
     }
 
+    if (publishOpen)
+    {
+        if (_currUiNode && _currUiNode->getNodeGraph())
+        {
+            ImGui::OpenPopup("Publish Definition");
+        }
+        publishOpen = false;
+    }
+    addPublishPopup();
+
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    if (guiIO.KeyCtrl && !isDialogOpen())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3147,8 +3204,98 @@ void Graph::graphButtons()
     ImGui::EndChild();
     ImGui::SameLine(0.0f, 12.0f);
 
-    handleRenderViewInputs(windowPos, screenSize[0], screenSize[1]);
+    if (!isDialogOpen())
+    {
+        handleRenderViewInputs(windowPos, screenSize[0], screenSize[1]);
+    }
 }
+
+void Graph::addPublishPopup()
+{
+    if (ImGui::BeginPopupModal("Publish Definition", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse))
+    {
+        static NodeDefParameters parameters;
+        parameters.generateIdentifiers(_currUiNode->getNodeGraph());
+
+        // Set this to be unique based on the signature of the node.
+        static std::string fileName;
+        bool useExplicitFile = false;
+        if (useExplicitFile)
+        {
+            ImGui::PushItemWidth(-200);
+            if (ImGui::Button("Browse"))
+            {
+                _fileDialogPublish.setTypeFilters(_mtlxFilter);
+                _fileDialogPublish.setTitle("Definition File");
+                _fileDialogPublish.open();
+            }
+            _fileDialogPublish.display();
+            if (_fileDialogPublish.hasSelected())
+            {
+                fileName = _fileDialogPublish.getSelected();
+                _fileDialogPublish.clearSelected();
+            }
+            ImGui::SameLine();
+            ImGui::PopItemWidth();
+        }
+        else
+        {
+            fileName = mx::createValidName(parameters.getIdentifier()) + ".mtlx";
+            // Need to strip out any ":" for filenames
+            mx::StringMap fileNameMap;
+            fileNameMap[":"] = "_";
+            fileName = mx::replaceSubstrings(fileName, fileNameMap);
+        }
+        ImGui::PushItemWidth(512);
+        ImGui::Text("File"); ImGui::SameLine(); ImGui::InputText("", &fileName);
+        ImGui::PopItemWidth();
+        ImGui::Separator();
+
+        ImGui::Text("Category"); ImGui::SameLine(); ImGui::InputText("##categoryString", &parameters.categoryString, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::Text("Nodegroup"); ImGui::SameLine(); ImGui::InputText("##nodeGroupString", &parameters.nodeGroupString, ImGuiInputTextFlags_CharsNoBlank);
+
+        ImGui::Separator();
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::Checkbox("##useVersion", &parameters.useVersion);
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!parameters.useVersion);
+        ImGui::Text("Version"); ImGui::SameLine(); ImGui::InputText("##versionString", &parameters.versionString, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::EndDisabled();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::Checkbox("##useNamespace", &parameters.useNamespace);
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!parameters.useNamespace);
+        ImGui::Text("Namespace"); ImGui::SameLine(); ImGui::InputText("##namespaceString", &parameters.namespaceString, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::EndDisabled();
+
+        bool closePopup = false;
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            // Trigger to perform save
+            publishSelectedNodeGraph(fileName, parameters);
+            closePopup = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            closePopup = true;
+        }
+
+        if (closePopup)
+        {
+            // Clear statics for next invocation.
+            parameters.initialize();
+            ImGui::CloseCurrentPopup();
+        }
+
+        //ImGui::SetWindowFontScale(1.0f);
+        ImGui::EndPopup();
+    }
+}
+
 void Graph::propertyEditor()
 {
     ImGui::Text("Node Property Editor");
@@ -3393,7 +3540,6 @@ void Graph::propertyEditor()
             ImGui::Text("%s", _currUiNode->getCategory().c_str());
             ImGui::Text("Inputs:");
             int count = 0;
-
             for (UiPinPtr input : inputs)
             {
                 if (_currUiNode->_showAllInputs || (input->getConnected() || _currUiNode->getNodeGraph()->getInput(input->_name)))
@@ -3464,11 +3610,15 @@ void Graph::propertyEditor()
 
         if (_currUiNode->getNodeGraph() != nullptr)
         {
+            ImGui::SameLine();
             if (ImGui::Button("Publish"))
             {
-                publishDefinition();
+                ImGui::OpenPopup("Publish Definition");
             }
         }
+        ImGui::SetWindowFontScale(_fontScale);
+        addPublishPopup();
+        ImGui::SetWindowFontScale(1.0f);
     }
 }
 
@@ -3515,6 +3665,22 @@ void Graph::showHelp() const
         ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
     }
 }
+
+bool Graph::isDialogOpen()
+{
+#if 0
+    std::cout << "add node open: " << (ImGui::IsPopupOpen("add node") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "search open: " << (ImGui::IsPopupOpen("search") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "publish open: " << (ImGui::IsPopupOpen("Publish Definition") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-save open: " << (_fileDialogSave.isOpened() ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-openmtlx open: " << (_fileDialog.isOpened() ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-opengeom open: " << (_fileDialogGeom.isOpened() ? "TRUE" : "FALSE") << std::endl;
+#endif
+    return ImGui::IsPopupOpen("add node") || ImGui::IsPopupOpen("search") ||
+        ImGui::IsPopupOpen("Publish Definition") || _fileDialogSave.isOpened() ||
+        _fileDialog.isOpened() || _fileDialogGeom.isOpened();
+}
+
 
 void Graph::addNodePopup(bool cursor)
 {
@@ -3986,13 +4152,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_F) && !isDialogOpen())
         {
             ed::NavigateToSelection();
         }
 
         // go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_U) && !isDialogOpen())
         {
             upNodeGraph();
         }
@@ -4175,12 +4341,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         _fileDialogGeom.clearSelected();
         _renderer->loadMesh(fileName);
         _renderer->updateMaterials(nullptr);
-    }
-
-    _fileDialogPublish.display();
-    if (_fileDialogPublish.hasSelected())
-    {
-        publishSelectedNodeGraph();
     }
 
     _fileDialogImage.display();
