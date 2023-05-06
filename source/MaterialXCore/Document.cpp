@@ -189,10 +189,10 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         graph = addNodeGraph(newGraphName);
         graph->copyContentFrom(nodeGraph);
 
-         for (auto node : graph->getChildren())
+        for (auto graphChild : graph->getChildren())
         {
-            node->removeAttribute("xpos");
-            node->removeAttribute("ypos");
+            graphChild->removeAttribute("xpos");
+            graphChild->removeAttribute("ypos");
         }        
     }
     graph->setNodeDefString(nodeDefName);
