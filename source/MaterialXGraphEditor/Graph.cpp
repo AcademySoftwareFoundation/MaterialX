@@ -302,6 +302,12 @@ void Graph::publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParame
                 {
                     newDef->setVersionString(parameters.versionString);
                 }
+                if (!parameters.docString.empty())
+                {
+                    mx::StringMap filterDoc;
+                    filterDoc["\n"] = " ";                    
+                    newDef->setDocString(mx::replaceSubstrings(parameters.docString, filterDoc));
+                }
 
                 mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
                 newGraph->copyContentFrom(tempGraph);
@@ -3212,7 +3218,7 @@ void Graph::graphButtons()
 
 void Graph::addPublishPopup()
 {
-    if (ImGui::BeginPopupModal("Publish Definition", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse))
+    if (ImGui::BeginPopupModal("Publish Definition", NULL, ImGuiWindowFlags_NoCollapse))
     {
         static NodeDefParameters parameters;
         parameters.generateIdentifiers(_currUiNode->getNodeGraph());
@@ -3251,8 +3257,52 @@ void Graph::addPublishPopup()
         ImGui::PopItemWidth();
         ImGui::Separator();
 
+        // Pull of existing nodegroups
+        mx::StringSet nodeGroupsSet;
+        mx::StringVec nodeGroups;
+        for (auto nd : _stdLib->getNodeDefs())
+        {
+            const std::string& group = nd->getNodeGroup();
+            if (!group.empty())
+            {
+                nodeGroupsSet.insert(group);
+            }
+        }
+        for (auto group : nodeGroupsSet)
+        {
+            nodeGroups.push_back(group);
+        }
+
         ImGui::Text("Category"); ImGui::SameLine(); ImGui::InputText("##categoryString", &parameters.categoryString, ImGuiInputTextFlags_CharsNoBlank);
-        ImGui::Text("Nodegroup"); ImGui::SameLine(); ImGui::InputText("##nodeGroupString", &parameters.nodeGroupString, ImGuiInputTextFlags_CharsNoBlank);
+
+        static int item_current_idx = 0;
+        ImGui::Text("Nodegroup"); ImGui::SameLine(); 
+        if (ImGui::BeginCombo("##Nodegroup", nodeGroups[item_current_idx].c_str()))
+        {
+            int n = 0;
+            ImGui::SetWindowFontScale(_fontScale);
+            for (auto group : nodeGroups)
+            {
+                const bool is_selected = (item_current_idx == n);
+                if (ImGui::Selectable(group.c_str(), is_selected))
+                    item_current_idx = n;
+
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+
+                n++;
+            }
+            ImGui::EndCombo();
+            ImGui::SetWindowFontScale(1.0f);
+        }
+        parameters.nodeGroupString = nodeGroups[item_current_idx];
+
+        ImGui::Separator();
+
+        ImGui::Text("Documentation"); ImGui::SameLine(); 
+        ImGui::SetWindowFontScale(_fontScale);
+        ImGui::InputTextMultiline("#Documentation", &parameters.docString, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4));
+        ImGui::SetWindowFontScale(1.0);
 
         ImGui::Separator();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
@@ -3291,7 +3341,6 @@ void Graph::addPublishPopup()
             ImGui::CloseCurrentPopup();
         }
 
-        //ImGui::SetWindowFontScale(1.0f);
         ImGui::EndPopup();
     }
 }

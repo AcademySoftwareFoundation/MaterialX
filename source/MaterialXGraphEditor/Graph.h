@@ -56,6 +56,7 @@ class NodeDefParameters
         nodeGroupString.clear();
         namespaceString.clear();
         versionString.clear();
+        docString.clear();
         isDefaultVersion = false;
         useVersion = false;
         useNamespace = false;
@@ -67,6 +68,7 @@ class NodeDefParameters
     std::string nodeGroupString;
     std::string namespaceString;
     std::string versionString;
+    std::string docString;
     bool isDefaultVersion = false;
     bool useVersion = false;
     bool useNamespace = false;
