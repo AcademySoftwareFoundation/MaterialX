@@ -171,7 +171,8 @@ void Document::initialize()
 }
 
 NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
-                                         const string& version, bool isDefaultVersion, const string& group, const string& newGraphName)
+                                         const string& version, bool isDefaultVersion, const string& group, const string& newGraphName,
+                                         const string& docString, const string& nameSpace)
 {
     if (getNodeDef(nodeDefName))
     {
@@ -187,11 +188,21 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         }
         graph = addNodeGraph(newGraphName);
         graph->copyContentFrom(nodeGraph);
+
+         for (auto node : graph->getChildren())
+        {
+            node->removeAttribute("xpos");
+            node->removeAttribute("ypos");
+        }        
     }
     graph->setNodeDefString(nodeDefName);
 
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);    
     nodeDef->setNodeString(node);
+    if (!docString.empty())
+    {
+        nodeDef->setDocString(docString);
+    }
     if (!group.empty())
     {
         nodeDef->setNodeGroup(group);
@@ -206,6 +217,12 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         {
             nodeDef->setDefaultVersion(true);
         }
+    }
+
+    if (!nameSpace.empty())
+    {
+        graph->setNamespace(nameSpace);
+        nodeDef->setNamespace(nameSpace);
     }
 
     // Expose any existing interface.

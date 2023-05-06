@@ -58,10 +58,6 @@ bool NodeDefParameters::generateIdentifiers(mx::NodeGraphPtr nodeGraph)
     {
         _identifier += "_" + versionString;
     }
-    if (useNamespace && !namespaceString.empty())
-    {
-        _identifier = namespaceString + ":" + _identifier;
-    }
 
     std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
     for (mx::OutputPtr output : outputs)
@@ -259,16 +255,33 @@ void Graph::publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParame
                 std::string newNodeGraphName = mx::createValidName(parameters.getNodeGraphName());
                 std::string newNodeDefName = mx::createValidName(parameters.getNodeDefName());
                 std::string newNodeCategory = mx::createValidName(parameters.categoryString);
+                std::string newNodeGroup = parameters.nodeGroupString;
+                std::string newVersionString;
+                if (parameters.useVersion && !parameters.versionString.empty())
+                {
+                    newVersionString = parameters.versionString;
+                } 
+                std::string newNodeNamespace;
+                if (parameters.useNamespace && !parameters.namespaceString.empty())
+                {
+                    newNodeNamespace = parameters.namespaceString;
+                }
+                std::string newNodeDocString;
+                if (!parameters.docString.empty())
+                {
+                    mx::StringMap filterDoc;
+                    filterDoc["\n"] = " ";
+                    newNodeDocString = mx::replaceSubstrings(parameters.docString, filterDoc);
+                }
 
                 mx::NodeDefPtr tempDef = nullptr;
                 mx::NodeGraphPtr tempGraph = nullptr;
                 std::string errorString;
                 try
                 {
-                    // Version and group have been left off for now. Can be specified via
-                    // some new UI.
                     tempDef = doc->addNodeDefFromGraph(nodeGraph, newNodeDefName,
-                        newNodeCategory, mx::EMPTY_STRING, false, mx::EMPTY_STRING, newNodeGraphName);
+                        newNodeCategory, newVersionString, false, newNodeGroup, newNodeGraphName,
+                        newNodeDocString, newNodeNamespace);
                     tempGraph = doc->getNodeGraph(newNodeGraphName);
 
                     if (!tempDef || !tempGraph || !tempDef->validate() || !tempGraph->validate())
@@ -294,28 +307,9 @@ void Graph::publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParame
                 // so leave this empty. The outputs will be copied when the content is copied over.
                 mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
                 newDef->copyContentFrom(tempDef);
-                if (!parameters.nodeGroupString.empty())
-                {
-                    newDef->setNodeGroup(parameters.nodeGroupString);
-                }
-                if (!parameters.versionString.empty() && parameters.useVersion)
-                {
-                    newDef->setVersionString(parameters.versionString);
-                }
-                if (!parameters.docString.empty())
-                {
-                    mx::StringMap filterDoc;
-                    filterDoc["\n"] = " ";                    
-                    newDef->setDocString(mx::replaceSubstrings(parameters.docString, filterDoc));
-                }
 
                 mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
                 newGraph->copyContentFrom(tempGraph);
-                for (auto node : newGraph->getChildren())
-                {
-                    node->removeAttribute("xpos");
-                    node->removeAttribute("ypos");
-                }
 
                 std::string error;
                 if (!newGraph->validate(&error))
