@@ -16,8 +16,8 @@ void bindPyXmlIo(py::module& mod)
     py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-        .def_readwrite("readBlankLines", &mx::XmlReadOptions::readBlankLines)
         .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
+        .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines)
         .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 

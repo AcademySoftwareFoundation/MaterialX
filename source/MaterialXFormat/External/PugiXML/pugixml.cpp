@@ -3419,8 +3419,8 @@ PUGI__NS_BEGIN
 				{
 					mark = s; // Save this offset while searching for a terminator.
 
-					// MaterialX: Add a new node per new blank line, while eating whitespace
-					if (PUGI__OPTSET(parse_blank_lines))
+					// MaterialX: Enable newline tracking when processing whitespace.
+					if (PUGI__OPTSET(parse_newlines))
 					{
 						if (PUGI__IS_CHARTYPE(*s, ct_space))
 						{
@@ -3435,7 +3435,7 @@ PUGI__NS_BEGIN
 							}
 							for (size_t i=1; i<lineCount; i++)
 							{
-								PUGI__PUSHNODE(node_blank);
+								PUGI__PUSHNODE(node_newline);
 								PUGI__POPNODE();
 							}
 						}

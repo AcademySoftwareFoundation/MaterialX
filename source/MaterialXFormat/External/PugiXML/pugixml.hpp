@@ -142,10 +142,10 @@ namespace pugi
 		node_pcdata,		// Plain character data, i.e. 'text'
 		node_cdata,			// Character data, i.e. '<![CDATA[text]]>'
 		node_comment,		// Comment tag, i.e. '<!-- text -->'
+		node_newline,		// MaterialX: A newline node
 		node_pi,			// Processing instruction, i.e. '<?name?>'
 		node_declaration,	// Document declaration, i.e. '<?xml version="1.0"?>'
-		node_doctype,		// Document type declaration, i.e. '<!DOCTYPE doc>'
-		node_blank              // MaterialX: A blank line node
+		node_doctype		// Document type declaration, i.e. '<!DOCTYPE doc>'
 	};
 
 	// Parsing options
@@ -202,8 +202,8 @@ namespace pugi
 	// This flag is off by default.
 	const unsigned int parse_embed_pcdata = 0x2000;
 
-	// This flag determines if blank lines are added to the DOM tree. This flag is off by default.
-	const unsigned int parse_blank_lines = 0x4000;
+	// This flag determines if newlines are added to the DOM tree. This flag is off by default.
+	const unsigned int parse_newlines = 0x4000;
 
 	// The default parsing mode.
 	// Elements, PCDATA and CDATA sections are added to the DOM tree, character/reference entities are expanded,

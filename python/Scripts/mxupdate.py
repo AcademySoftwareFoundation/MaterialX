@@ -21,7 +21,7 @@ def main():
                 try:
                     readOptions = mx.XmlReadOptions()
                     readOptions.readComments = True
-                    readOptions.readBlankLines = True
+                    readOptions.readNewlines = True
                     mx.readFromXmlFile(doc, filename, mx.FileSearchPath(), readOptions)
                     validDocs[filename] = doc
                 except mx.Exception:

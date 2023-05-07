@@ -40,12 +40,6 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
     // Create child elements and recurse.
     for (const xml_node& xmlChild : xmlNode.children())
     {
-        bool addBlank = false;
-        if (xmlChild.type() == node_blank)
-        {
-            addBlank = true;
-        }
-
         string category = xmlChild.name();
         string name;
         for (const xml_attribute& xmlAttr : xmlChild.attributes())
@@ -68,17 +62,18 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
 
-        // Handle the interpretation of XML comments.
-        if (readOptions && readOptions->readComments && category.empty() && !addBlank)
+        // Handle the interpretation of XML comments and newlines.
+        if (readOptions && category.empty())
         {
-            child = elem->changeChildCategory(child, CommentElement::CATEGORY);
-            child->setDocString(xmlChild.value());
-        }
-
-        if (readOptions && readOptions->readBlankLines && category.empty() && addBlank)
-        {
-            child = elem->changeChildCategory(child, BlankLineElement::CATEGORY);
-            child->setDocString("\n");
+            if (readOptions->readComments && xmlChild.type() == node_comment)
+            {
+                child = elem->changeChildCategory(child, CommentElement::CATEGORY);
+                child->setDocString(xmlChild.value());
+            }
+            else if (readOptions->readNewlines && xmlChild.type() == node_newline)
+            {
+                child = elem->changeChildCategory(child, NewlineElement::CATEGORY);
+            }
         }
     }
 }
@@ -135,19 +130,19 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
             }
         }
 
-        // Write blank lines.
-        if (child->getCategory() == BlankLineElement::CATEGORY)
-        {
-            xml_node xmlChild = xmlNode.append_child(node_blank);
-            xmlChild.set_value("\n");
-            continue;
-        }
-
         // Write XML comments.
         if (child->getCategory() == CommentElement::CATEGORY)
         {
             xml_node xmlChild = xmlNode.append_child(node_comment);
             xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
+            continue;
+        }
+
+        // Write XML newlines.
+        if (child->getCategory() == NewlineElement::CATEGORY)
+        {
+            xml_node xmlChild = xmlNode.append_child(node_newline);
+            xmlChild.set_value("\n");
             continue;
         }
 
@@ -279,9 +274,9 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
         {
             parseOptions |= parse_comments;
         }
-        if (readOptions->readBlankLines)
+        if (readOptions->readNewlines)
         {
-            parseOptions |= parse_blank_lines;
+            parseOptions |= parse_newlines;
         }
     }
     return parseOptions;
@@ -295,7 +290,7 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 
 XmlReadOptions::XmlReadOptions() :
     readComments(false),
-    readBlankLines(false),
+    readNewlines(false),
     upgradeVersion(true),
     readXIncludeFunction(readFromXmlFile)
 {
