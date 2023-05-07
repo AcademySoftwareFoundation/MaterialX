@@ -202,7 +202,7 @@ namespace pugi
 	// This flag is off by default.
 	const unsigned int parse_embed_pcdata = 0x2000;
 
-	// This flag determines if newlines are added to the DOM tree. This flag is off by default.
+	// MaterialX: This flag determines if newlines are added to the DOM tree. This flag is off by default.
 	const unsigned int parse_newlines = 0x4000;
 
 	// The default parsing mode.
