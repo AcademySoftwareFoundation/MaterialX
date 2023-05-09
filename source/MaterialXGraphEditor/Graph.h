@@ -57,6 +57,7 @@ class NodeDefParameters
         namespaceString.clear();
         versionString.clear();
         docString.clear();
+        commentString.clear();
         isDefaultVersion = false;
         useVersion = false;
         useNamespace = false;
@@ -69,6 +70,7 @@ class NodeDefParameters
     std::string namespaceString;
     std::string versionString;
     std::string docString;
+    std::string commentString;
     bool isDefaultVersion = false;
     bool useVersion = false;
     bool useNamespace = false;
@@ -116,8 +118,8 @@ class Graph
     void initializeDataLibraries();
     void loadStandardLibraries();
     void createNodeUIList(mx::DocumentPtr doc);
-    void publishSelectedNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters);
-    void addPublishPopup();
+    void createDefinitionFromNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters);
+    void addCreateDefinitionPopup();
 
     // handling link information
     void linkGraph();
@@ -271,7 +273,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
-    FileDialog _fileDialogPublish;
+    FileDialog _fileDialogCreateDefinition;
 
     bool _isNodeGraph;
 
