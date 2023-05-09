@@ -240,6 +240,74 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing);
 }
 
+TEST_CASE("Comments and newlines", "[xmlio]")
+{
+    mx::FilePath testPath("resources/Materials/TestSuite/xmlFormat/formattest.mtlx");
+
+    // 1. Read without comments and newlines
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.readComments = false;
+    readOptions.readNewlines = false;
+    mx::readFromXmlFile(doc, testPath, mx::FileSearchPath(), &readOptions);
+    REQUIRE(doc->validate());
+
+    unsigned int commentCount = 0;
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        if (elem->isA<mx::CommentElement>())
+        {
+            commentCount++;
+        }
+    }
+    REQUIRE(commentCount == 0);
+        
+    std::vector<mx::NewlineElementPtr> newlines = doc->getChildrenOfType<mx::NewlineElement>();
+    size_t newlineCount = newlines.size();
+    REQUIRE(newlineCount == 0);
+
+    // 2. Read with comments and newlines
+    doc = mx::createDocument();
+    readOptions.readComments = true;
+    readOptions.readNewlines = true;
+    mx::readFromXmlFile(doc, testPath, mx::FileSearchPath(), &readOptions);
+
+    commentCount = 0;
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        if (elem->isA<mx::CommentElement>())
+        {
+            commentCount++;
+        }
+    }
+    REQUIRE(commentCount == 8);
+        
+    newlines = doc->getChildrenOfType<mx::NewlineElement>();
+    newlineCount = newlines.size();
+    REQUIRE(newlineCount == 8);
+
+    // 3. Write and read test
+    std::string result = mx::writeToXmlString(doc);
+    doc = mx::createDocument();
+    readOptions.readComments = true;
+    readOptions.readNewlines = true;
+    mx::readFromXmlString(doc, result, mx::FileSearchPath(), &readOptions);
+
+    commentCount = 0;
+    for (mx::ElementPtr elem : doc->traverseTree())
+    {
+        if (elem->isA<mx::CommentElement>())
+        {
+            commentCount++;
+        }
+    }
+    REQUIRE(commentCount == 8);
+        
+    newlines = doc->getChildrenOfType<mx::NewlineElement>();
+    newlineCount = newlines.size();
+    REQUIRE(newlineCount == 8);
+}
+
 TEST_CASE("Locale region testing", "[xmlio]")
 {
     // In the United States, the thousands separator is a comma, while in Germany it is a period.

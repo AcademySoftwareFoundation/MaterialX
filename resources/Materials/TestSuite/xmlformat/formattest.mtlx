@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+  <!-- 
+    File to test comment and top level newline read. There are 8 comments and 8 newlines.
+    COMMENT 1, with 2 newlines after.
+  -->
+
+
+  <!-- 
+    COMMENT 2 
+  -->
+  <standard_surface name="standard_surface_surfaceshader" type="surfaceshader" xpos="9.833333" ypos="-3.594828">
+    <!-- COMMENT 2a -->
+    <input name="base" type="float" value="1" />
+    <!-- COMMENT 2b -->
+    <input name="base_color" type="color3" nodename="ramplr_color3" />
+  </standard_surface>
+
+  <!-- 
+    COMMENT 3, with 1 new line before 
+  -->
+  <surfacematerial name="surfacematerial" type="material" xpos="15.166667" ypos="-3.456897">
+    <!-- COMMENT 3a -->
+    <input name="surfaceshader" type="surfaceshader" nodename="standard_surface_surfaceshader" />
+  </surfacematerial>
+
+
+
+  <!-- 
+    COMMENT 4, with 3 newlines before, and 2 newlines after the ramp element
+  -->
+  <ramplr name="ramplr_color3" type="color3" xpos="6.681159" ypos="-1.077586">
+    <!-- COMMENT 4a -->
+    <input name="valuer" type="color3" value="0.966825, 0.0481121, 0.0481121" />
+  </ramplr>
+
+
+</materialx>
