@@ -242,7 +242,7 @@ TEST_CASE("Load content", "[xmlio]")
 
 TEST_CASE("Comments and newlines", "[xmlio]")
 {
-    mx::FilePath testPath("resources/Materials/TestSuite/xmlFormat/formattest.mtlx");
+    mx::FilePath testPath("resources/Materials/TestSuite/xmlformat/formattest.mtlx");
 
     // 1. Read without comments and newlines
     mx::DocumentPtr doc = mx::createDocument();
