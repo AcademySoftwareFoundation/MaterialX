@@ -242,70 +242,23 @@ TEST_CASE("Load content", "[xmlio]")
 
 TEST_CASE("Comments and newlines", "[xmlio]")
 {
-    mx::FilePath testPath("resources/Materials/TestSuite/xmlformat/formattest.mtlx");
+    mx::FilePath testPath("resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx");
 
-    // 1. Read without comments and newlines
+    // Read the example file into an XML string buffer.
+    std::string origXml = mx::readFile(testPath);
+
+    // Convert the string to a document with comments and newlines preserved.
     mx::DocumentPtr doc = mx::createDocument();
     mx::XmlReadOptions readOptions;
-    readOptions.readComments = false;
-    readOptions.readNewlines = false;
-    mx::readFromXmlFile(doc, testPath, mx::FileSearchPath(), &readOptions);
-    REQUIRE(doc->validate());
-
-    unsigned int commentCount = 0;
-    for (mx::ElementPtr elem : doc->traverseTree())
-    {
-        if (elem->isA<mx::CommentElement>())
-        {
-            commentCount++;
-        }
-    }
-    REQUIRE(commentCount == 0);
-        
-    std::vector<mx::NewlineElementPtr> newlines = doc->getChildrenOfType<mx::NewlineElement>();
-    size_t newlineCount = newlines.size();
-    REQUIRE(newlineCount == 0);
-
-    // 2. Read with comments and newlines
-    doc = mx::createDocument();
     readOptions.readComments = true;
     readOptions.readNewlines = true;
-    mx::readFromXmlFile(doc, testPath, mx::FileSearchPath(), &readOptions);
+    mx::readFromXmlString(doc, origXml, mx::FileSearchPath(), &readOptions);
 
-    commentCount = 0;
-    for (mx::ElementPtr elem : doc->traverseTree())
-    {
-        if (elem->isA<mx::CommentElement>())
-        {
-            commentCount++;
-        }
-    }
-    REQUIRE(commentCount == 8);
-        
-    newlines = doc->getChildrenOfType<mx::NewlineElement>();
-    newlineCount = newlines.size();
-    REQUIRE(newlineCount == 8);
+    // Write the document to a new XML string buffer.
+    std::string newXml = mx::writeToXmlString(doc);
 
-    // 3. Write and read test
-    std::string result = mx::writeToXmlString(doc);
-    doc = mx::createDocument();
-    readOptions.readComments = true;
-    readOptions.readNewlines = true;
-    mx::readFromXmlString(doc, result, mx::FileSearchPath(), &readOptions);
-
-    commentCount = 0;
-    for (mx::ElementPtr elem : doc->traverseTree())
-    {
-        if (elem->isA<mx::CommentElement>())
-        {
-            commentCount++;
-        }
-    }
-    REQUIRE(commentCount == 8);
-        
-    newlines = doc->getChildrenOfType<mx::NewlineElement>();
-    newlineCount = newlines.size();
-    REQUIRE(newlineCount == 8);
+    // Verify that the XML string buffers are identical.
+    REQUIRE(origXml == newXml);
 }
 
 TEST_CASE("Locale region testing", "[xmlio]")
