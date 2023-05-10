@@ -4199,13 +4199,13 @@ PUGI__NS_BEGIN
 				text_output_cdata(writer, node->value ? node->value + 0 : PUGIXML_TEXT(""));
 				break;
 
-			// MaterialX : Handle newline output
-			case node_newline:
-				writer.write_string("");
-				break;
-
 			case node_comment:
 				node_output_comment(writer, node->value ? node->value + 0 : PUGIXML_TEXT(""));
+				break;
+
+			// MaterialX: Handle newline output
+			case node_newline:
+				writer.write_string("");
 				break;
 
 			case node_pi:
@@ -4272,11 +4272,10 @@ PUGI__NS_BEGIN
 			}
 			else
 			{
-
 				if ((indent_flags & indent_newline) && (flags & format_raw) == 0)
 					writer.write('\n');
 
-				// MaterialX : don't indent new line nodes
+				// MaterialX: don't indent new line nodes
 				if (PUGI__NODETYPE(node) != node_newline)
 				{
 					if ((indent_flags & indent_indent) && indent_length)
