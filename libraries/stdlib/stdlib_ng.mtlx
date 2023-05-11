@@ -1165,7 +1165,7 @@
     A 2D checkerboard pattern.
   -->
 
-  <nodegraph name="NG_checkerboard_float" nodedef="ND_checkerboard_float">
+  <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
     <separate2 name="N_mtlxseparate2" type="multioutput">
       <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
     </separate2>
@@ -1201,7 +1201,12 @@
       <input name="texcoord" type="vector2" nodename="N_mult" />
       <input name="offset" type="vector2" interfacename="offset" />
     </place2d>
-    <output name="out" type="float" nodename="N_mtlxifequal2" />
+    <mix name="N_mix_color3" type="color3">
+      <input name="bg" type="color3" interfacename="color2" />
+      <input name="fg" type="color3" interfacename="color1" />
+      <input name="mix" type="float" nodename="N_mtlxifequal2" />
+    </mix>
+    <output name="out" type="color3" nodename="N_mix_color3" />
   </nodegraph>
 
   <!-- ======================================================================== -->
