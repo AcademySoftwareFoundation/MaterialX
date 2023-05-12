@@ -286,8 +286,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
@@ -407,8 +407,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
@@ -528,8 +528,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
@@ -649,8 +649,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
@@ -750,7 +750,7 @@
       <input name="in" type="vector3" interfacename="normal" />
     </normalize>
     <absval name="N_absN" type="vector3">
-      <input name="in" type="vector3" nodename="N_norm_color3" />
+      <input name="in" type="vector3" nodename="N_norm_vector3" />
     </absval>
     <dotproduct name="N_dotN" type="float">
       <input name="in1" type="vector3" nodename="N_absN" />
@@ -770,8 +770,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
@@ -891,8 +891,8 @@
       <input name="in2" type="float" nodename="N_clampForPrecision" />
     </divide>
     <power name="N_blendPower" type="vector3">
-      <input name="in1" type="float" nodename="N_normalizeWeights" />
-      <input name="in2" type="float" nodename="N_blendPower" />
+      <input name="in1" type="vector3" nodename="N_normalizeWeights" />
+      <input name="in2" type="float" nodename="N_oneOverBlend" />
     </power>
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
