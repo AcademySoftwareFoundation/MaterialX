@@ -3412,7 +3412,7 @@ void Graph::addNodePopup(bool cursor)
     {
         ImGui::Text("Add Node");
         ImGui::Separator();
-        static char input[16]{ "" };
+        static char input[32]{ "" };
         if (cursor)
         {
             ImGui::SetKeyboardFocusHere();
@@ -3426,6 +3426,7 @@ void Graph::addNodePopup(bool cursor)
             // filter out list of nodes
             if (subs.size() > 0)
             {
+                ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 for (size_t i = 0; i < it->second.size(); i++)
                 {
                     std::string str(it->second[i][0]);
@@ -3443,7 +3444,7 @@ void Graph::addNodePopup(bool cursor)
             }
             else
             {
-                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(250, 300));
+                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
                 if (ImGui::BeginMenu(it->first.c_str()))
                 {
                     ImGui::SetWindowFontScale(_fontScale);
@@ -3466,6 +3467,7 @@ void Graph::addNodePopup(bool cursor)
             // filter out list of nodes
             if (subs.size() > 0)
             {
+                ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
                 for (size_t i = 0; i < it->second.size(); i++)
                 {
                     std::string str(it->second[i]->getName());
@@ -3484,7 +3486,7 @@ void Graph::addNodePopup(bool cursor)
             }
             else
             {
-                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(250, 300));
+                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
                 if (ImGui::BeginMenu(it->first.c_str()))
                 {
                     ImGui::SetWindowFontScale(_fontScale);
@@ -3661,7 +3663,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         ed::Suspend();
         // set up pop ups for adding a node when tab is pressed
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.f, 8.f));
-        ImGui::SetNextWindowSize({ 250.0f, 300.0f });
+        ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
         addNodePopup(TextCursor);
         searchNodePopup(TextCursor);
         readOnlyPopup();
