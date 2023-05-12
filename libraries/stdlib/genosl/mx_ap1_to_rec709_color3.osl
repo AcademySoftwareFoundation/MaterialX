@@ -1,7 +1,0 @@
-#include "lib/mx_transform_color.osl"
-
-void mx_ap1_to_rec709_color3(color _in, output color result)
-{
-    vector outRgb = transform(AP1_TO_REC709, vector(_in[0], _in[1], _in[2]));
-    result = color(outRgb[0], outRgb[1], outRgb[2]);
-}
