@@ -1164,7 +1164,6 @@
     <checkerboard>
     A 2D checkerboard pattern.
   -->
-
   <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
     <separate2 name="N_mtlxseparate2" type="multioutput">
       <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
