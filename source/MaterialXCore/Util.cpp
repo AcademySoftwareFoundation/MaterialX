@@ -136,6 +136,15 @@ bool stringEndsWith(const string& str, const string& suffix)
     return false;
 }
 
+bool stringStartsWith(const std::string& str, const std::string& prefix)
+{
+    if (str.length() >= prefix.length())
+    {
+        return !str.compare(0, prefix.length(), prefix);
+    }
+    return false;
+}
+
 string trimSpaces(const string& str)
 {
     const char SPACE(' ');

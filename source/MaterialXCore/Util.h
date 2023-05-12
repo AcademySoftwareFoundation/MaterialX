@@ -48,6 +48,9 @@ MX_CORE_API string stringToLower(string str);
 /// Return true if the given string ends with the given suffix.
 MX_CORE_API bool stringEndsWith(const string& str, const string& suffix);
 
+/// Return true if the given string starts with the given suffix.
+MX_CORE_API bool stringStartsWith(const string& str, const string& suffix);
+
 /// Trim leading and trailing spaces from a string.
 MX_CORE_API string trimSpaces(const string& str);
 

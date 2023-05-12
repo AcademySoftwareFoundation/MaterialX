@@ -34,6 +34,18 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
     return result;
 }
 
+// Get more user friendly node definition identifier.
+// Will try and remove "ND_" prefix if it exists. Otherwise just returns
+// the nodedef identifier.
+std::string getNodefId(const std::string& val)
+{
+    static std::string ND_PREFIX = "ND_";
+    std::string result = val;
+    if (mx::stringStartsWith(val, ND_PREFIX))
+        result = val.substr(3, val.length());
+    return result;
+}
+
 } // anonymous namespace
 
 Graph::Graph(const std::string& materialFilename,
@@ -1820,7 +1832,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         for (mx::NodeDefPtr nodedef : matchingNodeDefs)
         {
             std::string nodedefName = nodedef->getName();
-            std::string sub = nodedefName.substr(3, nodedefName.length());
+            std::string sub = getNodefId(nodedefName);
             if (sub == name)
             {
                 node = _currGraphElem->addNodeInstance(nodedef, _currGraphElem->createValidChildName(name));
@@ -1836,7 +1848,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         {
             // use substring of name in order to remove ND_
             std::string nodedefName = matchingNodeDefs[i]->getName();
-            std::string sub = nodedefName.substr(3, nodedefName.length());
+            std::string sub = getNodefId(nodedefName);
             if (sub == name)
             {
                 num = countDef;
@@ -3420,9 +3432,9 @@ void Graph::addNodePopup(bool cursor)
                     std::string nodeName = it->second[i][0];
                     if (str.find(subs) != std::string::npos)
                     {
-                        if (ImGui::MenuItem(nodeName.substr(3, nodeName.length()).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        if (ImGui::MenuItem(getNodefId(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[i][2], nodeName.substr(3, nodeName.length()), it->second[i][1]);
+                            addNode(it->second[i][2], getNodefId(nodeName), it->second[i][1]);
                             _addNewNode = true;
                             memset(input, '\0', sizeof(input));
                         }
@@ -3434,12 +3446,13 @@ void Graph::addNodePopup(bool cursor)
                 ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(250, 300));
                 if (ImGui::BeginMenu(it->first.c_str()))
                 {
+                    ImGui::SetWindowFontScale(_fontScale);
                     for (size_t j = 0; j < it->second.size(); j++)
                     {
                         std::string name = it->second[j][0];
-                        if (ImGui::MenuItem(name.substr(3, name.length()).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        if (ImGui::MenuItem(getNodefId(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[j][2], name.substr(3, name.length()), it->second[j][1]);
+                            addNode(it->second[j][2], getNodefId(name), it->second[j][1]);
                             _addNewNode = true;
                         }
                     }
@@ -3459,9 +3472,10 @@ void Graph::addNodePopup(bool cursor)
                     std::string nodeName = it->second[i]->getName();
                     if (str.find(subs) != std::string::npos)
                     {
-                        if (ImGui::MenuItem(it->second[i]->getName().substr(3, nodeName.length()).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        std::string val = getNodefId(nodeName);
+                        if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[i]->getNodeString(), it->second[i]->getName().substr(3, nodeName.length()), it->second[i]->getType());
+                            addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
                             _addNewNode = true;
                             memset(input, '\0', sizeof(input));
                         }
@@ -3473,13 +3487,14 @@ void Graph::addNodePopup(bool cursor)
                 ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(250, 300));
                 if (ImGui::BeginMenu(it->first.c_str()))
                 {
+                    ImGui::SetWindowFontScale(_fontScale);
                     for (size_t i = 0; i < it->second.size(); i++)
                     {
-
                         std::string name = it->second[i]->getName();
-                        if (ImGui::MenuItem(it->second[i]->getName().substr(3, name.length()).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        std::string val = getNodefId(name);
+                        if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[i]->getNodeString(), it->second[i]->getName().substr(3, name.length()), it->second[i]->getType());
+                            addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
                             _addNewNode = true;
                         }
                     }
