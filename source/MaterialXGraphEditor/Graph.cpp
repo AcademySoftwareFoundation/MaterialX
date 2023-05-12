@@ -1902,7 +1902,7 @@ UiPinPtr Graph::getPin(ed::PinId pinId)
 // This function is based off of the pin icon function in the ImGui Node Editor blueprints-example.cpp
 void Graph::DrawPinIcon(std::string type, bool connected, int alpha)
 {
-    ax::Drawing::IconType iconType = ax::Drawing::IconType::Circle;
+    ax::Drawing::IconType iconType = ax::Drawing::IconType::Flow;
     ImColor color = ImColor(0, 0, 0, 255);
     if (_pinColor.find(type) != _pinColor.end())
     {
@@ -2033,68 +2033,65 @@ static bool Splitter(bool split_vertically, float thickness, float* size1, float
     return SplitterBehavior(bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, size1, size2, min_size1, min_size2, 0.0f);
 }
 
-void Graph::outputPin(UiNodePtr node)
+void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
 {
-    // create output pin
-    float nodeWidth = 20 + ImGui::CalcTextSize(node->getName().c_str()).x;
-    if (nodeWidth < 80 * _fontScale)
-    {
-        nodeWidth = 80 * _fontScale;
-    }
-    const float labelWidth = ImGui::CalcTextSize("output").x;
-
-    // create node editor pin
+    std::string longestLabel = longestInputLabel;
     for (UiPinPtr pin : node->outputPins)
     {
-        ImGui::Indent(nodeWidth - labelWidth);
-        ed::BeginPin(pin->_pinId, ed::PinKind::Output);
-        ImGui::Text("%s", pin->_name.c_str());
+        if (pin->_name.size() > longestLabel.size())
+            longestLabel = pin->_name;
+    }
+
+    // Create output pins
+    float nodeWidth = ImGui::CalcTextSize(longestLabel.c_str()).x;
+    for (UiPinPtr pin : node->outputPins)
+    {
+        const float indent = nodeWidth - ImGui::CalcTextSize(pin->_name.c_str()).x;
+        ImGui::Indent(indent);
+        ImGui::TextUnformatted(pin->_name.c_str());
         ImGui::SameLine();
+
+        ed::BeginPin(pin->_pinId, ed::PinKind::Output);
+        bool connected = pin->getConnected();
         if (!_pinFilterType.empty())
         {
-            if (_pinFilterType == pin->_type)
-            {
-                DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
-            }
-            else
-            {
-                DrawPinIcon(pin->_type, true, FILTER_ALPHA);
-            }
+            DrawPinIcon(pin->_type, connected, _pinFilterType == pin->_type ? DEFAULT_ALPHA : FILTER_ALPHA);
         }
         else
         {
-            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
+            DrawPinIcon(pin->_type, connected, DEFAULT_ALPHA);
         }
 
         ed::EndPin();
-        ImGui::Unindent(nodeWidth - labelWidth);
+        ImGui::Unindent(indent);
     }
 }
 
-void Graph::createInputPin(UiPinPtr pin)
+void Graph::drawInputPin(UiPinPtr pin)
 {
     ed::BeginPin(pin->_pinId, ed::PinKind::Input);
     ImGui::PushID(int(pin->_pinId.Get()));
+    bool connected = pin->getConnected();
     if (!_pinFilterType.empty())
     {
         if (_pinFilterType == pin->_type)
         {
-            DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
+            DrawPinIcon(pin->_type, connected, DEFAULT_ALPHA);
         }
         else
         {
-            DrawPinIcon(pin->_type, true, FILTER_ALPHA);
+            DrawPinIcon(pin->_type, connected, FILTER_ALPHA);
         }
     }
     else
     {
-        DrawPinIcon(pin->_type, true, DEFAULT_ALPHA);
+        DrawPinIcon(pin->_type, connected, DEFAULT_ALPHA);
     }
+    ImGui::PopID();
+    ed::EndPin();
 
     ImGui::SameLine();
     ImGui::TextUnformatted(pin->_name.c_str());
-    ed::EndPin();
-    ImGui::PopID();
 }
 
 std::vector<int> Graph::createNodes(bool nodegraph)
@@ -2127,7 +2124,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
-                outputPin(node);
+                std::string longestInputLabel = node->getName();
                 for (UiPinPtr pin : node->inputPins)
                 {
                     UiNodePtr upUiNode = node->getConnectedNode(pin->_name);
@@ -2156,9 +2153,13 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     }
                     if (node->_showAllInputs || (pin->getConnected() || node->getNode()->getInput(pin->_name)))
                     {
-                        createInputPin(pin);
+                        drawInputPin(pin);
+
+                        if (pin->_name.size() > longestInputLabel.size())
+                            longestInputLabel = pin->_name;
                     }
                 }
+                drawOutputPins(node, longestInputLabel);
                 // set color of output pin
 
                 if (node->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
@@ -2174,6 +2175,8 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             else if (node->getInput() != nullptr)
             {
+                std::string longestInputLabel = node->getName();
+
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
@@ -2189,7 +2192,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getInput()->getType();
-                outputPin(node);
                 for (UiPinPtr pin : node->inputPins)
                 {
                     UiNodePtr upUiNode = node->getConnectedNode(node->getName());
@@ -2234,10 +2236,16 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::SameLine();
                     ImGui::TextUnformatted("value");
                     ed::EndPin();
+
+                    if (pin->_name.size() > longestInputLabel.size())
+                        longestInputLabel = pin->_name;
                 }
+                drawOutputPins(node, longestInputLabel);
             }
             else if (node->getOutput() != nullptr)
             {
+                std::string longestInputLabel = node->getName();
+
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
@@ -2253,7 +2261,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::SetWindowFontScale(_fontScale);
 
                 outputType = node->getOutput()->getType();
-                outputPin(node);
 
                 for (UiPinPtr pin : node->inputPins)
                 {
@@ -2299,7 +2306,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     ImGui::TextUnformatted("input");
 
                     ed::EndPin();
+
+                    if (pin->_name.size() > longestInputLabel.size())
+                        longestInputLabel = pin->_name;
                 }
+                drawOutputPins(node, longestInputLabel);
                 if (nodegraph)
                 {
                     outputNum.push_back(findNode(node->getId()));
@@ -2307,6 +2318,8 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             }
             else if (node->getNodeGraph() != nullptr)
             {
+                std::string longestInputLabel = node->getName();
+
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
@@ -2328,10 +2341,13 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                     }
                     if (node->_showAllInputs || (pin->getConnected() || node->getNodeGraph()->getInput(pin->_name)))
                     {
-                        createInputPin(pin);
+                        drawInputPin(pin);
+
+                        if (pin->_name.size() > longestInputLabel.size())
+                            longestInputLabel = pin->_name;
                     }
                 }
-                outputPin(node);
+                drawOutputPins(node, longestInputLabel);
             }
             ImGui::PopID();
             ed::EndNode();
