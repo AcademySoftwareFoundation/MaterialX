@@ -240,6 +240,27 @@ TEST_CASE("Load content", "[xmlio]")
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing);
 }
 
+TEST_CASE("Comments and newlines", "[xmlio]")
+{
+    mx::FilePath testPath("resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx");
+
+    // Read the example file into an XML string buffer.
+    std::string origXml = mx::readFile(testPath);
+
+    // Convert the string to a document with comments and newlines preserved.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.readComments = true;
+    readOptions.readNewlines = true;
+    mx::readFromXmlString(doc, origXml, mx::FileSearchPath(), &readOptions);
+
+    // Write the document to a new XML string buffer.
+    std::string newXml = mx::writeToXmlString(doc);
+
+    // Verify that the XML string buffers are identical.
+    REQUIRE(origXml == newXml);
+}
+
 TEST_CASE("Locale region testing", "[xmlio]")
 {
     // In the United States, the thousands separator is a comma, while in Germany it is a period.

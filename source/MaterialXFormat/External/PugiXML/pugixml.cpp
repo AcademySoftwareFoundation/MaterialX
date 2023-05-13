@@ -3419,7 +3419,31 @@ PUGI__NS_BEGIN
 				{
 					mark = s; // Save this offset while searching for a terminator.
 
-					PUGI__SKIPWS(); // Eat whitespace if no genuine PCDATA here.
+					// MaterialX: Enable newline tracking when processing whitespace.
+					if (PUGI__OPTSET(parse_newlines))
+					{
+						if (PUGI__IS_CHARTYPE(*s, ct_space))
+						{
+							unsigned int lineCount = 0;
+							while (PUGI__IS_CHARTYPE(*s, ct_space))
+							{
+								if (s[0] == '\n')
+								{
+									lineCount++;
+								}
+								++s;
+							}
+							for (size_t i=1; i<lineCount; i++)
+							{
+								PUGI__PUSHNODE(node_newline);
+								PUGI__POPNODE();
+							}
+						}
+					}
+					else
+					{
+						PUGI__SKIPWS(); // Eat whitespace if no genuine PCDATA here.
+					}
 
 					if (*s == '<' || !*s)
 					{
@@ -4179,6 +4203,11 @@ PUGI__NS_BEGIN
 				node_output_comment(writer, node->value ? node->value + 0 : PUGIXML_TEXT(""));
 				break;
 
+			// MaterialX: Handle newline output
+			case node_newline:
+				writer.write_string("");
+				break;
+
 			case node_pi:
 				writer.write('<', '?');
 				writer.write_string(node->name ? node->name + 0 : default_name);
@@ -4246,8 +4275,12 @@ PUGI__NS_BEGIN
 				if ((indent_flags & indent_newline) && (flags & format_raw) == 0)
 					writer.write('\n');
 
-				if ((indent_flags & indent_indent) && indent_length)
-					text_output_indent(writer, indent, indent_length, depth);
+				// MaterialX: don't indent new line nodes
+				if (PUGI__NODETYPE(node) != node_newline)
+				{
+					if ((indent_flags & indent_indent) && indent_length)
+						text_output_indent(writer, indent, indent_length, depth);
+				}
 
 				if (PUGI__NODETYPE(node) == node_element)
 				{
