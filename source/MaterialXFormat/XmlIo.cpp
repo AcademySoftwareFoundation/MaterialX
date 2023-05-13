@@ -62,11 +62,18 @@ void elementFromXml(const xml_node& xmlNode, ElementPtr elem, const XmlReadOptio
         ElementPtr child = elem->addChildOfCategory(category, name);
         elementFromXml(xmlChild, child, readOptions);
 
-        // Handle the interpretation of XML comments.
-        if (readOptions && readOptions->readComments && category.empty())
+        // Handle the interpretation of XML comments and newlines.
+        if (readOptions && category.empty())
         {
-            child = elem->changeChildCategory(child, CommentElement::CATEGORY);
-            child->setDocString(xmlChild.value());
+            if (readOptions->readComments && xmlChild.type() == node_comment)
+            {
+                child = elem->changeChildCategory(child, CommentElement::CATEGORY);
+                child->setDocString(xmlChild.value());
+            }
+            else if (readOptions->readNewlines && xmlChild.type() == node_newline)
+            {
+                child = elem->changeChildCategory(child, NewlineElement::CATEGORY);
+            }
         }
     }
 }
@@ -128,6 +135,14 @@ void elementToXml(ConstElementPtr elem, xml_node& xmlNode, const XmlWriteOptions
         {
             xml_node xmlChild = xmlNode.append_child(node_comment);
             xmlChild.set_value(child->getAttribute(Element::DOC_ATTRIBUTE).c_str());
+            continue;
+        }
+
+        // Write XML newlines.
+        if (child->getCategory() == NewlineElement::CATEGORY)
+        {
+            xml_node xmlChild = xmlNode.append_child(node_newline);
+            xmlChild.set_value("\n");
             continue;
         }
 
@@ -253,9 +268,16 @@ void validateParseResult(const xml_parse_result& result, const FilePath& filenam
 unsigned int getParseOptions(const XmlReadOptions* readOptions)
 {
     unsigned int parseOptions = parse_default;
-    if (readOptions && readOptions->readComments)
+    if (readOptions)
     {
-        parseOptions |= parse_comments;
+        if (readOptions->readComments)
+        {
+            parseOptions |= parse_comments;
+        }
+        if (readOptions->readNewlines)
+        {
+            parseOptions |= parse_newlines;
+        }
     }
     return parseOptions;
 }
@@ -268,6 +290,7 @@ unsigned int getParseOptions(const XmlReadOptions* readOptions)
 
 XmlReadOptions::XmlReadOptions() :
     readComments(false),
+    readNewlines(false),
     upgradeVersion(true),
     readXIncludeFunction(readFromXmlFile)
 {
