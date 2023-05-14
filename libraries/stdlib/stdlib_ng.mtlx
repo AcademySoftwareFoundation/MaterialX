@@ -1248,7 +1248,7 @@
     Measures the distance between two points in (X, Y).
   -->
   <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
-    <magnitude name="N_mtlxmagnitude" type="vector2">
+    <magnitude name="N_mtlxmagnitude" type="float">
       <input name="in" type="vector2" nodename="N_mtlxsubtract" />
     </magnitude>
     <subtract name="N_mtlxsubtract" type="vector2">
@@ -1258,7 +1258,7 @@
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
   <nodegraph name="NG_distance_vector3" nodedef="ND_distance_vector3">
-    <magnitude name="N_mtlxmagnitude" type="vector3">
+    <magnitude name="N_mtlxmagnitude" type="float">
       <input name="in" type="vector3" nodename="N_mtlxsubtract" />
     </magnitude>
     <subtract name="N_mtlxsubtract" type="vector3">
@@ -1268,7 +1268,7 @@
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
   <nodegraph name="NG_distance_vector4" nodedef="ND_distance_vector4">
-    <magnitude name="N_mtlxmagnitude" type="vector4">
+    <magnitude name="N_mtlxmagnitude" type="float">
       <input name="in" type="vector4" nodename="N_mtlxsubtract" />
     </magnitude>
     <subtract name="N_mtlxsubtract" type="vector4">
