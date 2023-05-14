@@ -2454,13 +2454,23 @@
   </nodedef>
 
   <!--
-    Node: <Distance>
+    Node: <distance>
     Measures the distance between two points in (X, Y).
   -->
 
-  <nodedef name="ND_Distance_float" node="Distance" nodegroup="math">
-    <input name="input1" type="vector2" uiname="input1" value="0, 0" />
-    <input name="input2" type="vector2" uiname="input2" value="0, 0" />
+  <nodedef name="ND_distance_vector2" node="distance" nodegroup="math">
+    <input name="in1" type="vector2" uiname="in1" value="0, 0" />
+    <input name="in2" type="vector2" uiname="in2" value="0, 0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector3" node="distance" nodegroup="math">
+    <input name="in1" type="vector3" uiname="in1" value="0, 0" />
+    <input name="in2" type="vector3" uiname="in2" value="0, 0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector4" node="distance" nodegroup="math">
+    <input name="in1" type="vector4" uiname="in1" value="0, 0" />
+    <input name="in2" type="vector4" uiname="in2" value="0, 0" />
     <output name="out" type="float" />
   </nodedef>
   <!-- ======================================================================== -->

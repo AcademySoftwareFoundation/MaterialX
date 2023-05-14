@@ -1244,20 +1244,39 @@
   </nodegraph>
 
   <!--
-    Node: <Distance>
+    Node: <distance>
     Measures the distance between two points in (X, Y).
   -->
-  <nodegraph name="NG_Distance_float" nodedef="ND_Distance_float">
+  <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
     <magnitude name="N_mtlxmagnitude" type="float">
       <input name="in" type="vector2" nodename="N_mtlxsubtract" />
     </magnitude>
     <subtract name="N_mtlxsubtract" type="vector2">
-      <input name="in1" type="vector2" interfacename="input1" />
-      <input name="in2" type="vector2" interfacename="input2" />
+      <input name="in1" type="vector2" interfacename="in1" />
+      <input name="in2" type="vector2" interfacename="in2" />
     </subtract>
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-
+  <nodegraph name="NG_distance_vector3" nodedef="ND_distance_vector3">
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector3" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <subtract name="N_mtlxsubtract" type="vector3">
+      <input name="in1" type="vector3" interfacename="in1" />
+      <input name="in2" type="vector3" interfacename="in2" />
+    </subtract>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  </nodegraph>
+  <nodegraph name="NG_distance_vector4" nodedef="ND_distance_vector4">
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector4" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <subtract name="N_mtlxsubtract" type="vector4">
+      <input name="in1" type="vector4" interfacename="in1" />
+      <input name="in2" type="vector4" interfacename="in2" />
+    </subtract>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  </nodegraph>
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
