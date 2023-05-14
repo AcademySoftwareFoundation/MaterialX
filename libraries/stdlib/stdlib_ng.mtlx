@@ -2156,7 +2156,7 @@
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" uniform="true" value="3" />
     </extract>
-    <convert name="convert" type="color3">
+    <convert name="convert" type="color3" >
       <input name="in" type="color4" interfacename="in" />
     </convert>
     <output name="out" type="surfaceshader" nodename="surface" />
