@@ -614,8 +614,8 @@
   <implementation name="IM_mix_vector4_genmdl" nodedef="ND_mix_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector4_vector4_genmdl" nodedef="ND_mix_vector4_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_surfaceshader" sourcecode="mx::stdlib::mx_mix_surfaceshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_volumeshader" sourcecode="mx::stdlib::mx_mix_volumeshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_displacementshader" sourcecode="mx::stdlib::mx_mix_displacementshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_volumeshader_genmdl" nodedef="ND_mix_volumeshader" sourcecode="mx::stdlib::mx_mix_volumeshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_displacementshader_genmdl" nodedef="ND_mix_displacementshader" sourcecode="mx::stdlib::mx_mix_displacementshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->
