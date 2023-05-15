@@ -43,6 +43,7 @@
 
   <!-- <normalmap> -->
   <implementation name="IM_normalmap_genmsl" nodedef="ND_normalmap" file="mx_normalmap.metal" function="mx_normalmap" target="genmsl" />
+  <implementation name="IM_normalmap_vector2_genmsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.metal" function="mx_normalmap_vector2" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
