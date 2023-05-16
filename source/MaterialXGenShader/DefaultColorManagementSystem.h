@@ -30,8 +30,8 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     const string& getName() const override;
 
   protected:
-    /// Returns an implementation for a given transform
-    ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const override;
+    /// Returns a nodedef for a given transform
+    NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
     DefaultColorManagementSystem(const string& target);
