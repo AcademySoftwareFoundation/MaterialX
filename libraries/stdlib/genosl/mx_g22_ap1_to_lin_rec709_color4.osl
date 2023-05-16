@@ -1,8 +1,0 @@
-#include "lib/mx_transform_color.osl"
-
-void mx_g22_ap1_to_lin_rec709_color4(color4 _in, output color4 result)
-{
-    color linearColor = pow(max(color(0.0), _in.rgb), color(2.2));
-    vector outRgb = transform(AP1_TO_REC709, vector(linearColor[0], linearColor[1], linearColor[2]));
-    result = color4(color(outRgb[0], outRgb[1], outRgb[2]), _in.a);
-}
