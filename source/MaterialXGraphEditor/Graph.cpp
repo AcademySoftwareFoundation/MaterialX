@@ -39,10 +39,12 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 // the nodedef identifier.
 std::string getNodefId(const std::string& val)
 {
-    static std::string ND_PREFIX = "ND_";
+    const std::string ND_PREFIX = "ND_";
     std::string result = val;
     if (mx::stringStartsWith(val, ND_PREFIX))
+    {
         result = val.substr(3, val.length());
+    }
     return result;
 }
 
