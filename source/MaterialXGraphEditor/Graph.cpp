@@ -37,7 +37,7 @@ ImRect expandImRect(const ImRect& rect, float x, float y)
 // Get more user friendly node definition identifier.
 // Will try and remove "ND_" prefix if it exists. Otherwise just returns
 // the nodedef identifier.
-std::string getNodefId(const std::string& val)
+std::string getNodeDefId(const std::string& val)
 {
     const std::string ND_PREFIX = "ND_";
     std::string result = val;
@@ -1834,7 +1834,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         for (mx::NodeDefPtr nodedef : matchingNodeDefs)
         {
             std::string nodedefName = nodedef->getName();
-            std::string sub = getNodefId(nodedefName);
+            std::string sub = getNodeDefId(nodedefName);
             if (sub == name)
             {
                 node = _currGraphElem->addNodeInstance(nodedef, _currGraphElem->createValidChildName(name));
@@ -1850,7 +1850,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         {
             // use substring of name in order to remove ND_
             std::string nodedefName = matchingNodeDefs[i]->getName();
-            std::string sub = getNodefId(nodedefName);
+            std::string sub = getNodeDefId(nodedefName);
             if (sub == name)
             {
                 num = countDef;
@@ -3435,9 +3435,9 @@ void Graph::addNodePopup(bool cursor)
                     std::string nodeName = it->second[i][0];
                     if (str.find(subs) != std::string::npos)
                     {
-                        if (ImGui::MenuItem(getNodefId(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        if (ImGui::MenuItem(getNodeDefId(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[i][2], getNodefId(nodeName), it->second[i][1]);
+                            addNode(it->second[i][2], getNodeDefId(nodeName), it->second[i][1]);
                             _addNewNode = true;
                             memset(input, '\0', sizeof(input));
                         }
@@ -3453,9 +3453,9 @@ void Graph::addNodePopup(bool cursor)
                     for (size_t j = 0; j < it->second.size(); j++)
                     {
                         std::string name = it->second[j][0];
-                        if (ImGui::MenuItem(getNodefId(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        if (ImGui::MenuItem(getNodeDefId(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(it->second[j][2], getNodefId(name), it->second[j][1]);
+                            addNode(it->second[j][2], getNodeDefId(name), it->second[j][1]);
                             _addNewNode = true;
                         }
                     }
@@ -3476,7 +3476,7 @@ void Graph::addNodePopup(bool cursor)
                     std::string nodeName = it->second[i]->getName();
                     if (str.find(subs) != std::string::npos)
                     {
-                        std::string val = getNodefId(nodeName);
+                        std::string val = getNodeDefId(nodeName);
                         if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
                             addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
@@ -3495,7 +3495,7 @@ void Graph::addNodePopup(bool cursor)
                     for (size_t i = 0; i < it->second.size(); i++)
                     {
                         std::string name = it->second[i]->getName();
-                        std::string val = getNodefId(name);
+                        std::string val = getNodeDefId(name);
                         if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
                             addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
