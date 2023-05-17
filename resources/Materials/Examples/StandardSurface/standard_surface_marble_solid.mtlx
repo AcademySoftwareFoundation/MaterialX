@@ -21,7 +21,7 @@
       <input name="in2" type="float" interfacename="noise_scale_2" />
     </multiply>
     <fractal3d name="noise" type="float">
-      <input name="octaves" type="integer" interfacename="noise_octaves"  />
+      <input name="octaves" type="integer" interfacename="noise_octaves" />
       <input name="position" type="vector3" nodename="scale_pos" />
     </fractal3d>
     <multiply name="scale_noise" type="float">
