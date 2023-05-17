@@ -1,5 +1,0 @@
-void mx_gamma22_to_linear_color4(color4 _in, output color4 result)
-{
-    color4 gamma = color4(color(2.2, 2.2, 2.2), 1.);
-    result = pow( max( color4(color(0., 0., 0.), 0.), _in ), gamma );
-}

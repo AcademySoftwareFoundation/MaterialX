@@ -1,5 +1,0 @@
-void mx_gamma18_to_linear_color3(color _in, output color result)
-{
-    color gamma = color(1.8, 1.8, 1.8);
-    result = pow( max( color(0., 0., 0.), _in ), gamma );
-}
