@@ -269,8 +269,8 @@
   <implementation name="IM_divide_vector3FA_genmdl" nodedef="ND_divide_vector3FA" sourcecode="{{in1}} / {{in2}}" target="genmdl" />
   <implementation name="IM_divide_vector4_genmdl" nodedef="ND_divide_vector4" sourcecode="{{in1}} / {{in2}}" target="genmdl" />
   <implementation name="IM_divide_vector4FA_genmdl" nodedef="ND_divide_vector4FA" sourcecode="{{in1}} / {{in2}}" target="genmdl" />
-  <implementation name="IM_divide_matrix33_genmdl" nodedef="ND_divide_matrix33" sourcecode="{{in1}}" target="genmdl" />  <!-- TODO: Implement properly -->
-  <implementation name="IM_divide_matrix44_genmdl" nodedef="ND_divide_matrix44" sourcecode="{{in1}}" target="genmdl" />  <!-- TODO: Implement properly -->
+  <implementation name="IM_divide_matrix33_genmdl" nodedef="ND_divide_matrix33" sourcecode="{{in1}}" target="genmdl" /> <!-- TODO: Implement properly -->
+  <implementation name="IM_divide_matrix44_genmdl" nodedef="ND_divide_matrix44" sourcecode="{{in1}}" target="genmdl" /> <!-- TODO: Implement properly -->
 
   <!-- <modulo> -->
   <implementation name="IM_modulo_float_genmdl" nodedef="ND_modulo_float" sourcecode="mx_mod({{in1}}, {{in2}})" target="genmdl" />
