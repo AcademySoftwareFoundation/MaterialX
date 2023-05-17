@@ -41,49 +41,19 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
     {
         throw ExceptionShaderGenError("No library loaded for color management system");
     }
-    ImplementationPtr impl = getImplementation(transform);
-    return impl != nullptr;
+    return getNodeDef(transform) != nullptr;
 }
 
 ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                                                 GenContext& context) const
 {
-    ImplementationPtr impl = getImplementation(transform);
-    if (!impl)
+    NodeDefPtr nodeDef = getNodeDef(transform);
+    if (!nodeDef)
     {
-        throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceSpace + "', '" + transform.targetSpace + "').");
+        throw ExceptionShaderGenError("No nodedef found for transform: ('" + transform.sourceSpace + "', '" + transform.targetSpace + "').");
     }
 
-    // Check if it's created and cached already,
-    // otherwise create and cache it.
-    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(impl->getName());
-    if (!nodeImpl)
-    {
-        nodeImpl = SourceCodeNode::create();
-        nodeImpl->initialize(*impl, context);
-        context.addNodeImplementation(impl->getName(), nodeImpl);
-    }
-
-    // Create the node.
-    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, ShaderNode::Classification::TEXTURE);
-
-    // Create ports on the node.
-    ShaderInput* input = shaderNode->addInput("in", transform.type);
-    if (transform.type == Type::COLOR3)
-    {
-        input->setValue(Value::createValue(Color3(0.0f, 0.0f, 0.0f)));
-    }
-    else if (transform.type == Type::COLOR4)
-    {
-        input->setValue(Value::createValue(Color4(0.0f, 0.0f, 0.0f, 1.0)));
-    }
-    else
-    {
-        throw ExceptionShaderGenError("Invalid type specified to createColorTransform: '" + transform.type->getName() + "'");
-    }
-    shaderNode->addOutput("out", transform.type);
-
-    return shaderNode;
+    return ShaderNode::create(parent, name, *nodeDef, context);
 }
 
 MATERIALX_NAMESPACE_END
