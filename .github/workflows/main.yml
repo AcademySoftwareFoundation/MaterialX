@@ -196,7 +196,7 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
-        python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
+        python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgradeVersion True
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx

@@ -12,17 +12,17 @@
   -->
 
   <!-- nodedefs for custom test settings -->
-  <nodedef name="ND_BakingSettings" node="baker" >
+  <nodedef name="ND_BakingSettings" node="baker">
     <input name="file" type="filename" />
-    <input name="uvmin" type="vector2"/>
-    <input name="uvmax" type="vector2"/>
+    <input name="uvmin" type="vector2" />
+    <input name="uvmax" type="vector2" />
     <input name="hdr" type="boolean" value="false" />
     <input name="resolution" type="integer" value="1024" />
   </nodedef>
 
-  <nodedef name="ND_WedgeRenderSettings" node="wedgerender" >
+  <nodedef name="ND_WedgeRenderSettings" node="wedgerender">
     <input name="file" type="filename" />
-    <input name="parameter" type="string"/>
+    <input name="parameter" type="string" />
     <input name="range" type="vector2" value="0.0, 1.0" />
     <input name="steps" type="integer" value="1.0" />
   </nodedef>
@@ -101,34 +101,34 @@
 
     <!-- Wedge rendering options -->
     <wedgerender name="wedge_conductor">
-     <input name="file" type="filename" value="wedge_conductor.mtlx" />
-     <input name="parameter" type="string" value="test_conductor/roughness1/roughness" />
-     <input name="range" type="vector2" value="0.0, 1.0" />
-     <input name="steps" type="integer" value="4" />
+      <input name="file" type="filename" value="wedge_conductor.mtlx" />
+      <input name="parameter" type="string" value="test_conductor/roughness1/roughness" />
+      <input name="range" type="vector2" value="0.0, 1.0" />
+      <input name="steps" type="integer" value="4" />
     </wedgerender>
 
     <wedgerender name="wedge_conductor_2">
-     <input name="file" type="filename" value="wedge_conductor.mtlx" />
-     <input name="parameter" type="string" value="test_conductor/roughness1/anisotropy" />
-     <input name="range" type="vector2" value="0.3, 0.9" />
-     <input name="steps" type="integer" value="3" />
+      <input name="file" type="filename" value="wedge_conductor.mtlx" />
+      <input name="parameter" type="string" value="test_conductor/roughness1/anisotropy" />
+      <input name="range" type="vector2" value="0.3, 0.9" />
+      <input name="steps" type="integer" value="3" />
     </wedgerender>
 
     <!-- Bake rendering options: Currently only supports the genglsl_glsl400 shader generator -->
     <baker name="mapped_surfaceshader">
-        <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
+      <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
+      <input name="uvmin" type="vector2" value="0,0" />
+      <input name="uvmax" type="vector2" value="1,1" />
+      <input name="hdr" type="boolean" value="false" />
+      <input name="resolution" type="integer" value="1024" />
     </baker>
 
     <baker name="normalmapped_surfaceshader">
-        <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
+      <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
+      <input name="uvmin" type="vector2" value="0,0" />
+      <input name="uvmax" type="vector2" value="1,1" />
+      <input name="hdr" type="boolean" value="false" />
+      <input name="resolution" type="integer" value="1024" />
     </baker>
   </nodedef>
 </materialx>

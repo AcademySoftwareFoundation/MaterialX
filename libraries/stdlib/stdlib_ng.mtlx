@@ -1026,7 +1026,7 @@
     </mix>
     <output name="out" type="vector4" nodename="N_mix_vector4" />
   </nodegraph>
-  
+
   <!--
     <unifiednoise2d>
     Combined 2d noises for artists.
@@ -1096,7 +1096,7 @@
     </subtract>
     <output name="out" type="float" nodename="N_range" />
   </nodegraph>
-  
+
   <!--
     <unifiednoise3d>
     Combined 3d noises for artists.
@@ -1172,7 +1172,7 @@
       <input name="in" type="vector3" nodename="N_heighttonormal" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="scale" type="float" interfacename="scale" />
-      <input name="tangent" type="vector3" interfacename="tangent"/>
+      <input name="tangent" type="vector3" interfacename="tangent" />
     </normalmap>
     <output name="out" type="vector3" nodename="N_normalmap" />
   </nodegraph>
@@ -2033,7 +2033,7 @@
     </mix>
     <output name="out" type="color4" nodename="N_mix_color4" />
   </nodegraph>
-  
+
   <!--
     Node: <colorcorrect> Supplemental Node
     Combines various adjustment nodes into one, artist-friendly color correction node.
@@ -2074,12 +2074,12 @@
       <input name="doclamp" type="boolean" value="false" />
     </range>
     <subtract name="N_liftsubtract" type="float">
-      <input name="in2" type="float" interfacename="lift"/>
+      <input name="in2" type="float" interfacename="lift" />
       <input name="in1" type="float" value="1" />
     </subtract>
     <saturate name="N_saturation" type="color3">
       <input name="in" type="color3" nodename="N_hsvadjust" />
-      <input name="amount" type="float" interfacename="saturation"/>
+      <input name="amount" type="float" interfacename="saturation" />
     </saturate>
     <hsvadjust name="N_hsvadjust" type="color3">
       <input name="in" type="color3" interfacename="in" />
@@ -2109,7 +2109,7 @@
       <input name="lift" type="float" interfacename="lift" />
       <input name="gain" type="float" interfacename="gain" />
       <input name="contrast" type="float" interfacename="contrast" />
-      <input name="contrastpivot" type="float" interfacename="contrastpivot"  />
+      <input name="contrastpivot" type="float" interfacename="contrastpivot" />
       <input name="exposure" type="float" interfacename="exposure" />
     </colorcorrect>
     <separate3 name="N_split_color" type="multioutput">
@@ -2142,13 +2142,13 @@
     types are supported.
   -->
   <nodegraph name="NG_convert_color3_surfaceshader" nodedef="ND_convert_color3_surfaceshader">
-    <surface_unlit name="surface" type="surfaceshader" >
+    <surface_unlit name="surface" type="surfaceshader">
       <input name="emission_color" type="color3" interfacename="in" />
     </surface_unlit>
     <output name="out" type="surfaceshader" nodename="surface" />
   </nodegraph>
   <nodegraph name="NG_convert_color4_surfaceshader" nodedef="ND_convert_color4_surfaceshader">
-    <surface_unlit name="surface" type="surfaceshader" >
+    <surface_unlit name="surface" type="surfaceshader">
       <input name="emission_color" type="color3" nodename="convert" />
       <input name="opacity" type="float" nodename="extract" />
     </surface_unlit>
@@ -2156,7 +2156,7 @@
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" uniform="true" value="3" />
     </extract>
-    <convert name="convert" type="color3" >
+    <convert name="convert" type="color3">
       <input name="in" type="color4" interfacename="in" />
     </convert>
     <output name="out" type="surfaceshader" nodename="surface" />
