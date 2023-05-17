@@ -267,13 +267,8 @@
     </uniform_edf>
 
     <!-- Surface Shader Constructor -->
-    <clamp name="opacity_clamped" type="float">
-      <input name="in" type="float" interfacename="opacity" />
-      <input name="low" type="float" value="0.00001" />
-      <input name="high" type="float" value="1.0" />
-    </clamp>
     <ifgreatereq name="cutout_opacity" type="float">
-      <input name="value1" type="float" nodename="opacity_clamped" />
+      <input name="value1" type="float" interfacename="opacity" />
       <input name="value2" type="float" interfacename="opacityThreshold" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
