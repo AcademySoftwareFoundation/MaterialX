@@ -48,6 +48,6 @@
       <input name="realworldtilesize" type="vector2" value="3.0, 2.0" unit="centimeter" unittype="distance" />
       <input name="uvtiling" type="vector2" value="12, 10" />
     </tiledimage>
-    <output name="normal" type="vector3" nodename="normalmap" />
+    <output name="normal" type="vector3" nodename="normalmap_vector2" />
   </nodegraph>
 </materialx>
