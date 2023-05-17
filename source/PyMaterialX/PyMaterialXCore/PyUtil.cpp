@@ -23,8 +23,8 @@ void bindPyUtil(py::module& mod)
     mod.def("splitString", &mx::splitString);
     mod.def("joinStrings", &mx::joinStrings);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
-    mod.def("stringEndsWith", &mx::stringEndsWith);
     mod.def("stringStartsWith", &mx::stringStartsWith);
+    mod.def("stringEndsWith", &mx::stringEndsWith);
     mod.def("splitNamePath", &mx::splitNamePath);
     mod.def("createNamePath", &mx::createNamePath);
     mod.def("parentNamePath", &mx::parentNamePath);
