@@ -87,9 +87,9 @@ class Graph
     void setPinColor();
     void DrawPinIcon(std::string type, bool connected, int alpha);
     UiPinPtr getPin(ed::PinId id);
-    void createInputPin(UiPinPtr pin);
+    void drawInputPin(UiPinPtr pin);
     ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, UiPinPtr input);
-    void outputPin(UiNodePtr node);
+    void drawOutputPins(UiNodePtr node, const std::string& longestInputLabel);
     void addNodeGraphPins();
 
     // UiNode functions
