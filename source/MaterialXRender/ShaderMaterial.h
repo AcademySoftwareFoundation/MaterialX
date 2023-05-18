@@ -118,10 +118,6 @@ class MX_RENDER_API ShaderMaterial
                               ImageHandlerPtr imageHandler,
                               const ShadowState& shadowState) = 0;
 
-    /// Bind units.
-    virtual void bindUnits(UnitConverterRegistryPtr& registry,
-                   const GenContext& context) = 0;
-
     /// Bind the given mesh to this ShaderMaterial.
     virtual void bindMesh(MeshPtr mesh) = 0;
 
