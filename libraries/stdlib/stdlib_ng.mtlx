@@ -1160,6 +1160,54 @@
     <output name="out" type="float" nodename="N_range" />
   </nodegraph>
 
+  <!--
+    <checkerboard>
+    A 2D checkerboard pattern.
+  -->
+  <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
+    <separate2 name="N_mtlxseparate2" type="multioutput">
+      <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
+    </separate2>
+    <modulo name="N_mtlxmodulo1" type="float">
+      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outx" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <multiply name="N_mult" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="freq" />
+    </multiply>
+    <modulo name="N_mtlxmodulo2" type="float">
+      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outy" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <floor name="N_mtlxfloor2" type="float">
+      <input name="in" type="float" nodename="N_mtlxmodulo1" />
+    </floor>
+    <floor name="N_mtlxfloor3" type="float">
+      <input name="in" type="float" nodename="N_mtlxmodulo2" />
+    </floor>
+    <add name="N_mtlxadd2" type="float">
+      <input name="in1" type="float" nodename="N_mtlxfloor2" />
+      <input name="in2" type="float" nodename="N_mtlxfloor3" />
+    </add>
+    <ifequal name="N_mtlxifequal2" type="float">
+      <input name="value1" type="float" nodename="N_mtlxadd2" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" value="0" />
+    </ifequal>
+    <place2d name="N_mtlxplace2d1" type="vector2">
+      <input name="texcoord" type="vector2" nodename="N_mult" />
+      <input name="offset" type="vector2" interfacename="offset" />
+    </place2d>
+    <mix name="N_mix_color3" type="color3">
+      <input name="bg" type="color3" interfacename="color2" />
+      <input name="fg" type="color3" interfacename="color1" />
+      <input name="mix" type="float" nodename="N_mtlxifequal2" />
+    </mix>
+    <output name="out" type="color3" nodename="N_mix_color3" />
+  </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
