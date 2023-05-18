@@ -360,34 +360,6 @@ class MX_GENSHADER_API ShaderNode
         static const uint32_t DOT           = 1 << 23; /// A dot node
     };
 
-    /// @struct ScopeInfo
-    /// Information on source code scope for the node.
-    ///
-    /// @todo: Refactor the scope handling, using scope id's instead
-    ///
-    struct ScopeInfo
-    {
-        enum Type
-        {
-            UNKNOWN,
-            GLOBAL,
-            SINGLE,
-            MULTIPLE
-        };
-
-        ScopeInfo() :
-            type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) { }
-
-        void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask);
-        bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
-
-        Type type;
-        ShaderNode* conditionalNode;
-        uint32_t conditionBitmask;
-        uint32_t fullConditionMask;
-    };
-
     static const ShaderNodePtr NONE;
 
     static const string CONSTANT;
@@ -468,21 +440,6 @@ class MX_GENSHADER_API ShaderNode
         return *_impl;
     }
 
-    /// Return the scope info for this node.
-    ScopeInfo& getScopeInfo()
-    {
-        return _scopeInfo;
-    }
-
-    /// Return the scope info for this node.
-    const ScopeInfo& getScopeInfo() const
-    {
-        return _scopeInfo;
-    }
-
-    /// Returns true if this node is only referenced by a conditional.
-    bool referencedConditionally() const;
-
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
@@ -552,7 +509,6 @@ class MX_GENSHADER_API ShaderNode
 
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
-    ScopeInfo _scopeInfo;
 
     friend class ShaderGraph;
 };

@@ -153,7 +153,7 @@ class Document::Cache
 
 Document::Document(ElementPtr parent, const string& name) :
     GraphElement(parent, CATEGORY, name),
-    _cache(std::unique_ptr<Cache>(new Cache))
+    _cache(std::make_unique<Cache>())
 {
 }
 

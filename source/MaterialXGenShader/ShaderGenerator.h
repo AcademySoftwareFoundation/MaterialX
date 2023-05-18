@@ -92,7 +92,8 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Add the function call for a single node.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope = true) const;
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+    [[deprecated]] virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const;
 
     /// Add all function calls for a graph. If a classification mask is given only functions for
     /// nodes matching this classification will be emitted.
