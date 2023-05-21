@@ -224,6 +224,11 @@ bool Node::validate(string* message) const
         bool exactMatch = hasExactInputMatch(nodeDef, &matchMessage);
         validateRequire(exactMatch, res, message, "Node interface error: " + matchMessage);
     }
+    else
+    {
+        bool categoryDeclared = !getDocument()->getMatchingNodeDefs(getCategory()).empty();
+        validateRequire(!categoryDeclared, res, message, "Node interface doesn't support this output type");
+    }
 
     return InterfaceElement::validate(message) && res;
 }
