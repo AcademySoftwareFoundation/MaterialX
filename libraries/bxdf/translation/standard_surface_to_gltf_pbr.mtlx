@@ -32,7 +32,7 @@
   </nodedef>
 
   <nodegraph name="NG_standard_surface_to_gltf_pbr" nodedef="ND_standard_surface_to_gltf_pbr">
-    
+
     <!-- Coat attenuation -->
     <dotproduct name="has_coat_color" type="float">
       <input name="in1" type="vector3" interfacename="coat_color" channels="rgb" />
@@ -70,7 +70,7 @@
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
-    </ifequal> 
+    </ifequal>
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>

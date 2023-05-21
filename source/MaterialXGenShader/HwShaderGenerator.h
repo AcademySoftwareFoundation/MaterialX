@@ -286,8 +286,7 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
 {
   public:
     /// Add the function call for a single node.
-    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage,
-                          bool checkScope = true) const override;
+    void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
     /// Emit code for active light count definitions and uniforms
     virtual void addStageLightingUniforms(GenContext& context, ShaderStage& stage) const;

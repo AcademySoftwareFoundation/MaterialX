@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <nodedef name="ND_disney_bsdf_2015_surface" node="disney_bsdf_2015" nodegroup="pbr" >
+  <nodedef name="ND_disney_bsdf_2015_surface" node="disney_bsdf_2015" nodegroup="pbr">
     <input name="baseColor" type="color3" value="0.16, 0.16, 0.16" />
     <input name="metallic" type="float" value="0" />
     <input name="roughness" type="float" value="0.5" />
