@@ -159,7 +159,7 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 }
 
 void ClosureLayerNodeMdl::emitBsdfOverBsdfFunctionCalls(
-    ShaderNode& node,
+    const ShaderNode& node,
     GenContext& context,
     ShaderStage& stage,
     const ShaderGenerator& shadergen,
@@ -231,7 +231,7 @@ void ClosureLayerNodeMdl::emitBsdfOverBsdfFunctionCalls(
 }
 
 void ClosureLayerNodeMdl::emitBsdfOverBsdfFunctionCalls_thinFilm(
-    ShaderNode& node,
+    const ShaderNode& node,
     GenContext& context,
     ShaderStage& stage,
     const ShaderGenerator& shadergen,

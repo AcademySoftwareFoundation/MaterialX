@@ -37,7 +37,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         }
 
         const string& swizzle = channels->getValue() ? channels->getValue()->getValueString() : EMPTY_STRING;
-        string variableName = in->getConnection() ? in->getConnection()->getVariable() : in->getVariable();
+        string variableName = getVariableName(in);
 
         // If the input is unconnected we must declare a variable
         // for it first, in order to swizzle it below.
@@ -63,6 +63,11 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 bool SwizzleNode::isEditable(const ShaderInput& input) const
 {
     return (input.getName() != CHANNELS_STRING);
+}
+
+string SwizzleNode::getVariableName(const ShaderInput* input) const
+{
+    return input->getConnection() ? input->getConnection()->getVariable() : input->getVariable();
 }
 
 MATERIALX_NAMESPACE_END

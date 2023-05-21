@@ -68,8 +68,8 @@ class MX_GENSHADER_API ColorManagementSystem
     /// Protected constructor
     ColorManagementSystem();
 
-    /// Returns an implementation for a given transform
-    virtual ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const = 0;
+    /// Returns a nodedef for a given transform
+    virtual NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const = 0;
 
   protected:
     DocumentPtr _document;

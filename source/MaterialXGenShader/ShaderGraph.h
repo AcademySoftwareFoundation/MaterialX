@@ -167,9 +167,6 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// with the output's downstream connections.
     void bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
 
-    /// Calculate scopes for all nodes in the graph
-    void calculateScopes();
-
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique
     /// to avoid name conflicts during shader generation.

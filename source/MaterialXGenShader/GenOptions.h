@@ -175,12 +175,11 @@ class MX_GENSHADER_API GenOptions
     bool hwWriteAlbedoTable;
 
     /// Calculate fallback bitangents from existing normals and tangents
-    /// inside the <bitangent> node.
+    /// inside the bitangent node.
     bool hwImplicitBitangents;
 
     /// Enable emitting colorspace transform code if a color management
-    /// system is defined.
-    /// Defaults to true.
+    /// system is defined. Defaults to true.
     bool emitColorTransforms;
 };
 

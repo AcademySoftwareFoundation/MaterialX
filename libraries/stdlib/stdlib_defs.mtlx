@@ -1004,7 +1004,7 @@
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <output name="out" type="float" />
   </nodedef>
-  
+
   <!--
     Node: <unifiednoise3d>
     The 3d flavor of <unifiednoise2d>.
@@ -1109,7 +1109,6 @@
     <output name="out" type="vector2" />
   </nodedef>
 
-
   <nodedef name="ND_randomvector_float_vector3" node="randomvector" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
     <input name="min" type="vector3" uiname="Minimum" value="0.0, 0.0, 0.0" doc="The minimum output value." />
@@ -1191,7 +1190,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector4" />
   </nodedef>
-
 
   <!--
     Node: <randomcolor>
@@ -1310,6 +1308,18 @@
     <output name="out" type="color3" />
   </nodedef>
 
+  <!--
+    Node: <checkerboard>
+    A 2D checkerboard pattern.
+  -->
+  <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="procedural2d">
+    <input name="color1" type="color3" uiname="Color 1" value="1.0, 1.0, 1.0" doc="The first color used in the checkerboard pattern." />
+    <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." />
+    <input name="freq" type="vector2" uiname="Frequency" value="8, 8" doc="The frequency of checkers, with higher values producing smaller squares. Default is (8, 8)." />
+    <input name="offset" type="vector2" uiname="Offset" value="0, 0" doc="Shift the pattern in 2d space. Default is (0, 0)." />
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <output name="out" type="color3" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
@@ -3206,7 +3216,7 @@
     <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
     <output name="out" type="color4" defaultinput="in" />
   </nodedef>
-  
+
   <!--
     Node: <colorcorrect> Supplemental Node
     Combines various adjustment nodes into one, artist-friendly color correction node.
@@ -3218,7 +3228,7 @@
     <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
     <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
     <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
-    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
     <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
@@ -3230,7 +3240,7 @@
     <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
     <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
     <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
-    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
     <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />

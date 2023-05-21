@@ -264,7 +264,7 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
         ss << delimiter;
     }
 
-    return Value::createValueFromStrings(ss.str(), getTypeName(dstType));
+    return Value::createValueFromStrings(ss.str(), dstType->getName());
 }
 
 bool Syntax::typeSupported(const TypeDesc*) const

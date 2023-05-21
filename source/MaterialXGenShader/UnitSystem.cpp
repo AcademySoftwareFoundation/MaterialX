@@ -118,9 +118,9 @@ UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc*
 
 const string UnitSystem::UNITSYTEM_NAME = "default_unit_system";
 
-UnitSystem::UnitSystem(const string& target)
+UnitSystem::UnitSystem(const string& target) :
+    _target(createValidName(target))
 {
-    _target = createValidName(target);
 }
 
 void UnitSystem::loadLibrary(DocumentPtr document)
@@ -143,18 +143,25 @@ UnitSystemPtr UnitSystem::create(const string& language)
     return UnitSystemPtr(new UnitSystem(language));
 }
 
-ImplementationPtr UnitSystem::getImplementation(const UnitTransform& transform, const string& unitname) const
+NodeDefPtr UnitSystem::getNodeDef(const UnitTransform& transform) const
 {
-    // Search up the targetdef derivation hierarchy for a matching implementation.
-    TargetDefPtr targetDef = _document->getTargetDef(_target);
-    const StringVec targets = targetDef->getMatchingTargets();
-    for (const string& target : targets)
+    if (!_document)
     {
-        const string implName = "IM_" + unitname + "_unit_" + transform.type->getName() + "_" + target;
-        ImplementationPtr impl = _document->getImplementation(implName);
-        if (impl)
+        throw ExceptionShaderGenError("No library loaded for unit system");
+    }
+
+    const string MULTIPLY_NODE_NAME = "multiply";
+    for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(MULTIPLY_NODE_NAME))
+    {
+        for (OutputPtr output : nodeDef->getOutputs())
         {
-            return impl;
+            vector<InputPtr> nodeInputs = nodeDef->getInputs();
+            if (nodeInputs.size() == 2 &&
+                nodeInputs[0]->getType() == transform.type->getName() &&
+                nodeInputs[1]->getType() == "float")
+            {
+                return nodeDef;
+            }
         }
     }
     return nullptr;
@@ -162,17 +169,17 @@ ImplementationPtr UnitSystem::getImplementation(const UnitTransform& transform, 
 
 bool UnitSystem::supportsTransform(const UnitTransform& transform) const
 {
-    ImplementationPtr impl = getImplementation(transform, transform.unitType);
-    return impl != nullptr;
+    NodeDefPtr nodeDef = getNodeDef(transform);
+    return nodeDef != nullptr;
 }
 
 ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
                                      GenContext& context) const
 {
-    ImplementationPtr impl = getImplementation(transform, transform.unitType);
-    if (!impl)
+    NodeDefPtr nodeDef = getNodeDef(transform);
+    if (!nodeDef)
     {
-        throw ExceptionShaderGenError("No implementation found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
+        throw ExceptionShaderGenError("No nodedef found for transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
     }
 
     // Scalar unit conversion
@@ -183,75 +190,17 @@ ShaderNodePtr UnitSystem::createNode(ShaderGraph* parent, const UnitTransform& t
     }
     LinearUnitConverterPtr scalarConverter = std::dynamic_pointer_cast<LinearUnitConverter>(_unitRegistry->getUnitConverter(scalarTypeDef));
 
-    // Check if it's created and cached already,
-    // otherwise create and cache it.
-    ShaderNodeImplPtr nodeImpl = context.findNodeImplementation(impl->getName());
-    if (!nodeImpl)
-    {
-        nodeImpl = ScalarUnitNode::create(scalarConverter);
-        nodeImpl->initialize(*impl, context);
-        context.addNodeImplementation(impl->getName(), nodeImpl);
-    }
-
     // Create the node.
-    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, nodeImpl, ShaderNode::Classification::TEXTURE);
+    ShaderNodePtr shaderNode = ShaderNode::create(parent, name, *nodeDef, context);
 
-    // Create ports on the node.
-    ShaderInput* input = shaderNode->addInput("in", transform.type);
-    if (transform.type == Type::FLOAT)
+    // Set ports on the node.
+    ShaderInput* in2 = shaderNode->getInput("in2");
+    if (!in2)
     {
-        input->setValue(Value::createValue(1.0));
+        throw ExceptionShaderGenError("Invalid node signature for unit transform: ('" + transform.sourceUnit + "', '" + transform.targetUnit + "').");
     }
-    else if (transform.type == Type::VECTOR2)
-    {
-        input->setValue(Value::createValue(Vector2(1.0f, 1.0)));
-    }
-    else if (transform.type == Type::VECTOR3)
-    {
-        input->setValue(Value::createValue(Vector3(1.0f, 1.0, 1.0)));
-    }
-    else if (transform.type == Type::VECTOR4)
-    {
-        input->setValue(Value::createValue(Vector4(1.0f, 1.0, 1.0, 1.0)));
-    }
-    else
-    {
-        throw ExceptionShaderGenError("Invalid type specified to unitTransform: '" + transform.type->getName() + "'");
-    }
-
-    // Add the conversion code
-    {
-        int value = scalarConverter->getUnitAsInteger(transform.sourceUnit);
-        if (value < 0)
-        {
-            throw ExceptionTypeError("Unrecognized source unit: " + transform.sourceUnit);
-        }
-
-        ShaderInput* convertFrom = shaderNode->addInput("unit_from", Type::INTEGER);
-        convertFrom->setValue(Value::createValue(value));
-    }
-
-    {
-        int value = scalarConverter->getUnitAsInteger(transform.targetUnit);
-        if (value < 0)
-        {
-            throw ExceptionTypeError("Unrecognized target unit: " + transform.targetUnit);
-        }
-
-        ShaderInput* convertTo = shaderNode->addInput("unit_to", Type::INTEGER);
-
-        // Create a graph input to connect to the "unit_to" if it does not already exist.
-        const string UNIT_TARGET_NAME = "u_" + transform.unitType + "UnitTarget";
-        ShaderGraphInputSocket* globalInput = parent->getInputSocket(UNIT_TARGET_NAME);
-        if (!globalInput)
-        {
-            globalInput = parent->addInputSocket(UNIT_TARGET_NAME, Type::INTEGER);
-        }
-        globalInput->setValue(Value::createValue(value));
-        convertTo->makeConnection(globalInput);
-    }
-
-    shaderNode->addOutput("out", transform.type);
+    float conversionRatio = scalarConverter->conversionRatio(transform.sourceUnit, transform.targetUnit);
+    in2->setValue(Value::createValue(conversionRatio));
 
     return shaderNode;
 }
