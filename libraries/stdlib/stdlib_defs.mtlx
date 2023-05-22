@@ -1261,7 +1261,7 @@
     <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
+    <output name="out" type="color4" />
   </nodedef>
   <nodedef name="ND_randomcolor_integer_color4" node="randomcolor" nodegroup="procedural3d">
     <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
@@ -1272,7 +1272,7 @@
     <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
+    <output name="out" type="color4" />
   </nodedef>
   <nodedef name="ND_randomcolor_color3_color4" node="randomcolor" nodegroup="procedural3d">
     <input name="in" type="color3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
@@ -1283,7 +1283,7 @@
     <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
+    <output name="out" type="color4" />
   </nodedef>
   <nodedef name="ND_randomcolor_vector3_color4" node="randomcolor" nodegroup="procedural3d">
     <input name="in" type="vector3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
@@ -1294,7 +1294,7 @@
     <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
+    <output name="out" type="color4" />
   </nodedef>
   <nodedef name="ND_randomcolor_vector2_color4" node="randomcolor" nodegroup="procedural3d">
     <input name="in" type="vector2" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0" />
@@ -1305,7 +1305,7 @@
     <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
+    <output name="out" type="color4" />
   </nodedef>
 
   <!--
