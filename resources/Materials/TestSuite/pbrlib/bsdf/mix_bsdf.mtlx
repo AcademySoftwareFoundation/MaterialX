@@ -84,7 +84,7 @@
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
   <nodegraph name="mix_bsdf_test3">
-    <substrateshader name="shader1" type="surfaceshader"/>
+    <substrateshader name="shader1" type="surfaceshader" />
     <output name="out" type="surfaceshader" nodename="shader1" />
   </nodegraph>
 </materialx>

@@ -9,19 +9,15 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [genglsl](stdlib/genglsl): GLSL language support.
         - [lib](stdlib/genglsl/lib) : Shader utility files.
         - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genglsl_unit_impl.mtlx](stdlib/genosl/stdlib_genglsl_unit_impl.mtlx) : Real world unit support implementations.
     - [genosl](stdlib/genosl): OSL language support.
         - [lib](stdlib/genosl/lib) : Shader utility files.
         - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genosl_unit_impl.mtlx](stdlib/genosl/stdlib_genosl_unit_impl.mtlx) : Real world unit support implementations.
     - [genmdl](stdlib/genmdl): MDL language support.
         - [stdlib_genmdl_impl.mtlx](stdlib/genmdl/stdlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genmdl_unit_impl.mtlx](stdlib/genmdl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
         - Additional MaterialX support libraries for MDL are located in the [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx) package folder
     - [genmsl](stdlib/genmsl): MSL language support.
         - [lib](stdlib/genmsl/lib) : Shader utility files.
         - [stdlib_genmsl_impl.mtlx](stdlib/genmsl/stdlib_genmsl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genmsl_unit_impl.mtlx](stdlib/genmsl/stdlib_genmsl_unit_impl.mtlx) : Real world unit support implementations.
 
 ## Physically Based Shading Library
 - [pbrlib](pbrlib)

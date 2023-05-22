@@ -20,7 +20,7 @@
       <input name="in" type="float" nodename="constant1" />
     </convert>
     <output name="out" type="vector4" nodename="convert1" />
-  </nodegraph>  
+  </nodegraph>
   <nodegraph name="convert_color4_vector4">
     <constant name="constant1" type="color4">
       <input name="value" type="color4" value="0.2000, 0.8000, 0.5000, 1.0" />

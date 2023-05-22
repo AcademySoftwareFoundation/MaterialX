@@ -4,7 +4,7 @@
        is assumed to be the default shader ball with the intended
        result being that the Preview mesh is "blue" and the Calibration mesh is
        "red.
-  -->    
+  -->
   <standard_surface name="Red_Shader" type="surfaceshader">
     <input name="base_color" type="color3" value="1, 0, 0" />
   </standard_surface>
