@@ -244,45 +244,6 @@ void MslMaterial::bindLighting(LightHandlerPtr lightHandler,
     }
 }
 
-void MslMaterial::bindUnits(UnitConverterRegistryPtr& registry, const GenContext& context)
-{
-    if (!bindShader())
-    {
-        return;
-    }
-
-    ShaderPort* port = nullptr;
-    VariableBlock* publicUniforms = getPublicUniforms();
-    if (publicUniforms)
-    {
-        // Scan block based on unit name match predicate
-        port = publicUniforms->find(
-            [](ShaderPort* port)
-        {
-            return (port && (port->getName() == DISTANCE_UNIT_TARGET_NAME));
-        });
-
-        // Check if the uniform exists in the shader program
-        if (port && !_glProgram->getUniformsList().count(port->getVariable()))
-        {
-            port = nullptr;
-        }
-    }
-
-    if (port)
-    {
-        int intPortValue = registry->getUnitAsInteger(context.getOptions().targetDistanceUnit);
-        if (intPortValue >= 0)
-        {
-            port->setValue(Value::createValue(intPortValue));
-            if (_glProgram->hasUniform(DISTANCE_UNIT_TARGET_NAME))
-            {
-                _glProgram->bindUniform(DISTANCE_UNIT_TARGET_NAME, Value::createValue(intPortValue));
-            }
-        }
-    }
-}
-
 void MslMaterial::drawPartition(MeshPartitionPtr part) const
 {
     if (!part || !bindPartition(part))
