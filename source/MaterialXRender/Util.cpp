@@ -127,46 +127,18 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
 
     if (input->getIsUniform())
     {
-        string enumString = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        if (!enumString.empty())
+        uiProperties.enumeration = input->getTypedAttribute<StringVec>(ValueElement::ENUM_ATTRIBUTE);
+        if (!uiProperties.enumeration.empty())
         {
-            uiProperties.enumeration = splitString(enumString, ",");
-            if (!uiProperties.enumeration.empty())
-                propertyCount++;
+            propertyCount++;
         }
 
-        const string& enumerationValues = input->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
+        StringVec enumerationValues = input->getTypedAttribute<StringVec>(ValueElement::ENUM_VALUES_ATTRIBUTE);
         if (!enumerationValues.empty())
         {
-            const string& elemType = input->getType();
-            const TypeDesc* typeDesc = TypeDesc::get(elemType);
-            if (typeDesc->isScalar() || typeDesc->isFloat2() || typeDesc->isFloat3() ||
-                typeDesc->isFloat4())
+            for (const string& val : enumerationValues)
             {
-                StringVec stringValues = splitString(enumerationValues, ",");
-                string valueString;
-                size_t elementCount = typeDesc->getSize();
-                elementCount--;
-                size_t count = 0;
-                for (const string& val : stringValues)
-                {
-                    if (count == elementCount)
-                    {
-                        valueString += val;
-                        uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, elemType));
-                        valueString.clear();
-                        count = 0;
-                    }
-                    else
-                    {
-                        valueString += val + ",";
-                        count++;
-                    }
-                }
-            }
-            else
-            {
-                uiProperties.enumerationValues.push_back(Value::createValue(enumerationValues));
+                uiProperties.enumerationValues.push_back(Value::createValueFromStrings(val, input->getType()));
             }
             if (uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
             {
