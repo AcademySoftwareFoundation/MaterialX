@@ -1293,7 +1293,7 @@
 
   <!--
     Node: <distance>
-    Measures the distance between two points in (X, Y).
+    Measures the distance between two points in 2D, 3D, or 4D.
   -->
   <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
     <subtract name="N_mtlxsubtract" type="vector2">
