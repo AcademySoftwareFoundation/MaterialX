@@ -1699,6 +1699,10 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
+  <nodedef name="ND_floor_integer" node="floor" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
+  </nodedef>
 
   <!--
     Node: <ceil>
@@ -1727,6 +1731,10 @@
   <nodedef name="ND_ceil_vector4" node="ceil" nodegroup="math">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_ceil_integer" node="ceil" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
   </nodedef>
 
   <!--
