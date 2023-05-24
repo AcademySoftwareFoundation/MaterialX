@@ -1047,7 +1047,6 @@
     Node: <randomvector>
     Produces a randomized vector2, vector3, or vector4, based on an 'input' signal and 'seed' value.
   --> 
-
   <nodedef name="ND_randomvector_float_vector2" node="randomvector" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
     <input name="min" type="vector2" uiname="Minimum" value="0.0, 0.0" doc="The minimum output value." />
@@ -1104,7 +1103,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector4" />
   </nodedef>
-
 
   <!--
     Node: <randomcolor>
