@@ -1042,32 +1042,12 @@
     <input name="seed" type="float" uiname="Seed" value="0.0" />
     <output name="out" type="float" />
   </nodedef>
-  <nodedef name="ND_randomfloat_color3" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="color3" uiname="Input" value="0.0, 0.0, 0.0" />
-    <input name="min" type="float" uiname="Minimum" value="0.0" />
-    <input name="max" type="float" uiname="Maximum" value="1.0" />
-    <input name="seed" type="float" uiname="Seed" value="0.0" />
-    <output name="out" type="float" />
-  </nodedef>
-  <nodedef name="ND_randomfloat_vector3" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="vector3" uiname="Input" value="0.0, 0.0, 0.0" />
-    <input name="min" type="float" uiname="Minimum" value="0.0" />
-    <input name="max" type="float" uiname="Maximum" value="1.0" />
-    <input name="seed" type="float" uiname="Seed" value="0.0" />
-    <output name="out" type="float" />
-  </nodedef>
-  <nodedef name="ND_randomfloat_vector2" node="randomfloat" nodegroup="procedural">
-    <input name="in" type="vector2" uiname="Input" value="0.0, 0.0" />
-    <input name="min" type="float" uiname="Minimum" value="0.0" />
-    <input name="max" type="float" uiname="Maximum" value="1.0" />
-    <input name="seed" type="float" uiname="Seed" value="0.0" />
-    <output name="out" type="float" />
-  </nodedef>
 
   <!--
     Node: <randomvector>
     Produces a randomized vector2, vector3, or vector4, based on an 'input' signal and 'seed' value.
   --> 
+
   <nodedef name="ND_randomvector_float_vector2" node="randomvector" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
     <input name="min" type="vector2" uiname="Minimum" value="0.0, 0.0" doc="The minimum output value." />
@@ -1084,31 +1064,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector2" />
   </nodedef>
-  <nodedef name="ND_randomvector_vector2_vector2" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector2" uiname="Input" value="0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector2" uiname="Minimum" value="0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector2" uiname="Maximum" value="1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector2" />
-  </nodedef>
-  <nodedef name="ND_randomvector_vector3_vector2" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector3" uiname="Input" value="0.0, 0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector2" uiname="Minimum" value="0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector2" uiname="Maximum" value="1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector2" />
-  </nodedef>
-  <nodedef name="ND_randomvector_vector4_vector2" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector4" uiname="Input" value="0.0, 0.0, 0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector2" uiname="Minimum" value="0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector2" uiname="Maximum" value="1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector2" />
-  </nodedef>
-
   <nodedef name="ND_randomvector_float_vector3" node="randomvector" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
     <input name="min" type="vector3" uiname="Minimum" value="0.0, 0.0, 0.0" doc="The minimum output value." />
@@ -1125,31 +1080,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector3" />
   </nodedef>
-  <nodedef name="ND_randomvector_vector2_vector3" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector2" uiname="Input" value="0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector3" uiname="Minimum" value="0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector3" uiname="Maximum" value="1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector3" />
-  </nodedef>
-  <nodedef name="ND_randomvector_vector3_vector3" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector3" uiname="Input" value="0.0, 0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector3" uiname="Minimum" value="0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector3" uiname="Maximum" value="1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector3" />
-  </nodedef>
-  <nodedef name="ND_randomvector_vector4_vector3" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="min" type="vector3" uiname="Minimum" value="0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector3" uiname="Maximum" value="1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector3" />
-  </nodedef>
-
   <nodedef name="ND_randomvector_float_vector4" node="randomvector" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
     <input name="min" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
@@ -1166,22 +1096,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector4" />
   </nodedef>
-  <nodedef name="ND_randomvector_vector2_vector4" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector2" uiname="Input" value="0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector4" uiname="Maximum" value="1.0, 1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector4" />
-  </nodedef>
-  <nodedef name="ND_randomvector_vector3_vector4" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector3" uiname="Input" value="0.0, 0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector4" uiname="Maximum" value="1.0, 1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector4" />
-  </nodedef>
   <nodedef name="ND_randomvector_vector4_vector4" node="randomvector" nodegroup="procedural">
     <input name="in" type="vector4" uiname="Input" value="0.0, 0.0, 0.0, 0.0" doc="Initial randomization seed." />
     <input name="min" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
@@ -1191,11 +1105,10 @@
     <output name="out" type="vector4" />
   </nodedef>
 
+
   <!--
     Node: <randomcolor>
-    Produces a randomized color, based on an input signal and seed value. The input 
-    is only used to generate the randomized color, even if the input signature is a 
-    color or vector3. The output is an RGB color.
+    Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
   -->
   <nodedef name="ND_randomcolor_float_color3" node="randomcolor" nodegroup="procedural3d">
     <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
@@ -1218,94 +1131,6 @@
     <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
     <input name="seed" type="float" uiname="Seed" value="0" />
     <output name="out" type="color3" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_color3_color3" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="color3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_vector3_color3" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_vector2_color3" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector2" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color3" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_float_color4" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color4" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_integer_color4" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color4" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_color3_color4" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="color3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color4" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_vector3_color4" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector3" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color4" />
-  </nodedef>
-  <nodedef name="ND_randomcolor_vector2_color4" node="randomcolor" nodegroup="procedural3d">
-    <input name="in" type="vector2" uiname="Input" uisoftmin="0" uisoftmax="10" value="0.0, 0.0" />
-    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
-    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
-    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
-    <input name="gammalow" type="float" uiname="Gamma Low" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="gammahigh" type="float" uiname="Gamma High" uisoftmin="0.0" uisoftmax="3.0" value="1" />
-    <input name="seed" type="float" uiname="Seed" value="0" />
-    <output name="out" type="color4" />
   </nodedef>
 
   <!--
