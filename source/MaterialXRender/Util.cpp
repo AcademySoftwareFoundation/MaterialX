@@ -133,12 +133,27 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
             propertyCount++;
         }
 
-        StringVec enumerationValues = input->getTypedAttribute<StringVec>(ValueElement::ENUM_VALUES_ATTRIBUTE);
-        if (!enumerationValues.empty())
+        const string& enumValuesAttr = input->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
+        if (!enumValuesAttr.empty())
         {
-            for (const string& val : enumerationValues)
+            const string COMMA_SEPARATOR = ",";
+            const TypeDesc* typeDesc = TypeDesc::get(input->getType());
+            string valueString;
+            size_t index = 0;
+            for (const string& val : splitString(enumValuesAttr, COMMA_SEPARATOR))
             {
-                uiProperties.enumerationValues.push_back(Value::createValueFromStrings(val, input->getType()));
+                if (index < typeDesc->getSize() - 1)
+                {
+                    valueString += val + COMMA_SEPARATOR;
+                    index++;
+                }
+                else
+                {
+                    valueString += val;
+                    uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, input->getType()));
+                    valueString.clear();
+                    index = 0;
+                }
             }
             if (uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
             {
