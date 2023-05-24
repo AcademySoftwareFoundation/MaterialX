@@ -1182,8 +1182,6 @@
     </cellnoise2d>
     <range name="N_remapRange" type="float">
       <input name="in" type="float" nodename="N_cellnoise_1" />
-      <input name="inlow" type="float" value="0" />
-      <input name="inhigh" type="float" value="1" />
       <input name="outlow" type="float" interfacename="min" />
       <input name="outhigh" type="float" interfacename="max" />
       <input name="doclamp" type="boolean" value="true" />
