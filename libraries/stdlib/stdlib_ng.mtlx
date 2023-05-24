@@ -1165,21 +1165,21 @@
     Produces a randomized float, based on an 'input' signal and 'seed' value.
   -->
   <nodegraph name="NG_randomfloat_float" nodedef="ND_randomfloat_float">
-    <cellnoise2d name="N_cellnoise_1" type="float">
-      <input name="texcoord" type="vector2" nodename="N_combine2" />
-    </cellnoise2d>
-    <combine2 name="N_combine2" type="vector2">
-      <input name="in1" type="float" nodename="N_subtract1" />
-      <input name="in2" type="float" nodename="N_offset_seed" />
-    </combine2>
-    <subtract name="N_subtract1" type="float">
-      <input name="in1" type="float" interfacename="in" />
-      <input name="in2" type="float" nodename="N_offset_seed" />
-    </subtract>
     <multiply name="N_offset_seed" type="float">
       <input name="in1" type="float" interfacename="seed" value="0" />
       <input name="in2" type="float" value="43758.5" />
     </multiply>
+    <subtract name="N_subtract1" type="float">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" nodename="N_offset_seed" />
+    </subtract>
+    <combine2 name="N_combine2" type="vector2">
+      <input name="in1" type="float" nodename="N_subtract1" />
+      <input name="in2" type="float" nodename="N_offset_seed" />
+    </combine2>
+    <cellnoise2d name="N_cellnoise_1" type="float">
+      <input name="texcoord" type="vector2" nodename="N_combine2" />
+    </cellnoise2d>
     <range name="N_remapRange" type="float">
       <input name="in" type="float" nodename="N_cellnoise_1" />
       <input name="inlow" type="float" value="0" />
@@ -1191,13 +1191,13 @@
     <output name="out" type="float" nodename="N_cellnoise_1" />
   </nodegraph>
   <nodegraph name="NG_randomfloat_integer" nodedef="ND_randomfloat_integer">
-    <convert name="N_convert1" type="float">
-      <input name="in" type="integer" interfacename="in" />
-    </convert>
     <randomfloat name="N_randomfloat1" type="float">
       <input name="in" type="float" nodename="N_convert1" />
       <input name="seed" type="float" interfacename="seed" />
     </randomfloat>
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
     <output name="out" type="float" nodename="N_randomfloat1" />
   </nodegraph>
 
