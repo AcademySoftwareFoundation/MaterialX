@@ -2202,6 +2202,26 @@
   </nodedef>
 
   <!--
+    Node: <distance>
+    Measures the distance between two points in 2D, 3D, or 4D.
+  -->
+  <nodedef name="ND_distance_vector2" node="distance" nodegroup="math">
+    <input name="in1" type="vector2" uiname="in1" value="0.0, 0.0" />
+    <input name="in2" type="vector2" uiname="in2" value="0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector3" node="distance" nodegroup="math">
+    <input name="in1" type="vector3" uiname="in1" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" uiname="in2" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector4" node="distance" nodegroup="math">
+    <input name="in1" type="vector4" uiname="in1" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" uiname="in2" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+  
+  <!--
     Node: <dotproduct>
     Perform a dot product of two 2-4 channel vectors
   -->

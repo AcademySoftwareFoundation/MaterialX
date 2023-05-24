@@ -110,8 +110,8 @@ TEST_CASE("Typed values", "[value]")
                    mx::BoolVec{true, true, true});
     testTypedValue(mx::FloatVec{1.0f, 2.0f, 3.0f},
                    mx::FloatVec{4.0f, 5.0f, 6.0f});
-    testTypedValue(mx::StringVec{"one", "two", "three"},
-                   mx::StringVec{"four", "five", "six"});
+    testTypedValue(mx::StringVec{"Item A", "Item B", "Item C"},
+                   mx::StringVec{"Item D", "Item E", "Item F"});
 
     // Alias types
     testTypedValue<long>(1l, 2l);
