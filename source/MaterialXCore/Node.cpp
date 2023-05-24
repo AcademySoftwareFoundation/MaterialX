@@ -768,7 +768,13 @@ bool NodeGraph::validate(string* message) const
         validateRequire(nodeDef != nullptr, res, message, "NodeGraph implementation refers to non-existent NodeDef");
         if (nodeDef)
         {
-            validateRequire(getOutputCount() == nodeDef->getActiveOutputs().size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            vector<OutputPtr> graphOutputs = getOutputs();
+            vector<OutputPtr> nodeDefOutputs = nodeDef->getActiveOutputs();
+            validateRequire(graphOutputs.size() == nodeDefOutputs.size(), res, message, "NodeGraph implementation has a different number of outputs than its NodeDef");
+            if (graphOutputs.size() == 1 && nodeDefOutputs.size() == 1)
+            {
+                validateRequire(graphOutputs[0]->getType() == nodeDefOutputs[0]->getType(), res, message, "NodeGraph implementation has a different output type than its NodeDef");
+            }
         }
     }
 
