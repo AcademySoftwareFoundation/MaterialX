@@ -1166,7 +1166,7 @@
   -->
   <nodegraph name="NG_randomfloat_float" nodedef="ND_randomfloat_float">
     <multiply name="N_offset_seed" type="float">
-      <input name="in1" type="float" interfacename="seed" value="0" />
+      <input name="in1" type="float" interfacename="seed" />
       <input name="in2" type="float" value="43758.5" />
     </multiply>
     <subtract name="N_subtract1" type="float">
