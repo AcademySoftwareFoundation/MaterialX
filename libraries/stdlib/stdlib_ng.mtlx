@@ -1186,7 +1186,7 @@
       <input name="outhigh" type="float" interfacename="max" />
       <input name="doclamp" type="boolean" value="true" />
     </range>
-    <output name="out" type="float" nodename="N_cellnoise_1" />
+    <output name="out" type="float" nodename="N_remapRange" />
   </nodegraph>
   <nodegraph name="NG_randomfloat_integer" nodedef="ND_randomfloat_integer">
     <convert name="N_convert1" type="float">
@@ -1194,6 +1194,8 @@
     </convert>
     <randomfloat name="N_randomfloat1" type="float">
       <input name="in" type="float" nodename="N_convert1" />
+      <input name="min" type="float" interfacename="min" />
+      <input name="max" type="float" interfacename="max" />
       <input name="seed" type="float" interfacename="seed" />
     </randomfloat>
     <output name="out" type="float" nodename="N_randomfloat1" />
