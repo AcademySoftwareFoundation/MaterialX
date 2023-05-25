@@ -339,6 +339,8 @@ By default, MaterialX supports the following color spaces as defined in ACES 1.2
 * `lin_srgb`
 * `adobergb`
 * `lin_adobergb`
+* `srgb_displayp3`
+* `lin_displayp3`
 
 The working color space of a MaterialX document is defined by the `colorspace` attribute of its root &lt;materialx> element, and it is strongly recommended that all &lt;materialx> elements define a specific `colorspace` if they wish to use a color-managed workflow rather than relying on a default colorspace setting from an external configuration file.
 

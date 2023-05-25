@@ -87,4 +87,24 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color3" node="srgb_displayp3_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color4" node="srgb_displayp3_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_lin_displayp3_to_lin_rec709_color3" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_displayp3_to_lin_rec709_color4" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" />
+    <output name="out" type="color4" />
+  </nodedef>
+
 </materialx>
