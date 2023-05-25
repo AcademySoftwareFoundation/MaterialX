@@ -1206,190 +1206,208 @@
     Produces a randomized vector2, vector3, or vector4, based on an 'input' signal and 'seed' value.
   -->
   <nodegraph name="NG_randomvector_float_vector2" nodedef="ND_randomvector_float_vector2">
-    <swizzle name="N_swizzeMin" type="vector4">
+    <separate2 name="N_separatemin" type="multioutput">
       <input name="in" type="vector2" interfacename="min" />
-      <input name="channels" type="string" value="xyxy" />
-    </swizzle>
-    <swizzle name="N_swizzeMax" type="vector4">
+    </separate2>
+    <separate2 name="N_separatemax" type="multioutput">
       <input name="in" type="vector2" interfacename="max" />
-      <input name="channels" type="string" value="xyxy" />
-    </swizzle>
-    <convert name="N_convert1" type="vector4">
+    </separate2>
+    <randomfloat name="N_randomfloat1" type="float">
       <input name="in" type="float" interfacename="in" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert1" />
-      <input name="min" type="vector4" nodename="N_swizzeMin" />
-      <input name="max" type="vector4" nodename="N_swizzeMax" />
+      <input name="min" type="float" nodename="N_separatemin" output="outx" />
+      <input name="max" type="float" nodename="N_separatemax" output="outx" />
       <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <convert name="N_convert2" type="vector3">
-      <input name="in" type="vector4" nodename="N_randomvector1" />
-    </convert>
-    <convert name="N_convert5" type="vector2">
-      <input name="in" type="vector3" nodename="N_convert2" />
-    </convert>
-    <output name="out" type="vector2" nodename="N_convert5" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_integer_vector2" nodedef="ND_randomvector_integer_vector2">
-    <swizzle name="N_swizzeMin" type="vector4">
-      <input name="in" type="vector2" interfacename="min" />
-      <input name="channels" type="string" value="xyxy" />
-    </swizzle>
-    <swizzle name="N_swizzeMax" type="vector4">
-      <input name="in" type="vector2" interfacename="max" />
-      <input name="channels" type="string" value="xyxy" />
-    </swizzle>
-    <convert name="N_convert1" type="float">  
-      <input name="in" type="integer" interfacename="in" />
-    </convert>
-    <convert name="N_convert2" type="vector4">
-      <input name="in" type="float" nodename="N_convert1" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert2" />
-      <input name="min" type="vector4" nodename="N_swizzeMin" />
-      <input name="max" type="vector4" nodename="N_swizzeMax" />
-      <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <convert name="N_convert3" type="vector3">
-      <input name="in" type="vector4" nodename="N_randomvector1" />
-    </convert>
-    <convert name="N_convert5" type="vector2">
-      <input name="in" type="vector3" nodename="N_convert3" />
-    </convert>
-    <output name="out" type="vector2" nodename="N_convert5" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_float_vector3" nodedef="ND_randomvector_float_vector3">
-    <swizzle name="N_swizzeMin" type="vector4">
-      <input name="in" type="vector3" interfacename="min" />
-      <input name="channels" type="string" value="xyzx" />
-    </swizzle>
-    <swizzle name="N_swizzeMax" type="vector4">
-      <input name="in" type="vector3" interfacename="max" />
-      <input name="channels" type="string" value="xyzx" />
-    </swizzle>
-    <convert name="N_convert1" type="vector4">
-      <input name="in" type="float" interfacename="in" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert1" />
-      <input name="min" type="vector4" nodename="N_swizzeMin" />
-      <input name="max" type="vector4" nodename="N_swizzeMax" />
-      <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <convert name="N_convert2" type="vector3">
-      <input name="in" type="vector4" nodename="N_randomvector1" />
-    </convert>
-    <output name="out" type="vector3" nodename="N_convert2" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_integer_vector3" nodedef="ND_randomvector_integer_vector3">
-    <swizzle name="N_swizzeMin" type="vector4">
-      <input name="in" type="vector3" interfacename="min" />
-      <input name="channels" type="string" value="xyzx" />
-    </swizzle>
-    <swizzle name="N_swizzeMax" type="vector4">
-      <input name="in" type="vector3" interfacename="max" />
-      <input name="channels" type="string" value="xyzx" />
-    </swizzle>
-    <convert name="N_convert1" type="float">
-      <input name="in" type="integer" interfacename="in" />
-    </convert>
-    <convert name="N_convert2" type="vector4">
-      <input name="in" type="float" nodename="N_convert1" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert2" />
-      <input name="min" type="vector4" nodename="N_swizzeMin" />
-      <input name="max" type="vector4" nodename="N_swizzeMax" />
-      <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <convert name="N_convert3" type="vector3">
-      <input name="in" type="vector4" nodename="N_randomvector1" />
-    </convert>
-    <output name="out" type="vector3" nodename="N_convert3" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_float_vector4" nodedef="ND_randomvector_float_vector4">
-    <convert name="N_convert1" type="vector4">
-      <input name="in" type="float" interfacename="in" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert1" />
-      <input name="min" type="vector4" interfacename="min" />
-      <input name="max" type="vector4" interfacename="max" />
-      <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <output name="out" type="vector4" nodename="N_randomvector1" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_integer_vector4" nodedef="ND_randomvector_integer_vector4">
-    <convert name="N_convert1" type="float">
-      <input name="in" type="integer" interfacename="in" />
-    </convert>
-    <convert name="N_convert2" type="vector4">
-      <input name="in" type="float" nodename="N_convert1" />
-    </convert>
-    <randomvector name="N_randomvector1" type="vector4">
-      <input name="in" type="vector4" nodename="N_convert2" />
-      <input name="min" type="vector4" interfacename="min" />
-      <input name="max" type="vector4" interfacename="max" />
-      <input name="seed" type="float" interfacename="seed" />
-      <input name="normalize" type="boolean" interfacename="normalize" />
-    </randomvector>
-    <output name="out" type="vector4" nodename="N_randomvector1" />
-  </nodegraph>
-  <nodegraph name="NG_randomvector_vector4_vector4" nodedef="ND_randomvector_vector4_vector4">
-    <range name="N_range" type="vector4">
-      <input name="in" type="vector4" nodename="N_makeVector" />
-      <input name="outlow" type="vector4" interfacename="min" />
-      <input name="outhigh" type="vector4" interfacename="max" />
-      <input name="doclamp" type="boolean" value="true" />
-    </range>
-    <combine4 name="N_makeVector" type="vector4">
-      <input name="in1" type="float" nodename="N_randX" />
-      <input name="in2" type="float" nodename="N_randY" />
-      <input name="in3" type="float" nodename="N_randZ" />
-      <input name="in4" type="float" nodename="N_randW" />
-    </combine4>
-    <randomfloat name="N_randX" type="float">
-      <input name="in" type="float" nodename="N_addSeed" />
-      <input name="seed" type="float" value="1.3712" />
     </randomfloat>
-    <add name="N_addSeed" type="float">
-      <input name="in1" type="float" nodename="N_inputMagnitude" />
+    <add name="N_seed1" type="float">
+      <input name="in1" type="float" value="4.0469" />
       <input name="in2" type="float" interfacename="seed" />
     </add>
-    <magnitude name="N_inputMagnitude" type="float">
-      <input name="in" type="vector4" interfacename="in" />
-    </magnitude>
-    <randomfloat name="N_randY" type="float">
-      <input name="in" type="float" nodename="N_addSeed" />
-      <input name="seed" type="float" value="29.544" />
+    <randomfloat name="N_randomfloat2" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outy" />
+      <input name="max" type="float" nodename="N_separatemax" output="outy" />
+      <input name="seed" type="float" nodename="N_seed1" />
     </randomfloat>
-    <randomfloat name="N_randZ" type="float">
-      <input name="in" type="float" nodename="N_addSeed" />
-      <input name="seed" type="float" value="78.046" />
+    <combine2 name="N_makeVector" type="vector2">
+      <input name="in1" type="float" nodename="N_randomfloat1" />
+      <input name="in2" type="float" nodename="N_randomfloat2" />
+    </combine2>
+    <normalize name="N_normalize" type="vector2">
+      <input name="in" type="vector2" nodename="N_makeVector" />
+    </normalize>
+    <convert name="N_convertNormalizeParm" type="float">
+      <input name="in" type="boolean" interfacename="normalize" />
+    </convert>
+    <switch name="N_normalizeOutput" type="vector2">
+      <input name="in1" type="vector2" nodename="N_makeVector" />
+      <input name="in2" type="vector2" nodename="N_normalize" />
+      <input name="which" type="float" nodename="N_convertNormalizeParm" />
+    </switch>    
+    <output name="out" type="vector2" nodename="N_normalizeOutput" />
+  </nodegraph>
+  <nodegraph name="NG_randomvector_integer_vector2" nodedef="ND_randomvector_integer_vector2">
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <randomvector name="N_randomvector1" type="vector2">
+      <input name="in" type="float" nodename="N_convert1" />
+      <input name="min" type="vector2" interfacename="min" />
+      <input name="max" type="vector2" interfacename="max" />
+      <input name="seed" type="float" interfacename="seed" />
+      <input name="normalize" type="boolean" interfacename="normalize" />
+    </randomvector>
+    <output name="out" type="vector2" nodename="N_randomvector1" />
+  </nodegraph>
+  <nodegraph name="NG_randomvector_float_vector3" nodedef="ND_randomvector_float_vector3">
+    <separate3 name="N_separatemin" type="multioutput">
+      <input name="in" type="vector3" interfacename="min" />
+    </separate3>
+    <separate3 name="N_separatemax" type="multioutput">
+      <input name="in" type="vector3" interfacename="max" />
+    </separate3>
+    <randomfloat name="N_randomfloat1" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outx" />
+      <input name="max" type="float" nodename="N_separatemax" output="outx" />
+      <input name="seed" type="float" interfacename="seed" />
     </randomfloat>
-    <randomfloat name="N_randW" type="float">
-      <input name="in" type="float" nodename="N_addSeed" />
-      <input name="seed" type="float" value="524.97" />
+    <add name="N_seed1" type="float">
+      <input name="in1" type="float" value="3.7233" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <randomfloat name="N_randomfloat2" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outy" />
+      <input name="max" type="float" nodename="N_separatemax" output="outy" />
+      <input name="seed" type="float" nodename="N_seed1" />
     </randomfloat>
+    <add name="N_seed2" type="float">
+      <input name="in1" type="float" value="1.8516" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <randomfloat name="N_randomfloat3" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outz" />
+      <input name="max" type="float" nodename="N_separatemax" output="outz" />
+      <input name="seed" type="float" nodename="N_seed2" />
+    </randomfloat>
+    <combine3 name="N_makeVector" type="vector3">
+      <input name="in1" type="float" nodename="N_randomfloat1" />
+      <input name="in2" type="float" nodename="N_randomfloat2" />
+      <input name="in3" type="float" nodename="N_randomfloat3" />
+    </combine3>
+    <normalize name="N_normalize" type="vector3">
+      <input name="in" type="vector3" nodename="N_makeVector" />
+    </normalize>
+    <convert name="N_convertNormalizeParm" type="float">
+      <input name="in" type="boolean" interfacename="normalize" />
+    </convert>
+    <switch name="N_normalizeOutput" type="vector3">
+      <input name="in1" type="vector3" nodename="N_makeVector" />
+      <input name="in2" type="vector3" nodename="N_normalize" />
+      <input name="which" type="float" nodename="N_convertNormalizeParm" />
+    </switch>    
+    <output name="out" type="vector3" nodename="N_normalizeOutput" />
+  </nodegraph>
+  <nodegraph name="NG_randomvector_integer_vector3" nodedef="ND_randomvector_integer_vector3">
+    <separate3 name="N_separatemin" type="multioutput">
+      <input name="in" type="vector3" interfacename="min" />
+    </separate3>
+    <separate3 name="N_separatemax" type="multioutput">
+      <input name="in" type="vector3" interfacename="max" />
+    </separate3>
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <randomvector name="N_randomvector1" type="vector3">
+      <input name="in" type="float" nodename="N_convert1" />
+      <input name="min" type="vector3" interfacename="min" />
+      <input name="max" type="vector3" interfacename="max" />
+      <input name="seed" type="float" interfacename="seed" />
+      <input name="normalize" type="boolean" interfacename="normalize" />
+    </randomvector>
+    <output name="out" type="vector3" nodename="N_randomvector1" />
+  </nodegraph>
+  <nodegraph name="NG_randomvector_float_vector4" nodedef="ND_randomvector_float_vector4">
+    <separate4 name="N_separatemin" type="multioutput">
+      <input name="in" type="vector4" interfacename="min" />
+    </separate4>
+    <separate4 name="N_separatemax" type="multioutput">
+      <input name="in" type="vector4" interfacename="max" />
+    </separate4>
+    <randomfloat name="N_randomfloat1" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outx" />
+      <input name="max" type="float" nodename="N_separatemax" output="outx" />
+      <input name="seed" type="float" interfacename="seed" />
+    </randomfloat>
+    <add name="N_seed1" type="float">
+      <input name="in1" type="float" value="7.10438" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <randomfloat name="N_randomfloat2" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outy" />
+      <input name="max" type="float" nodename="N_separatemax" output="outy" />
+      <input name="seed" type="float" nodename="N_seed1" />
+    </randomfloat>
+    <add name="N_seed2" type="float">
+      <input name="in1" type="float" value="2.95425" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <randomfloat name="N_randomfloat3" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outz" />
+      <input name="max" type="float" nodename="N_separatemax" output="outz" />
+      <input name="seed" type="float" nodename="N_seed2" />
+    </randomfloat>
+    <add name="N_seed3" type="float">
+      <input name="in1" type="float" value="6.26189" />
+      <input name="in2" type="float" interfacename="seed" />
+    </add>
+    <randomfloat name="N_randomfloat4" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="min" type="float" nodename="N_separatemin" output="outw" />
+      <input name="max" type="float" nodename="N_separatemax" output="outw" />
+      <input name="seed" type="float" nodename="N_seed3" />
+    </randomfloat>
+    <combine4 name="N_makeVector" type="vector4">
+      <input name="in1" type="float" nodename="N_randomfloat1" />
+      <input name="in2" type="float" nodename="N_randomfloat2" />
+      <input name="in3" type="float" nodename="N_randomfloat3" />
+      <input name="in4" type="float" nodename="N_randomfloat4" />
+    </combine4>
     <normalize name="N_normalize" type="vector4">
-      <input name="in" type="vector4" nodename="N_range" />
+      <input name="in" type="vector4" nodename="N_makeVector" />
     </normalize>
     <convert name="N_convertNormalizeParm" type="float">
       <input name="in" type="boolean" interfacename="normalize" />
     </convert>
     <switch name="N_normalizeOutput" type="vector4">
-      <input name="in1" type="vector4" nodename="N_range" />
+      <input name="in1" type="vector4" nodename="N_makeVector" />
       <input name="in2" type="vector4" nodename="N_normalize" />
       <input name="which" type="float" nodename="N_convertNormalizeParm" />
-    </switch>
+    </switch>    
     <output name="out" type="vector4" nodename="N_normalizeOutput" />
+  </nodegraph>
+  <nodegraph name="NG_randomvector_integer_vector4" nodedef="ND_randomvector_integer_vector4">
+    <separate4 name="N_separatemin" type="multioutput">
+      <input name="in" type="vector4" interfacename="min" />
+    </separate4>
+    <separate4 name="N_separatemax" type="multioutput">
+      <input name="in" type="vector4" interfacename="max" />
+    </separate4>
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <randomvector name="N_randomvector1" type="vector4">
+      <input name="in" type="float" nodename="N_convert1" />
+      <input name="min" type="vector4" interfacename="min" />
+      <input name="max" type="vector4" interfacename="max" />
+      <input name="seed" type="float" interfacename="seed" />
+      <input name="normalize" type="boolean" interfacename="normalize" />
+    </randomvector>
+    <output name="out" type="vector4" nodename="N_randomvector1" />
   </nodegraph>
 
   <!--

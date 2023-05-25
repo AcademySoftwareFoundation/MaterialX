@@ -1095,14 +1095,6 @@
     <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
     <output name="out" type="vector4" />
   </nodedef>
-  <nodedef name="ND_randomvector_vector4_vector4" node="randomvector" nodegroup="procedural">
-    <input name="in" type="vector4" uiname="Input" value="0.0, 0.0, 0.0, 0.0" doc="Initial randomization seed." />
-    <input name="min" type="vector4" uiname="Minimum" value="0.0, 0.0, 0.0, 0.0" doc="The minimum output value." />
-    <input name="max" type="vector4" uiname="Maximum" value="1.0, 1.0, 1.0, 1.0" doc="The maximum output value." />
-    <input name="seed" type="float" uiname="Seed" value="0.0" doc="Additional seed offset." />
-    <input name="normalize" type="boolean" uiname="Normalize" value="false" doc="Normalize the output vector." />
-    <output name="out" type="vector4" />
-  </nodedef>
 
   <!--
     Node: <randomcolor>
