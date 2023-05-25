@@ -1189,13 +1189,13 @@
     <output name="out" type="float" nodename="N_cellnoise_1" />
   </nodegraph>
   <nodegraph name="NG_randomfloat_integer" nodedef="ND_randomfloat_integer">
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
     <randomfloat name="N_randomfloat1" type="float">
       <input name="in" type="float" nodename="N_convert1" />
       <input name="seed" type="float" interfacename="seed" />
     </randomfloat>
-    <convert name="N_convert1" type="float">
-      <input name="in" type="integer" interfacename="in" />
-    </convert>
     <output name="out" type="float" nodename="N_randomfloat1" />
   </nodegraph>
 
