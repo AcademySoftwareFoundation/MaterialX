@@ -147,13 +147,13 @@
     <standard_surface name="color_srgb_displayp3_standard_surface5" type="surfaceshader">
       <input name="base_color" type="color3" nodename="color_srgb_displayp3" channels="rgb" />
     </standard_surface>
-    <output name="color_srgb_displayp3_output" type="surfaceshader" nodename="color_srgb_displayp3_standard_surface9" />
+    <output name="color_srgb_displayp3_output" type="surfaceshader" nodename="color_srgb_displayp3_standard_surface5" />
     <constant name="color_lin_displayp3" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_displayp3" />
     </constant>
     <standard_surface name="color_lin_displayp3_standard_surface5" type="surfaceshader">
       <input name="base_color" type="color3" nodename="color_lin_displayp3" channels="rgb" />
     </standard_surface>
-    <output name="color_lin_displayp3_output" type="surfaceshader" nodename="color_lin_displayp3_standard_surface9" />
+    <output name="color_lin_displayp3_output" type="surfaceshader" nodename="color_lin_displayp3_standard_surface5" />
   </nodegraph>
 </materialx>
