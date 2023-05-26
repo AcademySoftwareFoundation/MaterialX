@@ -312,7 +312,7 @@
     <convert name="asColor" type="color3">
       <input name="in" type="vector3" nodename="transform" />
     </convert>
-    <output name="out" type="color3" nodename="transform" />
+    <output name="out" type="color3" nodename="asColor" />
   </nodegraph>
 
   <nodegraph name="NG_srgb_displayp3_to_lin_rec709_color4" nodedef="ND_srgb_displayp3_to_lin_rec709_color4">
