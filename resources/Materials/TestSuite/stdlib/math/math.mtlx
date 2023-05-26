@@ -108,15 +108,6 @@
     </constant>
     <output name="out" type="vector4" nodename="sqrt1" />
   </nodegraph>
-  <nodegraph name="ceil_float_nodegraph">
-    <ceil name="ceil1" type="float">
-      <input name="in" type="float" nodename="constant1" />
-    </ceil>
-    <constant name="constant1" type="float">
-      <input name="value" type="float" value="0.5000" />
-    </constant>
-    <output name="out" type="float" nodename="ceil1" />
-  </nodegraph>
   <nodegraph name="floor_float_nodegraph">
     <floor name="floor1" type="float">
       <input name="in" type="float" nodename="constant1" />
@@ -125,6 +116,69 @@
       <input name="value" type="float" value="0.5000" />
     </constant>
     <output name="out" type="float" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_vector2_nodegraph">
+    <floor name="floor1" type="vector2">
+      <input name="in" type="vector2" nodename="constant1" />
+    </floor>
+    <constant name="constant1" type="vector2">
+      <input name="value" type="vector2" value="0.5000, 1.5000" />
+    </constant>
+    <output name="out" type="vector2" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_vector3_nodegraph">
+    <floor name="floor1" type="vector3">
+      <input name="in" type="vector3" nodename="constant1" />
+    </floor>
+    <constant name="constant1" type="vector3">
+      <input name="value" type="vector3" value="0.5000, 1.5000, 0.0" />
+    </constant>
+    <output name="out" type="vector3" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_vector4_nodegraph">
+    <floor name="floor1" type="vector4">
+      <input name="in" type="vector4" nodename="constant1" />
+    </floor>
+    <constant name="constant1" type="vector4">
+      <input name="value" type="vector4" value="0.5000, 1.5000, 0.0, 1.0" />
+    </constant>
+    <output name="out" type="vector4" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_color3_nodegraph">
+    <constant name="constant1" type="color3">
+      <input name="value" type="color3" value="0.5000, 1.5000, 0.0" />
+    </constant>
+    <floor name="floor1" type="color3">
+      <input name="in" type="color3" nodename="constant1" />
+    </floor>
+    <output name="out" type="color3" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_color4_nodegraph">
+    <constant name="constant1" type="color4">
+      <input name="value" type="color4" value="0.5000, 1.5000, 0.0, 1.0" />
+    </constant>
+    <floor name="floor1" type="color4">
+      <input name="in" type="color4" nodename="constant1" />
+    </floor>
+    <output name="out" type="color4" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="floor_integer_nodegraph">
+    <floor name="floor1" type="integer">
+      <input name="in" type="float" nodename="constant1" />
+    </floor>
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <output name="out" type="integer" nodename="floor1" />
+  </nodegraph>
+  <nodegraph name="ceil_float_nodegraph">
+    <ceil name="ceil1" type="float">
+      <input name="in" type="float" nodename="constant1" />
+    </ceil>
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <output name="out" type="float" nodename="ceil1" />
   </nodegraph>
   <nodegraph name="ceil_vector2_nodegraph">
     <ceil name="ceil1" type="vector2">
@@ -171,50 +225,14 @@
     </ceil>
     <output name="out" type="color4" nodename="ceil1" />
   </nodegraph>
-  <nodegraph name="floor_vector2_nodegraph">
-    <floor name="floor1" type="vector2">
-      <input name="in" type="vector2" nodename="constant1" />
-    </floor>
-    <constant name="constant1" type="vector2">
-      <input name="value" type="vector2" value="0.5000, 1.5000" />
+  <nodegraph name="ceil_integer_nodegraph">
+    <ceil name="ceil1" type="integer">
+      <input name="in" type="float" nodename="constant1" />
+    </ceil>
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="0.5000" />
     </constant>
-    <output name="out" type="vector2" nodename="floor1" />
-  </nodegraph>
-  <nodegraph name="floor_vector3_nodegraph">
-    <floor name="floor1" type="vector3">
-      <input name="in" type="vector3" nodename="constant1" />
-    </floor>
-    <constant name="constant1" type="vector3">
-      <input name="value" type="vector3" value="0.5000, 1.5000, 0.0" />
-    </constant>
-    <output name="out" type="vector3" nodename="floor1" />
-  </nodegraph>
-  <nodegraph name="floor_vector4_nodegraph">
-    <floor name="floor1" type="vector4">
-      <input name="in" type="vector4" nodename="constant1" />
-    </floor>
-    <constant name="constant1" type="vector4">
-      <input name="value" type="vector4" value="0.5000, 1.5000, 0.0, 1.0" />
-    </constant>
-    <output name="out" type="vector4" nodename="floor1" />
-  </nodegraph>
-  <nodegraph name="floor_color3_nodegraph">
-    <constant name="constant1" type="color3">
-      <input name="value" type="color3" value="0.5000, 1.5000, 0.0" />
-    </constant>
-    <floor name="floor1" type="color3">
-      <input name="in" type="color3" nodename="constant1" />
-    </floor>
-    <output name="out" type="color3" nodename="floor1" />
-  </nodegraph>
-  <nodegraph name="floor_color4_nodegraph">
-    <constant name="constant1" type="color4">
-      <input name="value" type="color4" value="0.5000, 1.5000, 0.0, 1.0" />
-    </constant>
-    <floor name="floor1" type="color4">
-      <input name="in" type="color4" nodename="constant1" />
-    </floor>
-    <output name="out" type="color4" nodename="floor1" />
+    <output name="out" type="integer" nodename="ceil1" />
   </nodegraph>
   <nodegraph name="sign_float">
     <constant name="constant1" type="float">
