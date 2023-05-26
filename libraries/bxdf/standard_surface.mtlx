@@ -399,7 +399,7 @@
     </multiply>
     <generalized_schlick_edf name="coat_emission_edf" type="EDF">
       <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="color90" type="color3" nodename="coat_ior_to_F0" channels="rrr"/>
+      <input name="color90" type="color3" nodename="coat_ior_to_F0" channels="rrr" />
       <input name="exponent" type="float" value="5.0" />
       <input name="base" type="EDF" nodename="coat_tinted_emission_edf" />
     </generalized_schlick_edf>

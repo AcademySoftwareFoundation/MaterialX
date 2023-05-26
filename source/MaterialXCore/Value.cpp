@@ -84,10 +84,13 @@ template <class T> void stringToData(const string& str, enable_if_mx_matrix_t<T>
 
 template <class T> void stringToData(const string& str, enable_if_std_vector_t<T>& data)
 {
-    for (const string& token : splitString(str, ARRAY_VALID_SEPARATORS))
+    // This code path parses an array of arbitrary substrings, so we split the string
+    // in a fashion that preserves substrings with internal spaces.
+    const string COMMA_SEPARATOR = ",";
+    for (const string& token : splitString(str, COMMA_SEPARATOR))
     {
         typename T::value_type val;
-        stringToData(token, val);
+        stringToData(trimSpaces(token), val);
         data.push_back(val);
     }
 }

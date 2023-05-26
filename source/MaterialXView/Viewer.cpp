@@ -920,10 +920,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
 #if MATERIALX_BUILD_GEN_MDL
         _genContextMdl.getOptions().targetDistanceUnit = _distanceUnitOptions[index];
 #endif
-        for (mx::MaterialPtr material : _materials)
-        {
-            material->bindUnits(_unitRegistry, _genContext);
-        }
+        reloadShaders();
         m_process_events = true;
     });
 

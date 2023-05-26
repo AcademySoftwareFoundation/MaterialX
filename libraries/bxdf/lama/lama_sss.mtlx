@@ -9,7 +9,7 @@
            doc="Diffuse Mean Free Path, expressed for each color channel in mm. Indicates on average how much the light travels under the surface before being scattered. The higher the value, the softer the result will be. If null, the computation simplifies to a Lambertian lobe." />
     <input name="sssScale" type="float" value="1.0" uiname="Scale" uifolder="SSS"
            doc="Multiplies the radius, to adjust its scale to the scene at hand. If null, the computation simplifies to a Lambertian lobe." />
-    <input name="sssMode" type="integer" enum="Path-traced Davis,Path-traced exponential,Diffusion Burley,Diffusion Burley (mean free path)" enumvalues="0,1,2,3" value="0" uiname="Mode" uifolder="Main"
+    <input name="sssMode" type="integer" uniform="true" enum="Path-traced Davis,Path-traced exponential,Diffusion Burley,Diffusion Burley (mean free path)" enumvalues="0,1,2,3" value="0" uiname="Mode" uifolder="Main"
            doc="Selects what method should be used to compute sub-surface scattering. Proposes two path-traced variants, and a more traditional approximate diffusion model." />
     <input name="sssIOR" type="float" value="1.0" uimin="1.0" uimax="2.0" uiname="IOR" uifolder="SSS"
            doc="Index of refraction use to trigger cases of total internal reflections, when the paths are reaching the surface after having travelled under it. Can be used to avoid excessive glow in highly curved regions (corners, creases, ...)." />
@@ -25,7 +25,7 @@
            doc="When enabled, ignores internal geometry and jumps to the last surface." />
     <input name="sssUnitLength" type="float" value="0.00328" uiname="Unit Length" uifolder="SSS"
            doc="Specifies what unit length the scene is using. It is a multiplier on the mean free path or diffuse mean free path which is expressed in mm. The default value of 0.00328 converts between feet and mm." />
-    <input name="mode" type="integer" enum="Reflection,Transmission,Reflection(with direct illumination)" enumvalues="0,1,2" value="0" uiname="Mode" uifolder="Advanced"
+    <input name="mode" type="integer" uniform="true" enum="Reflection,Transmission,Reflection(with direct illumination)" enumvalues="0,1,2" value="0" uiname="Mode" uifolder="Advanced"
            doc="If the subsurface is enabled, Reflection: should be used when both the camera and the light are outside of the object. Reflection(with direct illumination): should be used when both the camera and the light are outside of the object. This mode also computes the direct illumination at the sss ray exit point. Transmission: should be used when the light is inside the object while the camera is outside. " />
     <input name="albedoInversionMethod" type="integer" enum="Pixar,Chiang" enumvalues="0,1" value="0" uiname="Albedo Inversion Method" uifolder="Advanced"
            doc="Decides which albedo inversion methods is used. Pixar: Does the Pixar Path Traced SSS default albedo inversion. Chiang: Does Chiang's albedo inversion (with no dmfp remapping). The look is closer to Arnold Standard Surface randomwalk." />
