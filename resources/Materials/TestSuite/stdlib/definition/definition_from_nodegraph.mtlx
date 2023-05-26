@@ -23,7 +23,7 @@
     <constant name="inputAlpha" type="float">
       <input name="value" type="float" value="1" />
     </constant>
-    <output name="out" type="color3" nodename="ColorOffset" xpos="-3.347826" ypos="-0.655172" />
-    <output name="out1" type="float" nodename="AlphaOffset" xpos="-3.347826" ypos="0.672414" />
+    <output name="out" type="color3" nodename="ColorOffset" />
+    <output name="out1" type="float" nodename="AlphaOffset" />
   </nodegraph>
 </materialx>
