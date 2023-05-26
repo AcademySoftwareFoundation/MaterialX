@@ -74,7 +74,7 @@
     <image name="image_lin_displayp3" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_displayp3" />
     </image>
-    <standard_surface name="image_lin_displayp3_standard_surface9" type="surfaceshader">
+    <standard_surface name="image_lin_displayp3_standard_surface10" type="surfaceshader">
       <input name="base_color" type="color3" nodename="image_lin_displayp3" />
     </standard_surface>
     <output name="image_lin_displayp3_output" type="surfaceshader" nodename="image_lin_displayp3_standard_surface10" />
