@@ -11,6 +11,8 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Types.h>
 
+#include <MaterialXFormat/Util.h>
+
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
 #endif
@@ -82,7 +84,8 @@ struct GeomHandlerTestOptions
 
 void testGeomHandler(GeomHandlerTestOptions& options)
 {
-    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath imagePath = searchPath.find("resources/Geometry/");
     mx::FilePathVec files;
 
     unsigned int loadFailed = 0;
@@ -156,7 +159,8 @@ struct ImageHandlerTestOptions
 
 void testImageHandler(ImageHandlerTestOptions& options)
 {
-    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Images/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath imagePath = searchPath.find("resources/Images/");
     mx::FilePathVec files;
 
     unsigned int loadFailed = 0;
