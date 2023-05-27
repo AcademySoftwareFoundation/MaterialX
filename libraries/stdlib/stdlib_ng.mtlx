@@ -1347,7 +1347,7 @@
       <input name="in2" type="float" nodename="N_mtlxmultiply" />
     </modulo>
     <absval name="N_mtlxabsval" type="float">
-      <input name="in" type="float" interfacename="input" />
+      <input name="in" type="float" interfacename="in" />
     </absval>
     <multiply name="N_mtlxmultiply" type="float">
       <input name="in1" type="float" interfacename="scale" />
