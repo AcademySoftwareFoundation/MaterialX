@@ -2500,7 +2500,7 @@
   -->
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" value="0" />
-    <input name="scale" type="float" value="1.0" />
+    <input name="amplitude" type="float" value="1.0" />
     <output name="out" type="float" />
   </nodedef>
 

@@ -1332,7 +1332,7 @@
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <subtract name="N_mtlxsubtract1" type="float">
-      <input name="in1" type="float" interfacename="scale" />
+      <input name="in1" type="float" interfacename="amplitude" />
       <input name="in2" type="float" nodename="N_mtlxabsval1" />
     </subtract>
     <absval name="N_mtlxabsval1" type="float">
@@ -1340,7 +1340,7 @@
     </absval>
     <subtract name="N_mtlxsubtract" type="float">
       <input name="in1" type="float" nodename="N_mtlxmodulo" />
-      <input name="in2" type="float" interfacename="scale" />
+      <input name="in2" type="float" interfacename="amplitude" />
     </subtract>
     <modulo name="N_mtlxmodulo" type="float">
       <input name="in1" type="float" nodename="N_mtlxabsval" />
@@ -1350,7 +1350,7 @@
       <input name="in" type="float" interfacename="in" />
     </absval>
     <multiply name="N_mtlxmultiply" type="float">
-      <input name="in1" type="float" interfacename="scale" />
+      <input name="in1" type="float" interfacename="amplitude" />
       <input name="in2" type="float" value="2" />
     </multiply>
     <output name="out" type="float" nodename="N_mtlxsubtract1" />
