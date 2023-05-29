@@ -618,12 +618,13 @@ Attributes for Output elements:
 * `nodename` (string, optional): the name of a node at the same scope within the document, whose result value will be output.  This attribute is required for &lt;output> elements within a node graph, but is not allowed in &lt;output> elements within a &lt;nodedef>.
 * `output` (string, optional): if the node specified by `nodename` has multiple outputs, the name of the specific output to connect this &lt;output> to.
 * `uniform` (boolean, optional): If set to "true", then the output of this node is treated as a uniform value, and this output may be connected to a uniform input of the same (or compatible) type.  It is up to the application creating the nodegraph to ensure that the value actually is uniform.  Default is "false".
+
+MaterialX also supports the following additional attributes for Output elements in applications which process node graphs in 2D space and save or cache outputs as images for efficiency, such as texture baking or image caching.  These attributes do **not** affect values from this <output> connected to other nodes, e.g. they would remain in the working colorspace and retain full resolution and bitdepth precision.
+
 * `colorspace` (string, optional): the name of the color space for the output image.  Applications that support color space management are expected to perform the required transformations of output colors into this space.
 * `width` (integer, optional): the expected width in pixels of the output image.
 * `height` (integer, optional): the expected height in pixels of the output image.
 * `bitdepth` (integer, optional): the expected per-channel bit depth of the output image, which may be used to capture expected color quantization effects.  Common values for `bitdepth` are 8, 16, 32, and 64.  It is up to the application to determine what the internal representation of any declared bit depth is (e.g. scaling factor, signed or unsigned, etc.).
-
-The `colorspace`, `width`, `height` and `bitdepth` attributes are intended to be used in applications which process node graphs in 2D space and save or cache outputs as images for efficiency.
 
 
 
@@ -744,6 +745,15 @@ Standard Procedural nodes:
     * `valueb` (float or color<em>N</em> or vector<em>N</em>): the value at the bottom (V=0) edge
     * `center` (float): a value representing the V-coordinate of the split; all pixels above "center" will be `valuet`, all pixels below "center" will be `valueb`.  Default is 0.5.
     * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the split position is evaluated.  Default is to use the first set of texture coordinates.
+
+<a id="node-checkerboard"> </a>
+
+* **`checkerboard`**: a 2D checkerboard pattern.
+    * `color1` (color3): The first color used in the checkerboard pattern.
+    * `color2` (color3): The second color used in the checkerboard pattern.
+    * `freq` (vector2): The frequency of checkers, with higher values producing smaller squares. Default is (8, 8).
+    * `offset` (vector2): Shift the pattern in 2d space. Default is (0, 0).
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
 
 <a id="node-noise2d"> </a>
 
@@ -1131,6 +1141,13 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`magnitude`**: output the float magnitude (vector length) of the incoming vector<em>N</em> stream; cannot be used on float or color<em>N</em> streams.  Note: the fourth channel in vector4 streams is not treated any differently, e.g. not as a homogeneous "w" value.
     * `in` (vector<em>N</em>): the input value or nodename
 
+
+<a id="node-distance"> </a>
+
+* **`distance`**: Measures the distance between two points in 2D, 3D, or 4D.
+    * `in1` (vector<em>N</em>): the first input value or nodename
+    * `in2` (same type as `in1`): the second input value or nodename
+
 <a id="node-dotproduct"> </a>
 
 * **`dotproduct`**: output the (float) dot product of two incoming vector<em>N</em> streams; cannot be used on float or color<em>N</em> streams.
@@ -1437,7 +1454,7 @@ Channel nodes are used to perform channel manipulations and data type conversion
 <a id="node-combine3"> </a>
 <a id="node-combine4"> </a>
 
-* **`combine2`**, **`combine3`**, **`combine4`**: combine the channels from two, three or four streams into the same total number of channels of a single output stream of a specified compatible type; please see the table below for a list of all supported combinations of input and output types.  For color output types, no colorspace conversion will take place; the channels are simply copied as-is.
+* **`combine2`**, **`combine3`**, **`combine4`**: combine the channels from two, three or four streams into the same total number of channels of a single output stream of a specified compatible type; please see the table below for a list of all supported combinations of input and output types.  For colorN output types, no colorspace conversion will take place; the channels are simply copied as-is.
     * `in1` (float/color3/vector2/vector3): the input value or nodename which will be sent to the N channels of the output; default is 0.0 in all channels
     * `in2` (float/vector2): the input value or nodename which will be sent to the next N channels of the output; default is 0.0 in all channels
     * `in3` (float): for **`combine3`** or **`combine4`**, the input value or nodename which will be sent to the next channel of the output after `in2`; default is 0.0
