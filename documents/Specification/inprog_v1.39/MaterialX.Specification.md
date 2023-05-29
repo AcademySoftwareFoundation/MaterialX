@@ -1030,17 +1030,17 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-floor"> </a>
 
-* **`floor`**: the per-channel nearest integer value less than or equal to the incoming float/color/vector; the output remains in floating point per-channel, i.e. the same type as the input.
+* **`floor`**: the per-channel nearest integer value less than or equal to the incoming float/color/vector.  The output remains in floating point per-channel, i.e. the same type as the input, except that the floor(float) also has a variant outputting an integer type.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
 
 <a id="node-ceil"> </a>
 
-* **`ceil`**: the per-channel nearest integer value greater than or equal to the incoming float/color/vector; the output remains in floating point per-channel, i.e. the same type as the input.
+* **`ceil`**: the per-channel nearest integer value greater than or equal to the incoming float/color/vector.  The output remains in floating point per-channel, i.e. the same type as the input, except that the ceil(float) also has a variant outputting an integer type.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
 
 <a id="node-round"> </a>
 
-* **`round`**: round each channel of the incoming float/color/vector values to the nearest integer value, e.g "floor(in+0.5)".
+* **`round`**: round each channel of the incoming float/color/vector values to the nearest integer value, e.g "floor(in+0.5)"; the round(float) also has a variant outputting an integer type.
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
 
 <a id="node-power"> </a>
