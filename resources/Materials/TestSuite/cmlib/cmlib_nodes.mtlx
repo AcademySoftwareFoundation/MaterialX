@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <!-- Color management node instance test. One of each transform is instiated and then connected to a downsteam material -->
+  <!-- Color management node instance test. One of each transform is created and then connected to a downsteam material -->
 
   <acescg_to_lin_rec709 name="acescg_to_lin_rec709_color3" type="color3">
     <input name="in" type="color3" value="0.7,0.2, 0.1" />
