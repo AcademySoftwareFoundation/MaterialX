@@ -2496,7 +2496,7 @@
 
   <!--
     Node: <trianglewave>
-    Moving between 0.0 and the Scale based on the input value.
+    Moving between 0.0 and the amplitude based on the input value.
   -->
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" value="0" />
