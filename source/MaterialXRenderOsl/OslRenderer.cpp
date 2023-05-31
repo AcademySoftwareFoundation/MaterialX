@@ -143,6 +143,12 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
                                    " does not include proper tokens for rendering");
     }
 
+    // Set the working directory for rendering.
+    FileSearchPath searchPath = getDefaultDataSearchPath();
+    FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
+    FilePath origWorkingPath = FilePath::getCurrentPath();
+    rootPath.setCurrentPath();
+
     // Write scene file
     const string sceneFileName("scene_template.xml");
     std::ofstream shaderFileStream;
@@ -177,6 +183,9 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
             break;
         }
     }
+
+    // Restore the working directory after rendering.
+    origWorkingPath.setCurrentPath();
 
     // Report errors on a non-zero return value.
     if (returnValue)

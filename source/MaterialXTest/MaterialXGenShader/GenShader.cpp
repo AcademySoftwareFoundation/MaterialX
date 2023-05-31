@@ -58,11 +58,9 @@ TEST_CASE("GenShader: Utilities", "[genshader]")
 
 TEST_CASE("GenShader: Valid Libraries", "[genshader]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-
-    mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath());
-    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
+    loadLibraries({ "libraries" }, searchPath, doc);
 
     std::string validationErrors;
     bool valid = doc->validate(&validationErrors);
@@ -109,11 +107,10 @@ TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 
 TEST_CASE("GenShader: Shader Translation", "[translate]")
 {
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath);
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
 
-    mx::FilePath testPath = currentPath / mx::FilePath("resources/Materials/Examples/StandardSurface");
+    mx::FilePath testPath = searchPath.find("resources/Materials/Examples/StandardSurface");
     for (mx::FilePath& mtlxFile : testPath.getFilesInDirectory(mx::MTLX_EXTENSION))
     {
         mx::DocumentPtr doc = mx::createDocument();
@@ -147,12 +144,11 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
 
 TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath);
     mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
-    const mx::FilePath resourcePath(currentPath / "resources");
+    const mx::FilePath resourcePath = searchPath.find("resources");
     mx::StringVec failedTests;
     mx::FilePathVec testFiles = { 
         "Materials/Examples/StandardSurface/standard_surface_default.mtlx", 
@@ -200,8 +196,9 @@ TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 
 void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& context)
 {
-    const mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
-    const mx::string testElement = "SR_marble1";
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath testFile = searchPath.find("resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx");
+    mx::string testElement = "SR_marble1";
 
     const size_t numRuns = 10;
     mx::vector<mx::DocumentPtr> testDocs(numRuns);
@@ -234,9 +231,9 @@ void testDeterministicGeneration(mx::DocumentPtr libraries, mx::GenContext& cont
 
 TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
-    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
@@ -270,8 +267,9 @@ TEST_CASE("GenShader: Deterministic Generation", "[genshader]")
 
 void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
 {
-    const mx::FilePath testFile = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/GltfPbr/gltf_pbr_boombox.mtlx");
-    const mx::string testElement = "Material_boombox";
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath testFile = searchPath.find("resources/Materials/Examples/GltfPbr/gltf_pbr_boombox.mtlx");
+    mx::string testElement = "Material_boombox";
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlFile(testDoc, testFile);
@@ -290,9 +288,9 @@ void checkPixelDependencies(mx::DocumentPtr libraries, mx::GenContext& context)
 
 TEST_CASE("GenShader: Track Dependencies", "[genshader]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
-    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
 #ifdef MATERIALX_BUILD_GEN_GLSL
     {
@@ -382,9 +380,9 @@ TEST_CASE("GenShader: Track Application Variables", "[genshader]")
 
     const mx::string testElement = "surfacematerial";
 
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr libraries = mx::createDocument();
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
-    mx::loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, libraries);
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
 
     mx::DocumentPtr testDoc = mx::createDocument();
     mx::readFromXmlString(testDoc, testDocumentString);
