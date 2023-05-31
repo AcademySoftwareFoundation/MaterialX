@@ -8,13 +8,12 @@ void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
     float xc, yc;
     float t, t2, t3, xc2, xc3;
 
+    // if value outside valid range of approximation clamp to accepted temperature range
+    temperatureKelvin = clamp(temperatureKelvin, 1667.0, 25000.0);
+
     t = 1000.0 / temperatureKelvin;
     t2 = t * t;
     t3 = t * t * t;
-
-    // if value outside valid range of approximation clamp to accepted temperature range
-    clamp(temperatureKelvin, 1667.0, 25000.0);
-
 
     // Cubic spline approximation for Kelvin temperature to sRGB conversion
     // (https://en.wikipedia.org/wiki/Planckian_locus#Approximation)
