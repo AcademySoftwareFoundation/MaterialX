@@ -1328,16 +1328,16 @@
   
   <!--
     Node: <trianglewave>
-    Moving between 0.0 and the Scale based on the input value.
+    Moving between 0.0 and the amplitude based on the input value.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
+    <absval name="N_mtlxabsval" type="float">
+      <input name="in" type="float" interfacename="in" />
+    </absval>
     <multiply name="N_mtlxmultiply" type="float">
       <input name="in1" type="float" interfacename="amplitude" />
       <input name="in2" type="float" value="2" />
     </multiply>
-    <absval name="N_mtlxabsval" type="float">
-      <input name="in" type="float" interfacename="in" />
-    </absval>
     <modulo name="N_mtlxmodulo" type="float">
       <input name="in1" type="float" nodename="N_mtlxabsval" />
       <input name="in2" type="float" nodename="N_mtlxmultiply" />
