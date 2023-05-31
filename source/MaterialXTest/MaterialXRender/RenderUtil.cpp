@@ -132,22 +132,20 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
         testfileOverride.insert(filterFile);
     }
 
+    // Data search path
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
     mx::ScopedTimer ioTimer(&profileTimes.ioTime);
     mx::FilePathVec dirs;
     for (const auto& root : options.renderTestPaths)
     {
-        mx::FilePathVec testRootDirs = root.getSubDirectories();
+        mx::FilePathVec testRootDirs = searchPath.find(root).getSubDirectories();
         dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
     }
     ioTimer.endTimer();
 
     // Add files to skip
     addSkipFiles();
-
-    // Library search path
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath;
-    searchPath.append(currentPath);
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -177,8 +175,8 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     _shaderGenerator->getUnitSystem()->setUnitConverterRegistry(registry);
 
     mx::GenContext context(_shaderGenerator);
-    context.registerSourceCodeSearchPath(currentPath);
-    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
+    context.registerSourceCodeSearchPath(searchPath);
+    context.registerSourceCodeSearchPath(searchPath.find("libraries/stdlib/genosl/include"));
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
