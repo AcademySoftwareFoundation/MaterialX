@@ -64,7 +64,6 @@ This document describes the core MaterialX specification.  Companion documents [
   [Conditional Nodes](#conditional-nodes)  
   [Channel Nodes](#channel-nodes)  
   [Convolution Nodes](#convolution-nodes)  
-  [Shader Nodes](#shader-nodes)  
 
  [Standard Node Inputs](#standard-node-inputs)  
  [Standard UI Attributes](#standard-ui-attributes)  
@@ -90,7 +89,7 @@ This document describes the core MaterialX specification.  Companion documents [
    [Example Custom Node Defined by a Nodegraph](#example-custom-node-defined-by-a-nodegraph)  
   [Custom Node Use](#custom-node-use)  
  [Shader Nodes](#shader-nodes)  
-  [Standard Shader-Semantic Operator Nodes](#standard-shader-semantic-operator-nodes)  
+  [Standard Library Shader Nodes](#standard-library-shader-nodes)  
   [AOV Output Elements](#aov-output-elements)   
    [AOVOutput Example](#aovoutput-example)   
  [Material Nodes](#material-nodes)  
@@ -897,6 +896,8 @@ Standard Geometric nodes:
     * `geomprop` (uniform string): the geometric property to be referenced.
     * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
+Additionally, the `geomcolor`, `geompropvalue` and `geompropvalueuniform` nodes for color3/color4-type properties can take a `colorspace` attribute to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
+
 
 <a id="space-values"> </a>
 
@@ -979,7 +980,7 @@ Operator nodes process one or more required input streams to form an output.  Li
 
 The inputs of compositing operators are called "fg" and "bg" (plus "alpha" for float and color3 variants, and "mix" for all variants of the `mix` operator), while the inputs of other operators are called "in" if there is exactly one input, or "in1", "in2" etc. if there are more than one input.  If an implementation does not support a particular operator, it should pass through the "bg", "in" or "in1" input unchanged.
 
-This section defines the Operator Nodes that all MaterialX implementations are expected to support.  Standard Operator Nodes are grouped into the following classifications: [Math Nodes](#math-nodes), [Adjustment Nodes](#adjustment-nodes), [Compositing Nodes](#compositing-nodes), [Conditional Nodes](#conditional-nodes), [Channel Nodes](#channel-nodes), [Convolution Nodes](#convolution-nodes) and [Shader Nodes](#shader-nodes).
+This section defines the Operator Nodes that all MaterialX implementations are expected to support.  Standard Operator Nodes are grouped into the following classifications: [Math Nodes](#math-nodes), [Adjustment Nodes](#adjustment-nodes), [Compositing Nodes](#compositing-nodes), [Conditional Nodes](#conditional-nodes), [Channel Nodes](#channel-nodes) and [Convolution Nodes](#convolution-nodes).
 
 
 
@@ -990,7 +991,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-add"> </a>
 
-* **`add`**: add a value to the incoming float/color/vector/matrix.  See also the [Shader Nodes](#shader-nodes) section below for additional `add` variants supporting shader-semantic types.
+* **`add`**: add a value to the incoming float/color/vector/matrix.
     * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to add; for matrix types, the default is the zero matrix.
 
@@ -1002,7 +1003,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-multiply"> </a>
 
-* **`multiply`**: multiply an incoming float/color/vector/matrix by a value.  Multiplication of two vectors is interpreted as a component-wise vector multiplication, while multiplication of two matrices is interpreted as a standard matrix product.  To multiply a vector and a matrix, use one of the `transform*` nodes.  See also the [Shader Nodes](#shader-nodes) section below for additional `multiply` variants supporting shader-semantic types.
+* **`multiply`**: multiply an incoming float/color/vector/matrix by a value.  Multiplication of two vectors is interpreted as a component-wise vector multiplication, while multiplication of two matrices is interpreted as a standard matrix product.  To multiply a vector and a matrix, use one of the `transform*` nodes.
     * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to multiply by; default is 1.0 in all channels for float/color/vector types, or the identity matrix for matrix types.
 
@@ -1381,7 +1382,7 @@ The Mix node takes two 1-4 channel inputs `fg` and `bg` plus a separate 1-channe
 | **`mix`** | Fm+B(1-m) |
 
 
-See also the [Shader Nodes](#shader-nodes) section below for additional `mix` operator variants supporting shader-semantic types.
+See also the [Standard Library Shader Nodes](#standard-library-shader-nodes) section below for additional `mix` operator variants supporting shader-semantic types.
 
 
 
@@ -1509,25 +1510,6 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
     * space (string): the space in which the output normal map vector should be; defaults to "tangent".
-
-
-
-### Shader Nodes
-
-Shader nodes construct a shader (a node with a shader semantic output type) from the specified inputs, which may then be connected to a material.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
-
-
-<a id="node-surface"> </a>
-
-* **`surface`**: Constructs a surface shader for an unlit surface with a plain unshaded color value. Useful for visualizing texture data or rendering non-PBR materials. Output type "surfaceshader".
-    * `color` (color3): Color value to display. Default is (0, 0, 0).
-    * `opacity` (float or color3): Cutout (float) or transmission (color3) opacity for the surface. Default is 1.0, representing a fully-opaque surface.
-
-<a id="node-displacement"> </a>
-
-* **`displacement`**: Constructs a displacement shader describing geometric modification to surfaces.  Output type "displacementshader".
-    * `displacement` (float or vector3): Scalar (along the surface normal direction) or vector displacement (in (dPdu, dPdv, N) tangent/normal space) for each position.  Default is 0.
-    * `scale` (float): Scale factor for the displacement vector.  Default is 1.0.
 
 
 
@@ -2187,14 +2169,11 @@ An input with a shader-semantic type may be given a value of "" to indicate no s
 
 
 
-### Standard Shader-Semantic Operator Nodes
+### Standard Library Shader Nodes
 
-The Standard MaterialX Library defines the following nodes and node variants operating on "shader"-semantic types.
+The Standard MaterialX Library defines the following nodes and node variants operating on "shader"-semantic types.  Standard library shaders do not respond to external illumination; please refer to the [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md#materialx-pbs-library) document for definitions of additional nodes and shader constructors which do respond to illumination.
 
-* **`mix`**: linear blend between two surface/displacement/volumeshader closures.
-    * `bg` (surface/displacement/volumeshader): the name of the background shader-semantic node
-    * `fg` (surface/displacement/volumeshader): the name of the foreground shader-semantic node
-    * `mix` (float): the blending factor used to mix the two input closures
+<a id="node-surfaceunlit"> </a>
 
 * **`surface_unlit`**: an unlit surface shader node, representing a surface that can emit and transmit light, but does not receive illumination from light sources or other surfaces.  Output type surfaceshader.
     * `emission` (float): the surface emission amount; default is 1.0
@@ -2202,6 +2181,20 @@ The Standard MaterialX Library defines the following nodes and node variants ope
     * `transmission` (float): the surface transmission amount; default is 0
     * `transmission_color` (color3): surface transmission color; default is (1, 1, 1)
     * `opacity` (float): surface cutout opacity; default is 1.0
+
+<a id="node-displacement"> </a>
+
+* **`displacement`**: Constructs a displacement shader describing geometric modification to surfaces.  Output type "displacementshader".
+    * `displacement` (float or vector3): Scalar (along the surface normal direction) or vector displacement (in (dPdu, dPdv, N) tangent/normal space) for each position.  Default is 0.
+    * `scale` (float): Scale factor for the displacement vector.  Default is 1.0.
+
+<a id="node-mix-shader"> </a>
+
+* **`mix`**: linear blend between two surface/displacement/volumeshader closures.
+    * `bg` (surface/displacement/volumeshader): the name of the background shader-semantic node
+    * `fg` (surface/displacement/volumeshader): the name of the foreground shader-semantic node
+    * `mix` (float): the blending factor used to mix the two input closures
+
 
 
 ### AOV Output Elements
