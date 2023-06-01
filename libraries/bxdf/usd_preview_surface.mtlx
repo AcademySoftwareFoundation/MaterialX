@@ -34,6 +34,15 @@
     <output name="rgba" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_UsdUVTexture_vector3" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23_vector3">
+    <output name="r" type="float" />
+    <output name="g" type="float" />
+    <output name="b" type="float" />
+    <output name="a" type="float" />
+    <output name="rgb" type="vector3" />
+    <output name="rgba" type="vector4" />
+  </nodedef>
+
   <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
     <input name="file" type="filename" value="" uniform="true" />
     <input name="st" type="vector2" defaultgeomprop="UV0" />
@@ -47,6 +56,21 @@
     <output name="b" type="float" />
     <output name="a" type="float" />
     <output name="rgb" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_UsdUVTexture_23_vector3" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="st" type="vector2" defaultgeomprop="UV0" />
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="fallback" type="vector4" value="0, 0, 0, 1" />
+    <input name="scale" type="vector4" value="1, 1, 1, 1" uniform="true" />
+    <input name="bias" type="vector4" value="0, 0, 0, 0" uniform="true" />
+    <output name="r" type="float" />
+    <output name="g" type="float" />
+    <output name="b" type="float" />
+    <output name="a" type="float" />
+    <output name="rgb" type="vector3" />
   </nodedef>
 
   <!-- Node: UsdPrimvarReader -->
@@ -308,6 +332,30 @@
     <output name="rgba" type="color4" nodename="image_bias" />
   </nodegraph>
 
+  <nodegraph name="IMP_UsdUVTexture_22_vector3" nodedef="ND_UsdUVTexture_vector3">
+    <image name="image_reader" type="vector4">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="vector4" interfacename="fallback" />
+      <input name="texcoord" type="vector2" interfacename="st" />
+      <input name="uaddressmode" type="string" interfacename="wrapS" />
+      <input name="vaddressmode" type="string" interfacename="wrapT" />
+    </image>
+    <multiply name="image_scale" type="vector4">
+      <input name="in1" type="vector4" nodename="image_reader" />
+      <input name="in2" type="vector4" interfacename="scale" />
+    </multiply>
+    <add name="image_bias" type="vector4">
+      <input name="in1" type="vector4" nodename="image_scale" />
+      <input name="in2" type="vector4" interfacename="bias" />
+    </add>
+    <output name="r" type="float" nodename="image_bias" channels="x" />
+    <output name="g" type="float" nodename="image_bias" channels="y" />
+    <output name="b" type="float" nodename="image_bias" channels="z" />
+    <output name="a" type="float" nodename="image_bias" channels="w" />
+    <output name="rgb" type="vector3" nodename="image_bias" channels="xyz" />
+    <output name="rgba" type="vector4" nodename="image_bias" />
+  </nodegraph>
+
   <nodegraph name="IMP_UsdUVTexture_23" nodedef="ND_UsdUVTexture_23">
     <image name="image_reader" type="color4">
       <input name="file" type="filename" interfacename="file" />
@@ -329,6 +377,29 @@
     <output name="b" type="float" nodename="image_bias" channels="b" />
     <output name="a" type="float" nodename="image_bias" channels="a" />
     <output name="rgb" type="color3" nodename="image_bias" channels="rgb" />
+  </nodegraph>
+
+  <nodegraph name="IMP_UsdUVTexture_23_vector3" nodedef="ND_UsdUVTexture_23_vector3">
+    <image name="image_reader" type="vector4">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="vector4" interfacename="fallback" />
+      <input name="texcoord" type="vector2" interfacename="st" />
+      <input name="uaddressmode" type="string" interfacename="wrapS" />
+      <input name="vaddressmode" type="string" interfacename="wrapT" />
+    </image>
+    <multiply name="image_scale" type="vector4">
+      <input name="in1" type="vector4" nodename="image_reader" />
+      <input name="in2" type="vector4" interfacename="scale" />
+    </multiply>
+    <add name="image_bias" type="vector4">
+      <input name="in1" type="vector4" nodename="image_scale" />
+      <input name="in2" type="vector4" interfacename="bias" />
+    </add>
+    <output name="r" type="float" nodename="image_bias" channels="x" />
+    <output name="g" type="float" nodename="image_bias" channels="y" />
+    <output name="b" type="float" nodename="image_bias" channels="z" />
+    <output name="a" type="float" nodename="image_bias" channels="w" />
+    <output name="rgb" type="vector3" nodename="image_bias" channels="xyz" />
   </nodegraph>
 
   <!-- Node: UsdPrimvarReader -->
