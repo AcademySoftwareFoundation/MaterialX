@@ -118,13 +118,14 @@ jobs:
 
     - name: Python Tests
       run: |
+        set -e
         python python/MaterialXTest/main.py
         python python/MaterialXTest/genshader.py
-        python python/Scripts/mxupdate.py resources/Materials/TestSuite/stdlib/upgrade --yes
-        python python/Scripts/mxvalidate.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
-        python python/Scripts/mxdoc.py --docType md libraries/pbrlib/pbrlib_defs.mtlx
-        python python/Scripts/mxdoc.py --docType html libraries/bxdf/standard_surface.mtlx
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target osl
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target mdl
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl
+        python python/Scripts/mxformat.py ./resources/Materials/TestSuite/stdlib/upgrade --yes --upgradeVersion True
+        python python/Scripts/mxvalidate.py ./resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
+        python python/Scripts/mxdoc.py --docType md ./libraries/pbrlib/pbrlib_defs.mtlx
+        python python/Scripts/mxdoc.py --docType html ./libraries/bxdf/standard_surface.mtlx
+        python python/Scripts/generateshader.py ./resources/Materials/Examples/StandardSurface --target glsl
+        python python/Scripts/generateshader.py ./resources/Materials/Examples/StandardSurface --target osl
+        python python/Scripts/generateshader.py ./resources/Materials/Examples/StandardSurface --target mdl
+        python python/Scripts/generateshader.py ./resources/Materials/Examples/StandardSurface --target msl
