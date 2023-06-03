@@ -1,10 +1,14 @@
 [build-system]
-requires = ["scikit-build-core"]
+# Use a fixed version because we use an experimental feature
+# (a custom plugin) and for now that functionality has
+# no compatibility promises.
+requires = ["scikit-build-core==0.4.4"]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "MaterialX"
-version = "0.0.0.dev1"  # TODO: Change version
+dynamic = ["version"]
+
 authors = [
   { name="Contributors to the MaterialX project", email="materialx-discussion@lists.aswf.io" },
 ]
@@ -37,6 +41,13 @@ writenodegraphs = "MaterialX._scripts.writenodegraphs:main"
 cmake.minimum-version = "3.18"
 cmake.verbose = false
 cmake.build-type = "Release"
+
+# Enable experimental features if any are available
+# In this case we need custom local plugin to get
+# the project version from cmake.
+experimental = true
+metadata.version.provider = "mtx_skbuild_plugin"
+metadata.version.provider-path = "./"
 
 # Uncoment when developing locally to enable inplace builds.
 # build-dir = "build/"

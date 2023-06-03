@@ -31,7 +31,9 @@ if (MATERIALX_BUILD_JS)
     endif()
 endif()
 
-project(MaterialX)
+project(MaterialX
+    VERSION ${MATERIALX_LIBRARY_VERSION}
+)
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
