@@ -117,6 +117,7 @@ jobs:
       run: python -m pip install MaterialX --find-links wheels --no-index
 
     - name: Python Tests
+      shell: bash
       run: |
         set -e
         python python/MaterialXTest/main.py
