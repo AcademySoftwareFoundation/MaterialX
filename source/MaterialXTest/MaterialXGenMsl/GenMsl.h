@@ -23,9 +23,8 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     MslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
-                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
-                              const mx::FilePath& logFilePath, bool writeShadersToDisk) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
+                             const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, searchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -46,7 +45,7 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         ParentClass::setupDependentLibraries();
 
-        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
+        mx::FilePath lightDir = mx::getDefaultDataSearchPath().find("resources/Materials/TestSuite/lights");
         loadLibrary(lightDir / mx::FilePath("light_compound_test.mtlx"), _dependLib);
         loadLibrary(lightDir / mx::FilePath("light_rig_test_1.mtlx"), _dependLib);
     }

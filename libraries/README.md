@@ -42,8 +42,18 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [lama](bxdf/lama) : Graph definitions of the [MaterialX Lama](https://rmanwiki.pixar.com/display/REN24/MaterialX+Lama) node set.
 
 ## Color Management Library
-- MaterialX shader generation natively supports a small set of common spaces for input colors, with all color transforms implemented as language-independent MaterialX graphs. The canonical definitions of these color transforms may be found in the OpenColorIO configuration for [ACES 1.2](https://github.com/colour-science/OpenColorIO-Configs/tree/feature/aces-1.2-config/aces_1.2).
-    - lin_rec709, g18_rec709, g22_rec709, rec709_display, acescg (lin_ap1), g22_ap1, srgb_texture, lin_adobergb, adobergb
+- MaterialX shader generation natively supports a small set of common spaces for input colors, with all color transforms implemented as language-independent MaterialX graphs.The canonical definitions of these color transforms may be found in the OpenColorIO configuration for [ACES 1.2](https://github.com/colour-science/OpenColorIO-Configs/tree/feature/aces-1.2-config/aces_1.2).
+    - lin_rec709
+    - g18_rec709
+    - g22_rec709
+    - rec709_display
+    - acescg (lin_ap1)
+    - g22_ap1
+    - srgb_texture
+    - lin_adobergb
+    - adobergb
+    - srgb_displayp3
+    - lin_displayp3
 - [cmlib](cmlib)
     - [cmlib_defs.mtlx](cmlib/cmlib_defs.mtlx) : Nodedef declarations.
     - [cmlib_ng.mtlx](cmlib/cmlib_ng.mtlx) : Nodegraph definitions.
