@@ -37,7 +37,7 @@ This document describes a number of shader-semantic nodes implementing widely-us
  [BSDF Nodes](#bsdf-nodes)  
  [EDF Nodes](#edf-nodes)  
  [VDF Nodes](#vdf-nodes)  
- [Shader Nodes](#shader-nodes)  
+ [PBR Shader Nodes](#pbr-shader-nodes)  
  [Utility Nodes](#utility-nodes)  
 
 **[Shading Model Examples](#shading-model-examples)**  
@@ -303,7 +303,7 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `anisotropy` (float): Anisotropy factor, controlling the scattering direction, range [-1.0, 1.0]. Negative values give backwards scattering, positive values give forward scattering, and a value of 0.0 (the default) gives uniform scattering.
 
 
-## Shader Nodes
+## PBR Shader Nodes
 
 <a id="node-surface"> </a>
 
@@ -333,6 +333,9 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `space` (uniform string): the space in which the environment is defined, defaults to "world".
     * `intensity` (color3): Intensity multiplier for the light's emittance. Defaults to (1.0, 1.0, 1.0).
     * `exposure` (float): Exposure control for the light's emittance. Defaults to 0.0.
+
+Note that the standard library includes definitions for [**`displacement`**](./MaterialX.Specification.md#node-displacement) and [**`surface_unlit`**](./MaterialX.Specification.md#node-surfaceunlit) shader nodes.
+
 
 
 ## Utility Nodes
