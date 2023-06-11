@@ -9,7 +9,7 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 * [**MaterialX Specification**](./MaterialX.Specification.md) - the main Specification, describing definitions, core functionality and the standard node library
 * [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md) - describes BSDF and other shading function nodes useful in constructing complex layered rendering shaders using node graphs
 * [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) - additional MaterialX elements to define geometry-related information such as collections, properties and material assignments
-* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes a number of additional node types built from the standard nodes as well as recommended naming and structuring conventions for libraries of custom node definitions
+* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes recommended naming and structuring conventions for libraries of custom node definitions
 
 <p>
 
