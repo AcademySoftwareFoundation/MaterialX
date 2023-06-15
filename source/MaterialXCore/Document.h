@@ -427,7 +427,7 @@ class MX_CORE_API Document : public GraphElement
     /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
     ///        modify the existing NodeGraph. Default value is an empty string.
     /// @return New declaration if successful.
-    NodeDefPtr [[deprecated]] addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+    [[deprecated]] NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
                                    bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
 
     /// Create a node definition which is based on a compound node graph and a set of creation options (NodeDefCreatOptions).
