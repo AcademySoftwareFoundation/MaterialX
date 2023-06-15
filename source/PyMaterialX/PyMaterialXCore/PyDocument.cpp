@@ -59,10 +59,10 @@ void bindPyDocument(py::module& mod)
         .def("removeTypeDef", &mx::Document::removeTypeDef)
         .def("addNodeDef", &mx::Document::addNodeDef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING, py::arg("node") = mx::EMPTY_STRING)
-        .def("addNodeDefFromGraph", &mx::Document::addNodeDefFromGraph,
+        /* .def("addNodeDefFromGraph", &mx::Document::addNodeDefFromGraph,
             py::arg("nodeGraph"), py::arg("nodeDefName"), py::arg("node"), py::arg("version"),
             py::arg("isDefaultVersion"), py::arg("nodeGroup"), py::arg("newGraphName"),
-            py::arg("docString" )= mx::EMPTY_STRING, py::arg("nameSpace") = mx::EMPTY_STRING)
+            py::arg("docString" )= mx::EMPTY_STRING, py::arg("nameSpace") = mx::EMPTY_STRING) */
         .def("getNodeDef", &mx::Document::getNodeDef)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
         .def("removeNodeDef", &mx::Document::removeNodeDef)

@@ -23,6 +23,90 @@ using DocumentPtr = shared_ptr<Document>;
 /// A shared pointer to a const Document
 using ConstDocumentPtr = shared_ptr<const Document>;
 
+/// @class NodeDefCreationOptions
+/// A set of options for the creation of a nodedef and correspdongin functional nodegraph 
+/// from a compound nodegraph.
+class MX_CORE_API NodeDefCreateOptions
+{
+  public:
+    NodeDefCreateOptions() = default;
+    ~NodeDefCreateOptions() {};
+
+    /// Utility to generate a nodedef identifier based on a compound nodegraph and the current set of options
+    /// The format of the idenfiier is as follows:
+    /// 
+    /// <category name>_<version_string>_[<output type string>]
+    /// 
+    /// @return Genearted identifier
+    string generateIdentifier() const
+    {
+        if (!compoundGraph || categoryString.empty())
+        {
+            return EMPTY_STRING;
+        }
+
+        std::string identifier = categoryString;
+
+        if (useVersion && !versionString.empty())
+        {
+            identifier += "_" + versionString;
+        }
+
+        for (OutputPtr output : compoundGraph->getOutputs())
+        {
+            const std::string& outputType = output->getType();
+            identifier += "_" + outputType;
+        }
+
+        return identifier;
+    }
+
+    /// Recommended prefix for node definitions
+    string getNodeDefPrefix() const
+    {
+        return "ND_";
+    }
+
+    /// Recommendded prefix for functaionl graphs
+    string getNodeGraphPrefix() const
+    {
+        return "NG_";
+    }
+   
+    /// Node definition category (required)
+    std::string categoryString;
+
+    /// Node definition node group (optional)
+    std::string nodeGroupString;
+
+    /// Node definition and functional graph namespace (optional)
+    std::string namespaceString;
+
+    /// Node definition version (optional)
+    std::string versionString;
+
+    /// Node definition documentation string (optional)
+    std::string docString;
+
+    /// Node definition default version flag (optional)
+    bool isDefaultVersion = false;
+
+    /// Flag on whether to set the version
+    bool useVersion = false;
+
+    /// Flag on whether to set the namespace
+    bool useNamespace = false;
+
+    /// Name of new node definition
+    std::string newNodeDefName;
+
+    /// Name of new functional graph
+    std::string newNodeGraphName;
+
+    // Compound graph used to create definition and functional graph from
+    NodeGraphPtr compoundGraph;
+};
+
 /// @class Document
 /// A MaterialX document, which represents the top-level element in the
 /// MaterialX ownership hierarchy.
@@ -342,12 +426,13 @@ class MX_CORE_API Document : public GraphElement
     /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
     /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
     ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param docString Optional documentation string. Default is an empty string.
-    /// @param namesSpace Optional namespace for the Nodedef and NodeGraph. Default is an empty string.
     /// @return New declaration if successful.
-    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName,
-                                   const string& docString = EMPTY_STRING, const string& nameSpace = EMPTY_STRING);
+    NodeDefPtr [[deprecated]] addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+
+    /// Create a node definition which is based on a compound node graph and a set of creation options (NodeDefCreatOptions).
+    /// @return New definition if successful.
+    NodeDefPtr addNodeDefFromGraph(NodeDefCreateOptions& options);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
