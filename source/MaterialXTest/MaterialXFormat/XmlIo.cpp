@@ -14,11 +14,11 @@ namespace mx = MaterialX;
 
 TEST_CASE("Load content", "[xmlio]")
 {
-    mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples/StandardSurface");
-    mx::FileSearchPath searchPath = libraryPath.asString() +
-        mx::PATH_LIST_SEPARATOR +
-        examplesPath.asString();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath libraryPath = searchPath.find("libraries/stdlib");
+    mx::FilePath examplesPath = searchPath.find("resources/Materials/Examples/StandardSurface");
+    searchPath.append(libraryPath);
+    searchPath.append(examplesPath);
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
@@ -242,7 +242,8 @@ TEST_CASE("Load content", "[xmlio]")
 
 TEST_CASE("Comments and newlines", "[xmlio]")
 {
-    mx::FilePath testPath("resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath testPath = searchPath.find("resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx");
 
     // Read the example file into an XML string buffer.
     std::string origXml = mx::readFile(testPath);
