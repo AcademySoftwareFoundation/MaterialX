@@ -81,7 +81,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             continue;
         }
 
-        mx::InterfaceElementPtr interface = nodedef->getImplementation();
+        mx::InterfaceElementPtr interface = nodedef->getImplementation(generator->getTarget());
         if (!interface)
         {
             logFile << "Skip generating reference for unimplemented node '" << nodeName << "'" << std::endl;
