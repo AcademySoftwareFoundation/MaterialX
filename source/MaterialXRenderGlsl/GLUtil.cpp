@@ -11,11 +11,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-void checkGlErrors(const string& /*context*/)
+void checkGlErrors(const string& context)
 {
-    //for (GLenum error = glGetError(); error; error = glGetError())
+    for (GLenum error = glGetError(); error; error = glGetError())
     {
-        //std::cerr << "OpenGL error " << context << ": " << std::to_string(error) << std::endl;
+        std::cerr << "OpenGL error " << context << ": " << std::to_string(error) << std::endl;
     }
 }
 
