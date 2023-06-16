@@ -32,56 +32,6 @@ struct Link
     }
 };
 
-class NodeDefParameters
-{
-  public:
-    const std::string& getIdentifier() const
-    {
-        return _identifier;
-    }
-      
-    const std::string& getNodeDefName() const
-    {
-        return _nodeDefName;
-    }
-
-    const std::string& getNodeGraphName() const
-    {
-        return _nodeGraphName;
-    }
-
-    void initialize()
-    {
-        categoryString.clear();
-        nodeGroupString.clear();
-        namespaceString.clear();
-        versionString.clear();
-        docString.clear();
-        commentString.clear();
-        isDefaultVersion = false;
-        useVersion = false;
-        useNamespace = false;
-    }
-
-    bool generateIdentifiers(mx::NodeGraphPtr nodeGraph);
-   
-    std::string categoryString;
-    std::string nodeGroupString;
-    std::string namespaceString;
-    std::string versionString;
-    std::string docString;
-    std::string commentString;
-    bool isDefaultVersion = false;
-    bool useVersion = false;
-    bool useNamespace = false;
-
-  protected:
-    std::string _identifier;
-    std::string _nodeDefName;
-    std::string _nodeGraphName;
-
-};
-
 class Graph
 {
   public:
@@ -118,7 +68,7 @@ class Graph
     void initializeDataLibraries();
     void loadStandardLibraries();
     void createNodeUIList(mx::DocumentPtr doc);
-    void createDefinitionFromNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters);
+    std::string createDefinitionFromNodeGraph(const mx::FilePath& fileName, mx::DefinitionOptions& parameters, const std::string& comment);
     void addCreateDefinitionPopup();
 
     // handling link information

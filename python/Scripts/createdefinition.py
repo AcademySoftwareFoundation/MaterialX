@@ -2,7 +2,8 @@
 '''
 Create definitions based on the nodegraphs in the specified document. Definitions are 
 saved to new documents with either the definition and functional graph in a single file or
-in separated into a file for definitions and a file for functional graphs.
+in separated into a file for definitions and a file for functional graphs. An additioal
+XML comment may be added before the definition.
 
 It is assumed that all nodegraphs have the same category, nodegroup, version and namespace
 as only one set of these input options can be provided. It is also assumed that each nodegraph
@@ -12,10 +13,13 @@ for that nodegraph.
 e.g. python createdefinition.py 
         resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx 
         --category mymarble 
-        --version "2.0.9" 
-        --nodegroup 'texture2d' 
-        --separateDocuments 1 
-        --comment "This is a new custom marble node."
+        --nodegroup texture2d 
+        --version 1.0 
+        --defaultversion True 
+        --namespace myspace 
+        --documentation "This is a custom marble definition" 
+        --comment "Custom Marble" 
+        --separateDocuments True
 '''
 
 import sys, argparse, os
@@ -38,8 +42,8 @@ def main():
 
     version_major, version_minor, version_patch = mx.getVersionIntegers()
     use_1_38_8 = False
-    print(version_major, version_minor, version_patch)
-    if version_major >=1 and version_minor >= 38 and version_patch >= 8:
+    print('Using MaterialX Version: %d.%d.%d' % (version_major, version_minor, version_patch))
+    if version_major >= 1 and version_minor >= 38 and version_patch >= 8:
         use_1_38_8 = True
 
     doc = mx.createDocument()
@@ -67,7 +71,7 @@ def main():
         category = mx.createValidName(opts.category)
         nodegroup = mx.createValidName(opts.nodegroup)
         namespace = mx.createValidName(opts.namespace)
-        documentation  = opts.documentation
+        documentation = opts.documentation
         defaultversion = opts.defaultversion
         
         # User nodegraph name if no category provided as a a category name
@@ -75,7 +79,7 @@ def main():
         if not category:
             category = nodeGraph.getName() 
 
-        # Build identifier for new nodedef and functional graph. Includes:
+        # Build identifier for new nodedef and functional graph.  Includes:
         #   - version
         #   - output types
         #   - namespace
@@ -103,10 +107,23 @@ def main():
         # Create the definition
         definition = None
         if use_1_38_8:
-            definition = doc.addNodeDefFromGraph(nodeGraph, nodedefName,
-                            category, opts.version, defaultversion, nodegroup, nodegraphName,
-                            documentation, namespace)
+            # Use 1.38.8 and newer interface
+            options = mx.DefinitionOptions()
+            options.categoryString = category
+            options.compoundGraph = nodeGraph
+            options.docString = documentation
+            options.isDefaultVersion = defaultversion
+            options.namespaceString = namespace
+            options.nodeGroupString = nodegroup
+            options.useNamespace = len(namespace) > 0
+            options.useVersion = len(opts.version) > 0
+            options.versionString = opts.version
+            options.newNodeDefName = nodedefName
+            options.newNodeGraphName = nodegraphName;
+            options.compoundGraph = nodeGraph
+            definition = doc.createDefinition(options)
         else:
+            # Use pre 1.38.8 interface
             definition = doc.addNodeDefFromGraph(nodeGraph, nodedefName,
                             category, opts.version, defaultversion, nodegroup, nodegraphName)
         funcgraph = doc.getNodeGraph(nodegraphName)

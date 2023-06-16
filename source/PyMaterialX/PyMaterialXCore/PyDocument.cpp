@@ -14,6 +14,21 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
+    py::class_<mx::DefinitionOptions>(mod, "DefinitionOptions")
+        .def(py::init())
+        .def("generateIdentifier", &mx::DefinitionOptions::generateIdentifier)
+        .def_readwrite("categoryString", &mx::DefinitionOptions::categoryString)
+        .def_readwrite("nodeGroupString", &mx::DefinitionOptions::nodeGroupString)
+        .def_readwrite("namespaceString", &mx::DefinitionOptions::namespaceString)
+        .def_readwrite("versionString", &mx::DefinitionOptions::versionString)
+        .def_readwrite("docString", &mx::DefinitionOptions::docString)
+        .def_readwrite("isDefaultVersion", &mx::DefinitionOptions::isDefaultVersion)
+        .def_readwrite("useVersion", &mx::DefinitionOptions::useVersion)
+        .def_readwrite("useNamespace", &mx::DefinitionOptions::useNamespace)
+        .def_readwrite("newNodeDefName", &mx::DefinitionOptions::newNodeDefName)
+        .def_readwrite("newNodeGraphName", &mx::DefinitionOptions::newNodeGraphName)
+        .def_readwrite("compoundGraph", &mx::DefinitionOptions::compoundGraph);
+
     py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
@@ -59,10 +74,7 @@ void bindPyDocument(py::module& mod)
         .def("removeTypeDef", &mx::Document::removeTypeDef)
         .def("addNodeDef", &mx::Document::addNodeDef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING, py::arg("node") = mx::EMPTY_STRING)
-        /* .def("addNodeDefFromGraph", &mx::Document::addNodeDefFromGraph,
-            py::arg("nodeGraph"), py::arg("nodeDefName"), py::arg("node"), py::arg("version"),
-            py::arg("isDefaultVersion"), py::arg("nodeGroup"), py::arg("newGraphName"),
-            py::arg("docString" )= mx::EMPTY_STRING, py::arg("nameSpace") = mx::EMPTY_STRING) */
+        .def("createDefinition", &mx::Document::createDefinition)
         .def("getNodeDef", &mx::Document::getNodeDef)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
         .def("removeNodeDef", &mx::Document::removeNodeDef)

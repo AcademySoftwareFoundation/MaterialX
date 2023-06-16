@@ -638,7 +638,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
 
-        mx::NodeDefCreateOptions options;
+        mx::DefinitionOptions options;
         options.categoryString = NODENAME;
         options.compoundGraph = graph;
         options.docString = mx::EMPTY_STRING;
@@ -652,7 +652,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         options.newNodeDefName = newNodeDefName;
         options.newNodeGraphName = newGraphName;
 
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(options);
+        mx::NodeDefPtr nodeDef = doc->createDefinition(options);
         REQUIRE(nodeDef != nullptr);
         nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION1);
         nodeDef->setDocString("This is version 1 of the definition for the graph: " + newGraphName);
@@ -708,7 +708,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
                     {
             temp = nullptr;
             options.versionString = VERSION1;
-            temp = doc->addNodeDefFromGraph(options);
+            temp = doc->createDefinition(options);
                     }
         catch (mx::Exception&)
                     {
@@ -721,7 +721,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         options.newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_2");
         options.newNodeGraphName = doc->createValidChildName("NG_" + graph->getName() + "_2");
         options.versionString = VERSION2;
-        nodeDef = doc->addNodeDefFromGraph(options);
+        nodeDef = doc->createDefinition(options);
         nodeDef->setDefaultVersion(true);
         REQUIRE(nodeDef != nullptr);
         nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION2);
@@ -770,7 +770,7 @@ TEST_CASE("Functional Graph Interface Change", "[nodedef]")
     const std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_3");
     const std::string newGraphName = doc->createValidChildName("NG_" + graph->getName() + "_3");
 
-    mx::NodeDefCreateOptions options;
+    mx::DefinitionOptions options;
     options.categoryString = NODENAME;
     options.compoundGraph = graph;
     options.docString = mx::EMPTY_STRING;
@@ -783,7 +783,7 @@ TEST_CASE("Functional Graph Interface Change", "[nodedef]")
 
     options.newNodeDefName = newNodeDefName;
     options.newNodeGraphName = newGraphName;
-    mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(options);
+    mx::NodeDefPtr nodeDef = doc->createDefinition(options);
 
     mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
     mx::ValueElementPtr newInterface = nullptr;

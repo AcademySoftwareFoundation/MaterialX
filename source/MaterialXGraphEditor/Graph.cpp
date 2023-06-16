@@ -51,42 +51,6 @@ std::string getNodeDefId(const std::string& val)
 
 } // anonymous namespace
 
-bool NodeDefParameters::generateIdentifiers(mx::NodeGraphPtr nodeGraph)
-{
-    if (!nodeGraph)
-    {
-        return false;
-    }
-
-    _identifier.clear();
-    _nodeDefName.clear();
-    _nodeGraphName.clear();
-
-    if (categoryString.empty())
-    {
-        categoryString = nodeGraph->getName();
-    }
-
-    _identifier = categoryString;
-    if (useVersion && !versionString.empty())
-    {
-        _identifier += "_" + versionString;
-    }
-
-    std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
-    for (mx::OutputPtr output : outputs)
-    {
-        const std::string& outputType = output->getType();
-        _identifier += "_" + outputType;
-    }
-
-    // Prefix with "ND_" or "NG_" for definition and graph names
-    _nodeDefName = std::string("ND_") + _identifier;
-    _nodeGraphName = std::string("NG_") + _identifier;
-
-    return true;
-}
-
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
@@ -187,7 +151,7 @@ void Graph::loadStandardLibraries()
                 std::cout << " - " + x.asString() << std::endl;
             }
         }
-        if (_searchPath.size() > 1)
+        if (_searchPath.size())
         {
             std::cout << "> Search path: " + _searchPath.asString() << std::endl;
         }
@@ -195,7 +159,11 @@ void Graph::loadStandardLibraries()
         _xincludeFiles = mx::loadLibraries(allFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
         {
-            std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
+            std::cerr << "Could not find any data libraries on the given search path: " << _searchPath.asString() << std::endl;
+        }
+        else
+        {
+            std::cout << "Loaded " << std::to_string(_stdLib->getNodeDefs().size()) << " definitions." << std::endl;
         }
     }
     catch (std::exception& e)
@@ -254,161 +222,138 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     return doc;
 }
 
-void Graph::createDefinitionFromNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters)
+std::string Graph::createDefinitionFromNodeGraph(const mx::FilePath& fileName, mx::DefinitionOptions& parameters, const std::string& commentString)
 {
-    if (_currUiNode != nullptr)
+    if (!_currUiNode)
     {
-        mx::NodeGraphPtr nodeGraph = _currUiNode->getNodeGraph();
-        if (nodeGraph)
+        return "No node selected to create definition from.";
+    }
+    mx::NodeGraphPtr nodeGraph = _currUiNode->getNodeGraph();
+    if (!nodeGraph)
+    {
+        return "Cannot create definition from non-graph node.";
+    }
+
+    std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
+    if (outputs.empty())
+    {
+        return "Cannot crfeate definition from graph with no outputs.";
+    }
+
+    mx::DocumentPtr doc = nodeGraph->getDocument();
+    parameters.compoundGraph = nodeGraph;
+    const std::string identifier = parameters.generateIdentifier();
+    parameters.newNodeGraphName = mx::createValidName(parameters.getNodeGraphPrefix() + identifier);
+    parameters.newNodeDefName = mx::createValidName(parameters.getNodeDefPrefix() + identifier);
+    parameters.categoryString = mx::createValidName(parameters.categoryString);
+    if (!parameters.docString.empty())
+    {
+        mx::StringMap filterDoc;
+        filterDoc["\n"] = " ";
+        parameters.docString = mx::replaceSubstrings(parameters.docString, filterDoc);
+    }
+
+    mx::NodeDefPtr tempDef = nullptr;
+    mx::NodeGraphPtr tempGraph = nullptr;
+    std::string errorString;
+    try
+    {
+        tempDef = doc->createDefinition(parameters);
+        tempGraph = doc->getNodeGraph(parameters.newNodeGraphName);
+
+        if (!tempDef || !tempGraph || !tempDef->validate() || !tempGraph->validate())
         {
-            mx::DocumentPtr doc = nodeGraph->getDocument();
-            std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
-            if (doc && !outputs.empty())
-            {
-                parameters.generateIdentifiers(nodeGraph);
-                std::string newNodeGraphName = mx::createValidName(parameters.getNodeGraphName());
-                std::string newNodeDefName = mx::createValidName(parameters.getNodeDefName());
-                std::string newNodeCategory = mx::createValidName(parameters.categoryString);
-                std::string newNodeGroup = parameters.nodeGroupString;
-                std::string newVersionString;
-                bool isDefaultVersion = false;
-                if (parameters.useVersion)
-                {
-                    if (!parameters.versionString.empty())
-                        newVersionString = parameters.versionString;
-                    isDefaultVersion = parameters.isDefaultVersion;
-                } 
-                std::string newNodeNamespace;
-                if (parameters.useNamespace && !parameters.namespaceString.empty())
-                {
-                    newNodeNamespace = parameters.namespaceString;
-                }
-                std::string newNodeDocString;
-                if (!parameters.docString.empty())
-                {
-                    mx::StringMap filterDoc;
-                    filterDoc["\n"] = " ";
-                    newNodeDocString = mx::replaceSubstrings(parameters.docString, filterDoc);
-                }
-
-                mx::NodeDefPtr tempDef = nullptr;
-                mx::NodeGraphPtr tempGraph = nullptr;
-                std::string errorString;
-                try
-                {
-                    mx::NodeDefCreateOptions options;
-                    options.categoryString = newNodeCategory;
-                    options.compoundGraph = nodeGraph;
-                    options.docString = newNodeDocString;
-                    options.isDefaultVersion = isDefaultVersion;
-                    options.namespaceString = newNodeNamespace;
-                    options.nodeGroupString = newNodeGroup;
-                    options.useNamespace = false;
-                    options.useVersion = true;
-                    options.versionString = newVersionString;
-
-                    options.newNodeDefName = newNodeDefName;
-                    options.newNodeGraphName = newNodeGraphName;
-
-                    tempDef = doc->addNodeDefFromGraph(options);
-                    tempGraph = doc->getNodeGraph(newNodeGraphName);
-
-                    if (!tempDef || !tempGraph || !tempDef->validate() || !tempGraph->validate())
-                    {
-                        errorString = "Definition is not valid";
-                    }
-                }
-                catch (mx::Exception& e)
-                {
-                    errorString = std::string(e.what());
-                }
-                if (!errorString.empty())
-                {
-                    std::cerr << "Failed to create new definition: " << newNodeDefName << ". " <<
-                        errorString << std::endl;
-                    return;
-                }
-
-                // Create a new document with just the new definition and save to disk
-                // Re-initialize data libraries.
-                mx::DocumentPtr defDoc = mx::createDocument();
-
-                // Format comment string and write out
-                if (!parameters.commentString.empty())
-                {
-                    mx::ElementPtr newComment = defDoc->addChildOfCategory(mx::CommentElement::CATEGORY);
-                    if (newComment)
-                    {
-                        const mx::StringVec commentStrings = mx::splitString(parameters.commentString, "\n");
-                        std::string formattedComment;// = commentStrings[0];
-                        for (size_t i=0; i<commentStrings.size(); i++)
-                        {
-                            formattedComment += "\n\t\t" + commentStrings[i];
-                        }
-                        formattedComment += "\n\t";
-                        newComment->setDocString(formattedComment);
-                    }
-                }
-                // Note: that addNodeDef() will automatically add an output if a type is specified
-                // so leave this empty. The outputs will be copied when the content is copied over.
-                mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
-                newDef->copyContentFrom(tempDef);
-
-                mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
-                newGraph->copyContentFrom(tempGraph);
-
-                std::string error;
-                if (!newGraph->validate(&error))
-                {
-                    std::cerr << "Could not create valid definition: " + error << std::endl;
-                }
-                else
-                {
-                    mx::XmlWriteOptions writeOptions;
-                    writeOptions.elementPredicate = getElementPredicate();
-                    mx::FilePath outputFilePath;
-
-                    // Save to user library location
-                    if (!fileName.isAbsolute())
-                    {
-                        mx::FilePath folderLocation;
-                        if (_userLibraryFolder.isAbsolute())
-                        {
-                            folderLocation = _userLibraryFolder;
-                        }
-                        else
-                        {
-                            folderLocation = mx::getDefaultDataSearchPath()[0];
-                            folderLocation = folderLocation / _userLibraryFolder;
-                            if (!folderLocation.exists())
-                            {
-                                folderLocation.createDirectory();
-                            }
-                        }
-                        outputFilePath = folderLocation / fileName;
-                    }
-                    // Save to an explicit location
-                    else
-                    {
-                        outputFilePath = fileName;
-                    }
-                    std::cout << "Write definition to file: " << outputFilePath.asString() << std::endl;
-                    mx::writeToXmlFile(defDoc, outputFilePath, &writeOptions);
-                }
-
-                // Clean up temporary elements as they should not be part of the
-                // working document.
-                if (tempDef)
-                {
-                    doc->removeChild(tempDef->getName());
-                }
-                if (tempGraph)
-                {
-                    doc->removeChild(tempGraph->getName());
-                }
-            }
+            errorString = "Definition is not valid";
         }
     }
+    catch (mx::Exception& e)
+    {
+        errorString = std::string(e.what());
+    }
+    if (!errorString.empty())
+    {
+        errorString = "Failed to create definition. " + errorString;
+        return errorString;
+    }
+
+    // Create a new document with just the new definition and save to disk
+    // Re-initialize data libraries.
+    mx::DocumentPtr defDoc = mx::createDocument();
+
+    // Format comment string and write out
+    if (!commentString.empty())
+    {
+        mx::ElementPtr newComment = defDoc->addChildOfCategory(mx::CommentElement::CATEGORY);
+        if (newComment)
+        {
+            const mx::StringVec commentStrings = mx::splitString(commentString, "\n");
+            std::string formattedComment;
+            for (size_t i = 0; i < commentStrings.size(); i++)
+            {
+                formattedComment += "\n\t\t" + commentStrings[i];
+            }
+            formattedComment += "\n\t";
+            newComment->setDocString(formattedComment);
+        }
+    }
+    // Note: that addNodeDef() will automatically add an output if a type is specified
+    // so leave this empty. The outputs will be copied when the content is copied over.
+    mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
+    newDef->copyContentFrom(tempDef);
+
+    mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
+    newGraph->copyContentFrom(tempGraph);
+
+    // Clean up temporary elements as they should not be part of the
+    // working document.
+    if (tempDef)
+    {
+        doc->removeChild(tempDef->getName());
+    }
+    if (tempGraph)
+    {
+        doc->removeChild(tempGraph->getName());
+    }
+
+    std::string error;
+    std::string status;
+    if (!newGraph->validate(&error))
+    {
+        status = "Could not create valid definition: " + error;
+    }
+    else
+    {
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.elementPredicate = getElementPredicate();
+        mx::FilePath outputFilePath;
+
+        // Save to user library location
+        if (!fileName.isAbsolute())
+        {
+            mx::FilePath folderLocation;
+            if (_userLibraryFolder.isAbsolute())
+            {
+                folderLocation = _userLibraryFolder;
+            }
+            else
+            {
+                folderLocation = mx::getDefaultDataSearchPath()[0];
+                folderLocation = folderLocation / _userLibraryFolder;
+                if (!folderLocation.exists())
+                {
+                    folderLocation.createDirectory();
+                }
+            }
+            outputFilePath = folderLocation / fileName;
+        }
+        // Save to an explicit location
+        else
+        {
+            outputFilePath = fileName;
+        }
+        mx::writeToXmlFile(defDoc, outputFilePath, &writeOptions);
+    }
+    return status;
 }
 
 // populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
@@ -3287,8 +3232,10 @@ void Graph::addCreateDefinitionPopup()
 {
     if (ImGui::BeginPopupModal("Create Definition", NULL, ImGuiWindowFlags_NoCollapse))
     {
-        static NodeDefParameters parameters;
-        parameters.generateIdentifiers(_currUiNode->getNodeGraph());
+        static mx::DefinitionOptions parameters;
+        parameters.compoundGraph = _currUiNode->getNodeGraph();
+        const std::string identifier = parameters.generateIdentifier();
+        static std::string commentString;
 
         // Pull of existing nodegroups
         mx::StringSet nodeGroupsSet;
@@ -3341,7 +3288,7 @@ void Graph::addCreateDefinitionPopup()
 
         ImGui::Text("Comment      "); ImGui::SameLine(); 
         ImGui::SetWindowFontScale(_fontScale);
-        ImGui::InputTextMultiline("#Comment", &parameters.commentString, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 1));
+        ImGui::InputTextMultiline("#Comment", &commentString, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 1));
         ImGui::SetWindowFontScale(1.0);
 
         ImGui::Separator();
@@ -3390,28 +3337,47 @@ void Graph::addCreateDefinitionPopup()
         }
         else
         {
-            fileName = mx::createValidName(parameters.getIdentifier()) + ".mtlx";
+            fileName = mx::createValidName(identifier) + ".mtlx";
             // Need to strip out any ":" for filenames
             mx::StringMap fileNameMap;
             fileNameMap[":"] = "_";
             fileName = mx::replaceSubstrings(fileName, fileNameMap);
         }
+        ImGui::Separator();
+
         ImGui::PushItemWidth(512);
         ImGui::BeginDisabled(true);
-        ImGui::Text("File"); ImGui::SameLine(); ImGui::InputText("", &fileName);
+        ImGui::Text("Output File"); ImGui::SameLine(); ImGui::InputText("", &fileName);
         ImGui::EndDisabled();
         ImGui::PopItemWidth();
 
-        ImGui::Separator();
+        static std::string message;
+        ImGui::PushItemWidth(-1);
+        ImGui::BeginDisabled(true);
+        ImGui::SetWindowFontScale(_fontScale);
+        ImGui::InputTextMultiline("#Message", &message, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight()));
+        ImGui::SetWindowFontScale(1.0);
+        //ImGui::Text(""); ImGui::SameLine(); ImGui::InputText("", &message);
+        ImGui::EndDisabled();
+        ImGui::PopItemWidth();
+
         bool closePopup = false;
         if (ImGui::Button("Save", ImVec2(120, 0)))
         {
             // Trigger to perform save
-            createDefinitionFromNodeGraph(fileName, parameters);
-            closePopup = true;
+            if (parameters.categoryString.empty())
+                message = "A category name is required.";
+            else
+            {
+                message = createDefinitionFromNodeGraph(fileName, parameters, commentString);
+                if (message.empty())
+                {
+                    closePopup = true;
+                }
+            }
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        if (ImGui::Button("Close", ImVec2(120, 0)))
         {
             closePopup = true;
         }
@@ -3419,7 +3385,9 @@ void Graph::addCreateDefinitionPopup()
         if (closePopup)
         {
             // Clear statics for next invocation.
-            parameters.initialize();
+            parameters = mx::DefinitionOptions();
+            message.clear();
+            commentString.clear();
             ImGui::CloseCurrentPopup();
         }
 
