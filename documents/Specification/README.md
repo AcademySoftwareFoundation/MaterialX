@@ -9,7 +9,7 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 * [**MaterialX Specification**](./MaterialX.Specification.md) - the main Specification, describing definitions, core functionality and the standard node library
 * [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md) - describes BSDF and other shading function nodes useful in constructing complex layered rendering shaders using node graphs
 * [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) - additional MaterialX elements to define geometry-related information such as collections, properties and material assignments
-* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes a number of additional node types built from the standard nodes as well as recommended naming and structuring conventions for libraries of custom node definitions
+* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes recommended naming and structuring conventions for libraries of custom node definitions
 
 <p>
 
@@ -45,7 +45,7 @@ Similarly, &lt;token>s in materials and other node instances may now be connecte
 
 **Standardized Color Space Names**
 
-The [standard colorspace names](./MaterialX.Specification.md#color-spaces-and-color-management-systems) in MaterialX have now been defined explicitly in the Specification, and are aligned to their definitions in the ACES 1.2 OCIO config file.  With this change, there is no need for a definition of "cms" or "cmsconfig" in MaterialX documents, so those two attributes have been deprecated.
+The [standard colorspace names](./MaterialX.Specification.md#color-spaces-and-color-management-systems) in MaterialX have now been defined explicitly in the Specification, and are aligned to their definitions in the ACES 1.2 OCIO config file.  With this change, there is no need for a definition of "cms" or "cmsconfig" in MaterialX documents, so those two attributes have been deprecated.  Additionally, two new colorspaces, "srgb_displayp3" and "lin_displayp3" have been added as standard colorspaces.
 
 
 **Disambiguated Nodedef and Nodegraph References**
@@ -74,21 +74,16 @@ Typedefs may now inherit from other types, including built-in types, and may pro
 
 **New and Updated Standard Library Nodes**
 
-The following new operator nodes have been added to the standard library:
+In 1.39, we are removing the distinction between "standard nodes" and "supplemental nodes", and descriptions of both can now be found in the main Specification document.  Nodes that are implemented in the standard distribution using nodegraphs are annotated with "(NG)" in the Spec to differentiate them from nodes implemented in each rendering target's native shading language.
 
-* [Procedural nodes](./MaterialX.Specification.md#procedural-nodes): **tokenvalue**, **checkerboard**, **fractal2d**, **cellnoise1d**
+Additionally, the following new operator nodes have been added to the standard library:
+
+* [Procedural nodes](./MaterialX.Specification.md#procedural-nodes): **tokenvalue**, **checkerboard**, **fractal2d**, **cellnoise1d**, **unifiednoise2d**, **unifiednoise3d**
 * [Geometric nodes](./MaterialX.Specification.md#geometric-nodes): **bump**, **geompropvalueuniform**
-* [Math nodes](./MaterialX.Specification.md#math-nodes): boolean **and**, **or**, **not**; **distance**, **transformcolor** and **creatematrix**, as well as integer-output variants of **floor** and **ceil**
-* [Adjustment nodes](./MaterialX.Specification.md#adjustment-nodes): **curveinversecubic**, **curveuniformlinear** and **curveuniformcubic**
+* [Math nodes](./MaterialX.Specification.md#math-nodes): boolean **and**, **or**, **not**; **distance**, **transformcolor**, **creatematrix** and **triplanarblend**, as well as integer-output variants of **floor** and **ceil**
+* [Adjustment nodes](./MaterialX.Specification.md#adjustment-nodes): **curveinversecubic**, **curveuniformlinear**, **curveuniformcubic** and **colorcorrect**
 * [Conditional nodes](./MaterialX.Specification.md#conditional-nodes): boolean-output variants of **ifgreater**, **ifgreatereq** and **ifequal**; new **ifelse** node
-* [Channel nodes](./MaterialX.Specification.md#channel-nodes): **extractrowvector**
-
-Additionally, the following new supplemental nodes have been added:
-
-* [Procedural nodes](./MaterialX.Supplement.md#supplemental-procedural-nodes): **unifiednoise2d**, **unifiednoise3d**
-* [Math nodes](./MaterialX.Supplement.md#supplemental-math-nodes): **triplanarblend**
-* [Adjustment nodes](./MaterialX.Supplement.md#supplemental-adjustment-nodes): **colorcorrect**
-* [Channel nodes](./MaterialX.Supplement.md#supplemental-channel-nodes): **separatecolor4**
+* [Channel nodes](./MaterialX.Specification.md#channel-nodes): **extractrowvector** and **separatecolor4**
 
 
 **New Physically Based Shading Nodes**

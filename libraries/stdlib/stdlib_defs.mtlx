@@ -1025,6 +1025,52 @@
   </nodedef>
 
   <!--
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomfloat_float" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
+    <input name="min" type="float" uiname="Minimum" value="0.0" doc="The minimum output value." />
+    <input name="max" type="float" uiname="Maximum" value="1.0" doc="The maximum output value." />
+    <input name="seed" type="integer" uiname="Seed" value="0" doc="Additional seed." />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_randomfloat_integer" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="integer" uiname="Input" value="0" />
+    <input name="min" type="float" uiname="Minimum" value="0.0" />
+    <input name="max" type="float" uiname="Maximum" value="1.0" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodedef name="ND_randomcolor_integer" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
     Node: <checkerboard>
     A 2D checkerboard pattern.
   -->

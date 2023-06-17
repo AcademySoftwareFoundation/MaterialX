@@ -1161,6 +1161,143 @@
   </nodegraph>
 
   <!--
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
+  -->
+  <nodegraph name="NG_randomfloat_float" nodedef="ND_randomfloat_float">
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
+    </convert>
+    <modulo name="N_moduloInput" type="float">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" value="4219" />
+    </modulo>
+    <multiply name="N_scaleInput" type="float">
+      <input name="in1" type="float" nodename="N_moduloInput" />
+      <input name="in2" type="float" value="3947" />
+    </multiply>
+    <combine2 name="N_combine2" type="vector2">
+      <input name="in1" type="float" nodename="N_scaleInput" />
+      <input name="in2" type="float" nodename="N_convertSeed1" />
+    </combine2>
+    <cellnoise2d name="N_cellnoise1" type="float">
+      <input name="texcoord" type="vector2" nodename="N_combine2" />
+    </cellnoise2d>
+    <range name="N_remapRange" type="float">
+      <input name="in" type="float" nodename="N_cellnoise1" />
+      <input name="outlow" type="float" interfacename="min" />
+      <input name="outhigh" type="float" interfacename="max" />
+      <input name="doclamp" type="boolean" value="true" />
+    </range>
+    <output name="out" type="float" nodename="N_remapRange" />
+  </nodegraph>
+  <nodegraph name="NG_randomfloat_integer" nodedef="ND_randomfloat_integer">
+    <convert name="N_convertInput1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
+    </convert>
+    <combine2 name="N_combine2" type="vector2">
+      <input name="in1" type="float" nodename="N_convertInput1" />
+      <input name="in2" type="float" nodename="N_convertSeed1" />
+    </combine2>
+    <cellnoise2d name="N_cellnoise1" type="float">
+      <input name="texcoord" type="vector2" nodename="N_combine2" />
+    </cellnoise2d>
+    <range name="N_remapRange" type="float">
+      <input name="in" type="float" nodename="N_cellnoise1" />
+      <input name="outlow" type="float" interfacename="min" />
+      <input name="outhigh" type="float" interfacename="max" />
+      <input name="doclamp" type="boolean" value="true" />
+    </range>
+    <output name="out" type="float" nodename="N_remapRange" />
+  </nodegraph>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized color, based on an input signal and seed value.
+  -->
+  <nodegraph name="NG_randomcolor_float" nodedef="ND_randomcolor_float">
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
+    </convert>
+    <add name="N_offset_hue" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="413.3" />
+    </add>
+    <add name="N_offset_saturation" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="1522.4" />
+    </add>
+    <add name="N_offset_brightness" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="1813.8" />
+    </add>
+    <ceil name="N_seed_hue" type="integer">
+      <input name="in" type="float" nodename="N_offset_hue" />
+    </ceil>
+    <ceil name="N_seed_saturation" type="integer">
+      <input name="in" type="float" nodename="N_offset_saturation" />
+    </ceil>
+    <ceil name="N_seed_brightness" type="integer">
+      <input name="in" type="float" nodename="N_offset_brightness" />
+    </ceil>
+    <randomfloat name="N_rand_hue" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_hue" />
+    </randomfloat>
+    <randomfloat name="N_rand_saturation" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_saturation" />
+    </randomfloat>
+    <randomfloat name="N_rand_brightness" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_brightness" />
+    </randomfloat>
+    <range name="N_range_hue" type="float">
+      <input name="in" type="float" nodename="N_rand_hue" />
+      <input name="outlow" type="float" interfacename="huelow" />
+      <input name="outhigh" type="float" interfacename="huehigh" />
+    </range>
+    <range name="N_range_saturation" type="float">
+      <input name="in" type="float" nodename="N_rand_saturation" />
+      <input name="outlow" type="float" interfacename="saturationlow" />
+      <input name="outhigh" type="float" interfacename="saturationhigh" />
+    </range>
+    <range name="N_range_brightness" type="float">
+      <input name="in" type="float" nodename="N_rand_brightness" />
+      <input name="outlow" type="float" interfacename="brightnesslow" />
+      <input name="outhigh" type="float" interfacename="brightnesshigh" />
+    </range>
+    <combine3 name="N_combine_HSV" type="color3">
+      <input name="in1" type="float" nodename="N_range_hue" />
+      <input name="in2" type="float" nodename="N_range_saturation" />
+      <input name="in3" type="float" nodename="N_range_brightness" />
+    </combine3>
+    <hsvtorgb name="N_HSV_to_RGB" type="color3">
+      <input name="in" type="color3" nodename="N_combine_HSV" />
+    </hsvtorgb>
+    <output name="out" type="color3" nodename="N_HSV_to_RGB" />
+  </nodegraph>
+  <nodegraph name="NG_randomcolor_integer" nodedef="ND_randomcolor_integer">
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <randomcolor name="N_randomcolor1" type="color3">
+      <input name="in" type="float" nodename="N_convert1" />
+      <input name="huelow" type="float" interfacename="huelow" />
+      <input name="huehigh" type="float" interfacename="huehigh" />
+      <input name="saturationlow" type="float" interfacename="saturationlow" />
+      <input name="saturationhigh" type="float" interfacename="saturationhigh" />
+      <input name="brightnesslow" type="float" interfacename="brightnesslow" />
+      <input name="brightnesshigh" type="float" interfacename="brightnesshigh" />
+      <input name="seed" type="integer" interfacename="seed" />
+    </randomcolor>
+    <output name="out" type="color3" nodename="N_randomcolor1" />
+  </nodegraph>
+
+  <!--
     <checkerboard>
     A 2D checkerboard pattern.
   -->
