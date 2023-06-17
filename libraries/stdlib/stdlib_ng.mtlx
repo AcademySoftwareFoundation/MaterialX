@@ -844,6 +844,96 @@
     <output name="out" type="vector4" nodename="N_add2_vector4" />
   </nodegraph>
 
+  <!--
+    Node: <udimtexcoord> Supplemental Node
+    Texture coordinates of the specified UDIM patch.
+  -->
+  <nodegraph name="NG_udimtexcoord" nodedef="ND_udimtexcoord">
+    <convert name="N_convertUdimPatch" type="float">
+      <input name="in" type="integer" interfacename="patch" />
+    </convert>
+    <clamp name="N_clampUdimRange" type="float">
+      <input name="in" type="float" nodename="N_convertUdimPatch" />
+      <input name="low" type="float" value="1001" />
+      <input name="high" type="float" value="1099" />
+    </clamp>
+    <modulo name="N_ensurePeriodicUVs" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" value="1, 1" />
+    </modulo>
+    <modulo name="N_modIndex" type="float">
+      <input name="in1" type="float" nodename="N_clampUdimRange" />
+      <input name="in2" type="float" value="1001" />
+    </modulo>
+    <divide name="N_divideTen" type="float">
+      <input name="in1" type="float" nodename="N_modIndex" />
+      <input name="in2" type="float" value="10" />
+    </divide>
+    <separate2 name="N_splitUV" type="multioutput">
+      <input name="in" type="vector2" nodename="N_ensurePeriodicUVs" />
+    </separate2>
+    <floor name="N_floor" type="float">
+      <input name="in" type="float" nodename="N_divideTen" />
+    </floor>
+    <clamp name="N_clampV" type="float">
+      <input name="in" type="float" nodename="N_splitUV" output="outy" />
+      <input name="high" type="float" value="0.999999" />
+    </clamp>
+    <modulo name="N_modTen" type="float">
+      <input name="in1" type="float" nodename="N_modIndex" />
+      <input name="in2" type="float" value="10" />
+    </modulo>
+    <clamp name="N_clampU" type="float">
+      <input name="in" type="float" nodename="N_splitUV" output="outx" />
+      <input name="high" type="float" value="0.999999" />
+    </clamp>
+    <add name="N_offsetV" type="float">
+      <input name="in1" type="float" nodename="N_clampV" />
+      <input name="in2" type="float" nodename="N_floor" />
+    </add>
+    <add name="N_offsetU" type="float">
+      <input name="in1" type="float" nodename="N_clampU" />
+      <input name="in2" type="float" nodename="N_modTen" />
+    </add>
+    <combine2 name="N_udimTexcoord" type="vector2">
+      <input name="in1" type="float" nodename="N_offsetU" />
+      <input name="in2" type="float" nodename="N_offsetV" />
+    </combine2>
+    <output name="out" type="vector2" nodename="N_udimTexcoord" />
+  </nodegraph>
+
+  <!--
+    Node: <udimextract> Supplemental Node
+    Extracts the UDIM patch from the given texture coordinates.
+  -->
+  <nodegraph name="NG_udimextract" nodedef="ND_udimextract">
+    <separate2 name="N_separateUV" type="multioutput">
+      <input name="in" type="vector2" interfacename="texcoord" />
+    </separate2>
+    <floor name="N_floorU" type="float">
+      <input name="in" type="float" nodename="N_separateUV" />
+    </floor>
+    <floor name="N_floorV" type="float">
+      <input name="in" type="float" nodename="N_separateUV" />
+    </floor>
+    <add name="N_addU" type="float">
+      <input name="in1" type="float" value="1001" />
+      <input name="in2" type="float" nodename="N_floorU" />
+    </add>
+    <multiply name="N_multV" type="float">
+      <input name="in1" type="float" value="10" />
+      <input name="in2" type="float" nodename="N_floorV" />
+    </multiply>
+    <add name="N_addUandV" type="float">
+      <input name="in1" type="float" nodename="N_addU" />
+      <input name="in2" type="float" nodename="N_multV" />
+    </add>
+    <floor name="N_floorToInteger" type="integer">
+      <input name="in" type="float" nodename="N_addUandV" />
+    </floor>
+    <output name="out" type="integer" nodename="N_floorToInteger" />
+  </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->

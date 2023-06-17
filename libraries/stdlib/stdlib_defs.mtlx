@@ -394,6 +394,25 @@
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
 
+  <!--
+    Node: <udimtexcoord> Supplemental Node
+    Texture coordinates of the specified UDIM patch.
+  -->
+  <nodedef name="ND_udimtexcoord" node="udimtexcoord" nodegroup="texture2d">
+    <input name="patch" type="integer" uiname="UDIM Patch" value="1001" uimin="1001" uimax="1099" doc="The UDIM patch whose texture coordinates." />
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <output name="out" type="vector2" />
+  </nodedef>
+
+  <!--
+    Node: <udimextract> Supplemental Node
+    Extracts the UDIM patch from the given texture coordinates.
+  -->
+  <nodedef name="ND_udimextract" node="udimextract" nodegroup="texture2d">
+    <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <output name="out" type="integer" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
   <!-- ======================================================================== -->
