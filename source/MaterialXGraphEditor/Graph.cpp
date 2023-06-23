@@ -172,6 +172,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     };
 
     mx::DocumentPtr doc = mx::createDocument();
+    doc->importLibrary(_stdLib);
     try
     {
         if (!filename.isEmpty())
@@ -4047,7 +4048,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
         _graphDoc = loadDocument(fileName);
-        _graphDoc->importLibrary(_stdLib);
 
         _initial = true;
         buildUiBaseGraph(_graphDoc);

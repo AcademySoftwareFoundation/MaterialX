@@ -339,7 +339,16 @@ bool Input::validate(string* message) const
     {
         bool hasValueBinding = hasValue();
         bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
-        validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+        bool hasDefaultGeomProp = false;
+        if (!hasConnection && !hasValueBinding)
+        {
+            ConstNodePtr node = parent->asA<Node>();
+            ConstNodeDefPtr nodeDef = node->getNodeDef();
+            InputPtr input = nodeDef ? nodeDef->getInput(getName()) : nullptr;
+            if (input && input->hasDefaultGeomPropString())
+                hasDefaultGeomProp = true;
+        }
+        validateRequire(hasValueBinding || hasConnection || hasDefaultGeomProp, res, message, "Node input binds no value or connection");
     }
     else if (parent->isA<NodeGraph>())
     {
