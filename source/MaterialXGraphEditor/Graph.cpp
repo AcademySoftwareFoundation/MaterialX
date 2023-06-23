@@ -2524,6 +2524,10 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
                                 {
                                     pin->_input->setConnectedOutput(_graphNodes[upNode]->getOutput());
                                 }
+                                else if (_graphNodes[upNode]->getInput() != nullptr)
+                                {
+                                    pin->_input->setInterfaceName(_graphNodes[upNode]->getName());
+                                }
                                 else
                                 {
                                     // node graph
@@ -3442,6 +3446,7 @@ void Graph::showHelp() const
 void Graph::addNodePopup(bool cursor)
 {
     bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
+    static char input[32]{ "" };
     if (open_AddPopup)
     {
         cursor = true;
@@ -3451,7 +3456,6 @@ void Graph::addNodePopup(bool cursor)
     {
         ImGui::Text("Add Node");
         ImGui::Separator();
-        static char input[32]{ "" };
         if (cursor)
         {
             ImGui::SetKeyboardFocusHere();
@@ -3470,6 +3474,9 @@ void Graph::addNodePopup(bool cursor)
                 {
                     std::string str(it->second[i][0]);
                     std::string nodeName = it->second[i][0];
+                    //allow spaces to be used to search for node names
+                    std::replace(subs.begin(), subs.end(), ' ', '_');
+                                    
                     if (str.find(subs) != std::string::npos)
                     {
                         if (ImGui::MenuItem(getNodeDefId(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
