@@ -201,11 +201,20 @@
 Nodes with library nodedefs that *do not appear in the Specification*:
 
   `arrayappend` - *math* (stdlib_defs.mtlx)
+
   `directional_light` - *light* (lights_defs.mtlx)
+
   `invert` - *math* (stdlib_defs.mtlx)
+
   `point_light` - *light* (lights_defs.mtlx)
+
   `randomcolor` - *procedural3d* (stdlib_defs.mtlx)
+
   `randomfloat` - *procedural* (stdlib_defs.mtlx)
+
   `spot_light` - *light* (lights_defs.mtlx)
+
   `swizzle` - *channel* (stdlib_defs.mtlx)
+
   `thin_surface` - *pbr* (pbrlib_defs.mtlx)
+
