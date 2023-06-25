@@ -1,202 +1,64 @@
 ## Node Index
 
+
 <table>
- <tr>
-  <td>
-
-  [`absorption_vdf`](MaterialX.PBRSpec.md#node-absorption-vdf) -  *pbr* (PBRlib)
-
-  </td>
-  <td>
-
-  [`add`](#node-add) -  *math*
-
-  </td>
- </tr>
- <tr>
-  <td>
-
-  [`absval`](#node-absval) -  *math*
-
-  </td>
-  <td>
-
-  [`ambientocclusion`](#node-ambientocclusion) -  *global*
-
-  </td>
- </tr>
- <tr>
-  <td>
-
-  [`acos`](#node-acos) -  *math*
-
-  </td>
-  <td>
-
-  [`and`](#node-and) -   ***No nodedef in lib***
-
-  </td>
- </tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-absorption-vdf"><code>absorption_vdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-fractal3d"><code>fractal3d</code></a> -  <em>procedural3d</em></td><td><a href="#node-range"><code>range</code></a> -  <em>adjustment</em></td></tr>
+<tr><td><a href="#node-absval"><code>absval</code></a> -  <em>math</em></td><td><a href="#node-frame"><code>frame</code></a> -  <em>application</em></td><td><a href="#node-remap"><code>remap</code></a> -  <em>adjustment</em></td></tr>
+<tr><td><a href="#node-acos"><code>acos</code></a> -  <em>math</em></td><td><a href="MaterialX.PBRSpec.md#node-generalized-schlick-bsdf"><code>generalized_schlick_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-rgbtohsv"><code>rgbtohsv</code></a> -  <em>adjustment</em></td></tr>
+<tr><td><a href="#node-add"><code>add</code></a> -  <em>math</em></td><td><a href="MaterialX.PBRSpec.md#node-generalized-schlick-edf"><code>generalized_schlick_edf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-rotate2d"><code>rotate2d</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-ambientocclusion"><code>ambientocclusion</code></a> -  <em>global</em></td><td><a href="#node-geomcolor"><code>geomcolor</code></a> -  <em>geometric</em></td><td><a href="#node-rotate3d"><code>rotate3d</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-and"><code>and</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-geompropvalue"><code>geompropvalue</code></a> -  <em>geometric</em></td><td><a href="MaterialX.PBRSpec.md#node-roughness-anisotropy"><code>roughness_anisotropy</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-anisotropic-vdf"><code>anisotropic_vdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-geompropvalueuniform"><code>geompropvalueuniform</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="MaterialX.PBRSpec.md#node-roughness-dual"><code>roughness_dual</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-artistic-ior"><code>artistic_ior</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="MaterialX.PBRSpec.md#node-glossiness-anisotropy"><code>glossiness_anisotropy</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-round"><code>round</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-asin"><code>asin</code></a> -  <em>math</em></td><td><a href="#node-heighttonormal"><code>heighttonormal</code></a> -  <em>convolution2d</em></td><td><a href="#node-safepower"><code>safepower</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-atan2"><code>atan2</code></a> -  <em>math</em></td><td><a href="#node-hsvadjust"><code>hsvadjust</code></a> -  <em>adjustment</em></td><td><a href="#node-saturate"><code>saturate</code></a> -  <em>adjustment</em></td></tr>
+<tr><td><a href="#node-bitangent"><code>bitangent</code></a> -  <em>geometric</em></td><td><a href="#node-hsvtorgb"><code>hsvtorgb</code></a> -  <em>adjustment</em></td><td><a href="#node-screen"><code>screen</code></a> -  <em>compositing</em></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-blackbody"><code>blackbody</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-ifelse"><code>ifelse</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-separate2"><code>separate2</code></a> -  <em>channel</em></td></tr>
+<tr><td><a href="#node-blur"><code>blur</code></a> -  <em>convolution2d</em></td><td><a href="#node-ifequal"><code>ifequal</code></a> -  <em>conditional</em></td><td><a href="#node-separate3"><code>separate3</code></a> -  <em>channel</em></td></tr>
+<tr><td><a href="#node-bump"><code>bump</code></a> -  <em>geometric</em></td><td><a href="#node-ifgreater"><code>ifgreater</code></a> -  <em>conditional</em></td><td><a href="#node-separate4"><code>separate4</code></a> -  <em>channel</em></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-burley-diffuse-bsdf"><code>burley_diffuse_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-ifgreatereq"><code>ifgreatereq</code></a> -  <em>conditional</em></td><td><a href="#node-separatecolor4"><code>separatecolor4</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-burn"><code>burn</code></a> -  <em>compositing</em></td><td><a href="#node-image"><code>image</code></a> -  <em>texture2d</em></td><td><a href="MaterialX.PBRSpec.md#node-sheen-bsdf"><code>sheen_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-ceil"><code>ceil</code></a> -  <em>math</em></td><td><a href="#node-in"><code>in</code></a> -  <em>compositing</em></td><td><a href="#node-sign"><code>sign</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-cellnoise1d"><code>cellnoise1d</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-inside"><code>inside</code></a> -  <em>compositing</em></td><td><a href="#node-sin"><code>sin</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-cellnoise2d"><code>cellnoise2d</code></a> -  <em>procedural2d</em></td><td><a href="#node-invertmatrix"><code>invertmatrix</code></a> -  <em>math</em></td><td><a href="#node-smoothstep"><code>smoothstep</code></a> -  <em>adjustment</em></td></tr>
+<tr><td><a href="#node-cellnoise3d"><code>cellnoise3d</code></a> -  <em>procedural3d</em></td><td><a href="MaterialX.PBRSpec.md#node-layer"><code>layer</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-splitlr"><code>splitlr</code></a> -  <em>procedural2d</em></td></tr>
+<tr><td><a href="#node-checkerboard"><code>checkerboard</code></a> -  <em>procedural2d</em></td><td><a href="MaterialX.PBRSpec.md#node-light"><code>light</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-splittb"><code>splittb</code></a> -  <em>procedural2d</em></td></tr>
+<tr><td><a href="#node-clamp"><code>clamp</code></a> -  <em>math</em></td><td><a href="#node-lightmaterial"><code>lightmaterial</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-sqrt"><code>sqrt</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-colorcorrect"><code>colorcorrect</code></a> -  <em>adjustment</em></td><td><a href="#node-ln"><code>ln</code></a> -  <em>math</em></td><td><a href="MaterialX.PBRSpec.md#node-subsurface-bsdf"><code>subsurface_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-combine2"><code>combine2</code></a> -  <em>channel</em></td><td><a href="#node-luminance"><code>luminance</code></a> -  <em>adjustment</em></td><td><a href="#node-subtract"><code>subtract</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-combine3"><code>combine3</code></a> -  <em>channel</em></td><td><a href="#node-magnitude"><code>magnitude</code></a> -  <em>math</em></td><td><a href="MaterialX.PBRSpec.md#node-surface"><code>surface</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-combine4"><code>combine4</code></a> -  <em>channel</em></td><td><a href="#node-mask"><code>mask</code></a> -  <em>compositing</em></td><td><a href="#node-surface-unlit"><code>surface_unlit</code></a> -  <em>shader</em></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-conductor-bsdf"><code>conductor_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-matte"><code>matte</code></a> -  <em>compositing</em></td><td><a href="#node-surfacematerial"><code>surfacematerial</code></a> -  <em>material</em></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-conical-edf"><code>conical_edf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-max"><code>max</code></a> -  <em>math</em></td><td><a href="#node-switch"><code>switch</code></a> -  <em>conditional</em></td></tr>
+<tr><td><a href="#node-constant"><code>constant</code></a> -  <em>procedural</em></td><td><a href="MaterialX.PBRSpec.md#node-measured-edf"><code>measured_edf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-tan"><code>tan</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-contrast"><code>contrast</code></a> -  <em>adjustment</em></td><td><a href="#node-min"><code>min</code></a> -  <em>math</em></td><td><a href="#node-tangent"><code>tangent</code></a> -  <em>geometric</em></td></tr>
+<tr><td><a href="#node-convert"><code>convert</code></a> -  <em>shader</em></td><td><a href="#node-minus"><code>minus</code></a> -  <em>compositing</em></td><td><a href="#node-texcoord"><code>texcoord</code></a> -  <em>geometric</em></td></tr>
+<tr><td><a href="#node-cos"><code>cos</code></a> -  <em>math</em></td><td><a href="#node-mix"><code>mix</code></a> -  <em>compositing</em></td><td><a href="MaterialX.PBRSpec.md#node-thin-film-bsdf"><code>thin_film_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-creatematrix"><code>creatematrix</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-mix-shader"><code>mix (shader)</code></a> - </td><td><a href="#node-tiledimage"><code>tiledimage</code></a> -  <em>texture2d</em></td></tr>
+<tr><td><a href="#node-crossproduct"><code>crossproduct</code></a> -  <em>math</em></td><td><a href="#node-modulo"><code>modulo</code></a> -  <em>math</em></td><td><a href="#node-time"><code>time</code></a> -  <em>application</em></td></tr>
+<tr><td><a href="#node-curveadjust"><code>curveadjust</code></a> -  <em>adjustment</em></td><td><a href="#node-multiply"><code>multiply</code></a> -  <em>math</em></td><td><a href="#node-tokenvalue"><code>tokenvalue</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-curveinversecubic"><code>curveinversecubic</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-noise2d"><code>noise2d</code></a> -  <em>procedural2d</em></td><td><a href="#node-transformcolor"><code>transformcolor</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-curvelookup"><code>curvelookup</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-noise3d"><code>noise3d</code></a> -  <em>procedural3d</em></td><td><a href="#node-transformmatrix"><code>transformmatrix</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-curveuniformcubic"><code>curveuniformcubic</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-normal"><code>normal</code></a> -  <em>geometric</em></td><td><a href="#node-transformnormal"><code>transformnormal</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-curveuniformlinear"><code>curveuniformlinear</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-normalize"><code>normalize</code></a> -  <em>math</em></td><td><a href="#node-transformpoint"><code>transformpoint</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-determinant"><code>determinant</code></a> -  <em>math</em></td><td><a href="#node-normalmap"><code>normalmap</code></a> -  <em>math</em></td><td><a href="#node-transformvector"><code>transformvector</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-dielectric-bsdf"><code>dielectric_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-not"><code>not</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="MaterialX.PBRSpec.md#node-translucent-bsdf"><code>translucent_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-difference"><code>difference</code></a> -  <em>compositing</em></td><td><a href="#node-or"><code>or</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-transpose"><code>transpose</code></a> -  <em>math</em></td></tr>
+<tr><td><a href="#node-disjointover"><code>disjointover</code></a> -  <em>compositing</em></td><td><a href="MaterialX.PBRSpec.md#node-oren-nayar-diffuse-bsdf"><code>oren_nayar_diffuse_bsdf</code></a> -  <em>pbr</em> (PBRlib)</td><td><a href="#node-triplanarblend"><code>triplanarblend</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="#node-displacement"><code>displacement</code></a> -  <em>pbr</em></td><td><a href="#node-out"><code>out</code></a> -  <em>compositing</em></td><td><a href="#node-triplanarprojection"><code>triplanarprojection</code></a> -  <em>texture3d</em></td></tr>
+<tr><td><a href="#node-distance"><code>distance</code></a> -  <em>math</em></td><td><a href="#node-outside"><code>outside</code></a> -  <em>compositing</em></td><td><a href="#node-unifiednoise2d"><code>unifiednoise2d</code></a> -  <em>procedural2d</em></td></tr>
+<tr><td><a href="#node-divide"><code>divide</code></a> -  <em>math</em></td><td><a href="#node-over"><code>over</code></a> -  <em>compositing</em></td><td><a href="#node-unifiednoise3d"><code>unifiednoise3d</code></a> -  <em>procedural3d</em></td></tr>
+<tr><td><a href="#node-dodge"><code>dodge</code></a> -  <em>compositing</em></td><td><a href="#node-overlay"><code>overlay</code></a> -  <em>compositing</em></td><td><a href="MaterialX.PBRSpec.md#node-uniform-edf"><code>uniform_edf</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-dot"><code>dot</code></a> -  <em>organization</em></td><td><a href="#node-place2d"><code>place2d</code></a> -  <em>math</em></td><td><a href="#node-unpremult"><code>unpremult</code></a> -  <em>compositing</em></td></tr>
+<tr><td><a href="#node-dotproduct"><code>dotproduct</code></a> -  <em>math</em></td><td><a href="#node-plus"><code>plus</code></a> -  <em>compositing</em></td><td><a href="#node-updirection"><code>updirection</code></a> -   <strong><em>No nodedef in lib</em></strong></td></tr>
+<tr><td><a href="MaterialX.PBRSpec.md#node-environment"><code>environment</code></a> -  (PBRlib)  <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-position"><code>position</code></a> -  <em>geometric</em></td><td><a href="MaterialX.PBRSpec.md#node-volume"><code>volume</code></a> -  <em>pbr</em> (PBRlib)</td></tr>
+<tr><td><a href="#node-exp"><code>exp</code></a> -  <em>math</em></td><td><a href="#node-power"><code>power</code></a> -  <em>math</em></td><td><a href="#node-volumematerial"><code>volumematerial</code></a> -  <em>material</em></td></tr>
+<tr><td><a href="#node-extract"><code>extract</code></a> -  <em>channel</em></td><td><a href="#node-premult"><code>premult</code></a> -  <em>compositing</em></td><td><a href="#node-worleynoise2d"><code>worleynoise2d</code></a> -  <em>procedural2d</em></td></tr>
+<tr><td><a href="#node-extractrowvector"><code>extractrowvector</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-ramp4"><code>ramp4</code></a> -  <em>procedural2d</em></td><td><a href="#node-worleynoise3d"><code>worleynoise3d</code></a> -  <em>procedural3d</em></td></tr>
+<tr><td><a href="#node-floor"><code>floor</code></a> -  <em>math</em></td><td><a href="#node-ramplr"><code>ramplr</code></a> -  <em>procedural2d</em></td><td> </td></tr>
+<tr><td><a href="#node-fractal2d"><code>fractal2d</code></a> -   <strong><em>No nodedef in lib</em></strong></td><td><a href="#node-ramptb"><code>ramptb</code></a> -  <em>procedural2d</em></td><td> </td></tr>
 </table>
 
-
-  [`anisotropic_vdf`](MaterialX.PBRSpec.md#node-anisotropic-vdf) -  *pbr* (PBRlib)
-  [`artistic_ior`](MaterialX.PBRSpec.md#node-artistic-ior) -  *pbr* (PBRlib)
-  [`asin`](#node-asin) -  *math*
-  [`atan2`](#node-atan2) -  *math*
-  [`bitangent`](#node-bitangent) -  *geometric*
-  [`blackbody`](MaterialX.PBRSpec.md#node-blackbody) -  *pbr* (PBRlib)
-  [`blur`](#node-blur) -  *convolution2d*
-  [`bump`](#node-bump) -  *geometric*
-  [`burley_diffuse_bsdf`](MaterialX.PBRSpec.md#node-burley-diffuse-bsdf) -  *pbr* (PBRlib)
-  [`burn`](#node-burn) -  *compositing*
-  [`ceil`](#node-ceil) -  *math*
-  [`cellnoise1d`](#node-cellnoise1d) -   ***No nodedef in lib***
-  [`cellnoise2d`](#node-cellnoise2d) -  *procedural2d*
-  [`cellnoise3d`](#node-cellnoise3d) -  *procedural3d*
-  [`checkerboard`](#node-checkerboard) -  *procedural2d*
-  [`clamp`](#node-clamp) -  *math*
-  [`colorcorrect`](#node-colorcorrect) -  *adjustment*
-  [`combine2`](#node-combine2) -  *channel*
-  [`combine3`](#node-combine3) -  *channel*
-  [`combine4`](#node-combine4) -  *channel*
-  [`conductor_bsdf`](MaterialX.PBRSpec.md#node-conductor-bsdf) -  *pbr* (PBRlib)
-  [`conical_edf`](MaterialX.PBRSpec.md#node-conical-edf) -  *pbr* (PBRlib)
-  [`constant`](#node-constant) -  *procedural*
-  [`contrast`](#node-contrast) -  *adjustment*
-  [`convert`](#node-convert) -  *shader*
-  [`cos`](#node-cos) -  *math*
-  [`creatematrix`](#node-creatematrix) -   ***No nodedef in lib***
-  [`crossproduct`](#node-crossproduct) -  *math*
-  [`curveadjust`](#node-curveadjust) -  *adjustment*
-  [`curveinversecubic`](#node-curveinversecubic) -   ***No nodedef in lib***
-  [`curvelookup`](#node-curvelookup) -   ***No nodedef in lib***
-  [`curveuniformcubic`](#node-curveuniformcubic) -   ***No nodedef in lib***
-  [`curveuniformlinear`](#node-curveuniformlinear) -   ***No nodedef in lib***
-  [`determinant`](#node-determinant) -  *math*
-  [`dielectric_bsdf`](MaterialX.PBRSpec.md#node-dielectric-bsdf) -  *pbr* (PBRlib)
-  [`difference`](#node-difference) -  *compositing*
-  [`disjointover`](#node-disjointover) -  *compositing*
-  [`displacement`](#node-displacement) -  *pbr*
-  [`distance`](#node-distance) -  *math*
-  [`divide`](#node-divide) -  *math*
-  [`dodge`](#node-dodge) -  *compositing*
-  [`dot`](#node-dot) -  *organization*
-  [`dotproduct`](#node-dotproduct) -  *math*
-  [`environment`](MaterialX.PBRSpec.md#node-environment) -  (PBRlib)  ***No nodedef in lib***
-  [`exp`](#node-exp) -  *math*
-  [`extract`](#node-extract) -  *channel*
-  [`extractrowvector`](#node-extractrowvector) -   ***No nodedef in lib***
-  [`floor`](#node-floor) -  *math*
-  [`fractal2d`](#node-fractal2d) -   ***No nodedef in lib***
-  [`fractal3d`](#node-fractal3d) -  *procedural3d*
-  [`frame`](#node-frame) -  *application*
-  [`generalized_schlick_bsdf`](MaterialX.PBRSpec.md#node-generalized-schlick-bsdf) -  *pbr* (PBRlib)
-  [`generalized_schlick_edf`](MaterialX.PBRSpec.md#node-generalized-schlick-edf) -  *pbr* (PBRlib)
-  [`geomcolor`](#node-geomcolor) -  *geometric*
-  [`geompropvalue`](#node-geompropvalue) -  *geometric*
-  [`geompropvalueuniform`](#node-geompropvalueuniform) -   ***No nodedef in lib***
-  [`glossiness_anisotropy`](MaterialX.PBRSpec.md#node-glossiness-anisotropy) -  *pbr* (PBRlib)
-  [`heighttonormal`](#node-heighttonormal) -  *convolution2d*
-  [`hsvadjust`](#node-hsvadjust) -  *adjustment*
-  [`hsvtorgb`](#node-hsvtorgb) -  *adjustment*
-  [`ifelse`](#node-ifelse) -   ***No nodedef in lib***
-  [`ifequal`](#node-ifequal) -  *conditional*
-  [`ifgreater`](#node-ifgreater) -  *conditional*
-  [`ifgreatereq`](#node-ifgreatereq) -  *conditional*
-  [`image`](#node-image) -  *texture2d*
-  [`in`](#node-in) -  *compositing*
-  [`inside`](#node-inside) -  *compositing*
-  [`invertmatrix`](#node-invertmatrix) -  *math*
-  [`layer`](MaterialX.PBRSpec.md#node-layer) -  *pbr* (PBRlib)
-  [`light`](MaterialX.PBRSpec.md#node-light) -  *pbr* (PBRlib)
-  [`lightmaterial`](#node-lightmaterial) -   ***No nodedef in lib***
-  [`ln`](#node-ln) -  *math*
-  [`luminance`](#node-luminance) -  *adjustment*
-  [`magnitude`](#node-magnitude) -  *math*
-  [`mask`](#node-mask) -  *compositing*
-  [`matte`](#node-matte) -  *compositing*
-  [`max`](#node-max) -  *math*
-  [`measured_edf`](MaterialX.PBRSpec.md#node-measured-edf) -  *pbr* (PBRlib)
-  [`min`](#node-min) -  *math*
-  [`minus`](#node-minus) -  *compositing*
-  [`mix`](#node-mix) -  *compositing*
-  [`mix (shader)`](#node-mix-shader) - 
-  [`modulo`](#node-modulo) -  *math*
-  [`multiply`](#node-multiply) -  *math*
-  [`noise2d`](#node-noise2d) -  *procedural2d*
-  [`noise3d`](#node-noise3d) -  *procedural3d*
-  [`normal`](#node-normal) -  *geometric*
-  [`normalize`](#node-normalize) -  *math*
-  [`normalmap`](#node-normalmap) -  *math*
-  [`not`](#node-not) -   ***No nodedef in lib***
-  [`or`](#node-or) -   ***No nodedef in lib***
-  [`oren_nayar_diffuse_bsdf`](MaterialX.PBRSpec.md#node-oren-nayar-diffuse-bsdf) -  *pbr* (PBRlib)
-  [`out`](#node-out) -  *compositing*
-  [`outside`](#node-outside) -  *compositing*
-  [`over`](#node-over) -  *compositing*
-  [`overlay`](#node-overlay) -  *compositing*
-  [`place2d`](#node-place2d) -  *math*
-  [`plus`](#node-plus) -  *compositing*
-  [`position`](#node-position) -  *geometric*
-  [`power`](#node-power) -  *math*
-  [`premult`](#node-premult) -  *compositing*
-  [`ramp4`](#node-ramp4) -  *procedural2d*
-  [`ramplr`](#node-ramplr) -  *procedural2d*
-  [`ramptb`](#node-ramptb) -  *procedural2d*
-  [`range`](#node-range) -  *adjustment*
-  [`remap`](#node-remap) -  *adjustment*
-  [`rgbtohsv`](#node-rgbtohsv) -  *adjustment*
-  [`rotate2d`](#node-rotate2d) -  *math*
-  [`rotate3d`](#node-rotate3d) -  *math*
-  [`roughness_anisotropy`](MaterialX.PBRSpec.md#node-roughness-anisotropy) -  *pbr* (PBRlib)
-  [`roughness_dual`](MaterialX.PBRSpec.md#node-roughness-dual) -  *pbr* (PBRlib)
-  [`round`](#node-round) -   ***No nodedef in lib***
-  [`safepower`](#node-safepower) -   ***No nodedef in lib***
-  [`saturate`](#node-saturate) -  *adjustment*
-  [`screen`](#node-screen) -  *compositing*
-  [`separate2`](#node-separate2) -  *channel*
-  [`separate3`](#node-separate3) -  *channel*
-  [`separate4`](#node-separate4) -  *channel*
-  [`separatecolor4`](#node-separatecolor4) -   ***No nodedef in lib***
-  [`sheen_bsdf`](MaterialX.PBRSpec.md#node-sheen-bsdf) -  *pbr* (PBRlib)
-  [`sign`](#node-sign) -  *math*
-  [`sin`](#node-sin) -  *math*
-  [`smoothstep`](#node-smoothstep) -  *adjustment*
-  [`splitlr`](#node-splitlr) -  *procedural2d*
-  [`splittb`](#node-splittb) -  *procedural2d*
-  [`sqrt`](#node-sqrt) -  *math*
-  [`subsurface_bsdf`](MaterialX.PBRSpec.md#node-subsurface-bsdf) -  *pbr* (PBRlib)
-  [`subtract`](#node-subtract) -  *math*
-  [`surface`](MaterialX.PBRSpec.md#node-surface) -  *pbr* (PBRlib)
-  [`surface_unlit`](#node-surface-unlit) -  *shader*
-  [`surfacematerial`](#node-surfacematerial) -  *material*
-  [`switch`](#node-switch) -  *conditional*
-  [`tan`](#node-tan) -  *math*
-  [`tangent`](#node-tangent) -  *geometric*
-  [`texcoord`](#node-texcoord) -  *geometric*
-  [`thin_film_bsdf`](MaterialX.PBRSpec.md#node-thin-film-bsdf) -  *pbr* (PBRlib)
-  [`tiledimage`](#node-tiledimage) -  *texture2d*
-  [`time`](#node-time) -  *application*
-  [`tokenvalue`](#node-tokenvalue) -   ***No nodedef in lib***
-  [`transformcolor`](#node-transformcolor) -   ***No nodedef in lib***
-  [`transformmatrix`](#node-transformmatrix) -  *math*
-  [`transformnormal`](#node-transformnormal) -  *math*
-  [`transformpoint`](#node-transformpoint) -  *math*
-  [`transformvector`](#node-transformvector) -  *math*
-  [`translucent_bsdf`](MaterialX.PBRSpec.md#node-translucent-bsdf) -  *pbr* (PBRlib)
-  [`transpose`](#node-transpose) -  *math*
-  [`triplanarblend`](#node-triplanarblend) -   ***No nodedef in lib***
-  [`triplanarprojection`](#node-triplanarprojection) -  *texture3d*
-  [`unifiednoise2d`](#node-unifiednoise2d) -  *procedural2d*
-  [`unifiednoise3d`](#node-unifiednoise3d) -  *procedural3d*
-  [`uniform_edf`](MaterialX.PBRSpec.md#node-uniform-edf) -  *pbr* (PBRlib)
-  [`unpremult`](#node-unpremult) -  *compositing*
-  [`updirection`](#node-updirection) -   ***No nodedef in lib***
-  [`volume`](MaterialX.PBRSpec.md#node-volume) -  *pbr* (PBRlib)
-  [`volumematerial`](#node-volumematerial) -  *material*
-  [`worleynoise2d`](#node-worleynoise2d) -  *procedural2d*
-  [`worleynoise3d`](#node-worleynoise3d) -  *procedural3d*
 
 Nodes with library nodedefs that *do not appear in the Specification*:
 
@@ -209,4 +71,3 @@ Nodes with library nodedefs that *do not appear in the Specification*:
   `spot_light` - *light* (lights_defs.mtlx)  
   `swizzle` - *channel* (stdlib_defs.mtlx)  
   `thin_surface` - *pbr* (pbrlib_defs.mtlx)  
-
