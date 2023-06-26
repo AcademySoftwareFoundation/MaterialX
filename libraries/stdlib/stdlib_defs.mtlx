@@ -307,7 +307,7 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -324,7 +324,7 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -341,7 +341,7 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -358,7 +358,7 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -375,7 +375,7 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -392,7 +392,7 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
-    <input name="blend" type="float" value="1.0" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
