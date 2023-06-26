@@ -122,7 +122,7 @@ mx::ElementPredicate Graph::getElementPredicate() const
             return (_xincludeFiles.count(elem->getSourceUri()) == 0);
         }
         return true;
-    };
+        };
 }
 
 void Graph::loadStandardLibraries()
@@ -161,8 +161,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             }
             catch (mx::Exception& e)
             {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
-                    std::string(e.what()) << std::endl;
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " << std::string(e.what()) << std::endl;
             }
         }
         else
@@ -187,8 +186,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << filename.asString() << ": \"" <<
-            std::string(e.what()) << "\"" << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<UiPinPtr>>();
@@ -481,12 +479,18 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                 // don't set position of group nodes
                 if (node->getMessage().empty())
                 {
-                    float x = std::stof(node->getMxElement()->getAttribute("xpos"));
-                    float y = std::stof(node->getMxElement()->getAttribute("ypos"));
-                    x *= DEFAULT_NODE_SIZE.x;
-                    y *= DEFAULT_NODE_SIZE.y;
-                    ed::SetNodePosition(node->getId(), ImVec2(x, y));
-                    node->setPos(ImVec2(x, y));
+                    if (node->getMxElement()->hasAttribute("xpos"))
+                    {
+                        float x = std::stof(node->getMxElement()->getAttribute("xpos"));
+                        if (node->getMxElement()->hasAttribute("ypos"))
+                        {
+                            float y = std::stof(node->getMxElement()->getAttribute("ypos"));
+                            x *= DEFAULT_NODE_SIZE.x;
+                            y *= DEFAULT_NODE_SIZE.y;
+                            ed::SetNodePosition(node->getId(), ImVec2(x, y));
+                            node->setPos(ImVec2(x, y));
+                        }
+                    }
                 }
             }
         }
@@ -831,7 +835,7 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
 // set the value of the selected node constants in the node property editor
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
-    std::string inName = !uiProperties.uiName.empty()? uiProperties.uiName : input->getName();
+    std::string inName = !uiProperties.uiName.empty() ? uiProperties.uiName : input->getName();
     ImGui::PushItemWidth(-1);
 
     mx::ValuePtr minVal = uiProperties.uiMin;
@@ -2801,7 +2805,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = input->getName();
                     auto result = std::find_if(node->inputPins.begin(), node->inputPins.end(), [name](UiPinPtr x)
-                    {
+                                               {
                         return x->_name == name;
                     });
                     if (result == node->inputPins.end())
@@ -2819,7 +2823,7 @@ void Graph::addNodeGraphPins()
                 {
                     std::string name = output->getName();
                     auto result = std::find_if(node->outputPins.begin(), node->outputPins.end(), [name](UiPinPtr x)
-                    {
+                                               {
                         return x->_name == name;
                     });
                     if (result == node->outputPins.end())
@@ -2940,7 +2944,7 @@ void Graph::graphButtons()
             }
             ImGui::EndMenu();
         }
-        
+
         if (ImGui::BeginMenu("Graph"))
         {
             if (ImGui::MenuItem("Auto Layout"))
@@ -2949,7 +2953,7 @@ void Graph::graphButtons()
             }
             ImGui::EndMenu();
         }
-        
+
         if (ImGui::BeginMenu("Viewer"))
         {
             if (ImGui::MenuItem("Load Geometry"))
@@ -2957,7 +2961,7 @@ void Graph::graphButtons()
                 loadGeometry();
             }
             ImGui::EndMenu();
-        }     
+        }
 
         if (ImGui::Button("Help"))
         {
@@ -3145,7 +3149,7 @@ void Graph::propertyEditor()
         }
 
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing() * 1.3f;
-        const int SCROLL_LINE_COUNT= 20;
+        const int SCROLL_LINE_COUNT = 20;
         ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings |
                                      ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody;
 
@@ -3245,7 +3249,7 @@ void Graph::propertyEditor()
             if (count)
             {
                 bool haveTable = ImGui::BeginTable("inputs_input_table", 2, tableFlags,
-                    ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
+                                                   ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
                 if (haveTable)
                 {
                     ImGui::SetWindowFontScale(_fontScale);
@@ -3302,7 +3306,7 @@ void Graph::propertyEditor()
             if (count)
             {
                 bool haveTable = ImGui::BeginTable("inputs_nodegraph_table", 2, tableFlags,
-                    ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
+                                                   ImVec2(0.0f, TEXT_BASE_HEIGHT * std::min(SCROLL_LINE_COUNT, count)));
                 if (haveTable)
                 {
                     ImGui::SetWindowFontScale(_fontScale);
@@ -3365,7 +3369,7 @@ void Graph::propertyEditor()
 // Helper to display basic user controls.
 void Graph::showHelp() const
 {
-    ImGui::Text("MATERIALX GRAPH EDITOR HELP");   
+    ImGui::Text("MATERIALX GRAPH EDITOR HELP");
     if (ImGui::CollapsingHeader("Graph"))
     {
         if (ImGui::TreeNode("Navigation"))
@@ -3437,9 +3441,9 @@ void Graph::addNodePopup(bool cursor)
                 {
                     std::string str(it->second[i][0]);
                     std::string nodeName = it->second[i][0];
-                    //allow spaces to be used to search for node names
+                    // allow spaces to be used to search for node names
                     std::replace(subs.begin(), subs.end(), ' ', '_');
-                                    
+
                     if (str.find(subs) != std::string::npos)
                     {
                         if (ImGui::MenuItem(getNodeDefId(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
@@ -3819,12 +3823,9 @@ void Graph::drawGraph(ImVec2 mousePos)
 
                 if (outputNum.size() == 0 && _graphNodes[0]->getMxElement())
                 {
-                    if (_graphNodes[0]->getMxElement()->hasAttribute("xpos"))
+                    for (UiNodePtr node : _graphNodes)
                     {
-                        for (UiNodePtr node : _graphNodes)
-                        {
-                            layoutPosition(node, ImVec2(0, 0), true, 0);
-                        }
+                        layoutPosition(node, ImVec2(0, 0), true, 0);
                     }
                 }
             }
