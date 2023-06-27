@@ -122,7 +122,7 @@ mx::ElementPredicate Graph::getElementPredicate() const
             return (_xincludeFiles.count(elem->getSourceUri()) == 0);
         }
         return true;
-        };
+    };
 }
 
 void Graph::loadStandardLibraries()
