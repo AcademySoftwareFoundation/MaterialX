@@ -161,7 +161,8 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
             }
             catch (mx::Exception& e)
             {
-                std::cerr << "Failed to read include file: " << filename.asString() << ". " << std::string(e.what()) << std::endl;
+                std::cerr << "Failed to read include file: " << filename.asString() << ". " <<
+                    std::string(e.what()) << std::endl;
             }
         }
         else
@@ -186,7 +187,8 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     }
     catch (mx::Exception& e)
     {
-        std::cerr << "Failed to read file: " << filename.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
+        std::cerr << "Failed to read file: " << filename.asString() << ": \"" <<
+            std::string(e.what()) << "\"" << std::endl;
     }
     _graphStack = std::stack<std::vector<UiNodePtr>>();
     _pinStack = std::stack<std::vector<UiPinPtr>>();
