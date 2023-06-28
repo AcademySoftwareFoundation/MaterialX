@@ -1,2 +1,8 @@
 build
 dist
+CMakeCache.txt
+CMakeFiles
+Makefile
+*.cmake
+source/MaterialXView/external
+Generated.h
