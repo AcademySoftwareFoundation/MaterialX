@@ -89,11 +89,12 @@ UnsignedIntPair getMaxDimensions(const vector<ImagePtr>& imageVec)
 // Image methods
 //
 
-Image::Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType) :
+Image::Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType, bool useCustomMipMaps) :
     _width(width),
     _height(height),
     _channelCount(channelCount),
     _baseType(baseType),
+    _useCustomMipMaps(useCustomMipMaps),
     _resourceBuffer(nullptr),
     _resourceBufferDeallocator(nullptr),
     _resourceId(0)
@@ -505,7 +506,22 @@ void Image::writeTable(const FilePath& filePath, unsigned int channel)
 void Image::createResourceBuffer()
 {
     releaseResourceBuffer();
-    _resourceBuffer = malloc(_width * _height * _channelCount * getBaseStride());
+    size_t numTexels = 0;
+    if (_useCustomMipMaps)
+    {
+        int w = _width;
+        int h = _height;
+        while (w > 0 && h > 0) {
+            numTexels += w * h;
+            w /= 2;
+            h /= 2;
+        }
+    }
+    else
+    {
+        numTexels = _width * _height;
+    }
+    _resourceBuffer = malloc(numTexels * _channelCount * getBaseStride());
     _resourceBufferDeallocator = nullptr;
 }
 

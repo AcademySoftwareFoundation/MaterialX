@@ -55,9 +55,15 @@ class MX_RENDER_API Image
 
   public:
     /// Create an empty image with the given properties.
-    static ImagePtr create(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType = BaseType::UINT8)
+    static ImagePtr create(
+        unsigned int width,
+        unsigned int height,
+        unsigned int channelCount,
+        BaseType baseType = BaseType::UINT8,
+        bool useCustomMipMaps = false
+    )
     {
-        return ImagePtr(new Image(width, height, channelCount, baseType));
+        return ImagePtr(new Image(width, height, channelCount, baseType, useCustomMipMaps));
     }
 
     ~Image();
@@ -87,6 +93,11 @@ class MX_RENDER_API Image
     BaseType getBaseType() const
     {
         return _baseType;
+    }
+
+    bool getUseCustomMipMaps() const
+    {
+        return _useCustomMipMaps;
     }
 
     /// Return the stride of our base type in bytes.
@@ -207,13 +218,14 @@ class MX_RENDER_API Image
     /// @}
 
   protected:
-    Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType);
+    Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType, bool useCustomMipMaps);
 
   protected:
     unsigned int _width;
     unsigned int _height;
     unsigned int _channelCount;
     BaseType _baseType;
+    bool _useCustomMipMaps;
 
     void* _resourceBuffer;
     ImageBufferDeallocator _resourceBufferDeallocator;

@@ -445,12 +445,68 @@ void Viewer::initialize()
 void Viewer::loadEnvironmentLight()
 {
     // Load the requested radiance map.
-    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
-    if (!envRadianceMap)
+    // mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
+    // if (!envRadianceMap)
+    // {
+    //     new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
+    //     return;
+    // }
+    mx::ImagePtr envRadianceMap = mx::Image::create(1024, 1024, 4, mx::Image::BaseType::UINT8, true);
+    envRadianceMap->createResourceBuffer();
     {
-        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
-        return;
+        int numMips = envRadianceMap->getMaxMipCount();
+        int w = envRadianceMap->getWidth();
+        int h = envRadianceMap->getHeight();
+        char* writePtr = (char*)envRadianceMap->getResourceBuffer();
+        for (int i = 0; i < numMips; i++)
+        {
+            uint8_t color[4] = { 0, 0, 0, 255};
+            switch (i)
+            {
+                case 0:
+                    color[0] = 255;
+                    break;
+                case 1:
+                    color[1] = 255;
+                    break;
+                case 2:
+                    color[2] = 255;
+                    break;
+                case 3:
+                    color[0] = 255;
+                    color[1] = 255;
+                    break;
+                case 4:
+                    color[0] = 255;
+                    color[2] = 255;
+                    break;
+                case 5:
+                    color[1] = 255;
+                    color[2] = 255;
+                    break;
+                case 6:
+                    color[0] = 255;
+                    color[1] = 255;
+                    color[2] = 255;
+                    break;
+            }
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    writePtr[0] = color[0];
+                    writePtr[1] = color[1];
+                    writePtr[2] = color[2];
+                    writePtr[3] = color[3];
+                    writePtr += 4;
+                }
+            }
+            w = w/2;
+            h = h/2;
+        }
     }
+//    envRadianceMap->setUniformColor(mx::Color4(0.0f, 1.0f, 0.0f, 1.0f));
 
     // If requested, normalize the environment upon loading.
     if (_normalizeEnvironment)
@@ -837,12 +893,10 @@ void Viewer::createAdvancedSettings(Widget* parent)
     lightingLabel->set_font_size(20);
     lightingLabel->set_font("sans-bold");
 
-    ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct Lighting");
-    directLightingBox->set_checked(_lightHandler->getDirectLighting());
-    directLightingBox->set_callback([this](bool enable)
-    {
-        _lightHandler->setDirectLighting(enable);
-    });
+    // ---------
+    // Don't commit this
+    _lightHandler->setDirectLighting(false);
+    // ---------
 
     ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
     indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
