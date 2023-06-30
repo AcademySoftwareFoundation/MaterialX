@@ -291,7 +291,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -411,7 +411,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -531,7 +531,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -651,7 +651,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -771,7 +771,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -891,7 +891,7 @@
     <dotproduct name="N_dotBlendedN" type="float">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
-    </dotproduct> 
+    </dotproduct>
     <divide name="N_normalizeBlendedWeights" type="vector3">
       <input name="in1" type="vector3" nodename="N_blendPower" />
       <input name="in2" type="float" nodename="N_dotBlendedN" />
@@ -1540,7 +1540,7 @@
     </magnitude>
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-  
+
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
