@@ -1331,29 +1331,41 @@
     Moving between 0.0 and the amplitude based on the input value.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
-    <absval name="N_mtlxabsval" type="float">
+    <multiply name="multiply3" type="float">
+      <input name="in1" type="float" nodename="subtract2" />
+      <input name="in2" type="float" interfacename="amplitude" />
+    </multiply>
+    <subtract name="subtract2" type="float">
+      <input name="in1" type="float" nodename="multiply2" />
+      <input name="in2" type="float" nodename="absval2" />
+    </subtract>
+    <multiply name="multiply2" type="float">
+      <input name="in1" type="float" nodename="divide1" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+    <absval name="absval2" type="float">
+      <input name="in" type="float" nodename="subtract1" />
+    </absval>
+    <divide name="divide1" type="float">
+      <input name="in2" type="float" interfacename="frequency" />
+      <input name="in1" type="float" value="1" />
+    </divide>
+    <subtract name="subtract1" type="float">
+      <input name="in1" type="float" nodename="modulo1" />
+      <input name="in2" type="float" nodename="multiply2" />
+    </subtract>
+    <modulo name="modulo1" type="float">
+      <input name="in1" type="float" nodename="absval1" />
+      <input name="in2" type="float" nodename="multiply1" />
+    </modulo>
+    <absval name="absval1" type="float">
       <input name="in" type="float" interfacename="in" />
     </absval>
-    <multiply name="N_mtlxmultiply" type="float">
-      <input name="in1" type="float" interfacename="amplitude" />
+    <multiply name="multiply1" type="float">
+      <input name="in1" type="float" nodename="multiply2" />
       <input name="in2" type="float" value="2" />
     </multiply>
-    <modulo name="N_mtlxmodulo" type="float">
-      <input name="in1" type="float" nodename="N_mtlxabsval" />
-      <input name="in2" type="float" nodename="N_mtlxmultiply" />
-    </modulo>
-    <subtract name="N_mtlxsubtract" type="float">
-      <input name="in1" type="float" nodename="N_mtlxmodulo" />
-      <input name="in2" type="float" interfacename="amplitude" />
-    </subtract>
-    <absval name="N_mtlxabsval1" type="float">
-      <input name="in" type="float" nodename="N_mtlxsubtract" />
-    </absval>
-    <subtract name="N_mtlxsubtract1" type="float">
-      <input name="in1" type="float" interfacename="amplitude" />
-      <input name="in2" type="float" nodename="N_mtlxabsval1" />
-    </subtract>
-    <output name="out" type="float" nodename="N_mtlxsubtract1" />
+    <output name="out" type="float" nodename="multiply3" />
   </nodegraph>
 
   <!-- ======================================================================== -->
