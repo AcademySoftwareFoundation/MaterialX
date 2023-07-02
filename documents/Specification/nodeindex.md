@@ -182,18 +182,15 @@
 `generalized_schlick_edf`
 `geompropvalueuniform`
 `ifelse`
-`lightmaterial`
 `not`
 `or`
 `separatecolor4`
 `surface_unlit`
-`surfacematerial`
 `tokenvalue`
 `transformcolor`
 `triplanarblend`
 `unifiednoise2d`
 `unifiednoise3d`
-`volumematerial`
 
 #### Nodes from v1.38 that were removed from the current Specification:
 
