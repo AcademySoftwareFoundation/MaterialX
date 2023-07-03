@@ -1,6 +1,6 @@
 #include "lib/mx_microfacet_specular.glsl"
 
-void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -22,9 +22,9 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     vec3 Ht = vec3(dot(H, X), dot(H, Y), dot(H, N));
 
     FresnelData fd;
-    if (bsdf.thickness > 0.0)
+    if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_dielectric_airy(ior, bsdf.thickness, bsdf.ior);
+        fd = mx_init_fresnel_dielectric_airy(ior, thinfilm_thickness, thinfilm_ior);
     }
     else
     {
@@ -43,7 +43,7 @@ void mx_dielectric_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, floa
     bsdf.response = D * F * G * comp * tint * occlusion * weight / (4.0 * NdotV);
 }
 
-void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -54,9 +54,9 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     FresnelData fd;
-    if (bsdf.thickness > 0.0)
+    if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_dielectric_airy(ior, bsdf.thickness, bsdf.ior);
+        fd = mx_init_fresnel_dielectric_airy(ior, thinfilm_thickness, thinfilm_ior);
     }
     else
     {
@@ -78,7 +78,7 @@ void mx_dielectric_bsdf_transmission(vec3 V, float weight, vec3 tint, float ior,
     }
 }
 
-void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -90,9 +90,9 @@ void mx_dielectric_bsdf_indirect(vec3 V, float weight, vec3 tint, float ior, vec
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     FresnelData fd;
-    if (bsdf.thickness > 0.0)
+    if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_dielectric_airy(ior, bsdf.thickness, bsdf.ior);
+        fd = mx_init_fresnel_dielectric_airy(ior, thinfilm_thickness, thinfilm_ior);
     }
     else
     {
