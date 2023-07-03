@@ -50,6 +50,7 @@ class RenderPipeline
     virtual void bakeTextures() = 0;
     
     virtual void updateAlbedoTable(int tableSize) = 0;
+    virtual mx::ImagePtr convolveEnvironment(mx::ImagePtr envMip0) = 0;
     virtual std::shared_ptr<void> createTextureBaker(unsigned int width,
                                                      unsigned int height,
                                                      mx::Image::BaseType baseType) = 0;

@@ -155,6 +155,113 @@ void MetalRenderPipeline::updateAlbedoTable(int tableSize)
     }
 }
 
+mx::ImagePtr MetalRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
+{
+    auto& genContext    = _viewer->_genContext;
+    auto& lightHandler  = _viewer->_lightHandler;
+    auto& imageHandler  = _viewer->_imageHandler;
+    mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
+
+    int w = envMip0->getWidth();
+    int h = envMip0->getHeight();
+    mx::ImagePtr outTex = mx::Image::create(w, h, 4, mx::Image::BaseType::UINT8, true);
+    mtlImageHandler->createRenderResources(outTex, true);
+    id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
+
+
+    // Create framebuffer.
+    mx::MetalFramebufferPtr framebuffer = mx::MetalFramebuffer::create(
+        MTL(device),
+        w, h,
+        4,
+        mx::Image::BaseType::UINT8,
+        metalTex
+    );
+
+    MTL_PUSH_FRAMEBUFFER(framebuffer);
+
+    int i = 0;
+
+    while (w > 0 && h > 0)
+    {
+        MTL(beginCommandBuffer());
+        MTLRenderPassDescriptor* desc = [MTLRenderPassDescriptor new];
+        [desc.colorAttachments[0] setTexture:metalTex];
+        [desc.colorAttachments[0] setLevel:i];
+        [desc.colorAttachments[0] setLoadAction:MTLLoadActionDontCare];
+        [desc.colorAttachments[0] setStoreAction:MTLStoreActionStore];
+        [desc.depthAttachment setTexture:framebuffer->getDepthTexture()];
+        [desc.depthAttachment setLoadAction:MTLLoadActionDontCare];
+        [desc.depthAttachment setStoreAction:MTLStoreActionDontCare];
+        [desc setStencilAttachment:nil];
+        
+        MTL(beginEncoder(desc));
+
+        // Create shader.
+        mx::Color3 col;
+        switch (i)
+        {
+            case 0:
+                col = mx::Color3(1.0f, 0.0f, 0.0f);
+                break;
+            case 1:
+                col = mx::Color3(0.0f, 1.0f, 0.0f);
+                break;
+            case 2:
+                col = mx::Color3(0.0f, 0.0f, 1.0f);
+                break;
+            case 3:
+                col = mx::Color3(1.0f, 0.0f, 1.0f);
+                break;
+            case 4:
+                col = mx::Color3(1.0f, 1.0f, 0.0f);
+                break;
+            case 5:
+                col = mx::Color3(0.0f, 1.0f, 1.0f);
+                break;
+            case 6:
+                col = mx::Color3(1.0f, 1.0f, 1.0f);
+                break;
+        }
+        mx::ShaderPtr hwShader = mx::createConstantShader(genContext, _viewer->_stdLib, "__MIP0__" + std::to_string(i), col);
+        mx::MslMaterialPtr material = mx::MslMaterial::create();
+        try
+        {
+            material->generateShader(hwShader);
+        }
+        catch (std::exception& e)
+        {
+            new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
+            return nullptr;
+        }
+
+        // Render albedo table.
+        material->bindShader();
+        if (material->getProgram()->hasUniform(mx::HW::ALBEDO_TABLE_SIZE))
+        {
+            material->getProgram()->bindUniform(mx::HW::ALBEDO_TABLE_SIZE, mx::Value::createValue(128));
+        }
+        material->getProgram()->prepareUsedResources(
+                        MTL(renderCmdEncoder),
+                        _viewer->_identityCamera,
+                        nullptr,
+                        imageHandler,
+                        lightHandler);
+        _viewer->renderScreenSpaceQuad(material);
+
+        MTL(endCommandBuffer());
+        [desc release];
+
+        w /= 2;
+        h /= 2;
+        i++;
+    }
+
+    MTL_POP_FRAMEBUFFER();
+
+    return outTex;
+}
+
 mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
 {
     auto& genContext      = _viewer->_genContext;

@@ -445,68 +445,12 @@ void Viewer::initialize()
 void Viewer::loadEnvironmentLight()
 {
     // Load the requested radiance map.
-    // mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
-    // if (!envRadianceMap)
-    // {
-    //     new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
-    //     return;
-    // }
-    mx::ImagePtr envRadianceMap = mx::Image::create(1024, 1024, 4, mx::Image::BaseType::UINT8, true);
-    envRadianceMap->createResourceBuffer();
+    mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
+    if (!envRadianceMap)
     {
-        int numMips = envRadianceMap->getMaxMipCount();
-        int w = envRadianceMap->getWidth();
-        int h = envRadianceMap->getHeight();
-        char* writePtr = (char*)envRadianceMap->getResourceBuffer();
-        for (int i = 0; i < numMips; i++)
-        {
-            uint8_t color[4] = { 0, 0, 0, 255};
-            switch (i)
-            {
-                case 0:
-                    color[0] = 255;
-                    break;
-                case 1:
-                    color[1] = 255;
-                    break;
-                case 2:
-                    color[2] = 255;
-                    break;
-                case 3:
-                    color[0] = 255;
-                    color[1] = 255;
-                    break;
-                case 4:
-                    color[0] = 255;
-                    color[2] = 255;
-                    break;
-                case 5:
-                    color[1] = 255;
-                    color[2] = 255;
-                    break;
-                case 6:
-                    color[0] = 255;
-                    color[1] = 255;
-                    color[2] = 255;
-                    break;
-            }
-
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    writePtr[0] = color[0];
-                    writePtr[1] = color[1];
-                    writePtr[2] = color[2];
-                    writePtr[3] = color[3];
-                    writePtr += 4;
-                }
-            }
-            w = w/2;
-            h = h/2;
-        }
+        new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to load environment light");
+        return;
     }
-//    envRadianceMap->setUniformColor(mx::Color4(0.0f, 1.0f, 0.0f, 1.0f));
 
     // If requested, normalize the environment upon loading.
     if (_normalizeEnvironment)
@@ -559,10 +503,12 @@ void Viewer::loadEnvironmentLight()
         }
     }
 
+    mx::ImagePtr mippedEnvRadianceMap = _renderPipeline->convolveEnvironment(envRadianceMap);
+    _imageHandler->releaseRenderResources(envRadianceMap);
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
     _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
-    _lightHandler->setEnvRadianceMap(envRadianceMap);
+    _lightHandler->setEnvRadianceMap(mippedEnvRadianceMap);
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
 
     // Look for a light rig using an expected filename convention.

@@ -151,7 +151,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.usage = MTLTextureUsageShaderRead |
             // For now, we set generate mip maps flag off,
             // when we want to use the texture as render target
-            (!generateMipMaps ? MTLTextureUsageRenderTarget : 0);
+            ((!generateMipMaps || image->getUseCustomMipMaps()) ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
         texDesc.pixelFormat = pixelFormat;
         if(generateMipMaps && !image->getUseCustomMipMaps())

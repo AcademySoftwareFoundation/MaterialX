@@ -110,6 +110,12 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
     glDrawBuffer(GL_BACK);
 }
 
+mx::ImagePtr GLRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
+{
+    // TODO: Implement this.
+    return nullptr;
+}
+
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
 {
     auto& genContext      = _viewer->_genContext;
