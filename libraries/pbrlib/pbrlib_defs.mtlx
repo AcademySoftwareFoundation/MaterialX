@@ -63,6 +63,8 @@
     <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
     <input name="ior" type="float" value="1.5" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
@@ -79,6 +81,8 @@
     <input name="ior" type="color3" value="0.183, 0.421, 1.373" colorspace="none" />
     <input name="extinction" type="color3" value="3.424, 2.346, 1.770" colorspace="none" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
@@ -95,6 +99,8 @@
     <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
     <input name="exponent" type="float" value="5.0" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
+    <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <input name="distribution" type="string" value="ggx" enum="ggx" uniform="true" />
