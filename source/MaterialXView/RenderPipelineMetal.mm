@@ -218,6 +218,7 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
 
         framebuffer->bind(desc);
         material->bindShader();
+        material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
 
         material->getProgram()->prepareUsedResources(
                         MTL(renderCmdEncoder),

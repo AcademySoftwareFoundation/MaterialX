@@ -68,6 +68,7 @@ const string T_SHADOW_MAP                     = "$shadowMap";
 const string T_SHADOW_MATRIX                  = "$shadowMatrix";
 const string T_VERTEX_DATA_INSTANCE           = "$vd";
 const string T_LIGHT_DATA_INSTANCE            = "$lightData";
+const string T_CONVOLUTION_MIP_LEVEL          = "$convolutionMipLevel";
 
 const string IN_POSITION                      = "i_position";
 const string IN_NORMAL                        = "i_normal";
@@ -123,6 +124,7 @@ const string SHADOW_MATRIX                    = "u_shadowMatrix";
 const string VERTEX_DATA_INSTANCE             = "vd";
 const string LIGHT_DATA_INSTANCE              = "u_lightData";
 const string LIGHT_DATA_MAX_LIGHT_SOURCES     = "MAX_LIGHT_SOURCES";
+const string CONVOLUTION_MIP_LEVEL            = "u_convolutionMipLevel";
 
 const string VERTEX_INPUTS                    = "VertexInputs";
 const string VERTEX_DATA                      = "VertexData";
@@ -222,6 +224,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = HW::AMB_OCC_GAIN;
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
+    _tokenSubstitutions[HW::T_CONVOLUTION_MIP_LEVEL] = HW::CONVOLUTION_MIP_LEVEL;
 
     // Setup closure contexts for defining closure functions
     //
@@ -363,6 +366,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (context.getOptions().hwWriteEnvPreConvolution)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::INTEGER, HW::T_CONVOLUTION_MIP_LEVEL, Value::createValue<int>(1));
     }
 
     // Create uniforms for the published graph interface

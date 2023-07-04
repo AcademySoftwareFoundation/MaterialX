@@ -135,6 +135,7 @@ extern MX_GENSHADER_API const string T_SHADOW_MAP;
 extern MX_GENSHADER_API const string T_SHADOW_MATRIX;
 extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
+extern MX_GENSHADER_API const string T_CONVOLUTION_MIP_LEVEL;
 
 /// Default names for identifiers.
 /// Replacing above tokens in final code.
@@ -192,6 +193,7 @@ extern MX_GENSHADER_API const string SHADOW_MATRIX;
 extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
+extern MX_GENSHADER_API const string CONVOLUTION_MIP_LEVEL;
 
 /// Variable blocks names.
 extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.
