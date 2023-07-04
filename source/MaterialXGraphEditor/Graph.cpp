@@ -710,6 +710,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
             _currRenderNode = node;
             _frameCount = ImGui::GetFrameCount();
             _renderer->setMaterialCompilation(true);
+            _shaderPopup = true;
         }
     }
     else
@@ -734,6 +735,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                                     _currRenderNode = shaderOut[0];
                                     _frameCount = ImGui::GetFrameCount();
                                     _renderer->setMaterialCompilation(true);
+                                    _shaderPopup = true;
                                 }
                             }
                         }
@@ -750,6 +752,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                         _currRenderNode = outNodes[0];
                         _frameCount = ImGui::GetFrameCount();
                         _renderer->setMaterialCompilation(true);
+                        _shaderPopup = true;
                     }
                 }
             }
@@ -811,29 +814,24 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
     {
         if (!input)
         {
-            mx::ElementPtr elem = nullptr;
-            {
-                elem = _graphDoc->getDescendant(renderablePath);
-            }
+            mx::ElementPtr elem = _graphDoc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
             _renderer->updateMaterials(typedElem);
         }
         else
         {
-            std::string name = input->getNamePath();
             // need to use exact interface name in order for input
+            std::string name = input->getNamePath();
             mx::InputPtr interfaceInput = findInput(input, input->getName());
             if (interfaceInput)
             {
                 name = interfaceInput->getNamePath();
             }
-            // Note that if there is a topogical change due to
-            // this value change or a transparency change, then
-            // this is not currently caught here.
             _renderer->getMaterials()[num]->modifyUniform(name, value);
         }
     }
 }
+
 // set the value of the selected node constants in the node property editor
 void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties)
 {
@@ -842,6 +840,8 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
     mx::ValuePtr minVal = uiProperties.uiMin;
     mx::ValuePtr maxVal = uiProperties.uiMax;
+
+    bool updateMaterialRequired = false;
 
     // if input is a float set the float slider Ui to the value
     if (input->getType() == "float")
@@ -861,7 +861,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -880,7 +880,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -904,7 +904,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -928,7 +928,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -947,7 +947,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -966,7 +966,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -985,7 +985,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
@@ -1001,7 +1001,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials();
+                updateMaterialRequired = true;
             }
         }
     }
@@ -1046,7 +1046,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 addNodeInput(_currUiNode, input);
                 input->setValueString(temp);
                 input->setValue(temp, input->getType());
-                updateMaterials();
+                updateMaterialRequired = true;
             }
         }
     }
@@ -1062,12 +1062,27 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             {
                 addNodeInput(_currUiNode, input);
                 input->setValue(temp, input->getType());
-                updateMaterials(input, input->getValue());
+                updateMaterialRequired = true;
             }
         }
     }
 
     ImGui::PopItemWidth();
+
+    if (updateMaterialRequired)
+    {
+        if (!_renderer->getMaterialCompilation() && mx::inputChangeRequiresShaderGen(input))
+        {
+            _frameCount = ImGui::GetFrameCount();
+            _renderer->setMaterialCompilation(true);
+            _shaderPopup = false;
+        }
+        else
+        {
+            updateMaterials(input, input->getValue());
+        }
+    }
+
 }
 // build the initial graph of a loaded mtlx document including shader, material and nodegraph node
 void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category)
@@ -2130,17 +2145,25 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             std::string outputType;
             if (node->getNode() != nullptr)
             {
+                ImColor fillColor(55, 55, 55, 255);
+                mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
+                // All conditional nodes are considered to change the topology of the shader graph
+                if (nodeDef->getNodeGroup() == mx::NodeDef::CONDITIONAL_NODE_GROUP)
+                {
+                    fillColor = ImColor(255, 128, 0, 255);
+                }
+
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(55, 55, 55, 255)), 12.f);
+                    ImColor(fillColor), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(55, 55, 55, 255)), 0.f);
+                    ImColor(fillColor), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -2196,6 +2219,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             else if (node->getInput() != nullptr)
             {
                 std::string longestInputLabel = node->getName();
+                ImColor fillColor(0, 120, 200, 255);
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
@@ -2203,11 +2227,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, -8.0f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(85, 85, 85, 255)), 12.f);
+                    ImColor(fillColor), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, 3.f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(85, 85, 85, 255)), 0.f);
+                    ImColor(fillColor), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -2265,6 +2289,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             else if (node->getOutput() != nullptr)
             {
                 std::string longestInputLabel = node->getName();
+                ImColor fillColor(0, 160, 120, 255);
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
@@ -2272,11 +2297,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(35, 35, 35, 255)), 12.f);
+                    ImColor(fillColor), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(ImColor(35, 35, 35, 255)), 0);
+                    ImColor(fillColor), 0);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -3584,6 +3609,9 @@ void Graph::readOnlyPopup()
 // compiling shaders message
 void Graph::shaderPopup()
 {
+    if (!_shaderPopup)
+        return;
+
     if (_renderer->getMaterialCompilation())
     {
         ImGui::SetNextWindowPos(ImVec2((float) _renderer->getViewWidth() - 135, (float) _renderer->getViewHeight() + 5));
@@ -4016,8 +4044,11 @@ void Graph::drawGraph(ImVec2 mousePos)
     shaderPopup();
     if (ImGui::GetFrameCount() == (_frameCount + 2))
     {
-        updateMaterials();
-        _renderer->setMaterialCompilation(false);
+        if (_renderer->getMaterialCompilation())
+        {
+            updateMaterials();
+            _renderer->setMaterialCompilation(false);
+        }
     }
 
     ed::Suspend();

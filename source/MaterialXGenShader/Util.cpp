@@ -588,6 +588,47 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
     return false;
 }
 
+bool inputChangeRequiresShaderGen(InputPtr input)
+{
+    ElementPtr inputParent = input ? input->getParent() : nullptr;
+    if (inputParent)
+    {
+        NodePtr node = inputParent->asA<Node>();
+        if (node)
+        {
+            NodeDefPtr nodeDef = node->getNodeDef();
+            // All conditional nodes are considered to change the topology of the shader graph
+            if (nodeDef->getNodeGroup() == NodeDef::CONDITIONAL_NODE_GROUP)
+            {
+                return true;
+            }
+        }
+
+        // This is an interface input so find what it's connected to.
+        NodeGraphPtr nodeGraph = inputParent->asA<NodeGraph>();
+        if (nodeGraph)
+        {
+            const std::string& inputName = input->getName();
+            for (NodePtr graphNode : nodeGraph->getNodes())
+            {
+                for (InputPtr graphNodeInput : graphNode->getActiveInputs())
+                {
+                    if (graphNodeInput->getInterfaceName() == inputName)
+                    {
+                        NodeDefPtr nodeDef = graphNode->getNodeDef();
+                        // All conditional nodes are considered to change the topology of the shader graph
+                        if (nodeDef->getNodeGroup() == NodeDef::CONDITIONAL_NODE_GROUP)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&)
 {
     elements = findRenderableMaterialNodes(doc);
