@@ -359,6 +359,12 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
     }
 
+    // Add uniforms for the environment pre-convolution
+    if (context.getOptions().hwWriteEnvPreConvolution)
+    {
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+    }
+
     // Create uniforms for the published graph interface
     for (ShaderGraphInputSocket* inputSocket : graph->getInputSockets())
     {

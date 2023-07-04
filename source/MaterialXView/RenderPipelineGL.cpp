@@ -110,7 +110,7 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
     glDrawBuffer(GL_BACK);
 }
 
-mx::ImagePtr GLRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
+mx::ImagePtr GLRenderPipeline::convolveEnvironment()
 {
     // TODO: Implement this.
     return nullptr;

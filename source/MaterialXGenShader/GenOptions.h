@@ -90,6 +90,7 @@ class MX_GENSHADER_API GenOptions
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
+        hwWriteEnvPreConvolution(false),
         hwImplicitBitangents(true),
         emitColorTransforms(true)
     {
@@ -173,6 +174,11 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
+
+    /// Enables the generation of the pre-convolved environment map, commonly called the "LD" term
+    /// in the split sum approximation.
+    /// Defaults to false.
+    bool hwWriteEnvPreConvolution;
 
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.

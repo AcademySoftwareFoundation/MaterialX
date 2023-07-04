@@ -155,15 +155,19 @@ void MetalRenderPipeline::updateAlbedoTable(int tableSize)
     }
 }
 
-mx::ImagePtr MetalRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
+mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
     mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
 
+    mx::ImagePtr envMip0 = lightHandler->getEnvRadianceMap();
     int w = envMip0->getWidth();
     int h = envMip0->getHeight();
+
+    mtlImageHandler->createRenderResources(envMip0, true); // Turn mipmaps off
+
     mx::ImagePtr outTex = mx::Image::create(w, h, 4, mx::Image::BaseType::UINT8, true);
     mtlImageHandler->createRenderResources(outTex, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
@@ -196,35 +200,12 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
         [desc setStencilAttachment:nil];
         
         MTL(beginEncoder(desc));
+        [MTL(renderCmdEncoder) setDepthStencilState:MTL_DEPTHSTENCIL_STATE(opaque)];
 
         // Create shader.
-        mx::Color3 col;
-        switch (i)
-        {
-            case 0:
-                col = mx::Color3(1.0f, 0.0f, 0.0f);
-                break;
-            case 1:
-                col = mx::Color3(0.0f, 1.0f, 0.0f);
-                break;
-            case 2:
-                col = mx::Color3(0.0f, 0.0f, 1.0f);
-                break;
-            case 3:
-                col = mx::Color3(1.0f, 0.0f, 1.0f);
-                break;
-            case 4:
-                col = mx::Color3(1.0f, 1.0f, 0.0f);
-                break;
-            case 5:
-                col = mx::Color3(0.0f, 1.0f, 1.0f);
-                break;
-            case 6:
-                col = mx::Color3(1.0f, 1.0f, 1.0f);
-                break;
-        }
-        mx::ShaderPtr hwShader = mx::createConstantShader(genContext, _viewer->_stdLib, "__MIP0__" + std::to_string(i), col);
+        mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
         mx::MslMaterialPtr material = mx::MslMaterial::create();
+
         try
         {
             material->generateShader(hwShader);
@@ -235,12 +216,9 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment(mx::ImagePtr envMip0)
             return nullptr;
         }
 
-        // Render albedo table.
+        framebuffer->bind(desc);
         material->bindShader();
-        if (material->getProgram()->hasUniform(mx::HW::ALBEDO_TABLE_SIZE))
-        {
-            material->getProgram()->bindUniform(mx::HW::ALBEDO_TABLE_SIZE, mx::Value::createValue(128));
-        }
+
         material->getProgram()->prepareUsedResources(
                         MTL(renderCmdEncoder),
                         _viewer->_identityCamera,

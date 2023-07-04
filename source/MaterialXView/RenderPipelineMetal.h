@@ -40,7 +40,7 @@ class MetalRenderPipeline : public RenderPipeline
     mx::ImageHandlerPtr createImageHandler() override;
     mx::MaterialPtr     createMaterial() override;
     void updateAlbedoTable(int tableSize) override;
-    mx::ImagePtr convolveEnvironment(mx::ImagePtr envMip0) override;
+    mx::ImagePtr convolveEnvironment() override;
     void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) override;
     void bakeTextures() override;
     mx::ImagePtr getFrameImage() override;

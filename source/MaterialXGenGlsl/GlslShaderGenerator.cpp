@@ -595,6 +595,13 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
 
+    // Emit environment pre-convolution code
+    if (context.getOptions().hwWriteEnvPreConvolution)
+    {
+        // TODO: Implement this
+        assert(false);
+    }
+
     // Set the include file to use for uv transformations,
     // depending on the vertical flip flag.
     if (context.getOptions().fileTextureVerticalFlip)

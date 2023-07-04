@@ -503,7 +503,8 @@ void Viewer::loadEnvironmentLight()
         }
     }
 
-    mx::ImagePtr mippedEnvRadianceMap = _renderPipeline->convolveEnvironment(envRadianceMap);
+    _lightHandler->setEnvRadianceMap(envRadianceMap);
+    mx::ImagePtr mippedEnvRadianceMap = _renderPipeline->convolveEnvironment();
     _imageHandler->releaseRenderResources(envRadianceMap);
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());

@@ -66,5 +66,6 @@ void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, ve
 
     vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, distribution, fd);
 
-    bsdf.response = Li * comp * weight;
+    // bsdf.response = Li * comp * weight;
+    bsdf.response = Li;
 }
