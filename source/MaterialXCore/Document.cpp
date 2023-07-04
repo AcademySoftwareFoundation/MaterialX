@@ -86,6 +86,7 @@ class Document::Cache
             for (ElementPtr elem : doc.lock()->traverseTree())
             {
                 const string& nodeName = elem->getAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                const string& nodeGraphName = elem->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
                 const string& nodeString = elem->getAttribute(NodeDef::NODE_ATTRIBUTE);
                 const string& nodeDefString = elem->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
 
@@ -99,13 +100,12 @@ class Document::Cache
                 }
                 else
                 {
-                    const string& nodegraphName = elem->getAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
-                    if (!nodegraphName.empty())
+                    if (!nodeGraphName.empty())
                     {
                         PortElementPtr portElem = elem->asA<PortElement>();
                         if (portElem)
                         {
-                            portElementMap.emplace(portElem->getQualifiedName(nodegraphName), portElem);
+                            portElementMap.emplace(portElem->getQualifiedName(nodeGraphName), portElem);
                         }
                     }
                 }

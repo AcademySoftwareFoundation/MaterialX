@@ -644,8 +644,8 @@ void Graph::setPinColor()
     _pinColor.insert(std::make_pair("BSDF", ImColor(10, 181, 150, 255)));
     _pinColor.insert(std::make_pair("EDF", ImColor(255, 50, 100, 255)));
     _pinColor.insert(std::make_pair("VDF", ImColor(0, 100, 151, 255)));
-    _pinColor.insert(std::make_pair("surfaceshader", ImColor(150, 255, 255, 255)));
-    _pinColor.insert(std::make_pair("material", ImColor(255, 255, 255, 255)));
+    _pinColor.insert(std::make_pair(mx::SURFACE_SHADER_TYPE_STRING, ImColor(150, 255, 255, 255)));
+    _pinColor.insert(std::make_pair(mx::MATERIAL_TYPE_STRING, ImColor(255, 255, 255, 255)));
     _pinColor.insert(std::make_pair(mx::DISPLACEMENT_SHADER_TYPE_STRING, ImColor(155, 50, 100, 255)));
     _pinColor.insert(std::make_pair(mx::VOLUME_SHADER_TYPE_STRING, ImColor(155, 250, 100, 255)));
     _pinColor.insert(std::make_pair(mx::LIGHT_SHADER_TYPE_STRING, ImColor(100, 150, 100, 255)));
@@ -702,12 +702,12 @@ void Graph::selectMaterial(UiNodePtr uiNode)
 void Graph::setRenderMaterial(UiNodePtr node)
 {
     // For now surface shaders and materials are considered renderable.
-    // This can be adjusted as desired to includ being able to use outputs,
+    // This can be adjusted as desired to include being able to use outputs,
     // and / a sub-graph in the nodegraph.
-    mx::StringSet renderableTypes = { "material", "surfaceshader" };
+    const mx::StringSet RENDERABLE_TYPES = { mx::MATERIAL_TYPE_STRING, mx::SURFACE_SHADER_TYPE_STRING };
 
-    // set render node right away is node is a material
-    if (node->getNode() && renderableTypes.count(node->getNode()->getType()))
+    // set render node right away is node is renderable
+    if (node->getNode() && RENDERABLE_TYPES.count(node->getNode()->getType()))
     {
         // only set new render node if different material has been selected
         if (_currRenderNode != node)
@@ -717,9 +717,10 @@ void Graph::setRenderMaterial(UiNodePtr node)
             _renderer->setMaterialCompilation(true);
         }
     }
+
+    // Traverse downstream looking for the first renderable element.
     else
     {
-        // Traverse downstream looking for the first renderable item found.
         mx::NodePtr mtlxNode = node->getNode();
         mx::NodeGraphPtr mtlxNodeGraph = node->getNodeGraph();
         mx::OutputPtr mtlxOutput = node->getOutput();
@@ -775,7 +776,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                             mx::NodeDefPtr nodeDef = downstreamNode->getNodeDef();
                             if (nodeDef)
                             {
-                                if (renderableTypes.count(nodeDef->getType()))
+                                if (RENDERABLE_TYPES.count(nodeDef->getType()))
                                 {
                                     foundNode = downstreamNode;
                                     break;
@@ -2778,7 +2779,7 @@ void Graph::deleteNode(UiNodePtr node)
             {
                 mx::NodeDefPtr nodeDef = pin->_pinNode->getNode()->getNodeDef(pin->_pinNode->getNode()->getName());
                 val = nodeDef->getActiveInput(pin->_input->getName())->getValue();
-                if (pin->_pinNode->getNode()->getType() == "surfaceshader")
+                if (pin->_pinNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                 {
                     pin->_input->setConnectedOutput(nullptr);
                 }
