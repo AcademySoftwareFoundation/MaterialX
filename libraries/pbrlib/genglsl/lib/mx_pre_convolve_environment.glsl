@@ -124,7 +124,7 @@ vec3 mx_pre_convolve_environment()
     // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
     // the variance of the samples by choosing higher mip levels where necessary. We haven't
     // implemented prefiltering yet, so we use a high sample count.
-    int sampleCount = 610; // Must be a Fibonacci number
+    int sampleCount = 1597; // Must be a Fibonacci number
 
     float3 lightInt = float3(0.0, 0.0, 0.0);
     float  cbsdfInt = 0.0;
