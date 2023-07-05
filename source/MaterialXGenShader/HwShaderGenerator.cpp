@@ -367,9 +367,9 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_CONVOLUTION_MIP_LEVEL, Value::createValue<int>(1));
-
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
     }
 
     // Create uniforms for the published graph interface
