@@ -220,12 +220,16 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
         material->bindShader();
         material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
 
+        bool prevValue = lightHandler->getUsePreConvolvedEnvLighting();
+        lightHandler->setUsePreConvolvedEnvLighting(false);
         material->getProgram()->prepareUsedResources(
                         MTL(renderCmdEncoder),
                         _viewer->_identityCamera,
                         nullptr,
                         imageHandler,
                         lightHandler);
+        lightHandler->setUsePreConvolvedEnvLighting(prevValue);
+
         _viewer->renderScreenSpaceQuad(material);
 
         MTL(endCommandBuffer());

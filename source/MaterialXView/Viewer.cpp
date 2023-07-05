@@ -503,13 +503,13 @@ void Viewer::loadEnvironmentLight()
         }
     }
 
-    _lightHandler->setEnvRadianceMap(envRadianceMap);
-    mx::ImagePtr mippedEnvRadianceMap = _renderPipeline->convolveEnvironment();
-    _imageHandler->releaseRenderResources(envRadianceMap);
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
     _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
-    _lightHandler->setEnvRadianceMap(mippedEnvRadianceMap);
+
+    _lightHandler->setEnvRadianceMap(envRadianceMap);
+    mx::ImagePtr preConvolvedEnvRadianceMap = _renderPipeline->convolveEnvironment();
+    _lightHandler->setEnvRadianceMapPreConvolved(preConvolvedEnvRadianceMap);
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
 
     // Look for a light rig using an expected filename convention.
@@ -769,12 +769,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    _lightHandler->setUsePreConvolvedEnvLighting(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
+        _lightHandler->setUsePreConvolvedEnvLighting(!enable);
         reloadShaders();
     });
 
