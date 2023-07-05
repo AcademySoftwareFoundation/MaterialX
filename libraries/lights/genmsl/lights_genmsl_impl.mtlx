@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.38">
 
   <!-- <point_light> -->
   <implementation name="IM_point_light_genmsl" nodedef="ND_point_light" file="mx_point_light.metal" function="mx_point_light" target="genmsl" />
