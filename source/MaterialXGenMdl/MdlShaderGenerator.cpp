@@ -42,7 +42,6 @@ const vector<string> DEFAULT_IMPORTS =
     "import ::anno::*",
     "import ::tex::*",
     "import ::mx::swizzle::*",
-    "import ::mx::cm::*",
     "using ::mx::core import *",
     "using ::mx::stdlib import *",
     "using ::mx::pbrlib import *",
@@ -273,9 +272,22 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     // Get final result
     const string result = getUpstreamResult(outputSocket, context);
 
+    const TypeDesc* outputType = outputSocket->getType();
     if (graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
-        emitLine("color finalOutput__ = mk_color3(" + result + ")", stage);
+        if (outputType == Type::DISPLACEMENTSHADER)
+        {
+            emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
+            emitLine("color finalOutput__ = mk_color3("
+                "r: math::dot(displacement__, state::texture_tangent_u(0)),"
+                "g: math::dot(displacement__, state::texture_tangent_v(0)),"
+                "b: math::dot(displacement__, state::normal()))", stage);
+        }
+        else
+        {
+            emitLine("float3 displacement__ = float3(0.0)", stage);
+            emitLine("color finalOutput__ = mk_color3(" + result + ")", stage);
+        }
 
         // End shader body
         emitScopeEnd(stage);
@@ -289,13 +301,16 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             "            intensity : finalOutput__ * math::PI,\n"
             "            mode : intensity_radiant_exitance\n"
             "        )\n"
+            "    ),\n"
+            "    geometry: material_geometry(\n"
+            "       displacement : displacement__\n"
             "    )\n"
             ");";
         emitBlock(textureMaterial, FilePath(), context, stage);
     }
     else
     {
-        emitLine(_syntax->getTypeSyntax(outputSocket->getType()).getName() + " finalOutput__ = " + result, stage);
+        emitLine(_syntax->getTypeSyntax(outputType).getName() + " finalOutput__ = " + result, stage);
 
         // End shader body
         emitScopeEnd(stage);

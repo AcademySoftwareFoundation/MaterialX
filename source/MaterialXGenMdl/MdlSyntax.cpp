@@ -397,9 +397,9 @@ MdlSyntax::MdlSyntax()
     registerTypeSyntax(
         Type::DISPLACEMENTSHADER,
         std::make_shared<ScalarTypeSyntax>(
-            "float3",
-            "float3(0.0)",
-            "float3(0.0)"));
+            "material",
+            "material()",
+            "material()"));
 
     registerTypeSyntax(
         Type::LIGHTSHADER,
