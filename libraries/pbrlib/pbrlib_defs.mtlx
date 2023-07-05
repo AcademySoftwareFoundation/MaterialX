@@ -133,16 +133,6 @@
     <output name="out" type="BSDF" />
   </nodedef>
 
-  <!--
-    Node: <thin_film_bsdf>
-    Adds an iridescent thin film layer over a microfacet base BSDF.
-  -->
-  <nodedef name="ND_thin_film_bsdf" node="thin_film_bsdf" bsdf="R" nodegroup="pbr" doc="Adds an iridescent thin film layer over a microfacet base BSDF.">
-    <input name="thickness" type="float" value="550" unittype="distance" unit="nanometer" />
-    <input name="ior" type="float" value="1.5" />
-    <output name="out" type="BSDF" />
-  </nodedef>
-
   <!-- ======================================================================== -->
   <!-- EDF Nodes                                                                -->
   <!-- ======================================================================== -->

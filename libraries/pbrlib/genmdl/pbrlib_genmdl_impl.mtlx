@@ -25,9 +25,6 @@
   <!-- <sheen_bsdf> -->
   <implementation name="IM_sheen_bsdf_genmdl" nodedef="ND_sheen_bsdf" sourcecode="mx::pbrlib::mx_sheen_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}}, mxp_base:{{base}})" target="genmdl" />
 
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genmdl" nodedef="ND_thin_film_bsdf" sourcecode="mx::pbrlib::mx_thin_film_bsdf(mxp_thickness:{{thickness}}, mxp_ior:{{ior}}, mxp_base:{{base}})" target="genmdl" />
-
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genmdl" nodedef="ND_uniform_edf" sourcecode="mx::pbrlib::mx_uniform_edf(mxp_color:{{color}})" target="genmdl" />
 

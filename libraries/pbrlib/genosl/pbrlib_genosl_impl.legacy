@@ -28,9 +28,6 @@
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="legacy/mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />
 
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genosl" nodedef="ND_thin_film_bsdf" target="genosl" />
-
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" sourcecode="{{color}} * emission()" target="genosl" />
 
