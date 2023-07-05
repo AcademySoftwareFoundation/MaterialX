@@ -62,8 +62,7 @@ void sample_ggx_dir(
     out vec3 L,
     out float NdotL,
     out float NdotH,
-    out float VdotH,
-    bool VeqN = false
+    out float VdotH
 )
 {
     // GGX NDF sampling
@@ -76,17 +75,9 @@ void sample_ggx_dir(
 
     vec3 localV;
 
-    if (VeqN)
-    {
-        // localV == localN
-        localV = vec3(0.0, 0.0, 1.0);
-        VdotH  = NdotH;
-    }
-    else
-    {
-        localV = transpose(localToWorld) * V;
-        VdotH  = saturate(dot(localV, localH));
-    }
+    // localV == localN
+    localV = vec3(0.0, 0.0, 1.0);
+    VdotH  = NdotH;
 
     // Compute { localL = reflect(-localV, localH) }
     vec3 localL = -localV + 2.0 * VdotH * localH;
@@ -115,38 +106,6 @@ float v_smith_joint_ggx(float NdotL, float NdotV, float alpha, float partLambdaV
     return 0.5 / max(lambdaV + lambdaL, FLT_MIN);
 }
 
-// // Use lower MIP-map levels for fetching samples with low probabilities
-// // in order to reduce the variance.
-// // Ref: http://http.developer.nvidia.com/GPUGems3/gpugems3_ch20.html
-// float get_prefiltered_mip_level(float NdotH, float alpha, float sampleCount, vec3 L)
-// {
-//     // OmegaS: Solid angle associated with the sample
-//     // OmegaP: Solid angle associated with the texel of the cubemap
-//     float omegaS;
-
-//     // float PDF = D * NdotH * Jacobian, where Jacobian = 1 / (4 * LdotH).
-//     // Since (N == V), NdotH == LdotH.
-//     // Thus  PDF = D / 4.
-//     float a2 = alpha * alpha;
-//     float s = (NdotH * a2 - NdotH) * NdotH + 1.0;
-//     float d_GGX = M_PI_INV * a2 / s * s;
-//     float pdf = d_GGX * 0.25;
-//     omegaS = 1.0 / (sampleCount * pdf);
-
-//     const float mipBias = alpha;
-
-//     vec3 envDir = normalize(($envMatrix * vec4(L,0.0)).xyz);
-//     vec2 uv = mx_latlong_projection(envDir);
-//     float deltaLongitude = 2.0 * M_PI / 2048.0;
-//     float deltaLatitude = M_PI / 1024.0;
-//     float latitudeStart = (uv.y - 0.5) * M_PI - 0.5 * deltaLatitude;
-//     float latitudeEnd = latitudeStart + deltaLatitude;
-//     float omegaP = deltaLongitude * (sin(latitudeEnd) - sin(latitudeStart));
-//     float invOmegaP = 1.0 / omegaP;
-
-//     return 0.5 * log2(omegaS * invOmegaP) + mipBias;
-// }
-
 vec3 mx_pre_convolve_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, (float)$convolutionMipLevel) / vec2(2048.0, 1024.0);
@@ -162,8 +121,10 @@ vec3 mx_pre_convolve_environment()
     const float NdotV = 1; // Because N == V
     float alpha = mx_lod_to_alpha(float($convolutionMipLevel));
     float partLambdaV =  get_smith_joint_ggx_part_lambda_v(NdotV, alpha);
-    // int sampleCount = 89; // Must be a Fibonacci number
-    int sampleCount = 144; // Must be a Fibonacci number
+    // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
+    // the variance of the samples by choosing higher mip levels where necessary. We haven't
+    // implemented prefiltering yet, so we use a high sample count.
+    int sampleCount = 610; // Must be a Fibonacci number
 
     float3 lightInt = float3(0.0, 0.0, 0.0);
     float  cbsdfInt = 0.0;
@@ -176,9 +137,11 @@ vec3 mx_pre_convolve_environment()
         float NdotL;
         float NdotH;
         float LdotH;
-        sample_ggx_dir(Xi, V, localToWorld, alpha, L, NdotL, NdotH, LdotH, true);
+        sample_ggx_dir(Xi, V, localToWorld, alpha, L, NdotL, NdotH, LdotH);
+        if (NdotL <= 0) continue; // Note that some samples will have 0 contribution
 
-        float mipLevel = 0.0; // get_prefiltered_mip_level(NdotH, alpha, sampleCount, L);
+        // If we were to implement pre-filtering, we would do so here.
+        float mipLevel = 0;
         vec3 val = mx_latlong_map_lookup(L, $envMatrix, mipLevel, $envRadiance);
         const float F = 1.0;
         float G = v_smith_joint_ggx(NdotL, NdotV, alpha, partLambdaV) * NdotL * NdotV; // 4 cancels out
