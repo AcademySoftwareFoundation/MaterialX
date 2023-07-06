@@ -168,7 +168,7 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
 
     mtlImageHandler->createRenderResources(envMip0, true); // Turn mipmaps off
 
-    mx::ImagePtr outTex = mx::Image::create(w, h, 4, mx::Image::BaseType::UINT8, true);
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
     mtlImageHandler->createRenderResources(outTex, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
 
