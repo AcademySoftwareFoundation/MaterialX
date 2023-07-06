@@ -9,7 +9,7 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 * [**MaterialX Specification**](./MaterialX.Specification.md) - the main Specification, describing definitions, core functionality and the standard node library
 * [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md) - describes BSDF and other shading function nodes useful in constructing complex layered rendering shaders using node graphs
 * [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) - additional MaterialX elements to define geometry-related information such as collections, properties and material assignments
-* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes a number of additional node types built from the standard nodes as well as recommended naming and structuring conventions for libraries of custom node definitions
+* [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes recommended naming and structuring conventions for libraries of custom node definitions
 
 <p>
 
@@ -33,7 +33,7 @@ Previously, MaterialX used custom types with a structure of output variables to 
 
 **Array Types Now Uniform and Static Length**
 
-Many shading languages do not support dynamic array types with a variable length, so MaterialX now only supports arrays with a fixed maximum length, and all array-type node inputs must be uniform; nodes are no longer permitted to output an array type.  Array-type inputs may be accompanied by a uniform integer input declaring the number of array elements actually used in the array.  Because of this change, the unimplemented &lt;arrayappend> node has been removed.
+Many shading languages do not support dynamic array types with a variable length, so MaterialX now only supports arrays with a fixed maximum length, and all array-type node inputs must be uniform; nodes are no longer permitted to output an array type.  Array-type inputs may be accompanied by a uniform integer input declaring the number of array elements actually used in the array (the &lt;curveadjust> node has been updated in this way).  Because of this change, the unimplemented &lt;arrayappend> node has been removed.
 
 
 **Connectable Uniform Inputs and New Tokenvalue Node**
@@ -45,7 +45,7 @@ Similarly, &lt;token>s in materials and other node instances may now be connecte
 
 **Standardized Color Space Names**
 
-The [standard colorspace names](./MaterialX.Specification.md#color-spaces-and-color-management-systems) in MaterialX have now been defined explicitly in the Specification, and are aligned to their definitions in the ACES 1.2 OCIO config file.  With this change, there is no need for a definition of "cms" or "cmsconfig" in MaterialX documents, so those two attributes have been deprecated.
+The [standard colorspace names](./MaterialX.Specification.md#color-spaces-and-color-management-systems) in MaterialX have now been defined explicitly in the Specification, and are aligned to their definitions in the ACES 1.2 OCIO config file.  With this change, there is no need for a definition of "cms" or "cmsconfig" in MaterialX documents, so those two attributes have been deprecated.  Additionally, two new colorspaces, "srgb_displayp3" and "lin_displayp3" have been added as standard colorspaces.
 
 
 **Disambiguated Nodedef and Nodegraph References**
@@ -62,7 +62,7 @@ The standard &lt;swizzle> node using a string of channel names and allowing arbi
 
 **New Unlit Surface Shader and Standard Materials**
 
-A new standard &lt;surface> constructor node for unlit surfaces has been added to the standard library.
+A new &lt;surface_unlit> node for unlit surfaces has been added to the standard library.
 
 Additionally, the standard &lt;surfacematerial> material now supports both single- or double-sided surfaces with the addition of a separate `backsurface` input.
 
@@ -72,23 +72,18 @@ Additionally, the standard &lt;surfacematerial> material now supports both singl
 Typedefs may now inherit from other types, including built-in types, and may provide hints about their values such as floating-point precision.  These new "inherit" and "hint" attributes are themselves merely metadata hints about the types; applications and code generators are still expected to provide their own precise definitions for all custom types.
 
 
-**New Nodes**
+**New and Updated Standard Library Nodes**
 
-The following new standard operator nodes have been added:
+In 1.39, we are removing the distinction between "standard nodes" and "supplemental nodes", and descriptions of both can now be found in the main Specification document.  Nodes that are implemented in the standard distribution using nodegraphs are annotated with "(NG)" in the Spec to differentiate them from nodes implemented in each rendering target's native shading language.
 
-* [Procedural nodes](./MaterialX.Specification.md#procedural-nodes): **tokenvalue**, **fractal2d**, **cellnoise1d**
+Additionally, the following new operator nodes have been added to the standard library:
+
+* [Procedural nodes](./MaterialX.Specification.md#procedural-nodes): **tokenvalue**, **checkerboard**, **fractal2d**, **cellnoise1d**, **unifiednoise2d**, **unifiednoise3d**
 * [Geometric nodes](./MaterialX.Specification.md#geometric-nodes): **bump**, **geompropvalueuniform**
-* [Math nodes](./MaterialX.Specification.md#math-nodes): boolean **and**, **or**, **not**; **transformcolor**, **creatematrix**
-* [Adjustment nodes](./MaterialX.Specification.md#adjustment-nodes): **curveinversecubic**, **curveuniformlinear** and **curveuniformcubic**
+* [Math nodes](./MaterialX.Specification.md#math-nodes): boolean **and**, **or**, **not**; **distance**, **transformcolor**, **creatematrix** and **triplanarblend**, as well as integer-output variants of **floor** and **ceil**
+* [Adjustment nodes](./MaterialX.Specification.md#adjustment-nodes): **curveinversecubic**, **curveuniformlinear**, **curveuniformcubic** and **colorcorrect**
 * [Conditional nodes](./MaterialX.Specification.md#conditional-nodes): boolean-output variants of **ifgreater**, **ifgreatereq** and **ifequal**; new **ifelse** node
-* [Channel nodes](./MaterialX.Specification.md#channel-nodes): **extractrowvector**
-
-Additionally, the following new supplemental nodes have been added:
-
-* [Procedural nodes](./MaterialX.Supplement.md#supplemental-procedural-nodes): **unifiednoise2d**, **unifiednoise3d**
-* [Math nodes](./MaterialX.Supplement.md#supplemental-math-nodes): **triplanarblend**
-* [Adjustment nodes](./MaterialX.Supplement.md#supplemental-adjustment-nodes): **colorcorrect**
-* [Channel nodes](./MaterialX.Supplement.md#supplemental-channel-nodes): **separatecolor4**
+* [Channel nodes](./MaterialX.Specification.md#channel-nodes): **extractrowvector** and **separatecolor4**
 
 
 **New Physically Based Shading Nodes**
@@ -103,10 +98,13 @@ The following new standard physically based shading nodes have been added:
 
 * The &lt;member> element for &lt;typedef>s and the "member" attribute for inputs have been removed from the Specification, as they had never been implemented and it was not clear how they could be implemented generally.
 * The "valuerange" and "valuecurve" attributes describing expressions and function curves have been removed, in favor of using the new &lt;curveinversecubic> / &lt;curveuniformcubic> / etc. nodes.
+* The &lt;geomcolor>, &lt;geompropvalue> and &lt;geompropvalueuniform> nodes for color3/4-type values can now take a "colorspace" attribute to declare the colorspace of the property value.
 * The &lt;cellnoise2d> and &lt;cellnoise3d> nodes now support vector<em>N</em> output types in addition to float output.
+* The &lt;noise2d/3d>, &lt;fractal2d/3d>, &lt;cellnoise2d/3d> and &lt;worleynoise2d/3d> nodes now support a "period" input.
 * The &lt;worleynoise2d> and &lt;worleynoise3d> nodes now support a number of different distance metrics.
-* The &lt;time> node no longer has a "frames per second" input: the application is now always expected to generate the "current time in seconds" using an appropriate method.  "Fps" was removed because varible-rate real-time applications have no static "fps", and it's generally not good to bake a situation-dependent value like fps into a shading network.
+* The &lt;time> node no longer has a "frames per second" input: the application is now always expected to generate the "current time in seconds" using an appropriate method.  The "fps" input was removed because variable-rate real-time applications have no static "fps", and it's generally not good to bake a situation-dependent value like fps into a shading network.
 * A standard "tangent" space is now defined in addition to "model", "object" and "world" spaces, and the &lt;heighttonormal> node now accepts a uniform "space" input to define the space of the output normal vector.
+* The &lt;switch> node now supports 10 inputs instead of just 5.
 * The &lt;surface> and &lt;displacement> nodes are now part of the main Specification rather than being Physically Based Shading nodes.
 * &lt;Token> elements are now explicitly allowed to be children of compound nodegraphs, and token values may now have defined enum/enumvalues.
 * Inputs in &lt;nodedef>s may now supply "hints" to code generators as to their intended interpretation, e.g. "transparency" or "opacity".

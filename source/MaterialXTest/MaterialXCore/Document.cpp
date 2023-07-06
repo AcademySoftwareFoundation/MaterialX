@@ -111,22 +111,24 @@ TEST_CASE("Document", "[document]")
 
 TEST_CASE("Version", "[document]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/upgrade/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+    searchPath.append(searchPath.find("resources/Materials/TestSuite/stdlib/upgrade"));
 
     // 1.36 to 1.37
     {
+        mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, "1_36_to_1_37.mtlx", searchPath);
+        doc->importLibrary(stdlib);
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = true;
-        mx::writeToXmlFile(doc, "1_36_to_1_37_updated.mtlx", &writeOptions);
+        std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
 
         mx::DocumentPtr doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, "1_36_to_1_37_updated.mtlx");
+        mx::readFromXmlString(doc2, xmlString);
         REQUIRE(doc2->validate());
 
         // Check conversion to desired types occurred
@@ -160,18 +162,17 @@ TEST_CASE("Version", "[document]")
 
     // 1.37 to 1.38
     {
-        doc = mx::createDocument();
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+        mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, "1_37_to_1_38.mtlx", searchPath);
+        doc->importLibrary(stdlib);
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = false;
-        mx::writeToXmlFile(doc, "1_37_to_1_38_updated.mtlx", &writeOptions);
+        std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
 
         mx::DocumentPtr doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, "1_37_to_1_38_updated.mtlx");
+        mx::readFromXmlString(doc2, xmlString);
         REQUIRE(doc2->validate());
 
         // atan2 test

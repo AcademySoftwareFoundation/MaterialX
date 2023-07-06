@@ -15,6 +15,8 @@
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
+#include <MaterialXFormat/Util.h>
+
 namespace mx = MaterialX;
 
 namespace
@@ -132,6 +134,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
 
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
         mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(stbLoader);
+        imageHandler->setSearchPath(mx::getDefaultDataSearchPath());
 #if defined(MATERIALX_BUILD_OIIO)
         mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
         imageHandler->addLoader(oiioLoader);
@@ -143,7 +146,8 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
         // Pre-compile some required shaders for testrender
         if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
-            mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Utilities/");
+            mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+            mx::FilePath shaderPath = searchPath.find("resources/Utilities/");
             _renderer->setOslOutputFilePath(shaderPath);
 
             const std::string OSL_EXTENSION("osl");
@@ -309,7 +313,8 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
                         _renderer->setOslShaderOutput(outputName, outputType);
 
                         // Set scene template file. For now we only have the constant color scene file
-                        mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Utilities/");
+                        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+                        mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
                         sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
                         _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
@@ -366,9 +371,9 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
         return;
     }
 
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+
     OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
-
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
     renderTester.validate(optionsFilePath);
 }
