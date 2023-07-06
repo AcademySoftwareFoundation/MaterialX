@@ -465,6 +465,9 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         return;
     }
 
+    emitComment("Emitting node '" + node.getName() + "'", stage);
+
+
     bool match = true;
 
     if (node.hasClassification(ShaderNode::Classification::CLOSURE) && !node.hasClassification(ShaderNode::Classification::SHADER))
@@ -500,6 +503,9 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         emitLineBegin(stage);
         emitOutput(node.getOutput(), true, true, context, stage);
         emitLineEnd(stage);
+
+        // Register the node as emitted, but omit the function call.
+        stage.addFunctionCall(node, context, false);
     }
 }
 
