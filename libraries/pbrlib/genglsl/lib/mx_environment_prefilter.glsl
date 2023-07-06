@@ -21,7 +21,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     // Source: Section 2.2: https://jcgt.org/published/0003/04/03/paper.pdf
     vec3 k2 = fd.extinction * fd.extinction;
     vec3 F0 = ((fd.ior - 1)*(fd.ior - 1) + k2) / ((fd.ior + 1)*(fd.ior + 1) + k2);
-    vec3 FGD = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0);
+    vec3 FGD = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, vec3(1.0));
     if (fd.refraction) {
         FGD = 1.0 - FGD;
     }
