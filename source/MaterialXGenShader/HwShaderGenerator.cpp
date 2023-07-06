@@ -465,9 +465,6 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         return;
     }
 
-    emitComment("Emitting node '" + node.getName() + "'", stage);
-
-
     bool match = true;
 
     if (node.hasClassification(ShaderNode::Classification::CLOSURE) && !node.hasClassification(ShaderNode::Classification::SHADER))
