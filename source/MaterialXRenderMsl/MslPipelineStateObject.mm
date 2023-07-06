@@ -608,9 +608,6 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                         samplingProperties.vaddressMode = ImageSamplingProperties::AddressMode::CLAMP;
                         samplingProperties.filterType = ImageSamplingProperties::FilterType::LINEAR;
                         
-                        // This `bindImage` call is actually uploading the image on the first call,
-                        // when the image doesn't exist on the GPU. We need to upload custom mips
-                        // during this stage.
                         static_cast<MaterialX::MetalTextureHandler*>
                         (imageHandler.get())->bindImage(env.second, samplingProperties);
                         bindTexture(renderCmdEncoder, (unsigned int)arg.index, env.second, imageHandler);

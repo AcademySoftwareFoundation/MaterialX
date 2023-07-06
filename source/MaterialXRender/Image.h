@@ -59,11 +59,10 @@ class MX_RENDER_API Image
         unsigned int width,
         unsigned int height,
         unsigned int channelCount,
-        BaseType baseType = BaseType::UINT8,
-        bool useCustomMipMaps = false
+        BaseType baseType = BaseType::UINT8
     )
     {
-        return ImagePtr(new Image(width, height, channelCount, baseType, useCustomMipMaps));
+        return ImagePtr(new Image(width, height, channelCount, baseType));
     }
 
     ~Image();
@@ -93,11 +92,6 @@ class MX_RENDER_API Image
     BaseType getBaseType() const
     {
         return _baseType;
-    }
-
-    bool getUseCustomMipMaps() const
-    {
-        return _useCustomMipMaps;
     }
 
     /// Return the stride of our base type in bytes.
@@ -218,14 +212,13 @@ class MX_RENDER_API Image
     /// @}
 
   protected:
-    Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType, bool useCustomMipMaps);
+    Image(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType);
 
   protected:
     unsigned int _width;
     unsigned int _height;
     unsigned int _channelCount;
     BaseType _baseType;
-    bool _useCustomMipMaps;
 
     void* _resourceBuffer;
     ImageBufferDeallocator _resourceBufferDeallocator;

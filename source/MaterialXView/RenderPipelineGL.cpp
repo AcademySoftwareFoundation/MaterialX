@@ -136,7 +136,7 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
     int h = srcTex->getHeight();
 
     // Create texture to hold the convolved environment.
-    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
     glImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
 
 

@@ -166,8 +166,8 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
     int w = srcTex->getWidth();
     int h = srcTex->getHeight();
 
-    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
-    mtlImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
+    mtlImageHandler->createRenderResources(outTex, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
 
 
