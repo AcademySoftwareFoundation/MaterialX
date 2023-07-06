@@ -166,9 +166,6 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
     int w = srcTex->getWidth();
     int h = srcTex->getHeight();
 
-    // TODO: Is this needed?
-    mtlImageHandler->createRenderResources(srcTex, true); // Turn mipmaps off
-
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
     mtlImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);

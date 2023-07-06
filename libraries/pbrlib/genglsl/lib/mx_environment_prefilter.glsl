@@ -15,8 +15,6 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
     float avgAlpha = mx_average_alpha(alpha);
-    vec3 F = mx_compute_fresnel(NdotV, fd);
-    float G = mx_ggx_smith_G2(NdotV, NdotV, avgAlpha);
     // Convert n and k to f0. f90 will be equal to 1.
     // Source: Section 2.2: https://jcgt.org/published/0003/04/03/paper.pdf
     vec3 k2 = fd.extinction * fd.extinction;
