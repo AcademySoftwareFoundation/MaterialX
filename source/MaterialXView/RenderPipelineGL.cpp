@@ -112,8 +112,72 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
 
 mx::ImagePtr GLRenderPipeline::convolveEnvironment()
 {
-    // TODO: Implement this.
-    return nullptr;
+    auto& genContext    = _viewer->_genContext;
+    auto& lightHandler  = _viewer->_lightHandler;
+    auto& imageHandler  = _viewer->_imageHandler;
+    mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
+
+    // Create the convolution shader.
+    mx::GlslMaterialPtr material = nullptr;
+    try
+    {
+        mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
+        material = mx::GlslMaterial::create();
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
+        return nullptr;
+    }
+
+    mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
+    int w = srcTex->getWidth();
+    int h = srcTex->getHeight();
+
+    // Create texture to hold the convolved environment.
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
+    glImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
+
+
+    int i = 0;
+    while (w > 0 && h > 0)
+    {
+        // Create framebuffer
+        unsigned int framebuffer;
+        glGenFramebuffers(1, &framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); 
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTex->getResourceId(), i);
+        glViewport(0, 0, w, h);
+        material->bindShader();
+
+        // TODO: Can this be moved out of the loop?
+        // Bind the source texture to attachment 0
+        mx::ImageSamplingProperties samplingProperties;
+        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
+        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+        imageHandler->bindImage(srcTex, samplingProperties);
+
+        int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
+        assert(textureLocation >= 0);
+        material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
+        glActiveTexture(GL_TEXTURE0);
+
+        _viewer->renderScreenSpaceQuad(material);
+
+        glDeleteFramebuffers(1, &framebuffer); 
+
+        w /= 2;
+        h /= 2;
+        i++;
+    }
+
+    // Clean up.
+    glViewport(0, 0, _viewer->m_fbsize[0], _viewer->m_fbsize[1]);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+    return outTex;
 }
 
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)

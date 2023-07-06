@@ -578,9 +578,20 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
+    ImagePtr envRadiance = nullptr;
+    if (lightHandler->getIndirectLighting())
+    {
+        envRadiance = lightHandler->getUsePreConvolvedEnvLighting() ?
+            lightHandler->getEnvRadianceMapPreConvolved() :
+            lightHandler->getEnvRadianceMap();
+    }
+    else
+    {
+        envRadiance = imageHandler->getZeroImage();
+    }
     ImageMap envImages =
     {
-        { HW::ENV_RADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { HW::ENV_RADIANCE, envRadiance },
         { HW::ENV_IRRADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
     for (const auto& env : envImages)

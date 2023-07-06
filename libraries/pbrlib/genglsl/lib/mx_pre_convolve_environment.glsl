@@ -103,12 +103,13 @@ float v_smith_joint_ggx(float NdotL, float NdotV, float alpha, float partLambdaV
     float lambdaL = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
 
     // Simplify visibility term: (2.0 * NdotL * NdotV) /  ((4.0 * NdotL * NdotV) * (lambda_v + lambda_l))
-    return 0.5 / max(lambdaV + lambdaL, FLT_MIN);
+    #define EPSILON 0.00001
+    return 0.5 / max(lambdaV + lambdaL, EPSILON);
 }
 
 vec3 mx_pre_convolve_environment()
 {
-    vec2 uv = gl_FragCoord.xy * pow(2.0, (float)$convolutionMipLevel) / vec2(2048.0, 1024.0);
+    vec2 uv = gl_FragCoord.xy * pow(2.0, $convolutionMipLevel) / vec2(2048.0, 1024.0);
     if ($convolutionMipLevel == 0) {
         return textureLod($envRadiance, uv, 0).rgb;
     }
@@ -117,8 +118,8 @@ vec3 mx_pre_convolve_environment()
     vec3 N = mx_latlong_map_lookup_inverse(uv);
 
     mat3 localToWorld = get_local_frame(N);
-    const vec3 V = N;
-    const float NdotV = 1; // Because N == V
+    vec3 V = N;
+    float NdotV = 1; // Because N == V
     float alpha = mx_lod_to_alpha(float($convolutionMipLevel));
     float partLambdaV =  get_smith_joint_ggx_part_lambda_v(NdotV, alpha);
     // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
@@ -126,7 +127,7 @@ vec3 mx_pre_convolve_environment()
     // implemented prefiltering yet, so we use a high sample count.
     int sampleCount = 1597; // Must be a Fibonacci number
 
-    float3 lightInt = float3(0.0, 0.0, 0.0);
+    vec3 lightInt = vec3(0.0, 0.0, 0.0);
     float  cbsdfInt = 0.0;
 
     for (int i = 0; i < sampleCount; ++i)

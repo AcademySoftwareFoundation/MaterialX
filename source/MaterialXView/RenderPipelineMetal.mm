@@ -162,14 +162,15 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
     auto& imageHandler  = _viewer->_imageHandler;
     mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
 
-    mx::ImagePtr envMip0 = lightHandler->getEnvRadianceMap();
-    int w = envMip0->getWidth();
-    int h = envMip0->getHeight();
+    mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
+    int w = srcTex->getWidth();
+    int h = srcTex->getHeight();
 
-    mtlImageHandler->createRenderResources(envMip0, true); // Turn mipmaps off
+    // TODO: Is this needed?
+    mtlImageHandler->createRenderResources(srcTex, true); // Turn mipmaps off
 
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF, true);
-    mtlImageHandler->createRenderResources(outTex, true);
+    mtlImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
 
 
@@ -178,7 +179,7 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
         MTL(device),
         w, h,
         4,
-        mx::Image::BaseType::UINT8,
+        mx::Image::BaseType::UINT8, // TODO: Should this be HALF?
         metalTex
     );
 
