@@ -1328,7 +1328,7 @@
   
   <!--
     Node: <trianglewave>
-    Moving between 0.0 and the amplitude based on the input value.
+    A triangle wave of the given amplitude and frequency.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <multiply name="multiply3" type="float">
