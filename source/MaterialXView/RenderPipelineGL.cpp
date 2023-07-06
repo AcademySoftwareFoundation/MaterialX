@@ -132,13 +132,14 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
     }
 
     mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
+
     int w = srcTex->getWidth();
     int h = srcTex->getHeight();
+    int numMips = srcTex->getMaxMipCount();
 
     // Create texture to hold the convolved environment.
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
     glImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
-
 
     int i = 0;
     while (w > 0 && h > 0)
@@ -152,17 +153,21 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
         material->bindShader();
 
         // TODO: Can this be moved out of the loop?
-        // Bind the source texture to attachment 0
+        mx::GlslProgramPtr program = material->getProgram();
+        // Bind the source texture
         mx::ImageSamplingProperties samplingProperties;
         samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
         samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
         samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
         imageHandler->bindImage(srcTex, samplingProperties);
-
         int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
         assert(textureLocation >= 0);
         material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
-        glActiveTexture(GL_TEXTURE0);
+        // Bind other uniforms
+        program->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
+        const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
+        program->bindUniform(mx::HW::T_ENV_MATRIX, mx::Value::createValue(yRotationPI));
+        program->bindUniform(mx::HW::T_ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
 
         _viewer->renderScreenSpaceQuad(material);
 
