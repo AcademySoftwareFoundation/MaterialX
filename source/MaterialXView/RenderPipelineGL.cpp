@@ -166,8 +166,8 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
         // Bind other uniforms
         program->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
         const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
-        program->bindUniform(mx::HW::T_ENV_MATRIX, mx::Value::createValue(yRotationPI));
-        program->bindUniform(mx::HW::T_ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
+        program->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(yRotationPI));
+        program->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
 
         _viewer->renderScreenSpaceQuad(material);
 
