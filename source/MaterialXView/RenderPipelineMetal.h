@@ -40,7 +40,6 @@ class MetalRenderPipeline : public RenderPipeline
     mx::ImageHandlerPtr createImageHandler() override;
     mx::MaterialPtr     createMaterial() override;
     void updateAlbedoTable(int tableSize) override;
-    mx::ImagePtr convolveEnvironment() override;
     void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) override;
     void bakeTextures() override;
     mx::ImagePtr getFrameImage() override;
@@ -51,7 +50,9 @@ class MetalRenderPipeline : public RenderPipeline
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
     mx::MetalFramebufferPtr  _shadowMapFramebuffer;
+    mx::MetalFramebufferPtr  _preConvolutionFramebuffer;
     mx::ImagePtr             _shadowMap[SHADOWMAP_TEX_COUNT];
+    void convolveEnvironment();
 };
     
 #endif // RENDER_PIPELINE_METAL_H

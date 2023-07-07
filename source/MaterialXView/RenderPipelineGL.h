@@ -31,7 +31,6 @@ class GLRenderPipeline : public RenderPipeline
     mx::ImageHandlerPtr createImageHandler() override;
     mx::MaterialPtr     createMaterial() override;
     void updateAlbedoTable(int tableSize) override;
-    mx::ImagePtr convolveEnvironment() override;
     std::shared_ptr<void> createTextureBaker(unsigned int width,
                                              unsigned int height,
                                              mx::Image::BaseType baseType) override;
@@ -44,6 +43,7 @@ class GLRenderPipeline : public RenderPipeline
     
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
+    void convolveEnvironment();
 };
     
 #endif // RENDER_PIPELINE_GL_H

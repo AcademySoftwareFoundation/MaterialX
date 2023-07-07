@@ -110,7 +110,7 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
     glDrawBuffer(GL_BACK);
 }
 
-mx::ImagePtr GLRenderPipeline::convolveEnvironment()
+void GLRenderPipeline::convolveEnvironment()
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
@@ -128,7 +128,6 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
     catch (std::exception& e)
     {
         new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
-        return nullptr;
     }
 
     mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
@@ -182,7 +181,7 @@ mx::ImagePtr GLRenderPipeline::convolveEnvironment()
     glViewport(0, 0, _viewer->m_fbsize[0], _viewer->m_fbsize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-    return outTex;
+    lightHandler->setEnvRadianceMapPreConvolved(outTex);
 }
 
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)

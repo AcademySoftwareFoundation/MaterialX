@@ -505,11 +505,11 @@ void Viewer::loadEnvironmentLight()
 
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
+    _lightHandler->setEnvRadianceMapPreConvolved(nullptr);
+    _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMapPreConvolved());
     _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
 
     _lightHandler->setEnvRadianceMap(envRadianceMap);
-    mx::ImagePtr preConvolvedEnvRadianceMap = _renderPipeline->convolveEnvironment();
-    _lightHandler->setEnvRadianceMapPreConvolved(preConvolvedEnvRadianceMap);
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
 
     // Look for a light rig using an expected filename convention.

@@ -155,12 +155,17 @@ void MetalRenderPipeline::updateAlbedoTable(int tableSize)
     }
 }
 
-mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
+void MetalRenderPipeline::convolveEnvironment()
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
     mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
+
+    if (lightHandler->getEnvRadianceMapPreConvolved())
+    {
+        return;
+    }
 
     mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
     int w = srcTex->getWidth();
@@ -172,15 +177,15 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
 
 
     // Create framebuffer.
-    mx::MetalFramebufferPtr framebuffer = mx::MetalFramebuffer::create(
+    _preConvolutionFramebuffer = mx::MetalFramebuffer::create(
         MTL(device),
         w, h,
         4,
-        mx::Image::BaseType::UINT8, // TODO: Should this be HALF?
+        mx::Image::BaseType::HALF,
         metalTex
     );
 
-    MTL_PUSH_FRAMEBUFFER(framebuffer);
+    MTL_PUSH_FRAMEBUFFER(_preConvolutionFramebuffer);
 
     int i = 0;
 
@@ -192,7 +197,7 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
         [desc.colorAttachments[0] setLevel:i];
         [desc.colorAttachments[0] setLoadAction:MTLLoadActionDontCare];
         [desc.colorAttachments[0] setStoreAction:MTLStoreActionStore];
-        [desc.depthAttachment setTexture:framebuffer->getDepthTexture()];
+        [desc.depthAttachment setTexture:_preConvolutionFramebuffer->getDepthTexture()];
         [desc.depthAttachment setLoadAction:MTLLoadActionDontCare];
         [desc.depthAttachment setStoreAction:MTLStoreActionDontCare];
         [desc setStencilAttachment:nil];
@@ -211,10 +216,9 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
         catch (std::exception& e)
         {
             new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
-            return nullptr;
         }
 
-        framebuffer->bind(desc);
+        _preConvolutionFramebuffer->bind(desc);
         material->bindShader();
         material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
 
@@ -240,7 +244,7 @@ mx::ImagePtr MetalRenderPipeline::convolveEnvironment()
 
     MTL_POP_FRAMEBUFFER();
 
-    return outTex;
+    lightHandler->setEnvRadianceMapPreConvolved(outTex);
 }
 
 mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
@@ -403,6 +407,10 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
     
+    if (lightHandler->getUsePreConvolvedEnvLighting())
+    {
+        convolveEnvironment();
+    }
     // Update lighting state.
     lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * M_PI));
 
