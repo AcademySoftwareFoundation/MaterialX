@@ -293,6 +293,11 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     float lightRotation = _viewer->_lightRotation;
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
+
+    if (lightHandler->getUsePreConvolvedEnvLighting())
+    {
+        convolveEnvironment();
+    }
     
     // Initialize OpenGL state
     glDisable(GL_BLEND);
