@@ -842,11 +842,6 @@ void Viewer::createAdvancedSettings(Widget* parent)
     lightingLabel->set_font_size(20);
     lightingLabel->set_font("sans-bold");
 
-    // ---------
-    // Don't commit this
-    _lightHandler->setDirectLighting(false);
-    // ---------
-
     ng::CheckBox* indirectLightingBox = new ng::CheckBox(advancedPopup, "Indirect Lighting");
     indirectLightingBox->set_checked(_lightHandler->getIndirectLighting());
     indirectLightingBox->set_callback([this](bool enable)

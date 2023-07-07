@@ -90,7 +90,6 @@ void sample_ggx_dir(
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf
 float v_smith_joint_ggx(float NdotL, float NdotV, float alpha, float partLambdaV)
 {
-    // TODO: use mx_ggx_smith_G2 instead.
     float a2 = alpha * alpha;
 
     // Original formulation:
@@ -98,7 +97,6 @@ float v_smith_joint_ggx(float NdotL, float NdotV, float alpha, float partLambdaV
     // lambda_l = (-1 + sqrt(a2 * (1 - NdotV2) / NdotV2 + 1)) * 0.5
     // G        = 1 / (1 + lambda_v + lambda_l);
 
-    // Reorder code to be more optimal:
     float lambdaV = NdotL * partLambdaV;
     float lambdaL = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
 
