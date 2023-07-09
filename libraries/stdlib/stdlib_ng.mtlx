@@ -1543,7 +1543,7 @@
   
   <!--
     Node: <trianglewave>
-    A triangle wave of the given amplitude and frequency.
+    A triangle wave of the given amplitude and period.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <absval name="absval1" type="float">
