@@ -1543,7 +1543,7 @@
   
   <!--
     Node: <trianglewave>
-    A triangle wave of the given amplitude and period.
+    A triangle wave that varies between zero and height over the given period.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <absval name="absval1" type="float">
@@ -1570,7 +1570,7 @@
     </subtract>
     <multiply name="multiply3" type="float">
       <input name="in1" type="float" nodename="subtract2" />
-      <input name="in2" type="float" interfacename="amplitude" />
+      <input name="in2" type="float" interfacename="height" />
     </multiply>
     <output name="out" type="float" nodename="multiply3" />
   </nodegraph>
