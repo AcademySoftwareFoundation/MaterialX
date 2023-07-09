@@ -2553,7 +2553,7 @@
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" uiname="in" value="0" />
     <input name="amplitude" type="float" value="1" />
-    <input name="frequency" type="float" value="1" />
+    <input name="freq" type="float" uiname= "Frequency" value="1" />
     <output name="out" type="float" />
   </nodedef>
 

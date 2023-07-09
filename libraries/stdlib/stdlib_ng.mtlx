@@ -1562,7 +1562,7 @@
       <input name="in" type="float" nodename="subtract1" />
     </absval>
     <divide name="divide1" type="float">
-      <input name="in2" type="float" interfacename="frequency" />
+      <input name="in2" type="float" interfacename="freq" />
       <input name="in1" type="float" value="1" />
     </divide>
     <subtract name="subtract1" type="float">
