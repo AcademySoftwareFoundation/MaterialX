@@ -1557,6 +1557,13 @@
       <input name="in1" type="float" interfacename="period" />
       <input name="in2" type="float" value="0.5" />
     </multiply>
+    <subtract name="subtract1" type="float">
+      <input name="in1" type="float" nodename="modulo1" />
+      <input name="in2" type="float" nodename="multiply2" />
+    </subtract>
+    <absval name="absval2" type="float">
+      <input name="in" type="float" nodename="subtract1" />
+    </absval>
     <subtract name="subtract2" type="float">
       <input name="in1" type="float" nodename="multiply2" />
       <input name="in2" type="float" nodename="absval2" />
@@ -1565,13 +1572,6 @@
       <input name="in1" type="float" nodename="subtract2" />
       <input name="in2" type="float" interfacename="amplitude" />
     </multiply>
-    <subtract name="subtract1" type="float">
-      <input name="in1" type="float" nodename="modulo1" />
-      <input name="in2" type="float" nodename="multiply2" />
-    </subtract>
-    <absval name="absval2" type="float">
-      <input name="in" type="float" nodename="subtract1" />
-    </absval>
     <output name="out" type="float" nodename="multiply3" />
   </nodegraph>
 
