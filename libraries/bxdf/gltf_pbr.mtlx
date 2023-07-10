@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" version="2.0.1" isdefaultversion="true">
     <input name="base_color" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Base Color" uifolder="Base" />
     <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />

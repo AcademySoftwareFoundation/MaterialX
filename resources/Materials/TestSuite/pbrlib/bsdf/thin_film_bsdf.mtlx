@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
+
+<!--
+We could keep these as tests for converting thin-film setups from 1.38 to 1.39.
+However until we have set the current version to 1.39 these must be commented out.
+
   <nodegraph name="thin_film_test1">
     <dielectric_bsdf name="dielectric_brdf_1" type="BSDF">
       <input name="ior" type="float" value="2.5" />
@@ -195,5 +200,6 @@
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
+-->
 
 </materialx>
