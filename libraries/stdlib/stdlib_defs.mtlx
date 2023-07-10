@@ -2552,7 +2552,7 @@
     The triangle wave ranges from zero to one and repeats on integer boundaries.
   -->
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
-    <input name="in" type="float" uiname="in" value="0" />
+    <input name="in" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
 
