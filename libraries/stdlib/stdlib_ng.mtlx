@@ -1544,7 +1544,7 @@
   <!--
     Node: <trianglewave>
     Generate a triangle wave from the given scalar input.
-    The triangle wave ranges from zero to one and repeats on integer boundaries.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <absval name="absval1" type="float">
