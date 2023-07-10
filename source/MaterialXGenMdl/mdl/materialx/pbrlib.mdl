@@ -621,23 +621,33 @@ export material mx_light(
 // TODO: Check if this works in the translator and higher level nodes, like
 //       mxp_material, if not, we have to switch to the material type and 
 //       use two different names for mxp_displacemnnt.
-export float3 mx_displacement_float(
+export material mx_displacement_float(
     float mxp_displacement = 0.0,
     float mxp_scale        = 1.0
-)
-{
-    return mxp_displacement * mxp_scale * state::normal();
-}
+) [[ 
+    anno::usage( "materialx:displacementshader") 
+]] = material(
+    geometry: material_geometry(
+        displacement: mxp_displacement * mxp_scale * state::scene_units_per_meter() * state::normal()
+    )
+);
 
-export float3 mx_displacement_vector3(
+export material mx_displacement_vector3(
     float3 mxp_displacement = float3(0.0),
     float  mxp_scale        = 1.0
-)
+) [[ 
+    anno::usage( "materialx:displacementshader") 
+]] = let
 {
-    return mxp_scale * ( mxp_displacement.x * state::texture_tangent_u(0)
-                       + mxp_displacement.y * state::texture_tangent_v(0)
-                       + mxp_displacement.z * state::normal());
-}
+    float3 vec = (mxp_displacement.x * state::texture_tangent_u(0)
+                + mxp_displacement.y * state::texture_tangent_v(0)
+                + mxp_displacement.z * state::normal());
+} in material(
+    geometry: material_geometry(
+        displacement: vec * mxp_scale * state::scene_units_per_meter()
+    )
+);
+
 
 export material mx_mix_bsdf(
     material mxp_fg = material() [[ anno::usage( "materialx:bsdf") ]],
