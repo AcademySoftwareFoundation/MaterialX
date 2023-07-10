@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor" version="1.0" isdefaultversion="true">
     <input name="tint" type="color3" value="1, 1, 1" uiname="Tint" uifolder="Main"
            doc="Overall color multiplier. It should be used with parcimony, as a non-white value breaks physicality. The prefered way to define the color of a conductor is through the Fresnel attributes right below." />
@@ -119,36 +119,28 @@
       <input name="in" type="vector3" nodename="tangent_rotate" />
     </normalize>
 
+    <!-- Thin film IOR-->
+    <divide name="iridescence_relative_ior" type="float">
+      <input name="in1" type="float" interfacename="iridescenceIOR" />
+      <input name="in2" type="float" interfacename="exteriorIOR" />
+    </divide>
+
     <!-- BRDF -->
     <conductor_bsdf name="conductor_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="ior" type="color3" nodename="relative_eta" />
       <input name="extinction" type="color3" nodename="relative_kappa" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
+      <input name="thinfilm_thickness" type="float" interfacename="iridescenceThickness" />
+      <input name="thinfilm_ior" type="float" nodename="iridescence_relative_ior" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
       <input name="distribution" type="string" value="ggx" />
     </conductor_bsdf>
 
-    <!-- BRDF + Thin film -->
-    <divide name="iridescence_relative_ior" type="float">
-      <input name="in1" type="float" interfacename="iridescenceIOR" />
-      <input name="in2" type="float" interfacename="exteriorIOR" />
-    </divide>
-    <thin_film_bsdf name="thin_film_bsdf" type="BSDF">
-      <input name="thickness" type="float" interfacename="iridescenceThickness" />
-      <input name="ior" type="float" nodename="iridescence_relative_ior" />
-    </thin_film_bsdf>
-
-    <!-- Layered BRDF -->
-    <layer name="thin_film_conductor_bsdf" type="BSDF">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf" />
-      <input name="base" type="BSDF" nodename="conductor_bsdf" />
-    </layer>
-
     <!-- Tinted BRDF -->
     <multiply name="tinted_bsdf" type="BSDF">
-      <input name="in1" type="BSDF" nodename="thin_film_conductor_bsdf" />
+      <input name="in1" type="BSDF" nodename="conductor_bsdf" />
       <input name="in2" type="color3" interfacename="tint" />
     </multiply>
 
