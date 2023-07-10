@@ -2548,12 +2548,11 @@
 
   <!--
     Node: <trianglewave>
-    A triangle wave that varies between zero and height over the given period.
+    Generate a triangle wave from the given scalar input.
+    The triangle wave ranges from zero to one and repeats on integer boundaries.
   -->
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" uiname="in" value="0" />
-    <input name="height" type="float" value="1" />
-    <input name="period" type="float" value="1" />
     <output name="out" type="float" />
   </nodedef>
 

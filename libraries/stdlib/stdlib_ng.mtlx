@@ -1543,7 +1543,8 @@
   
   <!--
     Node: <trianglewave>
-    A triangle wave that varies between zero and height over the given period.
+    Generate a triangle wave from the given scalar input.
+    The triangle wave ranges from zero to one and repeats on integer boundaries.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
     <absval name="absval1" type="float">
@@ -1551,28 +1552,19 @@
     </absval>
     <modulo name="modulo1" type="float">
       <input name="in1" type="float" nodename="absval1" />
-      <input name="in2" type="float" interfacename="period" />
     </modulo>
-    <multiply name="multiply2" type="float">
-      <input name="in1" type="float" interfacename="period" />
-      <input name="in2" type="float" value="0.5" />
-    </multiply>
     <subtract name="subtract1" type="float">
       <input name="in1" type="float" nodename="modulo1" />
-      <input name="in2" type="float" nodename="multiply2" />
+      <input name="in2" type="float" value="0.5" />
     </subtract>
     <absval name="absval2" type="float">
       <input name="in" type="float" nodename="subtract1" />
     </absval>
     <subtract name="subtract2" type="float">
-      <input name="in1" type="float" nodename="multiply2" />
+      <input name="in1" type="float" value="0.5" />
       <input name="in2" type="float" nodename="absval2" />
     </subtract>
-    <multiply name="multiply3" type="float">
-      <input name="in1" type="float" nodename="subtract2" />
-      <input name="in2" type="float" interfacename="height" />
-    </multiply>
-    <output name="out" type="float" nodename="multiply3" />
+    <output name="out" type="float" nodename="subtract2" />
   </nodegraph>
 
   <!-- ======================================================================== -->
