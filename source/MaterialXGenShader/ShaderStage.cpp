@@ -365,14 +365,18 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
     }
 }
 
-void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
+void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context, bool emitCode)
 {
+    // Register this function as being called in the current scope.
     const ClosureContext* cct = context.getClosureContext();
     const FunctionCallId id(&node, cct ? cct->getType() : 0);
-
     _scopes.back().functions.insert(id);
 
-    node.getImplementation().emitFunctionCall(node, context, *this);
+    // Emit code for the function call if not omitted.
+    if (emitCode)
+    {
+        node.getImplementation().emitFunctionCall(node, context, *this);
+    }
 }
 
 bool ShaderStage::isEmitted(const ShaderNode& node, GenContext& context) const
