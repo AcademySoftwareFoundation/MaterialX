@@ -723,7 +723,7 @@ export material mx_mix_edf(
 = material(
     surface: material_surface( 
         emission: material_emission(
-            emission: df::unbounded_mix( // unbounded_mix is cheeper
+            emission: df::unbounded_mix( // unbounded_mix is cheaper
             df::edf_component[]( 
                 df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
                 df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
