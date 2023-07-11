@@ -168,6 +168,10 @@ class UiNode
     void setNode(mx::NodePtr node)
     {
         _currNode = node;
+        if (_currNode)
+            _nodeDef = _currNode->getNodeDef();
+        else
+            _nodeDef = nullptr;
     }
     void setInput(mx::InputPtr input)
     {
@@ -220,6 +224,15 @@ class UiNode
     void setNodeGraph(mx::NodeGraphPtr nodeGraph)
     {
         _currNodeGraph = nodeGraph;
+        if (_currNodeGraph)
+            _nodeDef = _currNodeGraph->getNodeDef();
+        else
+            _nodeDef = nullptr;
+    }
+
+    mx::NodeDefPtr getNodeDef()
+    {
+        return _nodeDef;
     }
 
     UiNodePtr getConnectedNode(const std::string& name);
@@ -249,6 +262,7 @@ class UiNode
     std::string _message;
     std::string _type;
     mx::NodeGraphPtr _currNodeGraph;
+    mx::NodeDefPtr _nodeDef;
 };
 
 #endif

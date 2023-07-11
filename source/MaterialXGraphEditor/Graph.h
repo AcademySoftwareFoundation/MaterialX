@@ -83,8 +83,11 @@ class Graph
     void setYSpacing(int level, float startingPos);
     float findAvgY(const std::vector<UiNodePtr>& nodes);
 
-    // pin information
-    void setPinColor();
+    // Color information
+    void setupUIColors();
+    ImColor getNodeLabelColor(const std::string& key);
+
+    // Pin information
     void DrawPinIcon(std::string type, bool connected, int alpha);
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -182,6 +185,7 @@ class Graph
     std::vector<UiEdge> _currEdge;
     std::unordered_map<UiNodePtr, std::vector<UiPinPtr>> _downstreamInputs;
     std::unordered_map<std::string, ImColor> _pinColor;
+    std::unordered_map<std::string, ImColor> _nodeLabelColor;
 
     // current nodes and nodegraphs
     UiNodePtr _currUiNode;

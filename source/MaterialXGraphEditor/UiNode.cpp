@@ -27,7 +27,8 @@ UiNode::UiNode(const std::string& name, int id) :
     _id(id),
     _nodePos(INVALID_POS, INVALID_POS),
     _name(name),
-    _inputNodeNum(0)
+    _inputNodeNum(0),
+    _nodeDef(nullptr)
 {
 }
 
