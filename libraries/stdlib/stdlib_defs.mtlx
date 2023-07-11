@@ -295,7 +295,7 @@
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
-    a weighted blend of the three samples using the geometric normal.
+    an adjustable weighted blend of the three samples using the geometric normal.
   -->
   <nodedef name="ND_triplanarprojection_float" node="triplanarprojection" nodegroup="texture3d">
     <input name="filex" type="filename" value="" uniform="true" />
@@ -307,6 +307,7 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -323,6 +324,7 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -339,6 +341,7 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -355,6 +358,7 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -371,6 +375,7 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -387,6 +392,7 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -2274,7 +2280,7 @@
     <input name="in2" type="vector4" uiname="in2" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="float" />
   </nodedef>
-  
+
   <!--
     Node: <dotproduct>
     Perform a dot product of two 2-4 channel vectors
