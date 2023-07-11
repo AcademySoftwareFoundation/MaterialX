@@ -13,6 +13,7 @@
 #include <widgets.h>
 
 #include <iostream>
+#include <algorithm>
 
 namespace
 {
@@ -50,18 +51,57 @@ std::string getNodeDefId(const std::string& val)
 
 } // anonymous namespace
 
+bool NodeDefParameters::generateIdentifiers(mx::NodeGraphPtr nodeGraph)
+{
+    if (!nodeGraph)
+    {
+        return false;
+    }
+
+    _identifier.clear();
+    _nodeDefName.clear();
+    _nodeGraphName.clear();
+
+    if (categoryString.empty())
+    {
+        categoryString = nodeGraph->getName();
+    }
+
+    _identifier = categoryString;
+    if (useVersion && !versionString.empty())
+    {
+        _identifier += "_" + versionString;
+    }
+
+    std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
+    for (mx::OutputPtr output : outputs)
+    {
+        const std::string& outputType = output->getType();
+        _identifier += "_" + outputType;
+    }
+
+    // Prefix with "ND_" or "NG_" for definition and graph names
+    _nodeDefName = std::string("ND_") + _identifier;
+    _nodeGraphName = std::string("NG_") + _identifier;
+
+    return true;
+}
+
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
+             const mx::FilePath& userLibraryFolder,
              int viewWidth,
              int viewHeight) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
+    _userLibraryFolder(userLibraryFolder),
     _initial(false),
     _delete(false),
     _fileDialogSave(FileDialog::EnterNewFilename),
+    _fileDialogCreateDefinition(FileDialog::EnterNewFilename),
     _isNodeGraph(false),
     _graphTotalSize(0),
     _popup(false),
@@ -74,7 +114,6 @@ Graph::Graph(const std::string& materialFilename,
     _frameCount(INT_MIN),
     _pinFilterType(mx::EMPTY_STRING)
 {
-    loadStandardLibraries();
     setPinColor();
 
     // Set up filters load and save
@@ -84,10 +123,10 @@ Graph::Graph(const std::string& materialFilename,
     _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
+    initializeDataLibraries();
     _graphDoc->importLibrary(_stdLib);
 
     _initial = true;
-    createNodeUIList(_stdLib);
 
     if (_graphDoc)
     {
@@ -113,6 +152,12 @@ Graph::Graph(const std::string& materialFilename,
     }
 }
 
+void Graph::initializeDataLibraries()
+{
+    loadStandardLibraries();
+    createNodeUIList(_stdLib);
+}
+
 mx::ElementPredicate Graph::getElementPredicate() const
 {
     return [this](mx::ConstElementPtr elem)
@@ -130,8 +175,24 @@ void Graph::loadStandardLibraries()
     // Initialize the standard library.
     try
     {
+        // Emit the folders and search path if custom libraries are specified.
+        mx::FilePathVec allFolders = _libraryFolders;
+        allFolders.push_back(_userLibraryFolder);
+
+        if (allFolders.size() > 1)
+        {
+            std::cout << "> Load data libraries:" << std::endl;
+            for (auto x : allFolders)
+            {
+                std::cout << " - " + x.asString() << std::endl;
+            }
+        }
+        if (_searchPath.size() > 1)
+        {
+            std::cout << "> Search path: " + _searchPath.asString() << std::endl;
+        }
         _stdLib = mx::createDocument();
-        _xincludeFiles = mx::loadLibraries(_libraryFolders, _searchPath, _stdLib);
+        _xincludeFiles = mx::loadLibraries(allFolders, _searchPath, _stdLib);
         if (_xincludeFiles.empty())
         {
             std::cerr << "Could not find standard data libraries on the given search path: " << _searchPath.asString() << std::endl;
@@ -146,8 +207,6 @@ void Graph::loadStandardLibraries()
 
 mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
 {
-    mx::FilePathVec libraryFolders = { "libraries" };
-    _libraryFolders = libraryFolders;
     mx::XmlReadOptions readOptions;
     readOptions.readXIncludeFunction = [](mx::DocumentPtr doc, const mx::FilePath& filename,
                                           const mx::FileSearchPath& searchPath, const mx::XmlReadOptions* options)
@@ -195,24 +254,176 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     return doc;
 }
 
-// populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
-void Graph::addExtraNodes()
+void Graph::createDefinitionFromNodeGraph(const mx::FilePath& fileName, NodeDefParameters& parameters)
 {
-    if (!_graphDoc)
+    if (_currUiNode != nullptr)
     {
-        return;
+        mx::NodeGraphPtr nodeGraph = _currUiNode->getNodeGraph();
+        if (nodeGraph)
+        {
+            mx::DocumentPtr doc = nodeGraph->getDocument();
+            std::vector<mx::OutputPtr> outputs = nodeGraph->getOutputs();
+            if (doc && !outputs.empty())
+            {
+                parameters.generateIdentifiers(nodeGraph);
+                std::string newNodeGraphName = mx::createValidName(parameters.getNodeGraphName());
+                std::string newNodeDefName = mx::createValidName(parameters.getNodeDefName());
+                std::string newNodeCategory = mx::createValidName(parameters.categoryString);
+                std::string newNodeGroup = parameters.nodeGroupString;
+                std::string newVersionString;
+                bool isDefaultVersion = false;
+                if (parameters.useVersion)
+                {
+                    if (!parameters.versionString.empty())
+                        newVersionString = parameters.versionString;
+                    isDefaultVersion = parameters.isDefaultVersion;
+                } 
+                std::string newNodeNamespace;
+                if (parameters.useNamespace && !parameters.namespaceString.empty())
+                {
+                    newNodeNamespace = parameters.namespaceString;
+                }
+                std::string newNodeDocString;
+                if (!parameters.docString.empty())
+                {
+                    mx::StringMap filterDoc;
+                    filterDoc["\n"] = " ";
+                    newNodeDocString = mx::replaceSubstrings(parameters.docString, filterDoc);
+                }
+
+                mx::NodeDefPtr tempDef = nullptr;
+                mx::NodeGraphPtr tempGraph = nullptr;
+                std::string errorString;
+                try
+                {
+                    tempDef = doc->addNodeDefFromGraph(nodeGraph, newNodeDefName,
+                        newNodeCategory, newVersionString, isDefaultVersion, newNodeGroup, newNodeGraphName);
+                    if (tempDef)
+                    {
+                        tempDef->setDocString(newNodeDocString);
+                        tempDef->setNamespace(newNodeNamespace);
+                    }
+                    tempGraph = doc->getNodeGraph(newNodeGraphName);
+                    if (tempGraph)
+                    {
+                        tempGraph->setNamespace(newNodeNamespace);
+                    }
+
+                    if (!tempDef || !tempGraph || !tempDef->validate() || !tempGraph->validate())
+                    {
+                        errorString = "Definition is not valid";
+                    }
+                }
+                catch (mx::Exception& e)
+                {
+                    errorString = std::string(e.what());
+                }
+                if (!errorString.empty())
+                {
+                    std::cerr << "Failed to create new definition: " << newNodeDefName << ". " <<
+                        errorString << std::endl;
+                    return;
+                }
+
+                // Create a new document with just the new definition and save to disk
+                // Re-initialize data libraries.
+                mx::DocumentPtr defDoc = mx::createDocument();
+
+                // Format comment string and write out
+                if (!parameters.commentString.empty())
+                {
+                    mx::ElementPtr newComment = defDoc->addChildOfCategory(mx::CommentElement::CATEGORY);
+                    if (newComment)
+                    {
+                        const mx::StringVec commentStrings = mx::splitString(parameters.commentString, "\n");
+                        std::string formattedComment;// = commentStrings[0];
+                        for (size_t i=0; i<commentStrings.size(); i++)
+                        {
+                            formattedComment += "\n\t\t" + commentStrings[i];
+                        }
+                        formattedComment += "\n\t";
+                        newComment->setDocString(formattedComment);
+                    }
+                }
+                // Note: that addNodeDef() will automatically add an output if a type is specified
+                // so leave this empty. The outputs will be copied when the content is copied over.
+                mx::NodeDefPtr  newDef = defDoc->addNodeDef(tempDef->getName(), mx::EMPTY_STRING, tempDef->getCategory());
+                newDef->copyContentFrom(tempDef);
+
+                mx::NodeGraphPtr newGraph = defDoc->addNodeGraph(tempGraph->getName());
+                newGraph->copyContentFrom(tempGraph);
+
+                std::string error;
+                if (!newGraph->validate(&error))
+                {
+                    std::cerr << "Could not create valid definition: " + error << std::endl;
+                }
+                else
+                {
+                    mx::XmlWriteOptions writeOptions;
+                    writeOptions.elementPredicate = getElementPredicate();
+                    mx::FilePath outputFilePath;
+
+                    // Save to user library location
+                    if (!fileName.isAbsolute())
+                    {
+                        mx::FilePath folderLocation;
+                        if (_userLibraryFolder.isAbsolute())
+                        {
+                            folderLocation = _userLibraryFolder;
+                        }
+                        else
+                        {
+                            folderLocation = mx::getDefaultDataSearchPath()[0];
+                            folderLocation = folderLocation / _userLibraryFolder;
+                            if (!folderLocation.exists())
+                            {
+                                folderLocation.createDirectory();
+                            }
+                        }
+                        outputFilePath = folderLocation / fileName;
+                    }
+                    // Save to an explicit location
+                    else
+                    {
+                        outputFilePath = fileName;
+                    }
+                    std::cout << "Write definition to file: " << outputFilePath.asString() << std::endl;
+                    mx::writeToXmlFile(defDoc, outputFilePath, &writeOptions);
+                }
+
+                // Clean up temporary elements as they should not be part of the
+                // working document.
+                if (tempDef)
+                {
+                    doc->removeChild(tempDef->getName());
+                }
+                if (tempGraph)
+                {
+                    doc->removeChild(tempGraph->getName());
+                }
+            }
+        }
     }
+}
+
+// populate nodes to add with input output group and nodegraph nodes which are not found in the stdlib
+void Graph::addExtraNodes(mx::DocumentPtr dataLibrary)
+{
 
     // clear any old nodes, if we previously used tab with another graph doc
     _extraNodes.clear();
 
     // get all types from the doc
     std::vector<std::string> types;
-    std::vector<mx::TypeDefPtr> typeDefs = _graphDoc->getTypeDefs();
-    types.reserve(typeDefs.size());
-    for (auto typeDef : typeDefs)
+    if (dataLibrary)
     {
-        types.push_back(typeDef->getName());
+        std::vector<mx::TypeDefPtr> typeDefs = dataLibrary->getTypeDefs();
+        types.reserve(typeDefs.size());
+        for (auto typeDef : typeDefs)
+        {
+            types.push_back(typeDef->getName());
+        }
     }
 
     // add input and output nodes for all types
@@ -1175,7 +1386,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         _nodesToAdd[group].push_back(nodeDef);
     }
 
-    addExtraNodes();
+    addExtraNodes(doc);
 }
 
 // build the UiNode node graph based off of loading a document
@@ -2926,6 +3137,7 @@ void Graph::graphButtons()
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.15f, .15f, .15f, 1.0f));
     ImGui::SetWindowFontScale(_fontScale);
 
+    bool createDefOpen = false;
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -2943,6 +3155,15 @@ void Graph::graphButtons()
             else if (ImGui::MenuItem("Save", "Ctrl-S"))
             {
                 saveGraphToFile();
+            }
+            else if (ImGui::MenuItem("Create Definition", ""))
+            {
+                createDefOpen = true;
+            }
+            else if (ImGui::MenuItem("Reload Definitions", ""))
+            {
+                initializeDataLibraries();
+                clearGraph();
             }
             ImGui::EndMenu();
         }
@@ -2978,9 +3199,19 @@ void Graph::graphButtons()
         ImGui::EndMenuBar();
     }
 
+    if (createDefOpen)
+    {
+        if (_currUiNode && _currUiNode->getNodeGraph())
+        {
+            ImGui::OpenPopup("Create Definition");
+        }
+        createDefOpen = false;
+    }
+    addCreateDefinitionPopup();
+
     // Menu keys
     ImGuiIO& guiIO = ImGui::GetIO();
-    if (guiIO.KeyCtrl && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    if (guiIO.KeyCtrl && !isDialogOpen())
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
@@ -3052,8 +3283,156 @@ void Graph::graphButtons()
     ImGui::EndChild();
     ImGui::SameLine(0.0f, 12.0f);
 
-    handleRenderViewInputs(windowPos, screenSize[0], screenSize[1]);
+    if (!isDialogOpen())
+    {
+        handleRenderViewInputs(windowPos, screenSize[0], screenSize[1]);
+    }
 }
+
+void Graph::addCreateDefinitionPopup()
+{
+    if (ImGui::BeginPopupModal("Create Definition", NULL, ImGuiWindowFlags_NoCollapse))
+    {
+        static NodeDefParameters parameters;
+        parameters.generateIdentifiers(_currUiNode->getNodeGraph());
+
+        // Pull of existing nodegroups
+        mx::StringSet nodeGroupsSet;
+        mx::StringVec nodeGroups;
+        for (auto nd : _stdLib->getNodeDefs())
+        {
+            const std::string& group = nd->getNodeGroup();
+            if (!group.empty())
+            {
+                nodeGroupsSet.insert(group);
+            }
+        }
+        for (auto group : nodeGroupsSet)
+        {
+            nodeGroups.push_back(group);
+        }
+
+        ImGui::Text("Category"); ImGui::SameLine(); ImGui::InputText("##categoryString", &parameters.categoryString, ImGuiInputTextFlags_CharsNoBlank);
+
+        static int item_current_idx = 0;
+        ImGui::Text("Nodegroup"); ImGui::SameLine(); 
+        if (ImGui::BeginCombo("##Nodegroup", nodeGroups[item_current_idx].c_str()))
+        {
+            int n = 0;
+            ImGui::SetWindowFontScale(_fontScale);
+            for (auto group : nodeGroups)
+            {
+                const bool is_selected = (item_current_idx == n);
+                if (ImGui::Selectable(group.c_str(), is_selected))
+                {
+                    item_current_idx = n;
+                }
+                if (is_selected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+                n++;
+            }
+            ImGui::EndCombo();
+            ImGui::SetWindowFontScale(1.0f);
+        }
+        parameters.nodeGroupString = nodeGroups[item_current_idx];
+
+        ImGui::Separator();
+
+        ImGui::Text("Documentation"); ImGui::SameLine(); 
+        ImGui::SetWindowFontScale(_fontScale);
+        ImGui::InputTextMultiline("#Documentation", &parameters.docString, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 2));
+        ImGui::SetWindowFontScale(1.0);
+
+        ImGui::Text("Comment      "); ImGui::SameLine(); 
+        ImGui::SetWindowFontScale(_fontScale);
+        ImGui::InputTextMultiline("#Comment", &parameters.commentString, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 1));
+        ImGui::SetWindowFontScale(1.0);
+
+        ImGui::Separator();
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::Checkbox("##useVersion", &parameters.useVersion);
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!parameters.useVersion);
+        ImGui::Text("Version   "); ImGui::SameLine(); ImGui::InputText("##versionString", &parameters.versionString, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::Text("Is Default   "); ImGui::SameLine(); ImGui::Checkbox("##isdefaultversion", &parameters.isDefaultVersion);        
+        ImGui::EndDisabled();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::Checkbox("##useNamespace", &parameters.useNamespace);
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!parameters.useNamespace);
+        ImGui::Text("Namespace "); ImGui::SameLine(); ImGui::InputText("##namespaceString", &parameters.namespaceString, ImGuiInputTextFlags_CharsNoBlank);
+        ImGui::EndDisabled();
+
+        ImGui::Separator();
+
+        // Set this to be unique based on the signature of the node.
+        static std::string fileName;
+        static bool useExplicitFile = false;
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        ImGui::Checkbox("Custom Location", &useExplicitFile);
+        ImGui::PopStyleVar();
+        if (useExplicitFile)
+        {
+            ImGui::PushItemWidth(-200);
+            if (ImGui::Button("Browse"))
+            {
+                _fileDialogCreateDefinition.setTypeFilters(_mtlxFilter);
+                _fileDialogCreateDefinition.setTitle("Definition File");
+                _fileDialogCreateDefinition.open();
+            }
+            _fileDialogCreateDefinition.display();
+            if (_fileDialogCreateDefinition.hasSelected())
+            {
+                fileName = _fileDialogCreateDefinition.getSelected();
+                _fileDialogCreateDefinition.clearSelected();
+            }
+            ImGui::SameLine();
+            ImGui::PopItemWidth();
+        }
+        else
+        {
+            fileName = mx::createValidName(parameters.getIdentifier()) + ".mtlx";
+            // Need to strip out any ":" for filenames
+            mx::StringMap fileNameMap;
+            fileNameMap[":"] = "_";
+            fileName = mx::replaceSubstrings(fileName, fileNameMap);
+        }
+        ImGui::PushItemWidth(512);
+        ImGui::BeginDisabled(true);
+        ImGui::Text("File"); ImGui::SameLine(); ImGui::InputText("", &fileName);
+        ImGui::EndDisabled();
+        ImGui::PopItemWidth();
+
+        ImGui::Separator();
+        bool closePopup = false;
+        if (ImGui::Button("Save", ImVec2(120, 0)))
+        {
+            // Trigger to perform save
+            createDefinitionFromNodeGraph(fileName, parameters);
+            closePopup = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)))
+        {
+            closePopup = true;
+        }
+
+        if (closePopup)
+        {
+            // Clear statics for next invocation.
+            parameters.initialize();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
 void Graph::propertyEditor()
 {
     ImGui::Text("Node Property Editor");
@@ -3365,6 +3744,18 @@ void Graph::propertyEditor()
             ImGui::SetWindowFontScale(1.0f);
             ImGui::EndPopup();
         }
+
+        if (_currUiNode->getNodeGraph() != nullptr)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Create Definition"))
+            {
+                ImGui::OpenPopup("Create Definition");
+            }
+        }
+        ImGui::SetWindowFontScale(_fontScale);
+        addCreateDefinitionPopup();
+        ImGui::SetWindowFontScale(1.0f);
     }
 }
 
@@ -3411,6 +3802,22 @@ void Graph::showHelp() const
         ImGui::BulletText("\"Node Info\" Will toggle showing node information.");
     }
 }
+
+bool Graph::isDialogOpen()
+{
+#if 0
+    std::cout << "add node open: " << (ImGui::IsPopupOpen("add node") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "search open: " << (ImGui::IsPopupOpen("search") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "create definition open: " << (ImGui::IsPopupOpen("Create Definition") ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-save open: " << (_fileDialogSave.isOpened() ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-openmtlx open: " << (_fileDialog.isOpened() ? "TRUE" : "FALSE") << std::endl;
+    std::cout << "file-opengeom open: " << (_fileDialogGeom.isOpened() ? "TRUE" : "FALSE") << std::endl;
+#endif
+    return ImGui::IsPopupOpen("add node") || ImGui::IsPopupOpen("search") ||
+        ImGui::IsPopupOpen("Create Definition") || _fileDialogSave.isOpened() ||
+        _fileDialog.isOpened() || _fileDialogGeom.isOpened();
+}
+
 
 void Graph::addNodePopup(bool cursor)
 {
@@ -3887,13 +4294,13 @@ void Graph::drawGraph(ImVec2 mousePos)
         }
 
         // hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_F) && !isDialogOpen())
         {
             ed::NavigateToSelection();
         }
 
         // go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+        if (ImGui::IsKeyReleased(ImGuiKey_U) && !isDialogOpen())
         {
             upNodeGraph();
         }

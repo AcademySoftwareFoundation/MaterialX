@@ -101,6 +101,7 @@ int main(int argc, char* const argv[])
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
+    mx::FilePath userlibraryFolder = "user_library";
     int viewWidth = 256;
     int viewHeight = 256;
     std::string captureFilename;
@@ -125,6 +126,10 @@ int main(int argc, char* const argv[])
         else if (token == "--library")
         {
             libraryFolders.push_back(nextToken);
+        }
+        else if (token == "--userLibrary")
+        {
+            userlibraryFolder = nextToken;
         }
         else if (token == "--viewWidth")
         {
@@ -217,6 +222,7 @@ int main(int argc, char* const argv[])
                              meshFilename,
                              searchPath,
                              libraryFolders,
+                             userlibraryFolder,
                              viewWidth,
                              viewHeight);
     if (!captureFilename.empty())
