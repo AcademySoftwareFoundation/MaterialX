@@ -339,9 +339,9 @@ class MX_CORE_API Document : public GraphElement
     /// @param node Node type for the new declaration
     /// @param version Version for the new declaration
     /// @param isDefaultVersion If a version is specified is thie definition the default version
+    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
     /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
     ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
     /// @return New declaration if successful.
     NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
                                    bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);

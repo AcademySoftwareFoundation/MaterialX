@@ -187,10 +187,16 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         }
         graph = addNodeGraph(newGraphName);
         graph->copyContentFrom(nodeGraph);
+
+        for (auto graphChild : graph->getChildren())
+        {
+            graphChild->removeAttribute("xpos");
+            graphChild->removeAttribute("ypos");
+        }        
     }
     graph->setNodeDefString(nodeDefName);
 
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);    
     nodeDef->setNodeString(node);
     if (!group.empty())
     {
@@ -208,9 +214,49 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
         }
     }
 
-    for (auto output : graph->getOutputs())
+    // Expose any existing interface.
+    // Any connection attributes on the existing interface should be removed from the definition.
+    // as well as any source URI
+
+    // Attributes which should not be copied over
+    StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
+                                   PortElement::CHANNELS_ATTRIBUTE, PortElement::INTERFACE_NAME_ATTRIBUTE,
+                                   "xpos", "ypos" };
+
+    // Transfer input interface from the graph to the nodedef
+    for (InputPtr input : graph->getInputs())
     {
-        nodeDef->addOutput(output->getName(), output->getType());
+        InputPtr nodeDefInput = nodeDef->addInput(input->getName(), input->getType());
+        if (nodeDefInput)
+        {
+            nodeDefInput->copyContentFrom(input);
+            for (const string& filterAttribute : filterAttributes )
+            {
+                nodeDefInput->removeAttribute(filterAttribute);
+            }
+            nodeDefInput->setSourceUri(EMPTY_STRING);
+            input->setInterfaceName(nodeDefInput->getName());
+        }        
+    }
+    // Remove interface from the nodegraph
+    for (InputPtr input : graph->getInputs())
+    {
+        graph->removeInput(input->getName());
+    }
+
+    // Copy the output interface from the graph to the nodedef
+    for (OutputPtr output : graph->getOutputs())
+    {
+        OutputPtr nodeDefOutput = nodeDef->addOutput(output->getName(), output->getType());
+        if (nodeDefOutput)
+        {
+            nodeDefOutput->copyContentFrom(output);
+            for (const string& filterAttribute : filterAttributes)
+            {
+                nodeDefOutput->removeAttribute(filterAttribute);
+            }
+            nodeDefOutput->setSourceUri(EMPTY_STRING);
+        }
     }
 
     return nodeDef;
