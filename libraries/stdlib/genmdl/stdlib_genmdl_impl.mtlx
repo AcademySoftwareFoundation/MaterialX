@@ -22,22 +22,22 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_genmdl" nodedef="ND_image_float" sourcecode="mx::stdlib::mx_image_float({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_float_genmdl" nodedef="ND_image_float" sourcecode="mx::stdlib::mx_image_float({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="float" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color3_genmdl" nodedef="ND_image_color3" sourcecode="mx::stdlib::mx_image_color3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_color3_genmdl" nodedef="ND_image_color3" sourcecode="mx::stdlib::mx_image_color3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="color3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color4_genmdl" nodedef="ND_image_color4" sourcecode="mx::stdlib::mx_image_color4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_color4_genmdl" nodedef="ND_image_color4" sourcecode="mx::stdlib::mx_image_color4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="color4" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector2_genmdl" nodedef="ND_image_vector2" sourcecode="mx::stdlib::mx_image_vector2({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector2_genmdl" nodedef="ND_image_vector2" sourcecode="mx::stdlib::mx_image_vector2({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector2" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector3_genmdl" nodedef="ND_image_vector3" sourcecode="mx::stdlib::mx_image_vector3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector3_genmdl" nodedef="ND_image_vector3" sourcecode="mx::stdlib::mx_image_vector3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector4_genmdl" nodedef="ND_image_vector4" sourcecode="mx::stdlib::mx_image_vector4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector4_genmdl" nodedef="ND_image_vector4" sourcecode="mx::stdlib::mx_image_vector4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 

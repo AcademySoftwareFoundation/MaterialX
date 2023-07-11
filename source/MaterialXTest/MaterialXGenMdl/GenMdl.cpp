@@ -289,6 +289,9 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         renderCommand += " --hdr \"" + iblFile + "\" --hdr_rotate 90";
         // set scene
         renderCommand += " --uv_scale 0.5 1.0 --uv_offset 0.0 0.0 --uv_repeat --uv_flip";
+        renderCommand += " --uv_flip"; // this will flip the v coordinate of the vertices,  which flips the all
+                                       // UV operations. In contrast, the fileTextureVerticalFlip option will
+                                       // only flip the image access nodes.
         renderCommand += " --camera 0 0 3 0 0 0 --fov 45";
 
         // set the material
