@@ -2145,25 +2145,17 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             std::string outputType;
             if (node->getNode() != nullptr)
             {
-                ImColor fillColor(55, 55, 55, 255);
-                mx::NodeDefPtr nodeDef = node->getNode()->getNodeDef();
-                // All conditional nodes are considered to change the topology of the shader graph
-                if (nodeDef->getNodeGroup() == mx::NodeDef::CONDITIONAL_NODE_GROUP)
-                {
-                    fillColor = ImColor(255, 128, 0, 255);
-                }
-
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
                 ImGui::SetWindowFontScale(1.2f * _fontScale);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 12.f);
+                    ImColor(ImColor(55, 55, 55, 255)), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 0.f);
+                    ImColor(ImColor(55, 55, 55, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -2219,7 +2211,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             else if (node->getInput() != nullptr)
             {
                 std::string longestInputLabel = node->getName();
-                ImColor fillColor(0, 120, 200, 255);
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
@@ -2227,11 +2218,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, -8.0f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 12.f);
+                    ImColor(ImColor(85, 85, 85, 255)), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0f, 3.f),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 0.f);
+                    ImColor(ImColor(85, 85, 85, 255)), 0.f);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 
@@ -2289,7 +2280,6 @@ std::vector<int> Graph::createNodes(bool nodegraph)
             else if (node->getOutput() != nullptr)
             {
                 std::string longestInputLabel = node->getName();
-                ImColor fillColor(0, 160, 120, 255);
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
@@ -2297,11 +2287,11 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, -8.0),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 12.f);
+                    ImColor(ImColor(35, 35, 35, 255)), 12.f);
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     ImGui::GetCursorScreenPos() + ImVec2(-7.0, 3),
                     ImGui::GetCursorScreenPos() + ImVec2(ed::GetNodeSize(node->getId()).x - 9.f, ImGui::GetTextLineHeight() + 2.f),
-                    ImColor(fillColor), 0);
+                    ImColor(ImColor(35, 35, 35, 255)), 0);
                 ImGui::Text("%s", node->getName().c_str());
                 ImGui::SetWindowFontScale(_fontScale);
 

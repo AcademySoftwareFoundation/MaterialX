@@ -89,8 +89,10 @@ MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& at
 /// Returns true if a value change on a given input could require a shader compilation as it changes the output shader
 /// graph configuration (i.e. is a topological change). 
 /// The current criteria is:
-/// * any input on a conditional node is considered to modify the topology of the output shader graph
-MX_GENSHADER_API bool inputChangeRequiresShaderGen(InputPtr input);
+/// * any input on a conditional node is considered to modify the topology of the output shader graph.
+/// @param input Input to test
+/// @param target An optional target name which may be used as part of the criteria
+MX_GENSHADER_API bool inputChangeRequiresShaderGen(InputPtr input, const string& target = EMPTY_STRING);
 
 //
 // These are deprecated wrappers for older versions of the function interfaces in this module.

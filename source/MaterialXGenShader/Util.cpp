@@ -588,7 +588,7 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
     return false;
 }
 
-bool inputChangeRequiresShaderGen(InputPtr input)
+bool inputChangeRequiresShaderGen(InputPtr input, const string& target)
 {
     ElementPtr inputParent = input ? input->getParent() : nullptr;
     if (inputParent)
@@ -596,7 +596,7 @@ bool inputChangeRequiresShaderGen(InputPtr input)
         NodePtr node = inputParent->asA<Node>();
         if (node)
         {
-            NodeDefPtr nodeDef = node->getNodeDef();
+            NodeDefPtr nodeDef = node->getNodeDef(target);
             // All conditional nodes are considered to change the topology of the shader graph
             if (nodeDef->getNodeGroup() == NodeDef::CONDITIONAL_NODE_GROUP)
             {
