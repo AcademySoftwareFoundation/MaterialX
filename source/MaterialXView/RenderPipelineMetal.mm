@@ -187,6 +187,18 @@ void MetalRenderPipeline::convolveEnvironment()
 
     MTL_PUSH_FRAMEBUFFER(_preConvolutionFramebuffer);
 
+    // Create shader.
+    mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
+    mx::MslMaterialPtr material = mx::MslMaterial::create();
+    try
+    {
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
+    }
+
     int i = 0;
 
     while (w > 0 && h > 0)
@@ -204,19 +216,6 @@ void MetalRenderPipeline::convolveEnvironment()
         
         MTL(beginEncoder(desc));
         [MTL(renderCmdEncoder) setDepthStencilState:MTL_DEPTHSTENCIL_STATE(opaque)];
-
-        // Create shader.
-        mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
-        mx::MslMaterialPtr material = mx::MslMaterial::create();
-
-        try
-        {
-            material->generateShader(hwShader);
-        }
-        catch (std::exception& e)
-        {
-            new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
-        }
 
         _preConvolutionFramebuffer->bind(desc);
         material->bindShader();
