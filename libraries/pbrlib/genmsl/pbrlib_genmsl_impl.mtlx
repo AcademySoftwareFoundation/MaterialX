@@ -71,4 +71,7 @@
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genmsl" nodedef="ND_artistic_ior" file="../genglsl/mx_artistic_ior.glsl" function="mx_artistic_ior" target="genmsl" />
 
+  <!-- <blackbody> -->
+  <implementation name="IM_blackbody_genmsl" nodedef="ND_blackbody" file="../genglsl/mx_blackbody.glsl" function="mx_blackbody" target="genmsl" />
+
 </materialx>

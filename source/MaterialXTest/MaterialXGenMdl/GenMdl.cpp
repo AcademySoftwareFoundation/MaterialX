@@ -93,7 +93,7 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 49);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
 }
 
 
@@ -288,7 +288,7 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         std::string iblFile = (rootPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
         renderCommand += " --hdr \"" + iblFile + "\" --hdr_rotate 90";
         // set scene
-        renderCommand += " --uv_scale 0.5 1.0 --uv_offset 0.0 0.0 --uv_repeat";
+        renderCommand += " --uv_scale 0.5 1.0 --uv_offset 0.0 0.0 --uv_repeat --uv_flip";
         renderCommand += " --camera 0 0 3 0 0 0 --fov 45";
 
         // set the material
