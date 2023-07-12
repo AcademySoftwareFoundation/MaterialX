@@ -295,7 +295,7 @@
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
-    a weighted blend of the three samples using the geometric normal.
+    an adjustable weighted blend of the three samples using the geometric normal.
   -->
   <nodedef name="ND_triplanarprojection_float" node="triplanarprojection" nodegroup="texture3d">
     <input name="filex" type="filename" value="" uniform="true" />
@@ -307,6 +307,7 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -323,6 +324,7 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -339,6 +341,7 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -355,6 +358,7 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -371,6 +375,7 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -387,6 +392,7 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -1022,6 +1028,52 @@
     <input name="diminish" type="float" uiname="Diminish" uifolder="Fractal" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5." />
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomfloat_float" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
+    <input name="min" type="float" uiname="Minimum" value="0.0" doc="The minimum output value." />
+    <input name="max" type="float" uiname="Maximum" value="1.0" doc="The maximum output value." />
+    <input name="seed" type="integer" uiname="Seed" value="0" doc="Additional seed." />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_randomfloat_integer" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="integer" uiname="Input" value="0" />
+    <input name="min" type="float" uiname="Minimum" value="0.0" />
+    <input name="max" type="float" uiname="Maximum" value="1.0" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodedef name="ND_randomcolor_integer" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!--
@@ -2228,7 +2280,7 @@
     <input name="in2" type="vector4" uiname="in2" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="float" />
   </nodedef>
-  
+
   <!--
     Node: <dotproduct>
     Perform a dot product of two 2-4 channel vectors
@@ -2492,6 +2544,16 @@
     <input name="in1" type="stringarray" value="" />
     <input name="in2" type="string" value="" />
     <output name="out" type="stringarray" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
+  -->
+  <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
+    <input name="in" type="float" value="0" />
+    <output name="out" type="float" />
   </nodedef>
 
   <!-- ======================================================================== -->

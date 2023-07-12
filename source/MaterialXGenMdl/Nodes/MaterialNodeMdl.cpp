@@ -46,6 +46,9 @@ void MaterialNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& cont
         for (ShaderInput* input : node.getInputs())
         {
             shadergen.emitString(delim, stage);
+            shadergen.emitString("mxp_", stage);
+            shadergen.emitString(input->getName(), stage);
+            shadergen.emitString(": ", stage);
             shadergen.emitInput(input, context, stage);
             delim = ", ";
         }

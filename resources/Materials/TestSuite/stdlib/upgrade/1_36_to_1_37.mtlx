@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!--
-
-Upgrade path test from 1.36 to 1.37
-
--->
 <materialx version="1.36">
+  <!--
+
+  Upgrade path test from 1.36 to 1.37
+
+  -->
 
   <!-- invert matrix to invertmatrix -->
   <invert name="invert1" type="matrix33">
