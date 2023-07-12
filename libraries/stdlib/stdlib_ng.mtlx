@@ -1540,6 +1540,32 @@
     </magnitude>
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
+  
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
+  -->
+  <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
+    <absval name="absval1" type="float">
+      <input name="in" type="float" interfacename="in" />
+    </absval>
+    <modulo name="modulo1" type="float">
+      <input name="in1" type="float" nodename="absval1" />
+    </modulo>
+    <subtract name="subtract1" type="float">
+      <input name="in1" type="float" nodename="modulo1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <absval name="absval2" type="float">
+      <input name="in" type="float" nodename="subtract1" />
+    </absval>
+    <subtract name="subtract2" type="float">
+      <input name="in1" type="float" value="0.5" />
+      <input name="in2" type="float" nodename="absval2" />
+    </subtract>
+    <output name="out" type="float" nodename="subtract2" />
+  </nodegraph>
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
