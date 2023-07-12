@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_UNITSYSTEM_H
@@ -78,14 +78,14 @@ class MX_GENSHADER_API UnitSystem
     ShaderNodePtr createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
                              GenContext& context) const;
 
-    /// Returns an implementation for a given transform
-    virtual ImplementationPtr getImplementation(const UnitTransform& transform, const string& unitname) const;
+    /// Returns a nodedef for a given transform
+    virtual NodeDefPtr getNodeDef(const UnitTransform& transform) const;
 
     static const string UNITSYTEM_NAME;
 
   protected:
     // Protected constructor
-    UnitSystem(const string& language);
+    UnitSystem(const string& target);
 
   protected:
     UnitConverterRegistryPtr _unitRegistry;

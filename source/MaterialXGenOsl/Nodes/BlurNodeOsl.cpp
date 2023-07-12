@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenOsl/Nodes/BlurNodeOsl.h>
@@ -20,7 +20,7 @@ ShaderNodeImplPtr BlurNodeOsl::create()
 void BlurNodeOsl::emitSamplingFunctionDefinition(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage) const
 {
     const ShaderGenerator& shadergen = context.getShaderGenerator();
-    shadergen.emitInclude("libraries/stdlib/genosl/lib/mx_sampling" + shadergen.getSyntax().getSourceFileExtension(), context, stage);
+    shadergen.emitLibraryInclude("stdlib/genosl/lib/mx_sampling.osl", context, stage);
     shadergen.emitLineBreak(stage);
 }
 

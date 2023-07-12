@@ -18,12 +18,23 @@
     <input name="diminish" type="float" value="0.5000" />
     <input name="position" type="vector3" nodename="multiply1" />
   </fractal3d>
-  <displacement name="disp" type="displacementshader">
+  <displacement name="disp1" type="displacementshader">
     <input name="displacement" type="float" nodename="fractal3d1" />
     <input name="scale" type="float" value="1.0" />
   </displacement>
-  <surfacematerial name="surfacematerial3" type="material">
+  <convert name="fractal3d1_vec3" type="vector3">
+    <input name="in" type="float" nodename="fractal3d1" />
+  </convert>
+  <displacement name="disp2" type="displacementshader">
+    <input name="displacement" type="vector3" nodename="fractal3d1_vec3" />
+    <input name="scale" type="float" value="1.0" />
+  </displacement>
+  <surfacematerial name="surfacematerial1" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="surf" />
-    <input name="displacementshader" type="displacementshader" nodename="disp" />
+    <input name="displacementshader" type="displacementshader" nodename="disp1" />
+  </surfacematerial>
+  <surfacematerial name="surfacematerial2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surf" />
+    <input name="displacementshader" type="displacementshader" nodename="disp2" />
   </surfacematerial>
 </materialx>

@@ -1,14 +1,15 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenMdl/GenMdl.h>
 
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXFormat/File.h>
+#include <MaterialXFormat/Util.h>
 
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 #include <MaterialXGenMdl/MdlSyntax.h>
@@ -92,20 +93,135 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 55);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
+}
+
+
+class MdlStringResolver : public mx::StringResolver
+{
+  public:
+    /// Create a new string resolver.
+    static MdlStringResolverPtr create()
+    {
+        return MdlStringResolverPtr(new MdlStringResolver());
+    }
+    ~MdlStringResolver() = default;
+
+    void initialize(
+        mx::DocumentPtr document,
+        std::ofstream* logFile,
+        std::initializer_list<mx::FilePath> additionalSearchpaths)
+    {
+        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+        mx::FilePath rootPath = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
+        mx::FilePath coreModulePath = rootPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
+        mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
+
+        // use the source search paths as base
+        mx::FileSearchPath paths  = mx::getSourceSearchPath(document);
+        paths.append(mx::FilePath(document->getSourceUri()).getParentPath());
+
+        // paths specified by the build system
+        paths.append(mx::FilePath(MATERIALX_MDL_IMPL_MODULE_PATH));
+        mx::StringVec extraModulePaths = mx::splitString(MATERIALX_MDL_MODULE_PATHS, ",");
+        for (const std::string& extraPath : extraModulePaths)
+        {
+            paths.append(mx::FilePath(extraPath));
+        }
+
+        // add additional search paths for the tests
+        paths.append(rootPath);
+        paths.append(coreModulePath);
+        paths.append(coreModulePath2);
+        for (const auto& addSp : additionalSearchpaths)
+        {
+            paths.append(addSp);
+        }
+
+        _mdl_searchPaths.clear();
+        for (const auto& path : paths)
+        {
+            // normalize all search paths, as we need this later in `resolve`
+            auto normalizedPath = path.getNormalized();
+            if (normalizedPath.exists())
+                _mdl_searchPaths.append(normalizedPath);
+        }
+
+        _logFile = logFile;
+    }
+
+    std::string resolve(const std::string& str, const std::string&) const override
+    {
+        mx::FilePath normalizedPath = mx::FilePath(str).getNormalized();
+
+        // in case the path is absolute we need to find a proper search path to put the file in
+        if (normalizedPath.isAbsolute())
+        {
+            // find the highest priority search path that is a prefix of the resource path
+            for (const auto& sp : _mdl_searchPaths)
+            {
+                if (sp.size() > normalizedPath.size())
+                    continue;
+
+                bool isParent = true;
+                for (size_t i = 0; i < sp.size(); ++i)
+                {
+                    if (sp[i] != normalizedPath[i])
+                    {
+                        isParent = false;
+                        break;
+                    }
+                }
+
+                if (!isParent)
+                    continue;
+
+                // found a search path that is a prefix of the resource
+                std::string resource_path = normalizedPath.asString().substr(sp.asString().size());
+                if (resource_path[0] != '/')
+                    resource_path = "/" + resource_path;
+                return resource_path;
+            }
+        }
+
+        *_logFile << "MaterialX resource can not be accessed through an MDL search path. "
+            << "Dropping the resource from the Material. Resource Path: "
+            << normalizedPath.asString().c_str() << std::endl;
+
+        // drop the resource by returning the empty string.
+        // alternatively, the resource could be copied into an MDL search path,
+        // maybe even only temporary.
+        return "";
+    }
+
+    const  mx::FileSearchPath& getMdlSearchPaths() const { return _mdl_searchPaths; }
+
+  private:
+    // list of MDL search paths from which we can locate resources.
+    mx::FileSearchPath _mdl_searchPaths;
+
+    // log file of the tester
+    std::ofstream* _logFile;
+};
+
+void MdlShaderGeneratorTester::preprocessDocument(mx::DocumentPtr doc)
+{
+    if (!_mdlCustomResolver)
+        _mdlCustomResolver = MdlStringResolver::create();
+
+    _mdlCustomResolver->initialize(doc, &_logFile, { _searchPath.asString() });
+    mx::flattenFilenames(doc, _mdlCustomResolver->getMdlSearchPaths(), _mdlCustomResolver);
 }
 
 void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& sourceCodePaths)
 {
     if (sourceCodePaths.empty() || sourceCodePaths[0].isEmpty())
         return;
-    
+
     mx::FilePath moduleToTestPath = sourceCodePaths[0].getParentPath();
     mx::FilePath module = sourceCodePaths[0];
     std::string moduleToTest = module[module.size()-1];
     moduleToTest = moduleToTest.substr(0, moduleToTest.size() - sourceCodePaths[0].getExtension().length() - 1);
-
-    mx::StringVec extraModulePaths = mx::splitString(MATERIALX_MDL_MODULE_PATHS, ",");
 
     std::string renderExec(MATERIALX_MDL_RENDER_EXECUTABLE);
     bool testMDLC = renderExec.empty();
@@ -118,21 +234,17 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         }
 
         std::string mdlcCommand = mdlcExec;
-        for (const std::string& extraPath : extraModulePaths)
+
+        // use the same paths as the resolver
+        for (const auto& sp : _mdlCustomResolver->getMdlSearchPaths())
         {
-            mdlcCommand += " -p\"" + extraPath + "\"";
+            mdlcCommand += " -p \"" + sp.asString() + "\"";
         }
 
-        // Note: These paths are based on
-        mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-        mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
-        mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
-        mdlcCommand += " -p \"" + currentPath.asString() + "\"";
-        mdlcCommand += " -p \"" + coreModulePath.asString() + "\"";
-        mdlcCommand += " -p \"" + coreModulePath2.asString() + "\"";
+        // additionally the generated module needs to found in a search path too
         mdlcCommand += " -p \"" + moduleToTestPath.asString() + "\"";
         mdlcCommand += " -p \"" + moduleToTestPath.getParentPath().asString() + "\"";
-        mdlcCommand += " -p \"" + _libSearchPath.asString() + "\"";
+
         mdlcCommand += " -W \"181=off\" -W \"183=off\"  -W \"225=off\"";
         mdlcCommand += " " + moduleToTest;
         mx::FilePath errorFile = moduleToTestPath / (moduleToTest + ".mdl_compile_errors.txt");
@@ -159,42 +271,57 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
     else
     {
         std::string renderCommand = renderExec;
-        for (const std::string& extraPath : extraModulePaths)
+
+        // use the same paths as the resolver
+        for (const auto& sp : _mdlCustomResolver->getMdlSearchPaths())
         {
-            renderCommand += " --mdl_path\"" + extraPath + "\"";
+            renderCommand += " --mdl_path \"" + sp.asString() + "\"";
         }
 
-        // Note: These paths are based on
-        mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-        mx::FilePath coreModulePath = currentPath / std::string(MATERIALX_INSTALL_MDL_MODULE_PATH) / "mdl";
-        mx::FilePath coreModulePath2 = coreModulePath / mx::FilePath("materialx");
-        renderCommand += " --mdl_path \"" + currentPath.asString() + "\"";
-        renderCommand += " --mdl_path \"" + coreModulePath.asString() + "\"";
-        renderCommand += " --mdl_path \"" + coreModulePath2.asString() + "\"";
+        // additionally the generated module needs to found in a search path too
         renderCommand += " --mdl_path \"" + moduleToTestPath.asString() + "\"";
         renderCommand += " --mdl_path \"" + moduleToTestPath.getParentPath().asString() + "\"";
-        renderCommand += " --mdl_path \"" + _libSearchPath.asString() + "\"";
+
+        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+        mx::FilePath rootPath = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
+        // set environment
+        std::string iblFile = (rootPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
+        renderCommand += " --hdr \"" + iblFile + "\" --hdr_rotate 90";
+        // set scene
+        renderCommand += " --uv_scale 0.5 1.0 --uv_offset 0.0 0.0 --uv_repeat --uv_flip";
+        renderCommand += " --camera 0 0 3 0 0 0 --fov 45";
+
+        // set the material
+        // compute the MDL module name as fully qualified name wrt to the "rootPath/resources" as MDL search path
+        std::string mdlModuleName = "::resources::";
+        for (size_t s = rootPath.size() + 1; s < moduleToTestPath.size(); ++s)
+        {
+            mdlModuleName += moduleToTestPath[s] + "::";
+        }
+        mdlModuleName += moduleToTest;
+        renderCommand += " --mat " + mdlModuleName + "::*";
+
         // This must be a render args option. Rest are consistent between dxr and cuda example renderers.
         std::string renderArgs(MATERIALX_MDL_RENDER_ARGUMENTS);
         if (renderArgs.empty())
         {
-            // Assume df_cuda is being used and set reasonable arguments automatically
-            renderCommand += " --nogl --res 512 512 -p 2.0 0 0.5 -f 70 --spi 1 --spp 16";
+            // Assume MDL example DXR is being used and set reasonable arguments automatically
+            renderCommand += " --nogui --res 512 512 --iterations 1024 --max_path_length 3 --noaux --no_firefly_clamp";
+            renderCommand += " --background 0.073239 0.073239 0.083535";
         }
         else
         {
             renderCommand += " " + renderArgs;
         }
-        renderCommand += " --noaux";
-        std::string iblFile = (currentPath / "resources/lights/san_giuseppe_bridge.hdr").asString();
-        renderCommand += " --hdr \"" + iblFile + "\"";
-        renderCommand += " ::" + moduleToTest + "::*";
 
         std::string extension("_mdl.png");
 #if defined(MATERIALX_BUILD_OIIO)
         extension = "_mdl.exr";
 #endif
-        mx::FilePath outputImageName = moduleToTestPath / (moduleToTest + extension);
+        // drop the `.genmdl` in order to have filenames supported by the image comparison
+        std::string imageFilename = moduleToTest.substr(0, moduleToTest.size() - 7);
+
+        mx::FilePath outputImageName = moduleToTestPath / (imageFilename + extension);
 
         renderCommand += " -o " + outputImageName.asString();
         mx::FilePath logFile = moduleToTestPath / (moduleToTest + ".mdl_render_errors.txt");
@@ -222,24 +349,22 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 
 TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 {
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    srcSearchPath.append(libSearchPath / mx::FilePath("libraries/stdlib/genmdl"));
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     const mx::FilePath logPath("genmdl_mdl_generate_test.txt");
 
     // Write shaders and try to compile only if mdlc exe specified.
     std::string mdlcExec(MATERIALX_MDLC_EXECUTABLE);
     bool writeShadersToDisk = !mdlcExec.empty();
-    MdlShaderGeneratorTester tester(mx::MdlShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
+    MdlShaderGeneratorTester tester(mx::MdlShaderGenerator::create(), testRootPaths, searchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();
 
     mx::GenOptions genOptions;
     genOptions.targetColorSpaceOverride = "lin_rec709";
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }

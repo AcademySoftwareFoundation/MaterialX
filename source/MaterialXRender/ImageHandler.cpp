@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/ImageHandler.h>
@@ -174,7 +174,7 @@ void ImageHandler::releaseRenderResources(ImagePtr)
 {
 }
 
-ImageVec ImageHandler::getReferencedImages(DocumentPtr doc)
+ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
 {
     ImageVec imageVec;
     for (ElementPtr elem : doc->traverseTree())
@@ -310,6 +310,16 @@ void ImageSamplingProperties::setProperties(const string& fileNameUniform,
     {
         mapValueToColor(colorValue, defaultColor);
     }
+}
+
+bool ImageSamplingProperties::operator==(const ImageSamplingProperties& r) const
+{
+    return
+      (enableMipmaps == r.enableMipmaps &&
+       uaddressMode  == r.uaddressMode  &&
+       vaddressMode  == r.vaddressMode  &&
+       filterType    == r.filterType    &&
+       defaultColor  == r.defaultColor)  ;
 }
 
 MATERIALX_NAMESPACE_END

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Element.h>
@@ -433,10 +433,10 @@ StringResolverPtr Element::createStringResolver(const string& geom) const
             }
         }
     }
-    
+
     // Add in token substitutions
     resolver->addTokenSubstitutions(getSelf());
-  
+
     return resolver;
 }
 
@@ -455,7 +455,7 @@ string Element::asString() const
     return res;
 }
 
-void Element::validateRequire(bool expression, bool& res, string* message, string errorDesc) const
+void Element::validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const
 {
     if (!expression)
     {
@@ -473,7 +473,7 @@ void Element::validateRequire(bool expression, bool& res, string* message, strin
 
 TypeDefPtr TypedElement::getTypeDef() const
 {
-    return resolveRootNameReference<TypeDef>(getType());
+    return resolveNameReference<TypeDef>(getType());
 }
 
 //
@@ -499,7 +499,7 @@ ValuePtr ValueElement::getDefaultValue() const
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)
     {
-        ConstNodeDefPtr decl = interface->getDeclaration();
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -519,7 +519,7 @@ const string& ValueElement::getActiveUnit() const
     ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
     if (interface)
     {
-        ConstNodeDefPtr decl = interface->getDeclaration();
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
         if (decl)
         {
             ValueElementPtr value = decl->getActiveValueElement(getName());
@@ -544,11 +544,11 @@ bool ValueElement::validate(string* message) const
     {
         validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
-        NodeDefPtr nodeDef = nodeGraph ? nodeGraph->getNodeDef() : nullptr;
-        if (nodeDef)
+        ConstInterfaceElementPtr decl = nodeGraph ? nodeGraph->getDeclaration() : nullptr;
+        if (decl)
         {
-            ValueElementPtr valueElem = nodeDef->getActiveValueElement(getInterfaceName());
-            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced NodeDef");
+            ValueElementPtr valueElem = decl->getActiveValueElement(getInterfaceName());
+            validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced declaration");
             if (valueElem)
             {
                 ConstPortElementPtr portElem = asA<PortElement>();
@@ -621,14 +621,14 @@ void StringResolver::addTokenSubstitutions(ConstElementPtr element)
     {
         ConstInterfaceElementPtr interfaceElem = parent->asA<InterfaceElement>();
         if (interfaceElem)
-        {       
+        {
             vector<TokenPtr> tokens = interfaceElem->getActiveTokens();
             for (auto token : tokens)
             {
                 string key = DELIMITER_PREFIX + token->getName() + DELIMITER_POSTFIX;
                 string value = token->getResolvedValueString();
                 if (!_filenameMap.count(key))
-                { 
+                {
                     setFilenameSubstitution(key, value);
                 }
             }
@@ -731,6 +731,7 @@ INSTANTIATE_CONCRETE_SUBCLASS(Look, "look")
 INSTANTIATE_CONCRETE_SUBCLASS(LookGroup, "lookgroup")
 INSTANTIATE_CONCRETE_SUBCLASS(MaterialAssign, "materialassign")
 INSTANTIATE_CONCRETE_SUBCLASS(Member, "member")
+INSTANTIATE_CONCRETE_SUBCLASS(NewlineElement, "newline")
 INSTANTIATE_CONCRETE_SUBCLASS(Node, "node")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeDef, "nodedef")
 INSTANTIATE_CONCRETE_SUBCLASS(NodeGraph, "nodegraph")

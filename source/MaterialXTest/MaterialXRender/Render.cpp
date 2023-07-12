@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
@@ -11,11 +11,10 @@
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Types.h>
 
+#include <MaterialXFormat/Util.h>
+
 #ifdef MATERIALX_BUILD_OIIO
 #include <MaterialXRender/OiioImageLoader.h>
-#endif
-#ifdef MATERIALX_BUILD_CONTRIB
-#include <MaterialXContrib/Handlers/TinyEXRImageLoader.h>
 #endif
 
 #include <fstream>
@@ -27,15 +26,21 @@ namespace mx = MaterialX;
 
 TEST_CASE("Render: Half Float", "[rendercore]")
 {
-    const std::vector<float> values =
+    const std::vector<float> exactValues =
     {
         0.0f, 0.25f, 0.5f, 0.75f,
         1.0f, 8.0f, 64.0f, 512.0f,
         std::numeric_limits<float>::infinity()
     };
+    const std::vector<float> nearValues =
+    {
+        1.0f / 3.0f, 1.0f / 5.0f, 1.0f / 7.0f,
+        std::numeric_limits<float>::denorm_min()
+    };
     const std::vector<float> signs = { 1.0f, -1.0f };
 
-    for (float value : values)
+    // Test values with exact equivalence as float and half.
+    for (float value : exactValues)
     {
         for (float sign : signs)
         {
@@ -53,6 +58,19 @@ TEST_CASE("Render: Half Float", "[rendercore]")
             REQUIRE(-h == -f);
         }
     }
+
+    // Test values with near equivalence as float and half.
+    const float EPSILON = 0.001f;
+    for (float value : nearValues)
+    {
+        for (float sign : signs)
+        {
+            float f(value * sign);
+            mx::Half h(f);
+            REQUIRE(h != f);
+            REQUIRE(std::abs(h - f) < EPSILON);
+        }
+    }
 }
 
 struct GeomHandlerTestOptions
@@ -66,7 +84,8 @@ struct GeomHandlerTestOptions
 
 void testGeomHandler(GeomHandlerTestOptions& options)
 {
-    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath imagePath = searchPath.find("resources/Geometry/");
     mx::FilePathVec files;
 
     unsigned int loadFailed = 0;
@@ -140,7 +159,8 @@ struct ImageHandlerTestOptions
 
 void testImageHandler(ImageHandlerTestOptions& options)
 {
-    mx::FilePath imagePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Images/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath imagePath = searchPath.find("resources/Images/");
     mx::FilePathVec files;
 
     unsigned int loadFailed = 0;

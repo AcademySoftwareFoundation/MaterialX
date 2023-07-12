@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/LightCompoundNodeGlsl.h>
@@ -50,7 +50,7 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
     VariableBlock& lightData = ps.getUniformBlock(HW::LIGHT_DATA);
 
     // Create all light uniforms
-    for (size_t i = 0; i<_lightUniforms.size(); ++i)
+    for (size_t i = 0; i < _lightUniforms.size(); ++i)
     {
         ShaderPort* u = const_cast<ShaderPort*>(_lightUniforms[i]);
         lightData.add(u->getSelf());
@@ -62,7 +62,8 @@ void LightCompoundNodeGlsl::createVariables(const ShaderNode&, GenContext& conte
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
         // Emit functions for all child nodes
@@ -83,7 +84,7 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(const ShaderNode& node, GenCo
                 emitFunctionDefinition(cct, context, stage);
             }
         }
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const
@@ -127,10 +128,11 @@ void LightCompoundNodeGlsl::emitFunctionDefinition(ClosureContext* cct, GenConte
 
 void LightCompoundNodeGlsl::emitFunctionCall(const ShaderNode&, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine(_functionName + "(light, position, result)", stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

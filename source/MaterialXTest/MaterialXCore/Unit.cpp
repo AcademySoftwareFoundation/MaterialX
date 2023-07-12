@@ -1,9 +1,9 @@
 ﻿//
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Unit.h>
@@ -17,8 +17,10 @@ const float EPSILON = 1e-4f;
 
 TEST_CASE("UnitAttribute", "[unit]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+
     std::vector<mx::UnitTypeDefPtr> unitTypeDefs = doc->getUnitTypeDefs();
     REQUIRE(!unitTypeDefs.empty());
 
@@ -60,8 +62,9 @@ TEST_CASE("UnitAttribute", "[unit]")
 
 TEST_CASE("UnitEvaluation", "[unit]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
 
     //
     // Test distance converter
@@ -117,11 +120,11 @@ TEST_CASE("UnitEvaluation", "[unit]")
 
 TEST_CASE("UnitDocument", "[unit]")
 {
-    mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/TestSuite/stdlib/units");
-    std::string searchPath = libraryPath.asString() +
-        mx::PATH_LIST_SEPARATOR +
-        examplesPath.asString();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+    mx::FilePath examplesPath = searchPath.find("resources/Materials/TestSuite/stdlib/units");
+    searchPath.append(examplesPath);
 
     static const std::string DISTANCE_DEFAULT("meter");
 
@@ -130,7 +133,7 @@ TEST_CASE("UnitDocument", "[unit]")
     {
         mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, filename, searchPath);
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
+        doc->importLibrary(stdlib);
 
         mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef("distance");
         REQUIRE(distanceTypeDef);
@@ -149,11 +152,14 @@ TEST_CASE("UnitDocument", "[unit]")
             mx::NodePtr pNode = elem->asA<mx::Node>();
             if (pNode)
             {
-                if (pNode->getInputCount()) {
-                    for (mx::InputPtr input : pNode->getInputs()) {
+                if (pNode->getInputCount())
+                {
+                    for (mx::InputPtr input : pNode->getInputs())
+                    {
                         const std::string type = input->getType();
                         const mx::ValuePtr value = input->getValue();
-                        if (input->hasUnit() && value) {
+                        if (input->hasUnit() && value)
+                        {
                             if (type == "float")
                             {
                                 float originalval = value->asA<float>();

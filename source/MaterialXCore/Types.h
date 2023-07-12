@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_TYPES_H
@@ -22,6 +22,9 @@ extern MX_CORE_API const string DEFAULT_TYPE_STRING;
 extern MX_CORE_API const string FILENAME_TYPE_STRING;
 extern MX_CORE_API const string GEOMNAME_TYPE_STRING;
 extern MX_CORE_API const string STRING_TYPE_STRING;
+extern MX_CORE_API const string BSDF_TYPE_STRING;
+extern MX_CORE_API const string EDF_TYPE_STRING;
+extern MX_CORE_API const string VDF_TYPE_STRING;
 extern MX_CORE_API const string SURFACE_SHADER_TYPE_STRING;
 extern MX_CORE_API const string DISPLACEMENT_SHADER_TYPE_STRING;
 extern MX_CORE_API const string VOLUME_SHADER_TYPE_STRING;
@@ -345,6 +348,14 @@ class MX_CORE_API Color3 : public VectorN<Color3, float, 3>
     {
         _arr = { r, g, b };
     }
+
+    /// Transform the given color from linear RGB to the sRGB encoding,
+    /// returning the result as a new value.
+    Color3 linearToSrgb() const;
+
+    /// Transform the given color from the sRGB encoding to linear RGB,
+    /// returning the result as a new value.
+    Color3 srgbToLinear() const;
 };
 
 /// @class Color4
@@ -530,21 +541,6 @@ template <class M, class S, size_t N> class MatrixN : public MatrixBase
         return *this;
     }
 
-    /// Return the transpose of the matrix.
-    M getTranspose() const;
-
-    /// Return the determinant of the matrix.
-    S getDeterminant() const;
-
-    /// Return the adjugate of the matrix.
-    M getAdjugate() const;
-
-    /// Return the inverse of the matrix.
-    M getInverse() const
-    {
-        return getAdjugate() / getDeterminant();
-    }
-
     /// @}
     /// @name Iterators
     /// @{
@@ -601,6 +597,25 @@ class MX_CORE_API Matrix33 : public MatrixN<Matrix33, float, 3>
                  m20, m21, m22 };
     }
 
+    /// @name Matrix Operations
+    /// @{
+
+    /// Return the transpose of the matrix.
+    Matrix33 getTranspose() const;
+
+    /// Return the determinant of the matrix.
+    float getDeterminant() const;
+
+    /// Return the adjugate of the matrix.
+    Matrix33 getAdjugate() const;
+
+    /// Return the inverse of the matrix.
+    Matrix33 getInverse() const
+    {
+        return getAdjugate() / getDeterminant();
+    }
+
+    /// @}
     /// @name Vector Transformations
     /// @{
 
@@ -654,6 +669,25 @@ class MX_CORE_API Matrix44 : public MatrixN<Matrix44, float, 4>
                  m30, m31, m32, m33 };
     }
 
+    /// @name Matrix Operations
+    /// @{
+
+    /// Return the transpose of the matrix.
+    Matrix44 getTranspose() const;
+
+    /// Return the determinant of the matrix.
+    float getDeterminant() const;
+
+    /// Return the adjugate of the matrix.
+    Matrix44 getAdjugate() const;
+
+    /// Return the inverse of the matrix.
+    Matrix44 getInverse() const
+    {
+        return getAdjugate() / getDeterminant();
+    }
+
+    /// @}
     /// @name Vector Transformations
     /// @{
 

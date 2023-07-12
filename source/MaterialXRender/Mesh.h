@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_MESH_H
@@ -38,8 +38,9 @@ class MX_RENDER_API MeshStream
     static const string COLOR_ATTRIBUTE;
     static const string GEOMETRY_PROPERTY_ATTRIBUTE;
 
-    static const unsigned int STRIDE_3D = 3;
     static const unsigned int STRIDE_2D = 2;
+    static const unsigned int STRIDE_3D = 3;
+    static const unsigned int STRIDE_4D = 4;
     static const unsigned int DEFAULT_STRIDE = STRIDE_3D;
 
   public:
@@ -56,6 +57,12 @@ class MX_RENDER_API MeshStream
     static MeshStreamPtr create(const string& name, const string& type, unsigned int index = 0)
     {
         return std::make_shared<MeshStream>(name, type, index);
+    }
+
+    /// Reserve memory for a given number of elements
+    void reserve(size_t elementCount)
+    {
+        _data.reserve(elementCount * (size_t) _stride);
     }
 
     /// Resize data to an given number of elements
@@ -118,11 +125,13 @@ class MX_RENDER_API MeshStream
         _stride = stride;
     }
 
+    /// Get the number of elements
     size_t getSize() const
     {
-        return _data.size();
+        return _data.size() / _stride;
     }
 
+    /// Transform elements by a matrix
     void transform(const Matrix44 &matrix);
 
   protected:
@@ -407,6 +416,12 @@ class MX_RENDER_API Mesh
     /// @param texcoordStream Input texcoord stream
     /// @return The generated tangent stream, on success; otherwise, a null pointer.
     MeshStreamPtr generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream);
+
+    /// Generate bitangents from the given normals and tangents.
+    /// @param normalStream Input normal stream
+    /// @param tangentStream Input tangent stream
+    /// @return The generated bitangent stream, on success; otherwise, a null pointer.
+    MeshStreamPtr generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr tangentStream);
 
     /// Merge all mesh partitions into one.
     void mergePartitions();

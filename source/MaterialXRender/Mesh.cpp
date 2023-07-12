@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/Mesh.h>
@@ -43,7 +43,7 @@ MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
 {
     // Create the normal stream.
     MeshStreamPtr normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, 0);
-    normalStream->getData().resize(positionStream->getData().size());
+    normalStream->resize(positionStream->getSize());
 
     // Iterate through partitions.
     for (size_t i = 0; i < getPartitionCount(); i++)
@@ -88,33 +88,17 @@ MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
 
 MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
 {
-    if (!positionStream)
-    {
-        return nullptr;
-    }
-    if (!texcoordStream)
-    {
-        texcoordStream = generateTextureCoordinates(positionStream);
-        addStream(texcoordStream);
-    }
-    if (!normalStream)
-    {
-        normalStream = generateNormals(positionStream);
-        addStream(normalStream);
-    }
-
     size_t vertexCount = positionStream->getData().size() / positionStream->getStride();
     size_t normalCount = normalStream->getData().size() / normalStream->getStride();
     size_t texcoordCount = texcoordStream->getData().size() / texcoordStream->getStride();
-    if (vertexCount != normalCount ||
-        vertexCount != texcoordCount)
+    if (vertexCount != normalCount || vertexCount != texcoordCount)
     {
         return nullptr;
     }
 
     // Create the tangent stream.
     MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
-    tangentStream->getData().resize(positionStream->getData().size());
+    tangentStream->resize(positionStream->getSize());
     std::fill(tangentStream->getData().begin(), tangentStream->getData().end(), 0.0f);
 
     // Iterate through partitions.
@@ -184,6 +168,28 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
     }
 
     return tangentStream;
+}
+
+MeshStreamPtr Mesh::generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr tangentStream)
+{
+    if (normalStream->getSize() != tangentStream->getSize())
+    {
+        return nullptr;
+    }
+
+    MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
+    bitangentStream->resize(normalStream->getSize());
+
+    for (size_t i = 0; i < normalStream->getSize(); i++)
+    {
+        const Vector3& normal = normalStream->getElement<Vector3>(i);
+        const Vector3& tangent = tangentStream->getElement<Vector3>(i);
+
+        Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
+        bitangent = normal.cross(tangent);
+    }
+
+    return bitangentStream;
 }
 
 void Mesh::mergePartitions()
@@ -286,6 +292,9 @@ void MeshStream::transform(const Matrix44 &matrix)
              getType() == MeshStream::TANGENT_ATTRIBUTE ||
              getType() == MeshStream::BITANGENT_ATTRIBUTE)
     {
+        bool isNormalStream = (getType() == MeshStream::NORMAL_ATTRIBUTE);
+        Matrix44 transformMatrix = isNormalStream ? matrix.getInverse().getTranspose() : matrix;
+
         for (size_t i=0; i<numElements; i++)
         {
             Vector3 vec(0.0, 0.0, 0.0);
@@ -293,7 +302,7 @@ void MeshStream::transform(const Matrix44 &matrix)
             {
                 vec[j] = _data[i*stride + j];
             }
-            vec = matrix.transformNormal(vec);
+            vec = transformMatrix.transformVector(vec).getNormalized();
             for (size_t k=0; k<stride; k++)
             {
                 _data[i*stride + k] = vec[k];

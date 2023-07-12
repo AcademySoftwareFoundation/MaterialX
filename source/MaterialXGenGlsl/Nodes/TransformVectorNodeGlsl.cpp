@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/TransformVectorNodeGlsl.h>
@@ -32,7 +32,8 @@ void TransformVectorNodeGlsl::createVariables(const ShaderNode& node, GenContext
 
 void TransformVectorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const ShaderGenerator& shadergen = context.getShaderGenerator();
 
         const ShaderInput* inInput = node.getInput("in");
@@ -58,8 +59,7 @@ void TransformVectorNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContex
         shadergen.emitString(getHomogeneousCoordinate(inInput, context), stage);
         shadergen.emitString(").xyz", stage);
         shadergen.emitLineEnd(stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 const string& TransformVectorNodeGlsl::getMatrix(const string& fromSpace, const string& toSpace) const

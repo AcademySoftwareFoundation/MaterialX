@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 
@@ -35,12 +35,12 @@ TEST_CASE("Geom elements", "[geom]")
     geominfo2->setTokenValue("id", std::string("01"));
     mx::GeomInfoPtr geominfo3 = doc->addGeomInfo("geominfo3", "/robot2");
     geominfo3->setTokenValue("id", std::string("02"));
-    REQUIRE_THROWS_AS(doc->addGeomInfo("geominfo1"), mx::Exception&);
+    REQUIRE_THROWS_AS(doc->addGeomInfo("geominfo1"), mx::Exception);
 
     // Create a node graph with a single image node.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     nodeGraph->setFilePrefix("folder/");
-    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception&);
+    REQUIRE_THROWS_AS(doc->addNodeGraph(nodeGraph->getName()), mx::Exception);
     mx::NodePtr image = nodeGraph->addNode("image");
     image->setInputValue("file", "<asset><id>_diffuse_<UDIM>.tif", mx::FILENAME_TYPE_STRING);
 
@@ -95,8 +95,8 @@ TEST_CASE("GeomPropDef", "[geom]")
 
     // Create a NodeDef with an input that defaults to the declared world-space
     // normal property.
-    doc->addNodeDef("ND_foo", "color3", "foo");
-    mx::InputPtr input = doc->addInput("input1", "vector3");
+    mx::NodeDefPtr nodedef = doc->addNodeDef("ND_foo", "color3", "foo");
+    mx::InputPtr input = nodedef->addInput("input1", "vector3");
     input->setDefaultGeomPropString(worldNormal->getName());
 
     // Validate connections.

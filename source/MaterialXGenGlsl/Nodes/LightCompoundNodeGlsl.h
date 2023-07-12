@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_LIGHTCOMPOUNDNODEGLSL_H
@@ -19,7 +19,7 @@ class GlslShaderGenerator;
 /// LightCompound node implementation for GLSL
 class MX_GENGLSL_API LightCompoundNodeGlsl : public CompoundNode
 {
-public:
+  public:
     LightCompoundNodeGlsl();
 
     static ShaderNodeImplPtr create();
@@ -34,7 +34,7 @@ public:
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-protected:
+  protected:
     void emitFunctionDefinition(ClosureContext* cct, GenContext& context, ShaderStage& stage) const;
 
     VariableBlock _lightUniforms;

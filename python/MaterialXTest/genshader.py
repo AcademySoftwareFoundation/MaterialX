@@ -12,10 +12,8 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 class TestGenShader(unittest.TestCase):
     def test_ShaderInterface(self):
         doc = mx.createDocument()
-
-        filePath = os.path.dirname(os.path.abspath(__file__))
-        searchPath = os.path.join(filePath, "..", "..")
-        mx.loadLibraries(["libraries"], searchPath, doc)
+        searchPath = mx.getDefaultDataSearchPath()
+        mx.loadLibraries(mx.getDefaultDataLibraryFolders(), searchPath, doc)
 
         exampleName = u"shader_interface"
 
@@ -45,12 +43,20 @@ class TestGenShader(unittest.TestCase):
         output.setNodeName("foo1");
         output.setAttribute("output", "o");
 
+        # Test for target
+        targetDefs = doc.getTargetDefs()
+        self.assertTrue(len(targetDefs))
         shadergen = mx_gen_osl.OslShaderGenerator.create()
+        target = shadergen.getTarget()
+        foundTarget = next((
+            t for t in targetDefs
+            if t.getName() == target), None)
+        self.assertTrue(foundTarget)
         context = mx_gen_shader.GenContext(shadergen)
         context.registerSourceCodeSearchPath(searchPath)
 
-        # Test complete mode
-        context.getOptions().shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE);
+        # Test generator with complete mode
+        context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
         shader = shadergen.generate(exampleName, output, context);
         self.assertTrue(shader)
         self.assertTrue(len(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)) > 0)
@@ -68,7 +74,8 @@ class TestGenShader(unittest.TestCase):
         file.close()
         os.remove(shader.getName() + "_complete.osl");
 
-        context.getOptions().shaderInterfaceType = int(mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_REDUCED);
+        # Test generator with reduced mode
+        context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
         shader = shadergen.generate(exampleName, output, context);
         self.assertTrue(shader)
         self.assertTrue(len(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)) > 0)
@@ -85,6 +92,34 @@ class TestGenShader(unittest.TestCase):
         file.write(shader.getSourceCode(mx_gen_shader.PIXEL_STAGE))
         file.close()
         os.remove(shader.getName() + "_reduced.osl");
+
+        # Define a custom attribute
+        customAttribute = doc.addAttributeDef("AD_attribute_node_name");
+        self.assertIsNotNone(customAttribute)
+        customAttribute.setType("string");
+        customAttribute.setAttrName("node_name");
+        customAttribute.setExportable(True);
+
+        # Define a nodedef referencing the custom attribute.
+        stdSurfNodeDef = doc.getNodeDef("ND_standard_surface_surfaceshader");
+        self.assertIsNotNone(stdSurfNodeDef)
+        stdSurfNodeDef.setAttribute("node_name", "Standard_Surface_Number_1");
+        self.assertTrue(stdSurfNodeDef.getAttribute("node_name") == "Standard_Surface_Number_1")
+        stdSurf1 = doc.addNodeInstance(stdSurfNodeDef, "standardSurface1");
+        self.assertIsNotNone(stdSurf1)
+
+        # Register shader metadata
+        shadergen.registerShaderMetadata(doc, context);
+
+        # Generate and test that attribute is in the code
+        context.getOptions().shaderInterfaceType = mx_gen_shader.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
+        shader = shadergen.generate(stdSurf1.getName(), stdSurf1, context);
+        self.assertIsNotNone(shader)
+        code = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
+        self.assertTrue('Standard_Surface_Number_1' in code)
+        self.assertTrue('node_name' in code)
+
+        print()
 
 if __name__ == '__main__':
     unittest.main()

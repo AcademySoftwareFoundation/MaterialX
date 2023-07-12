@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_UTIL
@@ -35,11 +35,18 @@ MX_CORE_API string incrementName(const string& name);
 /// separator characters.
 MX_CORE_API StringVec splitString(const string& str, const string& sep);
 
+/// Join a vector of substrings into a single string, placing the given
+/// separator between each substring.
+MX_CORE_API string joinStrings(const StringVec& strVec, const string& sep);
+
 /// Apply the given substring substitutions to the input string.
 MX_CORE_API string replaceSubstrings(string str, const StringMap& stringMap);
 
 /// Return a copy of the given string with letters converted to lower case.
 MX_CORE_API string stringToLower(string str);
+
+/// Return true if the given string starts with the given prefix.
+MX_CORE_API bool stringStartsWith(const string& str, const string& prefix);
 
 /// Return true if the given string ends with the given suffix.
 MX_CORE_API bool stringEndsWith(const string& str, const string& suffix);

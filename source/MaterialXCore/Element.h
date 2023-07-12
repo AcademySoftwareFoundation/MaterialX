@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_ELEMENT_H
@@ -22,6 +22,7 @@ class TypedElement;
 class ValueElement;
 class Token;
 class CommentElement;
+class NewlineElement;
 class GenericElement;
 class StringResolver;
 class Document;
@@ -50,6 +51,11 @@ using ConstTokenPtr = shared_ptr<const Token>;
 using CommentElementPtr = shared_ptr<CommentElement>;
 /// A shared pointer to a const CommentElement
 using ConstCommentElementPtr = shared_ptr<const CommentElement>;
+
+/// A shared pointer to a NewlineElement
+using NewlineElementPtr = shared_ptr<NewlineElement>;
+/// A shared pointer to a const NewlineElement
+using ConstNewlineElementPtr = shared_ptr<const NewlineElement>;
 
 /// A shared pointer to a GenericElement
 using GenericElementPtr = shared_ptr<GenericElement>;
@@ -294,7 +300,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the element, if any, that this one directly inherits from.
     ElementPtr getInheritsFrom() const
     {
-        return resolveRootNameReference<Element>(getInheritString());
+        return resolveNameReference<Element>(getInheritString());
     }
 
     /// Return true if this element has the given element as an inherited base,
@@ -761,21 +767,22 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// name, and attributes.
     string asString() const;
 
-    /// Resolve a reference to a named element at the root scope of this document,
-    /// taking the namespace at the scope of this element into account.
-    template <class T> shared_ptr<T> resolveRootNameReference(const string& name) const
-    {
-        ConstElementPtr root = getRoot();
-        shared_ptr<T> child = root->getChildOfType<T>(getQualifiedName(name));
-        return child ? child : root->getChildOfType<T>(name);
-    }
-
     /// @}
 
   protected:
+    // Resolve a reference to a named element at the scope of the given parent,
+    // taking the namespace at the scope of this element into account.  If no parent
+    // is provided, then the root scope of the document is used.
+    template <class T> shared_ptr<T> resolveNameReference(const string& name, ConstElementPtr parent = nullptr) const
+    {
+        ConstElementPtr scope = parent ? parent : getRoot();
+        shared_ptr<T> child = scope->getChildOfType<T>(getQualifiedName(name));
+        return child ? child : scope->getChildOfType<T>(name);
+    }
+
     // Enforce a requirement within a validate method, updating the validation
     // state and optional output text if the requirement is not met.
-    void validateRequire(bool expression, bool& res, string* message, string errorDesc) const;
+    void validateRequire(bool expression, bool& res, string* message, const string& errorDesc) const;
 
   public:
     static const string NAME_ATTRIBUTE;
@@ -1147,6 +1154,21 @@ class MX_CORE_API CommentElement : public Element
     {
     }
     virtual ~CommentElement() { }
+
+  public:
+    static const string CATEGORY;
+};
+
+/// @class NewlineElement
+/// An element representing a newline within a document.
+class MX_CORE_API NewlineElement : public Element
+{
+  public:
+    NewlineElement(ElementPtr parent, const string& name) :
+        Element(parent, CATEGORY, name)
+    {
+    }
+    virtual ~NewlineElement() { }
 
   public:
     static const string CATEGORY;

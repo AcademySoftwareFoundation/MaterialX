@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 
@@ -45,7 +45,7 @@ TEST_CASE("Element", "[element]")
     elem2->setName("elem2");
     REQUIRE(elem1->getName() == "elem1");
     REQUIRE(elem2->getName() == "elem2");
-    REQUIRE_THROWS_AS(elem2->setName("elem1"), mx::Exception&);
+    REQUIRE_THROWS_AS(elem2->setName("elem1"), mx::Exception);
 
     // Modify element order.
     mx::DocumentPtr doc2 = doc->copy();
@@ -54,7 +54,7 @@ TEST_CASE("Element", "[element]")
     REQUIRE(*doc2 != *doc);
     doc2->setChildIndex("elem1", doc2->getChildIndex("elem2"));
     REQUIRE(*doc2 == *doc);
-    REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 100), mx::Exception&);
+    REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 100), mx::Exception);
     REQUIRE(*doc2 == *doc);
 
     // Create and test an orphaned element.
@@ -64,5 +64,5 @@ TEST_CASE("Element", "[element]")
         orphan = doc3->getChild("elem1");
         REQUIRE(orphan);
     }
-    REQUIRE_THROWS_AS(orphan->getDocument(), mx::ExceptionOrphanedElement&);    
+    REQUIRE_THROWS_AS(orphan->getDocument(), mx::ExceptionOrphanedElement);
 }

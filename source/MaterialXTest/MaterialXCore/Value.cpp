@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Value.h>
@@ -74,10 +74,10 @@ TEST_CASE("Value strings", "[value]")
     REQUIRE(mx::fromValueString<std::string>("text") == "text");
 
     // Verify that invalid conversions throw exceptions.
-    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError&);
-    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError&);
+    REQUIRE_THROWS_AS(mx::fromValueString<int>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<float>("text"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<bool>("1"), mx::ExceptionTypeError);
+    REQUIRE_THROWS_AS(mx::fromValueString<mx::Color3>("1"), mx::ExceptionTypeError);
 }
 
 TEST_CASE("Typed values", "[value]")
@@ -110,8 +110,8 @@ TEST_CASE("Typed values", "[value]")
                    mx::BoolVec{true, true, true});
     testTypedValue(mx::FloatVec{1.0f, 2.0f, 3.0f},
                    mx::FloatVec{4.0f, 5.0f, 6.0f});
-    testTypedValue(mx::StringVec{"one", "two", "three"},
-                   mx::StringVec{"four", "five", "six"});
+    testTypedValue(mx::StringVec{"Item A", "Item B", "Item C"},
+                   mx::StringVec{"Item D", "Item E", "Item F"});
 
     // Alias types
     testTypedValue<long>(1l, 2l);

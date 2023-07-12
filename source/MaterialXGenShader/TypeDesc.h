@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_TYPEDESC_H
@@ -103,6 +103,9 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type is an aggregate of 4 floats.
     bool isFloat4() const { return _size == 4 && (_semantic == SEMANTIC_COLOR || _semantic == SEMANTIC_VECTOR); }
 
+    /// Return true if the type represents a closure.
+    bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
+
   private:
     TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
              bool editable, const ChannelMap& channelMapping);
@@ -117,33 +120,36 @@ class MX_GENSHADER_API TypeDesc
 
 namespace Type
 {
-    /// Type descriptors for all standard types.
-    /// These are always registered by default.
-    ///
-    /// TODO: Add support for the standard array types.
-    ///
-    extern MX_GENSHADER_API const TypeDesc* NONE;
-    extern MX_GENSHADER_API const TypeDesc* BOOLEAN;
-    extern MX_GENSHADER_API const TypeDesc* INTEGER;
-    extern MX_GENSHADER_API const TypeDesc* INTEGERARRAY;
-    extern MX_GENSHADER_API const TypeDesc* FLOAT;
-    extern MX_GENSHADER_API const TypeDesc* FLOATARRAY;
-    extern MX_GENSHADER_API const TypeDesc* VECTOR2;
-    extern MX_GENSHADER_API const TypeDesc* VECTOR3;
-    extern MX_GENSHADER_API const TypeDesc* VECTOR4;
-    extern MX_GENSHADER_API const TypeDesc* COLOR3;
-    extern MX_GENSHADER_API const TypeDesc* COLOR4;
-    extern MX_GENSHADER_API const TypeDesc* MATRIX33;
-    extern MX_GENSHADER_API const TypeDesc* MATRIX44;
-    extern MX_GENSHADER_API const TypeDesc* STRING;
-    extern MX_GENSHADER_API const TypeDesc* FILENAME;
-    extern MX_GENSHADER_API const TypeDesc* BSDF;
-    extern MX_GENSHADER_API const TypeDesc* EDF;
-    extern MX_GENSHADER_API const TypeDesc* VDF;
-    extern MX_GENSHADER_API const TypeDesc* SURFACESHADER;
-    extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
-    extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
-    extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
+
+/// Type descriptors for all standard types.
+/// These are always registered by default.
+///
+/// TODO: Add support for the standard array types.
+///
+extern MX_GENSHADER_API const TypeDesc* NONE;
+extern MX_GENSHADER_API const TypeDesc* BOOLEAN;
+extern MX_GENSHADER_API const TypeDesc* INTEGER;
+extern MX_GENSHADER_API const TypeDesc* INTEGERARRAY;
+extern MX_GENSHADER_API const TypeDesc* FLOAT;
+extern MX_GENSHADER_API const TypeDesc* FLOATARRAY;
+extern MX_GENSHADER_API const TypeDesc* VECTOR2;
+extern MX_GENSHADER_API const TypeDesc* VECTOR3;
+extern MX_GENSHADER_API const TypeDesc* VECTOR4;
+extern MX_GENSHADER_API const TypeDesc* COLOR3;
+extern MX_GENSHADER_API const TypeDesc* COLOR4;
+extern MX_GENSHADER_API const TypeDesc* MATRIX33;
+extern MX_GENSHADER_API const TypeDesc* MATRIX44;
+extern MX_GENSHADER_API const TypeDesc* STRING;
+extern MX_GENSHADER_API const TypeDesc* FILENAME;
+extern MX_GENSHADER_API const TypeDesc* BSDF;
+extern MX_GENSHADER_API const TypeDesc* EDF;
+extern MX_GENSHADER_API const TypeDesc* VDF;
+extern MX_GENSHADER_API const TypeDesc* SURFACESHADER;
+extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
+extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
+extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
+extern MX_GENSHADER_API const TypeDesc* MATERIAL;
+
 } // namespace Type
 
 MATERIALX_NAMESPACE_END

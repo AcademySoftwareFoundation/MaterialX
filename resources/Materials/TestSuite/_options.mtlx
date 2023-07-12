@@ -12,17 +12,17 @@
   -->
 
   <!-- nodedefs for custom test settings -->
-  <nodedef name="ND_BakingSettings" node="baker" >
+  <nodedef name="ND_BakingSettings" node="baker">
     <input name="file" type="filename" />
-    <input name="uvmin" type="vector2"/>
-    <input name="uvmax" type="vector2"/>
+    <input name="uvmin" type="vector2" />
+    <input name="uvmax" type="vector2" />
     <input name="hdr" type="boolean" value="false" />
     <input name="resolution" type="integer" value="1024" />
   </nodedef>
 
-  <nodedef name="ND_WedgeRenderSettings" node="wedgerender" >
+  <nodedef name="ND_WedgeRenderSettings" node="wedgerender">
     <input name="file" type="filename" />
-    <input name="parameter" type="string"/>
+    <input name="parameter" type="string" />
     <input name="range" type="vector2" value="0.0, 1.0" />
     <input name="steps" type="integer" value="1.0" />
   </nodedef>
@@ -38,7 +38,7 @@
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
-    <input name="targets" type="string" value="genglsl,genosl,genmdl" />
+    <input name="targets" type="string" value="genglsl,genosl,genmdl,genmsl" />
 
     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />
@@ -71,13 +71,9 @@
     <!-- Set this to be true if it is desired to always dump out generated source code to disk instead of just on compile errors -->
     <input name="dumpGeneratedCode" type="boolean" value="true" />
 
-    <!-- Suggested geometry file to use for rendering unshaded elements.
+    <!-- The geometry file to be rendered in tests.
          File path is relative to the "/resources/Geometry/" folder -->
-    <input name="unShadedGeometry" type="string" value="sphere.obj" />
-
-    <!-- Suggested geometry file to use for rendering shaded elements.
-         File path is relative to the "/resources/Geometry/" folder -->
-    <input name="shadedGeometry" type="string" value="sphere.obj" />
+    <input name="renderGeometry" type="string" value="sphere.obj" />
 
     <!-- Enable direct lighting. Default is true. -->
     <input name="enableDirectLighting" type="boolean" value="false" />
@@ -98,41 +94,41 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples,resources/Materials/TestSuite" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/noise,resources/Materials/TestSuite/pbrlib" />
 
     <!-- Enable reference quality rendering. Default is false. -->
     <input name="enableReferenceQuality" type="boolean" value="false" />
 
     <!-- Wedge rendering options -->
     <wedgerender name="wedge_conductor">
-     <input name="file" type="filename" value="wedge_conductor.mtlx" />
-     <input name="parameter" type="string" value="test_conductor/roughness1/roughness" />
-     <input name="range" type="vector2" value="0.0, 1.0" />
-     <input name="steps" type="integer" value="4" />
+      <input name="file" type="filename" value="wedge_conductor.mtlx" />
+      <input name="parameter" type="string" value="test_conductor/roughness1/roughness" />
+      <input name="range" type="vector2" value="0.0, 1.0" />
+      <input name="steps" type="integer" value="4" />
     </wedgerender>
 
     <wedgerender name="wedge_conductor_2">
-     <input name="file" type="filename" value="wedge_conductor.mtlx" />
-     <input name="parameter" type="string" value="test_conductor/roughness1/anisotropy" />
-     <input name="range" type="vector2" value="0.3, 0.9" />
-     <input name="steps" type="integer" value="3" />
+      <input name="file" type="filename" value="wedge_conductor.mtlx" />
+      <input name="parameter" type="string" value="test_conductor/roughness1/anisotropy" />
+      <input name="range" type="vector2" value="0.3, 0.9" />
+      <input name="steps" type="integer" value="3" />
     </wedgerender>
 
     <!-- Bake rendering options: Currently only supports the genglsl_glsl400 shader generator -->
     <baker name="mapped_surfaceshader">
-        <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
+      <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
+      <input name="uvmin" type="vector2" value="0,0" />
+      <input name="uvmax" type="vector2" value="1,1" />
+      <input name="hdr" type="boolean" value="false" />
+      <input name="resolution" type="integer" value="1024" />
     </baker>
 
     <baker name="normalmapped_surfaceshader">
-        <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
+      <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
+      <input name="uvmin" type="vector2" value="0,0" />
+      <input name="uvmax" type="vector2" value="1,1" />
+      <input name="hdr" type="boolean" value="false" />
+      <input name="resolution" type="integer" value="1024" />
     </baker>
   </nodedef>
 </materialx>

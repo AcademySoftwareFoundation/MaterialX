@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderNodeImpl.h>
@@ -16,8 +16,8 @@ MATERIALX_NAMESPACE_BEGIN
 // ShaderNodeImpl methods
 //
 
-ShaderNodeImpl::ShaderNodeImpl() : 
-    _name(EMPTY_STRING), 
+ShaderNodeImpl::ShaderNodeImpl() :
+    _name(EMPTY_STRING),
     _hash(0)
 {
 }
@@ -39,6 +39,10 @@ void ShaderNodeImpl::addInputs(ShaderNode&, GenContext&) const
 }
 
 void ShaderNodeImpl::setValues(const Node&, ShaderNode&, GenContext&) const
+{
+}
+
+void ShaderNodeImpl::addClassification(ShaderNode&) const
 {
 }
 
@@ -71,7 +75,6 @@ ShaderGraph* ShaderNodeImpl::getGraph() const
 {
     return nullptr;
 }
-
 
 ShaderNodeImplPtr NopNode::create()
 {

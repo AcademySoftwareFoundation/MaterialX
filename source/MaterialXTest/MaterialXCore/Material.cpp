@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXCore/Value.h>
@@ -19,7 +19,7 @@ TEST_CASE("Material", "[material]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a base shader nodedef.
-    mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("ND_simpleSrf", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     simpleSrf->setInputValue("roughness", 0.25f);
@@ -30,7 +30,7 @@ TEST_CASE("Material", "[material]")
     REQUIRE(simpleSrf->getTokenValue("texId") == "01");
 
     // Create an inherited shader nodedef.
-    mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", "surfaceshader", "anisoSrf");
+    mx::NodeDefPtr anisoSrf = doc->addNodeDef("ND_anisoSrf", mx::SURFACE_SHADER_TYPE_STRING, "anisoSrf");
     anisoSrf->setInheritsFrom(simpleSrf);
     anisoSrf->setInputValue("anisotropy", 0.0f);
     REQUIRE(anisoSrf->getInheritsFrom() == simpleSrf);
@@ -47,9 +47,9 @@ TEST_CASE("Material", "[material]")
     anisoSrf->setVersionString("2");
     shaderNode->setVersionString("2");
     REQUIRE(shaderNode->getNodeDef() == anisoSrf);
-    shaderNode->setType("volumeshader");
+    shaderNode->setType(mx::VOLUME_SHADER_TYPE_STRING);
     REQUIRE(shaderNode->getNodeDef() == nullptr);
-    shaderNode->setType("surfaceshader");
+    shaderNode->setType(mx::SURFACE_SHADER_TYPE_STRING);
     REQUIRE(shaderNode->getNodeDef() == anisoSrf);
 
     // Bind a shader input to a value.
@@ -61,12 +61,9 @@ TEST_CASE("Material", "[material]")
 
 TEST_CASE("Material Discovery", "[material]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-
-    const mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath / mx::FilePath("resources/Materials/TestSuite"));
-    mx::FilePath filename = "stdlib/materials/material_node_discovery.mtlx";
-    mx::readFromXmlFile(doc, filename, searchPath);
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/materials/material_node_discovery.mtlx", searchPath);
 
     // 1. Find all materials referenced by material assignments
     //    which are found in connected nodegraphs
@@ -107,7 +104,6 @@ TEST_CASE("Material Discovery", "[material]")
     //    which are not implementations. This will return less nodes
     //    as implementation graphs exist in the document.
     foundNodes.clear();
-    std::vector<mx::InterfaceElementPtr> docNodes;
     if (doc)
     {
         for (auto documentOutput : doc->getMaterialOutputs())

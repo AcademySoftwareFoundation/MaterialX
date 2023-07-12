@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
@@ -43,10 +43,10 @@ ShaderNodeImplPtr SurfaceNodeGlsl::create()
 
 void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
-    // TODO: 
-    // The surface shader needs position, normal, view position and light sources. We should solve this by adding some 
+    // TODO:
+    // The surface shader needs position, normal, view position and light sources. We should solve this by adding some
     // dependency mechanism so this implementation can be set to depend on the PositionNodeGlsl, NormalNodeGlsl
-    // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops" 
+    // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops"
     // is needed.
     //
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
@@ -69,7 +69,8 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
 {
     const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
@@ -93,9 +94,10 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_0", stage);
             }
         }
-    END_SHADER_STAGE(stage, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
 
@@ -119,14 +121,11 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         const ShaderNode* bsdf = bsdfInput->getConnectedSibling();
         if (bsdf)
         {
-            if (context.getOptions().hwTransparency)
-            {
-                shadergen.emitLineBegin(stage);
-                shadergen.emitString("float surfaceOpacity = ", stage);
-                shadergen.emitInput(node.getInput("opacity"), context, stage);
-                shadergen.emitLineEnd(stage);
-                shadergen.emitLineBreak(stage);
-            }
+            shadergen.emitLineBegin(stage);
+            shadergen.emitString("float surfaceOpacity = ", stage);
+            shadergen.emitInput(node.getInput("opacity"), context, stage);
+            shadergen.emitLineEnd(stage);
+            shadergen.emitLineBreak(stage);
 
             //
             // Handle direct lighting
@@ -196,39 +195,41 @@ void SurfaceNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
         }
 
         //
-        // Handle surface transparency
+        // Handle surface transmission and opacity.
         //
-        if (bsdf && context.getOptions().hwTransparency)
+        if (bsdf)
         {
             shadergen.emitComment("Calculate the BSDF transmission for viewing direction", stage);
             shadergen.emitScopeBegin(stage);
-  
             context.pushClosureContext(&_callTransmission);
             shadergen.emitFunctionCall(*bsdf, context, stage);
+            if (context.getOptions().hwTransmissionRenderMethod == TRANSMISSION_REFRACTION)
+            {
+                shadergen.emitLine(outColor + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
+            }
+            else
+            {
+                shadergen.emitLine(outTransparency + " += " + bsdf->getOutput()->getVariable() + ".response", stage);
+            }
+            shadergen.emitScopeEnd(stage);
             context.popClosureContext();
 
-            shadergen.emitLine(outTransparency + " = " + bsdf->getOutput()->getVariable() + ".response", stage);
-            shadergen.emitScopeEnd(stage);
             shadergen.emitLineBreak(stage);
-
-            shadergen.emitComment("Mix in opacity which affect the total result", stage);
+            shadergen.emitComment("Compute and apply surface opacity", stage);
+            shadergen.emitScopeBegin(stage);
             shadergen.emitLine(outColor + " *= surfaceOpacity", stage);
             shadergen.emitLine(outTransparency + " = mix(vec3(1.0), " + outTransparency + ", surfaceOpacity)", stage);
-        }
-        else
-        {
-            shadergen.emitLine(outTransparency + " = vec3(0.0)", stage);
+            shadergen.emitScopeEnd(stage);
         }
 
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 void SurfaceNodeGlsl::emitLightLoop(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& outColor) const
 {
-    // 
+    //
     // Generate Light loop if requested
     //
     if (context.getOptions().hwMaxActiveLightSources > 0)

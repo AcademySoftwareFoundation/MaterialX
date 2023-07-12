@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_ESSLSHADERGENERATOR_H
@@ -15,8 +15,8 @@ MATERIALX_NAMESPACE_BEGIN
 
 using EsslShaderGeneratorPtr = shared_ptr<class EsslShaderGenerator>;
 
-/// @class EsslShaderGenerator 
-/// An ESSL (OpenGL ES Shading Language) shader generator 
+/// @class EsslShaderGenerator
+/// An ESSL (OpenGL ES Shading Language) shader generator
 class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
 {
   public:
@@ -30,7 +30,7 @@ class MX_GENGLSL_API EsslShaderGenerator : public GlslShaderGenerator
     /// Return the version string for the ESSL version this generator is for
     const string& getVersion() const override { return VERSION; }
 
-    const string getVertexDataPrefix(const VariableBlock& vertexData) const override;
+    string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
     /// Unique identifier for this generator target
     static const string TARGET;

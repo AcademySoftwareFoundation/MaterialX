@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -19,6 +19,7 @@ void bindPyOiioImageLoader(py::module& mod);
 void bindPyTinyObjLoader(py::module& mod);
 void bindPyCamera(py::module& mod);
 void bindPyShaderRenderer(py::module& mod);
+void bindPyCgltfLoader(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
@@ -36,4 +37,5 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
     bindPyTinyObjLoader(mod);
     bindPyCamera(mod);
     bindPyShaderRenderer(mod);
+    bindPyCgltfLoader(mod);
 }

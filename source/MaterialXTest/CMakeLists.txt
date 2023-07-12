@@ -1,6 +1,6 @@
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
-list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/Catch/catch.hpp")
+list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/External/Catch/catch.hpp")
 
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
@@ -15,7 +15,7 @@ function(add_tests _sources)
       string(REGEX REPLACE "[^A-Za-z0-9_]+" "_" test_safe_name ${test_name})
       add_test(NAME "MaterialXTest_${test_safe_name}"
           COMMAND MaterialXTest ${test_name}
-          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+          WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
       if(MATERIALX_BUILD_OIIO AND MSVC)
         # Add path to OIIO library so it can be found for the test.
         # On windows we have to escape the semicolons, otherwise only
@@ -41,9 +41,9 @@ target_link_libraries(MaterialXTest MaterialXCore)
 add_subdirectory(MaterialXFormat)
 target_link_libraries(MaterialXTest MaterialXFormat)
 
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL)
-  add_subdirectory(MaterialXGenShader)
-  target_link_libraries(MaterialXTest MaterialXGenShader)
+add_subdirectory(MaterialXGenShader)
+target_link_libraries(MaterialXTest MaterialXGenShader)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL)
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXGenGlsl)
     target_link_libraries(MaterialXTest MaterialXGenGlsl)
@@ -55,6 +55,12 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_MDL)
     add_subdirectory(MaterialXGenMdl)
     target_link_libraries(MaterialXTest MaterialXGenMdl)
+    get_target_property(MaterialXGenMdl_SOURCE_DIR MaterialXGenMdl SOURCE_DIR)
+    target_compile_definitions(MaterialXTest PRIVATE -DMATERIALX_MDL_IMPL_MODULE_PATH=\"${MaterialXGenMdl_SOURCE_DIR}/mdl\")
+  endif()
+  if(MATERIALX_BUILD_GEN_MSL)
+    add_subdirectory(MaterialXGenMsl)
+    target_link_libraries(MaterialXTest MaterialXGenMsl)
   endif()
 endif()
 
@@ -72,6 +78,10 @@ if(MATERIALX_BUILD_RENDER)
     add_subdirectory(MaterialXRenderOsl)
     target_link_libraries(MaterialXTest MaterialXRenderOsl)
   endif()
+  if(APPLE AND MATERIALX_BUILD_GEN_MSL)
+    add_subdirectory(MaterialXRenderMsl)
+    target_link_libraries(MaterialXTest MaterialXRenderMsl)
+  endif()
   if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
       add_custom_command(TARGET MaterialXTest POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -82,17 +92,26 @@ endif()
 # TODO: Only do this stuff when it's relevant
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_BINARY_DIR}/bin/libraries)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
+if(MATERIALX_OSL_LEGACY_CLOSURES)
+    add_custom_command(TARGET MaterialXTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rename
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
+endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"
-        DESTINATION ${CMAKE_BINARY_DIR}/bin/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${MATERIALX_INSTALL_MDL_MODULE_PATH}/mdl)
 endif()
 
 add_custom_command(TARGET MaterialXTest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_BINARY_DIR}/bin/resources)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
+
+add_custom_command(TARGET MaterialXTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/MaterialXRenderOsl/Utilities ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/Utilities)
 
 set_target_properties(
     MaterialXTest PROPERTIES

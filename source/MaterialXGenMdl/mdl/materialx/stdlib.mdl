@@ -1,18 +1,18 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 // MDL implementation of all Standard Source Nodes of
 //     MaterialX: An Open Standard for Network-Based CG Object Looks
 //     Document v1.37 REV2, January 19, 2020
 //     www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.6
+//     NVIDIA Material Definition Language 1.7
 //     Language Specification
-//     Document version 1.6.1, December 16, 2019
+//     Document version 1.7.2, January 17, 2022
 //     www.nvidia.com/mdl
 
-mdl 1.6;
+mdl 1.7;
 
 using core import *;
 import swizzle::*;
@@ -34,6 +34,23 @@ import ::df::*;
 
 
 // Shader Nodes
+
+export material mx_surfacematerial(
+    material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_displacementshader =  material() [[ anno::usage( "materialx:displacementshader") ]]
+)
+= material(
+    thin_walled: false,
+    surface: mxp_surfaceshader.surface,
+    backface: mxp_surfaceshader.backface,
+    geometry: material_geometry(
+        cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
+        displacement : mxp_displacementshader.geometry.displacement,
+        normal: mxp_surfaceshader.geometry.normal
+    ),
+    ior: mxp_surfaceshader.ior,
+    volume: mxp_surfaceshader.volume
+);
 
 export material mx_surface_unlit(
     float mxp_emission = 0.0,
@@ -1077,7 +1094,7 @@ export float3 mx_tangent_vector3(
 {
 	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
 	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
-	return state::transform_vector(fromSpace, toSpace, state::texture_tangent_u(mxp_index));
+	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_u(mxp_index)));
 }
 
 export float3 mx_bitangent_vector3(
@@ -1093,7 +1110,7 @@ export float3 mx_bitangent_vector3(
 {
 	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
 	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
-	return state::transform_vector(fromSpace, toSpace, state::texture_tangent_v(mxp_index));
+	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_v(mxp_index)));
 }
 
 export float2 mx_texcoord_vector2(
@@ -1306,105 +1323,6 @@ export float mx_time_float(
 {
 	return ::state::animation_time();
 }
-
-export material mx_add_surfaceshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_add_displacementshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_add_volumeshader(
-	material mxp_in1,
-	material mxp_in2 [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_surfaceshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_displacementshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_volumeshaderF(
-	material mxp_in1,
-	float mxp_in2 = float(1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_surfaceshaderC(
-	material mxp_in1,
-	color mxp_in2 = color(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_volumeshaderC(
-	material mxp_in1,
-	color mxp_in2 = color(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
-
-export material mx_multiply_displacementshaderV(
-	material mxp_in1,
-	float3 mxp_in2 = float3(1.0, 1.0, 1.0)
-    [[
-        anno::unused()
-    ]]
-)
-	[[
-		anno::description("Node Group: math")
-	]]
-= mxp_in1; // TODO 
 
 export color mx_modulo_color3(
 	color mxp_in1 = color(0.0, 0.0, 0.0),
@@ -2854,8 +2772,8 @@ export color4 mx_screen_color4(
 		anno::description("Node Group: compositing")
 	]]
 {
-	color rgb = (mxp_mix*((1.0 - (1.0 - mxp_fg.rgb)) * (1 - mxp_bg.rgb))) + ((1.0-mxp_mix)*mxp_bg.rgb);
-	float a   = (mxp_mix*((1.0 - (1.0 - mxp_fg.a  )) * (1 - mxp_bg.a  ))) + ((1.0-mxp_mix)*mxp_bg.a  );
+	color rgb = (mxp_mix*((1.0 - (1.0 - mxp_fg.rgb) * (1 - mxp_bg.rgb)))) + ((1.0-mxp_mix)*mxp_bg.rgb);
+	float a   = (mxp_mix*((1.0 - (1.0 - mxp_fg.a  ) * (1 - mxp_bg.a  )))) + ((1.0-mxp_mix)*mxp_bg.a  );
 	return color4(rgb,a);
 }
 
@@ -2863,7 +2781,7 @@ float mx_overlay(float mxp_fg, float mxp_bg)
 {
 	return (mxp_fg < 0.5) ? (2 * mxp_fg * mxp_bg) : (1 - (1 - mxp_fg) * (1 - mxp_bg));
 }
-float2 mx_overlay(float2 mxp_fg, float2 mxp_bg)
+float2 mx_overlay(float2 mxp_fg, float2 mxp_bg) [[ anno::unused() ]]
 {
 	return float2(
 		mx_overlay(mxp_fg.x, mxp_bg.x),
@@ -3034,35 +2952,93 @@ export color4 mx_mix_color4(
 	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), float4(mxp_mix)));
 }
 
-export material mx_mix_surfaceshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
+export color4 mx_mix_color4_color4(
+	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_mix = mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
-= mxp_bg; // TODO 
+{
+	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), mk_float4(mxp_mix)));
+}
 
-export material mx_mix_displacementshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-= mxp_bg; // TODO 
+// mix all parts of the material, bsdf, edf, and vdf, geometry
+export material mx_mix_surfaceshader(
+    material mxp_fg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    float    mxp_mix = 0.0
+) [[
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:surfaceshader") 
+]]
+= material(
+    surface: material_surface( 
+        scattering: df::weighted_layer(
+            weight: mxp_mix,
+            layer:  mxp_fg.surface.scattering,
+            base:   mxp_bg.surface.scattering
+        ),
+        emission: material_emission(
+            emission: df::unbounded_mix( // unbounded_mix is cheaper
+            df::edf_component[]( 
+                df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
+                df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
+            ),
+            intensity: mxp_mix * mxp_fg.surface.emission.intensity +
+                       (1.0 - mxp_mix) * mxp_bg.surface.emission.intensity
+        )
+    ),
+
+    // we need to carry volume properties along for SSS
+    ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
+    volume: material_volume(
+        scattering: df::unbounded_mix( // unbounded_mix is cheaper
+            df::vdf_component[]( 
+                df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
+                df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
+        ),
+        absorption_coefficient: mxp_mix * mxp_fg.volume.absorption_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.absorption_coefficient,
+        scattering_coefficient: mxp_mix * mxp_fg.volume.scattering_coefficient + 
+                    (1.0 - mxp_mix) * mxp_bg.volume.scattering_coefficient
+    ),
+    geometry: material_geometry(
+        displacement: mxp_mix * mxp_fg.geometry.displacement + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.displacement,
+        cutout_opacity: mxp_mix * mxp_fg.geometry.cutout_opacity + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.cutout_opacity,
+        normal: mxp_mix * mxp_fg.geometry.normal + 
+                    (1.0 - mxp_mix) * mxp_bg.geometry.normal
+    )
+);
 
 export material mx_mix_volumeshader(
-	material mxp_fg [[ anno::unused() ]],
-	material mxp_bg,
-	float mxp_mix = float(0.0) [[ anno::unused() ]]
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-= mxp_bg; // TODO 
+    material mxp_fg = material() [[ anno::usage( "materialx:volumeshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:volumeshader") ]],
+    float    mxp_mix = 0.0
+) [[
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:volumeshader") 
+]]
+= mx_mix_surfaceshader(
+    mxp_fg: mxp_fg,
+    mxp_bg: mxp_bg,
+    mxp_mix: mxp_mix);
+
+export material mx_mix_displacementshader(
+    material mxp_fg = material() [[ anno::usage( "materialx:displacementshader") ]],
+    material mxp_bg = material() [[ anno::usage( "materialx:displacementshader") ]],
+    float    mxp_mix = 0.0
+) [[ 
+    anno::description("Node Group: compositing"),
+    anno::usage( "materialx:displacementshader") 
+]]
+= mx_mix_surfaceshader(
+    mxp_fg: mxp_fg,
+    mxp_bg: mxp_bg,
+    mxp_mix: mxp_mix);
 
 export float mx_ifgreater_float(
 	float mxp_value1 = float(1.0),

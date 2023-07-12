@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXFormat/Util.h>
@@ -172,6 +172,7 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
                 for (size_t i = 0; i < searchPath.size(); i++)
                 {
                     FilePath testPath = searchPath[i] / resolvedValue;
+                    testPath = testPath.getNormalized();
                     if (testPath.exists())
                     {
                         resolvedString = testPath.asString();
@@ -198,6 +199,42 @@ void flattenFilenames(DocumentPtr doc, const FileSearchPath& searchPath, StringR
             elem->removeAttribute(Element::FILE_PREFIX_ATTRIBUTE);
         }
     }
+}
+
+FileSearchPath getSourceSearchPath(ConstDocumentPtr doc)
+{
+    StringSet pathSet;
+    for (ConstElementPtr elem : doc->traverseTree())
+    {
+        if (elem->hasSourceUri())
+        {
+            FilePath sourceFilename = FilePath(elem->getSourceUri());
+            pathSet.insert(sourceFilename.getParentPath());
+        }
+    }
+
+    FileSearchPath searchPath;
+    for (FilePath path : pathSet)
+    {
+        searchPath.append(path);
+    }
+
+    return searchPath;
+}
+
+FileSearchPath getDefaultDataSearchPath()
+{
+    const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
+    FilePath currentPath = FilePath::getModulePath();
+    while (!currentPath.isEmpty())
+    {
+        if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
+        {
+            return FileSearchPath(currentPath);
+        }
+        currentPath = currentPath.getParentPath();
+    }
+    return FileSearchPath();    
 }
 
 MATERIALX_NAMESPACE_END

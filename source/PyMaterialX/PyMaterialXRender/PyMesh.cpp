@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -22,6 +22,7 @@ void bindPyMesh(py::module& mod)
         .def_readonly_static("GEOMETRY_PROPERTY_ATTRIBUTE", &mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE)
         .def_static("create", &mx::MeshStream::create)
         .def(py::init<const std::string&, const std::string&, unsigned int>())
+        .def("reserve", &mx::MeshStream::reserve)
         .def("resize", &mx::MeshStream::resize)
         .def("getName", &mx::MeshStream::getName)
         .def("getType", &mx::MeshStream::getType)
@@ -67,7 +68,10 @@ void bindPyMesh(py::module& mod)
         .def("getPartitionCount", &mx::Mesh::getPartitionCount)
         .def("addPartition", &mx::Mesh::addPartition)
         .def("getPartition", &mx::Mesh::getPartition)
+        .def("generateTextureCoordinates", &mx::Mesh::generateTextureCoordinates)
+        .def("generateNormals", &mx::Mesh::generateNormals)
         .def("generateTangents", &mx::Mesh::generateTangents)
+        .def("generateBitangents", &mx::Mesh::generateBitangents)
         .def("mergePartitions", &mx::Mesh::mergePartitions)
         .def("splitByUdims", &mx::Mesh::splitByUdims);
 }

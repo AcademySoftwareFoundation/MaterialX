@@ -1,16 +1,19 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef GENMDL_H
 #define GENMDL_H
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 namespace mx = MaterialX;
+
+class MdlStringResolver;
+using MdlStringResolverPtr = std::shared_ptr<MdlStringResolver>;
 
 class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 {
@@ -18,9 +21,8 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     MdlShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const std::vector<mx::FilePath>& testRootPaths,
-                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath,
-                             const mx::FilePath& logFilePath, bool writeShadersToDisk) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
+                             const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, searchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -62,6 +64,9 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
     }
 
+    // Allows the tester to alter the document, e.g., by flattering file names
+    void preprocessDocument(mx::DocumentPtr doc) override;
+
     // Compile MDL with mdlc if specified
     void compileSource(const std::vector<mx::FilePath>& sourceCodePaths) override;
 
@@ -72,12 +77,15 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_angle",
-            "geompropvalue", "surfacematerial", "volumematerial", "IM_absorption_vdf_", "IM_mix_vdf_",
+            "geompropvalue", "surfacematerial", "volumematerial", 
+            "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
             "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }
+
+    MdlStringResolverPtr _mdlCustomResolver;
 };
 
 #endif // GENOSL_H

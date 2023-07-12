@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
@@ -9,7 +9,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const string CMS_NAME = "default_cms";
 
@@ -43,26 +44,27 @@ const string& DefaultColorManagementSystem::getName() const
     return CMS_NAME;
 }
 
-ImplementationPtr DefaultColorManagementSystem::getImplementation(const ColorSpaceTransform& transform) const
+NodeDefPtr DefaultColorManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
 {
     if (!_document)
     {
         throw ExceptionShaderGenError("No library loaded for color management system");
     }
 
-    TargetDefPtr targetDef = _document->getTargetDef(_target);
     string sourceSpace = COLOR_SPACE_REMAP.count(transform.sourceSpace) ? COLOR_SPACE_REMAP.at(transform.sourceSpace) : transform.sourceSpace;
     string targetSpace = COLOR_SPACE_REMAP.count(transform.targetSpace) ? COLOR_SPACE_REMAP.at(transform.targetSpace) : transform.targetSpace;
-    for (const string& target : targetDef->getMatchingTargets())
+    string nodeName = sourceSpace + "_to_" + targetSpace;
+
+    for (NodeDefPtr nodeDef : _document->getMatchingNodeDefs(nodeName))
     {
-        string implName = "IM_" + sourceSpace + "_to_" + targetSpace + "_" + transform.type->getName() + "_" + target;
-        ImplementationPtr impl = _document->getImplementation(implName);
-        if (impl)
+        for (OutputPtr output : nodeDef->getOutputs())
         {
-            return impl;
+            if (output->getType() == transform.type->getName())
+            {
+                return nodeDef;
+            }
         }
     }
-
     return nullptr;
 }
 

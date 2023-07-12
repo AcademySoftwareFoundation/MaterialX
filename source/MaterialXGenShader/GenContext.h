@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GENCONTEXT_H
@@ -21,7 +21,10 @@ MATERIALX_NAMESPACE_BEGIN
 
 class ClosureContext;
 
-/// @class GenContext 
+/// A standard function to allow for handling of application variables for a given node
+using ApplicationVariableHandler = std::function<void(ShaderNode*, GenContext&)>;
+
+/// @class GenContext
 /// A context class for shader generation.
 /// Used for thread local storage of data needed during shader generation.
 class MX_GENSHADER_API GenContext
@@ -48,22 +51,30 @@ class MX_GENSHADER_API GenContext
         return _options;
     }
 
-    /// Add to the search path used for finding source code.
+    /// Register a user search path for finding source code during
+    /// code generation.
     void registerSourceCodeSearchPath(const FilePath& path)
     {
         _sourceCodeSearchPath.append(path);
     }
 
-    /// Add to the search path used for finding source code.
+    /// Register a user search path for finding source code during
+    /// code generation.
     void registerSourceCodeSearchPath(const FileSearchPath& path)
     {
         _sourceCodeSearchPath.append(path);
     }
 
-    /// Resolve a file using the registered search paths.
-    FilePath resolveSourceFile(const FilePath& filename) const
+    /// Resolve a source code filename, first checking the given local path
+    /// then checking any file paths registered by the user.
+    FilePath resolveSourceFile(const FilePath& filename, const FilePath& localPath) const
     {
-        return _sourceCodeSearchPath.find(filename);
+        FileSearchPath searchPath = _sourceCodeSearchPath;
+        if (!localPath.isEmpty())
+        {
+            searchPath.prepend(localPath);
+        }
+        return searchPath.find(filename).getNormalized();
     }
 
     /// Add reserved words that should not be used as
@@ -144,7 +155,7 @@ class MX_GENSHADER_API GenContext
 
     /// Return user data with given name,
     /// or nullptr if no data is found.
-    template<class T>
+    template <class T>
     std::shared_ptr<T> getUserData(const string& name)
     {
         auto it = _userData.find(name);
@@ -179,37 +190,35 @@ class MX_GENSHADER_API GenContext
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
 
+    /// Set handler for application variables
+    void setApplicationVariableHandler(ApplicationVariableHandler handler)
+    {
+        _applicationVariableHandler = handler;
+    }
+
+    /// Get handler for application variables
+    ApplicationVariableHandler getApplicationVariableHandler() const
+    {
+        return _applicationVariableHandler;
+    }
+
   protected:
     GenContext() = delete;
 
-    // Shader generator.
     ShaderGeneratorPtr _sg;
-
-    // Generation options.
     GenOptions _options;
-
-    // Search path for finding source files.
     FileSearchPath _sourceCodeSearchPath;
-
-    // Set of globally reserved words.
     StringSet _reservedWords;
 
-    // Cached shader node implementations.
     std::unordered_map<string, ShaderNodeImplPtr> _nodeImpls;
-
-    // User data
     std::unordered_map<string, vector<GenUserDataPtr>> _userData;
-
-    // List of input suffixes
     std::unordered_map<const ShaderInput*, string> _inputSuffix;
-
-    // List of output suffixes
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
-    // Contexts for closure evaluation.
     vector<ClosureContext*> _closureContexts;
-};
 
+    ApplicationVariableHandler _applicationVariableHandler;
+};
 
 /// @class ClosureContext
 /// Class representing a context for closure evaluation.
@@ -218,7 +227,7 @@ class MX_GENSHADER_API GenContext
 /// and if extra arguments and function decorators are needed for that context.
 class MX_GENSHADER_API ClosureContext
 {
-public:
+  public:
     /// An extra argument for closure functions.
     /// An argument is a pair of strings holding the
     /// 'type' and 'name' of the argument.
@@ -230,7 +239,8 @@ public:
     using ClosureParams = std::unordered_map<string, const ShaderInput*>;
 
     /// Constructor
-    ClosureContext(int type = 0) : _type(type) {}
+    ClosureContext(int type = 0) :
+        _type(type) { }
 
     /// Return the identifier for this context.
     int getType() const { return _type; }
@@ -282,7 +292,7 @@ public:
         return it != _params.end() ? it->second : nullptr;
     }
 
-protected:
+  protected:
     const int _type;
     std::unordered_map<const TypeDesc*, Arguments> _arguments;
     std::unordered_map<const TypeDesc*, string> _suffix;
@@ -295,7 +305,7 @@ protected:
 /// stored in the closure context.
 class MX_GENSHADER_API ScopedSetClosureParams
 {
-public:
+  public:
     /// Constructor for setting explicit parameters for a closure node.
     ScopedSetClosureParams(const ClosureContext::ClosureParams* params, const ShaderNode* node, ClosureContext* cct);
 
@@ -305,7 +315,7 @@ public:
     /// Destructor restoring the closure parameter state.
     ~ScopedSetClosureParams();
 
-private:
+  private:
     ClosureContext* _cct;
     const ShaderNode* _node;
     const ClosureContext::ClosureParams* _oldParams;
@@ -314,14 +324,14 @@ private:
 /// A RAII class for overriding port variable names.
 class MX_GENSHADER_API ScopedSetVariableName
 {
-public:
+  public:
     /// Constructor for setting a new variable name for a port.
     ScopedSetVariableName(const string& name, ShaderPort* port);
 
     /// Destructor restoring the original variable name.
     ~ScopedSetVariableName();
 
-private:
+  private:
     ShaderPort* _port;
     string _oldName;
 };

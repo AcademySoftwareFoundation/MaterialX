@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLFRAMEBUFFER_H
@@ -31,8 +31,17 @@ class MX_RENDERGLSL_API GLFramebuffer
     /// Destructor
     virtual ~GLFramebuffer();
 
-    /// Resize the framebuffer
-    void resize(unsigned int width, unsigned int height);
+    /// Return the width of the framebuffer.
+    unsigned int getWidth() const
+    {
+        return _width;
+    }
+
+    /// Return the height of the framebuffer.
+    unsigned int getHeight() const
+    {
+        return _height;
+    }
 
     /// Set the encode sRGB flag, which controls whether values written
     /// to the framebuffer are encoded to the sRGB color space.

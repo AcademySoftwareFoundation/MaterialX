@@ -1,5 +1,80 @@
 # Change Log
 
+## [1.38.8] - Development
+
+## [1.38.7] - 2023-04-21
+
+### Added
+- Added the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md), an example application for visualizing, creating, and editing MaterialX graphs.
+- Added support for the [Metal Shading Language](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1258) in MaterialX shader generation and rendering.
+- Added support for the [generalized_schlick_edf node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1262), enabling the expression of coated emissive surfaces.
+- Added support for the [adobergb and lin_adobergb](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1118) color spaces in shader generation.
+- Added uisoftmin and uisoftmax attributes to [mix nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1168) and [IOR inputs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1151).
+- Added support for [authored bitangent vectors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1156) in GLSL, selected by the hwImplicitBitangents generator option.
+- Added a [tangent input](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1157) to the glTF PBR shading model.
+- Added a [Clang Format](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1174) step to GitHub Actions builds.
+- Added support for [Xcode 14](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1326).
+
+### Changed
+- Included the [standard data libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1237) in MaterialX Python packages.
+- Improved the [support library](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1184) and [node implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1185) for OSL generation.
+- Updated MDL shader generation to support [MDL 1.7](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1273).
+- Improved the handling of [functional graphs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1243) in MDL generation.
+- Upgraded the [NanoGUI version](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1195) in the viewer to support Apple M1 builds.
+- Upgraded the [Catch library](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1310) to version 2.13.9.
+
+### Fixed
+- Fixed logic for [tangent basis orthogonalization](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1177) in generated GLSL.
+- Fixed logic for [metallic F90](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1187) and an [opacity edge case](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1186) in UsdPreviewSurface.
+- Fixed parsing of [inline source code variables](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1191) in node implementations.
+
+## [1.38.6] - 2022-11-04
+
+### Added
+- Added new [Unified Noise](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1087), [Color Correct](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1086), and [Bump](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1085) nodes, providing artistic interfaces over the standard procedural, adjustment, and geometric primitives.
+- Added shader generation support for the [MaterialX closures in OSL](https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/releases/tag/v1.12.6.2), selected by a new [CMake build option](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1039).
+- Added a shader translation graph from [Autodesk Standard Surface to glTF PBR](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1064).
+- Added support for the [transmission_extra_roughness](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1079) input in the Standard Surface shading model.
+- Added support for the [iridescence](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) inputs in the glTF PBR shading model.
+- Added support for the [subsurface_bsdf](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1053) node in MDL.
+- Added an [operationorder](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1027) input to the 'place2d' node.
+- Extended the [mix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1077) node to support multi-channel interpolators.
+- Extended the [flattenSubgraphs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1101) method to handle a broader range of graph structures.
+
+### Changed
+- Improved the alignment of the [UsdPreviewSurface shading graph](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1082) with reference implementations.
+- Improved the accuracy of the [thin-film BSDF](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1055) implementation in GLSL.
+- Improved code generation for the [mix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1104) node of 'surfaceshader' type.
+- Removed [add and multiply](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1089) nodes for 'surfaceshader', 'volumeshader', and 'displacementshader' types.
+- Refactored and extended the [Advanced Options](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1093) panel in MaterialXView.
+
+### Fixed
+- Fixed the implementation of the [screen](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1111) compositing node in GLSL, OSL, and MDL.
+- Fixed parent/child precedence in the [getGeometryBindings](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1113) function.
+- Fixed [OpenGL errors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1126) when unbinding geometry in MaterialXView on MacOS.
+
+## [1.38.5] - 2022-07-09
+
+### Added
+- Added a [refraction approximation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/918) for transmissive surfaces in GLSL, selected by the hwTransmissionRenderMethod generator option.
+- Added support for generalized Schlick transmission in GLSL and OSL.
+- Added support for code generation from material nodes.
+- Added a specialization of GlslShaderGenerator for Vulkan GLSL generation.
+- Added the [Chess Set](https://github.com/AcademySoftwareFoundation/MaterialX/pull/982) example from the [Karma: A Beautiful Game](https://www.sidefx.com/tutorials/karma-a-beautiful-game/) tutorial.  Contributed to the MaterialX project by SideFX, original artwork by Moeen and Mujtaba Sayed.
+- Added static and dynamic analysis tests to GitHub Actions builds.
+- Added support for GCC 12, Clang 13, and Clang 14.
+
+### Changed
+- Switched to [relative shader includes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/926) within the MaterialX data libraries, enabling custom folder names in distributions.
+- Improved and extended the sample [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/).
+
+### Fixed
+- Fixed math for normalizing normal and tangent vectors in GLSL.
+- Fixed math for transforming a vector4 by a matrix in OSL.
+- Fixed compatibility of OSL Worley noise with OSL 1.9.10.
+- Fixed layering of thin-film effects in the Standard Surface shading model.
+- Fixed input default values in the glTF PBR shading model.
+
 ## [1.38.4] - 2022-04-06
 
 ### Added

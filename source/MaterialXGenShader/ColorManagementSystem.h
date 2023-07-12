@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_COLOR_MANAGEMENT_SYSTEM_H
@@ -35,7 +35,7 @@ struct MX_GENSHADER_API ColorSpaceTransform
     const TypeDesc* type;
 
     /// Comparison operator
-    bool operator==(const ColorSpaceTransform &other) const
+    bool operator==(const ColorSpaceTransform& other) const
     {
         return sourceSpace == other.sourceSpace &&
                targetSpace == other.targetSpace &&
@@ -67,9 +67,9 @@ class MX_GENSHADER_API ColorManagementSystem
   protected:
     /// Protected constructor
     ColorManagementSystem();
-      
-    /// Returns an implementation for a given transform
-    virtual ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const = 0;
+
+    /// Returns a nodedef for a given transform
+    virtual NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const = 0;
 
   protected:
     DocumentPtr _document;

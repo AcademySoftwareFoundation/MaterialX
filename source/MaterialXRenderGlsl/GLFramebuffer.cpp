@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
@@ -9,7 +9,7 @@
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 
-#include <MaterialXRenderGlsl/External/GLew/glew.h>
+#include <MaterialXRenderGlsl/External/Glad/glad.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -34,7 +34,7 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
 {
     if (!glGenFramebuffers)
     {
-        glewInit();
+        gladLoadGL();
     }
 
     // Convert texture format to OpenGL.
@@ -119,33 +119,6 @@ GLFramebuffer::~GLFramebuffer()
         glDeleteTextures(1, &_colorTexture);
         glDeleteTextures(1, &_depthTexture);
         glDeleteFramebuffers(1, &_framebuffer);
-    }
-}
-
-void GLFramebuffer::resize(unsigned int width, unsigned int height)
-{
-    if (width * height <= 0)
-    {
-        return;
-    }
-    if (width != _width || _height != height)
-    {
-        unbind();
-
-        int glType, glFormat, glInternalFormat;
-        GLTextureHandler::mapTextureFormatToGL(_baseType, _channelCount, true, glType, glFormat, glInternalFormat);
-
-        glBindTexture(GL_TEXTURE_2D, _colorTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, glFormat, glType, nullptr);
-
-        glBindTexture(GL_TEXTURE_2D, _depthTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-        glBindTexture(GL_TEXTURE_2D, GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID);
-        glDrawBuffer(GL_NONE);
-
-        _width = width;
-        _height = height;
     }
 }
 

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef GENGLSL_H
@@ -19,9 +19,8 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     GlslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
-                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
-                              const mx::FilePath& logFilePath, bool writeShadersToDisk) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
+                              const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, searchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -42,7 +41,7 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         ParentClass::setupDependentLibraries();
 
-        mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
+        mx::FilePath lightDir = mx::getDefaultDataSearchPath().find("resources/Materials/TestSuite/lights");
         loadLibrary(lightDir / mx::FilePath("light_compound_test.mtlx"), _dependLib);
         loadLibrary(lightDir / mx::FilePath("light_rig_test_1.mtlx"), _dependLib);
     }
@@ -52,11 +51,10 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string",
+            "ambientocclusion", "arrayappend", "screen", "curveadjust", "displacementshader", "volumeshader", 
+            "IM_constant_", "IM_dot_", "IM_geompropvalue_boolean", "IM_geompropvalue_string",
             "IM_light_genglsl", "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl",
-            "IM_angle", "surfacematerial", "volumematerial", "ND_surfacematerial", "ND_volumematerial", "ND_backface_util", 
-            "IM_backface_util_genglsl"
+            "IM_angle", "volumematerial", "ND_volumematerial"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_RENDER_UTIL_H
@@ -18,6 +18,9 @@
 #include <map>
 
 MATERIALX_NAMESPACE_BEGIN
+
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_SRGB;
+extern MX_RENDER_API const Color3 DEFAULT_SCREEN_COLOR_LIN_REC709;
 
 /// @name Shader Utilities
 /// @{

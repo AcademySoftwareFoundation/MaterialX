@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderTranslator.h>
@@ -44,7 +44,7 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
                 origOutputs.insert(connectedOutput);
             }
             else if (shaderInput->hasValueString())
-            { 
+            {
                 input->setValueString(shaderInput->getValueString());
             }
             else
@@ -144,6 +144,9 @@ void ShaderTranslator::connectTranslationOutputs(NodePtr shader)
 
 void ShaderTranslator::translateShader(NodePtr shader, const string& destCategory)
 {
+    _graph = nullptr;
+    _translationNode = nullptr;
+
     if (!shader)
     {
         return;
@@ -157,14 +160,9 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
 
     DocumentPtr doc = shader->getDocument();
     vector<OutputPtr> referencedOutputs = getConnectedOutputs(shader);
-    if (!referencedOutputs.empty())
-    {
-        _graph = referencedOutputs[0]->getParent() ? referencedOutputs[0]->getParent()->asA<NodeGraph>() : nullptr;
-    }
-    if (!_graph)
-    {
-        _graph = doc->addNodeGraph();
-    }
+    ElementPtr referencedParent = !referencedOutputs.empty() ? referencedOutputs[0]->getParent() : nullptr;
+    NodeGraphPtr referencedGraph = referencedParent ? referencedParent->asA<NodeGraph>() : nullptr;
+    _graph = referencedGraph ? referencedGraph : doc->addNodeGraph();
 
     string translateNodeString = sourceCategory + "_to_" + destCategory;
     vector<NodeDefPtr> matchingNodeDefs = doc->getMatchingNodeDefs(translateNodeString);
@@ -179,16 +177,11 @@ void ShaderTranslator::translateShader(NodePtr shader, const string& destCategor
     shader->setCategory(destCategory);
     shader->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
     connectTranslationOutputs(shader);
-
-    _graph = nullptr;
-    _translationNode = nullptr;
 }
 
-void ShaderTranslator::translateAllMaterials(DocumentPtr doc, string destCategory)
+void ShaderTranslator::translateAllMaterials(DocumentPtr doc, const string& destCategory)
 {
-    vector<TypedElementPtr> materialNodes;
-    std::unordered_set<ElementPtr> shaderOutputs;
-    findRenderableMaterialNodes(doc, materialNodes, false, shaderOutputs);
+    vector<TypedElementPtr> materialNodes = findRenderableMaterialNodes(doc);
     for (auto elem : materialNodes)
     {
         NodePtr materialNode = elem->asA<Node>();

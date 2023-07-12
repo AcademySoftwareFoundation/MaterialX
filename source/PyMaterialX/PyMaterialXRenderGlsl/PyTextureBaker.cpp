@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -13,34 +13,35 @@ namespace mx = MaterialX;
 
 void bindPyTextureBaker(py::module& mod)
 {
-    py::class_<mx::TextureBaker, mx::GlslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
-        .def_static("create", &mx::TextureBaker::create)
-        .def("setExtension", &mx::TextureBaker::setExtension)
-        .def("getExtension", &mx::TextureBaker::getExtension)
-        .def("setColorSpace", &mx::TextureBaker::setColorSpace)
-        .def("getColorSpace", &mx::TextureBaker::getColorSpace)
-        .def("setDistanceUnit", &mx::TextureBaker::setDistanceUnit)
-        .def("getDistanceUnit", &mx::TextureBaker::getDistanceUnit)
-        .def("setAverageImages", &mx::TextureBaker::setAverageImages)
-        .def("getAverageImages", &mx::TextureBaker::getAverageImages)
-        .def("setOptimizeConstants", &mx::TextureBaker::setOptimizeConstants)
-        .def("getOptimizeConstants", &mx::TextureBaker::getOptimizeConstants)
-        .def("setOutputImagePath", &mx::TextureBaker::setOutputImagePath)
-        .def("getOutputImagePath", &mx::TextureBaker::getOutputImagePath)
-        .def("setBakedGraphName", &mx::TextureBaker::setBakedGraphName)
-        .def("getBakedGraphName", &mx::TextureBaker::getBakedGraphName)
-        .def("setBakedGeomInfoName", &mx::TextureBaker::setBakedGeomInfoName)
-        .def("getBakedGeomInfoName", &mx::TextureBaker::getBakedGeomInfoName)
-        .def("setTextureFilenameTemplate", &mx::TextureBaker::setTextureFilenameTemplate)
-        .def("getTextureFilenameTemplate", &mx::TextureBaker::getTextureFilenameTemplate)
-        .def("setFilenameTemplateVarOverride", &mx::TextureBaker::setFilenameTemplateVarOverride)
-        .def("setHashImageNames", &mx::TextureBaker::setHashImageNames)
-        .def("getHashImageNames", &mx::TextureBaker::getHashImageNames)
-        .def("setTextureSpaceMin", &mx::TextureBaker::setTextureSpaceMin)
-        .def("getTextureSpaceMin", &mx::TextureBaker::getTextureSpaceMin)
-        .def("setTextureSpaceMax", &mx::TextureBaker::setTextureSpaceMax)
-        .def("getTextureSpaceMax", &mx::TextureBaker::getTextureSpaceMax)
-        .def("setupUnitSystem", &mx::TextureBaker::setupUnitSystem)
-        .def("bakeMaterialToDoc", &mx::TextureBaker::bakeMaterialToDoc)
-        .def("bakeAllMaterials", &mx::TextureBaker::bakeAllMaterials);
+    py::class_<mx::TextureBakerGlsl, mx::GlslRenderer, mx::TextureBakerPtr>(mod, "TextureBaker")
+        .def_static("create", &mx::TextureBakerGlsl::create)
+        .def("setExtension", &mx::TextureBakerGlsl::setExtension)
+        .def("getExtension", &mx::TextureBakerGlsl::getExtension)
+        .def("setColorSpace", &mx::TextureBakerGlsl::setColorSpace)
+        .def("getColorSpace", &mx::TextureBakerGlsl::getColorSpace)
+        .def("setDistanceUnit", &mx::TextureBakerGlsl::setDistanceUnit)
+        .def("getDistanceUnit", &mx::TextureBakerGlsl::getDistanceUnit)
+        .def("setAverageImages", &mx::TextureBakerGlsl::setAverageImages)
+        .def("getAverageImages", &mx::TextureBakerGlsl::getAverageImages)
+        .def("setOptimizeConstants", &mx::TextureBakerGlsl::setOptimizeConstants)
+        .def("getOptimizeConstants", &mx::TextureBakerGlsl::getOptimizeConstants)
+        .def("setOutputImagePath", &mx::TextureBakerGlsl::setOutputImagePath)
+        .def("getOutputImagePath", &mx::TextureBakerGlsl::getOutputImagePath)
+        .def("setBakedGraphName", &mx::TextureBakerGlsl::setBakedGraphName)
+        .def("getBakedGraphName", &mx::TextureBakerGlsl::getBakedGraphName)
+        .def("setBakedGeomInfoName", &mx::TextureBakerGlsl::setBakedGeomInfoName)
+        .def("getBakedGeomInfoName", &mx::TextureBakerGlsl::getBakedGeomInfoName)
+        .def("setTextureFilenameTemplate", &mx::TextureBakerGlsl::setTextureFilenameTemplate)
+        .def("getTextureFilenameTemplate", &mx::TextureBakerGlsl::getTextureFilenameTemplate)
+        .def("setFilenameTemplateVarOverride", &mx::TextureBakerGlsl::setFilenameTemplateVarOverride)
+        .def("setHashImageNames", &mx::TextureBakerGlsl::setHashImageNames)
+        .def("getHashImageNames", &mx::TextureBakerGlsl::getHashImageNames)
+        .def("setTextureSpaceMin", &mx::TextureBakerGlsl::setTextureSpaceMin)
+        .def("getTextureSpaceMin", &mx::TextureBakerGlsl::getTextureSpaceMin)
+        .def("setTextureSpaceMax", &mx::TextureBakerGlsl::setTextureSpaceMax)
+        .def("getTextureSpaceMax", &mx::TextureBakerGlsl::getTextureSpaceMax)
+        .def("setupUnitSystem", &mx::TextureBakerGlsl::setupUnitSystem)
+        .def("bakeMaterialToDoc", &mx::TextureBakerGlsl::bakeMaterialToDoc)
+        .def("bakeAllMaterials", &mx::TextureBakerGlsl::bakeAllMaterials)
+        .def("writeDocumentPerMaterial", &mx::TextureBakerGlsl::writeDocumentPerMaterial);
 }

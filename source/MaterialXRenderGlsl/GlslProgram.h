@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLSLPROGRAM_H
@@ -50,15 +50,12 @@ class MX_RENDERGLSL_API GlslProgram
     /// Set the code stages based on a list of stage strings.
     /// Refer to the ordering of stages as defined by a HwShader.
     /// @param stage Name of the shader stage.
-    /// @param sourcCode Source code of the shader stage.
-    void addStage(const string& stage, const string& sourcCode);
+    /// @param sourceCode Source code of the shader stage.
+    void addStage(const string& stage, const string& sourceCode);
 
     /// Get source code string for a given stage.
     /// @return Shader stage string. String is empty if not found.
     const string& getStageSourceCode(const string& stage) const;
-
-    /// Clear out any existing stages
-    void clearStages();
 
     /// Return the shader, if any, used to generate this program.
     ShaderPtr getShader() const
@@ -67,14 +64,25 @@ class MX_RENDERGLSL_API GlslProgram
     }
 
     /// @}
-    /// @name Program validation and introspection
+    /// @name Program building
     /// @{
 
-    /// Create the shader program from stages specified
-    /// An exception is thrown if the program cannot be created.
-    /// The exception will contain a list of program creation errors.
-    /// @return Program identifier.
-    unsigned int build();
+    /// Build shader program data from the source code set for
+    /// each shader stage.
+    ///
+    /// An exception is thrown if the program cannot be built.
+    /// The exception will contain a list of compilation errors.
+    void build();
+
+    /// Return true if built shader program data is present.
+    bool hasBuiltData();
+
+    // Clear built shader program data, if any.
+    void clearBuiltData();
+
+    /// @}
+    /// @name Program introspection
+    /// @{
 
     /// Structure to hold information about program inputs.
     /// The structure is populated by directly scanning the program so may not contain
@@ -91,7 +99,7 @@ class MX_RENDERGLSL_API GlslProgram
         /// Size.
         int size;
         /// Input type string. Will only be non-empty if initialized stages with a HwShader
-        std::string typeString;
+        string typeString;
         /// Input value. Will only be non-empty if initialized stages with a HwShader and a value was set during
         /// shader generation.
         MaterialX::ValuePtr value;
@@ -105,18 +113,18 @@ class MX_RENDERGLSL_API GlslProgram
         string colorspace;
 
         /// Program input constructor
-        Input(int inputLocation, int inputType, int inputSize, string inputPath)
-            : location(inputLocation)
-            , gltype(inputType)
-            , size(inputSize)
-            , isConstant(false)
-            , path(inputPath)
+        Input(int inputLocation, int inputType, int inputSize, const string& inputPath) :
+            location(inputLocation),
+            gltype(inputType),
+            size(inputSize),
+            isConstant(false),
+            path(inputPath)
         { }
     };
     /// Program input structure shared pointer type
     using InputPtr = std::shared_ptr<Input>;
     /// Program input shaded pointer map type
-    using InputMap = std::unordered_map<std::string, InputPtr>;
+    using InputMap = std::unordered_map<string, InputPtr>;
 
     /// Get list of program input uniforms.
     /// The program must have been created successfully first.
@@ -135,7 +143,7 @@ class MX_RENDERGLSL_API GlslProgram
     /// @param variableList List of program inputs to search
     /// @param foundList Returned list of found program inputs. Empty if none found.
     /// @param exactMatch Search for exact variable name match.
-    void findInputs(const std::string& variable,
+    void findInputs(const string& variable,
                     const InputMap& variableList,
                     InputMap& foundList,
                     bool exactMatch);
@@ -213,19 +221,13 @@ class MX_RENDERGLSL_API GlslProgram
     // Update a list of program input attributes
     const InputMap& updateAttributesList();
 
-    // Clear out any cached input lists
-    void clearInputLists();
-
     // Utility to find a uniform value in an uniform list.
     // If uniform cannot be found a null pointer will be return.
-    MaterialX::ValuePtr findUniformValue(const std::string& uniformName, const InputMap& uniformList);
+    ValuePtr findUniformValue(const string& uniformName, const InputMap& uniformList);
 
     // Bind an individual texture to a program uniform location
     ImagePtr bindTexture(unsigned int uniformType, int uniformLocation, const FilePath& filePath,
                          ImageHandlerPtr imageHandler, const ImageSamplingProperties& imageProperties);
-
-    // Delete any currently created shader program
-    void deleteProgram();
 
     // Utility to map a MaterialX type to an OpenGL type
     static int mapTypeToOpenGLType(const TypeDesc* type);
@@ -251,7 +253,7 @@ class MX_RENDERGLSL_API GlslProgram
 
     // Attribute buffer resource handles
     // for each attribute identifier in the program
-    std::unordered_map<std::string, unsigned int> _attributeBufferIds;
+    std::unordered_map<string, unsigned int> _attributeBufferIds;
 
     // Attribute indexing buffer handle
     std::map<MeshPartitionPtr, unsigned int> _indexBufferIds;
@@ -259,8 +261,11 @@ class MX_RENDERGLSL_API GlslProgram
     // Attribute vertex array handle
     unsigned int _vertexArray;
 
+    // Currently bound mesh
+    MeshPtr _boundMesh;
+
     // Program texture map
-    std::unordered_map<std::string, unsigned int> _programTextures;
+    std::unordered_map<string, unsigned int> _programTextures;
 
     // Enabled vertex stream program locations
     std::set<int> _enabledStreamLocations;

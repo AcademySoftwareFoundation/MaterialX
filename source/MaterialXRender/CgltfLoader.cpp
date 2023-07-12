@@ -1,6 +1,6 @@
 //
-// TM & (c) 2022 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/CgltfLoader.h>
@@ -17,6 +17,7 @@
 
 #define CGLTF_IMPLEMENTATION
 #include <MaterialXRender/External/Cgltf/cgltf.h>
+#undef CGLTF_IMPLEMENTATION
 
 #if defined(_MSC_VER)
     #pragma warning(pop)
@@ -66,6 +67,65 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
     }
 }
 
+const std::string DEFAULT_NODE_PREFIX = "NODE_";
+const std::string DEFAULT_MESH_PREFIX = "MESH_";
+
+// List of path names which match to meshes
+using GLTFMeshPathList = std::unordered_map<cgltf_mesh*, StringVec>;
+
+void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath path, size_t nodeCount, size_t meshCount)
+{
+    string cnodeName = cnode->name ? string(cnode->name) : DEFAULT_NODE_PREFIX + std::to_string(nodeCount++);
+    path = path / ( createValidName(cnodeName) + "/" );
+
+    cgltf_mesh* cmesh = cnode->mesh;
+    if (cmesh)
+    {
+        // Set path to mesh if no transform path found
+        if (path.isEmpty())
+        {
+            string meshName = cmesh->name ? string(cmesh->name) : DEFAULT_MESH_PREFIX + std::to_string(meshCount++);
+            path = createValidName(meshName);
+        }
+
+        meshPaths[cmesh].push_back(path.asString(FilePath::FormatPosix));
+    }
+
+    // Iterate over all children. Note that the existence of a mesh
+    // does not imply that this is a leaf node so traversal should 
+    // continue even when a mesh is encountered.
+    for (cgltf_size i = 0; i < cnode->children_count; i++)
+    {
+        computeMeshPaths(meshPaths, cnode->children[i], path, nodeCount, meshCount);
+    }
+}
+
+void decodeVec4Tangents(MeshStreamPtr vec4TangentStream, MeshStreamPtr normalStream, MeshStreamPtr& tangentStream, MeshStreamPtr& bitangentStream)
+{
+    if (vec4TangentStream->getSize() != normalStream->getSize())
+    {
+        return;
+    }
+
+    tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
+    bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
+
+    tangentStream->resize(vec4TangentStream->getSize());
+    bitangentStream->resize(vec4TangentStream->getSize());
+
+    for (size_t i = 0; i < vec4TangentStream->getSize(); i++)
+    {
+        const Vector4& vec4Tangent = vec4TangentStream->getElement<Vector4>(i);
+        const Vector3& normal = normalStream->getElement<Vector3>(i);
+
+        Vector3& tangent = tangentStream->getElement<Vector3>(i);
+        Vector3& bitangent = bitangentStream->getElement<Vector3>(i);
+
+        tangent = Vector3(vec4Tangent[0], vec4Tangent[1], vec4Tangent[2]);
+        bitangent = normal.cross(tangent) * vec4Tangent[3];
+    }
+}
+
 } // anonymous namespace
 
 bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
@@ -111,10 +171,26 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         }
     }
 
+    GLTFMeshPathList gltfMeshPathList;
+    unsigned int nodeCount = 0;
+    unsigned int meshCount = 0;
+    FilePath path;
+    for (cgltf_size sceneIndex = 0; sceneIndex < data->scenes_count; ++sceneIndex)
+    {
+        cgltf_scene* scene = &data->scenes[sceneIndex];
+        for (cgltf_size nodeIndex = 0; nodeIndex < scene->nodes_count; ++nodeIndex)
+        {
+            cgltf_node* cnode = scene->nodes[nodeIndex];
+            if (!cnode)
+            {
+                continue;
+            }
+            computeMeshPaths(gltfMeshPathList, cnode, path, nodeCount, meshCount);
+        }
+    }
+
     // Read in all meshes
     StringSet meshNames;
-    const string MeshPrefix = "Mesh_";
-    const string TransformPrefix = "Transform_";
     for (size_t m = 0; m < data->meshes_count; m++)
     {
         cgltf_mesh* cmesh = &(data->meshes[m]);
@@ -132,10 +208,22 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
             positionMatrices.push_back(Matrix44::IDENTITY);
         }
 
+        StringVec paths;
+        if (gltfMeshPathList.find(cmesh) != gltfMeshPathList.end())
+        {
+            paths = gltfMeshPathList[cmesh];
+        }
+        if (paths.empty())
+        {
+            string meshName = cmesh->name ? string(cmesh->name) : DEFAULT_MESH_PREFIX + std::to_string(meshCount++);
+            paths.push_back(meshName);
+        }
+
         // Iterate through all parent transform
         for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
+            const Matrix44 normalMatrix = positionMatrix.getInverse().getTranspose();
             
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
@@ -157,21 +245,8 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 Vector3 boxMin = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
                 Vector3 boxMax = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
 
-                // Create a unique name for the mesh. Prepend transform name
-                // if the mesh is instanced, and append partition name.
-                string meshName = cmesh->name ? cmesh->name : EMPTY_STRING;
-                if (meshName.empty())
-                {
-                    meshName = MeshPrefix + std::to_string(m);
-                }
-                if (positionMatrices.size() > 1)
-                {
-                    meshName = TransformPrefix + std::to_string(mtx) + NAME_PATH_SEPARATOR + meshName;
-                }
-                if (cmesh->primitives_count > 1)
-                {
-                    meshName += NAME_PATH_SEPARATOR + "part_" + std::to_string(primitiveIndex);
-                }
+                // Create a unique path for the mesh.
+                string meshName = paths[mtx];
                 while (meshNames.count(meshName))
                 {
                     meshName = incrementName(meshName);
@@ -190,7 +265,8 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 MeshStreamPtr normalStream = nullptr;
                 MeshStreamPtr colorStream = nullptr;
                 MeshStreamPtr texcoordStream = nullptr;
-                MeshStreamPtr tangentStream = nullptr;
+                MeshStreamPtr vec4TangentStream = nullptr;
+                int colorAttrIndex = 0;
 
                 // Read in vertex streams
                 for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
@@ -221,7 +297,10 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
 
                     bool isPositionStream = (attribute->type == cgltf_attribute_type_position);
                     bool isNormalStream = (attribute->type == cgltf_attribute_type_normal);
-                    bool isTexCoordSteram = (attribute->type == cgltf_attribute_type_texcoord);
+                    bool isTangentStream = (attribute->type == cgltf_attribute_type_tangent);
+                    bool isColorStream = (attribute->type == cgltf_attribute_type_color);
+                    bool isTexCoordStream = (attribute->type == cgltf_attribute_type_texcoord);
+
                     if (isPositionStream)
                     {
                         // Create position stream
@@ -229,28 +308,32 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                         mesh->addStream(positionStream);
                         geomStream = positionStream;
                     }
-                    else if (attribute->type == cgltf_attribute_type_normal)
+                    else if (isNormalStream)
                     {
                         normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, streamIndex);
                         mesh->addStream(normalStream);
                         geomStream = normalStream;
                     }
-                    else if (attribute->type == cgltf_attribute_type_tangent)
+                    else if (isTangentStream)
                     {
-                        tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, streamIndex);
-                        mesh->addStream(tangentStream);
-                        geomStream = tangentStream;
+                        vec4TangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE + "4", MeshStream::TANGENT_ATTRIBUTE, streamIndex);
+                        vec4TangentStream->setStride(MeshStream::STRIDE_4D); // glTF stores the bitangent sign in the 4th component
+                        geomStream = vec4TangentStream;
+                        desiredVectorSize = 4;
                     }
-                    else if (attribute->type == cgltf_attribute_type_color)
+                    else if (isColorStream)
                     {
-                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE, MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        colorStream = MeshStream::create("i_" + MeshStream::COLOR_ATTRIBUTE + "_" + std::to_string(colorAttrIndex), MeshStream::COLOR_ATTRIBUTE, streamIndex);
+                        mesh->addStream(colorStream);
                         geomStream = colorStream;
                         if (vectorSize == 4)
                         {
+                            colorStream->setStride(MeshStream::STRIDE_4D);
                             desiredVectorSize = 4;
                         }
+                        colorAttrIndex++;
                     }
-                    else if (attribute->type == cgltf_attribute_type_texcoord)
+                    else if (isTexCoordStream)
                     {
                         texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
                         mesh->addStream(texcoordStream);
@@ -273,6 +356,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     {
                         MeshFloatBuffer& buffer = geomStream->getData();
                         cgltf_size vertexCount = accessor->count;
+                        geomStream->reserve(vertexCount);
 
                         if (_debugLevel > 0)
                         {
@@ -309,7 +393,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     normal[v] = floatValue;
                                 }
-                                normal = positionMatrix.transformNormal(normal);
+                                normal = normalMatrix.transformVector(normal).getNormalized();
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     buffer.push_back(normal[v]);
@@ -321,7 +405,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                 {
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
                                     // Perform v-flip
-                                    if (isTexCoordSteram && v == 1)
+                                    if (isTexCoordStream && v == 1)
                                     {
                                         if (!texcoordVerticalFlip)
                                         {
@@ -335,6 +419,11 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                 }
 
+                if (!positionStream)
+                {
+                    continue;
+                }
+
                 // Read indexing
                 MeshPartitionPtr part = MeshPartition::create();
                 size_t indexCount = 0;
@@ -343,7 +432,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 {
                     indexCount = indexAccessor->count;
                 }
-                else if (positionStream)
+                else
                 {
                     indexCount = positionStream->getData().size();
                 }
@@ -374,33 +463,60 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 mesh->addPartition(part);
 
                 // Update positional information.
-                if (positionStream)
-                {
-                    mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
-                }
+                mesh->setVertexCount(positionStream->getData().size() / MeshStream::STRIDE_3D);
                 mesh->setMinimumBounds(boxMin);
                 mesh->setMaximumBounds(boxMax);
                 Vector3 sphereCenter = (boxMax + boxMin) * 0.5;
                 mesh->setSphereCenter(sphereCenter);
                 mesh->setSphereRadius((sphereCenter - boxMin).getMagnitude());
 
-                // Generate tangents, normals and texture coordinates if none provided
-                if (!tangentStream && positionStream)
+                // According to glTF spec. 3.7.2.1, tangents must be ignored when normals are missing
+                if (vec4TangentStream && normalStream)
                 {
-                    tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                    // Decode glTF vec4 tangents to MaterialX vec3 tangents and bitangents
+                    MeshStreamPtr tangentStream;
+                    MeshStreamPtr bitangentStream;
+                    decodeVec4Tangents(vec4TangentStream, normalStream, tangentStream, bitangentStream);
+
                     if (tangentStream)
                     {
                         mesh->addStream(tangentStream);
+                    }
+                    if (bitangentStream)
+                    {
+                        mesh->addStream(bitangentStream);
+                    }
+                }
+
+                // Generate tangents, normals and texture coordinates if none are provided
+                if (!normalStream)
+                {
+                    normalStream = mesh->generateNormals(positionStream);
+                    mesh->addStream(normalStream);
+                }
+                if (!texcoordStream)
+                {
+                    texcoordStream = mesh->generateTextureCoordinates(positionStream);
+                    mesh->addStream(texcoordStream);
+                }
+                if (!vec4TangentStream)
+                {
+                    MeshStreamPtr tangentStream = mesh->generateTangents(positionStream, normalStream, texcoordStream);
+                    if (tangentStream)
+                    {
+                        mesh->addStream(tangentStream);
+                    }
+                    MeshStreamPtr bitangentStream = mesh->generateBitangents(normalStream, tangentStream);
+                    if (bitangentStream)
+                    {
+                        mesh->addStream(bitangentStream);
                     }
                 }
             }
         }
     }
 
-    if (data)
-    {
-        cgltf_free(data);
-    }
+    cgltf_free(data);
 
     return true;
 }

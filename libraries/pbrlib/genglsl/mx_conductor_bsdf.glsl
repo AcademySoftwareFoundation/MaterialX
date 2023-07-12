@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+#include "lib/mx_microfacet_specular.glsl"
 
 void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
@@ -11,7 +11,8 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
 
     N = mx_forward_facing_normal(N, V);
 
-    vec3 Y = normalize(cross(N, X));
+    X = normalize(X - dot(X, N) * N);
+    vec3 Y = cross(N, X);
     vec3 H = normalize(L + V);
 
     float NdotL = clamp(dot(N, L), M_FLOAT_EPS, 1.0);

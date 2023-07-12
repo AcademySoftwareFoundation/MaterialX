@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SWIZZLENODE_H
@@ -22,6 +22,11 @@ class MX_GENSHADER_API SwizzleNode : public ShaderNodeImpl
     /// Editable inputs are allowed to be published as shader uniforms
     /// and hence must be presentable in a user interface.
     bool isEditable(const ShaderInput& input) const override;
+
+  protected:
+    /// Get the implementation name of the variable that supports swizzles.
+    /// Allows to override that name in generated code based on the target language.
+    virtual string getVariableName(const ShaderInput* input) const;
 };
 
 MATERIALX_NAMESPACE_END

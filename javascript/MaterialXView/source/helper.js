@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 import * as THREE from 'three';
@@ -9,8 +9,7 @@ const IMAGE_PROPERTY_SEPARATOR = "_";
 const UADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "uaddressmode";
 const VADDRESS_MODE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "vaddressmode";
 const FILTER_TYPE_SUFFIX = IMAGE_PROPERTY_SEPARATOR + "filtertype";
-const FILE_PREFIX = '../../../Images/';
-const TARGET_FILE_PREFIX = 'Images/';
+const IMAGE_PATH_SEPARATOR = "/";
 
 /**
  * Initialized the environment texture as MaterialX expects it
@@ -39,34 +38,41 @@ export function prepareEnvTexture(texture, capabilities)
  */
 function RGBToRGBA_Float(texture)
 {
-    const rgbData = texture.image.data;
-    const length = (rgbData.length / 3) * 4;
-    let rgbaData;
-
-    switch (texture.type)
+    const w = texture.image.width;
+    const h = texture.image.height;
+    const dataSize = texture.image.data.length; 
+    const stride = dataSize / (w *h);
+    // No need to convert to RGBA if already 4 channel.
+    if (stride == 3)
     {
-        case THREE.FloatType:
-            rgbaData = new Float32Array(length);
-            break;
-        case THREE.HalfFloatType:
-            rgbaData = new Uint16Array(length);
-            break;
-        default:
-          break;
-    }
+        const rgbData = texture.image.data;
+        const length = (rgbData.length / 3) * 4;
+        let rgbaData;
 
-    if (rgbaData)
-    {
-        for (let i = 0; i < length / 4; i++)
+        switch (texture.type)
         {
-            rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
-            rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
-            rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
-            rgbaData[(i * 4) + 3] = 1.0;
+            case THREE.FloatType:
+                rgbaData = new Float32Array(length);
+                break;
+            case THREE.HalfFloatType:
+                rgbaData = new Uint16Array(length);
+                break;
+            default:
+                break;
         }
-        return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
-    }
 
+        if (rgbaData)
+        {
+            for (let i = 0; i < length / 4; i++)
+            {
+                rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
+                rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
+                rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
+                rgbaData[(i * 4) + 3] = 1.0;
+            }
+            return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
+        }
+    }
     return texture;
 }
 
@@ -127,7 +133,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(type, value, name, uniforms, textureLoader)
+function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
     let outValue;  
     switch (type)
@@ -157,11 +163,11 @@ function toThreeUniform(type, value, name, uniforms, textureLoader)
         case 'filename':
             if (value)
             {
-                let  mappedValue = value.replace(FILE_PREFIX, TARGET_FILE_PREFIX);
-                mappedValue = mappedValue.replace('boombox', TARGET_FILE_PREFIX);
-                const texture = textureLoader.load(mappedValue);
+                let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
+                const texture = textureLoader.load(fullPath);
                 // Set address & filtering mode
-                setTextureParameters(texture, name, uniforms);
+                if (texture)
+                    setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
             } 
             break;
@@ -224,24 +230,39 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
-function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
+ function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
+ {
+     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
+     const base = name.substring(0, idx) || name;
+ 
+     texture.generateMipmaps = generateMipmaps;
+     texture.wrapS = THREE.RepeatWrapping;
+     texture.wrapT = THREE.RepeatWrapping;
+     texture.magFilter = THREE.LinearFilter;
+     texture.flipY = flipY;
+     
+     if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
+     {
+         const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
+         texture.wrapS = getWrapping(uaddressmode);
+     }
+ 
+     if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
+     {
+         const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
+         texture.wrapT = getWrapping(vaddressmode);
+     }
+ 
+     const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
+     texture.minFilter = getMinFilter(filterType, generateMipmaps);
+ }
+ 
+/**
+ * Return the global light rotation matrix
+ */
+export function getLightRotation()
 {
-    const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
-    const base = name.substring(0, idx) || name;
-
-    texture.generateMipmaps = generateMipmaps;
-
-    const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX)?.getValue().getData();
-    const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX)?.getValue().getData();
-
-    texture.wrapS = getWrapping(uaddressmode);
-    texture.wrapT = getWrapping(vaddressmode);
-
-    const filterType = uniforms.get(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = getMinFilter(filterType, generateMipmaps);
-
-    texture.flipY = false;
+    return new THREE.Matrix4().makeRotationY(Math.PI / 2);
 }
 
 /**
@@ -288,9 +309,12 @@ export function registerLights(mx, lights, genContext)
         const lightColor = light.getValueElement("color").getValue().getData().data();
         const lightIntensity = light.getValueElement("intensity").getValue().getData();
 
+        let rotatedLightDirection = new THREE.Vector3(...lightDirection)
+        rotatedLightDirection.transformDirection(getLightRotation())
+
         lightData.push({
             type: lightTypesBound[nodeName],
-            direction: new THREE.Vector3(...lightDirection),
+            direction: rotatedLightDirection,
             color: new THREE.Vector3(...lightColor), 
             intensity: lightIntensity
         });
@@ -307,7 +331,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(shaderStage, textureLoader)
+export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
 {
     let threeUniforms = {};
 
@@ -320,7 +344,8 @@ export function getUniformValues(shaderStage, textureLoader)
                 const variable = uniforms.get(i);                
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, textureLoader));
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, 
+                                                        textureLoader, searchPath, flipY));
             }
         }
     });

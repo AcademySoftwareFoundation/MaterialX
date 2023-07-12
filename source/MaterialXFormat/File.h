@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_FILE_H
@@ -173,6 +173,10 @@ class MX_FORMAT_API FilePath
         return _vec[index];
     }
 
+    /// Return a normalized version of the given path, collapsing current path and
+    /// parent path references so that 'a/./b' and 'c/../d/../a/b' become 'a/b'.
+    FilePath getNormalized() const;
+
     /// @}
     /// @name File System Operations
     /// @{
@@ -218,10 +222,7 @@ class MX_FORMAT_API FileSearchPath
     using ConstIterator = FilePathVec::const_iterator;
 
   public:
-    FileSearchPath()
-    {
-    }
-    ~FileSearchPath() { }
+    FileSearchPath() = default;
 
     /// Construct a search path from a string.
     /// @param searchPath A string containing a sequence of file paths joined

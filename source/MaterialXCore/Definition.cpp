@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Definition.h>
@@ -107,9 +107,9 @@ bool NodeDef::isVersionCompatible(const string& version) const
     return false;
 }
 
-ConstNodeDefPtr NodeDef::getDeclaration(const string&) const
+ConstInterfaceElementPtr NodeDef::getDeclaration(const string&) const
 {
-    return getSelf()->asA<NodeDef>();
+    return getSelf()->asA<InterfaceElement>();
 }
 
 //
@@ -130,7 +130,7 @@ void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
 
 NodeDefPtr Implementation::getNodeDef() const
 {
-    return resolveRootNameReference<NodeDef>(getNodeDefString());
+    return resolveNameReference<NodeDef>(getNodeDefString());
 }
 
 bool Implementation::validate(string* message) const
@@ -140,7 +140,7 @@ bool Implementation::validate(string* message) const
     return InterfaceElement::validate(message) && res;
 }
 
-ConstNodeDefPtr Implementation::getDeclaration(const string&) const
+ConstInterfaceElementPtr Implementation::getDeclaration(const string&) const
 {
     return getNodeDef();
 }

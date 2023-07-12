@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -64,7 +64,14 @@ void bindPyDocument(py::module& mod)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
         .def("removeNodeDef", &mx::Document::removeNodeDef)
         .def("getMatchingNodeDefs", &mx::Document::getMatchingNodeDefs)
-        .def("getMatchingImplementations", &mx::Document::getMatchingImplementations)
+        .def("addAttributeDef", &mx::Document::addAttributeDef)
+        .def("getAttributeDef", &mx::Document::getAttributeDef)
+        .def("getAttributeDefs", &mx::Document::getAttributeDefs)
+        .def("removeAttributeDef", &mx::Document::removeAttributeDef)
+        .def("addTargetDef", &mx::Document::addTargetDef)
+        .def("getTargetDef", &mx::Document::getTargetDef)
+        .def("getTargetDefs", &mx::Document::getTargetDefs)
+        .def("removeTargetDef", &mx::Document::removeTargetDef)
         .def("addPropertySet", &mx::Document::addPropertySet,
             py::arg("name") = mx::EMPTY_STRING)
         .def("getPropertySet", &mx::Document::getPropertySet)
@@ -80,6 +87,7 @@ void bindPyDocument(py::module& mod)
         .def("getImplementation", &mx::Document::getImplementation)
         .def("getImplementations", &mx::Document::getImplementations)
         .def("removeImplementation", &mx::Document::removeImplementation)
+        .def("getMatchingImplementations", &mx::Document::getMatchingImplementations)
         .def("addUnitDef", &mx::Document::addUnitDef)
         .def("getUnitDef", &mx::Document::getUnitDef)
         .def("getUnitDefs", &mx::Document::getUnitDefs)

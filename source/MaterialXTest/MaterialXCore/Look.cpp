@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 
@@ -14,7 +14,7 @@ TEST_CASE("Look", "[look]")
     mx::DocumentPtr doc = mx::createDocument();
 
     // Create a material and look.
-    mx::NodePtr shaderNode = doc->addNode("standard_surface", "", "surfaceshader");
+    mx::NodePtr shaderNode = doc->addNode("standard_surface", "", mx::SURFACE_SHADER_TYPE_STRING);
     mx::NodePtr materialNode = doc->addMaterialNode("", shaderNode);
     mx::LookPtr look = doc->addLook();
 

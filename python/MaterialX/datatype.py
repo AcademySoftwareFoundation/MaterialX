@@ -86,3 +86,13 @@ def isColorType(t):
 def isColorValue(value):
     "Return True if the given value is a MaterialX color."
     return isColorType(type(value))
+
+def stringToBoolean(value):
+    "Return boolean value found in a string. Throws and exception if a boolean value could not be parsed"
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ('yes', 'true', 't', '1'):
+        return True
+    elif value.lower() in ('no', 'false', 'f', '0'):
+        return False
+    raise TypeError('Boolean value expected.')

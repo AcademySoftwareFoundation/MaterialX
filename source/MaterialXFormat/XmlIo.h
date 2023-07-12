@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_XMLIO_H
@@ -37,6 +37,10 @@ class MX_FORMAT_API XmlReadOptions
     /// If true, then XML comments will be read into documents as comment elements.
     /// Defaults to false.
     bool readComments;
+
+    /// If true, then XML newlines will be read into documents as newline elements.
+    /// Defaults to false.
+    bool readNewlines;
 
     /// If true, then documents from earlier versions of MaterialX will be upgraded
     /// to the current version.  Defaults to true.

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -30,12 +30,12 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
     }
 
   protected:
-    mx::ImplementationPtr getImplementation(const mx::ColorSpaceTransform& transform) const override
+    mx::NodeDefPtr getNodeDef(const mx::ColorSpaceTransform& transform) const override
     {
         PYBIND11_OVERLOAD_PURE(
-            mx::ImplementationPtr,
+            mx::NodeDefPtr,
             mx::ColorManagementSystem,
-            getImplementation,
+            getNodeDef,
             transform
         );
     }

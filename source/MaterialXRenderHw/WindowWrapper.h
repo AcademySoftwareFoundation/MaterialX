@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_WINDOWWRAPPER_H
@@ -8,6 +8,7 @@
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+#undef APIENTRY
 #include <windows.h>
 #elif defined(__linux__) || defined(__FreeBSD__)
 #include <X11/X.h> // for Window

@@ -1,5 +1,12 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #include <MaterialXView/Viewer.h>
 
+#include <MaterialXRender/Util.h>
+#include <MaterialXFormat/Util.h>
 #include <MaterialXCore/Util.h>
 
 #include <iostream>
@@ -12,20 +19,23 @@ const std::string options =
 "    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
 "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
 "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
+"    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
+"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Defaults to 360\n"
 "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
 "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
-"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera (defaults to 45)\n"
-"    --cameraZoom [FLOAT]           Specify the amount to zoom the camera. (defaults to 1.0)\n"
+"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)\n"
+"    --cameraZoom [FLOAT]           Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)\n"
 "    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
 "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
 "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
 "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
 "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
-"    --path [FILEPATH]              Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]           Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.\n"
+"    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
+"    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
 "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
 "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
 "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+"    --drawEnvironment [BOOLEAN]    Specify whether to render the environment as the background (defaults to false)\n"
 "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
 "    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
 "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
@@ -53,25 +63,6 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
     res = value->asA<T>();
 }
 
-mx::FileSearchPath getDefaultSearchPath()
-{
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    mx::FilePath installRootPath = modulePath.getParentPath();
-    mx::FilePath devRootPath = installRootPath.getParentPath().getParentPath();
-
-    mx::FileSearchPath searchPath;
-    if ((devRootPath / "libraries").exists())
-    {
-        searchPath.append(devRootPath);
-    }
-    else
-    {
-        searchPath.append(installRootPath);
-    }
-
-    return searchPath;
-}
-
 int main(int argc, char* const argv[])
 {  
     std::vector<std::string> tokens;
@@ -81,13 +72,15 @@ int main(int argc, char* const argv[])
     }
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string meshFilename = "resources/Geometry/shaderball.obj";
+    std::string meshFilename = "resources/Geometry/shaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    mx::FileSearchPath searchPath = getDefaultSearchPath();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
 
     mx::Vector3 meshRotation;
     float meshScale = 1.0f;
+    bool turntableEnabled = false;
+    int turntableSteps = 360;
     mx::Vector3 cameraPosition(DEFAULT_CAMERA_POSITION);
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
@@ -99,7 +92,8 @@ int main(int argc, char* const argv[])
     DocumentModifiers modifiers;
     int screenWidth = 1280;
     int screenHeight = 960;
-    mx::Color3 screenColor(0.3f, 0.3f, 0.32f);
+    mx::Color3 screenColor(mx::DEFAULT_SCREEN_COLOR_SRGB);
+    bool drawEnvironment = false;
     std::string captureFilename;
     int bakeWidth = 0;
     int bakeHeight = 0;
@@ -129,6 +123,15 @@ int main(int argc, char* const argv[])
         else if (token == "--meshScale")
         {
             parseToken(nextToken, "float", meshScale);
+        }
+        else if (token == "--enableTurntable")
+        {
+            parseToken(nextToken, "boolean", turntableEnabled);
+        }
+        else if (token == "--turntableSteps")
+        {
+            parseToken(nextToken, "integer", turntableSteps);
+            turntableSteps = std::clamp(turntableSteps, 2, 360);;
         }
         else if (token == "--cameraPosition")
         {
@@ -184,6 +187,10 @@ int main(int argc, char* const argv[])
         else if (token == "--screenColor")
         {
             parseToken(nextToken, "color3", screenColor);
+        }
+        else if (token == "--drawEnvironment")
+        {
+            parseToken(nextToken, "boolean", drawEnvironment);
         }
         else if (token == "--captureFilename")
         {
@@ -263,6 +270,8 @@ int main(int argc, char* const argv[])
                                             screenColor);
         viewer->setMeshRotation(meshRotation);
         viewer->setMeshScale(meshScale);
+        viewer->setTurntableEnabled(turntableEnabled);
+        viewer->setTurntableSteps(turntableSteps);
         viewer->setCameraPosition(cameraPosition);
         viewer->setCameraTarget(cameraTarget);
         viewer->setCameraViewAngle(cameraViewAngle);
@@ -271,24 +280,27 @@ int main(int argc, char* const argv[])
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
+        viewer->setDrawEnvironment(drawEnvironment);
         viewer->setDocumentModifiers(modifiers);
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
         viewer->initialize();
-        if (!bakeFilename.empty()) 
-        {
-            viewer->bakeTextures();
-            viewer->requestExit();
-        } 
-        else 
-        {            
-            viewer->set_visible(true);
-        }
+
         if (!captureFilename.empty())
         {
             viewer->requestFrameCapture(captureFilename);
+            viewer->draw_all();
             viewer->requestExit();
+        }
+        else if (!bakeFilename.empty())
+        {
+            viewer->bakeTextures();
+            viewer->requestExit();
+        }
+        else
+        {
+            viewer->set_visible(true);
         }
         ng::mainloop(refresh);
     }

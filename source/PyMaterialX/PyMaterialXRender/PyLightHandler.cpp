@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -31,6 +31,8 @@ void bindPyLightHandler(py::module& mod)
         .def("getAlbedoTable", &mx::LightHandler::getAlbedoTable)
         .def("setEnvSampleCount", &mx::LightHandler::setEnvSampleCount)
         .def("getEnvSampleCount", &mx::LightHandler::getEnvSampleCount)
+        .def("setRefractionTwoSided", &mx::LightHandler::setRefractionTwoSided)
+        .def("getRefractionTwoSided", &mx::LightHandler::getRefractionTwoSided)        
         .def("addLightSource", &mx::LightHandler::addLightSource)
         .def("setLightSources", &mx::LightHandler::setLightSources)
         .def("getLightSources", &mx::LightHandler::getLightSources)

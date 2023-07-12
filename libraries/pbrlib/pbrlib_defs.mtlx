@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
   <!--
-    TM & (c) 2018 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-    All rights reserved.  See LICENSE.txt for license.
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
 
     Declarations of standard data types and nodes included in the MaterialX specification.
   -->
@@ -76,8 +76,8 @@
   -->
   <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr" doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="color3" value="0.271, 0.677, 1.316" colorspace="none" />
-    <input name="extinction" type="color3" value="3.609, 2.625, 2.292" colorspace="none" />
+    <input name="ior" type="color3" value="0.183, 0.421, 1.373" colorspace="none" />
+    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" colorspace="none" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
@@ -170,6 +170,19 @@
     <input name="color" type="color3" value="1.0, 1.0, 1.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="file" type="filename" value="" uniform="true" />
+    <output name="out" type="EDF" />
+  </nodedef>
+
+  <!--
+    Node: <generalized_schlick_edf>
+    Modifies an EDF with a directional factor. Attenuates the emission distribution of the base EDF according to
+    a generalized Schlick fresnel function.
+  -->
+  <nodedef name="ND_generalized_schlick_edf" node="generalized_schlick_edf" nodegroup="pbr" doc="Modifies an EDF with a directional factor.">
+    <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="exponent" type="float" value="5.0" />
+    <input name="base" type="EDF" value="" />
     <output name="out" type="EDF" />
   </nodedef>
 

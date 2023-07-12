@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_UNIT_H_
@@ -194,6 +194,10 @@ class MX_CORE_API UnitConverterRegistry
 
     /// Create unit definitions in a document based on registered converters
     void write(DocumentPtr doc) const;
+
+    /// Convert input values which have a source unit to a given target unit.
+    /// Returns if any unit conversion occured.
+    bool convertToUnit(DocumentPtr doc, const string& unitType, const string& targetUnit);
 
   private:
     UnitConverterRegistry(const UnitConverterRegistry&) = delete;

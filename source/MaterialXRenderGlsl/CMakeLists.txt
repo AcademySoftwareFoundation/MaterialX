@@ -1,4 +1,4 @@
-file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.c*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 assign_source_group("Source Files" ${materialx_source})
@@ -29,7 +29,7 @@ elseif(UNIX)
     include_directories(${X11_INCLUDE_DIR})
 endif()
 
-# Disable deprecation warnings for GLew source on Clang.
+# Disable OpenGL deprecation warnings on Clang.
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-deprecated-declarations)
 endif()
@@ -38,23 +38,36 @@ add_library(MaterialXRenderGlsl ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERGLSL_EXPORTS)
 
+if(MATERIALX_BUILD_SHARED_LIBS)
+    target_compile_definitions(MaterialXRenderGlsl PUBLIC GLAD_GLAPI_EXPORT PRIVATE GLAD_GLAPI_EXPORT_BUILD)
+endif()
+
 set(COMMON_LIBRARIES
     MaterialXRenderHw
     MaterialXGenGlsl
     ${CMAKE_DL_LIBS})
 
-if(MSVC)
-    target_link_libraries(
-        MaterialXRenderGlsl
-        ${COMMON_LIBRARIES}
-        Opengl32)
+if(WIN32)
+    if(MSVC)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32)
+    elseif(MINGW)
+        target_link_libraries(
+            MaterialXRenderGlsl
+            ${COMMON_LIBRARIES}
+            Opengl32
+            gdi32)
+    endif()
 elseif(APPLE)
     target_link_libraries(
         MaterialXRenderGlsl
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
-        "-framework Cocoa")
+        "-framework Cocoa"
+        "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderGlsl
@@ -69,6 +82,7 @@ set_target_properties(
     OUTPUT_NAME MaterialXRenderGlsl${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+    INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 

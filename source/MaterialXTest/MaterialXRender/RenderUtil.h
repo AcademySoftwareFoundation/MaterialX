@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef RENDER_UTIL_H
@@ -8,6 +8,7 @@
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
+#include <MaterialXRender/Mesh.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/Timer.h>
 #include <MaterialXRender/Util.h>
@@ -170,6 +171,9 @@ class ShaderRenderTester
     virtual bool canBake() const { return false; }
     virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
                          const GenShaderUtil::TestSuiteOptions::BakeSetting& /*bakeOptions*/, std::ostream& /*log*/) {};
+    
+    // If these streams don't exist add them for testing purposes
+    void addAdditionalTestStreams(mx::MeshPtr mesh);
 
     // Generator to use
     mx::ShaderGeneratorPtr _shaderGenerator;

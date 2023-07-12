@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERNODE_H
@@ -36,7 +36,6 @@ using ShaderNodePtr = shared_ptr<class ShaderNode>;
 /// A vector of ShaderInput pointers
 using ShaderInputVec = vector<ShaderInput*>;
 
-
 /// Metadata to be exported to generated shader.
 struct MX_GENSHADER_API ShaderMetadata
 {
@@ -47,12 +46,13 @@ struct MX_GENSHADER_API ShaderMetadata
         name(n),
         type(t),
         value(v)
-    {}
+    {
+    }
 };
 using ShaderMetadataVec = vector<ShaderMetadata>;
 using ShaderMetadataVecPtr = shared_ptr<ShaderMetadataVec>;
 
-/// @class ShaderMetadataRegistry 
+/// @class ShaderMetadataRegistry
 /// A registry for metadata that will be exported to the generated shader
 /// if found on nodes and inputs during shader generation.
 class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
@@ -107,7 +107,6 @@ class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
 };
 
 using ShaderMetadataRegistryPtr = shared_ptr<ShaderMetadataRegistry>;
-
 
 /// Flags set on shader ports.
 class MX_GENSHADER_API ShaderPortFlag
@@ -328,69 +327,47 @@ class MX_GENSHADER_API ShaderNode
     /// Flags for classifying nodes into different categories.
     class Classification
     {
-    public:
+      public:
         // Node classes
         static const uint32_t TEXTURE       = 1 << 0;  /// Any node that outputs floats, colors, vectors, etc.
         static const uint32_t CLOSURE       = 1 << 1;  /// Any node that represents light integration
         static const uint32_t SHADER        = 1 << 2;  /// Any node that outputs a shader
+        static const uint32_t MATERIAL      = 1 << 3;  /// Any node that outputs a material
         // Specific texture node types
-        static const uint32_t FILETEXTURE   = 1 << 3;  /// A file texture node
-        static const uint32_t CONDITIONAL   = 1 << 4;  /// A conditional node
-        static const uint32_t CONSTANT      = 1 << 5;  /// A constant node
+        static const uint32_t FILETEXTURE   = 1 << 4;  /// A file texture node
+        static const uint32_t CONDITIONAL   = 1 << 5;  /// A conditional node
+        static const uint32_t CONSTANT      = 1 << 6;  /// A constant node
         // Specific closure types
-        static const uint32_t BSDF          = 1 << 6;  /// A BSDF node
-        static const uint32_t BSDF_R        = 1 << 7;  /// A reflection BSDF node
-        static const uint32_t BSDF_T        = 1 << 8;  /// A transmission BSDF node
-        static const uint32_t EDF           = 1 << 9;  /// A EDF node
-        static const uint32_t VDF           = 1 << 10; /// A VDF node
-        static const uint32_t LAYER         = 1 << 11; /// A node for vertical layering of other closure nodes
-        static const uint32_t THINFILM      = 1 << 12; /// A node for adding thin-film over microfacet BSDF nodes
+        static const uint32_t BSDF          = 1 << 7;  /// A BSDF node
+        static const uint32_t BSDF_R        = 1 << 8;  /// A reflection BSDF node
+        static const uint32_t BSDF_T        = 1 << 9;  /// A transmission BSDF node
+        static const uint32_t EDF           = 1 << 10; /// A EDF node
+        static const uint32_t VDF           = 1 << 11; /// A VDF node
+        static const uint32_t LAYER         = 1 << 12; /// A node for vertical layering of other closure nodes
+        static const uint32_t THINFILM      = 1 << 13; /// A node for adding thin-film over microfacet BSDF nodes
         // Specific shader types
-        static const uint32_t SURFACE       = 1 << 13; /// A surface shader node
-        static const uint32_t VOLUME        = 1 << 14; /// A volume shader node
-        static const uint32_t LIGHT         = 1 << 15; /// A light shader node
-        static const uint32_t UNLIT         = 1 << 16; /// An unlit surface shader node
+        static const uint32_t SURFACE       = 1 << 14; /// A surface shader node
+        static const uint32_t VOLUME        = 1 << 15; /// A volume shader node
+        static const uint32_t LIGHT         = 1 << 16; /// A light shader node
+        static const uint32_t UNLIT         = 1 << 17; /// An unlit surface shader node
         // Specific conditional types
-        static const uint32_t IFELSE        = 1 << 17; /// An if-else statement
-        static const uint32_t SWITCH        = 1 << 18; /// A switch statement
+        static const uint32_t IFELSE        = 1 << 18; /// An if-else statement
+        static const uint32_t SWITCH        = 1 << 19; /// A switch statement
         // Types based on nodegroup
-        static const uint32_t SAMPLE2D      = 1 << 19; /// Can be sampled in 2D (uv space)
-        static const uint32_t SAMPLE3D      = 1 << 20; /// Can be sampled in 3D (position)
-    };
-
-    /// @struct ScopeInfo
-    /// Information on source code scope for the node.
-    ///
-    /// @todo: Refactor the scope handling, using scope id's instead
-    ///
-    struct ScopeInfo
-    {
-        enum Type
-        {
-            UNKNOWN,
-            GLOBAL,
-            SINGLE,
-            MULTIPLE
-        };
-
-        ScopeInfo() : type(UNKNOWN), conditionalNode(nullptr), conditionBitmask(0), fullConditionMask(0) {}
-
-        void merge(const ScopeInfo& fromScope);
-        void adjustAtConditionalInput(ShaderNode* condNode, int branch, uint32_t fullMask);
-        bool usedByBranch(int branchIndex) const { return (conditionBitmask & (1 << branchIndex)) != 0; }
-
-        Type type;
-        ShaderNode* conditionalNode;
-        uint32_t conditionBitmask;
-        uint32_t fullConditionMask;
+        static const uint32_t SAMPLE2D      = 1 << 20; /// Can be sampled in 2D (uv space)
+        static const uint32_t SAMPLE3D      = 1 << 21; /// Can be sampled in 3D (position)
+        static const uint32_t GEOMETRIC     = 1 << 22; /// Geometric input
+        static const uint32_t DOT           = 1 << 23; /// A dot node
     };
 
     static const ShaderNodePtr NONE;
 
     static const string CONSTANT;
+    static const string DOT;
     static const string IMAGE;
     static const string COMPARE;
     static const string SWITCH;
+    static const string SURFACESHADER;
     static const string SCATTER_MODE;
     static const string BSDF_R;
     static const string BSDF_T;
@@ -401,13 +378,14 @@ class MX_GENSHADER_API ShaderNode
     static const string TEXTURE3D_GROUPNAME;
     static const string PROCEDURAL2D_GROUPNAME;
     static const string PROCEDURAL3D_GROUPNAME;
+    static const string GEOMETRIC_GROUPNAME;
 
   public:
     /// Constructor.
     ShaderNode(const ShaderGraph* parent, const string& name);
 
     /// Create a new node from a nodedef.
-    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef, 
+    static ShaderNodePtr create(const ShaderGraph* parent, const string& name, const NodeDef& nodeDef,
                                 GenContext& context);
 
     /// Create a new node from a node implementation.
@@ -423,6 +401,25 @@ class MX_GENSHADER_API ShaderNode
     const ShaderGraph* getParent() const
     {
         return _parent;
+    }
+
+    /// Set classification bits for this node,
+    /// replacing any previous set bits.
+    void setClassification(uint32_t c)
+    {
+        _classification = c;
+    }
+
+    /// Get classification bits set for this node.
+    uint32_t getClassification() const
+    {
+        return _classification;
+    }
+
+    /// Add classification bits to this node.
+    void addClassification(uint32_t c)
+    {
+        _classification |= c;
     }
 
     /// Return true if this node matches the given classification.
@@ -442,21 +439,6 @@ class MX_GENSHADER_API ShaderNode
     {
         return *_impl;
     }
-
-    /// Return the scope info for this node.
-    ScopeInfo& getScopeInfo()
-    {
-        return _scopeInfo;
-    }
-
-    /// Return the scope info for this node.
-    const ScopeInfo& getScopeInfo() const
-    {
-        return _scopeInfo;
-    }
-
-    /// Returns true if this node is only referenced by a conditional.
-    bool referencedConditionally() const;
 
     /// Initialize this shader node with all required data
     /// from the given node and nodedef.
@@ -527,7 +509,6 @@ class MX_GENSHADER_API ShaderNode
 
     ShaderNodeImplPtr _impl;
     ShaderMetadataVecPtr _metadata;
-    ScopeInfo _scopeInfo;
 
     friend class ShaderGraph;
 };

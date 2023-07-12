@@ -5,17 +5,23 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const stdSurfaceMaterials = "../../resources/Materials/Examples/StandardSurface";
 const stdSurfaceMaterialsBaseURL = "Materials/Examples/StandardSurface";
-let materials = fs.readdirSync(stdSurfaceMaterials)
+let dirent = fs.readdirSync(stdSurfaceMaterials).filter(
+  function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let materials = dirent
   .map((fileName) => ({name: fileName, value: `${stdSurfaceMaterialsBaseURL}/${fileName}`}));
 
 const usdSurfaceMaterials = "../../resources/Materials/Examples/UsdPreviewSurface";
 const usdSurfaceMaterialsBaseURL = "Materials/Examples/UsdPreviewSurface";
-let usdMaterials = fs.readdirSync(usdSurfaceMaterials)
+dirent = fs.readdirSync(usdSurfaceMaterials).filter(
+  function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let usdMaterials = dirent
   .map((fileName) => ({name: fileName, value: `${usdSurfaceMaterialsBaseURL}/${fileName}`}));  
 
 const gltfSurfaceMaterials = "../../resources/Materials/Examples/GltfPbr";
 const gltfSurfaceMaterialsBaseURL = "Materials/Examples/GltfPbr";
-let dirent = fs.readdirSync(gltfSurfaceMaterials).filter(
+dirent = fs.readdirSync(gltfSurfaceMaterials).filter(
   function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
 )
 let gltfMaterials = dirent
@@ -51,12 +57,7 @@ module.exports = {
       patterns: [
         { 
           context: "../../resources/Images",
-          from: "*.jpg", 
-          to: "Images",
-        },
-        { 
-          context: "../../resources/Materials/Examples/GltfPbr/boombox",
-          from: "*.png", 
+          from: "*.*", 
           to: "Images",
         },
         { 
@@ -65,10 +66,8 @@ module.exports = {
           to: "Geometry",
         },
         { from: "./public", to: 'public' },
-        { from: "../../resources/Images/greysphere_calibration.png", to: "Images" },
-        { from: "../../resources/Lights/san_giuseppe_bridge_split.hdr", to: "Lights" },
-        { from: "../../resources/Lights/san_giuseppe_bridge_split.mtlx", to: "Lights" },
-        { from: "../../resources/Lights/irradiance/san_giuseppe_bridge_split.hdr", to: "Lights/irradiance" },
+        { context: "../../resources/Lights", from: "*.*", to: "Lights" },
+        { context: "../../resources/Lights/irradiance", from: "*.*", to: "Lights/irradiance" },
         { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
         { from: usdSurfaceMaterials, to: usdSurfaceMaterialsBaseURL },
         { from: gltfSurfaceMaterials, to: gltfSurfaceMaterialsBaseURL },

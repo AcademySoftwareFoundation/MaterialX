@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_CLOSURESOURCECODEMDL_H
@@ -12,7 +12,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 class MX_GENMDL_API ClosureSourceCodeNodeMdl : public SourceCodeNodeMdl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;

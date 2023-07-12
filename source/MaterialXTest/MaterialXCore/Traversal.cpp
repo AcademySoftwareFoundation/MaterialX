@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
@@ -20,8 +20,8 @@ TEST_CASE("IntraGraph Traversal", "[traversal]")
     REQUIRE(*nullGraph == mx::NULL_EDGE);
     ++nullTree;
     ++nullGraph;
-    REQUIRE(nullTree == mx::NULL_TREE_ITERATOR);
-    REQUIRE(nullGraph == mx::NULL_GRAPH_ITERATOR);
+    REQUIRE((nullTree == mx::NULL_TREE_ITERATOR));
+    REQUIRE((nullGraph == mx::NULL_GRAPH_ITERATOR));
 
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();
@@ -176,14 +176,9 @@ TEST_CASE("IntraGraph Traversal", "[traversal]")
 
 TEST_CASE("InterGraph Traversal", "[traversal]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath);
-    mx::loadLibraries({ "libraries" }, searchPath, doc);
-
-    mx::FilePath testFile = currentPath / mx::FilePath("resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx");
-    mx::readFromXmlFile(doc, testFile, searchPath);
-    REQUIRE(doc->validate());
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx", searchPath);
 
     for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
     {

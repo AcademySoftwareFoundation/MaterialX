@@ -35,7 +35,8 @@ elseif(APPLE)
         MaterialXRender
         ${CMAKE_DL_LIBS}
         "-framework Foundation"
-        "-framework Cocoa")
+        "-framework Cocoa"
+        "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         MaterialXRenderHw
@@ -50,6 +51,7 @@ set_target_properties(
     OUTPUT_NAME MaterialXRenderHw${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+    INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 

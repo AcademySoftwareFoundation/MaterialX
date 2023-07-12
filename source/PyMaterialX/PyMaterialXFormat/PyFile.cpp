@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -40,6 +40,7 @@ void bindPyFile(py::module& mod)
         .def("addExtension", &mx::FilePath::addExtension)
         .def("removeExtension", &mx::FilePath::removeExtension)
         .def("size", &mx::FilePath::size)
+        .def("getNormalized", &mx::FilePath::getNormalized)        
         .def("exists", &mx::FilePath::exists)
         .def("isDirectory", &mx::FilePath::isDirectory)
         .def("getFilesInDirectory", &mx::FilePath::getFilesInDirectory)

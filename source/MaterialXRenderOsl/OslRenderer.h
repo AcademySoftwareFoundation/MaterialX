@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_OSLRENDERER_H
@@ -47,7 +47,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Internal initialization required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
-    void initialize() override;
+    void initialize(RenderContextHandle renderContextHandle = nullptr) override;
 
     /// @}
     /// @name Rendering

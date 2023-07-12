@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Value.h>
@@ -31,6 +31,7 @@ template <class T> using enable_if_std_vector_t =
 template <class T> void stringToData(const string& str, T& data)
 {
     std::stringstream ss(str);
+    ss.imbue(std::locale::classic());
     if (!(ss >> data))
     {
         throw ExceptionTypeError("Type mismatch in generic stringToData: " + str);
@@ -83,10 +84,13 @@ template <class T> void stringToData(const string& str, enable_if_mx_matrix_t<T>
 
 template <class T> void stringToData(const string& str, enable_if_std_vector_t<T>& data)
 {
-    for (const string& token : splitString(str, ARRAY_VALID_SEPARATORS))
+    // This code path parses an array of arbitrary substrings, so we split the string
+    // in a fashion that preserves substrings with internal spaces.
+    const string COMMA_SEPARATOR = ",";
+    for (const string& token : splitString(str, COMMA_SEPARATOR))
     {
         typename T::value_type val;
-        stringToData(token, val);
+        stringToData(trimSpaces(token), val);
         data.push_back(val);
     }
 }
@@ -94,6 +98,7 @@ template <class T> void stringToData(const string& str, enable_if_std_vector_t<T
 template <class T> void dataToString(const T& data, string& str)
 {
     std::stringstream ss;
+    ss.imbue(std::locale::classic());
 
     // Set float format and precision for the stream
     const Value::FloatFormat fmt = Value::getFloatFormat();

@@ -1,3 +1,8 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #ifndef MATERIALXVIEW_EDITOR_H
 #define MATERIALXVIEW_EDITOR_H
 
@@ -54,7 +59,7 @@ class PropertyEditor
 
 ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
                                        const mx::UIProperties*ui, std::function<void(float)> callback = nullptr);
-ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, unsigned int value,
+ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
                                  const mx::UIProperties* ui, std::function<void(int)> callback);
 
 #endif // MATERIALXVIEW_EDITOR_H

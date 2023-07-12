@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_TRANSFORMPOINTNODEGLSL_H
@@ -13,11 +13,11 @@ MATERIALX_NAMESPACE_BEGIN
 /// TransformPoint node implementation for GLSL
 class MX_GENGLSL_API TransformPointNodeGlsl : public TransformVectorNodeGlsl
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
-protected:
-    virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
+  protected:
+    virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const override;
 };
 
 MATERIALX_NAMESPACE_END

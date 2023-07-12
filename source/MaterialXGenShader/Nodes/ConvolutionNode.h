@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_CONVOLUTIONNODE_H
@@ -21,7 +21,7 @@ extern MX_GENSHADER_API const std::array<float, 7> GAUSSIAN_KERNEL_7;
 class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
 {
   public:
-     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
+    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
   protected:
     /// Constructor
@@ -32,14 +32,14 @@ class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
 
     // Derived classes are responsible for computing offset strings relative to the center sample
     // The sample size and offset type are passed in as arguments.
-    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString, 
+    virtual void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                             unsigned int filterWidth, StringVec& offsetStrings) const = 0;
 
     /// Get input which is used for sampling. If there is none
     /// then a null pointer is returned.
     virtual const ShaderInput* getSamplingInput(const ShaderNode& node) const;
 
-    /// Generate upstream / input sampling code in uv space and cache the output variable names which 
+    /// Generate upstream / input sampling code in uv space and cache the output variable names which
     /// will hold the sample values after execution.
     void emitInputSamplesUV(const ShaderNode& node,
                             unsigned int sampleCount, unsigned int filterWidth,

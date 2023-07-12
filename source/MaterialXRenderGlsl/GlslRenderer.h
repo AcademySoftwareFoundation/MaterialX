@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLSLRENDERER_H
@@ -13,6 +13,7 @@
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslProgram.h>
+#include <MaterialXRenderGlsl/GLTextureHandler.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
 
@@ -44,6 +45,12 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// Create a GLSL renderer instance
     static GlslRendererPtr create(unsigned int width = 512, unsigned int height = 512, Image::BaseType baseType = Image::BaseType::UINT8);
 
+    /// Create a texture handler for OpenGL textures
+    ImageHandlerPtr createImageHandler(ImageLoaderPtr imageLoader)
+    {
+        return GLTextureHandler::create(imageLoader);
+    }
+    
     /// Destructor
     virtual ~GlslRenderer() { }
 
@@ -54,7 +61,8 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// required for program validation and rendering.
     /// An exception is thrown on failure.
     /// The exception will contain a list of initialization errors.
-    void initialize() override;
+    /// @param renderContextHandle allows initializing the GlslRenderer with a Shared OpenGL Context
+    void initialize(RenderContextHandle renderContextHandle = nullptr) override;
 
     /// @}
     /// @name Rendering
@@ -102,32 +110,32 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     /// Submit geometry for a screen-space quad.
     void drawScreenSpaceQuad(const Vector2& uvMin = Vector2(0.0f), const Vector2& uvMax = Vector2(1.0f));
 
-    /// Sets the clear color
-    void setClearColor(const Color4& clearColor);
+    /// Set the screen background color.
+    void setScreenColor(const Color3& screenColor)
+    {
+        _screenColor = screenColor;
+    }
+
+    /// Return the screen background color.
+    Color3 getScreenColor() const
+    {
+        return _screenColor;
+    }
 
     /// @}
 
   protected:
     GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
-    virtual void updateViewInformation();
-    virtual void updateWorldInformation();
-
   private:
     GlslProgramPtr _program;
-
     GLFramebufferPtr _framebuffer;
 
     bool _initialized;
 
-    const Vector3 _eye;
-    const Vector3 _center;
-    const Vector3 _up;
-    float _objectScale;
-
     SimpleWindowPtr _window;
     GLContextPtr _context;
-    Color4 _clearColor;
+    Color3 _screenColor;
 };
 
 MATERIALX_NAMESPACE_END

@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
@@ -32,32 +32,27 @@ TEST_CASE("Syntactic operations", "[file]")
 
 TEST_CASE("File system operations", "[file]")
 {
-    mx::StringVec filenames =
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePathVec examplePaths =
     {
         "libraries/stdlib/stdlib_defs.mtlx",
         "resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx",
         "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx",
     };
-
-    for (const std::string& filename : filenames)
+    for (const mx::FilePath& path : examplePaths)
     {
-        mx::FilePath path(filename);
-        REQUIRE(path.exists());
-        REQUIRE(mx::FileSearchPath().find(path).exists());
+        REQUIRE(searchPath.find(path).exists());
     }
 
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FilePath modulePath = mx::FilePath::getModulePath();
-    bool expectedPaths = currentPath == modulePath ||
-                         currentPath == modulePath.getParentPath();
-    REQUIRE(expectedPaths);
+    REQUIRE(mx::FilePath::getCurrentPath().exists());
+    REQUIRE(mx::FilePath::getModulePath().exists());
 }
 
 TEST_CASE("File search path operations", "[file]")
 {
-    mx::FileSearchPath searchPath = "libraries/stdlib" + 
-                                    mx::PATH_LIST_SEPARATOR + 
-                                    "resources/Materials/Examples/StandardSurface";
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    searchPath.append(searchPath.find("libraries/stdlib"));
+    searchPath.append(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     mx::FilePathVec filenames =
     {
@@ -102,17 +97,15 @@ TEST_CASE("Flatten filenames", "[file]")
     image2->setInputValue("file", "brass_color.jpg", mx::FILENAME_TYPE_STRING);
 
     // 2. Test resolving to absolute paths
-    mx::FilePath rootPath(mx::FilePath::getCurrentPath());
-
-    mx::FileSearchPath searchPath;
-    searchPath.append(rootPath);
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath rootPath = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
 
     mx::flattenFilenames(doc1, searchPath);    
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     resolvedPath = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString());
+    REQUIRE(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString());
     resolvedPath = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString());
+    REQUIRE(resolvedPath.asString() == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString());
 
     // Reset document
     nodeGraph->setFilePrefix(TEST_FILE_PREFIX_STRING.asString() + "\\");
@@ -126,18 +119,38 @@ TEST_CASE("Flatten filenames", "[file]")
     separatorReplacer->setFilenameSubstitution("\\", "/");
 
     mx::flattenFilenames(doc1, searchPath, separatorReplacer);
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     std::string resolvedPathString = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
     resolvedPathString = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
 
     // 4. Test with pre-resolved filenames
     nodeGraph->setFilePrefix(TEST_FILE_PREFIX_STRING.asString() + "\\");
     mx::flattenFilenames(doc1, searchPath, separatorReplacer);
-    CHECK(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
+    REQUIRE(nodeGraph->getFilePrefix() == mx::EMPTY_STRING);
     resolvedPathString = image1->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING1).asString(mx::FilePath::FormatPosix));
     resolvedPathString = image2->getInputValue("file")->getValueString();
-    CHECK(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
+    REQUIRE(resolvedPathString == (rootPath / TEST_FILE_PREFIX_STRING / TEST_IMAGE_STRING2).asString(mx::FilePath::FormatPosix));
+}
+
+TEST_CASE("Path normalization test", "[file]")
+{
+    const mx::FilePath REFERENCE_REL_PATH("a/b");
+    const mx::FilePath REFERENCE_ABS_PREFIX("/assets");
+
+    std::vector<mx::FilePath> examplePaths =
+    {
+        "a/./b",
+        "././a/b",
+        "c/../d/../a/b",
+        "a/b/./c/d/../.."
+    };
+
+    for (const mx::FilePath& path : examplePaths)
+    {
+        REQUIRE(path.getNormalized() == REFERENCE_REL_PATH);
+        REQUIRE((REFERENCE_ABS_PREFIX / path).getNormalized() == (REFERENCE_ABS_PREFIX / REFERENCE_REL_PATH));
+    }
 }

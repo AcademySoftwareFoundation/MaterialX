@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXCore/Document.h>
 #include <MaterialXFormat/File.h>
@@ -46,7 +46,7 @@ TEST_CASE("Document", "[document]")
     REQUIRE(nodeGraph->getDescendant("missingNode") == mx::ElementPtr());
 
     // Create a simple shader interface.
-    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr simpleSrf = doc->addNodeDef("", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     simpleSrf->setInputValue("diffColor", mx::Color3(1.0f));
     simpleSrf->setInputValue("specColor", mx::Color3(0.0f));
     mx::InputPtr roughness = simpleSrf->setInputValue("roughness", 0.25f);
@@ -89,7 +89,7 @@ TEST_CASE("Document", "[document]")
     mx::DocumentPtr customLibrary = mx::createDocument();
     customLibrary->setNamespace("custom");
     mx::NodeGraphPtr customNodeGraph = customLibrary->addNodeGraph("NG_custom");
-    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", "surfaceshader", "simpleSrf");
+    mx::NodeDefPtr customNodeDef = customLibrary->addNodeDef("ND_simpleSrf", mx::SURFACE_SHADER_TYPE_STRING, "simpleSrf");
     mx::ImplementationPtr customImpl = customLibrary->addImplementation("IM_custom");
     customNodeGraph->addNodeInstance(customNodeDef, "custom1");
     customImpl->setNodeDef(customNodeDef);
@@ -111,22 +111,24 @@ TEST_CASE("Document", "[document]")
 
 TEST_CASE("Version", "[document]")
 {
-    mx::DocumentPtr doc = mx::createDocument();
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-    mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
-    mx::FileSearchPath searchPath("resources/Materials/TestSuite/stdlib/upgrade/");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr stdlib = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, stdlib);
+    searchPath.append(searchPath.find("resources/Materials/TestSuite/stdlib/upgrade"));
 
     // 1.36 to 1.37
     {
+        mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, "1_36_to_1_37.mtlx", searchPath);
+        doc->importLibrary(stdlib);
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = true;
-        mx::writeToXmlFile(doc, "1_36_to_1_37_updated.mtlx", &writeOptions);
+        std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
 
         mx::DocumentPtr doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, "1_36_to_1_37_updated.mtlx");
+        mx::readFromXmlString(doc2, xmlString);
         REQUIRE(doc2->validate());
 
         // Check conversion to desired types occurred
@@ -160,18 +162,17 @@ TEST_CASE("Version", "[document]")
 
     // 1.37 to 1.38
     {
-        doc = mx::createDocument();
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
-        mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
+        mx::DocumentPtr doc = mx::createDocument();
         mx::readFromXmlFile(doc, "1_37_to_1_38.mtlx", searchPath);
+        doc->importLibrary(stdlib);
         REQUIRE(doc->validate());
 
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = false;
-        mx::writeToXmlFile(doc, "1_37_to_1_38_updated.mtlx", &writeOptions);
+        std::string xmlString = mx::writeToXmlString(doc, &writeOptions);
 
         mx::DocumentPtr doc2 = mx::createDocument();
-        mx::readFromXmlFile(doc2, "1_37_to_1_38_updated.mtlx");
+        mx::readFromXmlString(doc2, xmlString);
         REQUIRE(doc2->validate());
 
         // atan2 test

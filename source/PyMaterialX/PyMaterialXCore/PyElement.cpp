@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -90,7 +90,7 @@ void bindPyElement(py::module& mod)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)
         .def("getActiveSourceUri", &mx::Element::getActiveSourceUri)
-        .def("validate", [](mx::Element& elem)
+        .def("validate", [](const mx::Element& elem)
             {
                 std::string message;
                 bool res = elem.validate(&message);
@@ -188,6 +188,9 @@ void bindPyElement(py::module& mod)
 
     py::class_<mx::CommentElement, mx::CommentElementPtr, mx::Element>(mod, "CommentElement")
         .def_readonly_static("CATEGORY", &mx::CommentElement::CATEGORY);
+
+    py::class_<mx::NewlineElement, mx::NewlineElementPtr, mx::Element>(mod, "NewlineElement")
+        .def_readonly_static("CATEGORY", &mx::NewlineElement::CATEGORY);
 
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);

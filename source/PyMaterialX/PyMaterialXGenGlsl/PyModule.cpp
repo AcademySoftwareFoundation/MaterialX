@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -10,6 +10,7 @@ namespace py = pybind11;
 void bindPyGlslShaderGenerator(py::module& mod);
 void bindPyGlslResourceBindingContext(py::module &mod);
 void bindPyEsslShaderGenerator(py::module& mod);
+void bindPyVkShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
@@ -19,4 +20,5 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
     bindPyGlslResourceBindingContext(mod);
 
     bindPyEsslShaderGenerator(mod);
+    bindPyVkShaderGenerator(mod);
 }

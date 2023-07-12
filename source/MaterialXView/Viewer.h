@@ -1,24 +1,40 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
 #include <MaterialXView/Editor.h>
-#include <MaterialXView/Material.h>
+#include <MaterialXView/RenderPipeline.h>
 
-#include <MaterialXRenderGlsl/GLFramebuffer.h>
-
+#include <MaterialXRender/ShaderMaterial.h>
 #include <MaterialXRender/Camera.h>
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/LightHandler.h>
+#include <MaterialXRender/ImageHandler.h>
+#include <MaterialXRender/Timer.h>
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXCore/Unit.h>
 
 namespace mx = MaterialX;
 namespace ng = nanogui;
 
+class DocumentModifiers
+{
+  public:
+    mx::StringMap remapElements;
+    mx::StringSet skipElements;
+    std::string filePrefixTerminator;
+};
+
 class Viewer : public ng::Screen
 {
+    friend class RenderPipeline;
+    friend class GLRenderPipeline;
+    friend class MetalRenderPipeline;
   public:
     Viewer(const std::string& materialFilename,
            const std::string& meshFilename,
@@ -43,6 +59,18 @@ class Viewer : public ng::Screen
     void setMeshScale(float scale)
     {
         _meshScale = scale;
+    }
+
+    // Set whether turntable rendering is enabled.
+    void setTurntableEnabled(bool val)
+    {
+        _turntableEnabled = val;
+    }
+
+    // Set the total number of steps for one 360 degree rotation.
+    void setTurntableSteps(int steps)
+    {
+        _turntableSteps = steps;
     }
 
     // Set the world-space position of the camera.
@@ -93,6 +121,12 @@ class Viewer : public ng::Screen
         _genContext.getOptions().hwShadowMap = enable;
     }
 
+    // Enable or disable drawing environment as the background.
+    void setDrawEnvironment(bool enable)
+    {
+        _drawEnvironment = enable;
+    }
+
     // Set the modifiers to be applied to loaded documents.
     void setDocumentModifiers(const DocumentModifiers& modifiers)
     {
@@ -136,7 +170,7 @@ class Viewer : public ng::Screen
     }
 
     // Return the selected material.
-    MaterialPtr getSelectedMaterial() const
+    mx::MaterialPtr getSelectedMaterial() const
     {
         if (_selectedMaterial < _materials.size())
         {
@@ -156,7 +190,7 @@ class Viewer : public ng::Screen
     }
 
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath filename)
+    void requestFrameCapture(const mx::FilePath& filename)
     {
         _captureRequested = true;
         _captureFilename = filename;
@@ -168,7 +202,11 @@ class Viewer : public ng::Screen
         _exitRequested = true;
     }
 
-    void bakeTextures();
+    // Bake textures to disk using the current render pipeline.
+    void bakeTextures()
+    {
+        _renderPipeline->bakeTextures();
+    }
 
   private:
     void draw_contents() override;
@@ -176,7 +214,7 @@ class Viewer : public ng::Screen
     bool scroll_event(const ng::Vector2i& p, const ng::Vector2f& rel) override;
     bool mouse_motion_event(const ng::Vector2i& p, const ng::Vector2i& rel, int button, int modifiers) override;
     bool mouse_button_event(const ng::Vector2i& p, int button, bool down, int modifiers) override;
-
+    
     void initContext(mx::GenContext& context);
     void loadMesh(const mx::FilePath& filename);
     void loadEnvironmentLight();
@@ -188,15 +226,18 @@ class Viewer : public ng::Screen
     void loadShaderSource();
     void saveDotFiles();
 
+    // Compute the resolution for texture baking.
+    mx::UnsignedIntPair computeBakingResolution(mx::ConstDocumentPtr doc);
+    
     // Translate the current material to the target shading model.
     mx::DocumentPtr translateMaterial();
 
     // Assign the given material to the given geometry, or remove any
     // existing assignment if the given material is nullptr.
-    void assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material);
+    void assignMaterial(mx::MeshPartitionPtr geometry, mx::MaterialPtr material);
 
     // Mark the given material as currently selected in the viewer.
-    void setSelectedMaterial(MaterialPtr material)
+    void setSelectedMaterial(mx::MaterialPtr material)
     {
         for (size_t i = 0; i < _materials.size(); i++)
         {
@@ -229,30 +270,37 @@ class Viewer : public ng::Screen
     void createAdvancedSettings(Widget* parent);
 
     // Return the ambient occlusion image, if any, associated with the given material.
-    mx::ImagePtr getAmbientOcclusionImage(MaterialPtr material);
+    mx::ImagePtr getAmbientOcclusionImage(mx::MaterialPtr material);
     
     // Split the given radiance map into indirect and direct components,
     // returning a new indirect map and directional light document.
     void splitDirectLight(mx::ImagePtr envRadianceMap, mx::ImagePtr& indirectMap, mx::DocumentPtr& dirLightDoc);
 
-    MaterialPtr getEnvironmentMaterial();
-    MaterialPtr getWireframeMaterial();
+    mx::MaterialPtr getEnvironmentMaterial();
+    mx::MaterialPtr getWireframeMaterial();
 
     mx::ImagePtr getShadowMap();
     void invalidateShadowMap();
 
-    void renderFrame();
-    mx::ImagePtr getFrameImage();
     mx::ImagePtr renderWedge();
-    void renderScreenSpaceQuad(MaterialPtr material);
+    void renderTurnable();
+    void renderScreenSpaceQuad(mx::MaterialPtr material);
 
     // Update the directional albedo table.
     void updateAlbedoTable();
 
+    // Toggle turntable
+    void toggleTurntable(bool enable);
+
+    // Set shader interface type
+    void setShaderInterfaceType(mx::ShaderInterfaceType interfaceType);
+
   private:
     ng::Window* _window;
+    RenderPipelinePtr _renderPipeline;
 
     mx::FilePath _materialFilename;
+    mx::FileSearchPath _materialSearchPath;
     mx::FilePath _meshFilename;
     mx::FilePath _envRadianceFilename;
 
@@ -262,6 +310,11 @@ class Viewer : public ng::Screen
     mx::Vector3 _meshTranslation;
     mx::Vector3 _meshRotation;
     float _meshScale;
+
+    bool _turntableEnabled;
+    int _turntableSteps;
+    int _turntableStep;
+    mx::ScopedTimer _turntableTimer;
 
     mx::Vector3 _cameraPosition;
     mx::Vector3 _cameraTarget;
@@ -294,8 +347,8 @@ class Viewer : public ng::Screen
     bool _saveGeneratedLights;
 
     // Shadow mapping
-    MaterialPtr _shadowMaterial;
-    MaterialPtr _shadowBlurMaterial;
+    mx::MaterialPtr _shadowMaterial;
+    mx::MaterialPtr _shadowBlurMaterial;
     mx::ImagePtr _shadowMap;
     unsigned int _shadowSoftness;
 
@@ -309,17 +362,18 @@ class Viewer : public ng::Screen
     ng::ComboBox* _geometrySelectionBox;
 
     // Material selections
-    std::vector<MaterialPtr> _materials;
-    MaterialPtr _wireMaterial;
+    std::vector<mx::MaterialPtr> _materials;
+    mx::MaterialPtr _wireMaterial;
     size_t _selectedMaterial;
     ng::Label* _materialLabel;
     ng::ComboBox* _materialSelectionBox;
     PropertyEditor _propertyEditor;
 
     // Material assignments
-    std::map<mx::MeshPartitionPtr, MaterialPtr> _materialAssignments;
+    std::map<mx::MeshPartitionPtr, mx::MaterialPtr> _materialAssignments;
 
     // Cameras
+    mx::CameraPtr _identityCamera;
     mx::CameraPtr _viewCamera;
     mx::CameraPtr _envCamera;
     mx::CameraPtr _shadowCamera;
@@ -331,12 +385,14 @@ class Viewer : public ng::Screen
 
     // Supporting materials and geometry.
     mx::GeometryHandlerPtr _envGeometryHandler;
-    MaterialPtr _envMaterial;
+    mx::MaterialPtr _envMaterial;
     mx::MeshPtr _quadMesh;
 
     // Shader generator contexts
     mx::GenContext _genContext;
+#ifndef MATERIALXVIEW_METAL_BACKEND
     mx::GenContext _genContextEssl;
+#endif
 #if MATERIALX_BUILD_GEN_OSL
     mx::GenContext _genContextOsl;
 #endif
@@ -346,22 +402,28 @@ class Viewer : public ng::Screen
     // Unit registry
     mx::UnitConverterRegistryPtr _unitRegistry;
 
-    // Mesh options
-    bool _splitByUdims;
-
-    // Material options
-    bool _mergeMaterials;
-    bool _showAllInputs;
-
-    // Unit options
-    mx::StringVec _distanceUnitOptions;
-    mx::LinearUnitConverterPtr _distanceUnitConverter;
+    // Viewing options
+    bool _drawEnvironment;
+    bool _outlineSelection;
 
     // Render options
     bool _renderTransparency;
     bool _renderDoubleSided;
-    bool _outlineSelection;
-    bool _drawEnvironment;
+    
+    // Framebuffer Color Texture
+    void* _colorTexture;
+
+    // Scene options
+    mx::StringVec _distanceUnitOptions;
+    mx::LinearUnitConverterPtr _distanceUnitConverter;
+
+    // Mesh loading options
+    bool _splitByUdims;
+
+    // Material loading options
+    bool _mergeMaterials;
+    bool _showAllInputs;
+    bool _flattenSubgraphs;
 
     // Shader translation
     std::string _targetShader;
@@ -386,6 +448,7 @@ class Viewer : public ng::Screen
     bool _bakeRequested;
     unsigned int _bakeWidth;
     unsigned int _bakeHeight;
+    bool _bakeDocumentPerMaterial;
     mx::FilePath _bakeFilename;
 };
 

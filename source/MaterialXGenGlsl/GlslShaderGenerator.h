@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLSLSHADERGENERATOR_H
@@ -44,8 +44,8 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// The element must be an Implementation or a NodeGraph acting as implementation.
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
-    /// Determine the prefix of vertex data variables. 
-    virtual const string getVertexDataPrefix(const VariableBlock& vertexData) const;
+    /// Determine the prefix of vertex data variables.
+    virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
 
   public:
     /// Unique identifier for this generator target
@@ -64,7 +64,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     virtual void emitLightData(GenContext& context, ShaderStage& stage) const;
     virtual void emitInputs(GenContext& context, ShaderStage& stage) const;
     virtual void emitOutputs(GenContext& context, ShaderStage& stage) const;
-    
+
     virtual HwResourceBindingContextPtr getResourceBindingContext(GenContext& context) const;
 
     /// Logic to indicate whether code to support direct lighting should be emitted.
@@ -75,6 +75,9 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Emit specular environment lookup code
     virtual void emitSpecularEnvironment(GenContext& context, ShaderStage& stage) const;
 
+    /// Emit transmission rendering code
+    virtual void emitTransmissionRender(GenContext& context, ShaderStage& stage) const;
+
     /// Emit function definitions for lighting code
     virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
@@ -83,7 +86,6 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// Nodes used internally for light sampling.
     vector<ShaderNodePtr> _lightSamplingNodes;
 };
-
 
 /// Base class for common GLSL node implementations
 class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
@@ -94,16 +96,16 @@ class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
     bool isEditable(const ShaderInput& input) const override;
 
   protected:
-    GlslImplementation() {}
+    GlslImplementation() { }
 
     // Integer identifiers for coordinate spaces.
     // The order must match the order given for
     // the space enum string in stdlib.
     enum Space
     {
-        MODEL_SPACE  = 0,
+        MODEL_SPACE = 0,
         OBJECT_SPACE = 1,
-        WORLD_SPACE  = 2
+        WORLD_SPACE = 2
     };
 
     /// Internal string constants

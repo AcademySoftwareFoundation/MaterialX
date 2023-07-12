@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXFormat/File.h>
@@ -38,6 +38,9 @@ const string VALID_SEPARATORS = "/\\";
 
 const char PREFERRED_SEPARATOR_WINDOWS = '\\';
 const char PREFERRED_SEPARATOR_POSIX = '/';
+
+const string CURRENT_PATH_STRING = ".";
+const string PARENT_PATH_STRING = "..";
 
 #if defined(_WIN32)
 const string PATH_LIST_SEPARATOR = ";";
@@ -130,10 +133,30 @@ FilePath FilePath::operator/(const FilePath& rhs) const
     return combined;
 }
 
+FilePath FilePath::getNormalized() const
+{
+    FilePath res;
+    for (const string& str : _vec)
+    {
+        if (str == CURRENT_PATH_STRING)
+        {
+            continue;
+        }
+        if (str == PARENT_PATH_STRING && !res.isEmpty() && res[res.size() - 1] != PARENT_PATH_STRING)
+        {
+            res._vec.pop_back();
+            continue;
+        }
+        res._vec.push_back(str);
+    }
+    res._type = _type;
+    return res;
+}
+
 bool FilePath::exists() const
 {
 #if defined(_WIN32)
-    uint32_t result = GetFileAttributes(asString().c_str());
+    uint32_t result = GetFileAttributesA(asString().c_str());
     return result != INVALID_FILE_ATTRIBUTES;
 #else
     struct stat sb;
@@ -144,7 +167,7 @@ bool FilePath::exists() const
 bool FilePath::isDirectory() const
 {
 #if defined(_WIN32)
-    uint32_t result = GetFileAttributes(asString().c_str());
+    uint32_t result = GetFileAttributesA(asString().c_str());
     if (result == INVALID_FILE_ATTRIBUTES)
         return false;
     return (result & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -161,9 +184,9 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
     FilePathVec files;
 
 #if defined(_WIN32)
-    WIN32_FIND_DATA fd;
+    WIN32_FIND_DATAA fd;
     string wildcard = "*." + extension;
-    HANDLE hFind = FindFirstFile((*this / wildcard).asString().c_str(), &fd);
+    HANDLE hFind = FindFirstFileA((*this / wildcard).asString().c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
@@ -172,7 +195,7 @@ FilePathVec FilePath::getFilesInDirectory(const string& extension) const
             {
                 files.emplace_back(fd.cFileName);
             }
-        } while (FindNextFile(hFind, &fd));
+        } while (FindNextFileA(hFind, &fd));
         FindClose(hFind);
     }
 #else
@@ -203,9 +226,9 @@ FilePathVec FilePath::getSubDirectories() const
     FilePathVec dirs{ *this };
 
 #if defined(_WIN32)
-    WIN32_FIND_DATA fd;
+    WIN32_FIND_DATAA fd;
     string wildcard = "*";
-    HANDLE hFind = FindFirstFile((*this / wildcard).asString().c_str(), &fd);
+    HANDLE hFind = FindFirstFileA((*this / wildcard).asString().c_str(), &fd);
     if (hFind != INVALID_HANDLE_VALUE)
     {
         do
@@ -217,7 +240,7 @@ FilePathVec FilePath::getSubDirectories() const
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }
-        } while (FindNextFile(hFind, &fd));
+        } while (FindNextFileA(hFind, &fd));
         FindClose(hFind);
     }
 #else
@@ -244,7 +267,6 @@ FilePathVec FilePath::getSubDirectories() const
             }
             if (d_type == DT_DIR)
             {
-                FilePath newDir = *this / path;
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }
@@ -278,7 +300,7 @@ FilePath FilePath::getCurrentPath()
 {
 #if defined(_WIN32)
     std::array<char, MAX_PATH> buf;
-    if (!GetCurrentDirectory(MAX_PATH, buf.data()))
+    if (!GetCurrentDirectoryA(MAX_PATH, buf.data()))
     {
         throw Exception("Error in getCurrentPath: " + std::to_string(GetLastError()));
     }
@@ -299,7 +321,7 @@ FilePath FilePath::getModulePath()
     vector<char> buf(MAX_PATH);
     while (true)
     {
-        uint32_t reqSize = GetModuleFileName(NULL, buf.data(), (uint32_t) buf.size());
+        uint32_t reqSize = GetModuleFileNameA(NULL, buf.data(), (uint32_t) buf.size());
         if (!reqSize)
         {
             throw Exception("Error in getModulePath: " + std::to_string(GetLastError()));
@@ -317,7 +339,7 @@ FilePath FilePath::getModulePath()
     vector<char> buf(PATH_MAX);
     while (true)
     {
-        uint32_t reqSize = buf.size();
+        uint32_t reqSize = static_cast<uint32_t>(buf.size());
         if (_NSGetExecutablePath(buf.data(), &reqSize) == -1)
         {
             buf.resize((size_t) reqSize);

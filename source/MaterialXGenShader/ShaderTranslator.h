@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERTRANSLATOR_H
@@ -17,6 +17,7 @@ MATERIALX_NAMESPACE_BEGIN
 using ShaderTranslatorPtr = shared_ptr<class ShaderTranslator>;
 
 /// @class ShaderTranslator
+/// A helper class for translating content between shading models.
 class MX_GENSHADER_API ShaderTranslator
 {
   public:
@@ -30,7 +31,7 @@ class MX_GENSHADER_API ShaderTranslator
 
     /// Translate each material in the input document to the destination
     /// shading model.
-    void translateAllMaterials(DocumentPtr doc, string destShader);
+    void translateAllMaterials(DocumentPtr doc, const string& destShader);
 
   protected:
     ShaderTranslator() { }

@@ -1,4 +1,4 @@
-#include "$fileTransformUv"
+#include "lib/$fileTransformUv"
 
 void mx_image_float(textureresource file, string layer, float default_value, vector2 texcoord, string uaddressmode, string vaddressmode, string filtertype, string framerange, int frameoffset, string frameendaction, output float out)
 {

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GENERATED_H
@@ -9,6 +9,8 @@
 #define MATERIALX_MAJOR_VERSION @MATERIALX_MAJOR_VERSION@
 #define MATERIALX_MINOR_VERSION @MATERIALX_MINOR_VERSION@
 #define MATERIALX_BUILD_VERSION @MATERIALX_BUILD_VERSION@
+
+#cmakedefine MATERIALX_BUILD_SHARED_LIBS
 
 // Establish namespace:
 namespace @MATERIALX_NAMESPACE@

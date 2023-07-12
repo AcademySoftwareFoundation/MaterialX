@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXCore/Document.h>
@@ -22,9 +22,8 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenReference: OSL Reference", "[genreference]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr stdlib = mx::createDocument();
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath searchPath(currentPath);
     loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, stdlib);
 
     // Create renderer if requested.
@@ -38,7 +37,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
         oslIncludePaths.append(mx::FilePath(MATERIALX_OSL_INCLUDE_PATH));
         // Add in library include path for compile testing as the generated
         // shader's includes are not added with absolute paths.
-        oslIncludePaths.append(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
+        oslIncludePaths.append(searchPath.find("libraries/stdlib/genosl/include"));
         oslRenderer->setOslIncludePath(oslIncludePaths);
     }
 
@@ -46,11 +45,11 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
     mx::ShaderGeneratorPtr generator = mx::OslShaderGenerator::create();
     mx::GenContext context(generator);
     context.getOptions().addUpstreamDependencies = false;
-    context.registerSourceCodeSearchPath(currentPath);
+    context.registerSourceCodeSearchPath(searchPath);
     context.getOptions().fileTextureVerticalFlip = true;
 
     // Create output directory.
-    mx::FilePath outputPath = mx::FilePath::getCurrentPath() / mx::FilePath("reference/osl");
+    mx::FilePath outputPath = searchPath.find("reference/osl");
     outputPath.getParentPath().createDirectory();
     outputPath.createDirectory();
 
@@ -82,7 +81,7 @@ TEST_CASE("GenReference: OSL Reference", "[genreference]")
             continue;
         }
 
-        mx::InterfaceElementPtr interface = nodedef->getImplementation();
+        mx::InterfaceElementPtr interface = nodedef->getImplementation(generator->getTarget());
         if (!interface)
         {
             logFile << "Skip generating reference for unimplemented node '" << nodeName << "'" << std::endl;

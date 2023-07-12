@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERRENDERER_H
@@ -17,6 +17,10 @@
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
+
+/// Render context handle
+/// Provides a provision for an application to share any renderer specific settings
+using RenderContextHandle = void*;
 
 /// Shared pointer to a shader renderer
 using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
@@ -36,7 +40,7 @@ class MX_RENDER_API ShaderRenderer
     /// @{
 
     /// Initialize the renderer.
-    virtual void initialize() { }
+    virtual void initialize(RenderContextHandle = nullptr) { }
 
     /// Set the camera.
     void setCamera(CameraPtr camera)
@@ -119,17 +123,7 @@ class MX_RENDER_API ShaderRenderer
     /// @}
 
   protected:
-    ShaderRenderer() :
-        _width(0),
-        _height(0),
-        _baseType(Image::BaseType::UINT8)
-    { }
-
-    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-        _width(width),
-        _height(height),
-        _baseType(baseType)
-    { }
+    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
 
   protected:
     unsigned int _width;

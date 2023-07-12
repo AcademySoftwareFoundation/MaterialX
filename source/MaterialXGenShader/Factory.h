@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_FACTORY_H
@@ -15,11 +15,11 @@ MATERIALX_NAMESPACE_BEGIN
 
 /// @class Factory
 /// Factory class for creating instances of classes given their type name.
-template<class T> class Factory
+template <class T> class Factory
 {
   public:
     using Ptr = shared_ptr<T>;
-    using CreatorFunction = Ptr(*)();
+    using CreatorFunction = Ptr (*)();
     using CreatorMap = std::unordered_map<string, CreatorFunction>;
 
     /// Register a new class given a unique type name

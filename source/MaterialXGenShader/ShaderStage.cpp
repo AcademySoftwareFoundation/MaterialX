@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/ShaderStage.h>
@@ -18,8 +18,10 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
-    const string PIXEL = "pixel";
-}
+
+const string PIXEL = "pixel";
+
+} // namespace Stage
 
 //
 // VariableBlock methods
@@ -192,23 +194,24 @@ const VariableBlock& ShaderStage::getConstantBlock() const
 
 void ShaderStage::beginScope(Syntax::Punctuation punc)
 {
-    switch (punc) {
-    case Syntax::CURLY_BRACKETS:
-        beginLine();
-        _code += "{" + _syntax->getNewline();
-        break;
-    case Syntax::PARENTHESES:
-        beginLine();
-        _code += "(" + _syntax->getNewline();
-        break;
-    case Syntax::SQUARE_BRACKETS:
-        beginLine();
-        _code += "[" + _syntax->getNewline();
-        break;
-    case Syntax::DOUBLE_SQUARE_BRACKETS:
-        beginLine();
-        _code += "[[" + _syntax->getNewline();
-        break;
+    switch (punc)
+    {
+        case Syntax::CURLY_BRACKETS:
+            beginLine();
+            _code += "{" + _syntax->getNewline();
+            break;
+        case Syntax::PARENTHESES:
+            beginLine();
+            _code += "(" + _syntax->getNewline();
+            break;
+        case Syntax::SQUARE_BRACKETS:
+            beginLine();
+            _code += "[" + _syntax->getNewline();
+            break;
+        case Syntax::DOUBLE_SQUARE_BRACKETS:
+            beginLine();
+            _code += "[[" + _syntax->getNewline();
+            break;
     }
 
     ++_indentations;
@@ -226,23 +229,24 @@ void ShaderStage::endScope(bool semicolon, bool newline)
     _scopes.pop_back();
     --_indentations;
 
-    switch (punc) {
-    case Syntax::CURLY_BRACKETS:
-        beginLine();
-        _code += "}";
-        break;
-    case Syntax::PARENTHESES:
-        beginLine();
-        _code += ")";
-        break;
-    case Syntax::SQUARE_BRACKETS:
-        beginLine();
-        _code += "]";
-        break;
-    case Syntax::DOUBLE_SQUARE_BRACKETS:
-        beginLine();
-        _code += "]]";
-        break;
+    switch (punc)
+    {
+        case Syntax::CURLY_BRACKETS:
+            beginLine();
+            _code += "}";
+            break;
+        case Syntax::PARENTHESES:
+            beginLine();
+            _code += ")";
+            break;
+        case Syntax::SQUARE_BRACKETS:
+            beginLine();
+            _code += "]";
+            break;
+        case Syntax::DOUBLE_SQUARE_BRACKETS:
+            beginLine();
+            _code += "]]";
+            break;
     }
     if (semicolon)
         _code += ";";
@@ -291,15 +295,14 @@ void ShaderStage::addComment(const string& str)
     endLine(false);
 }
 
-void ShaderStage::addBlock(const string& str, GenContext& context)
+void ShaderStage::addBlock(const string& str, const FilePath& sourceFilename, GenContext& context)
 {
     const string& INCLUDE = _syntax->getIncludeStatement();
     const string& QUOTE   = _syntax->getStringQuote();
 
-    // Add each line in the block seperatelly
-    // to get correct indentation
+    // Add each line in the block seperately to get correct indentation.
     StringStream stream(str);
-    for (string line; std::getline(stream, line); )
+    for (string line; std::getline(stream, line);)
     {
         size_t pos = line.find(INCLUDE);
         if (pos != string::npos)
@@ -312,7 +315,7 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
                 if (length)
                 {
                     const string filename = line.substr(startQuote + 1, length);
-                    addInclude(filename, context);
+                    addInclude(filename, sourceFilename, context);
                 }
             }
         }
@@ -323,21 +326,29 @@ void ShaderStage::addBlock(const string& str, GenContext& context)
     }
 }
 
-void ShaderStage::addInclude(const string& file, GenContext& context)
+void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context)
 {
-    string modifiedFile = file;
+    string modifiedFile = includeFilename;
     tokenSubstitution(context.getShaderGenerator().getTokenSubstitutions(), modifiedFile);
-    FilePath resolvedFile = context.resolveSourceFile(modifiedFile);
+    FilePath resolvedFile = context.resolveSourceFile(modifiedFile, sourceFilename.getParentPath());
 
     if (!_includes.count(resolvedFile))
     {
         string content = readFile(resolvedFile);
         if (content.empty())
         {
-            throw ExceptionShaderGenError("Could not find include file: '" + file + "'");
+            throw ExceptionShaderGenError("Could not find include file: '" + includeFilename.asString() + "'");
         }
         _includes.insert(resolvedFile);
-        addBlock(content, context);
+        addBlock(content, resolvedFile, context);
+    }
+}
+
+void ShaderStage::addSourceDependency(const FilePath& file)
+{
+    if (!_sourceDependencies.count(file))
+    {
+        _sourceDependencies.insert(file);
     }
 }
 
@@ -354,14 +365,18 @@ void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& cont
     }
 }
 
-void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context)
+void ShaderStage::addFunctionCall(const ShaderNode& node, GenContext& context, bool emitCode)
 {
+    // Register this function as being called in the current scope.
     const ClosureContext* cct = context.getClosureContext();
     const FunctionCallId id(&node, cct ? cct->getType() : 0);
-
     _scopes.back().functions.insert(id);
 
-    node.getImplementation().emitFunctionCall(node, context, *this);
+    // Emit code for the function call if not omitted.
+    if (emitCode)
+    {
+        node.getImplementation().emitFunctionCall(node, context, *this);
+    }
 }
 
 bool ShaderStage::isEmitted(const ShaderNode& node, GenContext& context) const

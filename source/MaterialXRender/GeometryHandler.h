@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GEOMETRYHANDLER_H
@@ -118,7 +118,9 @@ class MX_RENDER_API GeometryHandler
     }
 
     /// Utility to create a quad mesh
-    static MeshPtr createQuadMesh();
+    static MeshPtr createQuadMesh(const Vector2& uvMin = Vector2(0.0f, 0.0f),
+                                  const Vector2& uvMax = Vector2(1.0f, 1.0f),
+                                  bool flipTexCoordsHorizontally = false);
     
   protected:
     // Recompute bounds for all stored geometry

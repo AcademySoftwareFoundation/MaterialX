@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<materialx version="1.38">
-  <nodegraph name="nodegraph1" type="surfaceshader">
-    <standard_surface name="standard_surface1" type="surfaceshader">
-      <!-- using default values -->
-    </standard_surface>
-    <output name="out" type="surfaceshader" nodename="standard_surface1" />
-  </nodegraph>
-</materialx>

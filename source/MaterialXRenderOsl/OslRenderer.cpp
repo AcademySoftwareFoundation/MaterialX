@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRenderOsl/OslRenderer.h>
@@ -46,7 +46,7 @@ void OslRenderer::setSize(unsigned int width, unsigned int height)
     }
 }
 
-void OslRenderer::initialize()
+void OslRenderer::initialize(RenderContextHandle)
 {
     if (_oslIncludePath.isEmpty())
     {
@@ -115,7 +115,6 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     const string INPUT_SHADER_PARAMETER_OVERRIDES("%input_shader_parameter_overrides%");
     const string INPUT_SHADER_OUTPUT_STRING("%input_shader_output%");
     const string BACKGROUND_COLOR_STRING("%background_color%");
-    const string backgroundColor("0.3 0.3 0.32"); // TODO: Make this a user input
 
     StringMap replacementMap;
     replacementMap[OUTPUT_SHADER_TYPE_STRING] = outputShader;
@@ -134,7 +133,9 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     replacementMap[INPUT_SHADER_PARAMETER_OVERRIDES] = overrideString;
     replacementMap[ENVIRONMENT_SHADER_PARAMETER_OVERRIDES] = envOverrideString;
     replacementMap[INPUT_SHADER_OUTPUT_STRING] = outputName;
-    replacementMap[BACKGROUND_COLOR_STRING] = backgroundColor;
+    replacementMap[BACKGROUND_COLOR_STRING] = std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[0]) + " " +
+                                              std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[1]) + " " +
+                                              std::to_string(DEFAULT_SCREEN_COLOR_LIN_REC709[2]);
     string sceneString = replaceSubstrings(sceneTemplateString, replacementMap);
     if ((sceneString == sceneTemplateString) || sceneTemplateString.empty())
     {
@@ -142,8 +143,14 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
                                    " does not include proper tokens for rendering");
     }
 
+    // Set the working directory for rendering.
+    FileSearchPath searchPath = getDefaultDataSearchPath();
+    FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
+    FilePath origWorkingPath = FilePath::getCurrentPath();
+    rootPath.setCurrentPath();
+
     // Write scene file
-    const string sceneFileName(shaderPath + "_scene.xml");
+    const string sceneFileName("scene_template.xml");
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
     if (shaderFileStream.is_open())
@@ -176,6 +183,9 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
             break;
         }
     }
+
+    // Restore the working directory after rendering.
+    origWorkingPath.setCurrentPath();
 
     // Report errors on a non-zero return value.
     if (returnValue)
@@ -239,7 +249,6 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
     // modifies this then this hard-coded string must also be modified.
     // The formatted string is "Output <outputName> to <outputFileName>".
     std::ifstream errorStream(errorFile);
-    string result;
     StringVec results;
     string line;
     string successfulOutputSubString("Output " + outputName + " to " +
@@ -309,7 +318,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     }
 }
 
-void OslRenderer::createProgram(const ShaderPtr shader)
+void OslRenderer::createProgram(ShaderPtr shader)
 {
     StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
     createProgram(stages);

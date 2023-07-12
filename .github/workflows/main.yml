@@ -18,88 +18,99 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_7_Python27
-          os: ubuntu-18.04
-          compiler: gcc
-          compiler_version: "7"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Linux_GCC_10_Python37
+        - name: Linux_GCC_9_Python37
           os: ubuntu-20.04
           compiler: gcc
-          compiler_version: "10"
+          compiler_version: "9"
           python: 3.7
-          upload_shaders: ON
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_11_Python39
           os: ubuntu-20.04
           compiler: gcc
           compiler_version: "11"
           python: 3.9
-          test_render: ON
-
-        - name: Linux_Clang_9_Python27
-          os: ubuntu-18.04
-          compiler: clang
-          compiler_version: "9"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Linux_Clang_11_Python37
-          os: ubuntu-20.04
-          compiler: clang
-          compiler_version: "11"
-          python: 3.7
           build_javascript: ON
 
-        - name: Linux_Clang_12_Python39
+        - name: Linux_GCC_12_Python311
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.11
+          upload_shaders: ON
+
+        - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
-          compiler_version: "12"
+          compiler_version: "10"
+          python: 3.7
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
+          static_analysis: ON
+
+        - name: Linux_Clang_13_Python39
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "13"
           python: 3.9
+          test_render: ON
 
-        - name: MacOS_Xcode_10_Python27
-          os: macos-10.15
-          compiler: xcode
-          compiler_version: "10.3"
-          python: 2.7
-          cmake_config: -DMATERIALX_PYTHON_VERSION=2 -DMATERIALX_BUILD_SHARED_LIBS=ON
+        - name: Linux_Clang_14_Python311
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
+          python: 3.11
+          clang_format: ON
 
-        - name: MacOS_Xcode_12_Python37
+        - name: Linux_Clang_14_DynamicAnalysis
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
+          python: None
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          dynamic_analysis: ON
+
+        - name: MacOS_Xcode_11_Python37
           os: macos-11
           compiler: xcode
-          compiler_version: "12.4"
+          compiler_version: "11.7"
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
         - name: MacOS_Xcode_13_Python39
-          os: macos-11
+          os: macos-12
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "13.4"
           python: 3.9
 
-        - name: Windows_VS2019_Win32_Python27
+        - name: MacOS_Xcode_14_Python311
+          os: macos-13
+          compiler: xcode
+          compiler_version: "14.3"
+          python: 3.11
+          test_shaders: ON
+
+        - name: Windows_VS2019_Win32_Python37
           os: windows-2019
           architecture: x86
-          python: 2.7
+          python: 3.7
           cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
-
-        - name: Windows_VS2019_x64_Python38
-          os: windows-2019
-          architecture: x64
-          python: 3.8
-          cmake_config: -G "Visual Studio 16 2019" -A "x64"
 
         - name: Windows_VS2022_x64_Python39
           os: windows-2022
           architecture: x64
           python: 3.9
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
+
+        - name: Windows_VS2022_x64_Python311
+          os: windows-2022
+          architecture: x64
+          python: 3.11
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -107,7 +118,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install libglu1-mesa-dev xorg-dev
+        sudo apt-get install xorg-dev mesa-utils
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
           sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
           echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
@@ -137,12 +148,13 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg -b 2021.05.12 -c advice.detachedHead=false
         vcpkg/bootstrap-vcpkg.bat -disableMetrics
-        echo $PWD/build/installed/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/bin | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo $PWD/vcpkg/installed/x64-windows/tools | Out-File -FilePath $env:GITHUB_PATH -Append
+        Add-Content $env:GITHUB_PATH "$PWD/build/installed/bin"
+        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/bin"
+        Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
     - name: Install Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
+      if: matrix.python != 'None'
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -164,15 +176,19 @@ jobs:
 
     - name: Install Node
       if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
-         node-version: '12'
+         node-version: '16'
+
+    - name: Run Clang Format
+      if: matrix.clang_format == 'ON'
+      run: find source \( -name *.h -o -name *.cpp -o -name *.mm \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
       run: |
         mkdir build
         cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}} ..
+        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
 
     - name: CMake Build
       run: cmake --build . --target install --config Release --parallel 2
@@ -183,48 +199,89 @@ jobs:
       working-directory: build
 
     - name: Python Tests
+      if: matrix.python != 'None'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
-        python Scripts/mxupdate.py ../resources/Materials/TestSuite/stdlib/upgrade --yes
-        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --verbose
+        python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
+        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_gold.mtlx --path .. --target glsl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_copper.mtlx --path .. --target osl
-        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface/standard_surface_jade.mtlx --path .. --target mdl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
+        python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target msl
       working-directory: python
 
-    - name: Shader Validation Tests
+    - name: Shader Validation Tests (Windows)
       if: matrix.test_shaders == 'ON' && runner.os == 'Windows'
       run: |
         vcpkg/vcpkg install glslang --triplet=x64-windows
         glslangValidator.exe -v
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
-        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --path . --target essl --validator glslangValidator.exe
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target glsl --validator glslangValidator.exe --vulkanGlsl True --validatorArgs="-V --aml"
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target essl --validator glslangValidator.exe
+
+    - name: Shader Validation Tests (MacOS)
+      if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
+      run: |
+        python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+
+    - name: Static Analysis Tests
+      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
+      run: |
+        sudo apt-get install cppcheck
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
       run: |
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
-        echo "MESA_GL_VERSION_OVERRIDE=4.0FC" >> $GITHUB_ENV
-        echo "MESA_GLSL_VERSION_OVERRIDE=400" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=softpipe" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
+        echo "GALLIUM_DRIVER=llvmpipe" >> $GITHUB_ENV
 
     - name: Render Script Tests
       if: matrix.test_render == 'ON'
       run: |
         mkdir build/render
-        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average --path .
-        python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr --path .
+        python python/Scripts/baketextures.py resources/Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx build/render/brass_average_baked.mtlx --average
+        python python/Scripts/translateshader.py resources/Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx build/render/usd_preview_surface_carpaint.mtlx UsdPreviewSurface --hdr
 
-    - name: Viewer Tests
+    - name: Render Application Tests
       if: matrix.test_render == 'ON'
       run: |
         ../installed/bin/MaterialXView --material brass_average_baked.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_BrassAverage.png
         ../installed/bin/MaterialXView --material usd_preview_surface_carpaint.mtlx --mesh ../../resources/Geometry/sphere.obj --screenWidth 128 --screenHeight 128 --cameraZoom 1.4 --shadowMap false --captureFilename Viewer_CarpaintTranslated.png
+        ../installed/bin/MaterialXGraphEditor --material ../../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --viewWidth 128 --viewHeight 128 --captureFilename GraphEditor_MarbleSolid.png
       working-directory: build/render
+
+    - name: Upload Installed Package
+      if: matrix.python != 'None'
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_${{ matrix.name }}
+        path: build/installed/
+
+    - name: Upload Formatted Source
+      if: matrix.clang_format == 'ON'
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_ClangFormat
+        path: source
+
+    - name: Upload Reference Shaders
+      uses: actions/upload-artifact@v3
+      if: matrix.upload_shaders == 'ON'
+      with:
+        name: Reference_Shaders_${{ matrix.name }}
+        path: build/bin/reference/
+
+    - name: Upload Renders
+      uses: actions/upload-artifact@v3
+      if: matrix.test_render == 'ON'
+      with:
+        name: Renders_${{ matrix.name }}
+        path: build/render/*.png
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
@@ -255,28 +312,16 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@4.1.9
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
         single-commit: true
 
-    - name: Upload Installed Package
-      uses: actions/upload-artifact@v2
+    - name: Upload JavaScript Package
+      if: matrix.build_javascript == 'ON'
+      uses: actions/upload-artifact@v3
       with:
-        name: MaterialX_${{ matrix.name }}
-        path: build/installed/
-
-    - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v2
-      if: matrix.upload_shaders == 'ON'
-      with:
-        name: Reference_Shaders_${{ matrix.name }}
-        path: build/bin/reference/
-
-    - name: Upload Renders
-      uses: actions/upload-artifact@v2
-      if: matrix.test_render == 'ON'
-      with:
-        name: Renders_${{ matrix.name }}
-        path: build/render/
+        name: MaterialX_JavaScript
+        path: javascript/build/installed/JavaScript/MaterialX        
+        if-no-files-found: ignore   

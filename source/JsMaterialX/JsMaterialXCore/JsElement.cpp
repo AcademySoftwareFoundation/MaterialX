@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <JsMaterialX/VectorHelper.h>
@@ -27,8 +27,7 @@ namespace mx = MaterialX;
     BIND_MEMBER_FUNC("getChildrenOfType" #NAME, mx::Element, getChildrenOfType<T>, 0, 1, stRef)   \
     .function("removeChildOfType" #NAME, &mx::Element::removeChildOfType<T>)                      \
     .function("getAncestorOfType" #NAME, &mx::Element::getAncestorOfType<T>)                      \
-    .function("resolveRootNameReference" #NAME, &mx::Element::resolveRootNameReference<T>)        \
-    BIND_MEMBER_FUNC("isA" #NAME, mx::Element, isA<T>, 0, 1, stRef)                              \
+    BIND_MEMBER_FUNC("isA" #NAME, mx::Element, isA<T>, 0, 1, stRef)                               \
     .function("asA" #NAME, ems::select_overload<std::shared_ptr<T>()>(&mx::Element::asA<T>))
   
 #define BIND_ELEMENT_FUNC_INSTANCE(NAME, T)                                   \

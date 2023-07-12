@@ -1,12 +1,12 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef GENOSL_H
 #define GENOSL_H
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
@@ -19,9 +19,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
     OslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const std::vector<mx::FilePath>& testRootPaths,
-                             const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath,
-                             const mx::FilePath& logFilePath, bool writeShadersToDisk) :
-        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath, writeShadersToDisk)
+                             const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+        GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, searchPath, logFilePath, writeShadersToDisk)
     {}
 
     void setTestStages() override
@@ -59,9 +58,8 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         whiteList =
         {
-            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "worleynoise", "displacementshader",
-            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "material", "ND_material",
-            "ND_backface_util"
+            "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
+            "volumeshader", "IM_constant_", "IM_dot_", "IM_geompropvalue", "IM_angle", "ND_backface_util"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

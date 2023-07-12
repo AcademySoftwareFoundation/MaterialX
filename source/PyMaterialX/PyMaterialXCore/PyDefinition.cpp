@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -43,6 +43,9 @@ void bindPyDefinition(py::module& mod)
         .def("getFunction", &mx::Implementation::getFunction)
         .def("setNodeDef", &mx::Implementation::setNodeDef)
         .def("getNodeDef", &mx::Implementation::getNodeDef)
+        .def("setNodeGraph", &mx::Implementation::setNodeGraph)
+        .def("hasNodeGraph", &mx::Implementation::hasNodeGraph)        
+        .def("getNodeGraph", &mx::Implementation::getNodeGraph)
         .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY)
         .def_readonly_static("FILE_ATTRIBUTE", &mx::Implementation::FILE_ATTRIBUTE)
         .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE);
@@ -82,4 +85,19 @@ void bindPyDefinition(py::module& mod)
     py::class_<mx::UnitTypeDef, mx::UnitTypeDefPtr, mx::Element>(mod, "UnitTypeDef")
         .def("getUnitDefs", &mx::UnitTypeDef::getUnitDefs)
         .def_readonly_static("CATEGORY", &mx::UnitTypeDef::CATEGORY);
+
+    py::class_<mx::AttributeDef, mx::AttributeDefPtr, mx::TypedElement>(mod, "AttributeDef")
+        .def("setAttrName", &mx::AttributeDef::setAttrName)
+        .def("hasAttrName", &mx::AttributeDef::hasAttrName)
+        .def("getAttrName", &mx::AttributeDef::getAttrName)
+        .def("setValueString", &mx::AttributeDef::setValueString)
+        .def("hasValueString", &mx::AttributeDef::hasValueString)
+        .def("getValueString", &mx::AttributeDef::getValueString) 
+        .def("setExportable", &mx::AttributeDef::setExportable)         
+        .def("getExportable", &mx::AttributeDef::getExportable)         
+        .def_readonly_static("CATEGORY", &mx::AttributeDef::CATEGORY);
+
+    py::class_<mx::TargetDef, mx::TargetDefPtr, mx::TypedElement>(mod, "TargetDef")
+        .def("getMatchingTargets", &mx::TargetDef::getMatchingTargets)
+        .def_readonly_static("CATEGORY", &mx::TargetDef::CATEGORY);
 }

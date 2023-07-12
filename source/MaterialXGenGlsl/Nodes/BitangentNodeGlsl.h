@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_BITANGENTNODEGLSL_H
@@ -13,7 +13,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Bitangent node implementation for GLSL
 class MX_GENGLSL_API BitangentNodeGlsl : public GlslImplementation
 {
-public:
+  public:
     static ShaderNodeImplPtr create();
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;

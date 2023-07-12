@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -42,5 +42,7 @@ void bindPyShaderStage(py::module& mod)
         .def("getConstantBlock", static_cast<mx::VariableBlock& (mx::ShaderStage::*)()>(&mx::ShaderStage::getConstantBlock))
         .def("getUniformBlocks", &mx::ShaderStage::getUniformBlocks)
         .def("getInputBlocks", &mx::ShaderStage::getInputBlocks)
+        .def("getIncludes", &mx::ShaderStage::getIncludes)
+        .def("getSourceDependencies", &mx::ShaderStage::getSourceDependencies)
         .def("getOutputBlocks", &mx::ShaderStage::getOutputBlocks);
 }

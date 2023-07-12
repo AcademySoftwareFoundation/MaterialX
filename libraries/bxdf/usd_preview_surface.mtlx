@@ -17,7 +17,7 @@
     <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" />
     <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" />
     <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmax="3.0" />
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" />
     <input name="normal" type="vector3" value="0, 0, 1" />
     <input name="displacement" type="float" value="0" />
     <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" />
@@ -25,14 +25,7 @@
   </nodedef>
 
   <!-- Node: UsdUVTexture -->
-  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture">
-    <input name="file" type="filename" uniform="true" />
-    <input name="st" type="vector2" defaultgeomprop="UV0" />
-    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
-    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic" uniform="true" />
-    <input name="fallback" type="color4" value="0, 0, 0, 1" />
-    <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" />
-    <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" />
+  <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23">
     <output name="r" type="float" />
     <output name="g" type="float" />
     <output name="b" type="float" />
@@ -41,39 +34,54 @@
     <output name="rgba" type="color4" />
   </nodedef>
 
+  <nodedef name="ND_UsdUVTexture_23" node="UsdUVTexture" nodegroup="texture2d" version="2.3" isdefaultversion="true">
+    <input name="file" type="filename" value="" uniform="true" />
+    <input name="st" type="vector2" defaultgeomprop="UV0" />
+    <input name="wrapS" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="wrapT" type="string" value="periodic" enum="black,clamp,periodic,mirror" uniform="true" />
+    <input name="fallback" type="color4" value="0, 0, 0, 1" />
+    <input name="scale" type="color4" value="1, 1, 1, 1" uniform="true" />
+    <input name="bias" type="color4" value="0, 0, 0, 0" uniform="true" />
+    <output name="r" type="float" />
+    <output name="g" type="float" />
+    <output name="b" type="float" />
+    <output name="a" type="float" />
+    <output name="rgb" type="color3" />
+  </nodedef>
+
   <!-- Node: UsdPrimvarReader -->
-  <nodedef name="ND_UsdPrimvarReader_integer" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_integer" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="integer" value="0" />
     <output name="out" type="integer" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_boolean" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_boolean" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="boolean" value="false" />
     <output name="out" type="boolean" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_string" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_string" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="string" value="" />
     <output name="out" type="string" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_float" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_float" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector2" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_vector2" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="vector2" value="0, 0" />
     <output name="out" type="vector2" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector3" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_vector3" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="vector3" value="0, 0, 0" />
     <output name="out" type="vector3" />
   </nodedef>
-  <nodedef name="ND_UsdPrimvarReader_vector4" node="UsdPrimvarReader">
-    <input name="varname" type="string" uniform="true" />
+  <nodedef name="ND_UsdPrimvarReader_vector4" nodegroup="geometric" node="UsdPrimvarReader">
+    <input name="varname" type="string" value="" uniform="true" />
     <input name="fallback" type="vector4" value="0, 0, 0, 0" />
     <output name="out" type="vector4" />
   </nodedef>
@@ -86,8 +94,8 @@
   -->
 
   <!-- Node: UsdTransform2d -->
-  <nodedef name="ND_UsdTransform2d" node="UsdTransform2d">
-    <input name="in" type="vector2" />
+  <nodedef name="ND_UsdTransform2d" nodegroup="math" node="UsdTransform2d">
+    <input name="in" type="vector2" value="0, 0" />
     <input name="rotation" type="float" value="0" />
     <input name="scale" type="vector2" value="1, 1" />
     <input name="translation" type="vector2" value="0, 0" />
@@ -101,7 +109,11 @@
   <!-- Node: UsdPreviewSurface -->
   <nodegraph name="IMP_UsdPreviewSurface_surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader">
 
-    <!-- Compute the per-pixel surface normal -->
+    <convert name="use_specular_workflow_float" type="float">
+      <input name="in" type="integer" interfacename="useSpecularWorkflow" />
+    </convert>
+
+    <!-- Compute the surface normal -->
     <multiply name="scale_normal" type="vector3">
       <input name="in1" type="vector3" interfacename="normal" />
       <input name="in2" type="float" value="0.5" />
@@ -115,8 +127,17 @@
     </normalmap>
 
     <!-- Diffuse Layer -->
+    <subtract name="inverse_metalness" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="metallic" />
+    </subtract>
+    <mix name="diffuse_bsdf_weight" type="float">
+      <input name="fg" type="float" value="1.0" />
+      <input name="bg" type="float" nodename="inverse_metalness" />
+      <input name="mix" type="float" nodename="use_specular_workflow_float" />
+    </mix>
     <oren_nayar_diffuse_bsdf name="diffuse_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1" />
+      <input name="weight" type="float" nodename="diffuse_bsdf_weight" />
       <input name="color" type="color3" interfacename="diffuseColor" />
       <input name="roughness" type="float" value="0" />
       <input name="normal" type="vector3" nodename="surface_normal" />
@@ -163,18 +184,32 @@
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" interfacename="ior" />
     </add>
-    <divide name="div_ior" type="float">
+    <divide name="R" type="float">
       <input name="in1" type="float" nodename="one_minus_ior" />
       <input name="in2" type="float" nodename="one_plus_ior" />
     </divide>
-    <multiply name="F0" type="float">
-      <input name="in1" type="float" nodename="div_ior" />
-      <input name="in2" type="float" nodename="div_ior" />
+    <multiply name="R_sq" type="float">
+      <input name="in1" type="float" nodename="R" />
+      <input name="in2" type="float" nodename="R" />
     </multiply>
+    <mix name="specular_color_metallic" type="color3">
+      <input name="fg" type="color3" interfacename="diffuseColor" />
+      <input name="bg" type="color3" value="1, 1, 1" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
+    <multiply name="specular_color_metallic_R_sq" type="color3">
+      <input name="in1" type="color3" nodename="specular_color_metallic" />
+      <input name="in2" type="float" nodename="R_sq" />
+    </multiply>
+    <mix name="F0" type="color3">
+      <input name="fg" type="color3" nodename="specular_color_metallic" />
+      <input name="bg" type="color3" nodename="specular_color_metallic_R_sq" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
     <generalized_schlick_bsdf name="specular_bsdf2" type="BSDF">
       <input name="weight" type="float" value="1" />
-      <input name="color0" type="color3" nodename="F0" channels="rrr" />
-      <input name="color90" type="color3" value="1, 1, 1" />
+      <input name="color0" type="color3" nodename="F0" />
+      <input name="color90" type="color3" nodename="specular_color_metallic" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
     </generalized_schlick_bsdf>
@@ -200,9 +235,6 @@
     </mix>
 
     <!-- Select Specular/Metalness workflow -->
-    <convert name="use_specular_workflow_float" type="float">
-      <input name="in" type="integer" interfacename="useSpecularWorkflow" />
-    </convert>
     <mix name="workflow_selector_bsdf" type="BSDF">
       <input name="fg" type="BSDF" nodename="specular_workflow_bsdf" />
       <input name="bg" type="BSDF" nodename="metalness_workflow_bsdf" />
@@ -214,13 +246,16 @@
       <input name="roughness" type="float" interfacename="clearcoatRoughness" />
       <input name="anisotropy" type="float" value="0" />
     </roughness_anisotropy>
-    <dielectric_bsdf name="coat_dielectric_bsdf" type="BSDF">
+    <convert name="coat_F0" type="color3">
+      <input name="in" type="float" nodename="R_sq" />
+    </convert>
+    <generalized_schlick_bsdf name="coat_dielectric_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="clearcoat" />
-      <input name="tint" type="color3" value="1, 1, 1" />
-      <input name="ior" type="float" value="1.5" />
+      <input name="color0" type="color3" nodename="coat_F0" />
+      <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="coat_roughness" />
       <input name="normal" type="vector3" nodename="surface_normal" />
-    </dielectric_bsdf>
+    </generalized_schlick_bsdf>
     <layer name="coat_bsdf" type="BSDF">
       <input name="top" type="BSDF" nodename="coat_dielectric_bsdf" />
       <input name="base" type="BSDF" nodename="workflow_selector_bsdf" />
@@ -232,17 +267,12 @@
     </uniform_edf>
 
     <!-- Surface Shader Constructor -->
-    <clamp name="opacity_clamped" type="float">
-      <input name="in" type="float" interfacename="opacity" />
-      <input name="low" type="float" value="0.00001" />
-      <input name="high" type="float" value="1.0" />
-    </clamp>
-    <ifgreater name="cutout_opacity" type="float">
-      <input name="value1" type="float" nodename="opacity_clamped" />
+    <ifgreatereq name="cutout_opacity" type="float">
+      <input name="value1" type="float" interfacename="opacity" />
       <input name="value2" type="float" interfacename="opacityThreshold" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
-    </ifgreater>
+    </ifgreatereq>
     <surface name="surface_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="coat_bsdf" />
       <input name="edf" type="EDF" nodename="emission_edf" />
@@ -254,7 +284,7 @@
   </nodegraph>
 
   <!-- Node: UsdUVTexture -->
-  <nodegraph name="IMP_UsdUVTexture" nodedef="ND_UsdUVTexture">
+  <nodegraph name="IMP_UsdUVTexture_22" nodedef="ND_UsdUVTexture">
     <image name="image_reader" type="color4">
       <input name="file" type="filename" interfacename="file" />
       <input name="default" type="color4" interfacename="fallback" />
@@ -278,46 +308,76 @@
     <output name="rgba" type="color4" nodename="image_bias" />
   </nodegraph>
 
+  <nodegraph name="IMP_UsdUVTexture_23" nodedef="ND_UsdUVTexture_23">
+    <image name="image_reader" type="color4">
+      <input name="file" type="filename" interfacename="file" />
+      <input name="default" type="color4" interfacename="fallback" />
+      <input name="texcoord" type="vector2" interfacename="st" />
+      <input name="uaddressmode" type="string" interfacename="wrapS" />
+      <input name="vaddressmode" type="string" interfacename="wrapT" />
+    </image>
+    <multiply name="image_scale" type="color4">
+      <input name="in1" type="color4" nodename="image_reader" />
+      <input name="in2" type="color4" interfacename="scale" />
+    </multiply>
+    <add name="image_bias" type="color4">
+      <input name="in1" type="color4" nodename="image_scale" />
+      <input name="in2" type="color4" interfacename="bias" />
+    </add>
+    <output name="r" type="float" nodename="image_bias" channels="r" />
+    <output name="g" type="float" nodename="image_bias" channels="g" />
+    <output name="b" type="float" nodename="image_bias" channels="b" />
+    <output name="a" type="float" nodename="image_bias" channels="a" />
+    <output name="rgb" type="color3" nodename="image_bias" channels="rgb" />
+  </nodegraph>
+
   <!-- Node: UsdPrimvarReader -->
   <nodegraph name="IMP_UsdPrimvarReader_integer" nodedef="ND_UsdPrimvarReader_integer">
     <geompropvalue name="primvar" type="integer">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="integer" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="integer" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_boolean" nodedef="ND_UsdPrimvarReader_boolean">
     <geompropvalue name="primvar" type="boolean">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="boolean" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="boolean" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_string" nodedef="ND_UsdPrimvarReader_string">
     <geompropvalue name="primvar" type="string">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="string" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="string" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_float" nodedef="ND_UsdPrimvarReader_float">
     <geompropvalue name="primvar" type="float">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="float" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="float" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector2" nodedef="ND_UsdPrimvarReader_vector2">
     <geompropvalue name="primvar" type="vector2">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector2" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector2" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector3" nodedef="ND_UsdPrimvarReader_vector3">
     <geompropvalue name="primvar" type="vector3">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector3" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector3" nodename="primvar" />
   </nodegraph>
   <nodegraph name="IMP_UsdPrimvarReader_vector4" nodedef="ND_UsdPrimvarReader_vector4">
     <geompropvalue name="primvar" type="vector4">
       <input name="geomprop" type="string" interfacename="varname" />
+      <input name="default" type="vector4" interfacename="fallback" />
     </geompropvalue>
     <output name="out" type="vector4" nodename="primvar" />
   </nodegraph>

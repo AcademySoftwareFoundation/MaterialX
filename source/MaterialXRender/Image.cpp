@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/Image.h>
@@ -74,9 +74,9 @@ ImagePtr createImageStrip(const vector<ImagePtr>& imageVec)
     return imageStrip;
 }
 
-std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec)
+UnsignedIntPair getMaxDimensions(const vector<ImagePtr>& imageVec)
 {
-    std::pair<unsigned int, unsigned int> maxSize(0, 0);
+    UnsignedIntPair maxSize(0, 0);
     for (ImagePtr image : imageVec)
     {
         maxSize.first = std::max(maxSize.first, image->getWidth());

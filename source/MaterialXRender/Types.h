@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_RENDER_TYPES_H
@@ -154,6 +154,8 @@ class MX_RENDER_API Half
     static constexpr int32_t const maxD = infC - maxC - 1;
     static constexpr int32_t const minD = minC - subC - 1;
 
+    static constexpr int32_t const maxF = 0x7FFFFFBF; // max int32 expressible as a flt32
+
     static uint16_t toFloat16(float value)
     {
         Bits v, s;
@@ -162,8 +164,8 @@ class MX_RENDER_API Half
         v.si ^= sign;
         sign >>= shiftSign; // logical shift
         s.si = mulN;
-        s.si = (int32_t) (s.f * v.f); // correct subnormals
-        v.si ^= (s.si ^ v.si) & -(minN > v.si);
+        int32_t subN = (int32_t) std::min(s.f * v.f, (float) maxF); // correct subnormals
+        v.si ^= (subN ^ v.si) & -(minN > v.si);
         v.si ^= (infN ^ v.si) & -((infN > v.si) & (v.si > maxN));
         v.si ^= (nanN ^ v.si) & -((nanN > v.si) & (v.si > infN));
         v.ui >>= shift; // logical shift

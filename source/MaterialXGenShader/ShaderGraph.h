@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERGRAPH_H
@@ -51,7 +51,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Create a new shader graph from an element.
     /// Supported elements are outputs and shader nodes.
-    static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element, 
+    static ShaderGraphPtr create(const ShaderGraph* parent, const string& name, ElementPtr element,
                                  GenContext& context);
 
     /// Create a new shader graph from a nodegraph.
@@ -99,6 +99,13 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type);
     ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type);
 
+    /// Add a default geometric node and connect to the given input.
+    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);
+
+    /// Sort the nodes in topological order.
+    /// @throws ExceptionFoundCycle if a cycle is encountered.
+    void topologicalSort();
+
     /// Return an iterator for traversal upstream from the given output
     static ShaderGraphEdgeIterator traverseUpstream(ShaderOutput* output);
 
@@ -137,9 +144,6 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// bind input elements in the traversal.
     void addUpstreamDependencies(const Element& root, GenContext& context);
 
-    /// Add a default geometric node and connect to the given input.
-    void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);
-
     /// Add a color transform node and connect to the given input.
     void addColorTransformNode(ShaderInput* input, const ColorSpaceTransform& transform, GenContext& context);
 
@@ -148,7 +152,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
 
     /// Add a unit transform node and connect to the given input.
     void addUnitTransformNode(ShaderInput* input, const UnitTransform& transform, GenContext& context);
-    
+
     /// Add a unit transform node and connect to the given output.
     void addUnitTransformNode(ShaderOutput* output, const UnitTransform& transform, GenContext& context);
 
@@ -162,13 +166,6 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// effectively connecting the input's upstream connection
     /// with the output's downstream connections.
     void bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
-
-    /// Sort the nodes in topological order.
-    /// @throws ExceptionFoundCycle if a cycle is encountered.
-    void topologicalSort();
-
-    /// Calculate scopes for all nodes in the graph
-    void calculateScopes();
 
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique
@@ -210,7 +207,8 @@ class MX_GENSHADER_API ShaderGraphEdge
     ShaderGraphEdge(ShaderOutput* up, ShaderInput* down) :
         upstream(up),
         downstream(down)
-    {}
+    {
+    }
     ShaderOutput* upstream;
     ShaderInput* downstream;
 };
@@ -226,8 +224,8 @@ class MX_GENSHADER_API ShaderGraphEdgeIterator
     bool operator==(const ShaderGraphEdgeIterator& rhs) const
     {
         return _upstream == rhs._upstream &&
-            _downstream == rhs._downstream &&
-            _stack == rhs._stack;
+               _downstream == rhs._downstream &&
+               _stack == rhs._stack;
     }
     bool operator!=(const ShaderGraphEdgeIterator& rhs) const
     {

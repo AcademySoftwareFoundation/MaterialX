@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -17,6 +17,7 @@ void bindPyXmlIo(py::module& mod)
         .def(py::init())
         .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
         .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
+        .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines)
         .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes);
 
@@ -34,6 +35,12 @@ void bindPyXmlIo(py::module& mod)
     mod.def("writeToXmlString", mx::writeToXmlString,
         py::arg("doc"), py::arg("writeOptions") = nullptr);
     mod.def("prependXInclude", mx::prependXInclude);
+
+    mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
+        py::arg("sep") = mx::PATH_LIST_SEPARATOR);
+
+    mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
+    mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 
     py::register_exception<mx::ExceptionParseError>(mod, "ExceptionParseError");
     py::register_exception<mx::ExceptionFileMissing>(mod, "ExceptionFileMissing");

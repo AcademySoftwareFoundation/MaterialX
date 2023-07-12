@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_IMAGE_H
@@ -36,6 +36,9 @@ using ImagePair = std::pair<ImagePtr, ImagePtr>;
 
 /// A function to perform image buffer deallocation
 using ImageBufferDeallocator = std::function<void(void*)>;
+
+/// A pair of unsigned integers.
+using UnsignedIntPair = std::pair<unsigned int, unsigned int>;
 
 /// @class Image
 /// Class representing an image in system memory
@@ -214,7 +217,7 @@ class MX_RENDER_API Image
 
     void* _resourceBuffer;
     ImageBufferDeallocator _resourceBufferDeallocator;
-    unsigned int _resourceId;
+    unsigned int _resourceId = 0;
 };
 
 /// Create a uniform-color image with the given properties.
@@ -224,7 +227,7 @@ MX_RENDER_API ImagePtr createUniformImage(unsigned int width, unsigned int heigh
 MX_RENDER_API ImagePtr createImageStrip(const vector<ImagePtr>& imageVec);
 
 /// Compute the maximum width and height of all images in the given vector.
-MX_RENDER_API std::pair<unsigned int, unsigned int> getMaxDimensions(const vector<ImagePtr>& imageVec);
+MX_RENDER_API UnsignedIntPair getMaxDimensions(const vector<ImagePtr>& imageVec);
 
 MATERIALX_NAMESPACE_END
 

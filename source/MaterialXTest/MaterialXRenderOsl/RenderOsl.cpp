@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXRenderOsl/OslRenderer.h>
@@ -14,6 +14,8 @@
 #endif
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
+
+#include <MaterialXFormat/Util.h>
 
 namespace mx = MaterialX;
 
@@ -37,12 +39,13 @@ class TangentOsl : public mx::ShaderNodeImpl
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(vector(N.z, 0, -N.x))", stage);
+            shadergen.emitString(" = normalize(vector(N[2], 0, -N[0]))", stage);
             shadergen.emitLineEnd(stage);
-        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        }
     }
 };
 
@@ -58,12 +61,13 @@ class BitangentOsl : public mx::ShaderNodeImpl
     {
         const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-        BEGIN_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        {
             shadergen.emitLineBegin(stage);
             shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(cross(N, vector(N.z, 0, -N.x)))", stage);
+            shadergen.emitString(" = normalize(cross(N, vector(N[2], 0, -N[0])))", stage);
             shadergen.emitLineEnd(stage);
-        END_SHADER_STAGE(stage, mx::Stage::PIXEL)
+        }
     }
 };
 
@@ -130,6 +134,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
 
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
         mx::ImageHandlerPtr imageHandler = mx::ImageHandler::create(stbLoader);
+        imageHandler->setSearchPath(mx::getDefaultDataSearchPath());
 #if defined(MATERIALX_BUILD_OIIO)
         mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
         imageHandler->addLoader(oiioLoader);
@@ -141,7 +146,8 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
         // Pre-compile some required shaders for testrender
         if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
-            mx::FilePath shaderPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
+            mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+            mx::FilePath shaderPath = searchPath.find("resources/Utilities/");
             _renderer->setOslOutputFilePath(shaderPath);
 
             const std::string OSL_EXTENSION("osl");
@@ -301,16 +307,14 @@ bool OslShaderRenderTester::runRenderer(const std::string& shaderName,
 
                         const std::string& outputName = output->getVariable();
                         const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
-
-                        static const std::string SHADING_SCENE_FILE = "closure_color_scene.xml";
-                        static const std::string NON_SHADING_SCENE_FILE = "constant_color_scene.xml";
-                        const std::string& sceneTemplateFile = mx::elementRequiresShading(element) ? SHADING_SCENE_FILE : NON_SHADING_SCENE_FILE;
+                        const std::string& sceneTemplateFile = "scene_template.xml";
 
                         // Set shader output name and type to use
                         _renderer->setOslShaderOutput(outputName, outputType);
 
                         // Set scene template file. For now we only have the constant color scene file
-                        mx::FilePath sceneTemplatePath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/Utilities/");
+                        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+                        mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
                         sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
                         _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
 
@@ -367,9 +371,9 @@ TEST_CASE("Render: OSL TestSuite", "[renderosl]")
         return;
     }
 
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+
     OslShaderRenderTester renderTester(mx::OslShaderGenerator::create());
-
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
     renderTester.validate(optionsFilePath);
 }

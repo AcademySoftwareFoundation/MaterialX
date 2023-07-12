@@ -429,13 +429,17 @@ class TestMaterialX(unittest.TestCase):
         self.assertFalse(output.hasUpstreamCycle())
         self.assertTrue(doc.validate()[0])
 
-    def test_ReadXml(self):
+    def test_Xmlio(self):
         # Read the standard library.
         libs = []
         for filename in _libraryFilenames:
             lib = mx.createDocument()
             mx.readFromXmlFile(lib, filename, _searchPath)
             libs.append(lib)
+
+        # Declare write predicate for write filter test
+        def skipLibraryElement(elem):
+            return not elem.hasSourceUri()
 
         # Read and validate each example document.
         for filename in _exampleFilenames:
@@ -472,6 +476,14 @@ class TestMaterialX(unittest.TestCase):
             for lib in libs:
                 doc2.importLibrary(lib)
             self.assertTrue(doc2.validate()[0])
+
+            # Write without definitions
+            writeOptions.writeXIncludeEnable = False
+            writeOptions.elementPredicate = skipLibraryElement
+            result = mx.writeToXmlString(doc2, writeOptions)
+            doc3 = mx.createDocument()
+            mx.readFromXmlString(doc3, result)    
+            self.assertTrue(len(doc3.getNodeDefs()) == 0)   
 
         # Read the same document twice, and verify that duplicate elements
         # are skipped.

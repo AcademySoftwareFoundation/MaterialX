@@ -208,6 +208,14 @@ vector4 mix(vector4 value1, vector4 value2, float x )
                     mix( value1.w, value2.w, x));
 }
 
+vector4 mix(vector4 value1, vector4 value2, vector4 x )
+{
+    return vector4 (mix( value1.x, value2.x, x.x),
+                    mix( value1.y, value2.y, x.y),
+                    mix( value1.z, value2.z, x.z),
+                    mix( value1.w, value2.w, x.w));
+}
+
 vector vec4ToVec3(vector4 v)
 {
     return vector(v.x, v.y, v.z) / v.w;
@@ -395,10 +403,10 @@ vector4 atan2(vector4 a, vector4 b)
 
 vector4 transform (matrix M, vector4 p)
 {
-    return vector4 (M[0][0]*p.x + M[0][1]*p.y + M[0][2]*p.z + M[0][3]*p.w,
-                    M[1][0]*p.x + M[1][1]*p.y + M[1][2]*p.z + M[1][3]*p.w,
-                    M[2][0]*p.x + M[2][1]*p.y + M[2][2]*p.z + M[2][3]*p.w,
-                    M[3][0]*p.x + M[3][1]*p.y + M[3][2]*p.z + M[3][3]*p.w);
+    return vector4 (M[0][0]*p.x + M[1][0]*p.y + M[2][0]*p.z + M[3][0]*p.w,
+                    M[0][1]*p.x + M[1][1]*p.y + M[2][1]*p.z + M[3][1]*p.w,
+                    M[0][2]*p.x + M[1][2]*p.y + M[2][2]*p.z + M[3][2]*p.w,
+                    M[0][3]*p.x + M[1][3]*p.y + M[2][3]*p.z + M[3][3]*p.w);
 }
 
 vector4 transform (string fromspace, string tospace, vector4 p)

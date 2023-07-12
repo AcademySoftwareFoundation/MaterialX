@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef GENSHADER_UTIL_H
@@ -104,11 +104,8 @@ class TestSuiteOptions
     // Set this to be true if it is desired to dump out uniform and attribut information to the logging file.
     bool dumpUniformsAndAttributes = true;
 
-    // Non-shaded geometry file
-    MaterialX::FilePath unShadedGeometry;
-
-    // Shaded geometry file
-    MaterialX::FilePath shadedGeometry;
+    // Geometry file to be rendered
+    MaterialX::FilePath renderGeometry;
 
     // Enable direct lighting. Default is true. 
     bool enableDirectLighting;
@@ -159,13 +156,11 @@ class ShaderGeneratorTester
 {
   public:
     ShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
-                            const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
-                            const mx::FilePath& logFilePath, bool writeShadersToDisk) :
+                          const mx::FileSearchPath& searchPath, const mx::FilePath& logFilePath, bool writeShadersToDisk) :
         _shaderGenerator(shaderGenerator),
         _targetString(shaderGenerator ? shaderGenerator->getTarget() : "NULL"),
         _testRootPaths(testRootPaths),
-        _libSearchPath(libSearchPath),
-        _srcSearchPath(srcSearchPath),
+        _searchPath(searchPath),
         _logFilePath(logFilePath),
         _writeShadersToDisk(writeShadersToDisk)
     {
@@ -226,6 +221,9 @@ class ShaderGeneratorTester
     // Run test for source code generation
     void validate(const mx::GenOptions& generateOptions, const std::string& optionsFilePath);
 
+    // Allow the tester to alter the document, e.g., by flattening file names.
+    virtual void preprocessDocument(mx::DocumentPtr doc) {};
+
     // Compile generated source code. Default implementation does nothing.
     virtual void compileSource(const std::vector<mx::FilePath>& /*sourceCodePaths*/) {};
 
@@ -251,8 +249,7 @@ class ShaderGeneratorTester
     mx::DocumentPtr _dependLib;
 
     const mx::FilePathVec _testRootPaths;
-    const mx::FileSearchPath _libSearchPath;
-    const mx::FileSearchPath _srcSearchPath;
+    const mx::FileSearchPath _searchPath;
     const mx::FilePath _logFilePath;
     bool _writeShadersToDisk;
 

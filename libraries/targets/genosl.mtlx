@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-  All rights reserved.  See LICENSE.txt for license.
--->
-
+<?xml version="1.0"?>
 <materialx version="1.38">
+
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+  -->
 
   <!-- ======================================================================== -->
   <!-- Base target definition for OSL targets using shader generation.          -->

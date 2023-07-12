@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_NODE_H
@@ -64,7 +64,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// Set the node to which the given input is connected, creating a
     /// child input if needed.  If the node argument is null, then any
     /// existing node connection on the input will be cleared.
-    void setConnectedNode(const string& inputName, NodePtr node);
+    void setConnectedNode(const string& inputName, ConstNodePtr node);
 
     /// Return the Node connected to the given input.  If the given input is
     /// not present, then an empty NodePtr is returned.
@@ -151,7 +151,7 @@ class MX_CORE_API Node : public InterfaceElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override
     {
         return getNodeDef(target);
     }
@@ -297,14 +297,23 @@ class MX_CORE_API GraphElement : public InterfaceElement
     /// @name Utility
     /// @{
 
-    /// Flatten any references to graph-based node definitions within this
-    /// node graph, replacing each reference with the equivalent node network.
+    /// Flatten all subgraphs at the root scope of this graph element,
+    /// recursively replacing each graph-defined node with its equivalent
+    /// node network.
+    /// @param target An optional target string to be used in specifying
+    ///     which node definitions are used in this process.
+    /// @param filter An optional node predicate specifying which nodes
+    ///     should be included and excluded from this process.
     void flattenSubgraphs(const string& target = EMPTY_STRING, NodePredicate filter = nullptr);
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
     /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
+
+    /// If not yet present, add a geometry node to this graph matching the given property
+    /// definition and name prefix.
+    NodePtr addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix);
 
     /// Convert this graph to a string in the DOT language syntax.  This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).
@@ -355,7 +364,7 @@ class MX_CORE_API NodeGraph : public GraphElement
 
     /// Return the first declaration of this interface, optionally filtered
     ///    by the given target name.
-    ConstNodeDefPtr getDeclaration(const string& target = EMPTY_STRING) const override;
+    ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// Add an interface name to an existing NodeDef associated with this NodeGraph.
     /// @param inputPath Path to an input descendant of this graph.

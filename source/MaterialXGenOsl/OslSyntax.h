@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_OSLSYNTAX_H
@@ -19,7 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// Syntax class for OSL (Open Shading Language)
 class MX_GENOSL_API OslSyntax : public Syntax
 {
-public:
+  public:
     OslSyntax();
 
     static SyntaxPtr create() { return std::make_shared<OslSyntax>(); }

@@ -37,7 +37,7 @@
       <input name="specularColor" type="color3" value="1.0, 1.0, 1.0" />
     </mybsdf>
     <surface name="surface1" type="surfaceshader">
-      <input name="bsdf" type="BSDF" value="" nodename="mybsdf1" />
+      <input name="bsdf" type="BSDF" nodename="mybsdf1" />
       <input name="edf" type="EDF" value="" />
       <input name="opacity" type="float" value="1.0" />
     </surface>

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -21,7 +21,9 @@ void bindPyUtil(py::module& mod)
     mod.def("isValidName", &mx::isValidName);
     mod.def("incrementName", &mx::incrementName);
     mod.def("splitString", &mx::splitString);
+    mod.def("joinStrings", &mx::joinStrings);
     mod.def("replaceSubstrings", &mx::replaceSubstrings);
+    mod.def("stringStartsWith", &mx::stringStartsWith);
     mod.def("stringEndsWith", &mx::stringEndsWith);
     mod.def("splitNamePath", &mx::splitNamePath);
     mod.def("createNamePath", &mx::createNamePath);

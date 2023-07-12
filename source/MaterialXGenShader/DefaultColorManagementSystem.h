@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_DEFAULT_COLOR_MANAGEMENT_SYSTEM_H
@@ -30,8 +30,8 @@ class MX_GENSHADER_API DefaultColorManagementSystem : public ColorManagementSyst
     const string& getName() const override;
 
   protected:
-    /// Returns an implementation for a given transform
-    ImplementationPtr getImplementation(const ColorSpaceTransform& transform) const override;
+    /// Returns a nodedef for a given transform
+    NodeDefPtr getNodeDef(const ColorSpaceTransform& transform) const override;
 
     /// Protected constructor
     DefaultColorManagementSystem(const string& target);

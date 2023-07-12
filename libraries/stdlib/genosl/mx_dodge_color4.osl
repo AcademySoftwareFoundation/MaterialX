@@ -1,4 +1,4 @@
-#include "libraries/stdlib/genosl/mx_dodge_float.osl"
+#include "mx_dodge_float.osl"
 
 void mx_dodge_color4(color4 fg , color4 bg , float mix , output color4 result)
 {

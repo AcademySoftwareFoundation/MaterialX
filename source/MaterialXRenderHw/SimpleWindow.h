@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SIMPLEWINDOW_H
@@ -59,13 +59,6 @@ class MX_RENDERHW_API SimpleWindow
   protected:
     // Default constructor
     SimpleWindow();
-
-    // Clear internal state information
-    void clearInternalState()
-    {
-        _width = _height = 0;
-        _id = 0;
-    }
 
     // Wrapper for platform specific window resources
     WindowWrapperPtr _windowWrapper;

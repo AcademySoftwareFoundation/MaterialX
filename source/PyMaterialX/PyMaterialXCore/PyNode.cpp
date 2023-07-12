@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -48,6 +48,7 @@ void bindPyNode(py::module& mod)
         .def("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)
+        .def("addGeomNode", &mx::GraphElement::addGeomNode)
         .def("asStringDot", &mx::GraphElement::asStringDot);
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/Util.h>
@@ -11,117 +11,115 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    bool isEqual(const float& v1, const float& v2)
-    {
-        const float EPSILON = 0.00001f;
-        return std::abs(v1 - v2) < EPSILON;
-    }
 
-    bool isEqual(ValuePtr value, const float& f)
+using OpaqueTestPair = std::pair<string, float>;
+using OpaqueTestPairList = vector<OpaqueTestPair>;
+
+// Inputs on a surface shader which are checked for transparency
+const OpaqueTestPairList inputPairList = { { "opacity", 1.0f },
+                                           { "existence", 1.0f },
+                                           { "alpha", 1.0f },
+                                           { "transmission", 0.0f } };
+
+const string MIX_CATEGORY("mix");
+const string MIX_FG_INPUT("fg");
+const string MIX_BG_INPUT("bg");
+
+bool isEqual(float v1, float v2)
+{
+    const float EPSILON = 0.00001f;
+    return std::abs(v1 - v2) < EPSILON;
+}
+
+bool isEqual(ValuePtr value, float f)
+{
+    if (value->isA<float>() && isEqual(value->asA<float>(), f))
     {
-        if (value->isA<float>() && isEqual(value->asA<float>(), f))
+        return true;
+    }
+    else if (value->isA<Color3>())
+    {
+        const Color3& color = value->asA<Color3>();
+        if (isEqual(color[0], f) && isEqual(color[1], f) && isEqual(color[2], f))
         {
             return true;
         }
-        else if (value->isA<Color3>())
+    }
+    return false;
+}
+
+// Get corresponding input for an interfacename for a nodegraph.
+// The check is done for any corresponding nodedef first and then for
+// any direct child input of the nodegraph.
+InputPtr getInputInterface(const string& interfaceName, NodePtr node)
+{
+    InputPtr interfaceInput = nullptr;
+    ElementPtr parent = node->getParent();
+    NodeGraphPtr nodeGraph = parent ? parent->asA<NodeGraph>() : nullptr;
+    if (nodeGraph)
+    {
+        NodeDefPtr nodeDef = nodeGraph->getNodeDef();
+        if (nodeDef)
         {
-            const Color3& color = value->asA<Color3>();
-            if (isEqual(color[0], f) && isEqual(color[1], f) && isEqual(color[2], f))
+            interfaceInput = nodeDef->getInput(interfaceName);
+        }
+        else
+        {
+            interfaceInput = nodeGraph->getInput(interfaceName);
+        }
+    }
+    return interfaceInput;
+}
+
+bool hasTransparentInputs(const OpaqueTestPairList& opaqueInputList, NodePtr node)
+{
+    for (auto opaqueInput : opaqueInputList)
+    {
+        InputPtr interfaceInput = node->getInput(opaqueInput.first);
+        if (interfaceInput)
+        {
+            if (interfaceInput->getConnectedNode())
+            {
+                return true;
+            }
+            ValuePtr value = interfaceInput->getValue();
+            if (value && !isEqual(value, opaqueInput.second))
             {
                 return true;
             }
         }
+    }
+    return false;
+}
+
+bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
+{
+    if (!node || node->getType() != SURFACE_SHADER_TYPE_STRING)
+    {
         return false;
     }
 
-    using OpaqueTestPair = std::pair<string, float>;
-    using OpaqueTestPairList = vector<OpaqueTestPair>;
-
-    // Get corresponding input for an interfacename for a nodegraph. 
-    // The check is done for any corresponding nodedef first and then for 
-    // any direct child input of the nodegraph.
-    InputPtr getInputInterface(const string& interfaceName , NodePtr node)
+    if (node->getCategory() == MIX_CATEGORY)
     {
-        InputPtr interfaceInput = nullptr;
-        ElementPtr parent = node->getParent();
-        NodeGraphPtr nodeGraph = parent ? parent->asA<NodeGraph>() : nullptr;
-        if (nodeGraph)
+        const InputPtr fg = node->getInput(MIX_FG_INPUT);
+        const NodePtr fgNode = fg ? fg->getConnectedNode() : nullptr;
+        if (fgNode && isTransparentShaderNode(fgNode, nullptr))
         {
-            NodeDefPtr nodeDef = nodeGraph->getNodeDef();
-            if (nodeDef)
-            {
-                interfaceInput = nodeDef->getInput(interfaceName);
-            }
-            else
-            {
-                interfaceInput = nodeGraph->getInput(interfaceName);
-            }
+            return true;
         }
-        return interfaceInput;
-    }
-
-    bool hasTransparentInputs(const OpaqueTestPairList& opaqueInputList, NodePtr node)
-    {
-        for (auto opaqueInput : opaqueInputList)
+        const InputPtr bg = node->getInput(MIX_BG_INPUT);
+        const NodePtr bgNode = bg ? bg->getConnectedNode() : nullptr;
+        if (bgNode && isTransparentShaderNode(bgNode, nullptr))
         {
-            InputPtr interfaceInput = node->getInput(opaqueInput.first);
-            if (interfaceInput)
-            {
-                if (interfaceInput->getConnectedNode())
-                {
-                    return true;
-                }
-                ValuePtr value = interfaceInput->getValue();
-                if (value && !isEqual(value, opaqueInput.second))
-                {
-                    return true;
-                }
-            }
+            return true;
         }
         return false;
     }
 
-    bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
+    // Check against the interface if a node is passed in to check against
+    OpaqueTestPairList interfaceNames;
+    if (interfaceNode)
     {
-        if (!node || node->getType() != SURFACE_SHADER_TYPE_STRING)
-        {
-            return false;
-        }
-
-        // Inputs on a surface shader which are checked for transparency
-        const OpaqueTestPairList inputPairList = { {"opacity", 1.0f},
-                                                   {"existence", 1.0f},
-                                                   {"transmission", 0.0f} };
-
-
-        // Check against the interface if a node is passed in to check against
-        OpaqueTestPairList interfaceNames;
-        if (interfaceNode)
-        {
-            for (auto inputPair : inputPairList)
-            {
-                InputPtr checkInput = node->getActiveInput(inputPair.first);
-                if (checkInput)
-                {
-                    const string& interfaceName = checkInput->getInterfaceName();
-                    if (!interfaceName.empty())
-                    {
-                        interfaceNames.push_back(std::make_pair(interfaceName, inputPair.second));
-                    }
-                }
-            }
-            if (!interfaceNames.empty())
-            {
-                if (hasTransparentInputs(interfaceNames, interfaceNode))
-                {
-                    return true;
-                }
-            }
-        }
-
-        // Check against the child input or the corresponding
-        // functional nodegraph's interface if the input is mapped
-        // via an interface name.
         for (auto inputPair : inputPairList)
         {
             InputPtr checkInput = node->getActiveInput(inputPair.first);
@@ -130,94 +128,129 @@ namespace
                 const string& interfaceName = checkInput->getInterfaceName();
                 if (!interfaceName.empty())
                 {
-                    InputPtr interfaceInput = getInputInterface(interfaceName, node);
-                    if (interfaceInput)
-                    {
-                        checkInput = interfaceInput;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                // If mapped but not an adjustment then assume transparency
-                NodePtr inputNode = checkInput->getConnectedNode();
-                if (inputNode)
-                {
-                    NodeDefPtr nodeDef = inputNode->getNodeDef();
-                    if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    ValuePtr value = checkInput->getValue();
-                    if (value && !isEqual(value, inputPair.second))
-                    {
-                        return true;
-                    }
+                    interfaceNames.push_back(std::make_pair(interfaceName, inputPair.second));
                 }
             }
         }
-        return false;
+        if (!interfaceNames.empty())
+        {
+            if (hasTransparentInputs(interfaceNames, interfaceNode))
+            {
+                return true;
+            }
+        }
     }
 
-    bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode)
+    // Check against the child input or the corresponding
+    // functional nodegraph's interface if the input is mapped
+    // via an interface name.
+    for (auto inputPair : inputPairList)
     {
-        for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+        InputPtr checkInput = node->getActiveInput(inputPair.first);
+        if (checkInput)
         {
-            ElementPtr upstreamElem = it.getUpstreamElement();
-            if (!upstreamElem)
+            const string& interfaceName = checkInput->getInterfaceName();
+            if (!interfaceName.empty())
             {
-                continue;
+                InputPtr interfaceInput = getInputInterface(interfaceName, node);
+                if (interfaceInput)
+                {
+                    checkInput = interfaceInput;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            if (upstreamElem->isA<Node>())
+            // If mapped but not an adjustment then assume transparency
+            NodePtr inputNode = checkInput->getConnectedNode();
+            if (inputNode)
             {
-                // Handle shader nodes.
-                NodePtr node = upstreamElem->asA<Node>();
-                if (isTransparentShaderNode(node, interfaceNode))
+                NodeDefPtr nodeDef = inputNode->getNodeDef();
+                if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
                 {
                     return true;
                 }
-
-                // Handle graph definitions.
-                NodeDefPtr nodeDef = node->getNodeDef();
-                if (nodeDef)
+            }
+            else
+            {
+                ValuePtr value = checkInput->getValue();
+                if (value && !isEqual(value, inputPair.second))
                 {
-                    const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
-                    if (nodeDefType == Type::BSDF)
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr interfaceNode)
+{
+    for (GraphIterator it = output->traverseGraph().begin(); it != GraphIterator::end(); ++it)
+    {
+        ElementPtr upstreamElem = it.getUpstreamElement();
+        if (!upstreamElem)
+        {
+            continue;
+        }
+
+        if (upstreamElem->isA<Node>())
+        {
+            // Handle shader nodes.
+            NodePtr node = upstreamElem->asA<Node>();
+            if (isTransparentShaderNode(node, interfaceNode))
+            {
+                return true;
+            }
+
+            // Handle graph definitions.
+            NodeDefPtr nodeDef = node->getNodeDef();
+            if (nodeDef)
+            {
+                const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
+                if (nodeDefType == Type::BSDF)
+                {
+                    InterfaceElementPtr impl = nodeDef->getImplementation(target);
+                    if (impl && impl->isA<NodeGraph>())
                     {
-                        InterfaceElementPtr impl = nodeDef->getImplementation(target);
-                        if (impl && impl->isA<NodeGraph>())
+                        NodeGraphPtr graph = impl->asA<NodeGraph>();
+                        vector<OutputPtr> outputs = graph->getActiveOutputs();
+                        if (outputs.size() > 0)
                         {
-                            NodeGraphPtr graph = impl->asA<NodeGraph>();
-                            vector<OutputPtr> outputs = graph->getActiveOutputs();
-                            if (outputs.size() > 0)
+                            const OutputPtr& graphOutput = outputs[0];
+                            if (isTransparentShaderGraph(graphOutput, target, node))
                             {
-                                const OutputPtr& graphOutput = outputs[0];
-                                if (isTransparentShaderGraph(graphOutput, target, node))
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
-
-        return false;
     }
+
+    return false;
 }
+
+} // anonymous namespace
 
 bool isTransparentSurface(ElementPtr element, const string& target)
 {
     NodePtr node = element->asA<Node>();
     if (node)
     {
+        // Handle material nodes.
+        if (node->getCategory() == SURFACE_MATERIAL_NODE_STRING)
+        {
+            vector<NodePtr> shaderNodes = getShaderNodes(node);
+            if (!shaderNodes.empty())
+            {
+                node = shaderNodes[0];
+            }
+        }
+
         // Handle shader nodes.
         if (isTransparentShaderNode(node, nullptr))
         {
@@ -323,112 +356,69 @@ bool requiresImplementation(ConstNodeDefPtr nodeDef)
 bool elementRequiresShading(ConstTypedElementPtr element)
 {
     string elementType(element->getType());
-    static StringSet colorClosures =
-    {
-        "surfaceshader", "volumeshader", "lightshader",
+    static StringSet colorClosures = {
+        "material", "surfaceshader", "volumeshader", "lightshader",
         "BSDF", "EDF", "VDF"
     };
     return colorClosures.count(elementType) > 0;
 }
 
-void findRenderableMaterialNodes(ConstDocumentPtr doc, 
-                                 vector<TypedElementPtr>& elements, 
-                                 bool includeReferencedGraphs,
-                                 std::unordered_set<ElementPtr>& processedSources)
+vector<TypedElementPtr> findRenderableMaterialNodes(ConstDocumentPtr doc)
 {
-    for (const NodePtr& material : doc->getMaterialNodes())
+    vector<TypedElementPtr> renderableNodes;
+    for (NodePtr materialNode : doc->getMaterialNodes())
     {
-        // Scan for any upstream shader outputs and put them on the "processed" list
-        // if we don't want to consider them for rendering.
-        vector<NodePtr> shaderNodes = getShaderNodes(material);
-        if (!shaderNodes.empty())
+        if (!getShaderNodes(materialNode).empty())
         {
-            // Push the material node only once if any shader nodes are found
-            elements.push_back(material);
-            processedSources.insert(material);
-
-            if (!includeReferencedGraphs)
-            {
-                for (NodePtr shaderNode : shaderNodes)
-                {
-                    for (InputPtr input : shaderNode->getActiveInputs())
-                    {
-                        OutputPtr outputPtr = input->getConnectedOutput();
-                        if (outputPtr && !outputPtr->hasSourceUri() && !processedSources.count(outputPtr))
-                        {
-                            processedSources.insert(outputPtr);
-                        }
-                    }
-                }
-            }
+            renderableNodes.push_back(materialNode);
         }
     }
+    return renderableNodes;
 }
 
-void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool includeReferencedGraphs)
+vector<TypedElementPtr> findRenderableElements(ConstDocumentPtr doc)
 {
-    std::unordered_set<ElementPtr> processedSources;
-
-    findRenderableMaterialNodes(doc, elements, includeReferencedGraphs, processedSources);
-
-    // Find node graph outputs. Skip any light shaders
-    vector<OutputPtr> testOutputs;
-    for (NodeGraphPtr nodeGraph : doc->getNodeGraphs())
+    vector<TypedElementPtr> renderableElements = findRenderableMaterialNodes(doc);
+    if (renderableElements.empty())
     {
-        // Skip anything from an include file including libraries.
-        // Skip any nodegraph which is a definition
-        if (!nodeGraph->hasSourceUri() && !nodeGraph->hasAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE))
+        // Collect all graph outputs in the content document.
+        vector<OutputPtr> graphOutputs;
+        for (NodeGraphPtr graph : doc->getNodeGraphs())
         {
-            for (auto graphOutput : nodeGraph->getOutputs())
+            for (OutputPtr output : graph->getOutputs())
             {
-                testOutputs.push_back(graphOutput);
-            }
-        }
-    }
-
-    // Add in all top-level outputs not already processed.
-    auto docOutputs = doc->getOutputs();
-    for (auto docOutput : docOutputs)
-    {
-        if (!docOutput->hasSourceUri())
-        {
-            testOutputs.push_back(docOutput);
-        }
-    }
-
-    for (OutputPtr output : testOutputs)
-    {
-        if (processedSources.count(output))
-        {
-            continue;
-        }
-        NodePtr node = output->getConnectedNode();
-        if (node && node->getType() != LIGHT_SHADER_TYPE_STRING)
-        {
-            NodeDefPtr nodeDef = node->getNodeDef();
-            if (!nodeDef)
-            {
-                throw ExceptionShaderGenError("Could not find a nodedef for node '" + node->getNamePath() + "'");
-            }
-            if (requiresImplementation(nodeDef))
-            {
-                if (node->getType() == MATERIAL_TYPE_STRING)
+                if (output->getActiveSourceUri() == doc->getActiveSourceUri())
                 {
-                    if (processedSources.count(node))
-                    {
-                        continue;
-                    }
-                    elements.push_back(node);
-                    processedSources.insert(node);
-                }
-                else
-                {
-                    elements.push_back(output);
+                    graphOutputs.push_back(output);
                 }
             }
         }
-        processedSources.insert(output);
+        for (OutputPtr output : doc->getOutputs())
+        {
+            if (output->getActiveSourceUri() == doc->getActiveSourceUri())
+            {
+                graphOutputs.push_back(output);
+            }
+        }
+
+        // Filter out unconnected outputs and unsupported data types.
+        const StringSet UNSUPPORTED_TYPES =
+        {
+            BSDF_TYPE_STRING,
+            EDF_TYPE_STRING,
+            VDF_TYPE_STRING,
+            LIGHT_SHADER_TYPE_STRING
+        };
+        for (OutputPtr output : graphOutputs)
+        {
+            NodePtr node = output->getConnectedNode();
+            if (node && !UNSUPPORTED_TYPES.count(node->getType()))
+            {
+                renderableElements.push_back(output);
+            }
+        }
     }
+    return renderableElements;
 }
 
 InputPtr getNodeDefInput(InputPtr nodeInput, const string& target)
@@ -449,7 +439,7 @@ InputPtr getNodeDefInput(InputPtr nodeInput, const string& target)
 
 namespace
 {
-    const char TOKEN_PREFIX = '$';
+const char TOKEN_PREFIX = '$';
 }
 
 void tokenSubstitution(const StringMap& substitutions, string& source)
@@ -596,6 +586,15 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
         }
     }
     return false;
+}
+
+void findRenderableMaterialNodes(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool, std::unordered_set<ElementPtr>&)
+{
+    elements = findRenderableMaterialNodes(doc);
+}
+void findRenderableElements(ConstDocumentPtr doc, vector<TypedElementPtr>& elements, bool)
+{
+    elements = findRenderableElements(doc);
 }
 
 MATERIALX_NAMESPACE_END

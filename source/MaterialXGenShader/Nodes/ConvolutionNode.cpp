@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenShader/Nodes/ConvolutionNode.h>
@@ -12,23 +12,21 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const string SAMPLE2D_INPUT = "texcoord";
 const string SAMPLE3D_INPUT = "position";
 
 } // anonymous namespace
 
-const std::array<float, 3> GAUSSIAN_KERNEL_3 =
-{
+const std::array<float, 3> GAUSSIAN_KERNEL_3 = {
     0.27901f, 0.44198f, 0.27901f // Sigma 1
 };
-const std::array<float, 5> GAUSSIAN_KERNEL_5 =
-{
+const std::array<float, 5> GAUSSIAN_KERNEL_5 = {
     0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f // Sigma 1
 };
-const std::array<float, 7> GAUSSIAN_KERNEL_7 =
-{
+const std::array<float, 7> GAUSSIAN_KERNEL_7 = {
     0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f // Sigma 1
 };
 
@@ -106,11 +104,11 @@ const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) con
     return nullptr;
 }
 
-void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node, 
-                                         unsigned int sampleCount, unsigned int filterWidth, 
+void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
+                                         unsigned int sampleCount, unsigned int filterWidth,
                                          float filterSize, float filterOffset,
-                                         const string& sampleSizeFunctionUV, 
-                                         GenContext& context, ShaderStage& stage, 
+                                         const string& sampleSizeFunctionUV,
+                                         GenContext& context, ShaderStage& stage,
                                          StringVec& sampleStrings) const
 {
     sampleStrings.clear();
@@ -168,13 +166,13 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
                     if (sampleCount > 1)
                     {
                         computeSampleOffsetStrings(sampleSizeName, vec2TypeString,
-                            filterWidth, inputVec2Suffix);
+                                                   filterWidth, inputVec2Suffix);
                     }
 
-                    // Emit outputs for sample input 
+                    // Emit outputs for sample input
                     for (unsigned int i = 0; i < sampleCount; i++)
                     {
-                        // Add an input name suffix. 
+                        // Add an input name suffix.
                         context.addInputSuffix(samplingInput, inputVec2Suffix[i]);
 
                         // Add a output name suffix for the emit call
@@ -222,6 +220,6 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
             sampleStrings.push_back(inValueString);
         }
     }
-} 
+}
 
 MATERIALX_NAMESPACE_END

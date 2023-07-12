@@ -1,43 +1,41 @@
 # MaterialX Unit Tests
 
-Unit tests can be run using the `MaterialXTest` executable. This can be performed using ctest or directly running the executable with the desired test tag(s). The default build options executes all tags except the ones using for shader compilation and rendering.
+MaterialX unit tests are run via the `MaterialXTest` executable.  This can be performed using the `ctest` command in CMake, as is done on each commit through [GitHub Actions](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/.github/workflows/main.yml), or by directly running the executable with a set of test tags.  By default, all tests that are supported by the set of built libraries are run.
 
 ## 1. Core Tests
 
-The names of the files reflect the Element type being tested for the following:
+The tests in the MaterialXCore folder validate the behavior of each element and value class in MaterialX, as well as core behaviors such as document traversal and graph operations:
 
 - Document.cpp
 - Element.cpp
-- Geom.cpp
-- Look.cpp
 - Material.cpp
-- Node.cpp
+- Traversal.cpp
 - Types.cpp
 - Value.cpp
 
-## 2. Document utilities
-- Traversal.cpp : Document traversal.
-- Util.cpp : Basic utilities.
+## 2. I/O Tests
 
-## 3. I/O Tests
+The tests in the MaterialXFormat folder validate the behavior of basic system operations and supported I/O formats for MaterialX content:
 
-- File.cpp : Basic file path tests.
-- XmlIo.cpp : XML document I/O tests.
+- Environment.cpp
+- File.cpp
+- XmlIo.cpp
 
-## 4. Render Test Suite
+## 3. Shader Generation and Render Test Suite
 
-### 4.1 Test Inputs
+### 3.1 Test Inputs
 
 Refer to the [test suite documentation](../../resources/Materials/TestSuite/README.md) for more information about the organization of the test suite data used for these tests.
 
-### 4.2 Shader Generation Tests
+### 3.2 Shader Generation Tests
 
 - GenShader.cpp : Core shader generation tests which are run when the test tag `[genshader]` is specified.
-- GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenGlsl.cpp : GLSL shader generation tests which are run when the test tag `[genglsl]` is specified.
+- GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenMdl.cpp : MDL shader generation tests which are run when the test tag `[genmdl]` is specified.
+- GenMsl.cpp : MSL shader generation tests which are run when the test tage `[genmsl]` is specified. 
 
-Per language tests will scan MaterialX files in the test suite for input Elements.
+Per-language tests will scan MaterialX files in the test suite for input materials.
 
 #### Test Outputs
 Depending on which tests are executed log files are produced at the location that MaterialXTest was executed.
@@ -45,41 +43,42 @@ Depending on which tests are executed log files are produced at the location tha
 - `gen<language>_<target>_generatetest.txt`: Contains a log of generation for a give language and target pair.
 - `gen<language>_<target>_implementation_check.txt`: Contains a log of whether implementations exist for all nodedefs for a given language and target pair.
 
-### 4.3 Rendering Tests
+### 3.3 Render Tests
 
 - Render.cpp : Core render tests which are run when the test tag `[rendercore]` is specified.
-- RenderOsl.cpp : OSL render tests which are run when the test tag `[renderosl]` is specified.
 - RenderGlsl.cpp : GLSL render tests which are run when the test tag `[renderglsl]` is specified.
+- RenderOsl.cpp : OSL render tests which are run when the test tag `[renderosl]` is specified.
+- RenderMsl.mm: MSL render tests which are run when the test tage `[rendermsl]` is specified.
 
-Per language tests will scan MaterialX files in the test suite for input Elements.
+Per language tests will scan MaterialX files in the test suite for input materials.
 
-#### Per Language Render Setup
+#### Per-Language Render Setup
 
-If rendering tests are enabled via the build options then code for each Element tested will be compiled and rendered if the appropriate backend support is available.
+When rendering tests are enabled through the `MATERIALX_TEST_RENDER` option, the test suite will generate shader code for each test material and supported language.  Rendering will also be performed in languages for which support libraries have been provided:
 - `GLSL`:
-    - Will execute on a Windows machine which supports OpenGL 4.0 or above.
-- `OSL`: Uses utilities from the
-    [OSL distribution](https://github.com/imageworks/OpenShadingLanguage).
-    - The utilities are not generated as part of the MaterialX build.
-    - The test suite has been tested with version 1.9.10.
-    - The following build options are required to be set:
-        - `MATERIALX_OSLC_EXECUTABLE`: Full path to the `oslc` binary.
-        - `MATERIALX_TESTRENDER_EXECUTABLE`: Full path to the `testrender` binary.
-        - `MATERIALX_OSL_INCLUDE_PATH`: Full path to OSL include paths (i.e. location of `stdosl.h`).
-- `MDL` : Uses the utility `mdlc` from the [MDL distribution](https://github.com/NVIDIA/MDL-SDK) Prebuilt binaries can be downloaded from [here](https://developer.nvidia.com/mdl-sdk).
-    - The recommended MDL version is 1.6. The minimal support version is: [2019.2 (325000.1814)](https://github.com/NVIDIA/MDL-SDK/releases/tag/2019.2)
-    - The following build options are require to be set:
-        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the `mdlc` binary for compilation testing.
+    - OpenGL version 4.0 and later are supported.
+- `OSL`:
+    - Set the following build options to enable OSL support:
+        - `MATERIALX_OSL_BINARY_OSLC`: Path to the OSL compiler binary (e.g. `oslc.exe`).
+        - `MATERIALX_OSL_BINARY_TESTRENDER`: Path to the OSL test render binary (e.g. `testrender.exe`).
+        - `MATERIALX_OSL_INCLUDE_PATH`: Path to the OSL shader include folder, which contains headers such as `stdosl.h`.
+    - OSL versions 1.9.10 and later are supported.
+- `MDL` :
+    - Set the following build options to enable MDL support:
+        - `MATERIALX_MDLC_EXECUTABLE`: Full path to the MDL compiler binary (e.g. `mdlc.exe').
         - `MATERIALX_MDL_RENDER_EXECUTABLE`: Full path to the binary for render testing.
-           The build option `MATERIALX_MDL_RENDER_ARGUMENTS` should be set to provide command line arguments 
-           for non-interactive rendering.
-    - Note that if a render executable is specified separate compilation testing using `mdlc` will not be performed.
+    - Optionally, `MATERIALX_MDL_RENDER_ARGUMENTS` can be set to provide command line arguments for non-interactive rendering.
+    - MDL versions 1.6 and later are supported.
+- `MSL`:
+    - Metal Shading Language (MSL) 2.0 and later are supported.
+    - Minimum tested operating system version is macOS Catalina 10.15.7
 
 #### Test Outputs
 
 - `gen<language>_<target>_render_doc_validation_log.txt`: Contains a log of whether input document validation check errors for a language and target pair.
 - `gen<language>_<target>_render_profiling_log.txt`: Contains a log of execution times for a give language and target pair.
-- `gen<language>_<target>_render_log.txt`: Contains a log of compilation and rendering checks for a language and target pair. Note that if an error occurred a reference to a per Element error file will be given.
+- `gen<language>_<target>_render_log.txt`: Contains a log of compilation and rendering checks for a language and target pair.  Note that if an error occurred a reference to a per-material error file will be given.
 
-##### HTML Preview Script
-- A Python utility is provided in [`python/MaterialXTest`](../../python/MaterialXTest) which can be run to generate an HTML file with the rendered images referenced for visual checking. It assumes that both GLSL and OSL rendering has been performed.
+#### HTML Render Comparisons
+- A `tests_to_html` Python script is provided in the [`python/MaterialXTest`](../../python/MaterialXTest) folder, which can be run to generate an HTML file comparing the rendered results in each shading language.
+- Example render comparisons may be found in [commits to the MaterialX repository](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1164), and we encourage developers to post their own results when making changes that have the potential to impact generated shaders.

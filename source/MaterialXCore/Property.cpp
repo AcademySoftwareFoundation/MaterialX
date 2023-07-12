@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Property.h>
@@ -30,7 +30,7 @@ void PropertyAssign::setCollection(ConstCollectionPtr collection)
 
 CollectionPtr PropertyAssign::getCollection() const
 {
-    return resolveRootNameReference<Collection>(getCollectionString());
+    return resolveNameReference<Collection>(getCollectionString());
 }
 
 //
@@ -51,7 +51,7 @@ void PropertySetAssign::setPropertySet(ConstPropertySetPtr propertySet)
 
 PropertySetPtr PropertySetAssign::getPropertySet() const
 {
-    return resolveRootNameReference<PropertySet>(getPropertySetString());
+    return resolveNameReference<PropertySet>(getPropertySetString());
 }
 
 MATERIALX_NAMESPACE_END

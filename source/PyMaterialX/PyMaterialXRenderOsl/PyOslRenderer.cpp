@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -15,7 +15,7 @@ void bindPyOslRenderer(py::module& mod)
     py::class_<mx::OslRenderer, mx::ShaderRenderer, mx::OslRendererPtr>(mod, "OslRenderer")
         .def_static("create", &mx::OslRenderer::create)
         .def_readwrite_static("OSL_CLOSURE_COLOR_STRING", &mx::OslRenderer::OSL_CLOSURE_COLOR_STRING)
-        .def("initialize", &mx::OslRenderer::initialize)
+        .def("initialize", &mx::OslRenderer::initialize, py::arg("renderContextHandle") = nullptr)
         .def("createProgram", static_cast<void (mx::OslRenderer::*)(const mx::ShaderPtr)>(&mx::OslRenderer::createProgram))
         .def("createProgram", static_cast<void (mx::OslRenderer::*)(const mx::OslRenderer::StageMap&)>(&mx::OslRenderer::createProgram))
         .def("validateInputs", &mx::OslRenderer::validateInputs)

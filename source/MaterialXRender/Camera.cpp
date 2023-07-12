@@ -1,6 +1,6 @@
 //
-// TM & (c) 2021 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXRender/Camera.h>
@@ -20,6 +20,28 @@ Matrix44 Camera::createViewMatrix(const Vector3& eye,
         x[1], y[1], -z[1], 0.0f,
         x[2], y[2], -z[2], 0.0f,
         -x.dot(eye), -y.dot(eye), z.dot(eye), 1.0f);
+}
+
+Matrix44 Camera::createPerspectiveMatrixZP(float left, float right,
+                                         float bottom, float top,
+                                         float nearP, float farP)
+{
+    return Matrix44(
+        (2.0f * nearP) / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
+        0.0f, (2.0f * nearP) / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
+        0.0f, 0.0f, -1 / (farP - nearP), -1.0f,
+        0.0f, 0.0f, -nearP / (farP - nearP), 0.0f);
+}
+
+Matrix44 Camera::createOrthographicMatrixZP(float left, float right,
+                                          float bottom, float top,
+                                          float nearP, float farP)
+{
+    return Matrix44(
+        2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+        0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+        0.0f, 0.0f, -1.0f / (farP - nearP), 0.0f,
+        -(right + left) / (right - left), -(top + bottom) / (top - bottom), -nearP / (farP - nearP), 1.0f);
 }
 
 Matrix44 Camera::createPerspectiveMatrix(float left, float right,

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_OSLSHADERGENERATOR_H
@@ -47,7 +47,7 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     /// Register metadata that should be exported to the generated shaders.
     void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const override;
 
-protected:
+  protected:
     // Extra file arguments for texture lookup call
     static const string T_FILE_EXTRA_ARGUMENTS;
 
@@ -55,7 +55,7 @@ protected:
     virtual ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     /// Emit include headers needed by the generated shader code.
-    virtual void emitIncludes(ShaderStage& stage, GenContext& context) const;
+    virtual void emitLibraryIncludes(ShaderStage& stage, GenContext& context) const;
 
     /// Emit a block of shader inputs.
     virtual void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
@@ -66,11 +66,13 @@ protected:
 
 namespace OSL
 {
-    /// Identifiers for OSL variable blocks
-    extern MX_GENOSL_API const string UNIFORMS;
-    extern MX_GENOSL_API const string INPUTS;
-    extern MX_GENOSL_API const string OUTPUTS;
-}
+
+/// Identifiers for OSL variable blocks
+extern MX_GENOSL_API const string UNIFORMS;
+extern MX_GENOSL_API const string INPUTS;
+extern MX_GENOSL_API const string OUTPUTS;
+
+} // namespace OSL
 
 MATERIALX_NAMESPACE_END
 

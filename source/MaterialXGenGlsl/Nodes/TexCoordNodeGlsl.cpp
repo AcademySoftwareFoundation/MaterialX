@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/TexCoordNodeGlsl.h>
@@ -35,7 +35,8 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     const string variable = HW::T_TEXCOORD + "_" + index;
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
@@ -44,17 +45,18 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
             shadergen.emitLine(prefix + texcoord->getVariable() + " = " + HW::T_IN_TEXCOORD + "_" + index, stage);
             texcoord->setEmitted();
         }
-    END_SHADER_STAGE(shader, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
-            shadergen.emitLineBegin(stage);
+        shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

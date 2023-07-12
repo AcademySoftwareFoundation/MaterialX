@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenMdl/Nodes/SurfaceNodeMdl.h>
@@ -15,7 +15,6 @@ ShaderNodeImplPtr SurfaceNodeMdl::create()
 {
     return std::make_shared<SurfaceNodeMdl>();
 }
-
 
 const ShaderInput* findTransmissionIOR(const ShaderNode& node)
 {
@@ -53,7 +52,8 @@ const ShaderInput* findTransmissionIOR(const ShaderNode& node)
 
 void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         const MdlShaderGenerator& shadergen = static_cast<const MdlShaderGenerator&>(context.getShaderGenerator());
 
         // Emit calls for the closure dependencies upstream from this node.
@@ -69,7 +69,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         shadergen.emitLineBegin(stage);
 
         // Emit the output and funtion name.
-        shadergen.emitOutput(node.getOutput(0), true, false, context, stage);
+        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
         shadergen.emitString(" = mx::pbrlib::mx_surface(", stage);
 
         // Emit all inputs on the node.
@@ -91,8 +91,7 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // End function call
         shadergen.emitString(")", stage);
         shadergen.emitLineEnd(stage);
-
-    END_SHADER_STAGE(stage, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

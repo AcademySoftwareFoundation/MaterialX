@@ -1,6 +1,6 @@
 //
-// TM & (c) 2020 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_GLSLRESOURCEBINDING_H
@@ -26,7 +26,7 @@ class MX_GENGLSL_API GlslResourceBindingContext : public HwResourceBindingContex
     GlslResourceBindingContext(size_t uniformBindingLocation, size_t samplerBindingLocation);
 
     static GlslResourceBindingContextPtr create(
-        size_t uniformBindingLocation=0, size_t samplerBindingLocation=0)
+        size_t uniformBindingLocation = 0, size_t samplerBindingLocation = 0)
     {
         return std::make_shared<GlslResourceBindingContext>(
             uniformBindingLocation, samplerBindingLocation);

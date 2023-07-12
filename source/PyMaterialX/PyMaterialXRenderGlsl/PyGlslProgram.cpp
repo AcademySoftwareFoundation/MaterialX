@@ -1,6 +1,6 @@
 //
-// TM & (c) 2019 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -19,8 +19,10 @@ void bindPyGlslProgram(py::module& mod)
         .def("setStages", &mx::GlslProgram::setStages)
         .def("addStage", &mx::GlslProgram::addStage)
         .def("getStageSourceCode", &mx::GlslProgram::getStageSourceCode)
-        .def("clearStages", &mx::GlslProgram::clearStages)
+        .def("getShader", &mx::GlslProgram::getShader)
         .def("build", &mx::GlslProgram::build)
+        .def("hasBuiltData", &mx::GlslProgram::hasBuiltData)
+        .def("clearBuiltData", &mx::GlslProgram::clearBuiltData)
         .def("getUniformsList", &mx::GlslProgram::getUniformsList)
         .def("getAttributesList", &mx::GlslProgram::getAttributesList)
         .def("findInputs", &mx::GlslProgram::findInputs)

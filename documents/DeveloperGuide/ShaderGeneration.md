@@ -29,7 +29,7 @@ In the following sub-sections each of these methods are explained. For all metho
 Provided code generators support a very simple expression language for inlining code. This is useful for simple nodes where the operation can be expressed as a single line of code. Inlining will reduce the number of function calls and produce more compact code. The syntax to use is the same as the target shading language, with the addition of using the node’s input ports as variables wrapped in double curly brackets: `{{input}}`. The code generator will replace these variables with values assigned or connected to the respective inputs. Figure 2 gives an example.
 
 Connecting the expression to the nodedef is done using an `<implementation>` element as seen in
-Figure 2. The file extension is used to differentiate inline expressions from source code functions, using `filename.inline`.
+Figure 2. The first option is to keep inline code in a file. The file extension is used to differentiate inline expressions from source code functions, using `filename.inline`. The second option is to directly embed the inlined code using `sourcecode`. This is the recommended approach for inlining if there the logic can fit on one line of code.
 
 ```xml
 // Nodedef elements for node <add>
@@ -62,19 +62,17 @@ Figure 2. The file extension is used to differentiate inline expressions from so
 <... more types ...>
 
 // Implementation elements for node <mix>
-<implementation name="IM_mix_float" nodedef="ND_mix_float" file="mx_mix.inline"/>
-<implementation name="IM_mix_color3" nodedef="ND_mix_color3" file="mx_mix.inline"/>
+<implementation name="IM_mix_float" nodedef="ND_mix_float" sourcecode="mix({{bg}}, {{fg}}, {{mix}})"/>
+<implementation name="IM_mix_color3" nodedef="ND_mix_color3" sourcecode="mix({{bg}}, {{fg}}, {{mix}})"/>
 <... more types ...>
 ```
 ```c++
 // File 'mx_add.inline' contains:
 {{in1}} + {{in2}}
-
-// File 'mx_mix.inline' contains:
-mix({{bg}}, {{fg}}, {{mix}})
 ```
 
-**Figure 2**: Inline expressions for implementing nodes `<add>` and `<mix>`.
+**Figure 2**: Inline expressions for implementing nodes `<add>` and `<mix>`. The code for `<add>` is stored in an additional file, while the code for `<mix>` is specified as part of the
+`<implemenentation>` declaration. 
 
 ### 1.3.2 Shading Language Function
 For nodes that can’t be implemented by inline expressions a function definition can be used instead. The function signature should match the nodedefs interface with inputs and outputs. See Figure 3 for an example. Connecting the source code to the nodedef is done using an `<implementation>` element, see the [MaterialX specification](../Specification/MaterialX.v1.36.Spec.pdf) for more information.
@@ -168,7 +166,7 @@ In this case, a C++ class can be added to handle the implementation of the node.
 When a `ShaderNodeImpl` class is used for a nodedef the corresponding `<implementation>`
 element doesn’t need a file attribute, since no static source code is used. The `<implementation>` element will then act only as a declaration that there exists an implementation for the nodedef for a particular language and target.
 
-Note that by using a `ShaderNodeImpl` class for your node's implementation it is no longer data driven, as in the other three methods above. So it's recommneded to use this only when inline expressions or static source code functions are not enough to handle the implementation of a node.
+Note that by using a `ShaderNodeImpl` class for your node's implementation it is no longer data driven, as in the other three methods above. So it's recommended to use this only when inline expressions or static source code functions are not enough to handle the implementation of a node.
 
 ```c++
 /// Implementation of ’foo' node for OSL
@@ -359,9 +357,9 @@ Uniform variables
 | u_viewDirection                     | vec3    | World-space direction of the viewer. |
 | u_frame                             | float   | The current frame number as defined by the host application. |
 | u_time                              | float   | The current time in seconds. |
-| u_geomprop_\<name>                   | \<type> | A named property of given \<type> where \<name> is the name of the variable on the geometry. |
+| u_geomprop_\<name>                  | \<type> | A named property of given \<type> where \<name> is the name of the variable on the geometry. |
 | u_numActiveLightSources             | int     | The number of currently active light sources. Note that in shader this is clamped against the maximum allowed number of light sources. |
 | u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
-| u_\<unitType>UnitTarget[]            | integer  | An attribute indicating the target unit for a given unit type definition (\<unitType>). |
+| u_\<unitType>UnitTarget[]           | integer  | An attribute indicating the target unit for a given unit type definition (\<unitType>). |
 
 **Figure 7** : Listing of predefined variables with their binding rules.

@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Types.h>
@@ -91,6 +91,16 @@ StringVec splitString(const string& str, const string& sep)
     return split;
 }
 
+string joinStrings(const StringVec& stringVec, const string& sep)
+{
+    string res;
+    for (const string& name : stringVec)
+    {
+        res = res.empty() ? name : res + sep + name;
+    }
+    return res;
+}
+
 string replaceSubstrings(string str, const StringMap& stringMap)
 {
     for (const auto& pair : stringMap)
@@ -117,6 +127,15 @@ string stringToLower(string str)
     return str;
 }
 
+bool stringStartsWith(const std::string& str, const std::string& prefix)
+{
+    if (str.length() >= prefix.length())
+    {
+        return !str.compare(0, prefix.length(), prefix);
+    }
+    return false;
+}
+
 bool stringEndsWith(const string& str, const string& suffix)
 {
     if (str.length() >= suffix.length())
@@ -128,7 +147,7 @@ bool stringEndsWith(const string& str, const string& suffix)
 
 string trimSpaces(const string& str)
 {
-    const string SPACE(" ");
+    const char SPACE(' ');
 
     size_t start = str.find_first_not_of(SPACE);
     string result = (start == std::string::npos) ? EMPTY_STRING : str.substr(start);
@@ -145,11 +164,7 @@ StringVec splitNamePath(const string& namePath)
 
 string createNamePath(const StringVec& nameVec)
 {
-    string res;
-    for (const string& name : nameVec)
-    {
-        res = res.empty() ? name : res + NAME_PATH_SEPARATOR + name;
-    }
+    string res = joinStrings(nameVec, NAME_PATH_SEPARATOR);
     return res;
 }
 

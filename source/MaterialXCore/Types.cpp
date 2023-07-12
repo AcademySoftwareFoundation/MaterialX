@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXCore/Types.h>
@@ -11,6 +11,9 @@ const string DEFAULT_TYPE_STRING = "color3";
 const string FILENAME_TYPE_STRING = "filename";
 const string GEOMNAME_TYPE_STRING = "geomname";
 const string STRING_TYPE_STRING = "string";
+const string BSDF_TYPE_STRING = "BSDF";
+const string EDF_TYPE_STRING = "EDF";
+const string VDF_TYPE_STRING = "VDF";
 const string SURFACE_SHADER_TYPE_STRING = "surfaceshader";
 const string DISPLACEMENT_SHADER_TYPE_STRING = "displacementshader";
 const string VOLUME_SHADER_TYPE_STRING = "volumeshader";
@@ -37,24 +40,62 @@ const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
                                   0, 0, 0, 1);
 
 //
+// Color3 methods
+//
+
+Color3 Color3::linearToSrgb() const
+{
+    Color3 res;
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (_arr[i] <= 0.0031308f)
+        {
+            res[i] = _arr[i] * 12.92f;
+        }
+        else
+        {
+            res[i] = 1.055f * std::pow(_arr[i], 1.0f / 2.4f) - 0.055f;
+        }
+    }
+    return res;
+}
+
+Color3 Color3::srgbToLinear() const
+{
+    Color3 res;
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (_arr[i] <= 0.04045f)
+        {
+            res[i] = _arr[i] / 12.92f;
+        }
+        else
+        {
+            res[i] = std::pow((_arr[i] + 0.055f) / 1.055f, 2.4f);
+        }
+    }
+    return res;
+}
+
+//
 // Matrix33 methods
 //
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::getTranspose() const
+Matrix33 Matrix33::getTranspose() const
 {
     return Matrix33(_arr[0][0], _arr[1][0], _arr[2][0],
                     _arr[0][1], _arr[1][1], _arr[2][1],
                     _arr[0][2], _arr[1][2], _arr[2][2]);
 }
 
-template <> float MatrixN<Matrix33, float, 3>::getDeterminant() const
+float Matrix33::getDeterminant() const
 {
     return _arr[0][0] * (_arr[1][1]*_arr[2][2] - _arr[2][1]*_arr[1][2]) +
            _arr[0][1] * (_arr[1][2]*_arr[2][0] - _arr[2][2]*_arr[1][0]) +
            _arr[0][2] * (_arr[1][0]*_arr[2][1] - _arr[2][0]*_arr[1][1]);
 }
 
-template <> Matrix33 MatrixN<Matrix33, float, 3>::getAdjugate() const
+Matrix33 Matrix33::getAdjugate() const
 {
     return Matrix33(
         _arr[1][1]*_arr[2][2] - _arr[2][1]*_arr[1][2],
@@ -121,7 +162,7 @@ Matrix33 Matrix33::createRotation(float angle)
 // Matrix44 methods
 //
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::getTranspose() const
+Matrix44 Matrix44::getTranspose() const
 {
     return Matrix44(_arr[0][0], _arr[1][0], _arr[2][0], _arr[3][0],
                     _arr[0][1], _arr[1][1], _arr[2][1], _arr[3][1],
@@ -129,7 +170,7 @@ template <> Matrix44 MatrixN<Matrix44, float, 4>::getTranspose() const
                     _arr[0][3], _arr[1][3], _arr[2][3], _arr[3][3]);
 }
 
-template <> float MatrixN<Matrix44, float, 4>::getDeterminant() const
+float Matrix44::getDeterminant() const
 {
     return _arr[0][0] * (_arr[1][1]*_arr[2][2]*_arr[3][3] + _arr[3][1]*_arr[1][2]*_arr[2][3] + _arr[2][1]*_arr[3][2]*_arr[1][3] -
                          _arr[1][1]*_arr[3][2]*_arr[2][3] - _arr[2][1]*_arr[1][2]*_arr[3][3] - _arr[3][1]*_arr[2][2]*_arr[1][3]) +
@@ -141,7 +182,7 @@ template <> float MatrixN<Matrix44, float, 4>::getDeterminant() const
                          _arr[1][0]*_arr[2][1]*_arr[3][2] - _arr[3][0]*_arr[1][1]*_arr[2][2] - _arr[2][0]*_arr[3][1]*_arr[1][2]);
 }
 
-template <> Matrix44 MatrixN<Matrix44, float, 4>::getAdjugate() const
+Matrix44 Matrix44::getAdjugate() const
 {
     return Matrix44(
         _arr[1][1]*_arr[2][2]*_arr[3][3] + _arr[3][1]*_arr[1][2]*_arr[2][3] + _arr[2][1]*_arr[3][2]*_arr[1][3] -

@@ -1,9 +1,9 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXTest/Catch/catch.hpp>
+#include <MaterialXTest/External/Catch/catch.hpp>
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 #include <MaterialXTest/MaterialXGenGlsl/GenGlsl.h>
 
@@ -16,6 +16,7 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/GlslResourceBindingContext.h>
+#include <MaterialXGenGlsl/VkShaderGenerator.h>
 
 namespace mx = MaterialX;
 
@@ -84,16 +85,13 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 54);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 47);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
-
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    context.registerSourceCodeSearchPath(currentPath);
-
+    context.registerSourceCodeSearchPath(mx::getDefaultDataSearchPath());
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
@@ -101,8 +99,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     loadLibraries({ "libraries" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
@@ -122,23 +119,43 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-static void generateGlslCode(bool generateLayout = false)
+enum class GlslType
 {
+    Glsl400,
+    Glsl420,
+    GlslVulkan
+};
+
+const std::string GlslTypeToString(GlslType e) throw()
+{
+    switch (e)
+    {
+        case GlslType::Glsl420:
+            return "glsl420_layout";
+        case GlslType::GlslVulkan:
+            return "glsl420_vulkan";
+        case GlslType::Glsl400:
+        default:
+            return "glsl400";
+    }
+}
+
+static void generateGlslCode(GlslType type = GlslType::Glsl400)
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples");
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
-    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+
+    const mx::FilePath logPath("genglsl_" + GlslTypeToString(type) + "_generate_test.txt");
+
     bool writeShadersToDisk = false;
+    GlslShaderGeneratorTester tester((type == GlslType::GlslVulkan) ? mx::VkShaderGenerator::create() : mx::GlslShaderGenerator::create(),
+                                     testRootPaths, searchPath, logPath, writeShadersToDisk);
 
-    const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
-    const mx::FilePath logPath(generateLayout ? "genglsl_glsl420_layout_generate_test.txt" : "genglsl_glsl400_generate_test.txt");
-
-    GlslShaderGeneratorTester tester(mx::GlslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
-
-    if (generateLayout)
+    // Add resource binding context for glsl 4.20
+    if (type == GlslType::Glsl420)
     {
         // Set binding context to handle resource binding layouts
         mx::GlslResourceBindingContextPtr glslresourceBinding(mx::GlslResourceBindingContext::create());
@@ -146,17 +163,25 @@ static void generateGlslCode(bool generateLayout = false)
         tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
+    const mx::GenOptions genOptions;
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }
 
 TEST_CASE("GenShader: GLSL Shader Generation", "[genglsl]")
 {
     // Generate with standard GLSL i.e version 400
-    generateGlslCode();
+    generateGlslCode(GlslType::Glsl400);
 }
 
 TEST_CASE("GenShader: GLSL Shader with Layout Generation", "[genglsl]")
 {
     // Generate GLSL with layout i.e version 400 + layout extension
-    generateGlslCode(true);
+    generateGlslCode(GlslType::Glsl420);
+}
+
+TEST_CASE("GenShader: Vulkan GLSL Shader", "[genglsl]")
+{
+    // Generate with GLSL for Vulkan i.e. version 450
+    generateGlslCode(GlslType::GlslVulkan);
 }

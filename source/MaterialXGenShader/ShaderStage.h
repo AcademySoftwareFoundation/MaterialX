@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERSTAGE_H
@@ -15,28 +15,37 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/Syntax.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXCore/Node.h>
 
 #include <sstream>
 
-// Macro for begin/end of statements to be picked up by a given shader stage.
-// For shaders that are multi-stage all code generation statements adding code 
-// to the shader should be wrapped inside such begin/end stating its target.
-#define BEGIN_SHADER_STAGE(stage, name) if (stage.getName() == name) {
+// Restrict a scoped block of statements to a specific shader stage, as
+// is required for multi-stage shading languages.  Statements within
+// the block will only be emitted when processing the given stage.
+#define DEFINE_SHADER_STAGE(stage, name) if (stage.getName() == name)
+
+// These macros are deprecated, and should be replaced with DEFINE_SHADER_STAGE.
+#define BEGIN_SHADER_STAGE(stage, name) \
+    if (stage.getName() == name)        \
+    {
 #define END_SHADER_STAGE(stage, name) }
 
 MATERIALX_NAMESPACE_BEGIN
 
 namespace Stage
 {
-    /// Identifier for pixel stage.
-    /// This is the main stage used by all shader targets.
-    /// For single stage shader targets this is the one
-    /// and only stage.
-    /// Shader targets with multiple stages can add additional
-    /// stage identifiers to the Stage namespace.
-    extern MX_GENSHADER_API const string PIXEL;
-}
+
+/// Identifier for pixel stage.
+/// This is the main stage used by all shader targets.
+/// For single stage shader targets this is the one
+/// and only stage.
+/// Shader targets with multiple stages can add additional
+/// stage identifiers to the Stage namespace.
+extern MX_GENSHADER_API const string PIXEL;
+
+} // namespace Stage
 
 class VariableBlock;
 /// Shared pointer to a VariableBlock
@@ -54,7 +63,8 @@ class MX_GENSHADER_API VariableBlock
     VariableBlock(const string& name, const string& instance) :
         _name(name),
         _instance(instance)
-    {}
+    {
+    }
 
     /// Get the name of this block.
     const string& getName() const { return _name; }
@@ -115,19 +125,19 @@ class MX_GENSHADER_API VariableBlock
     vector<ShaderPort*> _variableOrder;
 };
 
-
 /// @class ShaderStage
-/// A shader stage, containing the state and 
+/// A shader stage, containing the state and
 /// resulting source code for the stage.
 class MX_GENSHADER_API ShaderStage
 {
-public:
+  public:
     using FunctionCallId = std::pair<const ShaderNode*, int>;
     struct Scope
     {
         Syntax::Punctuation punctuation;
         std::set<FunctionCallId> functions;
-        Scope(Syntax::Punctuation p) : punctuation(p) {}
+        Scope(Syntax::Punctuation p) :
+            punctuation(p) { }
     };
 
   public:
@@ -196,7 +206,19 @@ public:
     {
         return _outputs;
     }
- 
+
+    /// Return a set of all include files
+    const StringSet& getIncludes() const
+    {
+        return _includes;
+    }
+
+    /// Return a set of all source dependencies
+    const StringSet& getSourceDependencies() const
+    {
+        return _sourceDependencies;
+    }
+
     /// Start a new scope using the given bracket type.
     void beginScope(Syntax::Punctuation punc = Syntax::CURLY_BRACKETS);
 
@@ -222,14 +244,16 @@ public:
     void addComment(const string& str);
 
     /// Add a block of code.
-    void addBlock(const string& str, GenContext& context);
+    void addBlock(const string& str, const FilePath& sourceFilename, GenContext& context);
 
-    /// Add the contents of an include file. Making sure it is 
-    /// only included once for the shader stage.
-    void addInclude(const string& file, GenContext& context);
+    /// Add the contents of an include file if not already present.
+    void addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context);
+
+    /// Add a source file dependency for dependency tracking purposes
+    void addSourceDependency(const FilePath& file);
 
     /// Add a value.
-    template<typename T>
+    template <typename T>
     void addValue(const T& value)
     {
         StringStream str;
@@ -241,14 +265,17 @@ public:
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
 
     /// Add the function call for the given node.
-    void addFunctionCall(const ShaderNode& node, GenContext& context);
+    /// This will register the function as being called in the current scope, and code for the
+    /// function call will be added to the stage. If emitCode is set to false the code for the
+    /// function call will be omitted.
+    void addFunctionCall(const ShaderNode& node, GenContext& context, bool emitCode = true);
 
     /// Return true if the function for the given node has been emitted in the current scope.
     bool isEmitted(const ShaderNode& node, GenContext& context) const;
 
     /// Set stage function name.
-    void setFunctionName(const string& functionName) 
-    { 
+    void setFunctionName(const string& functionName)
+    {
         _functionName = functionName;
     }
 
@@ -270,6 +297,9 @@ public:
 
     /// Set of include files that has been included.
     StringSet _includes;
+
+    /// Set of source file dependencies from source code nodes
+    StringSet _sourceDependencies;
 
     /// Set of hash ID's for functions that has been defined.
     std::set<size_t> _definedFunctions;
@@ -296,8 +326,8 @@ public:
 using ShaderStagePtr = std::shared_ptr<ShaderStage>;
 
 /// Utility function for adding a new shader port to a uniform block.
-inline ShaderPort* addStageUniform(const string& block, 
-                                   const TypeDesc* type, 
+inline ShaderPort* addStageUniform(const string& block,
+                                   const TypeDesc* type,
                                    const string& name,
                                    ShaderStage& stage)
 {
@@ -306,7 +336,7 @@ inline ShaderPort* addStageUniform(const string& block,
 }
 
 /// Utility function for adding a new shader port to an input block.
-inline ShaderPort* addStageInput(const string& block, 
+inline ShaderPort* addStageInput(const string& block,
                                  const TypeDesc* type,
                                  const string& name,
                                  ShaderStage& stage)
@@ -317,7 +347,7 @@ inline ShaderPort* addStageInput(const string& block,
 
 /// Utility function for adding a new shader port to an output block.
 inline ShaderPort* addStageOutput(const string& block,
-                                  const TypeDesc* type, 
+                                  const TypeDesc* type,
                                   const string& name,
                                   ShaderStage& stage)
 {
@@ -326,9 +356,9 @@ inline ShaderPort* addStageOutput(const string& block,
 }
 
 /// Utility function for adding a connector block between stages.
-inline void addStageConnectorBlock(const string& block, 
+inline void addStageConnectorBlock(const string& block,
                                    const string& instance,
-                                   ShaderStage& from, 
+                                   ShaderStage& from,
                                    ShaderStage& to)
 {
     from.createOutputBlock(block, instance);
@@ -336,8 +366,8 @@ inline void addStageConnectorBlock(const string& block,
 }
 
 /// Utility function for adding a variable to a stage connector block.
-inline void addStageConnector(const string& block, 
-                              const TypeDesc* type, 
+inline void addStageConnector(const string& block,
+                              const TypeDesc* type,
                               const string& name,
                               ShaderStage& from,
                               ShaderStage& to)

@@ -1,6 +1,6 @@
 # MaterialX Viewer
 
-The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  The standard set of pattern and physically-based shading nodes is supported, and libraries of custom nodes can be included as additional library paths.
+The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  The standard set of pattern and physically based shading nodes is supported, and libraries of custom nodes can be included as additional library paths.
 
 ### Example Images
 
@@ -23,7 +23,7 @@ Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewe
 
 ### Summary of Viewer Options
 
-1.  **Load Mesh**: Load a new geometry in the OBJ format.
+1.  **Load Mesh**: Load a new geometry in the OBJ or glTF format.
 2.  **Load Material**: Load a material document in the MTLX format.
 3.  **Load Environment**: Load a lat-long environment light in the HDR format.
 4.  **Property Editor**: View or edit properties of the current material.
@@ -78,19 +78,19 @@ By default, the MaterialX viewer loads and saves image files using `stb_image`, 
 
 The following are common command-line options for MaterialXView, and a complete list can be displayed with the `--help` option.
 - `--material [FILENAME]` : Specify the filename of the MTLX document to be displayed in the viewer
-- `--mesh [FILENAME]` : Specify the filename of the OBJ mesh to be displayed in the viewer
+- `--mesh [FILENAME]` : Specify the filename of the OBJ or glTF mesh to be displayed in the viewer
 - `--meshRotation [VECTOR3]` : Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)
 - `--meshScale [FLOAT]` : Specify the uniform scale of the displayed mesh
 - `--cameraPosition [VECTOR3]` : Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)
 - `--cameraTarget [VECTOR3]` : Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)
-- `--cameraViewAngle [FLOAT]` : Specify the view angle of the camera (defaults to 45)
-- `--cameraZoom [FLOAT]` : Specify the amount to zoom the camera. (defaults to 1.0)
+- `--cameraViewAngle [FLOAT]` : Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)
+- `--cameraZoom [FLOAT]` : Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)
 - `--envRad [FILENAME]` : Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format
 - `--envMethod [INTEGER]` : Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)
 - `--envSampleCount [INTEGER]` :  Specify the environment sample count (defaults to 16)
 - `--lightRotation [FLOAT]` : Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)
-- `--path [FILEPATH]` : Specify an additional absolute search path location (e.g. '/projects/MaterialX').  This path will be queried when locating standard data libraries, XInclude references, and referenced images.
-- `--library [FILEPATH]` : Specify an additional relative path to a custom data library folder (e.g. 'libraries/custom').  MaterialX files at the root of this folder will be included in all content documents.
+- `--path [FILEPATH]` : Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.
+- `--library [FILEPATH]` : Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.
 - `--screenWidth [INTEGER]` : Specify the width of the screen image in pixels (defaults to 1280)
 - `--screenHeight [INTEGER]` : Specify the height of the screen image in pixels (defaults to 960)
 - `--screenColor [VECTOR3]` : Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)

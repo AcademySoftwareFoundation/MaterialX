@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #if defined(__APPLE__)
@@ -10,10 +10,10 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-SimpleWindow::SimpleWindow()
+SimpleWindow::SimpleWindow() :
+    _width(0),
+    _height(0)
 {
-    clearInternalState();
-
     // Give a unique identifier to this window.
     static unsigned int windowCount = 1;
     _id = windowCount;

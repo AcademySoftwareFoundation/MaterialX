@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <MaterialXGenGlsl/Nodes/TangentNodeGlsl.h>
@@ -25,7 +25,7 @@ void TangentNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shade
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
-        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_MATRIX, vs);
         addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_WORLD, vs, ps);
     }
     else
@@ -41,7 +41,8 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
-    BEGIN_SHADER_STAGE(stage, Stage::VERTEX)
+    DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
+    {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         if (space == WORLD_SPACE)
@@ -50,7 +51,7 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             if (!tangent->isEmitted())
             {
                 tangent->setEmitted();
-                shadergen.emitLine(prefix + tangent->getVariable() + " = (" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ",0.0)).xyz", stage);
+                shadergen.emitLine(prefix + tangent->getVariable() + " = normalize((" + HW::T_WORLD_MATRIX + " * vec4(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
             }
         }
         else
@@ -62,9 +63,10 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
                 shadergen.emitLine(prefix + tangent->getVariable() + " = " + HW::T_IN_TANGENT, stage);
             }
         }
-    END_SHADER_STAGE(shader, Stage::VERTEX)
+    }
 
-    BEGIN_SHADER_STAGE(stage, Stage::PIXEL)
+    DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
+    {
         VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
@@ -80,7 +82,7 @@ void TangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& conte
             shadergen.emitString(" = normalize(" + prefix + tangent->getVariable() + ")", stage);
         }
         shadergen.emitLineEnd(stage);
-    END_SHADER_STAGE(shader, Stage::PIXEL)
+    }
 }
 
 MATERIALX_NAMESPACE_END

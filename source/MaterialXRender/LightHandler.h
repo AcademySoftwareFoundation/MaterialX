@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_LIGHTHANDLER_H
@@ -11,6 +11,7 @@
 
 #include <MaterialXRender/Export.h>
 #include <MaterialXRender/Image.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXCore/Document.h>
 
@@ -36,7 +37,8 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT)
+        _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
+        _refractionTwoSided(false)
     {
     }
     virtual ~LightHandler() { }
@@ -111,18 +113,6 @@ class MX_RENDER_API LightHandler
         return _envIrradianceMap;
     }
 
-    /// Set the directional albedo table
-    void setAlbedoTable(ImagePtr table)
-    {
-        _albedoTable = table;
-    }
-
-    /// Return the directional albedo table
-    ImagePtr getAlbedoTable() const
-    {
-        return _albedoTable;
-    }
-
     /// Set the environment lighting sample count.
     void setEnvSampleCount(int count)
     {
@@ -133,6 +123,34 @@ class MX_RENDER_API LightHandler
     int getEnvSampleCount() const
     {
         return _envSampleCount;
+    }
+
+    /// Set the two-sided refraction property.
+    void setRefractionTwoSided(bool enable)
+    {
+        _refractionTwoSided = enable;
+    }
+
+    /// Return the two-sided refraction property.
+    int getRefractionTwoSided() const
+    {
+        return _refractionTwoSided;
+    }
+
+    /// @}
+    /// @name Albedo Table
+    /// @{
+
+    /// Set the directional albedo table
+    void setAlbedoTable(ImagePtr table)
+    {
+        _albedoTable = table;
+    }
+
+    /// Return the directional albedo table
+    ImagePtr getAlbedoTable() const
+    {
+        return _albedoTable;
     }
 
     /// @}
@@ -201,8 +219,11 @@ class MX_RENDER_API LightHandler
 
     ImagePtr _envRadianceMap;
     ImagePtr _envIrradianceMap;
-    ImagePtr _albedoTable;
     int _envSampleCount;
+
+    bool _refractionTwoSided;
+
+    ImagePtr _albedoTable;
 
     vector<NodePtr> _lightSources;
     std::unordered_map<string, unsigned int> _lightIdMap;

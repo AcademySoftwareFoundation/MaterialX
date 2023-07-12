@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #include <PyMaterialX/PyMaterialX.h>
@@ -29,7 +29,9 @@ void bindPyInterface(py::module& mod)
         .def("setChannels", &mx::PortElement::setChannels)
         .def("getChannels", &mx::PortElement::getChannels)
         .def("setConnectedNode", &mx::PortElement::setConnectedNode)
-        .def("getConnectedNode", &mx::PortElement::getConnectedNode);
+        .def("getConnectedNode", &mx::PortElement::getConnectedNode)
+        .def("setConnectedOutput", &mx::PortElement::setConnectedOutput)
+        .def("getConnectedOutput", &mx::PortElement::getConnectedOutput);
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)
@@ -37,8 +39,6 @@ void bindPyInterface(py::module& mod)
         .def("getDefaultGeomPropString", &mx::Input::getDefaultGeomPropString)
         .def("getDefaultGeomProp", &mx::Input::getDefaultGeomProp)
         .def("getConnectedNode", &mx::Input::getConnectedNode)
-        .def("setConnectedOutput", &mx::Input::setConnectedOutput)
-        .def("getConnectedOutput", &mx::Input::getConnectedOutput)
         .def("getInterfaceInput", &mx::Input::getInterfaceInput)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 

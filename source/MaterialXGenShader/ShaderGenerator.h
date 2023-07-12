@@ -1,6 +1,6 @@
 //
-// TM & (c) 2017 Lucasfilm Entertainment Company Ltd. and Lucasfilm Ltd.
-// All rights reserved.  See LICENSE.txt for license.
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
 //
 
 #ifndef MATERIALX_SHADERGENERATOR_H
@@ -15,6 +15,8 @@
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
+
+#include <MaterialXFormat/File.h>
 
 #include <MaterialXCore/Exception.h>
 
@@ -32,11 +34,17 @@ class MX_GENSHADER_API ShaderGenerator
     virtual ~ShaderGenerator() { }
 
     /// Return the name of the target this generator is for.
-    virtual const string& getTarget() const = 0;
+    virtual const string& getTarget() const
+    {
+        return EMPTY_STRING;
+    }
 
     /// Generate a shader starting from the given element, translating
     /// the element and all dependencies upstream into shader code.
-    virtual ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const = 0;
+    virtual ShaderPtr generate(const string&, ElementPtr, GenContext&) const
+    {
+        return nullptr;
+    }
 
     /// Start a new scope using the given bracket type.
     virtual void emitScopeBegin(ShaderStage& stage, Syntax::Punctuation punc = Syntax::CURLY_BRACKETS) const;
@@ -63,14 +71,15 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitComment(const string& str, ShaderStage& stage) const;
 
     /// Add a block of code.
-    virtual void emitBlock(const string& str, GenContext& context, ShaderStage& stage) const;
+    virtual void emitBlock(const string& str, const FilePath& sourceFilename, GenContext& context, ShaderStage& stage) const;
 
-    /// Add the contents of an include file. Making sure it is 
-    /// only included once for the shader stage.
-    virtual void emitInclude(const string& file, GenContext& context, ShaderStage& stage) const;
+    /// Add the contents of a standard library include file if not already present.
+    /// The library file prefix of the given context, if any, will be prepended
+    /// to the given filename.
+    virtual void emitLibraryInclude(const FilePath& filename, GenContext& context, ShaderStage& stage) const;
 
     /// Add a value.
-    template<typename T>
+    template <typename T>
     void emitValue(const T& value, ShaderStage& stage) const
     {
         stage.addValue<T>(value);
@@ -83,7 +92,8 @@ class MX_GENSHADER_API ShaderGenerator
     virtual void emitFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
     /// Add the function call for a single node.
-    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope = true) const;
+    virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const;
+    [[deprecated]] virtual void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const;
 
     /// Add all function calls for a graph. If a classification mask is given only functions for
     /// nodes matching this classification will be emitted.
@@ -141,6 +151,9 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Register a shader node implementation for a given implementation element name
     void registerImplementation(const string& name, CreatorFunction<ShaderNodeImpl> creator);
+    
+    /// Register a shader node implementation for a given set of implementation element names
+    void registerImplementation(const StringVec& nameVec, CreatorFunction<ShaderNodeImpl> creator);
 
     /// Determine if a shader node implementation has been registered for a given implementation element name
     bool implementationRegistered(const string& name) const;
@@ -179,10 +192,10 @@ class MX_GENSHADER_API ShaderGenerator
     }
 
     /// Register metadata that should be exported to the generated shaders.
-    /// Supported metadata includes standard UI attributes like "uiname", "uifolder", 
-    /// "uimin", "uimax", etc. 
+    /// Supported metadata includes standard UI attributes like "uiname", "uifolder",
+    /// "uimin", "uimax", etc.
     /// But it is also extendable by defining custom attributes using AttributeDefs.
-    /// Any AttributeDef in the given document with exportable="true" will be 
+    /// Any AttributeDef in the given document with exportable="true" will be
     /// exported as shader metadata when found on nodes during shader generation.
     /// Derived shader generators may override this method to change the registration.
     /// Applications must explicitly call this method before shader generation to enable
@@ -204,6 +217,10 @@ class MX_GENSHADER_API ShaderGenerator
 
     /// Replace tokens with identifiers according to the given substitutions map.
     void replaceTokens(const StringMap& substitutions, ShaderStage& stage) const;
+
+    /// Create shader variables (e.g. uniforms, inputs and outputs) for
+    /// nodes that require input data from the application.
+    void createVariables(ShaderGraphPtr graph, GenContext& context, Shader& shader) const;
 
   protected:
     static const string T_FILE_TRANSFORM_UV;

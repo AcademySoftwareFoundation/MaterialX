@@ -1,4 +1,4 @@
-#include "libraries/pbrlib/genosl/lib/mx_microfacet.osl"
+#include "mx_microfacet.osl"
 
 // Rational curve fit approximation for the directional albedo of Imageworks sheen.
 float mx_imageworks_sheen_dir_albedo_analytic(float NdotV, float roughness)
