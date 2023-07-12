@@ -2553,6 +2553,7 @@
   -->
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" value="0" />
+    <input name="period" type="float" uiname="Peroid" value="1"/>
     <output name="out" type="float" />
   </nodedef>
 
