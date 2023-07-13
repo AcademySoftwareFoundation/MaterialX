@@ -1246,13 +1246,9 @@
     <convert name="N_convertSeed1" type="float">
       <input name="in" type="integer" interfacename="seed" />
     </convert>
-    <modulo name="N_moduloInput" type="float">
-      <input name="in1" type="float" interfacename="in" />
-      <input name="in2" type="float" value="4219" />
-    </modulo>
     <multiply name="N_scaleInput" type="float">
-      <input name="in1" type="float" nodename="N_moduloInput" />
-      <input name="in2" type="float" value="3947" />
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" value="4096" />
     </multiply>
     <combine2 name="N_combine2" type="vector2">
       <input name="in1" type="float" nodename="N_scaleInput" />
