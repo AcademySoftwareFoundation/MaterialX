@@ -4444,4 +4444,84 @@
     <output name="out" type="lightshader" defaultinput="in" />
   </nodedef>
 
+
+
+
+  <nodedef name="ND_circle_float" node="circle" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
+    <input name="center" type="vector2" value="0, 0" uivisible="true" />
+    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_cloverleaf_float" node="cloverleaf" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
+    <input name="center" type="vector2" value="0, 0" uivisible="true" />
+    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_hexagon_float" node="hexagon" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
+    <input name="center" type="vector2" value="0, 0" uivisible="true" />
+    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <nodedef name="ND_line_float" node="line" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
+    <input name="center" type="vector2" value="0, 0" uivisible="true" />
+    <input name="radius" type="float" value="0.1" uivisible="true" />
+    <input name="point1" type="vector2" value="0.25, 0.25" uivisible="true" />
+    <input name="point2" type="vector2" value="0.75, 0.75" uivisible="true" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!-- <Circles Pattern> -->
+  <nodedef name="ND_circles_color3" node="circles" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
+    <input name="size" type="float" value="0.5" uivisible="true" />
+    <input name="spacing" type="float" value="1" uivisible="true" />
+    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- <Cloverleaf Pattern> -->
+  <nodedef name="ND_cloverleafs_color3" node="cloverleafs" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
+    <input name="size" type="float" value="0.5" uivisible="true" />
+    <input name="spacing" type="float" value="1" uivisible="true" />
+    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- <Hexagons Pattern> -->
+  <nodedef name="ND_hexagons_color3" node="hexagons" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
+    <input name="size" type="float" value="0.5" uivisible="true" />
+    <input name="spacing" type="float" value="1" uivisible="true" />
+    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- <Squares Pattern> -->
+  <nodedef name="ND_squares_color3" node="squares" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
+    <input name="size" type="float" value="0.5" uivisible="true" />
+    <input name="spacing" type="float" value="1" uivisible="true" />
+    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- <Grecian Pattern (Thickness)> -->
+  <nodedef name="ND_grecian_color3" node="grecian" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
+    <input name="thickness" type="float" value="0.05" uivisible="true" />
+    <input name="spacing" type="float" value="1" uivisible="true" />
+    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+
+
 </materialx>

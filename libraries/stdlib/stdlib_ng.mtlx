@@ -2767,4 +2767,975 @@
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
 
+
+  <!-- <Cutouts: circle> -->
+  <!-- <rz> Could be optimized using magnitude node -->
+  <nodegraph name="NG_circle_float" xpos="-134.5" ypos="-329" nodedef="ND_circle_float" >
+    <subtract name="dist" type="vector2" nodedef="ND_subtract_vector2" xpos="-262.863" ypos="-419.636">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" interfacename="center" />
+    </subtract>
+    <multiply name="rad_square" type="float" nodedef="ND_multiply_float" xpos="552.318" ypos="-176.182">
+      <input name="in1" type="float" interfacename="radius" />
+      <input name="in2" type="float" interfacename="radius" />
+    </multiply>
+    <multiply name="dist_square" type="vector2" nodedef="ND_multiply_vector2" xpos="9.95464" ypos="-426.272">
+      <input name="in1" type="vector2" nodename="dist" />
+      <input name="in2" type="vector2" nodename="dist" />
+    </multiply>
+    <separate2 name="separate_dist" type="multioutput" nodedef="ND_separate2_vector2" xpos="270.955" ypos="-407.545">
+      <input name="in" type="vector2" nodename="dist_square" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <add name="add_XY" type="float" nodedef="ND_add_float" xpos="546.273" ypos="-420.364">
+      <input name="in1" type="float" nodename="separate_dist" output="outx" />
+      <input name="in2" type="float" nodename="separate_dist" output="outy" />
+    </add>
+    <ifgreater name="dist_comp" type="float" nodedef="ND_ifgreater_float" xpos="846.5" ypos="-223">
+      <input name="value1" type="float" nodename="add_XY" />
+      <input name="value2" type="float" nodename="rad_square" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <output name="out" type="float" nodename="dist_comp" />
+  </nodegraph>
+
+  <!-- <Cutouts: cloverleaf> -->
+  <nodegraph name="NG_cloverleaf_float" xpos="-134.5" ypos="-329" nodedef="ND_cloverleaf_float">
+    <circle name="circle" type="float" nodedef="ND_circle_float" version="0.1" xpos="1069.18" ypos="-754.538">
+      <input name="sample" type="vector2" nodename="coord1" />
+      <input name="center" type="vector2" interfacename="center" />
+      <input name="radius" type="float" interfacename="radius" />
+    </circle>
+    <add name="coord1" type="vector2" nodedef="ND_add_vector2" xpos="471.755" ypos="-759.463">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" nodename="shift_coord1" />
+    </add>
+    <add name="coord2" type="vector2" nodedef="ND_add_vector2" xpos="476.309" ypos="-575.769">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" nodename="shift_coord2" />
+    </add>
+    <add name="coord3" type="vector2" nodedef="ND_add_vector2" xpos="478.54" ypos="-387.414">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" nodename="shift_coord3" />
+    </add>
+    <add name="coord4" type="vector2" nodedef="ND_add_vector2" xpos="476.986" ypos="-204.151">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" nodename="shift_coord4" />
+    </add>
+    <circle name="circle1" type="float" nodedef="ND_circle_float" version="0.1" xpos="1069.18" ypos="-572.538">
+      <input name="sample" type="vector2" nodename="coord2" />
+      <input name="center" type="vector2" interfacename="center" />
+      <input name="radius" type="float" interfacename="radius" />
+    </circle>
+    <circle name="circle2" type="float" nodedef="ND_circle_float" version="0.1" xpos="1071.18" ypos="-389.538">
+      <input name="sample" type="vector2" nodename="coord3" />
+      <input name="center" type="vector2" interfacename="center" />
+      <input name="radius" type="float" interfacename="radius" />
+    </circle>
+    <circle name="circle3" type="float" nodedef="ND_circle_float" version="0.1" xpos="1066.18" ypos="-215.538">
+      <input name="sample" type="vector2" nodename="coord4" />
+      <input name="center" type="vector2" interfacename="center" />
+      <input name="radius" type="float" interfacename="radius" />
+    </circle>
+    <min name="max1" type="float" nodedef="ND_max_float" xpos="1411.18" ypos="-640.538">
+      <input name="in1" type="float" nodename="circle" />
+      <input name="in2" type="float" nodename="circle1" />
+    </min>
+    <min name="max" type="float" nodedef="ND_max_float" xpos="1740.18" ypos="-454.65">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" nodename="max2" />
+    </min>
+    <min name="max2" type="float" nodedef="ND_max_float" xpos="1436.18" ypos="-301.538">
+      <input name="in1" type="float" nodename="circle2" />
+      <input name="in2" type="float" nodename="circle3" />
+    </min>
+    <separate2 name="separate_sample" type="multioutput" nodedef="ND_separate2_vector2" xpos="-647.5" ypos="-731">
+      <input name="in" type="vector2" interfacename="sample" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="shift_coord1" type="vector2" nodedef="ND_combine2_vector2" xpos="57.1802" ypos="-753.156">
+      <input name="in1" type="float" nodename="add_rX" />
+      <input name="in2" type="float" nodename="separate_sample" output="outy" />
+    </combine2>
+    <combine2 name="shift_coord2" type="vector2" nodedef="ND_combine2_vector2" xpos="49.4976" ypos="-571.382">
+      <input name="in1" type="float" nodename="subtract_rX" />
+      <input name="in2" type="float" nodename="separate_sample" output="outy" />
+    </combine2>
+    <combine2 name="shift_coord3" type="vector2" nodedef="ND_combine2_vector2" xpos="51.2621" ypos="-383.29">
+      <input name="in1" type="float" nodename="separate_sample" output="outx" />
+      <input name="in2" type="float" nodename="add_rY" />
+    </combine2>
+    <combine2 name="shift_coord4" type="vector2" nodedef="ND_combine2_vector2" xpos="44.0311" ypos="-201.066">
+      <input name="in1" type="float" nodename="separate_sample" output="outx" />
+      <input name="in2" type="float" nodename="subtract_rY" />
+    </combine2>
+    <add name="add_rX" type="float" nodedef="ND_add_float" xpos="-311.773" ypos="-736.746">
+      <input name="in1" type="float" nodename="separate_sample" output="outx" />
+      <input name="in2" type="float" interfacename="radius" />
+    </add>
+    <add name="add_rY" type="float" nodedef="ND_add_float" xpos="-316.782" ypos="-382.581">
+      <input name="in1" type="float" nodename="separate_sample" output="outy" />
+      <input name="in2" type="float" interfacename="radius" />
+    </add>
+    <subtract name="subtract_rX" type="float" nodedef="ND_subtract_float" xpos="-312.489" ypos="-555.729">
+      <input name="in1" type="float" nodename="separate_sample" output="outx" />
+      <input name="in2" type="float" interfacename="radius" />
+    </subtract>
+    <subtract name="subtract_rY" type="float" nodedef="ND_subtract_float" xpos="-317.822" ypos="-207.831">
+      <input name="in1" type="float" nodename="separate_sample" output="outy" />
+      <input name="in2" type="float" interfacename="radius" />
+    </subtract>
+    <output name="out" type="float" nodename="max" />
+  </nodegraph>
+
+  <!-- <Cutouts: hexagon> -->
+  <nodegraph name="NG_hexagon_float" xpos="-320.55" ypos="-140.702" nodedef="ND_hexagon_float">
+    <absval name="absval_p" type="vector2" nodedef="ND_absval_vector2" xpos="-588.962" ypos="-641.697">
+      <input name="in" type="vector2" nodename="dist"/>
+    </absval>
+    <add name="add_p3" type="float" nodedef="ND_add_float" xpos="5128.28" ypos="-1238.25">
+      <input name="in1" type="float" nodename="separate_p3" output="outx" />
+      <input name="in2" type="float" nodename="separate_p3" output="outy" />
+    </add>
+    <clamp name="clamp" type="float" nodedef="ND_clamp_float" xpos="3816.58" ypos="-1575.21">
+      <input name="in" type="float" nodename="separate_p2" output="outx" />
+      <input name="low" type="float" nodename="minus_kz_r" />
+      <input name="high" type="float" nodename="kz_r1" />
+    </clamp>
+    <combine2 name="combine_kxy" type="vector2" nodedef="ND_combine2_vector2" xpos="-475.492" ypos="-1092.24">
+      <input name="in1" type="float" nodename="k_x" />
+      <input name="in2" type="float" nodename="k_y" />
+    </combine2>
+    <combine2 name="combine_mkx_ky" type="vector2" nodedef="ND_combine2_vector2" xpos="1592.9" ypos="-1638">
+      <input name="in1" type="float" nodename="minus_kx" />
+      <input name="in2" type="float" nodename="k_y" />
+    </combine2>
+    <combine2 name="combine_clamp_rad" type="vector2" nodedef="ND_combine2_vector2" xpos="4101.03" ypos="-1461.56">
+      <input name="in1" type="float" nodename="clamp" />
+      <input name="in2" type="float" interfacename="radius" />
+    </combine2>
+    <dotproduct name="dot_kxy_p" type="float" nodedef="ND_dotproduct_vector2" xpos="-144.052" ypos="-993.407">
+      <input name="in1" type="vector2" nodename="combine_kxy" />
+      <input name="in2" type="vector2" nodename="combine_p" />
+    </dotproduct>
+    <dotproduct name="dot_kxy_p1" type="float" nodedef="ND_dotproduct_vector2" xpos="1878.41" ypos="-1509.88">
+      <input name="in1" type="vector2" nodename="combine_mkx_ky" />
+      <input name="in2" type="vector2" nodename="new_p1" />
+    </dotproduct>
+    <ifgreater name="ifgreater_p3" type="float" nodedef="ND_ifgreater_float" xpos="5702.83" ypos="-1255.08">
+      <input name="value1" type="float" nodename="sqrt_p3" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <constant name="k_x" type="float" nodedef="ND_constant_float" xpos="-837.487" ypos="-1171.68">
+      <input name="value" type="float" value="-0.866025" />
+    </constant>
+    <constant name="k_y" type="float" nodedef="ND_constant_float" xpos="-838.153" ypos="-1027.03">
+      <input name="value" type="float" value="0.5" />
+    </constant>
+    <constant name="k_z" type="float" nodedef="ND_constant_float" xpos="-834.52" ypos="-880.507">
+      <input name="value" type="float" value="0.57735" />
+    </constant>
+    <multiply name="kz_r1" type="float" nodedef="ND_multiply_float" xpos="3323.19" ypos="-1783.99">
+      <input name="in1" type="float" nodename="k_z" />
+      <input name="in2" type="float" interfacename="radius" />
+    </multiply>
+    <min name="min_dotkxyp_p" type="float" nodedef="ND_min_float" xpos="171.067" ypos="-980.497">
+      <input name="in1" type="float" nodename="dot_kxy_p" />
+    </min>
+    <min name="min_0" type="float" nodedef="ND_min_float" xpos="2155.04" ypos="-1508.59">
+      <input name="in1" type="float" nodename="dot_kxy_p1" />
+    </min>
+    <subtract name="minus_kx" type="float" nodedef="ND_subtract_float" xpos="1305.66" ypos="-1726.45">
+      <input name="in2" type="float" nodename="k_x" />
+    </subtract>
+    <subtract name="minus_kz" type="float" nodedef="ND_subtract_float" xpos="3054.05" ypos="-2062.06">
+      <input name="in2" type="float" nodename="k_z" />
+    </subtract>
+    <multiply name="minus_kz_r" type="float" nodedef="ND_multiply_float" xpos="3319.52" ypos="-1998.85">
+      <input name="in1" type="float" nodename="minus_kz" />
+      <input name="in2" type="float" interfacename="radius" />
+    </multiply>
+    <multiply name="multiply_kxy_min" type="vector2" nodedef="ND_multiply_vector2FA" xpos="495.043" ypos="-1122.48">
+      <input name="in1" type="vector2" nodename="combine_kxy" />
+      <input name="in2" type="float" nodename="min_dotkxyp_p" />
+    </multiply>
+    <multiply name="multiply2_1" type="vector2" nodedef="ND_multiply_vector2FA" xpos="793.824" ypos="-1123.05">
+      <input name="in1" type="vector2" nodename="multiply_kxy_min" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="multiply_min_comb" type="vector2" nodedef="ND_multiply_vector2FA" xpos="2436.78" ypos="-1666.27">
+      <input name="in1" type="vector2" nodename="combine_mkx_ky" />
+      <input name="in2" type="float" nodename="min_0" />
+    </multiply>
+    <multiply name="multiply2_2" type="vector2" nodedef="ND_multiply_vector2FA" xpos="2718.3" ypos="-1671.49">
+      <input name="in1" type="vector2" nodename="multiply_min_comb" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="new_p1" type="vector2" nodedef="ND_subtract_vector2" xpos="1100.45" ypos="-925.977">
+      <input name="in1" type="vector2" nodename="combine_p" />
+      <input name="in2" type="vector2" nodename="multiply2_1" />
+    </subtract>
+    <subtract name="new_p2" type="vector2" nodedef="ND_subtract_vector2" xpos="3014.57" ypos="-1476.86">
+      <input name="in1" type="vector2" nodename="new_p1" />
+      <input name="in2" type="vector2" nodename="multiply2_2" />
+    </subtract>
+    <subtract name="new_p3" type="vector2" nodedef="ND_subtract_vector2" xpos="4427.85" ypos="-1260.63">
+      <input name="in1" type="vector2" nodename="new_p2" />
+      <input name="in2" type="vector2" nodename="combine_clamp_rad" />
+    </subtract>
+    <separate2 name="separate_p2" type="multioutput" nodedef="ND_separate2_vector2" xpos="3321.15" ypos="-1549.2">
+      <input name="in" type="vector2" nodename="new_p2" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <separate2 name="separate_p3" type="multioutput" nodedef="ND_separate2_vector2" xpos="4774.43" ypos="-1248.68">
+      <input name="in" type="vector2" nodename="new_p3" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <sqrt name="sqrt_p3" type="float" nodedef="ND_sqrt_float" xpos="5407.23" ypos="-1228.51">
+      <input name="in" type="float" nodename="add_p3" />
+    </sqrt>
+    <subtract name="dist" type="vector2" nodedef="ND_subtract_vector2" xpos="-830.566" ypos="-649.687">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" interfacename="center" />
+    </subtract>
+    <combine2 name="combine_p" type="vector2" nodedef="ND_combine2_vector2" xpos="-88.5" ypos="-523">
+      <input name="in1" type="float" nodename="separate_p" output="outy" />
+      <input name="in2" type="float" nodename="separate_p" output="outx" />
+    </combine2>
+    <separate2 name="separate_p" type="multioutput" nodedef="ND_separate2_vector2" xpos="-328.262" ypos="-516.83">
+      <input name="in" type="vector2" nodename="absval_p" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <output name="out" type="float" nodename="ifgreater_p3" />
+  </nodegraph>
+
+  <!-- <Cutouts: line> -->
+  <nodegraph name="NG_line_float" xpos="137.446" ypos="-176.198" nodedef="ND_line_float">
+    <add name="add_XY" type="float" nodedef="ND_add_float" xpos="2462.98" ypos="-120.793">
+      <input name="in1" type="float" nodename="separate_sq" output="outx" />
+      <input name="in2" type="float" nodename="separate_sq" output="outy" />
+    </add>
+    <subtract name="b_a" type="vector2" nodedef="ND_subtract_vector2" xpos="-175.456" ypos="-348.503">
+      <input name="in1" type="vector2" interfacename="point2" />
+      <input name="in2" type="vector2" interfacename="point1" />
+    </subtract>
+    <clamp name="clamp" type="float" nodedef="ND_clamp_float" xpos="883.831" ypos="-170.563">
+      <input name="in" type="float" nodename="divide_dots" />
+      <input name="low" type="float" value="0" />
+    </clamp>
+    <divide name="divide_dots" type="float" nodedef="ND_divide_float" xpos="496.452" ypos="-254.323">
+      <input name="in1" type="float" nodename="dot_pa_ba" />
+      <input name="in2" type="float" nodename="dot_ba_ba" />
+    </divide>
+    <dotproduct name="dot_ba_ba" type="float" nodedef="ND_dotproduct_vector2" xpos="185.714" ypos="-351.693">
+      <input name="in1" type="vector2" nodename="b_a" />
+      <input name="in2" type="vector2" nodename="b_a" />
+    </dotproduct>
+    <dotproduct name="dot_pa_ba" type="float" nodedef="ND_dotproduct_vector2" xpos="193.563" ypos="-106.303">
+      <input name="in1" type="vector2" nodename="p_a" />
+      <input name="in2" type="vector2" nodename="b_a" />
+    </dotproduct>
+    <ifgreater name="dist_comp" type="float" nodedef="ND_ifgreater_float" xpos="3070.07" ypos="122.827">
+      <input name="value1" type="float" nodename="sqrt" />
+      <input name="value2" type="float" interfacename="radius" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <multiply name="multiply_clamp_ba" type="vector2" nodedef="ND_multiply_vector2FA" xpos="1301.89" ypos="-122.193">
+      <input name="in1" type="vector2" nodename="b_a" />
+      <input name="in2" type="float" nodename="clamp" />
+    </multiply>
+    <multiply name="mulpa_square" type="vector2" nodedef="ND_multiply_vector2" xpos="1872.59" ypos="-123.603">
+      <input name="in1" type="vector2" nodename="subtract_mul_pa" />
+      <input name="in2" type="vector2" nodename="subtract_mul_pa" />
+    </multiply>
+    <subtract name="p_a" type="vector2" nodedef="ND_subtract_vector2" xpos="-178.853" ypos="-134.023">
+      <input name="in1" type="vector2" nodename="dist" />
+      <input name="in2" type="vector2" interfacename="point1" />
+    </subtract>
+    <separate2 name="separate_sq" type="multioutput" nodedef="ND_separate2_vector2" xpos="2155.13" ypos="-129.223">
+      <input name="in" type="vector2" nodename="mulpa_square" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <sqrt name="sqrt" type="float" nodedef="ND_sqrt_float" xpos="2747.93" ypos="-102.053">
+      <input name="in" type="float" nodename="add_XY" />
+    </sqrt>
+    <subtract name="dist" type="vector2" nodedef="ND_subtract_vector2" xpos="-873.189" ypos="334.15">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" interfacename="center" />
+    </subtract>
+    <subtract name="subtract_mul_pa" type="vector2" nodedef="ND_subtract_vector2" xpos="1591.47" ypos="-117.983">
+      <input name="in1" type="vector2" nodename="p_a" />
+      <input name="in2" type="vector2" nodename="multiply_clamp_ba" />
+    </subtract>
+    <output name="out" type="float" nodename="dist_comp" />
+  </nodegraph>
+
+  <!-- <Cutouts: Circles Pattern> -->
+  <nodegraph name="NG_circles_color3" xpos="-472.372" ypos="-342.83" nodedef="ND_circles_color3">
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" xpos="-313.5" ypos="-400">
+      <input name="texcoord" type="vector2" nodename="coord_adj" />
+    </place2d>
+    <multiply name="coord_adj" type="vector2" nodedef="ND_multiply_vector2" xpos="-609.5" ypos="-434">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <separate2 name="separate_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-43.6812" ypos="-420.622">
+      <input name="in" type="vector2" nodename="place2d" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="invspc_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="-794.643" ypos="-59">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <modulo name="mod_X_1" type="float" nodedef="ND_modulo_float" xpos="1648.15" ypos="99.0809">
+      <input name="in1" type="float" nodename="shift_X" />
+    </modulo>
+    <modulo name="mod_Y_1" type="float" nodedef="ND_modulo_float" xpos="1647.65" ypos="333.97">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="0.866025" />
+    </modulo>
+    <divide name="inv_spacing" type="float" nodedef="ND_divide_float" xpos="-1040.64" ypos="-62.6233">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <modulo name="stagg_Y" type="float" nodedef="ND_modulo_float" xpos="467.074" ypos="130.602">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="1.73205" />
+    </modulo>
+    <ifgreater name="delta_X" type="float" nodedef="ND_ifgreater_float" xpos="764.387" ypos="93.1089">
+      <input name="value1" type="float" nodename="stagg_Y" />
+      <input name="value2" type="float" value="0.866025" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
+    <add name="shift_X" type="float" nodedef="ND_add_float" xpos="1077.52" ypos="136.191">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in2" type="float" nodename="delta_X" />
+    </add>
+    <ifequal name="pattern_selection" type="float" nodedef="ND_ifequal_floatB" xpos="4487.42" ypos="-241.146">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="max" />
+      <input name="in2" type="float" nodename="circle_regular" />
+    </ifequal>
+    <subtract name="coord_adj_1" type="float" nodedef="ND_subtract_float" xpos="2136.24" ypos="558.139">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="mod_X_1" />
+    </subtract>
+    <subtract name="coord_adj_2" type="float" nodedef="ND_subtract_float" xpos="2134.75" ypos="780.108">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <subtract name="coord_adj_3" type="float" nodedef="ND_subtract_float" xpos="2132.69" ypos="995.173">
+      <input name="in1" type="float" value="0.866025" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </subtract>
+    <multiply name="max1" type="float" nodedef="ND_max_float" xpos="3710.6" ypos="582.493">
+      <input name="in1" type="float" nodename="circle_stagg1" />
+      <input name="in2" type="float" nodename="circle_stagg2" />
+    </multiply>
+    <multiply name="max" type="float" nodedef="ND_max_float" xpos="3999.34" ypos="728.17">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" nodename="circle_stagg3" />
+    </multiply>
+    <divide name="scale_half" type="float" nodedef="ND_divide_float" xpos="2141.91" ypos="1209.46">
+      <input name="in1" type="float" nodename="scale" />
+      <input name="in2" type="float" value="2" />
+    </divide>
+    <multiply name="modx_2" type="float" nodedef="ND_multiply_float" xpos="1160.87" ypos="-1184.47">
+      <input name="in1" type="float" nodename="mod_X" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <modulo name="mod_X" type="float" nodedef="ND_modulo_float" xpos="861.901" ypos="-1181.31">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+    </modulo>
+    <modulo name="mod_Y" type="float" nodedef="ND_modulo_float" xpos="853.263" ypos="-910.833">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+    </modulo>
+    <subtract name="subX_1" type="float" nodedef="ND_subtract_float" xpos="1478.49" ypos="-1183.85">
+      <input name="in1" type="float" nodename="modx_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <multiply name="mody_2" type="float" nodedef="ND_multiply_float" xpos="1145.49" ypos="-904.858">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subY_1" type="float" nodedef="ND_subtract_float" xpos="1468.24" ypos="-906.266">
+      <input name="in1" type="float" nodename="mody_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <combine3 name="to_rgb" type="color3" nodedef="ND_combine3_color3" xpos="4919.14" ypos="-227.228">
+      <input name="in1" type="float" nodename="pattern_selection" />
+      <input name="in2" type="float" nodename="pattern_selection" />
+      <input name="in3" type="float" nodename="pattern_selection" />
+    </combine3>
+    <divide name="scale" type="float" nodedef="ND_divide_float" xpos="-1015.48" ypos="-541.224">
+      <input name="in1" type="float" interfacename="size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <circle name="circle_stagg1" type="float" nodedef="ND_circle_float" version="0.1" xpos="2972.09" ypos="273.611">
+      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </circle>
+    <circle name="circle_stagg2" type="float" nodedef="ND_circle_float" version="0.1" xpos="2976.33" ypos="511.478">
+      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </circle>
+    <circle name="circle_stagg3" type="float" nodedef="ND_circle_float" version="0.1" xpos="2981.31" ypos="777.453">
+      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </circle>
+    <combine2 name="coord_circ1" type="vector2" nodedef="ND_combine2_vector2" xpos="2555.67" ypos="230.927">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ2" type="vector2" nodedef="ND_combine2_vector2" xpos="2563.02" ypos="549.091">
+      <input name="in1" type="float" nodename="coord_adj_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ3" type="vector2" nodedef="ND_combine2_vector2" xpos="2559.11" ypos="832.293">
+      <input name="in1" type="float" nodename="coord_adj_2" />
+      <input name="in2" type="float" nodename="coord_adj_3" />
+    </combine2>
+    <circle name="circle_regular" type="float" nodedef="ND_circle_float" version="0.1" xpos="2121.71" ypos="-818.831">
+      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="radius" type="float" nodename="scale" />
+    </circle>
+    <combine2 name="recenter" type="vector2" nodedef="ND_combine2_vector2" xpos="1778.66" ypos="-1067.35">
+      <input name="in1" type="float" nodename="subX_1" />
+      <input name="in2" type="float" nodename="subY_1" />
+    </combine2>
+    <output name="out" type="color3" nodename="to_rgb" />
+  </nodegraph>
+
+  <!-- <Cutouts: Cloverleaf Pattern> -->
+  <nodegraph name="NG_cloverleafs_color3" xpos="-472.372" ypos="-342.83" nodedef="ND_cloverleafs_color3">
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" xpos="-313.5" ypos="-400">
+      <input name="texcoord" type="vector2" nodename="coord_adj" />
+    </place2d>
+    <multiply name="coord_adj" type="vector2" nodedef="ND_multiply_vector2" xpos="-609.5" ypos="-434">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <separate2 name="separate_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-43.6812" ypos="-420.622">
+      <input name="in" type="vector2" nodename="place2d" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="invspc_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="-794.643" ypos="-59">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <modulo name="mod_X_1" type="float" nodedef="ND_modulo_float" xpos="1648.15" ypos="99.0809">
+      <input name="in1" type="float" nodename="shift_X" />
+    </modulo>
+    <modulo name="mod_Y_1" type="float" nodedef="ND_modulo_float" xpos="1647.65" ypos="333.97">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="0.5" />
+    </modulo>
+    <divide name="inv_spacing" type="float" nodedef="ND_divide_float" xpos="-1040.64" ypos="-62.6233">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <modulo name="stagg_Y" type="float" nodedef="ND_modulo_float" xpos="467.074" ypos="130.602">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="1" />
+    </modulo>
+    <ifgreater name="delta_X" type="float" nodedef="ND_ifgreater_float" xpos="764.387" ypos="93.1089">
+      <input name="value1" type="float" nodename="stagg_Y" />
+      <input name="value2" type="float" value="0.5" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
+    <add name="shift_X" type="float" nodedef="ND_add_float" xpos="1077.52" ypos="136.191">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in2" type="float" nodename="delta_X" />
+    </add>
+    <ifequal name="pattern_selection" type="float" nodedef="ND_ifequal_floatB" xpos="4487.42" ypos="-241.146">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="max" />
+      <input name="in2" type="float" nodename="cloverleaf_regular" />
+    </ifequal>
+    <subtract name="coord_adj_1" type="float" nodedef="ND_subtract_float" xpos="2136.24" ypos="558.139">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="mod_X_1" />
+    </subtract>
+    <subtract name="coord_adj_2" type="float" nodedef="ND_subtract_float" xpos="2134.75" ypos="780.108">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <subtract name="coord_adj_3" type="float" nodedef="ND_subtract_float" xpos="2132.69" ypos="995.173">
+      <input name="in1" type="float" value="0.5" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </subtract>
+    <multiply name="max1" type="float" nodedef="ND_max_float" xpos="3710.6" ypos="582.493">
+      <input name="in1" type="float" nodename="cloverleaf_stagg1" />
+      <input name="in2" type="float" nodename="cloverleaf_stagg2" />
+    </multiply>
+    <multiply name="max" type="float" nodedef="ND_max_float" xpos="3999.34" ypos="728.17">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" nodename="cloverleaf_stagg3" />
+    </multiply>
+    <divide name="scale_half" type="float" nodedef="ND_divide_float" xpos="2141.91" ypos="1209.46">
+      <input name="in1" type="float" nodename="scale" />
+      <input name="in2" type="float" value="2" />
+    </divide>
+    <multiply name="modx_2" type="float" nodedef="ND_multiply_float" xpos="1160.87" ypos="-1184.47">
+      <input name="in1" type="float" nodename="mod_X" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <modulo name="mod_X" type="float" nodedef="ND_modulo_float" xpos="861.901" ypos="-1181.31">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+    </modulo>
+    <modulo name="mod_Y" type="float" nodedef="ND_modulo_float" xpos="853.263" ypos="-910.833">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+    </modulo>
+    <subtract name="subX_1" type="float" nodedef="ND_subtract_float" xpos="1478.49" ypos="-1183.85">
+      <input name="in1" type="float" nodename="modx_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <multiply name="mody_2" type="float" nodedef="ND_multiply_float" xpos="1145.49" ypos="-904.858">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subY_1" type="float" nodedef="ND_subtract_float" xpos="1468.24" ypos="-906.266">
+      <input name="in1" type="float" nodename="mody_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <combine3 name="to_rgb" type="color3" nodedef="ND_combine3_color3" xpos="4919.14" ypos="-227.228">
+      <input name="in1" type="float" nodename="pattern_selection" />
+      <input name="in2" type="float" nodename="pattern_selection" />
+      <input name="in3" type="float" nodename="pattern_selection" />
+    </combine3>
+    <divide name="scale" type="float" nodedef="ND_divide_float" xpos="-1015.48" ypos="-541.224">
+      <input name="in1" type="float" interfacename="size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <combine2 name="coord_circ1" type="vector2" nodedef="ND_combine2_vector2" xpos="2555.67" ypos="230.927">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ2" type="vector2" nodedef="ND_combine2_vector2" xpos="2563.02" ypos="549.091">
+      <input name="in1" type="float" nodename="coord_adj_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ3" type="vector2" nodedef="ND_combine2_vector2" xpos="2559.11" ypos="832.293">
+      <input name="in1" type="float" nodename="coord_adj_2" />
+      <input name="in2" type="float" nodename="coord_adj_3" />
+    </combine2>
+    <combine2 name="recenter" type="vector2" nodedef="ND_combine2_vector2" xpos="1778.66" ypos="-1067.35">
+      <input name="in1" type="float" nodename="subX_1" />
+      <input name="in2" type="float" nodename="subY_1" />
+    </combine2>
+    <cloverleaf name="cloverleaf_regular" type="float" nodedef="ND_cloverleaf_float" version="0.1" xpos="2137.1" ypos="-852.924">
+      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="radius" type="float" nodename="scale" />
+    </cloverleaf>
+    <cloverleaf name="cloverleaf_stagg1" type="float" nodedef="ND_cloverleaf_float" version="0.1" xpos="3067.84" ypos="306.884">
+      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </cloverleaf>
+    <cloverleaf name="cloverleaf_stagg2" type="float" nodedef="ND_cloverleaf_float" version="0.1" xpos="3070.19" ypos="548.976">
+      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </cloverleaf>
+    <cloverleaf name="cloverleaf_stagg3" type="float" nodedef="ND_cloverleaf_float" version="0.1" xpos="3077.13" ypos="815.362">
+      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </cloverleaf>
+    <output name="out" type="color3" nodename="to_rgb" />
+  </nodegraph>
+
+  <!-- <Cutouts: Hexagons Pattern> -->
+  <nodegraph name="NG_hexagons_color3" xpos="-472.372" ypos="-343.83" nodedef="ND_hexagons_color3">
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" xpos="-313.5" ypos="-400">
+      <input name="texcoord" type="vector2" nodename="coord_adj" />
+    </place2d>
+    <multiply name="coord_adj" type="vector2" nodedef="ND_multiply_vector2" xpos="-609.5" ypos="-434">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <separate2 name="separate_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-55.0355" ypos="-424.407">
+      <input name="in" type="vector2" nodename="place2d" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="invspc_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="-867.5" ypos="-59">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <modulo name="mod_X_1" type="float" nodedef="ND_modulo_float" xpos="1648.15" ypos="99.0809">
+      <input name="in1" type="float" nodename="shift_X" />
+    </modulo>
+    <modulo name="mod_Y_1" type="float" nodedef="ND_modulo_float" xpos="1647.65" ypos="333.97">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="0.866025" />
+    </modulo>
+    <divide name="inv_spacing" type="float" nodedef="ND_divide_float" xpos="-1113.5" ypos="-56">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <modulo name="stagg_Y" type="float" nodedef="ND_modulo_float" xpos="467.074" ypos="130.602">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="1.73205" />
+    </modulo>
+    <ifgreater name="delta_X" type="float" nodedef="ND_ifgreater_float" xpos="764.387" ypos="93.1089">
+      <input name="value1" type="float" nodename="stagg_Y" />
+      <input name="value2" type="float" value="0.866025" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
+    <add name="shift_X" type="float" nodedef="ND_add_float" xpos="1077.52" ypos="136.191">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in2" type="float" nodename="delta_X" />
+    </add>
+    <ifequal name="pattern_selection" type="float" nodedef="ND_ifequal_floatB" xpos="4487.42" ypos="-241.146">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="max" />
+      <input name="in2" type="float" nodename="hexagon_regular" />
+    </ifequal>
+    <subtract name="coord_adj_1" type="float" nodedef="ND_subtract_float" xpos="2136.24" ypos="557.121">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="mod_X_1" />
+    </subtract>
+    <subtract name="coord_adj_2" type="float" nodedef="ND_subtract_float" xpos="2134.75" ypos="780.108">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <subtract name="coord_adj_3" type="float" nodedef="ND_subtract_float" xpos="2134.02" ypos="988.965">
+      <input name="in1" type="float" value="0.866025" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </subtract>
+    <multiply name="max1" type="float" nodedef="ND_max_float" xpos="3542.69" ypos="568.597">
+      <input name="in1" type="float" nodename="hexagon_stagg1" />
+      <input name="in2" type="float" nodename="hexagon_stagg2" />
+    </multiply>
+    <multiply name="max" type="float" nodedef="ND_max_float" xpos="3831.43" ypos="714.274">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" nodename="hexagon_stagg3" />
+    </multiply>
+    <divide name="scale_half" type="float" nodedef="ND_divide_float" xpos="2142.64" ypos="1209.46">
+      <input name="in1" type="float" nodename="scale" />
+      <input name="in2" type="float" value="2" />
+    </divide>
+    <multiply name="modx_2" type="float" nodedef="ND_multiply_float" xpos="1159.92" ypos="-1184.47">
+      <input name="in1" type="float" nodename="mod_X" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <modulo name="mod_X" type="float" nodedef="ND_modulo_float" xpos="861.901" ypos="-1181.31">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+    </modulo>
+    <modulo name="mod_Y" type="float" nodedef="ND_modulo_float" xpos="853.263" ypos="-910.833">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+    </modulo>
+    <subtract name="subX_1" type="float" nodedef="ND_subtract_float" xpos="1478.49" ypos="-1183.85">
+      <input name="in1" type="float" nodename="modx_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <multiply name="mody_2" type="float" nodedef="ND_multiply_float" xpos="1145.49" ypos="-904.858">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subY_1" type="float" nodedef="ND_subtract_float" xpos="1468.24" ypos="-906.266">
+      <input name="in1" type="float" nodename="mody_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <combine3 name="to_rgb" type="color3" nodedef="ND_combine3_color3" xpos="4919.14" ypos="-227.228">
+      <input name="in1" type="float" nodename="pattern_selection" />
+      <input name="in2" type="float" nodename="pattern_selection" />
+      <input name="in3" type="float" nodename="pattern_selection" />
+    </combine3>
+    <divide name="scale" type="float" nodedef="ND_divide_float" xpos="-1079.18" ypos="-565.834">
+      <input name="in1" type="float" interfacename="size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <combine2 name="coord_circ1" type="vector2" nodedef="ND_combine2_vector2" xpos="2558.59" ypos="243.342">
+      <input name="in1" type="float" nodename="mod_X_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ2" type="vector2" nodedef="ND_combine2_vector2" xpos="2563.02" ypos="549.091">
+      <input name="in1" type="float" nodename="coord_adj_1" />
+      <input name="in2" type="float" nodename="mod_Y_1" />
+    </combine2>
+    <combine2 name="coord_circ3" type="vector2" nodedef="ND_combine2_vector2" xpos="2559.11" ypos="832.293">
+      <input name="in1" type="float" nodename="coord_adj_2" />
+      <input name="in2" type="float" nodename="coord_adj_3" />
+    </combine2>
+    <combine2 name="recenter" type="vector2" nodedef="ND_combine2_vector2" xpos="1778.66" ypos="-1067.35">
+      <input name="in1" type="float" nodename="subX_1" />
+      <input name="in2" type="float" nodename="subY_1" />
+    </combine2>
+    <hexagon name="hexagon_regular" type="float" nodedef="ND_hexagon_float" version="0.1" xpos="2159.79" ypos="-938.129">
+      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="radius" type="float" nodename="scale" />
+    </hexagon>
+    <hexagon name="hexagon_stagg1" type="float" nodedef="ND_hexagon_float" version="0.1" xpos="3079.26" ypos="422.535">
+      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </hexagon>
+    <hexagon name="hexagon_stagg2" type="float" nodedef="ND_hexagon_float" version="0.1" xpos="3085.1" ypos="672.703">
+      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </hexagon>
+    <hexagon name="hexagon_stagg3" type="float" nodedef="ND_hexagon_float" version="0.1" xpos="3080.65" ypos="921.897">
+      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="radius" type="float" nodename="scale_half" />
+    </hexagon>
+    <output name="out" type="color3" nodename="to_rgb" />
+  </nodegraph>
+  
+  <!-- <Cutouts: Squares Pattern> -->
+  <nodegraph name="NG_squares_color3" xpos="-534.243" ypos="-344.087" nodedef="ND_squares_color3">
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" xpos="-313.5" ypos="-400">
+      <input name="texcoord" type="vector2" nodename="coord_adj" />
+    </place2d>
+    <multiply name="coord_adj" type="vector2" nodedef="ND_multiply_vector2" xpos="-609.5" ypos="-434">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <separate2 name="separate_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-48" ypos="-423">
+      <input name="in" type="vector2" nodename="place2d" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="invspc_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="-867.5" ypos="-59">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <ifgreater name="Y_detect" type="float" nodedef="ND_ifgreater_float" xpos="3047.42" ypos="-372.286">
+      <input name="value1" type="float" nodename="abs_Y" />
+      <input name="value2" type="float" nodename="scale" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <modulo name="mod_X" type="float" nodedef="ND_modulo_float" xpos="1666.47" ypos="-528.607">
+      <input name="in1" type="float" nodename="stagger_selection" />
+    </modulo>
+    <modulo name="mod_Y" type="float" nodedef="ND_modulo_float" xpos="1665.72" ypos="-223.554">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+    </modulo>
+    <divide name="inv_spacing" type="float" nodedef="ND_divide_float" xpos="-1113.5" ypos="-56">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <combine3 name="to_rgb" type="color3" nodedef="ND_combine3_color3" xpos="3933.52" ypos="-439.205">
+      <input name="in1" type="float" nodename="min" />
+      <input name="in2" type="float" nodename="min" />
+      <input name="in3" type="float" nodename="min" />
+    </combine3>
+    <multiply name="modx_2" type="float" nodedef="ND_multiply_float" xpos="1988.23" ypos="-539.627">
+      <input name="in1" type="float" nodename="mod_X" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subX_1" type="float" nodedef="ND_subtract_float" xpos="2312.14" ypos="-536.187">
+      <input name="in1" type="float" nodename="modx_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <multiply name="mody_2" type="float" nodedef="ND_multiply_float" xpos="1983.21" ypos="-230.209">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subY_1" type="float" nodedef="ND_subtract_float" xpos="2313.87" ypos="-216.422">
+      <input name="in1" type="float" nodename="mody_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <absval name="abs_X" type="float" nodedef="ND_absval_float" xpos="2653.81" ypos="-531.527">
+      <input name="in" type="float" nodename="subX_1" />
+    </absval>
+    <absval name="abs_Y" type="float" nodedef="ND_absval_float" xpos="2650.47" ypos="-204.379">
+      <input name="in" type="float" nodename="subY_1" />
+    </absval>
+    <ifgreater name="X_detect" type="float" nodedef="ND_ifgreater_float" xpos="3056.69" ypos="-684.423">
+      <input name="value1" type="float" nodename="abs_X" />
+      <input name="value2" type="float" nodename="scale" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <min name="min" type="float" nodedef="ND_min_float" xpos="3361.98" ypos="-493.205">
+      <input name="in1" type="float" nodename="X_detect" />
+      <input name="in2" type="float" nodename="Y_detect" />
+    </min>
+    <modulo name="mod_Y_row" type="float" nodedef="ND_modulo_float" xpos="317.803" ypos="-671.131">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <ifgreater name="alt_rows_shift" type="float" nodedef="ND_ifgreater_float" xpos="606.803" ypos="-671.131">
+      <input name="value1" type="float" nodename="mod_Y_row" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
+    <add name="shift_X" type="float" nodedef="ND_add_float" xpos="934.802" ypos="-642.131">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in2" type="float" nodename="alt_rows_shift" />
+    </add>
+    <ifequal name="stagger_selection" type="float" nodedef="ND_ifequal_floatB" xpos="1238.46" ypos="-131.988">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="shift_X" />
+      <input name="in2" type="float" nodename="separate_coord" output="outx" />
+    </ifequal>
+    <divide name="scale" type="float" nodedef="ND_divide_float" xpos="-1002" ypos="-588.585">
+      <input name="in1" type="float" interfacename="size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <output name="out" type="color3" nodename="to_rgb" />
+  </nodegraph>
+
+  <!-- <Cutouts: Grecian Pattern (Thickness)> -->
+  <!-- <rz> There is an alternative graph using Size like squares pattern if necessary -->
+  <nodegraph name="NG_grecian_color3" xpos="-534.243" ypos="-344.087" nodedef="ND_grecian_color3">
+    <place2d name="place2d" type="vector2" nodedef="ND_place2d_vector2" xpos="-313.5" ypos="-400">
+      <input name="texcoord" type="vector2" nodename="coord_adj" />
+    </place2d>
+    <multiply name="coord_adj" type="vector2" nodedef="ND_multiply_vector2" xpos="-609.5" ypos="-434">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <separate2 name="separate_coord" type="multioutput" nodedef="ND_separate2_vector2" xpos="-48" ypos="-423">
+      <input name="in" type="vector2" nodename="place2d" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+    </separate2>
+    <combine2 name="invspc_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="-866.251" ypos="-59">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <ifgreater name="Y_detect" type="float" nodedef="ND_ifgreater_float" xpos="3084.54" ypos="-422.589">
+      <input name="value1" type="float" nodename="abs_Y" />
+      <input name="value2" type="float" nodename="scale" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <modulo name="mod_X" type="float" nodedef="ND_modulo_float" xpos="1666.47" ypos="-528.607">
+      <input name="in1" type="float" nodename="stagger_selection" />
+    </modulo>
+    <modulo name="mod_Y" type="float" nodedef="ND_modulo_float" xpos="1665.72" ypos="-226.554">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+    </modulo>
+    <divide name="inv_spacing" type="float" nodedef="ND_divide_float" xpos="-1106.83" ypos="-59.1109">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <combine3 name="to_rgb" type="color3" nodedef="ND_combine3_color3" xpos="4679.8" ypos="44.1434">
+      <input name="in1" type="float" nodename="max" />
+      <input name="in2" type="float" nodename="max" />
+      <input name="in3" type="float" nodename="max" />
+    </combine3>
+    <multiply name="modx_2" type="float" nodedef="ND_multiply_float" xpos="1988.23" ypos="-539.627">
+      <input name="in1" type="float" nodename="mod_X" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subX_1" type="float" nodedef="ND_subtract_float" xpos="2310.64" ypos="-548.508">
+      <input name="in1" type="float" nodename="modx_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <multiply name="mody_2" type="float" nodedef="ND_multiply_float" xpos="1983.21" ypos="-230.209">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="subY_1" type="float" nodedef="ND_subtract_float" xpos="2310.21" ypos="-236.896">
+      <input name="in1" type="float" nodename="mody_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
+    <absval name="abs_X" type="float" nodedef="ND_absval_float" xpos="2665.64" ypos="-544.508">
+      <input name="in" type="float" nodename="subX_1" />
+    </absval>
+    <absval name="abs_Y" type="float" nodedef="ND_absval_float" xpos="2660.64" ypos="-237.508">
+      <input name="in" type="float" nodename="subY_1" />
+    </absval>
+    <ifgreater name="X_detect" type="float" nodedef="ND_ifgreater_float" xpos="3093.81" ypos="-743.726">
+      <input name="value1" type="float" nodename="abs_X" />
+      <input name="value2" type="float" nodename="scale" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
+    <min name="min" type="float" nodedef="ND_min_float" xpos="3398.1" ypos="-454.508">
+      <input name="in1" type="float" nodename="X_detect" />
+      <input name="in2" type="float" nodename="Y_detect" />
+    </min>
+    <subtract name="inv_result" type="float" nodedef="ND_subtract_float" xpos="3824.78" ypos="-376.532">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="min" />
+    </subtract>
+    <modulo name="mod_Y_row" type="float" nodedef="ND_modulo_float" xpos="317.803" ypos="-671.131">
+      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <ifgreater name="alt_rows_shit" type="float" nodedef="ND_ifgreater_float" xpos="606.803" ypos="-671.131">
+      <input name="value1" type="float" nodename="mod_Y_row" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
+    <add name="shift_X" type="float" nodedef="ND_add_float" xpos="934.802" ypos="-642.131">
+      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in2" type="float" nodename="alt_rows_shit" />
+    </add>
+    <ifequal name="stagger_selection" type="float" nodedef="ND_ifequal_floatB" xpos="1238.46" ypos="-131.988">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="shift_X" />
+      <input name="in2" type="float" nodename="separate_coord" output="outx" />
+    </ifequal>
+    <divide name="scale" type="float" nodedef="ND_divide_float" xpos="-798" ypos="-618">
+      <input name="in1" type="float" nodename="thick_to_size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <line name="line_diag1" type="float" nodedef="ND_line_float" version="0.1" xpos="3103.56" ypos="462.839">
+      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="radius" type="float" nodename="diag_thickness" />
+      <input name="point1" type="vector2" nodename="diag1_point1" />
+      <input name="point2" type="vector2" nodename="diag1_point2" />
+    </line>
+    <line name="line_diag2" type="float" nodedef="ND_line_float" version="0.1" xpos="3107.88" ypos="739.029">
+      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="radius" type="float" nodename="diag_thickness" />
+      <input name="point1" type="vector2" nodename="diag2_point1" />
+      <input name="point2" type="vector2" nodename="diag2_point2" />
+    </line>
+    <max name="composite_diags" type="float" nodedef="ND_max_float" xpos="3630.15" ypos="616.313">
+      <input name="in1" type="float" nodename="line_diag1" />
+      <input name="in2" type="float" nodename="line_diag2" />
+    </max>
+    <max name="max" type="float" nodedef="ND_max_float" xpos="4167.93" ypos="394.212">
+      <input name="in1" type="float" nodename="inv_result" />
+      <input name="in2" type="float" nodename="composite_diags" />
+    </max>
+    <constant name="diag1_point1" type="vector2" nodedef="ND_constant_vector2" xpos="2507.06" ypos="244.921">
+      <input name="value" type="vector2" value="1, 1" />
+    </constant>
+    <constant name="diag1_point2" type="vector2" nodedef="ND_constant_vector2" xpos="2504.53" ypos="422.332">
+      <input name="value" type="vector2" value="-1, -1" />
+    </constant>
+    <constant name="diag2_point1" type="vector2" nodedef="ND_constant_vector2" xpos="2524.42" ypos="885.026">
+      <input name="value" type="vector2" value="-1, 1" />
+    </constant>
+    <constant name="diag2_point2" type="vector2" nodedef="ND_constant_vector2" xpos="2521.97" ypos="1064.33">
+      <input name="value" type="vector2" value="1, -1" />
+    </constant>
+    <combine2 name="sample_vec" type="vector2" nodedef="ND_combine2_vector2" xpos="2710.06" ypos="13.4749">
+      <input name="in1" type="float" nodename="subX_1" />
+      <input name="in2" type="float" nodename="subY_1" />
+    </combine2>
+    <divide name="diag_thickness" type="float" nodedef="ND_divide_float" xpos="-301.097" ypos="-54.5824">
+      <input name="in1" type="float" interfacename="thickness" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
+    <subtract name="thick_to_size" type="float" nodedef="ND_subtract_float" xpos="-1099.5" ypos="-636">
+      <input name="in1" type="float" interfacename="spacing" />
+      <input name="in2" type="float" interfacename="thickness" />
+    </subtract>
+    <output name="out" type="color3" nodename="to_rgb" />
+  </nodegraph>
+
+
 </materialx>
