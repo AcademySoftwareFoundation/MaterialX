@@ -896,7 +896,7 @@ void Document::upgradeVersion()
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && minorVersion >= 37)
+    if (majorVersion == 1 && minorVersion == 37)
     {
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
@@ -1391,6 +1391,12 @@ void Document::upgradeVersion()
         }
 
         minorVersion = 38;
+    }
+
+    // Upgrade from 1.38 to 1.39
+    if (majorVersion == 1 && minorVersion == 38)
+    {
+        minorVersion = 39;
     }
 
     std::pair<int, int> upgradedVersion(majorVersion, minorVersion);
