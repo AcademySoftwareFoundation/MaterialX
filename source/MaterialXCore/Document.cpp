@@ -196,7 +196,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     }
     graph->setNodeDefString(nodeDefName);
 
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);    
+    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
     nodeDef->setNodeString(node);
     if (!group.empty())
     {
