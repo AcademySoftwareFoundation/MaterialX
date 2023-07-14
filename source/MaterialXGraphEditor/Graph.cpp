@@ -735,6 +735,18 @@ void Graph::setRenderMaterial(UiNodePtr node)
         mx::StringSet testPaths;
         if (mtlxNode)
         {
+            mx::ElementPtr parent = mtlxNode->getParent();
+            if (parent->isA<mx::NodeGraph>())
+            {
+                // There is no logic to support traversing from inside a functional graph
+                // to it's instance and hence downstream so skip this from consideration.
+                // The closest approach would be to "flatten" all definitions to compound graphs.
+                mx::NodeGraphPtr parentGraph = parent->asA<mx::NodeGraph>();
+                if (parentGraph->getNodeDef())
+                {
+                    return;
+                }
+            }
             testPaths.insert(mtlxNode->getNamePath());
         }
         else if (mtlxNodeGraph)
@@ -3755,11 +3767,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                     {
                         setRenderMaterial(_currUiNode);
                     }
-                    else if (_currUiNode->getNodeGraph())
-                    {
-                        setRenderMaterial(_currUiNode);
-                    }
-                    else if (_currUiNode->getOutput())
+                    else if (_currUiNode->getNodeGraph() || _currUiNode->getOutput())
                     {
                         setRenderMaterial(_currUiNode);
                     }
