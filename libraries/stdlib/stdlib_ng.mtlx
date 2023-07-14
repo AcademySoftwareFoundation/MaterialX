@@ -1420,8 +1420,8 @@
   </nodegraph>
 
   <!--
-    <Herringbone>
-    Creates Herringbone Tilling.
+    <herringbone>
+    A 2D herringbone tiling pattern.
   -->
   <nodegraph name="NG_Herringbone_float" nodedef="ND_Herringbone_float">
     <min name="N_mtlxmin" type="float">
@@ -1539,6 +1539,7 @@
     </floor>
     <output name="out" type="float" nodename="N_mtlxmin" />
   </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
