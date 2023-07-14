@@ -1239,124 +1239,184 @@
   </nodegraph>
 
   <!--
-    <Herringbone>
-    Creates Herringbone Tilling.
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
   -->
-  <nodegraph name="NG_Herringbone_float" nodedef="ND_Herringbone_float">
-    <min name="N_mtlxmin" type="float">
-      <input name="in1" type="float" nodename="N_mtlxseparate3c" output="outg" />
-      <input name="in2" type="float" nodename="N_mtlxseparate3c" output="outr" />
-    </min>
-    <separate3 name="N_mtlxseparate3c" type="multioutput">
-      <input name="in" type="color3" nodename="N_mtlxinvert" />
-    </separate3>
-    <invert name="N_mtlxinvert" type="color3">
-      <input name="in" type="color3" nodename="N_mtlxdodge" />
-      <input name="amount" type="color3" value="1, 1, 1" />
-    </invert>
-    <dodge name="N_mtlxdodge" type="color3">
-      <input name="fg" type="color3" nodename="N_mtlxcombine3" />
-      <input name="bg" type="color3" nodename="N_mtlxburn" />
-      <input name="mix" type="float" value="1" />
-    </dodge>
-    <combine3 name="N_mtlxcombine3" type="color3">
-      <input name="in1" type="float" nodename="subtract1" />
-      <input name="in2" type="float" nodename="subtract1" />
-      <input name="in3" type="float" nodename="subtract1" />
-    </combine3>
-    <burn name="N_mtlxburn" type="color3">
-      <input name="fg" type="color3" nodename="N_mtlxcombine" />
-      <input name="bg" type="color3" nodename="N_mtlxcombine1" />
-      <input name="mix" type="float" value="1" />
-    </burn>
-    <subtract name="subtract1" type="float">
-      <input name="in1" type="float" interfacename="edge_blur" />
-      <input name="in2" type="float" value="0.001" />
-    </subtract>
-    <combine3 name="N_mtlxcombine" type="color3">
-      <input name="in1" type="float" interfacename="edge_gap" />
-      <input name="in2" type="float" interfacename="edge_gap" />
-      <input name="in3" type="float" interfacename="edge_gap" />
-    </combine3>
-    <combine3 name="N_mtlxcombine1" type="color3">
-      <input name="in1" type="float" nodename="multiply1" />
-      <input name="in2" type="float" nodename="trianglewave1" />
-      <input name="in3" type="float" value="0" />
-    </combine3>
-    <multiply name="multiply1" type="float">
-      <input name="in1" type="float" nodename="trianglewave2" />
-      <input name="in2" type="float" nodename="N_mtlxconvert" />
-    </multiply>
-    <trianglewave name="trianglewave1" type="float">
-      <input name="in" type="float" nodename="N_mtlxmix" />
-    </trianglewave>
-    <trianglewave name="trianglewave2" type="float">
-      <input name="in" type="float" nodename="divide1" />
-    </trianglewave>
-    <convert name="N_mtlxconvert" type="float">
-      <input name="in" type="integer" interfacename="block_length" />
+  <nodegraph name="NG_randomfloat_float" nodedef="ND_randomfloat_float">
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
     </convert>
-    <mix name="N_mtlxmix" type="float">
-      <input name="fg" type="float" nodename="N_mtlxseparate1" output="outx" />
-      <input name="bg" type="float" nodename="N_mtlxseparate1" output="outy" />
-      <input name="mix" type="float" nodename="N_mtlxifgreater" />
-    </mix>
-    <divide name="divide1" type="float">
-      <input name="in1" type="float" nodename="N_mtlxmix1" />
-      <input name="in2" type="float" nodename="N_mtlxconvert" />
-    </divide>
-    <separate2 name="N_mtlxseparate1" type="multioutput">
-      <input name="in" type="vector2" nodename="N_mtlxmodulo2" />
+    <multiply name="N_scaleInput" type="float">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" value="4096" />
+    </multiply>
+    <combine2 name="N_combine2" type="vector2">
+      <input name="in1" type="float" nodename="N_scaleInput" />
+      <input name="in2" type="float" nodename="N_convertSeed1" />
+    </combine2>
+    <cellnoise2d name="N_cellnoise1" type="float">
+      <input name="texcoord" type="vector2" nodename="N_combine2" />
+    </cellnoise2d>
+    <range name="N_remapRange" type="float">
+      <input name="in" type="float" nodename="N_cellnoise1" />
+      <input name="outlow" type="float" interfacename="min" />
+      <input name="outhigh" type="float" interfacename="max" />
+      <input name="doclamp" type="boolean" value="true" />
+    </range>
+    <output name="out" type="float" nodename="N_remapRange" />
+  </nodegraph>
+  <nodegraph name="NG_randomfloat_integer" nodedef="ND_randomfloat_integer">
+    <convert name="N_convertInput1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
+    </convert>
+    <combine2 name="N_combine2" type="vector2">
+      <input name="in1" type="float" nodename="N_convertInput1" />
+      <input name="in2" type="float" nodename="N_convertSeed1" />
+    </combine2>
+    <cellnoise2d name="N_cellnoise1" type="float">
+      <input name="texcoord" type="vector2" nodename="N_combine2" />
+    </cellnoise2d>
+    <range name="N_remapRange" type="float">
+      <input name="in" type="float" nodename="N_cellnoise1" />
+      <input name="outlow" type="float" interfacename="min" />
+      <input name="outhigh" type="float" interfacename="max" />
+      <input name="doclamp" type="boolean" value="true" />
+    </range>
+    <output name="out" type="float" nodename="N_remapRange" />
+  </nodegraph>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized color, based on an input signal and seed value.
+  -->
+  <nodegraph name="NG_randomcolor_float" nodedef="ND_randomcolor_float">
+    <convert name="N_convertSeed1" type="float">
+      <input name="in" type="integer" interfacename="seed" />
+    </convert>
+    <add name="N_offset_hue" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="413.3" />
+    </add>
+    <add name="N_offset_saturation" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="1522.4" />
+    </add>
+    <add name="N_offset_brightness" type="float">
+      <input name="in1" type="float" nodename="N_convertSeed1" />
+      <input name="in2" type="float" value="1813.8" />
+    </add>
+    <ceil name="N_seed_hue" type="integer">
+      <input name="in" type="float" nodename="N_offset_hue" />
+    </ceil>
+    <ceil name="N_seed_saturation" type="integer">
+      <input name="in" type="float" nodename="N_offset_saturation" />
+    </ceil>
+    <ceil name="N_seed_brightness" type="integer">
+      <input name="in" type="float" nodename="N_offset_brightness" />
+    </ceil>
+    <randomfloat name="N_rand_hue" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_hue" />
+    </randomfloat>
+    <randomfloat name="N_rand_saturation" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_saturation" />
+    </randomfloat>
+    <randomfloat name="N_rand_brightness" type="float">
+      <input name="in" type="float" interfacename="in" />
+      <input name="seed" type="integer" nodename="N_seed_brightness" />
+    </randomfloat>
+    <range name="N_range_hue" type="float">
+      <input name="in" type="float" nodename="N_rand_hue" />
+      <input name="outlow" type="float" interfacename="huelow" />
+      <input name="outhigh" type="float" interfacename="huehigh" />
+    </range>
+    <range name="N_range_saturation" type="float">
+      <input name="in" type="float" nodename="N_rand_saturation" />
+      <input name="outlow" type="float" interfacename="saturationlow" />
+      <input name="outhigh" type="float" interfacename="saturationhigh" />
+    </range>
+    <range name="N_range_brightness" type="float">
+      <input name="in" type="float" nodename="N_rand_brightness" />
+      <input name="outlow" type="float" interfacename="brightnesslow" />
+      <input name="outhigh" type="float" interfacename="brightnesshigh" />
+    </range>
+    <combine3 name="N_combine_HSV" type="color3">
+      <input name="in1" type="float" nodename="N_range_hue" />
+      <input name="in2" type="float" nodename="N_range_saturation" />
+      <input name="in3" type="float" nodename="N_range_brightness" />
+    </combine3>
+    <hsvtorgb name="N_HSV_to_RGB" type="color3">
+      <input name="in" type="color3" nodename="N_combine_HSV" />
+    </hsvtorgb>
+    <output name="out" type="color3" nodename="N_HSV_to_RGB" />
+  </nodegraph>
+  <nodegraph name="NG_randomcolor_integer" nodedef="ND_randomcolor_integer">
+    <convert name="N_convert1" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <randomcolor name="N_randomcolor1" type="color3">
+      <input name="in" type="float" nodename="N_convert1" />
+      <input name="huelow" type="float" interfacename="huelow" />
+      <input name="huehigh" type="float" interfacename="huehigh" />
+      <input name="saturationlow" type="float" interfacename="saturationlow" />
+      <input name="saturationhigh" type="float" interfacename="saturationhigh" />
+      <input name="brightnesslow" type="float" interfacename="brightnesslow" />
+      <input name="brightnesshigh" type="float" interfacename="brightnesshigh" />
+      <input name="seed" type="integer" interfacename="seed" />
+    </randomcolor>
+    <output name="out" type="color3" nodename="N_randomcolor1" />
+  </nodegraph>
+
+  <!--
+    <checkerboard>
+    A 2D checkerboard pattern.
+  -->
+  <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
+    <separate2 name="N_mtlxseparate2" type="multioutput">
+      <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
     </separate2>
-    <ifgreater name="N_mtlxifgreater" type="float">
-      <input name="value1" type="float" nodename="N_mtlxconvert" />
-      <input name="value2" type="float" nodename="N_mtlxmodulo" />
+    <modulo name="N_mtlxmodulo1" type="float">
+      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outx" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <multiply name="N_mult" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="freq" />
+    </multiply>
+    <modulo name="N_mtlxmodulo2" type="float">
+      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outy" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <floor name="N_mtlxfloor2" type="float">
+      <input name="in" type="float" nodename="N_mtlxmodulo1" />
+    </floor>
+    <floor name="N_mtlxfloor3" type="float">
+      <input name="in" type="float" nodename="N_mtlxmodulo2" />
+    </floor>
+    <add name="N_mtlxadd2" type="float">
+      <input name="in1" type="float" nodename="N_mtlxfloor2" />
+      <input name="in2" type="float" nodename="N_mtlxfloor3" />
+    </add>
+    <ifequal name="N_mtlxifequal2" type="float">
+      <input name="value1" type="float" nodename="N_mtlxadd2" />
+      <input name="value2" type="float" value="1" />
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" value="0" />
-    </ifgreater>
-    <mix name="N_mtlxmix1" type="float">
-      <input name="fg" type="float" nodename="N_mtlxmodulo" />
-      <input name="bg" type="float" nodename="N_mtlxmodulo1" />
-      <input name="mix" type="float" nodename="N_mtlxifgreater" />
+    </ifequal>
+    <place2d name="N_mtlxplace2d1" type="vector2">
+      <input name="texcoord" type="vector2" nodename="N_mult" />
+      <input name="offset" type="vector2" interfacename="offset" />
+    </place2d>
+    <mix name="N_mix_color3" type="color3">
+      <input name="bg" type="color3" interfacename="color2" />
+      <input name="fg" type="color3" interfacename="color1" />
+      <input name="mix" type="float" nodename="N_mtlxifequal2" />
     </mix>
-    <modulo name="N_mtlxmodulo2" type="vector2">
-      <input name="in1" type="vector2" nodename="N_mtlxmultiply1" />
-      <input name="in2" type="vector2" value="1, 1" />
-    </modulo>
-    <modulo name="N_mtlxmodulo" type="float">
-      <input name="in1" type="float" nodename="N_mtlxadd" />
-      <input name="in2" type="float" nodename="N_mtlxmultiply" />
-    </modulo>
-    <modulo name="N_mtlxmodulo1" type="float">
-      <input name="in1" type="float" nodename="N_mtlxadd1" />
-      <input name="in2" type="float" nodename="N_mtlxconvert" />
-    </modulo>
-    <multiply name="N_mtlxmultiply1" type="vector2">
-      <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="float" interfacename="scale" />
-    </multiply>
-    <add name="N_mtlxadd" type="float">
-      <input name="in1" type="float" nodename="N_mtlxfloor" />
-      <input name="in2" type="float" nodename="N_mtlxseparate" output="outy" />
-    </add>
-    <multiply name="N_mtlxmultiply" type="float">
-      <input name="in1" type="float" nodename="N_mtlxconvert" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <add name="N_mtlxadd1" type="float">
-      <input name="in1" type="float" nodename="N_mtlxfloor1" />
-      <input name="in2" type="float" nodename="N_mtlxseparate" output="outx" />
-    </add>
-    <floor name="N_mtlxfloor" type="float">
-      <input name="in" type="float" nodename="N_mtlxseparate" output="outx" />
-    </floor>
-    <separate2 name="N_mtlxseparate" type="multioutput">
-      <input name="in" type="vector2" nodename="N_mtlxmultiply1" />
-    </separate2>
-    <floor name="N_mtlxfloor1" type="float">
-      <input name="in" type="float" nodename="N_mtlxseparate" output="outy" />
-    </floor>
-    <output name="out" type="float" nodename="N_mtlxmin" />
+    <output name="out" type="color3" nodename="N_mix_color3" />
   </nodegraph>
 
   <!-- ======================================================================== -->
@@ -1443,33 +1503,64 @@
   </nodegraph>
 
   <!--
-    Node: <triangle wave>
-    Moving between 0.0 and the Scale based on the input value.
+    Node: <distance>
+    Measures the distance between two points in 2D, 3D, or 4D.
+  -->
+  <nodegraph name="NG_distance_vector2" nodedef="ND_distance_vector2">
+    <subtract name="N_mtlxsubtract" type="vector2">
+      <input name="in1" type="vector2" interfacename="in1" />
+      <input name="in2" type="vector2" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  </nodegraph>
+  <nodegraph name="NG_distance_vector3" nodedef="ND_distance_vector3">
+    <subtract name="N_mtlxsubtract" type="vector3">
+      <input name="in1" type="vector3" interfacename="in1" />
+      <input name="in2" type="vector3" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector3" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  </nodegraph>
+  <nodegraph name="NG_distance_vector4" nodedef="ND_distance_vector4">
+    <subtract name="N_mtlxsubtract" type="vector4">
+      <input name="in1" type="vector4" interfacename="in1" />
+      <input name="in2" type="vector4" interfacename="in2" />
+    </subtract>
+    <magnitude name="N_mtlxmagnitude" type="float">
+      <input name="in" type="vector4" nodename="N_mtlxsubtract" />
+    </magnitude>
+    <output name="out" type="float" nodename="N_mtlxmagnitude" />
+  </nodegraph>
+  
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
   -->
   <nodegraph name="NG_trianglewave_float" nodedef="ND_trianglewave_float">
-    <subtract name="N_mtlxsubtract1" type="float">
-      <input name="in1" type="float" interfacename="scale" />
-      <input name="in2" type="float" nodename="N_mtlxabsval1" />
-    </subtract>
-    <absval name="N_mtlxabsval1" type="float">
-      <input name="in" type="float" nodename="N_mtlxsubtract" />
+    <absval name="absval1" type="float">
+      <input name="in" type="float" interfacename="in" />
     </absval>
-    <subtract name="N_mtlxsubtract" type="float">
-      <input name="in1" type="float" nodename="N_mtlxmodulo" />
-      <input name="in2" type="float" interfacename="scale" />
-    </subtract>
-    <modulo name="N_mtlxmodulo" type="float">
-      <input name="in1" type="float" nodename="N_mtlxabsval" />
-      <input name="in2" type="float" nodename="N_mtlxmultiply" />
+    <modulo name="modulo1" type="float">
+      <input name="in1" type="float" nodename="absval1" />
     </modulo>
-    <absval name="N_mtlxabsval" type="float">
-      <input name="in" type="float" interfacename="input" />
+    <subtract name="subtract1" type="float">
+      <input name="in1" type="float" nodename="modulo1" />
+      <input name="in2" type="float" value="0.5" />
+    </subtract>
+    <absval name="absval2" type="float">
+      <input name="in" type="float" nodename="subtract1" />
     </absval>
-    <multiply name="N_mtlxmultiply" type="float">
-      <input name="in1" type="float" interfacename="scale" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <output name="out" type="float" nodename="N_mtlxsubtract1" />
+    <subtract name="subtract2" type="float">
+      <input name="in1" type="float" value="0.5" />
+      <input name="in2" type="float" nodename="absval2" />
+    </subtract>
+    <output name="out" type="float" nodename="subtract2" />
   </nodegraph>
 
   <!-- ======================================================================== -->
