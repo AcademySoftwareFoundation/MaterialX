@@ -38,6 +38,10 @@ class MX_FORMAT_API XmlReadOptions
     /// Defaults to false.
     bool readComments;
 
+    /// If true, then XML newlines will be read into documents as newline elements.
+    /// Defaults to false.
+    bool readNewlines;
+
     /// If true, then documents from earlier versions of MaterialX will be upgraded
     /// to the current version.  Defaults to true.
     bool upgradeVersion;

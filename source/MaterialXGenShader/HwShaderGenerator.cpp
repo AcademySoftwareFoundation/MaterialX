@@ -456,21 +456,12 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     return shader;
 }
 
-void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, bool checkScope) const
+void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     // Check if it's emitted already.
     if (stage.isEmitted(node, context))
     {
         emitComment("Omitted node '" + node.getName() + "'. Function already called in this scope.", stage);
-        return;
-    }
-
-    // Omit node if it's only used inside a conditional branch
-    if (checkScope && node.referencedConditionally())
-    {
-        emitComment("Omitted node '" + node.getName() + "'. Only used in conditional node '" +
-                        node.getScopeInfo().conditionalNode->getName() + "'",
-                    stage);
         return;
     }
 
@@ -509,6 +500,9 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         emitLineBegin(stage);
         emitOutput(node.getOutput(), true, true, context, stage);
         emitLineEnd(stage);
+
+        // Register the node as emitted, but omit the function call.
+        stage.addFunctionCall(node, context, false);
     }
 }
 

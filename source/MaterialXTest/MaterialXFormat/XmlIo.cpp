@@ -14,11 +14,11 @@ namespace mx = MaterialX;
 
 TEST_CASE("Load content", "[xmlio]")
 {
-    mx::FilePath libraryPath("libraries/stdlib");
-    mx::FilePath examplesPath("resources/Materials/Examples/StandardSurface");
-    mx::FileSearchPath searchPath = libraryPath.asString() +
-        mx::PATH_LIST_SEPARATOR +
-        examplesPath.asString();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath libraryPath = searchPath.find("libraries/stdlib");
+    mx::FilePath examplesPath = searchPath.find("resources/Materials/Examples/StandardSurface");
+    searchPath.append(libraryPath);
+    searchPath.append(examplesPath);
 
     // Read the standard library.
     std::vector<mx::DocumentPtr> libs;
@@ -238,6 +238,28 @@ TEST_CASE("Load content", "[xmlio]")
     // Read a non-existent document.
     mx::DocumentPtr nonExistentDoc = mx::createDocument();
     REQUIRE_THROWS_AS(mx::readFromXmlFile(nonExistentDoc, "NonExistent.mtlx", mx::FileSearchPath(), &readOptions), mx::ExceptionFileMissing);
+}
+
+TEST_CASE("Comments and newlines", "[xmlio]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath testPath = searchPath.find("resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx");
+
+    // Read the example file into an XML string buffer.
+    std::string origXml = mx::readFile(testPath);
+
+    // Convert the string to a document with comments and newlines preserved.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::XmlReadOptions readOptions;
+    readOptions.readComments = true;
+    readOptions.readNewlines = true;
+    mx::readFromXmlString(doc, origXml, mx::FileSearchPath(), &readOptions);
+
+    // Write the document to a new XML string buffer.
+    std::string newXml = mx::writeToXmlString(doc);
+
+    // Verify that the XML string buffers are identical.
+    REQUIRE(origXml == newXml);
 }
 
 TEST_CASE("Locale region testing", "[xmlio]")

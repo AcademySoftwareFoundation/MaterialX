@@ -36,8 +36,8 @@ import ::df::*;
 // Shader Nodes
 
 export material mx_surfacematerial(
-	material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
-    float3 mxp_displacement = float3(0.0, 0.0, 0.0)
+    material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_displacementshader =  material() [[ anno::usage( "materialx:displacementshader") ]]
 )
 = material(
     thin_walled: false,
@@ -45,7 +45,7 @@ export material mx_surfacematerial(
     backface: mxp_surfaceshader.backface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
-        displacement : mxp_displacement,
+        displacement : mxp_displacementshader.geometry.displacement,
         normal: mxp_surfaceshader.geometry.normal
     ),
     ior: mxp_surfaceshader.ior,
@@ -2981,7 +2981,7 @@ export material mx_mix_surfaceshader(
             base:   mxp_bg.surface.scattering
         ),
         emission: material_emission(
-            emission: df::clamped_mix( 
+            emission: df::unbounded_mix( // unbounded_mix is cheaper
             df::edf_component[]( 
                 df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
                 df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
@@ -2994,7 +2994,7 @@ export material mx_mix_surfaceshader(
     // we need to carry volume properties along for SSS
     ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
-        scattering: df::clamped_mix( 
+        scattering: df::unbounded_mix( // unbounded_mix is cheaper
             df::vdf_component[]( 
                 df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
                 df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))

@@ -295,7 +295,7 @@
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
-    a weighted blend of the three samples using the geometric normal.
+    an adjustable weighted blend of the three samples using the geometric normal.
   -->
   <nodedef name="ND_triplanarprojection_float" node="triplanarprojection" nodegroup="texture3d">
     <input name="filex" type="filename" value="" uniform="true" />
@@ -307,6 +307,7 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -323,6 +324,7 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -339,6 +341,7 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -355,6 +358,7 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -371,6 +375,7 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -387,6 +392,7 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -1004,7 +1010,7 @@
     <input name="type" type="integer" uiname="Noise Type" uifolder="Common" uisoftmin="0" uisoftmax="3" value="0" enum="Perlin,Cell,Worley,Fractal" enumvalues="0,1,2,3" doc="Menu to select the type of noise: Perlin, Cell, Worley, or Fractal. Default is Perlin." />
     <output name="out" type="float" />
   </nodedef>
-  
+
   <!--
     Node: <unifiednoise3d>
     The 3d flavor of <unifiednoise2d>.
@@ -1036,8 +1042,6 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uiname="Texture Coordinates" />
     <output name="out" type="float" />
   </nodedef>
-  </nodedef>
-  
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
@@ -1700,6 +1704,10 @@
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
+  <nodedef name="ND_floor_integer" node="floor" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
+  </nodedef>
 
   <!--
     Node: <ceil>
@@ -1728,6 +1736,10 @@
   <nodedef name="ND_ceil_vector4" node="ceil" nodegroup="math">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_ceil_integer" node="ceil" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
   </nodedef>
 
   <!--
@@ -2203,6 +2215,26 @@
   </nodedef>
 
   <!--
+    Node: <distance>
+    Measures the distance between two points in 2D, 3D, or 4D.
+  -->
+  <nodedef name="ND_distance_vector2" node="distance" nodegroup="math">
+    <input name="in1" type="vector2" uiname="in1" value="0.0, 0.0" />
+    <input name="in2" type="vector2" uiname="in2" value="0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector3" node="distance" nodegroup="math">
+    <input name="in1" type="vector3" uiname="in1" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" uiname="in2" value="0.0, 0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_distance_vector4" node="distance" nodegroup="math">
+    <input name="in1" type="vector4" uiname="in1" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" uiname="in2" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
     Node: <dotproduct>
     Perform a dot product of two 2-4 channel vectors
   -->
@@ -2468,13 +2500,12 @@
   </nodedef>
 
   <!--
-    Node: <triangle wave>
-    Moving between 0.0 and the Scale based on the input value.
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
   -->
-
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
-    <input name="input" type="float" value="0" />
-    <input name="scale" type="float" value="0" />
+    <input name="in" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -2944,7 +2975,7 @@
     <input name="lumacoeffs" type="color3" value="0.2722287, 0.6740818, 0.0536895" enum="acescg, rec709, rec2020, rec2100" enumvalues="0.2722287,0.6740818,0.0536895, 0.2126,0.7152,0.0722, 0.2627,0.6780,0.0593, 0.2627,0.6780,0.0593" />
     <output name="out" type="color4" defaultinput="in" />
   </nodedef>
-  
+
   <!--
     Node: <colorcorrect> Supplemental Node
     Combines various adjustment nodes into one, artist-friendly color correction node.
@@ -2956,7 +2987,7 @@
     <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
     <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
     <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
-    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
     <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />
@@ -2968,7 +2999,7 @@
     <input name="saturation" type="float" uiname="Saturation" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Adjusts the input color saturation level." />
     <input name="gamma" type="float" uiname="Gamma" uisoftmin="0.0" uisoftmax="3.0" value="1" doc="Applies a gamma correction to the color." />
     <input name="lift" type="float" uiname="Lift" uisoftmin="0.0" uisoftmax="1.0" value="0" doc="Raise the dark color values, leaving the white values unchanged." />
-    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0"  value="1" doc="Multiplier increases lighter color values, leaving black values unchanged."/>
+    <input name="gain" type="float" uiname="Gain" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Multiplier increases lighter color values, leaving black values unchanged." />
     <input name="contrast" type="float" uiname="Contrast" uisoftmin="0.0" uisoftmax="1.0" value="1" doc="Linearly increase or decrease the color contrast." />
     <input name="contrastpivot" type="float" uiname="Contrast Pivot" uisoftmin="0.0" uisoftmax="1.0" value="0.5" doc="Pivot value around which contrast applies. This value will not change as contrast is adjusted." />
     <input name="exposure" type="float" uiname="Exposure" uisoftmin="-1.0" uisoftmax="1.0" value="0" doc="Multplier which increases or decreases color brightness by 2^value." />

@@ -1,6 +1,0 @@
-#include "lib/mx_transform_color.osl"
-
-void mx_srgb_texture_to_lin_rec709_color4(color4 _in, output color4 result)
-{
-    result = color4(mx_srgb_texture_to_lin_rec709(_in.rgb), _in.a);
-}

@@ -959,13 +959,6 @@ void ShaderGraph::finalize(GenContext& context)
     // Sort the nodes in topological order.
     topologicalSort();
 
-    // Calculate scopes for all nodes in the graph.
-    //
-    // TODO: Enable calculateScopes() again when support for
-    // conditional nodes are improved.
-    //
-    // calculateScopes();
-
     if (context.getOptions().shaderInterfaceType == SHADER_INTERFACE_COMPLETE)
     {
         // Publish all node inputs that has not been connected already.
@@ -1080,7 +1073,8 @@ void ShaderGraph::optimize(GenContext& context)
 
     if (numEdits > 0)
     {
-        std::set<ShaderNode*> usedNodes;
+        std::set<ShaderNode*> usedNodesSet;
+        std::vector<ShaderNode*> usedNodesVec;
 
         // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
@@ -1091,7 +1085,12 @@ void ShaderGraph::optimize(GenContext& context)
             {
                 for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(upstreamPort))
                 {
-                    usedNodes.insert(edge.upstream->getNode());
+                    ShaderNode* node = edge.upstream->getNode();
+                    if (usedNodesSet.count(node) == 0)
+                    {
+                        usedNodesSet.insert(node);
+                        usedNodesVec.push_back(node);
+                    }
                 }
             }
         }
@@ -1099,7 +1098,7 @@ void ShaderGraph::optimize(GenContext& context)
         // Remove any unused nodes
         for (ShaderNode* node : _nodeOrder)
         {
-            if (usedNodes.count(node) == 0)
+            if (usedNodesSet.count(node) == 0)
             {
                 // Break all connections
                 disconnect(node);
@@ -1109,8 +1108,7 @@ void ShaderGraph::optimize(GenContext& context)
             }
         }
 
-        _nodeOrder.resize(usedNodes.size());
-        _nodeOrder.assign(usedNodes.begin(), usedNodes.end());
+        _nodeOrder = usedNodesVec;
     }
 }
 
@@ -1232,75 +1230,6 @@ void ShaderGraph::topologicalSort()
     if (count != _nodeMap.size())
     {
         throw ExceptionFoundCycle("Encountered a cycle in graph: " + getName());
-    }
-}
-
-void ShaderGraph::calculateScopes()
-{
-    //
-    // Calculate scopes for all nodes, considering branching from conditional nodes
-    //
-    // TODO: Refactor the scope handling, using scope id's instead
-    //
-
-    if (_nodeOrder.empty())
-    {
-        return;
-    }
-
-    size_t lastNodeIndex = _nodeOrder.size() - 1;
-    ShaderNode* lastNode = _nodeOrder[lastNodeIndex];
-    lastNode->getScopeInfo().type = ShaderNode::ScopeInfo::GLOBAL;
-
-    std::set<ShaderNode*> nodeUsed;
-    nodeUsed.insert(lastNode);
-
-    // Iterate nodes in reversed toplogical order such that every node is visited AFTER
-    // each of the nodes that depend on it have been processed first.
-    for (int nodeIndex = int(lastNodeIndex); nodeIndex >= 0; --nodeIndex)
-    {
-        ShaderNode* node = _nodeOrder[nodeIndex];
-
-        // Once we visit a node the scopeInfo has been determined and it will not be changed
-        // By then we have visited all the nodes that depend on it already
-        if (nodeUsed.count(node) == 0)
-        {
-            continue;
-        }
-
-        const bool isIfElse = node->hasClassification(ShaderNode::Classification::IFELSE);
-        const bool isSwitch = node->hasClassification(ShaderNode::Classification::SWITCH);
-
-        const ShaderNode::ScopeInfo& currentScopeInfo = node->getScopeInfo();
-
-        for (size_t inputIndex = 0; inputIndex < node->numInputs(); ++inputIndex)
-        {
-            ShaderInput* input = node->getInput(inputIndex);
-
-            if (input->getConnection())
-            {
-                ShaderNode* upstreamNode = input->getConnection()->getNode();
-
-                // Create scope info for this network brach
-                // If it's a conditonal branch the scope is adjusted
-                ShaderNode::ScopeInfo newScopeInfo = currentScopeInfo;
-                if (isIfElse && (inputIndex == 2 || inputIndex == 3))
-                {
-                    newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), 0x12);
-                }
-                else if (isSwitch && inputIndex != node->numInputs() - 1)
-                {
-                    const uint32_t fullMask = (1 << node->numInputs()) - 1;
-                    newScopeInfo.adjustAtConditionalInput(node, int(inputIndex), fullMask);
-                }
-
-                // Add the info to the upstream node
-                ShaderNode::ScopeInfo& upstreamScopeInfo = upstreamNode->getScopeInfo();
-                upstreamScopeInfo.merge(newScopeInfo);
-
-                nodeUsed.insert(upstreamNode);
-            }
-        }
     }
 }
 

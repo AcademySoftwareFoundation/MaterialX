@@ -70,11 +70,11 @@ void checkImplementations(mx::GenContext& context,
                           const mx::StringSet& generatorSkipNodeDefs,
                           unsigned int expectedSkipCount)
 {
-    mx::DocumentPtr doc = mx::createDocument();
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
     loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib" }, searchPath, doc);
 
     const std::string& target = shadergen.getTarget();
@@ -94,7 +94,6 @@ void checkImplementations(mx::GenContext& context,
         "arrayappend",
         "displacement",
         "volume",
-        "blackbody",
         "curveadjust",
         "conical_edf",
         "measured_edf",
@@ -280,7 +279,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FileSearchPath searchPath(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     loadLibraries({ "libraries/targets", "libraries/stdlib" }, searchPath, doc);
 
     const std::string exampleName = "unique_names";
@@ -478,7 +477,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    loadLibraries({ "libraries" }, _libSearchPath, _dependLib, _skipLibraryFiles);
+    loadLibraries({ "libraries" }, _searchPath, _dependLib, _skipLibraryFiles);
 }
 
 void ShaderGeneratorTester::addSkipFiles()
@@ -603,10 +602,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
 
     // Load in all documents to test
     mx::StringVec errorLog;
-    mx::FileSearchPath searchPath(_libSearchPath);
     for (const auto& testRoot : _testRootPaths)
     {
-        mx::loadDocuments(testRoot, searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
+        mx::loadDocuments(testRoot, _searchPath, _skipFiles, overrideFiles, _documents, _documentPaths, 
                           nullptr, &errorLog);
     }
     CHECK(errorLog.empty());
@@ -627,7 +625,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     // Create our context
     mx::GenContext context(_shaderGenerator);
     context.getOptions() = generateOptions;
-    context.registerSourceCodeSearchPath(_srcSearchPath);
+    context.registerSourceCodeSearchPath(_searchPath);
 
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(_dependLib, context);
@@ -783,7 +781,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
                         }
                         else
                         {
-                            path = mx::FilePath::getCurrentPath();
+                            mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+                            path = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
                         }
 
                         std::vector<mx::FilePath> sourceCodePaths;

@@ -189,6 +189,9 @@ void bindPyElement(py::module& mod)
     py::class_<mx::CommentElement, mx::CommentElementPtr, mx::Element>(mod, "CommentElement")
         .def_readonly_static("CATEGORY", &mx::CommentElement::CATEGORY);
 
+    py::class_<mx::NewlineElement, mx::NewlineElementPtr, mx::Element>(mod, "NewlineElement")
+        .def_readonly_static("CATEGORY", &mx::NewlineElement::CATEGORY);
+
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY);
 
