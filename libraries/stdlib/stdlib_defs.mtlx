@@ -1094,9 +1094,9 @@
     Returns 1 (float) if sample is inside a circle defined by center and radius. Otherwise returns 0
   -->
   <nodedef name="ND_circle_float" node="circle" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
-    <input name="center" type="vector2" value="0, 0" uivisible="true" />
-    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1105,9 +1105,9 @@
     Returns 1 (float) if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius. Otherwise returns 0
   -->
   <nodedef name="ND_cloverleaf_float" node="cloverleaf" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
-    <input name="center" type="vector2" value="0, 0" uivisible="true" />
-    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1117,9 +1117,9 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodedef name="ND_hexagon_float" node="hexagon" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
-    <input name="center" type="vector2" value="0, 0" uivisible="true" />
-    <input name="radius" type="float" value="0.5" uivisible="true" />
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1130,11 +1130,11 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodedef name="ND_line_float" node="line" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" uivisible="true" />
-    <input name="center" type="vector2" value="0, 0" uivisible="true" />
-    <input name="radius" type="float" value="0.1" uivisible="true" />
-    <input name="point1" type="vector2" value="0.25, 0.25" uivisible="true" />
-    <input name="point2" type="vector2" value="0.75, 0.75" uivisible="true" />
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.1" />
+    <input name="point1" type="vector2" value="0.25, 0.25" />
+    <input name="point2" type="vector2" value="0.75, 0.75" />
     <output name="out" type="float" />
   </nodedef>
 
@@ -1144,10 +1144,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_circles_color3" node="circles" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
-    <input name="size" type="float" value="0.5" uivisible="true" />
-    <input name="spacing" type="float" value="1" uivisible="true" />
-    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -1157,10 +1157,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_cloverleafs_color3" node="cloverleafs" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
-    <input name="size" type="float" value="0.5" uivisible="true" />
-    <input name="spacing" type="float" value="1" uivisible="true" />
-    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -1170,10 +1170,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_hexagons_color3" node="hexagons" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
-    <input name="size" type="float" value="0.5" uivisible="true" />
-    <input name="spacing" type="float" value="1" uivisible="true" />
-    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -1183,10 +1183,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_squares_color3" node="squares" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
-    <input name="size" type="float" value="0.5" uivisible="true" />
-    <input name="spacing" type="float" value="1" uivisible="true" />
-    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -1196,10 +1196,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_grecian_color3" node="grecian" version="0.1" isdefaultversion="true" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" uivisible="true" />
-    <input name="thickness" type="float" value="0.05" uivisible="true" />
-    <input name="spacing" type="float" value="1" uivisible="true" />
-    <input name="staggered" type="boolean" value="false" uivisible="true" />
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
