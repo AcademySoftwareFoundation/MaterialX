@@ -934,7 +934,7 @@ void Document::upgradeVersion()
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && minorVersion >= 37)
+    if (majorVersion == 1 && minorVersion == 37)
     {
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
@@ -1432,7 +1432,7 @@ void Document::upgradeVersion()
     }
 
     // Upgrade from 1.38 to 1.39
-    if (majorVersion == 1 && minorVersion >= 38)
+    if (majorVersion == 1 && minorVersion == 38)
     {
         const StringSet BSDF_WITH_THINFILM = { "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf" };
         const string LAYER = "layer";
