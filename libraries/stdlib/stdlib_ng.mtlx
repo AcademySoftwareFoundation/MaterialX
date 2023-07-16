@@ -1438,8 +1438,6 @@
     </multiply>
     <separate2 name="separate_dist" type="multioutput">
       <input name="in" type="vector2" nodename="dist_square" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <add name="add_XY" type="float">
       <input name="in1" type="float" nodename="separate_dist" output="outx" />
@@ -1509,8 +1507,6 @@
     </max>
     <separate2 name="separate_sample" type="multioutput">
       <input name="in" type="vector2" interfacename="sample" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="shift_coord1" type="vector2">
       <input name="in1" type="float" nodename="add_rX" />
@@ -1650,13 +1646,9 @@
     </subtract>
     <separate2 name="separate_p2" type="multioutput">
       <input name="in" type="vector2" nodename="new_p2" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <separate2 name="separate_p3" type="multioutput">
       <input name="in" type="vector2" nodename="new_p3" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <sqrt name="sqrt_p3" type="float">
       <input name="in" type="float" nodename="add_p3" />
@@ -1671,8 +1663,6 @@
     </combine2>
     <separate2 name="separate_p" type="multioutput">
       <input name="in" type="vector2" nodename="absval_p" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <output name="out" type="float" nodename="ifgreater_p3" />
   </nodegraph>
@@ -1728,8 +1718,6 @@
     </subtract>
     <separate2 name="separate_sq" type="multioutput">
       <input name="in" type="vector2" nodename="mulpa_square" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <sqrt name="sqrt" type="float">
       <input name="in" type="float" nodename="add_XY" />
@@ -1760,8 +1748,6 @@
     </multiply>
     <separate2 name="separate_coord" type="multioutput">
       <input name="in" type="vector2" nodename="place2d" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="invspc_vec" type="vector2">
       <input name="in1" type="float" nodename="inv_spacing" />
@@ -1902,8 +1888,6 @@
     </multiply>
     <separate2 name="separate_coord" type="multioutput">
       <input name="in" type="vector2" nodename="place2d" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="invspc_vec" type="vector2">
       <input name="in1" type="float" nodename="inv_spacing" />
@@ -2044,8 +2028,6 @@
     </multiply>
     <separate2 name="separate_coord" type="multioutput">
       <input name="in" type="vector2" nodename="place2d" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="invspc_vec" type="vector2">
       <input name="in1" type="float" nodename="inv_spacing" />
@@ -2186,8 +2168,6 @@
     </multiply>
     <separate2 name="separate_coord" type="multioutput">
       <input name="in" type="vector2" nodename="place2d" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="invspc_vec" type="vector2">
       <input name="in1" type="float" nodename="inv_spacing" />
@@ -2287,8 +2267,6 @@
     </multiply>
     <separate2 name="separate_coord" type="multioutput">
       <input name="in" type="vector2" nodename="place2d" />
-      <output name="outx" type="float" />
-      <output name="outy" type="float" />
     </separate2>
     <combine2 name="invspc_vec" type="vector2">
       <input name="in1" type="float" nodename="inv_spacing" />
