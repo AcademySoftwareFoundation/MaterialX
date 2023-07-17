@@ -2,28 +2,28 @@
 // Copyright Contributors to the MaterialX Project
 // SPDX-License-Identifier: Apache-2.0
 //
-// MDL implementation of all Standard Source Nodes of
-//     MaterialX: An Open Standard for Network-Based CG Object Looks
-//     Document v1.37 REV2, January 19, 2020
-//     www.materialx.org 
+// MDL Implementation of all types and nodes of
+//     MaterialX Physically-Based Shading Nodes
+//     Document v1.37 REV2, July 16, 2019 (Revised October 17, 2019)
+//     see www.materialx.org 
 // in
-//     NVIDIA Material Definition Language 1.7
+//     NVIDIA Material Definition Language 1.6
 //     Language Specification
-//     Document version 1.7.2, January 17, 2022
+//     Document version 1.6.1, December 16, 2019
 //     www.nvidia.com/mdl
 
-mdl 1.7;
+mdl 1.6;
 
-using core import *;
-import swizzle::*;
-import hsv::*;
-import noise::*;
-
-import ::math::*;
-import ::tex::*;
-import ::state::*;
-import ::anno::*;
 import ::df::*;
+import ::anno::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+
+import .::core::*;
+import .::noise::*;
+import .::swizzle::*;
+import .::hsv::*;
 
 // NOTE: To insulate MaterialX names from MDL names, in particular 
 //       conflicts with MDL reserved names, all node names, type names 
@@ -77,11 +77,11 @@ export material mx_surface_unlit(
 // Texture Nodes
 
 // Helper function mapping texture node addressmodes to MDL wrap modes
-::tex::wrap_mode map_addressmode( mx_addressmode_type value) {
+::tex::wrap_mode map_addressmode( core::mx_addressmode_type value) {
     switch (value) {
-    case mx_addressmode_type_clamp:
+    case core::mx_addressmode_type_clamp:
         return ::tex::wrap_clamp;
-    case mx_addressmode_type_mirror:
+    case core::mx_addressmode_type_mirror:
         return ::tex::wrap_mirrored_repeat;
     default:
         return ::tex::wrap_repeat;
@@ -108,17 +108,17 @@ export float mx_image_float(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -134,7 +134,7 @@ export float mx_image_float(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -150,10 +150,10 @@ export float mx_image_float(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
@@ -183,17 +183,17 @@ export color mx_image_color3(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -209,7 +209,7 @@ export color mx_image_color3(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -225,10 +225,10 @@ export color mx_image_color3(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
@@ -241,7 +241,7 @@ export color mx_image_color3(
 	return returnValue;
 }
 
-export color4 mx_image_color4(
+export core::color4 mx_image_color4(
 	uniform texture_2d mxp_file = texture_2d()	
 	[[
 		anno::display_name("Filename")
@@ -250,7 +250,7 @@ export color4 mx_image_color4(
 	[[
 		anno::display_name("Layer"), anno::unused()
 	]],
-	color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	core::color4 mxp_default = core::mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Default Color")
 	]],
@@ -258,17 +258,17 @@ export color4 mx_image_color4(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -284,7 +284,7 @@ export color4 mx_image_color4(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -300,14 +300,14 @@ export color4 mx_image_color4(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
-	color4 returnValue = mk_color4( ::tex::lookup_float4(tex: mxp_file, 
+	core::color4 returnValue = core::mk_color4(::tex::lookup_float4(tex: mxp_file, 
 						coord: mxp_flip_v
 							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
 							: mxp_texcoord,
@@ -333,17 +333,17 @@ export float2 mx_image_vector2(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -359,7 +359,7 @@ export float2 mx_image_vector2(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -375,10 +375,10 @@ export float2 mx_image_vector2(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
@@ -408,17 +408,17 @@ export float3 mx_image_vector3(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -434,7 +434,7 @@ export float3 mx_image_vector3(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -450,10 +450,10 @@ export float3 mx_image_vector3(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
@@ -483,17 +483,17 @@ export float4 mx_image_vector4(
 	[[
 		anno::display_name("Texture Coordinates")
 	]],
-	uniform mx_addressmode_type mxp_uaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_uaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode U")
 	]],
-	uniform mx_addressmode_type mxp_vaddressmode = mx_addressmode_type(mx_addressmode_type_periodic)	
+	uniform core::mx_addressmode_type mxp_vaddressmode = core::mx_addressmode_type(core::mx_addressmode_type_periodic)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Address Mode V")
 	]],
-	uniform mx_filterlookup_type mxp_filtertype = mx_filterlookup_type(mx_filterlookup_type_linear)	
+	uniform core::mx_filterlookup_type mxp_filtertype = core::mx_filterlookup_type(core::mx_filterlookup_type_linear)	
 	[[
 		anno::description("Enumeration {closest,linear,cubic}."),
 		anno::display_name("Filter Type"),
@@ -509,7 +509,7 @@ export float4 mx_image_vector4(
 		anno::display_name("Frame Offset"),
         anno::unused()
 	]],
-	uniform mx_addressmode_type mxp_frameendaction = mx_addressmode_type(mx_addressmode_type_constant)	
+	uniform core::mx_addressmode_type mxp_frameendaction = core::mx_addressmode_type(core::mx_addressmode_type_constant)	
 	[[
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
@@ -525,10 +525,10 @@ export float4 mx_image_vector4(
 		anno::description("Node Group: texture2d")
 	]]
 {
-	if ( mxp_uaddressmode == mx_addressmode_type_constant
+	if ( mxp_uaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.x < 0.0 || mxp_texcoord.x > 1.0))
 		return mxp_default;
-	if ( mxp_vaddressmode == mx_addressmode_type_constant
+	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
 
@@ -574,8 +574,8 @@ export color mx_constant_color3(
 	return mxp_value;
 }
 
-export color4 mx_constant_color4(
-	color4 mxp_value = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_constant_color4(
+	core::color4 mxp_value = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: procedural")
@@ -698,9 +698,9 @@ export color mx_ramplr_color3(
 	return math::lerp(mxp_valuel, mxp_valuer, math::clamp(mxp_texcoord.x, 0.0, 1.0));
 }
 
-export color4 mx_ramplr_color4(
-	color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_ramplr_color4(
+	core::color4 mxp_valuel = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_valuer = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -709,7 +709,7 @@ export color4 mx_ramplr_color4(
 {
 	color rgb = math::lerp(mxp_valuel.rgb, mxp_valuer.rgb, math::clamp(mxp_texcoord.x, 0.0, 1.0));
 	float a = math::lerp(mxp_valuel.a, mxp_valuer.a, math::clamp(mxp_texcoord.x, 0.0, 1.0));
-	return color4(rgb, a);}
+	return core::color4(rgb, a);}
 
 export float2 mx_ramplr_vector2(
 	float2 mxp_valuel = float2(0.0, 0.0),
@@ -771,9 +771,9 @@ export color mx_ramptb_color3(
 	return math::lerp(mxp_valuet, mxp_valueb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 }
 
-export color4 mx_ramptb_color4(
-	color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_ramptb_color4(
+	core::color4 mxp_valuet = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_valueb = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float2 mxp_texcoord = float2(swizzle::xy(::state::texture_coordinate(0)))
 )
 	[[
@@ -782,7 +782,7 @@ export color4 mx_ramptb_color4(
 {
 	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::clamp(mxp_texcoord.y, 0.0, 1.0));
 	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::clamp(mxp_texcoord.y, 0.0, 1.0));
-	return color4(rgb, a);}
+	return core::color4(rgb, a);}
 
 export float2 mx_ramptb_vector2(
 	float2 mxp_valuet = float2(0.0, 0.0),
@@ -871,12 +871,12 @@ export color mx_splitlr_color3(
 	return math::lerp(mxp_valuel, mxp_valuer, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
-export color4 mx_splitlr_color4(
-	color4 mxp_valuel = mk_color4(0.0, 0.0, 0.0, 0.0)	
+export core::color4 mx_splitlr_color4(
+	core::color4 mxp_valuel = core::mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Left")
 	]],
-	color4 mxp_valuer = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	core::color4 mxp_valuer = core::mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Right")
 	]],
@@ -892,7 +892,7 @@ export color4 mx_splitlr_color4(
 {
 	color rgb = math::lerp(mxp_valuel.rgb, mxp_valuer.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 	float a = math::lerp(mxp_valuel.a, mxp_valuer.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
-	return color4(rgb, a);
+	return core::color4(rgb, a);
 }
 
 export float2 mx_splitlr_vector2(
@@ -1005,12 +1005,12 @@ export color mx_splittb_color3(
 	return math::lerp(mxp_valuet, mxp_valueb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));
 }
 
-export color4 mx_splittb_color4(
-	color4 mxp_valuet = mk_color4(0.0, 0.0, 0.0, 0.0)	
+export core::color4 mx_splittb_color4(
+	core::color4 mxp_valuet = core::mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Top")
 	]],
-	color4 mxp_valueb = mk_color4(0.0, 0.0, 0.0, 0.0)	
+	core::color4 mxp_valueb = core::mk_color4(0.0, 0.0, 0.0, 0.0)	
 	[[
 		anno::display_name("Bottom")
 	]],
@@ -1024,7 +1024,7 @@ export color4 mx_splittb_color4(
 		anno::description("Node Group: procedural2d")
 	]]
 {
-	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return color4(rgb, a);
+	color rgb = math::lerp(mxp_valuet.rgb, mxp_valueb.rgb, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	float a = math::lerp(mxp_valuet.a, mxp_valueb.a, math::step(mxp_center, math::clamp(mxp_texcoord.x,0,1)));	return core::color4(rgb, a);
 }
 
 export float2 mx_splittb_vector2(
@@ -1094,7 +1094,7 @@ export float4 mx_splittb_vector4(
 }
 
 export float3 mx_position_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_object)	
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type(core::mx_coordinatespace_type_object)	
 	[[
 		anno::description("Enumeration {model,object,world}.")
 	]]
@@ -1103,13 +1103,13 @@ export float3 mx_position_vector3(
 		anno::description("Node Group: geometric")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
+	state::coordinate_space fromSpace = ::core::mx_map_space(core::mx_coordinatespace_type_model);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_space);
 	return state::transform_point(fromSpace, toSpace, state::position());
 }
 
 export float3 mx_normal_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_object)	
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type(core::mx_coordinatespace_type_object)	
 	[[
 		anno::description("Enumeration {model,object,world}.")
 	]]
@@ -1118,13 +1118,13 @@ export float3 mx_normal_vector3(
 		anno::description("Node Group: geometric")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
+	state::coordinate_space fromSpace = ::core::mx_map_space(core::mx_coordinatespace_type_model);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_space);
 	return state::transform_normal(fromSpace, toSpace, state::normal());
 }
 
 export float3 mx_tangent_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_object)	
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type(core::mx_coordinatespace_type_object)	
 	[[
 		anno::description("Enumeration {model,object,world}.")
 	]],
@@ -1134,13 +1134,13 @@ export float3 mx_tangent_vector3(
 		anno::description("Node Group: geometric")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
+	state::coordinate_space fromSpace = ::core::mx_map_space(core::mx_coordinatespace_type_model);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_space);
 	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_u(mxp_index)));
 }
 
 export float3 mx_bitangent_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_object)	
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type(core::mx_coordinatespace_type_object)	
 	[[
 		anno::description("Enumeration {model,object,world}.")
 	]],
@@ -1150,8 +1150,8 @@ export float3 mx_bitangent_vector3(
 		anno::description("Node Group: geometric")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mx_coordinatespace_type_model);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_space);
+	state::coordinate_space fromSpace = ::core::mx_map_space(core::mx_coordinatespace_type_model);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_space);
 	return ::math::normalize(state::transform_vector(fromSpace, toSpace, state::texture_tangent_v(mxp_index)));
 }
 
@@ -1199,7 +1199,7 @@ export color mx_geomcolor_color3(
 	return defaultValue;
 }
 
-export color4 mx_geomcolor_color4(
+export core::color4 mx_geomcolor_color4(
 	uniform int mxp_index = int(0) [[ anno::unused() ]]
 )
 	[[
@@ -1207,7 +1207,7 @@ export color4 mx_geomcolor_color4(
 	]]
 {
 	// Not implemented: mx_geomcolor_color4
-	color4 defaultValue = mk_color4(0.0, 0.0, 0.0, 0.0);
+	core::color4 defaultValue = core::mk_color4(0.0, 0.0, 0.0, 0.0);
 	return defaultValue;
 }
 
@@ -1276,16 +1276,16 @@ export color mx_geompropvalue_color3(
 	return defaultValue;
 }
 
-export color4 mx_geompropvalue_color4(
+export core::color4 mx_geompropvalue_color4(
 	uniform string mxp_geomprop = string("") [[ anno::unused() ]],
-	color4 mxp_default = mk_color4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
+	core::color4 mxp_default = core::mk_color4(0.0, 0.0, 0.0, 0.0) [[ anno::unused() ]]
 )
 	[[
 		anno::description("Node Group: geometric")
 	]]
 {
 	// Not implemented: mx_geompropvalue_color4
-	color4 defaultValue = mk_color4(0.0, 0.0, 0.0, 0.0);
+	core::color4 defaultValue = core::mk_color4(0.0, 0.0, 0.0, 0.0);
 	return defaultValue;
 }
 
@@ -1390,18 +1390,18 @@ export color mx_modulo_color3(
 		anno::description("Node Group: math")
 	]]
 {
-	return color(mx_mod(float3(mxp_in1), float3(mxp_in2)));
+	return color(core::mx_mod(float3(mxp_in1), float3(mxp_in2)));
 }
 
-export color4 mx_modulo_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_modulo_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(mx_mod(mk_float4(mxp_in1), mk_float4(mxp_in2)));
+	return core::mk_color4(core::mx_mod(core::mk_float4(mxp_in1), core::mk_float4(mxp_in2)));
 }
 
 export color mx_modulo_color3FA(
@@ -1412,50 +1412,50 @@ export color mx_modulo_color3FA(
 		anno::description("Node Group: math")
 	]]
 {
-	return color(mx_mod(float3(mxp_in1), float3(mxp_in2)));
+	return color(core::mx_mod(float3(mxp_in1), float3(mxp_in2)));
 }
 
-export color4 mx_modulo_color4FA(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_modulo_color4FA(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_in2 = float(1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(mx_mod(mk_float4(mxp_in1), float4(mxp_in2)));
+	return core::mk_color4(core::mx_mod(core::mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
-export color4 mx_invert_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_amount = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_invert_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_amount = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(mk_float4(mxp_amount) - mk_float4(mxp_in));
+	return core::mk_color4(core::mk_float4(mxp_amount) - core::mk_float4(mxp_in));
 }
 
-export color4 mx_invert_color4FA(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_invert_color4FA(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_amount = float(1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(float4(mxp_amount) - mk_float4(mxp_in));
+	return core::mk_color4(float4(mxp_amount) - core::mk_float4(mxp_in));
 }
 
-export color4 mx_absval_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_absval_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::abs(mk_float4(mxp_in)));
+	return core::mk_color4(::math::abs(core::mk_float4(mxp_in)));
 }
 
 export color mx_floor_color3(
@@ -1468,14 +1468,14 @@ export color mx_floor_color3(
 	return color(::math::floor(float3(mxp_in)));
 }
 
-export color4 mx_floor_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_floor_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::floor(mk_float4(mxp_in)));
+	return core::mk_color4(::math::floor(core::mk_float4(mxp_in)));
 }
 
 export color mx_ceil_color3(
@@ -1488,36 +1488,36 @@ export color mx_ceil_color3(
 	return color(::math::ceil(float3(mxp_in)));
 }
 
-export color4 mx_ceil_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_ceil_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::ceil(mk_float4(mxp_in)));
+	return core::mk_color4(::math::ceil(core::mk_float4(mxp_in)));
 }
 
-export color4 mx_power_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_power_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::pow(mk_float4(mxp_in1), mk_float4(mxp_in2)));
+	return core::mk_color4(::math::pow(core::mk_float4(mxp_in1), core::mk_float4(mxp_in2)));
 }
 
-export color4 mx_power_color4FA(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_power_color4FA(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_in2 = float(1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::pow(mk_float4(mxp_in1), float4(mxp_in2)));
+	return core::mk_color4(::math::pow(core::mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
 export float mx_sin_float(
@@ -1894,30 +1894,30 @@ export color mx_sign_color3(
 	return color(::math::sign(float3(mxp_in)));
 }
 
-export color4 mx_sign_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_sign_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::sign(mk_float4(mxp_in)));
+	return core::mk_color4(::math::sign(core::mk_float4(mxp_in)));
 }
 
-export color4 mx_clamp_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_low = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_high = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_clamp_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_low = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_high = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::clamp(mk_float4(mxp_in), mk_float4(mxp_low), mk_float4(mxp_high)));
+	return core::mk_color4(::math::clamp(core::mk_float4(mxp_in), core::mk_float4(mxp_low), core::mk_float4(mxp_high)));
 }
 
-export color4 mx_clamp_color4FA(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_clamp_color4FA(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_low = float(0.0),
 	float mxp_high = float(1.0)
 )
@@ -1925,51 +1925,51 @@ export color4 mx_clamp_color4FA(
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::clamp(mk_float4(mxp_in), float4(mxp_low), float4(mxp_high)));
+	return core::mk_color4(::math::clamp(core::mk_float4(mxp_in), float4(mxp_low), float4(mxp_high)));
 }
 
-export color4 mx_min_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_min_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::min(mk_float4(mxp_in1), mk_float4(mxp_in2)));
+	return core::mk_color4(::math::min(core::mk_float4(mxp_in1), core::mk_float4(mxp_in2)));
 }
 
-export color4 mx_min_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_min_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_in2 = float(0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::min(mk_float4(mxp_in1), float4(mxp_in2)));
+	return core::mk_color4(::math::min(core::mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
-export color4 mx_max_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_max_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::max(mk_float4(mxp_in1), mk_float4(mxp_in2)));
+	return core::mk_color4(::math::max(core::mk_float4(mxp_in1), core::mk_float4(mxp_in2)));
 }
 
-export color4 mx_max_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_max_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_in2 = float(0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mk_color4(::math::max(mk_float4(mxp_in1), float4(mxp_in2)));
+	return core::mk_color4(::math::max(core::mk_float4(mxp_in1), float4(mxp_in2)));
 }
 
 export float3 mx_transformpoint_vector3(
@@ -1981,8 +1981,8 @@ export float3 mx_transformpoint_vector3(
 		anno::description("Node Group: math")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mxp_fromspace);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_tospace);
+	state::coordinate_space fromSpace = ::core::mx_map_space(mxp_fromspace);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_tospace);
 	return state::transform_point(fromSpace, toSpace, mxp_in);
 }
 
@@ -1995,8 +1995,8 @@ export float3 mx_transformvector_vector3(
 		anno::description("Node Group: math")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mxp_fromspace);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_tospace);
+	state::coordinate_space fromSpace = ::core::mx_map_space(mxp_fromspace);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_tospace);
 	return state::transform_vector(fromSpace, toSpace, mxp_in);
 }
 
@@ -2009,8 +2009,8 @@ export float3 mx_transformnormal_vector3(
 		anno::description("Node Group: math")
 	]]
 {
-	state::coordinate_space fromSpace = ::mx_map_space(mxp_fromspace);
-	state::coordinate_space toSpace  = ::mx_map_space(mxp_tospace);
+	state::coordinate_space fromSpace = ::core::mx_map_space(mxp_fromspace);
+	state::coordinate_space toSpace  = ::core::mx_map_space(mxp_tospace);
 	return state::transform_normal(fromSpace, toSpace, mxp_in);
 }
 
@@ -2257,21 +2257,21 @@ export color mx_remap_color3(
 	return mxp_outlow + (mxp_in - mxp_inlow) * (mxp_outhigh - mxp_outlow) / (mxp_inhigh - mxp_inlow);
 }
 
-export color4 mx_remap_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_inlow = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_inhigh = mk_color4(1.0, 1.0, 1.0, 1.0),
-	color4 mxp_outlow = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_outhigh = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_remap_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_inlow = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_inhigh = core::mk_color4(1.0, 1.0, 1.0, 1.0),
+	core::color4 mxp_outlow = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_outhigh = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	color4 val = mxp_outlow;
-	color4 val2 = mx_add(val, mx_subtract(mxp_in, mxp_inlow));
-	color4 val3 = mx_multiply(val2, mx_subtract(mxp_outhigh, mxp_outlow));
-	return mx_divide(val3, mx_subtract(mxp_inhigh, mxp_inlow));
+	core::color4 val = mxp_outlow;
+	core::color4 val2 = core::mx_add(val, core::mx_subtract(mxp_in, mxp_inlow));
+	core::color4 val3 = core::mx_multiply(val2, core::mx_subtract(mxp_outhigh, mxp_outlow));
+	return core::mx_divide(val3, core::mx_subtract(mxp_inhigh, mxp_inlow));
 }
 
 export float2 mx_remap_vector2(
@@ -2330,8 +2330,8 @@ export color mx_remap_color3FA(
 	return mxp_outlow + (mxp_in - mxp_inlow) * (mxp_outhigh - mxp_outlow) / (mxp_inhigh - mxp_inlow);
 }
 
-export color4 mx_remap_color4FA(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_remap_color4FA(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_inlow = float(0.0),
 	float mxp_inhigh = float(1.0),
 	float mxp_outlow = float(0.0),
@@ -2341,10 +2341,10 @@ export color4 mx_remap_color4FA(
 		anno::description("Node Group: adjustment")
 	]]
 {
-	color4 val = mk_color4(mxp_outlow);
-	color4 val2 = mx_add(val, mx_subtract(mxp_in, mk_color4(mxp_inlow)));
-	color4 val3 = mx_multiply(val2, mx_subtract(mk_color4(mxp_outhigh), mk_color4(mxp_outlow)));
-	return mx_divide(val3, mx_subtract(mk_color4(mxp_inhigh), mk_color4(mxp_inlow)));
+	core::color4 val = core::mk_color4(mxp_outlow);
+	core::color4 val2 = core::mx_add(val, core::mx_subtract(mxp_in, core::mk_color4(mxp_inlow)));
+	core::color4 val3 = core::mx_multiply(val2, core::mx_subtract(core::mk_color4(mxp_outhigh), core::mk_color4(mxp_outlow)));
+	return core::mx_divide(val3, core::mx_subtract(core::mk_color4(mxp_inhigh), core::mk_color4(mxp_inlow)));
 }
 
 export float2 mx_remap_vector2FA(
@@ -2413,16 +2413,16 @@ export color mx_smoothstep_color3(
 	return color(::math::smoothstep(float3(mxp_low), float3(mxp_high), float3(mxp_in)));
 }
 
-export color4 mx_smoothstep_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_low = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_high = mk_color4(1.0, 1.0, 1.0, 1.0)
+export core::color4 mx_smoothstep_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_low = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_high = core::mk_color4(1.0, 1.0, 1.0, 1.0)
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
-	return mk_color4(::math::smoothstep(mk_float4(mxp_low), mk_float4(mxp_high), mk_float4(mxp_in)));
+	return core::mk_color4(::math::smoothstep(core::mk_float4(mxp_low), core::mk_float4(mxp_high), core::mk_float4(mxp_in)));
 }
 
 export float2 mx_smoothstep_vector2(
@@ -2473,8 +2473,8 @@ export color mx_smoothstep_color3FA(
 	return color(::math::smoothstep(float3(mxp_in), float3(mxp_low), float3(mxp_high)));
 }
 
-export color4 mx_smoothstep_color4FA(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_smoothstep_color4FA(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_low = float(0.0),
 	float mxp_high = float(1.0)
 )
@@ -2482,7 +2482,7 @@ export color4 mx_smoothstep_color4FA(
 		anno::description("Node Group: adjustment")
 	]]
 {
-	return mk_color4(::math::smoothstep(mk_float4(mxp_in), float4(mxp_low), float4(mxp_high)));
+	return core::mk_color4(::math::smoothstep(core::mk_float4(mxp_in), float4(mxp_low), float4(mxp_high)));
 }
 
 export float2 mx_smoothstep_vector2FA(
@@ -2547,8 +2547,8 @@ export color mx_curveadjust_color3(
 	return defaultValue;
 }
 
-export color4 mx_curveadjust_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_curveadjust_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float2[<N>] mxp_knots = float2[]() [[ anno::unused() ]]
 )
 	[[
@@ -2556,7 +2556,7 @@ export color4 mx_curveadjust_color4(
 	]]
 {
 	// Not implemented: mx_curveadjust_color4
-	color4 defaultValue = mxp_in;
+	core::color4 defaultValue = mxp_in;
 	return defaultValue;
 }
 
@@ -2614,8 +2614,8 @@ export color mx_luminance_color3(
 	return color(::math::luminance(mxp_in));
 }
 
-export color4 mx_luminance_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_luminance_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	uniform color mxp_lumacoeffs = color(0.2722287, 0.6740818, 0.0536895)
 	[[
 		anno::description("Enumeration {acescg, rec709, rec2020, rec2100}."),
@@ -2627,7 +2627,7 @@ export color4 mx_luminance_color4(
 	]]
 {
 	color rgb = color(mxp_in.rgb);
-	color4 returnValue = mk_color4(::math::luminance(rgb));
+	core::color4 returnValue = core::mk_color4(::math::luminance(rgb));
 	returnValue.a = mxp_in.a;
 	return returnValue;
 }
@@ -2642,15 +2642,15 @@ export color mx_rgbtohsv_color3(
     return color(::hsv::mx_rgbtohsv(float3(mxp_in)));
 }
 
-export color4 mx_rgbtohsv_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_rgbtohsv_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
     float3 rgb = hsv::mx_rgbtohsv(float3(mxp_in.rgb));
-    return color4(color(rgb), mxp_in.a);
+    return core::color4(color(rgb), mxp_in.a);
 }
 
 export color mx_hsvtorgb_color3(
@@ -2663,44 +2663,44 @@ export color mx_hsvtorgb_color3(
     return color(hsv::mx_hsvtorgb(float3(mxp_in)));
 }
 
-export color4 mx_hsvtorgb_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_hsvtorgb_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: adjustment")
 	]]
 {
     float3 rgb = hsv::mx_hsvtorgb(float3(mxp_in.rgb));
-    return color4(color(rgb), mxp_in.a);
+    return core::color4(color(rgb), mxp_in.a);
 }
 
-export color4 mx_premult_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 1.0)
+export core::color4 mx_premult_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 1.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
 	// Not implemented: mx_premult_color4
-	color4 defaultValue = mxp_in;
+	core::color4 defaultValue = mxp_in;
 	return defaultValue;
 }
 
-export color4 mx_unpremult_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 1.0)
+export core::color4 mx_unpremult_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 1.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
 	// Not implemented: mx_unpremult_color4
-	color4 defaultValue = mxp_in;
+	core::color4 defaultValue = mxp_in;
 	return defaultValue;
 }
 
-export color4 mx_plus_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_plus_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2709,12 +2709,12 @@ export color4 mx_plus_color4(
 {
 	color rgb = (mxp_mix*(mxp_bg.rgb + mxp_fg.rgb)) + ((1.0-mxp_mix)*mxp_bg.rgb);
 	float a   = (mxp_mix*(mxp_bg.a   + mxp_fg.a  )) + ((1.0-mxp_mix)*mxp_bg.a  );
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_minus_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_minus_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2723,12 +2723,12 @@ export color4 mx_minus_color4(
 {
 	color rgb = (mxp_mix*(mxp_bg.rgb - mxp_fg.rgb)) + ((1.0-mxp_mix)*mxp_bg.rgb);
 	float a   = (mxp_mix*(mxp_bg.a   - mxp_fg.a  )) + ((1.0-mxp_mix)*mxp_bg.a  );
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_difference_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_difference_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2737,7 +2737,7 @@ export color4 mx_difference_color4(
 {
 	color rgb = (mxp_mix*math::abs(mxp_bg.rgb - mxp_fg.rgb)) + ((1.0-mxp_mix)*mxp_bg.rgb);
 	float a   = (mxp_mix*math::abs(mxp_bg.a   - mxp_fg.a  )) + ((1.0-mxp_mix)*mxp_bg.a  );
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
 export float mx_burn_float(
@@ -2749,7 +2749,7 @@ export float mx_burn_float(
 		anno::description("Node Group: compositing")
 	]]
 {
-	if (math::abs(mxp_fg) < FLOAT_EPS)
+	if (math::abs(mxp_fg) < core::FLOAT_EPS)
 	{
 		return 0.0;
 	}
@@ -2774,16 +2774,16 @@ export color mx_burn_color3(
 	);
 }
 
-export color4 mx_burn_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_burn_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = 1.0
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
-	return color4(
+	return core::color4(
 		mx_burn_color3(mxp_fg.rgb, mxp_bg.rgb, mxp_mix),
 		mx_burn_float(mxp_fg.a, mxp_bg.a, mxp_mix)
 	);
@@ -2798,7 +2798,7 @@ export float mx_dodge_float(
 		anno::description("Node Group: compositing")
 	]]
 {
-	if (math::abs(1.0 - mxp_fg) < FLOAT_EPS)
+	if (math::abs(1.0 - mxp_fg) < core::FLOAT_EPS)
 	{
 		return 0.0;
 	}
@@ -2823,24 +2823,24 @@ export color mx_dodge_color3(
 	);
 }
 
-export color4 mx_dodge_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_dodge_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
-	return color4(
+	return core::color4(
 		mx_dodge_color3(mxp_fg.rgb, mxp_bg.rgb, mxp_mix),
 		mx_dodge_float(mxp_fg.a, mxp_bg.a, mxp_mix)
 	);
 }
 
-export color4 mx_screen_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_screen_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2849,19 +2849,19 @@ export color4 mx_screen_color4(
 {
 	color rgb = (mxp_mix*((1.0 - (1.0 - mxp_fg.rgb) * (1 - mxp_bg.rgb)))) + ((1.0-mxp_mix)*mxp_bg.rgb);
 	float a   = (mxp_mix*((1.0 - (1.0 - mxp_fg.a  ) * (1 - mxp_bg.a  )))) + ((1.0-mxp_mix)*mxp_bg.a  );
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_disjointover_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_disjointover_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
-	color4 result;
+	core::color4 result;
 	float summedAlpha = mxp_fg.a + mxp_bg.a;
 	if (summedAlpha <= 1)
 	{
@@ -2869,7 +2869,7 @@ export color4 mx_disjointover_color4(
 	}
 	else
 	{
-		if (math::abs(mxp_bg.a) < FLOAT_EPS)
+		if (math::abs(mxp_bg.a) < core::FLOAT_EPS)
 		{
 			result.rgb = color(0.0);
 		}
@@ -2885,9 +2885,9 @@ export color4 mx_disjointover_color4(
 	return result;
 }
 
-export color4 mx_in_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_in_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2896,12 +2896,12 @@ export color4 mx_in_color4(
 {
 	color rgb = mxp_fg.rgb*mxp_bg.a * mxp_mix + mxp_bg.rgb * (1.0-mxp_mix);
 	float   a = mxp_fg.a  *mxp_bg.a * mxp_mix + mxp_bg.a   * (1.0-mxp_mix);
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_mask_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_mask_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2910,12 +2910,12 @@ export color4 mx_mask_color4(
 {
 	color rgb = mxp_bg.rgb*mxp_fg.a * mxp_mix + mxp_bg.rgb * (1.0-mxp_mix);
 	float   a = mxp_bg.a  *mxp_fg.a * mxp_mix + mxp_bg.a   * (1.0-mxp_mix);
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_matte_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_matte_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = 1.0
 )
 	[[
@@ -2924,12 +2924,12 @@ export color4 mx_matte_color4(
 {
 	color rgb = (mxp_fg.rgb*mxp_fg.a + mxp_bg.rgb*(1.0-mxp_fg.a)) * mxp_mix  +  mxp_bg.rgb * (1.0-mxp_mix);
 	float   a = (mxp_fg.a + mxp_bg.a*(1.0-mxp_fg.a))              * mxp_mix  +  mxp_bg.a   * (1.0-mxp_mix);
-	return color4(rgb, a);
+	return core::color4(rgb, a);
 }
 
-export color4 mx_out_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_out_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2938,12 +2938,12 @@ export color4 mx_out_color4(
 {
 	color rgb = (mxp_fg.rgb*(1.0 - mxp_bg.a) * mxp_mix) + (mxp_bg.rgb * (1.0-mxp_mix));
 	float   a = (mxp_fg.a  *(1.0 - mxp_bg.a) * mxp_mix) + (mxp_bg.a   * (1.0-mxp_mix));
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_over_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_over_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(1.0)
 )
 	[[
@@ -2952,31 +2952,31 @@ export color4 mx_over_color4(
 {
 	color rgb = (mxp_fg.rgb + (mxp_bg.rgb*(1.0-mxp_fg.a))) * mxp_mix + mxp_bg.rgb * (1.0-mxp_mix);
 	float   a = (mxp_fg.a   + (mxp_bg.a  *(1.0-mxp_fg.a))) * mxp_mix + mxp_bg.a   * (1.0-mxp_mix);
-	return color4(rgb,a);
+	return core::color4(rgb,a);
 }
 
-export color4 mx_mix_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_mix_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_mix = float(0.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
-	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), float4(mxp_mix)));
+	return core::mk_color4(::math::lerp(core::mk_float4(mxp_bg), core::mk_float4(mxp_fg), float4(mxp_mix)));
 }
 
-export color4 mx_mix_color4_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_mix = mk_color4(0.0, 0.0, 0.0, 0.0)
+export core::color4 mx_mix_color4_color4(
+	core::color4 mxp_fg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_bg = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_mix = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: compositing")
 	]]
 {
-	return mk_color4(::math::lerp(mk_float4(mxp_bg), mk_float4(mxp_fg), mk_float4(mxp_mix)));
+	return core::mk_color4(::math::lerp(core::mk_float4(mxp_bg), core::mk_float4(mxp_fg), core::mk_float4(mxp_mix)));
 }
 
 // mix all parts of the material, bsdf, edf, and vdf, geometry
@@ -2996,7 +2996,7 @@ export material mx_mix_surfaceshader(
             base:   mxp_bg.surface.scattering
         ),
         emission: material_emission(
-            emission: df::unbounded_mix( // unbounded_mix is cheaper
+            emission: df::clamped_mix(
             df::edf_component[]( 
                 df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
                 df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
@@ -3009,7 +3009,7 @@ export material mx_mix_surfaceshader(
     // we need to carry volume properties along for SSS
     ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
-        scattering: df::unbounded_mix( // unbounded_mix is cheaper
+        scattering: df::clamped_mix(
             df::vdf_component[]( 
                 df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
                 df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
@@ -3081,11 +3081,11 @@ export color mx_ifgreater_color3(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifgreater_color4(
+export core::color4 mx_ifgreater_color4(
 	float mxp_value1 = float(1.0),
 	float mxp_value2 = float(0.0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3159,11 +3159,11 @@ export color mx_ifgreater_color3I(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifgreater_color4I(
+export core::color4 mx_ifgreater_color4I(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3237,11 +3237,11 @@ export color mx_ifgreatereq_color3(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifgreatereq_color4(
+export core::color4 mx_ifgreatereq_color4(
 	float mxp_value1 = float(1.0),
 	float mxp_value2 = float(0.0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3315,11 +3315,11 @@ export color mx_ifgreatereq_color3I(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifgreatereq_color4I(
+export core::color4 mx_ifgreatereq_color4I(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3393,11 +3393,11 @@ export color mx_ifequal_color3(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifequal_color4(
+export core::color4 mx_ifequal_color4(
 	float mxp_value1 = float(0.0),
 	float mxp_value2 = float(0.0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3471,11 +3471,11 @@ export color mx_ifequal_color3I(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifequal_color4I(
+export core::color4 mx_ifequal_color4I(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3549,11 +3549,11 @@ export color mx_ifequal_color3B(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export color4 mx_ifequal_color4B(
+export core::color4 mx_ifequal_color4B(
 	bool mxp_value1 = bool(false),
 	bool mxp_value2 = bool(false),
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3649,19 +3649,19 @@ export color mx_switch_color3(
 	return returnValue;
 }
 
-export color4 mx_switch_color4(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_switch_color4(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in3 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in4 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in5 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
 		anno::description("Node Group: conditional")
 	]]
 {
-	color4 returnValue;
+	core::color4 returnValue;
 	switch (int(mxp_which)) {
 		case 0: returnValue=mxp_in1; break;
 		case 1: returnValue=mxp_in2; break;
@@ -3793,19 +3793,19 @@ export color mx_switch_color3I(
 	return returnValue;
 }
 
-export color4 mx_switch_color4I(
-	color4 mxp_in1 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in2 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_switch_color4I(
+	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in3 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in4 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	core::color4 mxp_in5 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
 		anno::description("Node Group: conditional")
 	]]
 {
-	color4 returnValue;
+	core::color4 returnValue;
 	switch (int(mxp_which)) {
 		case 0: returnValue=mxp_in1; break;
 		case 1: returnValue=mxp_in2; break;
@@ -3899,14 +3899,14 @@ export color mx_convert_float_color3(
 	return color(mxp_in);
 }
 
-export color4 mx_convert_float_color4(
+export core::color4 mx_convert_float_color4(
 	float mxp_in = float(0.0)
 )
 	[[
 		anno::description("Node Group: channel")
 	]]
 {
-	return mk_color4(mxp_in);
+	return core::mk_color4(mxp_in);
 }
 
 export float2 mx_convert_float_vector2(
@@ -3979,14 +3979,14 @@ export float4 mx_convert_vector3_vector4(
 	return float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
 }
 
-export color4 mx_convert_vector4_color4(
+export core::color4 mx_convert_vector4_color4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: channel")
 	]]
 {
-	return mk_color4(mxp_in);
+	return core::mk_color4(mxp_in);
 }
 
 export float3 mx_convert_vector4_vector3(
@@ -4010,27 +4010,27 @@ export float3 mx_convert_color3_vector3(
 }
 
 export float4 mx_convert_color4_vector4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: channel")
 	]]
 {
-	return mk_float4(mxp_in);
+	return core::mk_float4(mxp_in);
 }
 
-export color4 mx_convert_color3_color4(
+export core::color4 mx_convert_color3_color4(
 	color mxp_in = color(0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: channel")
 	]]
 {
-	return mk_color4(mxp_in);
+	return core::mk_color4(mxp_in);
 }
 
 export color mx_convert_color4_color3(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0)
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: channel")
@@ -4070,7 +4070,7 @@ export float2 mx_combine2_vector2(
 	return float2(mxp_in1, mxp_in2);
 }
 
-export color4 mx_combine2_color4CF(
+export core::color4 mx_combine2_color4CF(
 	color mxp_in1 = color(0.0, 0.0, 0.0),
 	float mxp_in2 = float(0.0)
 )
@@ -4078,7 +4078,7 @@ export color4 mx_combine2_color4CF(
 		anno::description("Node Group: channel")
 	]]
 {
-	return color4(mxp_in1, mxp_in2);
+	return core::color4(mxp_in1, mxp_in2);
 }
 
 export float4 mx_combine2_vector4VF(
@@ -4092,7 +4092,7 @@ export float4 mx_combine2_vector4VF(
 	return float4(mxp_in1.x, mxp_in1.y, mxp_in1.z, mxp_in2);
 }
 
-export color4 mx_combine2_color4CC(
+export core::color4 mx_combine2_color4CC(
 	float2 mxp_in1 = float2(0.0, 0.0),
 	float2 mxp_in2 = float2(0.0, 0.0)
 )
@@ -4100,7 +4100,7 @@ export color4 mx_combine2_color4CC(
 		anno::description("Node Group: channel")
 	]]
 {
-	return color4(color(mxp_in1.x, mxp_in1.y, mxp_in2.x), mxp_in2.y);
+	return core::color4(color(mxp_in1.x, mxp_in1.y, mxp_in2.x), mxp_in2.y);
 }
 
 export float4 mx_combine2_vector4VV(
@@ -4138,7 +4138,7 @@ export float3 mx_combine3_vector3(
 	return float3(mxp_in1, mxp_in2, mxp_in3);
 }
 
-export color4 mx_combine4_color4(
+export core::color4 mx_combine4_color4(
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0),
 	float mxp_in3 = float(0.0),
@@ -4148,7 +4148,7 @@ export color4 mx_combine4_color4(
 		anno::description("Node Group: channel")
 	]]
 {
-	return mk_color4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
+	return core::mk_color4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
 }
 
 export float4 mx_combine4_vector4(
@@ -4221,7 +4221,7 @@ export float mx_blur_float(
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4242,7 +4242,7 @@ export color mx_blur_color3(
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4257,13 +4257,13 @@ export color mx_blur_color3(
 	return defaultValue;
 }
 
-export color4 mx_blur_color4(
-	color4 mxp_in = mk_color4(0.0, 0.0, 0.0, 0.0),
+export core::color4 mx_blur_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_size = float(0.0)
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4274,7 +4274,7 @@ export color4 mx_blur_color4(
 	]]
 {
 	// Not implemented: mx_blur_color4
-	color4 defaultValue = mxp_in;
+	core::color4 defaultValue = mxp_in;
 	return defaultValue;
 }
 
@@ -4284,7 +4284,7 @@ export float2 mx_blur_vector2(
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4305,7 +4305,7 @@ export float3 mx_blur_vector3(
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4326,7 +4326,7 @@ export float4 mx_blur_vector4(
     [[
         anno::unused()
     ]],
-	uniform mx_filter_type mxp_filtertype = mx_filter_type(mx_filter_type_box)	
+	uniform core::mx_filter_type mxp_filtertype = core::mx_filter_type(core::mx_filter_type_box)	
 	[[
 		anno::description("Enumeration {box,gaussian}."),
         anno::unused()
@@ -4404,7 +4404,7 @@ export color mx_noise2d_color3(
     return color(mx_noise2d_float3(mxp_amplitude, mxp_pivot, mxp_texcoord));
 }
 
-export color4 mx_noise2d_color4(
+export core::color4 mx_noise2d_color4(
   float4 mxp_amplitude = float4(1.0),
   float  mxp_pivot = 0.0,
   float2 mxp_texcoord = swizzle::xy( ::state::texture_coordinate(0))
@@ -4412,7 +4412,7 @@ export color4 mx_noise2d_color4(
 {
     float3 v = noise::mx_perlin_noise_float3(mxp_texcoord);
     float w = noise::mx_perlin_noise_float(mxp_texcoord + float2(19, 73));
-    return mk_color4(float4(v.x, v.y, v.z, w) * mxp_amplitude + float4(mxp_pivot));
+    return core::mk_color4(float4(v.x, v.y, v.z, w) * mxp_amplitude + float4(mxp_pivot));
 }
 
 export float2 mx_noise2d_float2FA(
@@ -4451,7 +4451,7 @@ export color mx_noise2d_color3FA(
     return mx_noise2d_color3(float3(mxp_amplitude), mxp_pivot, mxp_texcoord);
 }
 
-export color4 mx_noise2d_color4FA(
+export core::color4 mx_noise2d_color4FA(
   float mxp_amplitude = 1.0,
   float mxp_pivot = 0.0,
   float2 mxp_texcoord = swizzle::xy( ::state::texture_coordinate(0))
@@ -4510,13 +4510,13 @@ export color mx_noise3d_color3(
     return color(mx_noise3d_float3(mxp_amplitude, mxp_pivot, mxp_position));
 }
 
-export color4 mx_noise3d_color4(
+export core::color4 mx_noise3d_color4(
   float4 mxp_amplitude = float4(1.0),
   float  mxp_pivot = 0.0,
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    return mk_color4(mx_noise3d_float4(mxp_amplitude, mxp_pivot, mxp_position));
+    return core::mk_color4(mx_noise3d_float4(mxp_amplitude, mxp_pivot, mxp_position));
 }
 
 export float2 mx_noise3d_float2FA(
@@ -4555,13 +4555,13 @@ export color mx_noise3d_color3FA(
     return color(mx_noise3d_float3(float3(mxp_amplitude), mxp_pivot, mxp_position));
 }
 
-export color4 mx_noise3d_color4FA(
+export core::color4 mx_noise3d_color4FA(
   float mxp_amplitude = 1.0,
   float mxp_pivot = 0.0,
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    return mk_color4(mx_noise3d_float4FA(mxp_amplitude, mxp_pivot, mxp_position));
+    return core::mk_color4(mx_noise3d_float4FA(mxp_amplitude, mxp_pivot, mxp_position));
 }
 
 export float mx_fractal3d_float(
@@ -4624,7 +4624,7 @@ export color mx_fractal3d_color3(
     return color(v * mxp_amplitude);
 }
 
-export color4 mx_fractal3d_color4(
+export core::color4 mx_fractal3d_color4(
   float4 mxp_amplitude = float4(1.0),
   int mxp_octaves = 3,
   float mxp_lacunarity = 2.0,
@@ -4632,7 +4632,7 @@ export color4 mx_fractal3d_color4(
   float3 mxp_position = state::transform_point(state::coordinate_internal, state::coordinate_object, state::position())
 )
 {
-    return mk_color4(mx_fractal3d_float4(mxp_amplitude, mxp_octaves, mxp_lacunarity, mxp_diminish, mxp_position));
+    return core::mk_color4(mx_fractal3d_float4(mxp_amplitude, mxp_octaves, mxp_lacunarity, mxp_diminish, mxp_position));
 }
 
 export float2 mx_fractal3d_float2FA(
@@ -4679,7 +4679,7 @@ export color mx_fractal3d_color3FA(
     return mx_fractal3d_color3(float3(mxp_amplitude), mxp_octaves, mxp_lacunarity, mxp_diminish, mxp_position);
 }
 
-export color4 mx_fractal3d_color4FA(
+export core::color4 mx_fractal3d_color4FA(
   float mxp_amplitude = 1.0,
   int mxp_octaves = 3,
   float mxp_lacunarity = 2.0,
