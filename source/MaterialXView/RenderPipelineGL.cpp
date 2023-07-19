@@ -138,7 +138,9 @@ void GLRenderPipeline::convolveEnvironment()
 
     // Create texture to hold the convolved environment.
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
-    glImageHandler->createRenderResources(outTex, true); // TODO: Is this needed?
+    glImageHandler->createRenderResources(outTex, true);
+
+	mx::GlslProgramPtr program = material->getProgram();
 
     int i = 0;
     while (w > 0 && h > 0)
@@ -151,8 +153,6 @@ void GLRenderPipeline::convolveEnvironment()
         glViewport(0, 0, w, h);
         material->bindShader();
 
-        // TODO: Can this be moved out of the loop?
-        mx::GlslProgramPtr program = material->getProgram();
         // Bind the source texture
         mx::ImageSamplingProperties samplingProperties;
         samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
