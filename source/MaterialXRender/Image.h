@@ -55,12 +55,7 @@ class MX_RENDER_API Image
 
   public:
     /// Create an empty image with the given properties.
-    static ImagePtr create(
-        unsigned int width,
-        unsigned int height,
-        unsigned int channelCount,
-        BaseType baseType = BaseType::UINT8
-    )
+    static ImagePtr create(unsigned int width, unsigned int height, unsigned int channelCount, BaseType baseType = BaseType::UINT8)
     {
         return ImagePtr(new Image(width, height, channelCount, baseType));
     }
