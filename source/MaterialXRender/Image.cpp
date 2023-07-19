@@ -505,8 +505,7 @@ void Image::writeTable(const FilePath& filePath, unsigned int channel)
 void Image::createResourceBuffer()
 {
     releaseResourceBuffer();
-    size_t numTexels = _width * _height;
-    _resourceBuffer = malloc(numTexels * _channelCount * getBaseStride());
+    _resourceBuffer = malloc(_width * _height * _channelCount * getBaseStride());
     _resourceBufferDeallocator = nullptr;
 }
 
