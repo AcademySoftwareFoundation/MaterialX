@@ -48,9 +48,6 @@ vec3 spherical_to_cartesian(float phi, float cosTheta)
     float x = cosPhi * sinTheta;
     float y = sinPhi * sinTheta;
     float z = cosTheta;
-    // float x = -cosTheta * sinPhi;
-    // float y = -sinTheta;
-    // float z = cosTheta * cosPhi;
     return vec3(x, y, z);
 }
 
