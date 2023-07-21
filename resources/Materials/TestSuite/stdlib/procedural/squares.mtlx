@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <texcoord name="texcoord_vector2" type="vector2" xpos="1.804348" ypos="-2.637931" />
-  <multiply name="multiply_vector2FA" type="vector2" xpos="3.855072" ypos="-2.879310">
+  <texcoord name="texcoord_vector2" type="vector2" />
+  <multiply name="multiply_vector2FA" type="vector2">
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="20" />
   </multiply>
@@ -11,14 +11,14 @@
     <input name="size" type="float" value="0.65" />
     <input name="spacing" type="float" value="0.8" />
   </squares>
-  <standard_surface name="SR_test_squares" type="surfaceshader" xpos="9.920290" ypos="-3.534483">
+  <standard_surface name="SR_test_squares" type="surfaceshader">
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" nodename="squares_color3" />
     <input name="specular_roughness" type="float" value="0.1" />
     <input name="subsurface" type="float" value="0.4" />
     <input name="subsurface_color" type="color3" value="1, 1, 1" />
   </standard_surface>
-  <surfacematerial name="test_squares" type="material" xpos="12.992754" ypos="-3.310345">
+  <surfacematerial name="test_squares" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_test_squares" />
   </surfacematerial>
 </materialx>
