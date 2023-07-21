@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <texcoord name="texcoord_vector2" type="vector2" xpos="1.920290" ypos="-5.120690" />
-  <multiply name="multiply_vector2FA" type="vector2" xpos="3.971014" ypos="-5.655172">
+  <texcoord name="texcoord_vector2" type="vector2" />
+  <multiply name="multiply_vector2FA" type="vector2">
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="20" />
   </multiply>
-  <circles name="circles_color3" type="color3" xpos="6.768116" ypos="-5.931035">
+  <circles name="circles_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
     <input name="staggered" type="boolean" value="true" />
     <input name="size" type="float" value="0.8" />
     <input name="spacing" type="float" value="0.9" />
   </circles>
-  <standard_surface name="SR_test_circles" type="surfaceshader" xpos="9.094203" ypos="-5.948276">
+  <standard_surface name="SR_test_circles" type="surfaceshader">
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" nodename="circles_color3" />
     <input name="specular_roughness" type="float" value="0.1" />
     <input name="subsurface" type="float" value="0.4" />
     <input name="subsurface_color" type="color3" value="1, 1, 1" />
   </standard_surface>
-  <surfacematerial name="test_circles" type="material" xpos="11.963768" ypos="-5.396552">
+  <surfacematerial name="test_circles" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_test_circles" />
   </surfacematerial>
 </materialx>
