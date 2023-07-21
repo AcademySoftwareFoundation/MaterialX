@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <texcoord name="texcoord_vector2" type="vector2" xpos="2.500000" ypos="3.853448" />
-  <multiply name="multiply_vector2FA" type="vector2" xpos="4.681159" ypos="3.336207">
+  <texcoord name="texcoord_vector2" type="vector2" />
+  <multiply name="multiply_vector2FA" type="vector2">
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="20" />
   </multiply>
-  <grecian name="grecian_color3" type="color3" xpos="7.159420" ypos="3.301724">
+  <grecian name="grecian_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
     <input name="thickness" type="float" value="0.06" />
     <input name="spacing" type="float" value="0.75" />
     <input name="staggered" type="boolean" value="true" />
   </grecian>
-  <standard_surface name="SR_test_grecian" type="surfaceshader" xpos="9.920290" ypos="3.198276">
+  <standard_surface name="SR_test_grecian" type="surfaceshader">
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" nodename="grecian_color3" />
     <input name="specular_roughness" type="float" value="0.1" />
     <input name="subsurface" type="float" value="0.4" />
     <input name="subsurface_color" type="color3" value="1, 1, 1" />
   </standard_surface>
-  <surfacematerial name="test_grecian" type="material" xpos="13.007246" ypos="3.293103">
+  <surfacematerial name="test_grecian" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_test_grecian" />
   </surfacematerial>
 </materialx>
