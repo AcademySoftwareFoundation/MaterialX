@@ -701,7 +701,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
 
     if (ui)
     {
-        std::pair<float, float> range(0.0f, 0.0f);
+        std::pair<float, float> range(0.0f, 1.0f);
         if (ui->uiMin)
         {
             box->set_min_value(ui->uiMin->asA<float>());

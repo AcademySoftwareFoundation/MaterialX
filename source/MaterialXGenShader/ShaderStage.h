@@ -265,7 +265,10 @@ class MX_GENSHADER_API ShaderStage
     void addFunctionDefinition(const ShaderNode& node, GenContext& context);
 
     /// Add the function call for the given node.
-    void addFunctionCall(const ShaderNode& node, GenContext& context);
+    /// This will register the function as being called in the current scope, and code for the
+    /// function call will be added to the stage. If emitCode is set to false the code for the
+    /// function call will be omitted.
+    void addFunctionCall(const ShaderNode& node, GenContext& context, bool emitCode = true);
 
     /// Return true if the function for the given node has been emitted in the current scope.
     bool isEmitted(const ShaderNode& node, GenContext& context) const;
