@@ -5,7 +5,7 @@
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="20" />
   </multiply>
-  <squares name="squares_color3" type="color3" xpos="6.695652" ypos="-3.189655">
+  <squares name="squares_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
     <input name="staggered" type="boolean" value="true" />
     <input name="size" type="float" value="0.65" />
