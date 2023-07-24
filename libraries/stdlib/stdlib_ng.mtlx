@@ -1450,89 +1450,66 @@
     Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_cloverleaf_float" nodedef="ND_cloverleaf_float">
-    <circle name="circle" type="float">
+    <add name="sample_double" type="vector2">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" interfacename="sample" />
+    </add>
+    <add name="sample_add" type="vector2">
+      <input name="in1" type="vector2" nodename="sample_double" />
+      <input name="in2" type="float" interfacename="radius" />
+    </add>
+    <subtract name="sample_subtract" type="vector2">
+      <input name="in1" type="vector2" nodename="sample_double" />
+      <input name="in2" type="float" interfacename="radius" />
+    </subtract>
+    <combine2 name="coord1" type="vector2">
+      <input name="in1" type="float" nodename="sample_add" channels="x" />
+      <input name="in2" type="float" nodename="sample_double" channels="y" />
+    </combine2>
+    <combine2 name="coord2" type="vector2">
+      <input name="in1" type="float" nodename="sample_subtract" channels="x" />
+      <input name="in2" type="float" nodename="sample_double" channels="y" />
+    </combine2>
+    <combine2 name="coord3" type="vector2">
+      <input name="in1" type="float" nodename="sample_double" channels="x" />
+      <input name="in2" type="float" nodename="sample_subtract" channels="y" />
+    </combine2>
+    <combine2 name="coord4" type="vector2">
+      <input name="in1" type="float" nodename="sample_double" channels="x" />
+      <input name="in2" type="float" nodename="sample_add" channels="y" />
+    </combine2>
+    <circle name="circle1" type="float">
       <input name="sample" type="vector2" nodename="coord1" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
-    <add name="coord1" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" nodename="shift_coord1" />
-    </add>
-    <add name="coord2" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" nodename="shift_coord2" />
-    </add>
-    <add name="coord3" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" nodename="shift_coord3" />
-    </add>
-    <add name="coord4" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" nodename="shift_coord4" />
-    </add>
-    <circle name="circle1" type="float">
+    <circle name="circle2" type="float">
       <input name="sample" type="vector2" nodename="coord2" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
-    <circle name="circle2" type="float">
+    <circle name="circle3" type="float">
       <input name="sample" type="vector2" nodename="coord3" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
-    <circle name="circle3" type="float">
+    <circle name="circle4" type="float">
       <input name="sample" type="vector2" nodename="coord4" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <max name="max1" type="float">
-      <input name="in1" type="float" nodename="circle" />
-      <input name="in2" type="float" nodename="circle1" />
+      <input name="in1" type="float" nodename="circle1" />
+      <input name="in2" type="float" nodename="circle2" />
+    </max>
+    <max name="max2" type="float">
+      <input name="in1" type="float" nodename="circle3" />
+      <input name="in2" type="float" nodename="circle4" />
     </max>
     <max name="max" type="float">
       <input name="in1" type="float" nodename="max1" />
       <input name="in2" type="float" nodename="max2" />
     </max>
-    <max name="max2" type="float">
-      <input name="in1" type="float" nodename="circle2" />
-      <input name="in2" type="float" nodename="circle3" />
-    </max>
-    <separate2 name="separate_sample" type="multioutput">
-      <input name="in" type="vector2" interfacename="sample" />
-    </separate2>
-    <combine2 name="shift_coord1" type="vector2">
-      <input name="in1" type="float" nodename="add_rX" />
-      <input name="in2" type="float" nodename="separate_sample" output="outy" />
-    </combine2>
-    <combine2 name="shift_coord2" type="vector2">
-      <input name="in1" type="float" nodename="subtract_rX" />
-      <input name="in2" type="float" nodename="separate_sample" output="outy" />
-    </combine2>
-    <combine2 name="shift_coord3" type="vector2">
-      <input name="in1" type="float" nodename="separate_sample" output="outx" />
-      <input name="in2" type="float" nodename="add_rY" />
-    </combine2>
-    <combine2 name="shift_coord4" type="vector2">
-      <input name="in1" type="float" nodename="separate_sample" output="outx" />
-      <input name="in2" type="float" nodename="subtract_rY" />
-    </combine2>
-    <add name="add_rX" type="float">
-      <input name="in1" type="float" nodename="separate_sample" output="outx" />
-      <input name="in2" type="float" interfacename="radius" />
-    </add>
-    <add name="add_rY" type="float">
-      <input name="in1" type="float" nodename="separate_sample" output="outy" />
-      <input name="in2" type="float" interfacename="radius" />
-    </add>
-    <subtract name="subtract_rX" type="float">
-      <input name="in1" type="float" nodename="separate_sample" output="outx" />
-      <input name="in2" type="float" interfacename="radius" />
-    </subtract>
-    <subtract name="subtract_rY" type="float">
-      <input name="in1" type="float" nodename="separate_sample" output="outy" />
-      <input name="in2" type="float" interfacename="radius" />
-    </subtract>
     <output name="out" type="float" nodename="max" />
   </nodegraph>
 
