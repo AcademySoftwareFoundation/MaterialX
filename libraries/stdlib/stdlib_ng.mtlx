@@ -1519,22 +1519,52 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_hexagon_float" nodedef="ND_hexagon_float">
+    <subtract name="dist" type="vector2">
+      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in2" type="vector2" interfacename="center" />
+    </subtract>
     <absval name="absval_p" type="vector2">
       <input name="in" type="vector2" nodename="dist" />
     </absval>
-    <add name="add_p3" type="float">
-      <input name="in1" type="float" nodename="separate_p3" output="outx" />
-      <input name="in2" type="float" nodename="separate_p3" output="outy" />
-    </add>
+    <separate2 name="separate_p" type="multioutput">
+      <input name="in" type="vector2" nodename="absval_p" />
+    </separate2>
+    <combine2 name="combine_p" type="vector2">
+      <input name="in1" type="float" nodename="separate_p" output="outy" />
+      <input name="in2" type="float" nodename="separate_p" output="outx" />
+    </combine2>
+    <constant name="k_x" type="float">
+      <input name="value" type="float" value="-0.866025" />
+    </constant>
+    <constant name="k_y" type="float">
+      <input name="value" type="float" value="0.5" />
+    </constant>
+    <constant name="k_z" type="float">
+      <input name="value" type="float" value="0.57735" />
+    </constant>
+    <combine2 name="combine_kxy" type="vector2">
+      <input name="in1" type="float" nodename="k_x" />
+      <input name="in2" type="float" nodename="k_y" />
+    </combine2>
+    <subtract name="minus_kx" type="float">
+      <input name="in2" type="float" nodename="k_x" />
+    </subtract>
+    <subtract name="minus_kz" type="float">
+      <input name="in2" type="float" nodename="k_z" />
+    </subtract>
+    <multiply name="minus_kz_r" type="float">
+      <input name="in1" type="float" nodename="minus_kz" />
+      <input name="in2" type="float" interfacename="radius" />
+    </multiply>
+    <multiply name="kz_r1" type="float">
+      <input name="in1" type="float" nodename="k_z" />
+      <input name="in2" type="float" interfacename="radius" />
+    </multiply>
     <clamp name="clamp" type="float">
       <input name="in" type="float" nodename="separate_p2" output="outx" />
       <input name="low" type="float" nodename="minus_kz_r" />
       <input name="high" type="float" nodename="kz_r1" />
     </clamp>
-    <combine2 name="combine_kxy" type="vector2">
-      <input name="in1" type="float" nodename="k_x" />
-      <input name="in2" type="float" nodename="k_y" />
-    </combine2>
     <combine2 name="combine_mkx_ky" type="vector2">
       <input name="in1" type="float" nodename="minus_kx" />
       <input name="in2" type="float" nodename="k_y" />
@@ -1551,41 +1581,12 @@
       <input name="in1" type="vector2" nodename="combine_mkx_ky" />
       <input name="in2" type="vector2" nodename="new_p1" />
     </dotproduct>
-    <ifgreater name="ifgreater_p3" type="float">
-      <input name="value1" type="float" nodename="sqrt_p3" />
-      <input name="value2" type="float" value="0" />
-      <input name="in1" type="float" value="0" />
-      <input name="in2" type="float" value="1" />
-    </ifgreater>
-    <constant name="k_x" type="float">
-      <input name="value" type="float" value="-0.866025" />
-    </constant>
-    <constant name="k_y" type="float">
-      <input name="value" type="float" value="0.5" />
-    </constant>
-    <constant name="k_z" type="float">
-      <input name="value" type="float" value="0.57735" />
-    </constant>
-    <multiply name="kz_r1" type="float">
-      <input name="in1" type="float" nodename="k_z" />
-      <input name="in2" type="float" interfacename="radius" />
-    </multiply>
     <min name="min_dotkxyp_p" type="float">
       <input name="in1" type="float" nodename="dot_kxy_p" />
     </min>
     <min name="min_0" type="float">
       <input name="in1" type="float" nodename="dot_kxy_p1" />
     </min>
-    <subtract name="minus_kx" type="float">
-      <input name="in2" type="float" nodename="k_x" />
-    </subtract>
-    <subtract name="minus_kz" type="float">
-      <input name="in2" type="float" nodename="k_z" />
-    </subtract>
-    <multiply name="minus_kz_r" type="float">
-      <input name="in1" type="float" nodename="minus_kz" />
-      <input name="in2" type="float" interfacename="radius" />
-    </multiply>
     <multiply name="multiply_kxy_min" type="vector2">
       <input name="in1" type="vector2" nodename="combine_kxy" />
       <input name="in2" type="float" nodename="min_dotkxyp_p" />
@@ -1620,20 +1621,19 @@
     <separate2 name="separate_p3" type="multioutput">
       <input name="in" type="vector2" nodename="new_p3" />
     </separate2>
+    <add name="add_p3" type="float">
+      <input name="in1" type="float" nodename="separate_p3" output="outx" />
+      <input name="in2" type="float" nodename="separate_p3" output="outy" />
+    </add>
     <sqrt name="sqrt_p3" type="float">
       <input name="in" type="float" nodename="add_p3" />
     </sqrt>
-    <subtract name="dist" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" interfacename="center" />
-    </subtract>
-    <combine2 name="combine_p" type="vector2">
-      <input name="in1" type="float" nodename="separate_p" output="outy" />
-      <input name="in2" type="float" nodename="separate_p" output="outx" />
-    </combine2>
-    <separate2 name="separate_p" type="multioutput">
-      <input name="in" type="vector2" nodename="absval_p" />
-    </separate2>
+    <ifgreater name="ifgreater_p3" type="float">
+      <input name="value1" type="float" nodename="sqrt_p3" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
     <output name="out" type="float" nodename="ifgreater_p3" />
   </nodegraph>
 
