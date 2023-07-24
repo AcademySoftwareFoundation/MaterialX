@@ -74,4 +74,7 @@
   <!-- <artistic_ior> -->
   <implementation name="IM_artistic_ior_genglsl" nodedef="ND_artistic_ior" file="mx_artistic_ior.glsl" function="mx_artistic_ior" target="genglsl" />
 
+  <!-- <blackbody> -->
+  <implementation name="IM_blackbody_genglsl" nodedef="ND_blackbody" file="mx_blackbody.glsl" function="mx_blackbody" target="genglsl" />
+
 </materialx>
