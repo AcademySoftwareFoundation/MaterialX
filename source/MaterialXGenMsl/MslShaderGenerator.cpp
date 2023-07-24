@@ -43,6 +43,8 @@
 
 #include "MslResourceBindingContext.h"
 
+#include <cctype>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string MslShaderGenerator::TARGET = "genmsl";
