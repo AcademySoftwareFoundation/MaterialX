@@ -428,7 +428,7 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
       <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
       <input name="metalness" type="float" value="1" />
       <input name="base" type="float" value="1.0" />
@@ -532,7 +532,7 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
       <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
       <input name="specular_color" type="color3" value="1, 1, 1" interfacename="surface_albedo" />
       <input name="specular_roughness" type="float" nodename="specular_roughness_value" />
@@ -596,7 +596,7 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
       <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
       <input name="specular" type="float" value="1.0" />
       <input name="transmission" type="float" value="1.0" />
@@ -779,8 +779,8 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="layered_normal" />
-      <input name="coat_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" value="1, 1, 1" interfacename="layered_normal" />
+      <input name="coat_normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
       <input name="opacity" type="color3" value="1, 1, 1" interfacename="surface_cutout" />
       <input name="coat" type="float" nodename="coat_value" />
       <input name="metalness" type="float" nodename="layered_fraction_value" />
@@ -936,7 +936,7 @@
     <!-- map values to standard surface -->
     <output name="out" type="surfaceshader" nodename="standard_surface0" />
     <standard_surface name="standard_surface0" type="surfaceshader" version="1.0.1">
-      <input name="normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nobject" interfacename="surface_normal" />
+      <input name="normal" type="vector3" value="1, 1, 1" interfacename="surface_normal" />
       <input name="opacity" type="color3" nodename="opacity_value" />
       <input name="specular" type="float" value="1.0" />
       <input name="transmission" type="float" value="1.0" />

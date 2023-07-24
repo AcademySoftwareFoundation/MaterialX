@@ -12,17 +12,17 @@
   -->
 
   <!-- nodedefs for custom test settings -->
-  <nodedef name="ND_BakingSettings" node="baker" >
+  <nodedef name="ND_BakingSettings" node="baker">
     <input name="file" type="filename" />
-    <input name="uvmin" type="vector2"/>
-    <input name="uvmax" type="vector2"/>
+    <input name="uvmin" type="vector2" />
+    <input name="uvmax" type="vector2" />
     <input name="hdr" type="boolean" value="false" />
     <input name="resolution" type="integer" value="1024" />
   </nodedef>
 
-  <nodedef name="ND_WedgeRenderSettings" node="wedgerender" >
+  <nodedef name="ND_WedgeRenderSettings" node="wedgerender">
     <input name="file" type="filename" />
-    <input name="parameter" type="string"/>
+    <input name="parameter" type="string" />
     <input name="range" type="vector2" value="0.0, 1.0" />
     <input name="steps" type="integer" value="1.0" />
   </nodedef>
@@ -38,7 +38,7 @@
 
     <!-- Comma separated list of target" specifiers to indicate which
          code generators to use. -->
-    <input name="targets" type="string" value="genglsl,genosl,genmdl" />
+    <input name="targets" type="string" value="genglsl,genosl,genmdl,genmsl" />
 
     <!-- Check the count of number of implementations used for a given generator -->
     <input name="checkImplCount" type="boolean" value="true" />
@@ -117,7 +117,7 @@
     <!-- Bake rendering options: Currently only supports the genglsl_glsl400 shader generator -->
     <baker name="mapped_surfaceshader">
         <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
+      <input name="uvmin" type="vector2" value="0,0" />
         <input name="uvmax" type="vector2" value="1,1" />
         <input name="hdr" type="boolean" value="false" />
         <input name="resolution" type="integer" value="1024" />
@@ -125,39 +125,7 @@
 
     <baker name="normalmapped_surfaceshader">
         <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
-    </baker>
-
-    <baker name="adsk_bitmap">
-        <input name="file" type="filename" value="adsk_bitmap.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
-    </baker>
-
-    <baker name="adsk_glazing">
-        <input name="file" type="filename" value="adsk_glazing.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
-    </baker>
-
-    <baker name="adsk_heightmap">
-        <input name="file" type="filename" value="adsk_heightmap.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
-        <input name="uvmax" type="vector2" value="1,1" />
-        <input name="hdr" type="boolean" value="false" />
-        <input name="resolution" type="integer" value="1024" />
-    </baker>
-
-    <baker name="adsk_layered">
-        <input name="file" type="filename" value="adsk_layered.mtlx" />
-        <input name="uvmin" type="vector2" value="0,0"/>
+      <input name="uvmin" type="vector2" value="0,0" />
         <input name="uvmax" type="vector2" value="1,1" />
         <input name="hdr" type="boolean" value="false" />
         <input name="resolution" type="integer" value="1024" />
@@ -189,6 +157,30 @@
 
     <baker name="adsk_transparent">
         <input name="file" type="filename" value="adsk_transparent.mtlx" />
+        <input name="uvmin" type="vector2" value="0,0"/>
+        <input name="uvmax" type="vector2" value="1,1" />
+        <input name="hdr" type="boolean" value="false" />
+        <input name="resolution" type="integer" value="1024" />
+    </baker>
+
+    <baker name="adsk_glazing">
+        <input name="file" type="filename" value="adsk_glazing.mtlx" />
+        <input name="uvmin" type="vector2" value="0,0"/>
+        <input name="uvmax" type="vector2" value="1,1" />
+        <input name="hdr" type="boolean" value="false" />
+        <input name="resolution" type="integer" value="1024" />
+    </baker>
+
+    <baker name="adsk_bitmap">
+        <input name="file" type="filename" value="adsk_bitmap.mtlx" />
+        <input name="uvmin" type="vector2" value="0,0"/>
+        <input name="uvmax" type="vector2" value="1,1" />
+        <input name="hdr" type="boolean" value="false" />
+        <input name="resolution" type="integer" value="1024" />
+    </baker>
+
+    <baker name="adsk_heightmap">
+        <input name="file" type="filename" value="adsk_heightmap.mtlx" />
         <input name="uvmin" type="vector2" value="0,0"/>
         <input name="uvmax" type="vector2" value="1,1" />
         <input name="hdr" type="boolean" value="false" />
