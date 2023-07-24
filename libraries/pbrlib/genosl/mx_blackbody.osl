@@ -1,10 +1,10 @@
-void mx_blackbody(float temperature, output color color_value)
+void mx_blackbody(float temp, output color color_value)
 {
     float xc, yc;
     float t, t2, t3, xc2, xc3;
 
     // if value outside valid range of approximation clamp to accepted temperature range
-    temperature = clamp(temperature, 1667.0, 25000.0);
+    float temperature = clamp(temp, 1667.0, 25000.0);
 
     t = 1000.0 / temperature;
     t2 = t * t;
@@ -39,9 +39,10 @@ void mx_blackbody(float temperature, output color color_value)
     vector XYZ = vector(xc / yc, 1.0, (1 - xc - yc) / yc);
 
     /// XYZ to Rec.709 RGB colorspace conversion
-    matrix XYZ_to_RGB = matrix( 3.2406, -0.9689, 0.0557,
-                               -1.5372, 1.8758, -0.2040,
-                               -0.4986, 0.0415, 1.0570);
+    matrix XYZ_to_RGB = matrix( 3.2406, -0.9689,  0.0557, 0.0,
+                               -1.5372,  1.8758, -0.2040, 0.0,
+                               -0.4986,  0.0415,  1.0570, 0.0,
+                                   0.0,     0.0,     0.0, 1.0);
 
     color_value = transform(XYZ_to_RGB, XYZ);
     color_value = max(color_value, vector(0.0));
