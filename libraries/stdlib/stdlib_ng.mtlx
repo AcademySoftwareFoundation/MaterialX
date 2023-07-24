@@ -1627,62 +1627,59 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_line_float" nodedef="ND_line_float">
-    <add name="add_XY" type="float">
-      <input name="in1" type="float" nodename="separate_sq" output="outx" />
-      <input name="in2" type="float" nodename="separate_sq" output="outy" />
-    </add>
-    <subtract name="b_a" type="vector2">
-      <input name="in1" type="vector2" interfacename="point2" />
-      <input name="in2" type="vector2" interfacename="point1" />
-    </subtract>
-    <clamp name="clamp" type="float">
-      <input name="in" type="float" nodename="divide_dots" />
-      <input name="low" type="float" value="0" />
-    </clamp>
-    <divide name="divide_dots" type="float">
-      <input name="in1" type="float" nodename="dot_pa_ba" />
-      <input name="in2" type="float" nodename="dot_ba_ba" />
-    </divide>
-    <dotproduct name="dot_ba_ba" type="float">
-      <input name="in1" type="vector2" nodename="b_a" />
-      <input name="in2" type="vector2" nodename="b_a" />
-    </dotproduct>
-    <dotproduct name="dot_pa_ba" type="float">
-      <input name="in1" type="vector2" nodename="p_a" />
-      <input name="in2" type="vector2" nodename="b_a" />
-    </dotproduct>
-    <ifgreater name="dist_comp" type="float">
-      <input name="value1" type="float" nodename="sqrt" />
-      <input name="value2" type="float" interfacename="radius" />
-      <input name="in1" type="float" value="0" />
-      <input name="in2" type="float" value="1" />
-    </ifgreater>
-    <multiply name="multiply_clamp_ba" type="vector2">
-      <input name="in1" type="vector2" nodename="b_a" />
-      <input name="in2" type="float" nodename="clamp" />
-    </multiply>
-    <multiply name="mulpa_square" type="vector2">
-      <input name="in1" type="vector2" nodename="subtract_mul_pa" />
-      <input name="in2" type="vector2" nodename="subtract_mul_pa" />
-    </multiply>
-    <subtract name="p_a" type="vector2">
-      <input name="in1" type="vector2" nodename="dist" />
-      <input name="in2" type="vector2" interfacename="point1" />
-    </subtract>
-    <separate2 name="separate_sq" type="multioutput">
-      <input name="in" type="vector2" nodename="mulpa_square" />
-    </separate2>
-    <sqrt name="sqrt" type="float">
-      <input name="in" type="float" nodename="add_XY" />
-    </sqrt>
     <subtract name="dist" type="vector2">
       <input name="in1" type="vector2" interfacename="sample" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
+    <subtract name="p_a" type="vector2">
+      <input name="in1" type="vector2" nodename="dist" />
+      <input name="in2" type="vector2" interfacename="point1" />
+    </subtract>
+    <subtract name="b_a" type="vector2">
+      <input name="in1" type="vector2" interfacename="point2" />
+      <input name="in2" type="vector2" interfacename="point1" />
+    </subtract>
+    <dotproduct name="dot_pa_ba" type="float">
+      <input name="in1" type="vector2" nodename="p_a" />
+      <input name="in2" type="vector2" nodename="b_a" />
+    </dotproduct>
+    <dotproduct name="dot_ba_ba" type="float">
+      <input name="in1" type="vector2" nodename="b_a" />
+      <input name="in2" type="vector2" nodename="b_a" />
+    </dotproduct>
+    <divide name="divide_dots" type="float">
+      <input name="in1" type="float" nodename="dot_pa_ba" />
+      <input name="in2" type="float" nodename="dot_ba_ba" />
+    </divide>
+    <clamp name="clamp" type="float">
+      <input name="in" type="float" nodename="divide_dots" />
+      <input name="low" type="float" value="0" />
+    </clamp>
+    <multiply name="multiply_clamp_ba" type="vector2">
+      <input name="in1" type="vector2" nodename="b_a" />
+      <input name="in2" type="float" nodename="clamp" />
+    </multiply>
     <subtract name="subtract_mul_pa" type="vector2">
       <input name="in1" type="vector2" nodename="p_a" />
       <input name="in2" type="vector2" nodename="multiply_clamp_ba" />
     </subtract>
+    <multiply name="mulpa_square" type="vector2">
+      <input name="in1" type="vector2" nodename="subtract_mul_pa" />
+      <input name="in2" type="vector2" nodename="subtract_mul_pa" />
+    </multiply>
+    <dotproduct name="sum_xy" type="float">
+      <input name="in1" type="vector2" nodename="mulpa_square" />
+      <input name="in2" type="vector2" value="1, 1" />
+    </dotproduct>
+    <sqrt name="sum_sqrt" type="float">
+      <input name="in" type="float" nodename="sum_xy" />
+    </sqrt>
+    <ifgreater name="dist_comp" type="float">
+      <input name="value1" type="float" nodename="sum_sqrt" />
+      <input name="value2" type="float" interfacename="radius" />
+      <input name="in1" type="float" value="0" />
+      <input name="in2" type="float" value="1" />
+    </ifgreater>
     <output name="out" type="float" nodename="dist_comp" />
   </nodegraph>
 
