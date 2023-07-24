@@ -1421,7 +1421,7 @@
 
   <!--
     Node: <circle>
-    Returns 1 (float) if sample is inside a circle defined by center and radius. Otherwise returns 0
+    Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_circle_float" nodedef="ND_circle_float">
     <subtract name="dist" type="vector2">
@@ -1454,7 +1454,7 @@
 
   <!--
     Node: <cloverleaf>
-    Returns 1 (float) if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius. Otherwise returns 0
+    Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_cloverleaf_float" nodedef="ND_cloverleaf_float">
     <circle name="circle" type="float">
@@ -1545,7 +1545,7 @@
 
   <!--
     Node: <hexagon>
-    Returns 1 (float) if sample is inside a hexagon shape inscribed by a circle defined by center and radius. Otherwise returns 0
+    Returns 1 if sample is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_hexagon_float" nodedef="ND_hexagon_float">
@@ -1669,7 +1669,7 @@
 
   <!--
     Node: <line>
-    Returns 1 (float) if sample is at less than radius distance from a line segment defined by point1 and point2. Otherwise returns 0
+    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
     Segment ends will be rounded.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
