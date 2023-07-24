@@ -2546,6 +2546,16 @@
     <output name="out" type="stringarray" defaultinput="in1" />
   </nodedef>
 
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
+  -->
+  <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
+    <input name="in" type="float" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
