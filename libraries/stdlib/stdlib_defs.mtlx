@@ -1157,9 +1157,10 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
@@ -1170,7 +1171,9 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
     <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
@@ -1183,7 +1186,9 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
     <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
@@ -1196,7 +1201,9 @@
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledsquares_color3" node="tiledsquares" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
     <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />

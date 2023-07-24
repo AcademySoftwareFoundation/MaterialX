@@ -1836,20 +1836,17 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_tiledcircles_color3" nodedef="ND_tiledcircles_color3">
-    <place2d name="place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="coord_adj" />
-    </place2d>
-    <multiply name="coord_adj" type="vector2">
+    <multiply name="texcoord_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
     </multiply>
+    <subtract name="texcoord_bias" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
     <separate2 name="separate_coord" type="multioutput">
-      <input name="in" type="vector2" nodename="place2d" />
+      <input name="in" type="vector2" nodename="texcoord_bias" />
     </separate2>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
@@ -1857,10 +1854,6 @@
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="0.866025" />
     </modulo>
-    <divide name="inv_spacing" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <modulo name="stagg_Y" type="float">
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="1.73205" />
@@ -1901,7 +1894,7 @@
       <input name="in2" type="float" nodename="circle_stagg3" />
     </max>
     <divide name="scale_half" type="float">
-      <input name="in1" type="float" nodename="scale" />
+      <input name="in1" type="float" interfacename="size" />
       <input name="in2" type="float" value="2" />
     </divide>
     <multiply name="modx_2" type="float">
@@ -1931,10 +1924,6 @@
       <input name="in2" type="float" nodename="pattern_selection" />
       <input name="in3" type="float" nodename="pattern_selection" />
     </combine3>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" interfacename="size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <circle name="circle_stagg1" type="float">
       <input name="sample" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
@@ -1961,7 +1950,7 @@
     </combine2>
     <circle name="circle_regular" type="float">
       <input name="sample" type="vector2" nodename="recenter" />
-      <input name="radius" type="float" nodename="scale" />
+      <input name="radius" type="float" interfacename="size" />
     </circle>
     <combine2 name="recenter" type="vector2">
       <input name="in1" type="float" nodename="subX_1" />
@@ -1976,20 +1965,17 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_tiledcloverleafs_color3" nodedef="ND_tiledcloverleafs_color3">
-    <place2d name="place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="coord_adj" />
-    </place2d>
-    <multiply name="coord_adj" type="vector2">
+    <multiply name="texcoord_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
     </multiply>
+    <subtract name="texcoord_bias" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
     <separate2 name="separate_coord" type="multioutput">
-      <input name="in" type="vector2" nodename="place2d" />
+      <input name="in" type="vector2" nodename="texcoord_bias" />
     </separate2>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
@@ -1997,10 +1983,6 @@
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="0.5" />
     </modulo>
-    <divide name="inv_spacing" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <modulo name="stagg_Y" type="float">
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="1" />
@@ -2041,7 +2023,7 @@
       <input name="in2" type="float" nodename="cloverleaf_stagg3" />
     </max>
     <divide name="scale_half" type="float">
-      <input name="in1" type="float" nodename="scale" />
+      <input name="in1" type="float" interfacename="size" />
       <input name="in2" type="float" value="2" />
     </divide>
     <multiply name="modx_2" type="float">
@@ -2071,10 +2053,6 @@
       <input name="in2" type="float" nodename="pattern_selection" />
       <input name="in3" type="float" nodename="pattern_selection" />
     </combine3>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" interfacename="size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <combine2 name="coord_circ1" type="vector2">
       <input name="in1" type="float" nodename="mod_X_1" />
       <input name="in2" type="float" nodename="mod_Y_1" />
@@ -2093,7 +2071,7 @@
     </combine2>
     <cloverleaf name="cloverleaf_regular" type="float">
       <input name="sample" type="vector2" nodename="recenter" />
-      <input name="radius" type="float" nodename="scale" />
+      <input name="radius" type="float" interfacename="size" />
     </cloverleaf>
     <cloverleaf name="cloverleaf_stagg1" type="float">
       <input name="sample" type="vector2" nodename="coord_circ1" />
@@ -2116,20 +2094,17 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_tiledhexagons_color3" nodedef="ND_tiledhexagons_color3">
-    <place2d name="place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="coord_adj" />
-    </place2d>
-    <multiply name="coord_adj" type="vector2">
+    <multiply name="texcoord_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
     </multiply>
+    <subtract name="texcoord_bias" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
     <separate2 name="separate_coord" type="multioutput">
-      <input name="in" type="vector2" nodename="place2d" />
+      <input name="in" type="vector2" nodename="texcoord_bias" />
     </separate2>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
@@ -2137,10 +2112,6 @@
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="0.866025" />
     </modulo>
-    <divide name="inv_spacing" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <modulo name="stagg_Y" type="float">
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
       <input name="in2" type="float" value="1.73205" />
@@ -2181,7 +2152,7 @@
       <input name="in2" type="float" nodename="hexagon_stagg3" />
     </max>
     <divide name="scale_half" type="float">
-      <input name="in1" type="float" nodename="scale" />
+      <input name="in1" type="float" interfacename="size" />
       <input name="in2" type="float" value="2" />
     </divide>
     <multiply name="modx_2" type="float">
@@ -2211,10 +2182,6 @@
       <input name="in2" type="float" nodename="pattern_selection" />
       <input name="in3" type="float" nodename="pattern_selection" />
     </combine3>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" interfacename="size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <combine2 name="coord_circ1" type="vector2">
       <input name="in1" type="float" nodename="mod_X_1" />
       <input name="in2" type="float" nodename="mod_Y_1" />
@@ -2233,7 +2200,7 @@
     </combine2>
     <hexagon name="hexagon_regular" type="float">
       <input name="sample" type="vector2" nodename="recenter" />
-      <input name="radius" type="float" nodename="scale" />
+      <input name="radius" type="float" interfacename="size" />
     </hexagon>
     <hexagon name="hexagon_stagg1" type="float">
       <input name="sample" type="vector2" nodename="coord_circ1" />
@@ -2256,23 +2223,20 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_tiledsquares_color3" nodedef="ND_tiledsquares_color3">
-    <place2d name="place2d" type="vector2">
-      <input name="texcoord" type="vector2" nodename="coord_adj" />
-    </place2d>
-    <multiply name="coord_adj" type="vector2">
+    <multiply name="texcoord_scale" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
     </multiply>
+    <subtract name="texcoord_bias" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
     <separate2 name="separate_coord" type="multioutput">
-      <input name="in" type="vector2" nodename="place2d" />
+      <input name="in" type="vector2" nodename="texcoord_scale" />
     </separate2>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
     <ifgreater name="Y_detect" type="float">
       <input name="value1" type="float" nodename="abs_Y" />
-      <input name="value2" type="float" nodename="scale" />
+      <input name="value2" type="float" interfacename="size" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
@@ -2282,10 +2246,6 @@
     <modulo name="mod_Y" type="float">
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
     </modulo>
-    <divide name="inv_spacing" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <combine3 name="to_rgb" type="color3">
       <input name="in1" type="float" nodename="min" />
       <input name="in2" type="float" nodename="min" />
@@ -2315,7 +2275,7 @@
     </absval>
     <ifgreater name="X_detect" type="float">
       <input name="value1" type="float" nodename="abs_X" />
-      <input name="value2" type="float" nodename="scale" />
+      <input name="value2" type="float" interfacename="size" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
@@ -2342,10 +2302,6 @@
       <input name="in1" type="float" nodename="shift_X" />
       <input name="in2" type="float" nodename="separate_coord" output="outx" />
     </ifequal>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" interfacename="size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
 

@@ -1,14 +1,8 @@
 <?xml version="1.0"?>
 <materialx version="1.38" colorspace="lin_rec709">
-  <texcoord name="texcoord_vector2" type="vector2" />
-  <multiply name="multiply_vector2FA" type="vector2">
-    <input name="in1" type="vector2" nodename="texcoord_vector2" />
-    <input name="in2" type="float" value="30" />
-  </multiply>
   <tiledcloverleafs name="tiledcloverleafs_color3" type="color3">
-    <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
+    <input name="uvtiling" type="vector2" value="29, 29" />
     <input name="size" type="float" value="0.8" />
-    <input name="spacing" type="float" value="0.9" />
   </tiledcloverleafs>
   <standard_surface name="SR_test_tiledcloverleafs" type="surfaceshader">
     <input name="base" type="float" value="1" />
