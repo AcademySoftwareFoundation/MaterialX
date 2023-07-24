@@ -34,16 +34,16 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_Marble.png" width="204" />
-  <img src="/documents/Images/MaterialXView_Copper.png" width="204" /> 
-  <img src="/documents/Images/MaterialXView_Plastic.png" width="204" /> 
-  <img src="/documents/Images/MaterialXView_Carpaint.png" width="204" /> 
+  <img src="documents/Images/MaterialXView_Marble.png" width="204" />
+  <img src="documents/Images/MaterialXView_Copper.png" width="204" /> 
+  <img src="documents/Images/MaterialXView_Plastic.png" width="204" /> 
+  <img src="documents/Images/MaterialXView_Carpaint.png" width="204" /> 
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img src="/documents/Images/MaterialXView_TiledBrass.png" width="412" />
-  <img src="/documents/Images/MaterialXView_TiledWood.png" width="412" /> 
+  <img src="documents/Images/MaterialXView_TiledBrass.png" width="412" />
+  <img src="documents/Images/MaterialXView_TiledWood.png" width="412" /> 
 </p>
 
 ### Open Chess Set
@@ -51,10 +51,10 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 The Open Chess Set is an open reference asset, consisting of a [MaterialX file](resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx) in the Standard Surface shading model and a [geometry file](resources/Geometry) in the glTF format.  It was authored by Moeen Sayed and Mujtaba Sayed, and was contributed to the MaterialX project by Side Effects.
 
 **Figure 3:** The Open Chess Set, rendered in Arnold for Maya
-<img src="/documents/Images/OpenChessSet_Arnold_01.png" />
+<img src="documents/Images/OpenChessSet_Arnold_01.png" />
 
 **Figure 4:** The Open Chess Set, rendered in Karma XPU for Houdini
-<img src="/documents/Images/OpenChessSet_Karma_01.png" />
+<img src="documents/Images/OpenChessSet_Karma_01.png" />
 
 ### Pre-Built Binaries
 

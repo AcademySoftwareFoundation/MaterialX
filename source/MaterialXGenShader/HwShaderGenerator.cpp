@@ -500,6 +500,9 @@ void HwShaderGenerator::emitFunctionCall(const ShaderNode& node, GenContext& con
         emitLineBegin(stage);
         emitOutput(node.getOutput(), true, true, context, stage);
         emitLineEnd(stage);
+
+        // Register the node as emitted, but omit the function call.
+        stage.addFunctionCall(node, context, false);
     }
 }
 
