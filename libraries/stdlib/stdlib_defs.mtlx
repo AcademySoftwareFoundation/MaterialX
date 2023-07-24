@@ -1139,58 +1139,6 @@
   </nodedef>
 
   <!--
-    Node: <circles>
-    Creates a black and white pattern of circles with a defined spacing and size (diameter).
-    Pattern can be regular or staggered.
-  -->
-  <nodedef name="ND_circles_color3" node="circles" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
-    <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
-    <input name="staggered" type="boolean" value="false" />
-    <output name="out" type="color3" />
-  </nodedef>
-
-  <!--
-    Node: <cloverleafs>
-    Creates a black and white pattern of cloverleafs with a defined spacing and size (diameter of the circles circumscribing the shape).
-    Pattern can be regular or staggered.
-  -->
-  <nodedef name="ND_cloverleafs_color3" node="cloverleafs" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
-    <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
-    <input name="staggered" type="boolean" value="false" />
-    <output name="out" type="color3" />
-  </nodedef>
-
-  <!--
-    Node: <hexagons>
-    Creates a black and white pattern of hexagons with a defined spacing and size (diameter of the circles circumscribing the shape).
-    Pattern can be regular or staggered.
-  -->
-  <nodedef name="ND_hexagons_color3" node="hexagons" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
-    <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
-    <input name="staggered" type="boolean" value="false" />
-    <output name="out" type="color3" />
-  </nodedef>
-
-  <!--
-    Node: <squares>
-    Creates a black and white pattern of squares with a defined spacing and size (edge).
-    Pattern can be regular or staggered.
-  -->
-  <nodedef name="ND_squares_color3" node="squares" nodegroup="procedural2d">
-    <input name="texcoord" type="vector2" value="0, 0" />
-    <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
-    <input name="staggered" type="boolean" value="false" />
-    <output name="out" type="color3" />
-  </nodedef>
-
-  <!--
     Node: <grecian>
     Creates a black and white grecian pattern with a defined spacing and lines thickness.
     Pattern can be regular or staggered.
@@ -1198,6 +1146,58 @@
   <nodedef name="ND_grecian_color3" node="grecian" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" value="0, 0" />
     <input name="thickness" type="float" value="0.05" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcircles>
+    Creates a black and white pattern of circles with a defined spacing and size (diameter).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcloverleafs>
+    Creates a black and white pattern of cloverleafs with a defined spacing and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledhexagons>
+    Creates a black and white pattern of hexagons with a defined spacing and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="spacing" type="float" value="1" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledsquares>
+    Creates a black and white pattern of squares with a defined spacing and size (edge).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledsquares_color3" node="tiledsquares" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" value="0, 0" />
+    <input name="size" type="float" value="0.5" />
     <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />

@@ -5,16 +5,16 @@
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="30" />
   </multiply>
-  <cloverleafs name="cloverleafs_color3" type="color3">
+  <tiledcircles name="tiledcircles_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
     <input name="size" type="float" value="0.8" />
     <input name="spacing" type="float" value="0.9" />
-  </cloverleafs>
-  <standard_surface name="SR_test_cloverleafs" type="surfaceshader">
+  </tiledcircles>
+  <standard_surface name="SR_test_tiledcircles" type="surfaceshader">
     <input name="base" type="float" value="1" />
-    <input name="base_color" type="color3" nodename="cloverleafs_color3" />
+    <input name="base_color" type="color3" nodename="tiledcircles_color3" />
   </standard_surface>
-  <surfacematerial name="test_cloverleafs" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="SR_test_cloverleafs" />
+  <surfacematerial name="test_tiledcircles" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_test_tiledcircles" />
   </surfacematerial>
 </materialx>

@@ -5,16 +5,16 @@
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
     <input name="in2" type="float" value="30" />
   </multiply>
-  <squares name="squares_color3" type="color3">
+  <tiledhexagons name="tiledhexagons_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
-    <input name="size" type="float" value="0.65" />
-    <input name="spacing" type="float" value="0.8" />
-  </squares>
-  <standard_surface name="SR_test_squares" type="surfaceshader">
+    <input name="size" type="float" value="0.7" />
+    <input name="spacing" type="float" value="0.9" />
+  </tiledhexagons>
+  <standard_surface name="SR_test_tiledhexagons" type="surfaceshader">
     <input name="base" type="float" value="1" />
-    <input name="base_color" type="color3" nodename="squares_color3" />
+    <input name="base_color" type="color3" nodename="tiledhexagons_color3" />
   </standard_surface>
-  <surfacematerial name="test_squares" type="material">
-    <input name="surfaceshader" type="surfaceshader" nodename="SR_test_squares" />
+  <surfacematerial name="test_tiledhexagons" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_test_tiledhexagons" />
   </surfacematerial>
 </materialx>
