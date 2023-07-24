@@ -1424,27 +1424,20 @@
     Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_circle_float" nodedef="ND_circle_float">
-    <subtract name="dist" type="vector2">
+    <subtract name="delta" type="vector2">
       <input name="in1" type="vector2" interfacename="sample" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
+    <dotproduct name="dist_square" type="float">
+      <input name="in1" type="vector2" nodename="delta" />
+      <input name="in2" type="vector2" nodename="delta"/>
+    </dotproduct>
     <multiply name="rad_square" type="float">
       <input name="in1" type="float" interfacename="radius" />
       <input name="in2" type="float" interfacename="radius" />
     </multiply>
-    <multiply name="dist_square" type="vector2">
-      <input name="in1" type="vector2" nodename="dist" />
-      <input name="in2" type="vector2" nodename="dist" />
-    </multiply>
-    <separate2 name="separate_dist" type="multioutput">
-      <input name="in" type="vector2" nodename="dist_square" />
-    </separate2>
-    <add name="add_XY" type="float">
-      <input name="in1" type="float" nodename="separate_dist" output="outx" />
-      <input name="in2" type="float" nodename="separate_dist" output="outy" />
-    </add>
     <ifgreater name="dist_comp" type="float">
-      <input name="value1" type="float" nodename="add_XY" />
+      <input name="value1" type="float" nodename="dist_square" />
       <input name="value2" type="float" nodename="rad_square" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
