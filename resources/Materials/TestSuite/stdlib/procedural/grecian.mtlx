@@ -3,12 +3,12 @@
   <texcoord name="texcoord_vector2" type="vector2" />
   <multiply name="multiply_vector2FA" type="vector2">
     <input name="in1" type="vector2" nodename="texcoord_vector2" />
-    <input name="in2" type="float" value="30" />
+    <input name="in2" type="float" value="29" />
   </multiply>
   <grecian name="grecian_color3" type="color3">
     <input name="texcoord" type="vector2" nodename="multiply_vector2FA" />
-    <input name="thickness" type="float" value="0.06" />
-    <input name="spacing" type="float" value="0.75" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="spacing" type="float" value="1.0" />
   </grecian>
   <standard_surface name="SR_test_grecian" type="surfaceshader">
     <input name="base" type="float" value="1" />

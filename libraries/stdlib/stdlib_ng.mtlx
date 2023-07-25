@@ -1689,21 +1689,42 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_grecian_color3" nodedef="ND_grecian_color3">
-    <multiply name="coord_adj" type="vector2">
-      <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
-    </multiply>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
-    <modulo name="mod_Y" type="float">
-      <input name="in1" type="float" nodename="coord_adj" channels="y" />
-    </modulo>
+    <subtract name="thick_to_size" type="float">
+      <input name="in1" type="float" interfacename="spacing" />
+      <input name="in2" type="float" interfacename="thickness" />
+    </subtract>
+    <divide name="scale" type="float">
+      <input name="in1" type="float" nodename="thick_to_size" />
+      <input name="in2" type="float" interfacename="spacing" />
+    </divide>
     <divide name="inv_spacing" type="float">
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" interfacename="spacing" />
     </divide>
+    <combine2 name="invspc_vec" type="vector2">
+      <input name="in1" type="float" nodename="inv_spacing" />
+      <input name="in2" type="float" nodename="inv_spacing" />
+    </combine2>
+    <multiply name="coord_adj" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" nodename="invspc_vec" />
+    </multiply>
+    <modulo name="mod_Y" type="float">
+      <input name="in1" type="float" nodename="coord_adj" channels="y" />
+    </modulo>
+    <modulo name="mod_Y_row" type="float">
+      <input name="in1" type="float" nodename="coord_adj" channels="y" />
+      <input name="in2" type="float" value="2" />
+    </modulo>
+    <multiply name="mody_2" type="float">
+      <input name="in1" type="float" nodename="mod_Y" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <ifgreater name="alt_rows_shift" type="float">
+      <input name="value1" type="float" nodename="mod_Y_row" />
+      <input name="value2" type="float" value="1" />
+      <input name="in1" type="float" value="0.5" />
+    </ifgreater>
     <add name="shift_X" type="float">
       <input name="in1" type="float" nodename="coord_adj" channels="x" />
       <input name="in2" type="float" nodename="alt_rows_shift" />
@@ -1725,10 +1746,6 @@
       <input name="in1" type="float" nodename="modx_2" />
       <input name="in2" type="float" value="1" />
     </subtract>
-    <multiply name="mody_2" type="float">
-      <input name="in1" type="float" nodename="mod_Y" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
     <subtract name="subY_1" type="float">
       <input name="in1" type="float" nodename="mody_2" />
       <input name="in2" type="float" value="1" />
@@ -1755,23 +1772,14 @@
       <input name="in1" type="float" nodename="X_detect" />
       <input name="in2" type="float" nodename="Y_detect" />
     </min>
-    <modulo name="mod_Y_row" type="float">
-      <input name="in1" type="float" nodename="coord_adj" channels="y" />
-      <input name="in2" type="float" value="2" />
-    </modulo>
-    <ifgreater name="alt_rows_shift" type="float">
-      <input name="value1" type="float" nodename="mod_Y_row" />
-      <input name="value2" type="float" value="1" />
-      <input name="in1" type="float" value="0.5" />
-    </ifgreater>
-    <subtract name="thick_to_size" type="float">
-      <input name="in1" type="float" interfacename="spacing" />
-      <input name="in2" type="float" interfacename="thickness" />
+    <subtract name="inv_result" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="min" />
     </subtract>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" nodename="thick_to_size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
+    <combine2 name="sample_vec" type="vector2">
+      <input name="in1" type="float" nodename="subX_1" />
+      <input name="in2" type="float" nodename="subY_1" />
+    </combine2>
     <constant name="diag1_point1" type="vector2">
       <input name="value" type="vector2" value="1, 1" />
     </constant>
@@ -1784,18 +1792,10 @@
     <constant name="diag2_point2" type="vector2">
       <input name="value" type="vector2" value="1, -1" />
     </constant>
-    <combine2 name="sample_vec" type="vector2">
-      <input name="in1" type="float" nodename="subX_1" />
-      <input name="in2" type="float" nodename="subY_1" />
-    </combine2>
     <divide name="diag_thickness" type="float">
       <input name="in1" type="float" interfacename="thickness" />
       <input name="in2" type="float" interfacename="spacing" />
     </divide>
-    <subtract name="inv_result" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" nodename="min" />
-    </subtract>
     <line name="line_diag1" type="float">
       <input name="sample" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" nodename="diag_thickness" />
