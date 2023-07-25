@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "dat.gui": "^0.7.9",
-    "three": "^0.135.0",
+    "three": "^0.140.2",
     "webpack": "^5.88.1"
   },
   "devDependencies": {

@@ -20,8 +20,6 @@ const IMAGE_PATH_SEPARATOR = "/";
 export function prepareEnvTexture(texture, capabilities)
 {
     const rgbaTexture = RGBToRGBA_Float(texture);
-    // RGBELoader sets flipY to true by default
-    rgbaTexture.flipY = false;
     rgbaTexture.wrapS = THREE.RepeatWrapping;
     rgbaTexture.anisotropy = capabilities.getMaxAnisotropy();
     rgbaTexture.minFilter = THREE.LinearMipmapLinearFilter;
