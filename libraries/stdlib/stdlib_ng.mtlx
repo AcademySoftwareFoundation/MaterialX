@@ -1899,11 +1899,6 @@
       <input name="in1" type="float" nodename="mody_2" />
       <input name="in2" type="float" value="1" />
     </subtract>
-    <combine3 name="to_rgb" type="color3">
-      <input name="in1" type="float" nodename="pattern_selection" />
-      <input name="in2" type="float" nodename="pattern_selection" />
-      <input name="in3" type="float" nodename="pattern_selection" />
-    </combine3>
     <circle name="circle_stagg1" type="float">
       <input name="sample" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
@@ -1936,6 +1931,9 @@
       <input name="in1" type="float" nodename="subX_1" />
       <input name="in2" type="float" nodename="subY_1" />
     </combine2>
+    <convert name="to_rgb" type="color3">
+      <input name="in" type="float" nodename="pattern_selection" />
+    </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
 
@@ -2028,11 +2026,6 @@
       <input name="in1" type="float" nodename="mody_2" />
       <input name="in2" type="float" value="1" />
     </subtract>
-    <combine3 name="to_rgb" type="color3">
-      <input name="in1" type="float" nodename="pattern_selection" />
-      <input name="in2" type="float" nodename="pattern_selection" />
-      <input name="in3" type="float" nodename="pattern_selection" />
-    </combine3>
     <combine2 name="coord_circ1" type="vector2">
       <input name="in1" type="float" nodename="mod_X_1" />
       <input name="in2" type="float" nodename="mod_Y_1" />
@@ -2065,6 +2058,9 @@
       <input name="sample" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
+    <convert name="to_rgb" type="color3">
+      <input name="in" type="float" nodename="pattern_selection" />
+    </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
 
@@ -2157,11 +2153,6 @@
       <input name="in1" type="float" nodename="mody_2" />
       <input name="in2" type="float" value="1" />
     </subtract>
-    <combine3 name="to_rgb" type="color3">
-      <input name="in1" type="float" nodename="pattern_selection" />
-      <input name="in2" type="float" nodename="pattern_selection" />
-      <input name="in3" type="float" nodename="pattern_selection" />
-    </combine3>
     <combine2 name="coord_circ1" type="vector2">
       <input name="in1" type="float" nodename="mod_X_1" />
       <input name="in2" type="float" nodename="mod_Y_1" />
@@ -2194,6 +2185,9 @@
       <input name="sample" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
+    <convert name="to_rgb" type="color3">
+      <input name="in" type="float" nodename="pattern_selection" />
+    </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
   
@@ -2226,11 +2220,6 @@
     <modulo name="mod_Y" type="float">
       <input name="in1" type="float" nodename="separate_coord" output="outy" />
     </modulo>
-    <combine3 name="to_rgb" type="color3">
-      <input name="in1" type="float" nodename="min" />
-      <input name="in2" type="float" nodename="min" />
-      <input name="in3" type="float" nodename="min" />
-    </combine3>
     <multiply name="modx_2" type="float">
       <input name="in1" type="float" nodename="mod_X" />
       <input name="in2" type="float" value="2" />
@@ -2282,6 +2271,9 @@
       <input name="in1" type="float" nodename="shift_X" />
       <input name="in2" type="float" nodename="separate_coord" output="outx" />
     </ifequal>
+    <convert name="to_rgb" type="color3">
+      <input name="in" type="float" nodename="min" />
+    </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
 
