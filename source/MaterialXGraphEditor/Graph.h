@@ -42,7 +42,7 @@ class Graph
           int viewWidth,
           int viewHeight);
 
-    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
@@ -60,10 +60,10 @@ class Graph
   private:
     mx::ElementPredicate getElementPredicate() const;
     void loadStandardLibraries();
-    void createNodeUIList(mx::DocumentPtr doc);
-    void buildUiBaseGraph(mx::DocumentPtr doc);
+    void createNodeUIList(const mx::DocumentPtr& doc);
+    void buildUiBaseGraph(const mx::DocumentPtr& doc);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
-    void buildGroupNode(UiNodePtr node);
+    void buildGroupNode(const UiNodePtr& node);
 
     // handling link information
     void linkGraph();
@@ -76,7 +76,7 @@ class Graph
     void deleteLinkInfo(int startAtrr, int endAttr);
 
     // functions for the layout of the nodes
-    ImVec2 layoutPosition(UiNodePtr node, ImVec2 pos, bool initialLayout, int level);
+    ImVec2 layoutPosition(const UiNodePtr& node, ImVec2 pos, bool initialLayout, int level);
     void layoutInputs();
     void findYSpacing(float startPos);
     float totalHeight(int level);
@@ -85,11 +85,11 @@ class Graph
 
     // pin information
     void setPinColor();
-    void DrawPinIcon(std::string type, bool connected, int alpha);
+    void DrawPinIcon(const std::string& type, bool connected, int alpha);
     UiPinPtr getPin(ed::PinId id);
-    void drawInputPin(UiPinPtr pin);
-    ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, UiPinPtr input);
-    void drawOutputPins(UiNodePtr node, const std::string& longestInputLabel);
+    void drawInputPin(const UiPinPtr& pin);
+    ed::PinId getOutputPin(const UiNodePtr& node, const UiNodePtr& inputNode, const UiPinPtr& input);
+    void drawOutputPins(const UiNodePtr& node, const std::string& longestInputLabel);
     void addNodeGraphPins();
 
     // UiNode functions
@@ -98,28 +98,28 @@ class Graph
     int findNode(int nodeId);
     int findNode(const std::string& name, const std::string& type);
     void addNode(const std::string& category, const std::string& name, const std::string& type);
-    void deleteNode(UiNodePtr node);
+    void deleteNode(const UiNodePtr& node);
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
     // UiEdge functions
     bool edgeExists(UiEdge edge);
-    void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
-    void removeEdge(int downNode, int upNode, UiPinPtr pin);
+    void createEdge(const UiNodePtr& upNode, const UiNodePtr& downNode, const mx::InputPtr& connectingInput);
+    void removeEdge(int downNode, int upNode, const UiPinPtr& pin);
 
-    void writeText(std::string filename, mx::FilePath filePath);
+    void writeText(const std::string& filename, mx::FilePath filePath);
     void savePosition();
-    bool checkPosition(UiNodePtr node);
+    bool checkPosition(const UiNodePtr& node);
 
-    void addNodeInput(UiNodePtr node, mx::InputPtr& input);
-    mx::InputPtr findInput(mx::InputPtr input, std::string name);
+    void addNodeInput(const UiNodePtr& node, mx::InputPtr& input);
+    mx::InputPtr findInput(const mx::InputPtr& input, const std::string& name);
 
     // travel up from inside a node graph
     void upNodeGraph();
 
     // property editor information
-    void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
+    void setConstant(const UiNodePtr& node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
     void propertyEditor();
-    void setDefaults(mx::InputPtr input);
+    void setDefaults(const mx::InputPtr& input);
 
     // set up Ui information for add node popup
     void addExtraNodes();
@@ -127,8 +127,8 @@ class Graph
     // copy and paste functions
     void copyInputs();
     void positionPasteBin(ImVec2 pos);
-    void copyNodeGraph(UiNodePtr origGraph, UiNodePtr copyGraph);
-    void copyUiNode(UiNodePtr node);
+    void copyNodeGraph(const UiNodePtr& origGraph, const UiNodePtr& copyGraph);
+    void copyUiNode(const UiNodePtr& node);
 
     // renderview window and buttons
     void graphButtons();
@@ -141,10 +141,10 @@ class Graph
     void shaderPopup();
 
     // modifying materials
-    void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
-    void selectMaterial(UiNodePtr node);
+    void updateMaterials(const mx::InputPtr& input = nullptr, const mx::ValuePtr& value = nullptr);
+    void selectMaterial(const UiNodePtr& node);
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
-    void setRenderMaterial(UiNodePtr node);
+    void setRenderMaterial(const UiNodePtr& node);
 
     // File I/O
     void clearGraph();

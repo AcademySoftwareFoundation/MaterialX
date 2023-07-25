@@ -225,7 +225,7 @@ class UiNode
     UiNodePtr getConnectedNode(const std::string& name);
     float getAverageY();
     float getMinX();
-    int getEdgeIndex(int id, UiPinPtr pin);
+    int getEdgeIndex(int id, const UiPinPtr& pin);
     std::vector<UiEdge> edges;
     std::vector<UiPinPtr> inputPins;
     std::vector<UiPinPtr> outputPins;

@@ -58,7 +58,7 @@ UiNodePtr UiNode::getConnectedNode(const std::string& name)
 float UiNode::getAverageY()
 {
     float small = 10000000.f;
-    for (UiNodePtr node : _outputConnections)
+    for (const UiNodePtr& node : _outputConnections)
     {
         ImVec2 pos = node->getPos();
         if (pos.y != INVALID_POS)
@@ -75,7 +75,7 @@ float UiNode::getAverageY()
 float UiNode::getMinX()
 {
     float small = 10000000.f;
-    for (UiNodePtr node : _outputConnections)
+    for (const UiNodePtr& node : _outputConnections)
     {
         ImVec2 pos = node->getPos();
         if (pos.x != INVALID_POS)
@@ -89,7 +89,7 @@ float UiNode::getMinX()
     return small;
 }
 
-int UiNode::getEdgeIndex(int id, UiPinPtr pin)
+int UiNode::getEdgeIndex(int id, const UiPinPtr& pin)
 {
     int count = 0;
     for (UiEdge edge : edges)

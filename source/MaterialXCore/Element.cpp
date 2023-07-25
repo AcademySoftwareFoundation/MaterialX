@@ -81,6 +81,10 @@ bool Element::operator!=(const Element& rhs) const
 
 void Element::setName(const string& name)
 {
+    if (name.empty())
+    {
+        throw Exception("Element name cannot be set to empty name");
+    }
     ElementPtr parent = getParent();
     if (parent && parent->_childMap.count(name) && name != getName())
     {
@@ -94,7 +98,7 @@ void Element::setName(const string& name)
         parent->_childMap.erase(getName());
         parent->_childMap[name] = getSelf();
     }
-    _name = name;
+    setName(name);
 }
 
 string Element::getNamePath(ConstElementPtr relativeTo) const
