@@ -1689,31 +1689,23 @@
     Pattern can be regular or staggered.
   -->
   <nodegraph name="NG_grecian_color3" nodedef="ND_grecian_color3">
+    <multiply name="texcoord_scale" type="vector2">
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
+    </multiply>
+    <subtract name="texcoord_bias" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_scale" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
     <subtract name="thick_to_size" type="float">
-      <input name="in1" type="float" interfacename="spacing" />
+      <input name="in1" type="float" value="1.0" />
       <input name="in2" type="float" interfacename="thickness" />
     </subtract>
-    <divide name="scale" type="float">
-      <input name="in1" type="float" nodename="thick_to_size" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
-    <divide name="inv_spacing" type="float">
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
-    <combine2 name="invspc_vec" type="vector2">
-      <input name="in1" type="float" nodename="inv_spacing" />
-      <input name="in2" type="float" nodename="inv_spacing" />
-    </combine2>
-    <multiply name="coord_adj" type="vector2">
-      <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" nodename="invspc_vec" />
-    </multiply>
     <modulo name="mod_Y" type="float">
-      <input name="in1" type="float" nodename="coord_adj" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
     </modulo>
     <modulo name="mod_Y_row" type="float">
-      <input name="in1" type="float" nodename="coord_adj" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
       <input name="in2" type="float" value="2" />
     </modulo>
     <multiply name="mody_2" type="float">
@@ -1726,14 +1718,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="coord_adj" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
       <input name="in2" type="float" nodename="alt_rows_shift" />
     </add>
     <ifequal name="stagger_selection" type="float">
       <input name="value1" type="boolean" interfacename="staggered" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="shift_X" />
-      <input name="in2" type="float" nodename="coord_adj" channels="x" />
+      <input name="in2" type="float" nodename="texcoord_bias" channels="x" />
     </ifequal>
     <modulo name="mod_X" type="float">
       <input name="in1" type="float" nodename="stagger_selection" />
@@ -1758,13 +1750,13 @@
     </absval>
     <ifgreater name="X_detect" type="float">
       <input name="value1" type="float" nodename="abs_X" />
-      <input name="value2" type="float" nodename="scale" />
+      <input name="value2" type="float" nodename="thick_to_size" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
     <ifgreater name="Y_detect" type="float">
       <input name="value1" type="float" nodename="abs_Y" />
-      <input name="value2" type="float" nodename="scale" />
+      <input name="value2" type="float" nodename="thick_to_size" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
     </ifgreater>
@@ -1792,19 +1784,15 @@
     <constant name="diag2_point2" type="vector2">
       <input name="value" type="vector2" value="1, -1" />
     </constant>
-    <divide name="diag_thickness" type="float">
-      <input name="in1" type="float" interfacename="thickness" />
-      <input name="in2" type="float" interfacename="spacing" />
-    </divide>
     <line name="line_diag1" type="float">
       <input name="sample" type="vector2" nodename="sample_vec" />
-      <input name="radius" type="float" nodename="diag_thickness" />
+      <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" nodename="diag1_point1" />
       <input name="point2" type="vector2" nodename="diag1_point2" />
     </line>
     <line name="line_diag2" type="float">
       <input name="sample" type="vector2" nodename="sample_vec" />
-      <input name="radius" type="float" nodename="diag_thickness" />
+      <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" nodename="diag2_point1" />
       <input name="point2" type="vector2" nodename="diag2_point2" />
     </line>
@@ -1816,11 +1804,9 @@
       <input name="in1" type="float" nodename="inv_result" />
       <input name="in2" type="float" nodename="composite_diags" />
     </max>
-    <combine3 name="to_rgb" type="color3">
-      <input name="in1" type="float" nodename="max" />
-      <input name="in2" type="float" nodename="max" />
-      <input name="in3" type="float" nodename="max" />
-    </combine3>
+    <convert name="to_rgb" type="color3">
+      <input name="in" type="float" nodename="max" />
+    </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
 
