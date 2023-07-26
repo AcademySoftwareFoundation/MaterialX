@@ -352,14 +352,28 @@ void Graph::linkGraph()
     }
 }
 
-// connect all the links via the graph editor library
-void Graph::connectLinks()
+// Draw all the links via the graph editor library
+void Graph::drawLinks(bool colorLinks)
 {
-
     for (Link const& link : _currLinks)
     {
-
-        ed::Link(link.id, link._startAttr, link._endAttr);
+        ImColor color = ImColor(255, 255, 255, 255);
+        // Use pin color for link color. Assumes the start and
+        // end pin have the same type (which is the current case).
+        if (colorLinks)
+        {
+            int pinId = link._startAttr;
+            UiPinPtr pin = getPin(pinId);
+            if (pin)
+            {
+                const std::string pinType = pin->_type;
+                if (_pinColor.find(pinType) != _pinColor.end())
+                {
+                    color = _pinColor[pinType];
+                }
+            }
+        }
+        ed::Link(link.id, link._startAttr, link._endAttr, color, 1.0f);
     }
 }
 
@@ -629,9 +643,12 @@ ImColor Graph::getNodeLabelColor(const std::string& key)
 {
     // Default color
     ImColor labelColor(55, 55, 55, 255);
-    if (_nodeLabelColor.find(key)!= _nodeLabelColor.end())
+    if (_graphStyle.colorNodes)
     {
-        labelColor = _nodeLabelColor[key];
+        if (_nodeLabelColor.find(key) != _nodeLabelColor.end())
+        {
+            labelColor = _nodeLabelColor[key];
+        }
     }
     return labelColor;
 }
@@ -3876,7 +3893,8 @@ void Graph::drawGraph(ImVec2 mousePos)
 
             _delete = false;
         }
-        connectLinks();
+        drawLinks(_graphStyle.colorEdges);
+
         // set to false after intial layout so that nodes can be moved
         _initial = false;
         _autoLayout = false;

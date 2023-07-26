@@ -32,6 +32,16 @@ struct Link
     }
 };
 
+// Class to hold options for styling of node graph display
+class GraphStyle
+{
+  public:
+      // Enable coloring of graph nodes
+      bool colorNodes = true;
+      // Eanble coloring of edges
+      bool colorEdges = true;
+};
+
 class Graph
 {
   public:
@@ -67,7 +77,7 @@ class Graph
 
     // handling link information
     void linkGraph();
-    void connectLinks();
+    void drawLinks(bool colorLinks);
     int findLinkPosition(int id);
     std::vector<int> findLinkId(int attrId);
     bool linkExists(Link newLink);
@@ -241,6 +251,9 @@ class Graph
 
     // DPI scaling for fonts
     float _fontScale = 1.0f;
+
+    // Graph display style
+    GraphStyle _graphStyle;
 };
 
 #endif
