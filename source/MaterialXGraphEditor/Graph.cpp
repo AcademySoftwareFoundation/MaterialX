@@ -2171,7 +2171,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                 mx::NodeDefPtr nodeDef = node->getNodeDef();
                 bool isMaterial = node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING;
                 ImColor labelColor = getNodeLabelColor(isMaterial ? mx::SURFACE_MATERIAL_NODE_STRING :
-                                                       nodeDef->getNodeGroup());
+                                                       nodeDef ? nodeDef->getNodeGroup() : mx::EMPTY_STRING);
 
                 ed::BeginNode(node->getId());
                 ImGui::PushID(node->getId());
