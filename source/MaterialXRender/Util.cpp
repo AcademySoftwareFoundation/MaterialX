@@ -127,46 +127,33 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
 
     if (input->getIsUniform())
     {
-        string enumString = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        if (!enumString.empty())
+        uiProperties.enumeration = input->getTypedAttribute<StringVec>(ValueElement::ENUM_ATTRIBUTE);
+        if (!uiProperties.enumeration.empty())
         {
-            uiProperties.enumeration = splitString(enumString, ",");
-            if (!uiProperties.enumeration.empty())
-                propertyCount++;
+            propertyCount++;
         }
 
-        const string& enumerationValues = input->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
-        if (!enumerationValues.empty())
+        const string& enumValuesAttr = input->getAttribute(ValueElement::ENUM_VALUES_ATTRIBUTE);
+        if (!enumValuesAttr.empty())
         {
-            const string& elemType = input->getType();
-            const TypeDesc* typeDesc = TypeDesc::get(elemType);
-            if (typeDesc->isScalar() || typeDesc->isFloat2() || typeDesc->isFloat3() ||
-                typeDesc->isFloat4())
+            const string COMMA_SEPARATOR = ",";
+            const TypeDesc* typeDesc = TypeDesc::get(input->getType());
+            string valueString;
+            size_t index = 0;
+            for (const string& val : splitString(enumValuesAttr, COMMA_SEPARATOR))
             {
-                StringVec stringValues = splitString(enumerationValues, ",");
-                string valueString;
-                size_t elementCount = typeDesc->getSize();
-                elementCount--;
-                size_t count = 0;
-                for (const string& val : stringValues)
+                if (index < typeDesc->getSize() - 1)
                 {
-                    if (count == elementCount)
-                    {
-                        valueString += val;
-                        uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, elemType));
-                        valueString.clear();
-                        count = 0;
-                    }
-                    else
-                    {
-                        valueString += val + ",";
-                        count++;
-                    }
+                    valueString += val + COMMA_SEPARATOR;
+                    index++;
                 }
-            }
-            else
-            {
-                uiProperties.enumerationValues.push_back(Value::createValue(enumerationValues));
+                else
+                {
+                    valueString += val;
+                    uiProperties.enumerationValues.push_back(Value::createValueFromStrings(valueString, input->getType()));
+                    valueString.clear();
+                    index = 0;
+                }
             }
             if (uiProperties.enumeration.size() != uiProperties.enumerationValues.size())
             {

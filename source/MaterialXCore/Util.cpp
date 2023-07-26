@@ -127,6 +127,15 @@ string stringToLower(string str)
     return str;
 }
 
+bool stringStartsWith(const std::string& str, const std::string& prefix)
+{
+    if (str.length() >= prefix.length())
+    {
+        return !str.compare(0, prefix.length(), prefix);
+    }
+    return false;
+}
+
 bool stringEndsWith(const string& str, const string& suffix)
 {
     if (str.length() >= suffix.length())

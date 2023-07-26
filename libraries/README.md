@@ -9,23 +9,15 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [genglsl](stdlib/genglsl): GLSL language support.
         - [lib](stdlib/genglsl/lib) : Shader utility files.
         - [stdlib_genglsl_impl.mtlx](stdlib/genglsl/stdlib_genglsl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genglsl_cm_impl.mtlx](stdlib/genglsl/stdlib_genglsl_cm_impl.mtlx) : Default color management implementations.
-        - [stdlib_genglsl_unit_impl.mtlx](stdlib/genosl/stdlib_genglsl_unit_impl.mtlx) : Real world unit support implementations.
     - [genosl](stdlib/genosl): OSL language support.
         - [lib](stdlib/genosl/lib) : Shader utility files.
         - [stdlib_genosl_impl.mtlx](stdlib/genosl/stdlib_genosl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genosl_cm_impl.mtlx](stdlib/genosl/stdlib_genosl_cm_impl.mtlx) : Default color management implementations.
-        - [stdlib_genosl_unit_impl.mtlx](stdlib/genosl/stdlib_genosl_unit_impl.mtlx) : Real world unit support implementations.
     - [genmdl](stdlib/genmdl): MDL language support.
         - [stdlib_genmdl_impl.mtlx](stdlib/genmdl/stdlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genmdl_cm_impl.mtlx](stdlib/genmdl/stdlib_genmdl_cm_impl.mtlx) : Default color management implementations.
-        - [stdlib_genmdl_unit_impl.mtlx](stdlib/genmdl/stdlib_genmdl_unit_impl.mtlx) : Real world unit support implementations.
         - Additional MaterialX support libraries for MDL are located in the [source/MaterialXGenMdl/mdl/materialx](../source/MaterialXGenMdl/mdl/materialx) package folder
     - [genmsl](stdlib/genmsl): MSL language support.
         - [lib](stdlib/genmsl/lib) : Shader utility files.
         - [stdlib_genmsl_impl.mtlx](stdlib/genmsl/stdlib_genmsl_impl.mtlx) : Mapping from declarations to implementations.
-        - [stdlib_genmsl_cm_impl.mtlx](stdlib/genmsl/stdlib_genmsl_cm_impl.mtlx) : Minimal set of "default" color management implementations.
-        - [stdlib_genmsl_unit_impl.mtlx](stdlib/genmsl/stdlib_genmsl_unit_impl.mtlx) : Real world unit support implementations.
 
 ## Physically Based Shading Library
 - [pbrlib](pbrlib)
@@ -49,6 +41,23 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [usd_preview_surface.mtlx](bxdf/usd_preview_surface.mtlx) : Graph definition of the [UsdPreviewSurface](https://openusd.org/release/spec_usdpreviewsurface.html) shading model.
     - [lama](bxdf/lama) : Graph definitions of the [MaterialX Lama](https://rmanwiki.pixar.com/display/REN24/MaterialX+Lama) node set.
 
+## Color Management Library
+- MaterialX shader generation natively supports a small set of common spaces for input colors, with all color transforms implemented as language-independent MaterialX graphs.The canonical definitions of these color transforms may be found in the OpenColorIO configuration for [ACES 1.2](https://github.com/colour-science/OpenColorIO-Configs/tree/feature/aces-1.2-config/aces_1.2).
+    - lin_rec709
+    - g18_rec709
+    - g22_rec709
+    - rec709_display
+    - acescg (lin_ap1)
+    - g22_ap1
+    - srgb_texture
+    - lin_adobergb
+    - adobergb
+    - srgb_displayp3
+    - lin_displayp3
+- [cmlib](cmlib)
+    - [cmlib_defs.mtlx](cmlib/cmlib_defs.mtlx) : Nodedef declarations.
+    - [cmlib_ng.mtlx](cmlib/cmlib_ng.mtlx) : Nodegraph definitions.
+
 ## Target Definitions
 - Each target implementation requires a target definition for declaration / implementation correspondence to work.
 - The [targets](targets) folder contains definition files for the following core targets:
@@ -62,12 +71,10 @@ This folder contains the standard data libraries for MaterialX, providing declar
 - GLSL target support is for version 4.0 or higher.
 - OSL target support is for version 1.9.10 or higher.
 - MDL target support is for version 1.7.
-- "Default" color management support includes OSL, GLSL, and MDL implementations for the following color spaces:
-    - lin_rec709, g18_rec709, g22_rec709, rec709_display, acescg (lin_ap1), g22_ap1, srgb_texture, lin_adobergb, adobergb
 - Basic GLSL and MSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
-- Code generation does not currently support:
+- Shader generation does not currently support:
     - `ambientocclusion` node.
     - `arrayappend` node.
     - `curveadjust` node.
-    - `displacementshader` and `volumeshader` nodes and associated operations (`add`, `multiply`, `mix`) for GLSL and MSL targets.
+    - `displacementshader` and `volumeshader` nodes for hardware shading targets (GLSL, MSL).

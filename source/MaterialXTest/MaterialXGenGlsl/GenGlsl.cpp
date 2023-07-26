@@ -85,16 +85,13 @@ TEST_CASE("GenShader: GLSL Implementation Check", "[genglsl]")
 
     mx::StringSet generatorSkipNodeTypes;
     mx::StringSet generatorSkipNodeDefs;
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 47);
 }
 
 TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
-
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    context.registerSourceCodeSearchPath(currentPath);
-
+    context.registerSourceCodeSearchPath(mx::getDefaultDataSearchPath());
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
@@ -102,8 +99,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
-    mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     loadLibraries({ "libraries" }, searchPath, doc);
 
     mx::NodeDefPtr pointLightShader = doc->getNodeDef("ND_point_light");
@@ -146,20 +142,17 @@ const std::string GlslTypeToString(GlslType e) throw()
 
 static void generateGlslCode(GlslType type = GlslType::Glsl400)
 {
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
-    const mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    bool writeShadersToDisk = false;
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
-    const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     const mx::FilePath logPath("genglsl_" + GlslTypeToString(type) + "_generate_test.txt");
 
+    bool writeShadersToDisk = false;
     GlslShaderGeneratorTester tester((type == GlslType::GlslVulkan) ? mx::VkShaderGenerator::create() : mx::GlslShaderGenerator::create(),
-                                     testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
+                                     testRootPaths, searchPath, logPath, writeShadersToDisk);
 
     // Add resource binding context for glsl 4.20
     if (type == GlslType::Glsl420)
@@ -170,6 +163,8 @@ static void generateGlslCode(GlslType type = GlslType::Glsl400)
         tester.addUserData(mx::HW::USER_DATA_BINDING_CONTEXT, glslresourceBinding);
     }
 
+    const mx::GenOptions genOptions;
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }
 

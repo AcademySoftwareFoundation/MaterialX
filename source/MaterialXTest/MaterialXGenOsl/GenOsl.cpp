@@ -89,24 +89,19 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 49);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")
 {
     mx::GenContext context(mx::OslShaderGenerator::create());
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    context.registerSourceCodeSearchPath(currentPath);
-    context.registerSourceCodeSearchPath(currentPath / mx::FilePath("libraries/stdlib/genosl/include"));
-
+    context.registerSourceCodeSearchPath(mx::getDefaultDataSearchPath());
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
 TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 {
-    mx::FileSearchPath searchPath;
-    searchPath.append(mx::FilePath::getCurrentPath());
-
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibraries({ "libraries" }, searchPath, doc);
 
@@ -176,33 +171,27 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
     // Custom generators can override this method to customize which metadata gets registered.
     generator->registerShaderMetadata(doc, context);
 
-    // Generate the shader and write to file for inspection.
+    // Generate the shader.
     mx::ShaderPtr shader = generator->generate(stdSurf1->getName(), stdSurf1, context);
     REQUIRE(shader != nullptr);
-    const std::string filepath = mx::FilePath::getCurrentPath() / mx::FilePath("standardSurfaceWithMetadata.osl");
-    std::ofstream file;
-    file.open(filepath);
-    file << shader->getSourceCode();
 }
 
 static void generateOslCode()
 {
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/TestSuite");
-    testRootPaths.push_back("resources/Materials/Examples");
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
-    const mx::FilePath libSearchPath = mx::FilePath::getCurrentPath();
-    mx::FileSearchPath srcSearchPath(libSearchPath.asString());
-    srcSearchPath.append(libSearchPath / mx::FilePath("libraries/stdlib/genosl/include"));
-    srcSearchPath.append(mx::FilePath::getCurrentPath());
+    mx::FilePathVec testRootPaths;
+    testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
+
     const mx::FilePath logPath("genosl_vanilla_generate_test.txt");
 
     bool writeShadersToDisk = false;
-    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, libSearchPath, srcSearchPath, logPath, writeShadersToDisk);
+    OslShaderGeneratorTester tester(mx::OslShaderGenerator::create(), testRootPaths, searchPath, logPath, writeShadersToDisk);
     tester.addSkipLibraryFiles();
 
     const mx::GenOptions genOptions;
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
     tester.validate(genOptions, optionsFilePath);
 }
 

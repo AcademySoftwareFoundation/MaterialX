@@ -1073,7 +1073,8 @@ void ShaderGraph::optimize(GenContext& context)
 
     if (numEdits > 0)
     {
-        std::set<ShaderNode*> usedNodes;
+        std::set<ShaderNode*> usedNodesSet;
+        std::vector<ShaderNode*> usedNodesVec;
 
         // Traverse the graph to find nodes still in use
         for (ShaderGraphOutputSocket* outputSocket : getOutputSockets())
@@ -1084,7 +1085,12 @@ void ShaderGraph::optimize(GenContext& context)
             {
                 for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(upstreamPort))
                 {
-                    usedNodes.insert(edge.upstream->getNode());
+                    ShaderNode* node = edge.upstream->getNode();
+                    if (usedNodesSet.count(node) == 0)
+                    {
+                        usedNodesSet.insert(node);
+                        usedNodesVec.push_back(node);
+                    }
                 }
             }
         }
@@ -1092,7 +1098,7 @@ void ShaderGraph::optimize(GenContext& context)
         // Remove any unused nodes
         for (ShaderNode* node : _nodeOrder)
         {
-            if (usedNodes.count(node) == 0)
+            if (usedNodesSet.count(node) == 0)
             {
                 // Break all connections
                 disconnect(node);
@@ -1102,8 +1108,7 @@ void ShaderGraph::optimize(GenContext& context)
             }
         }
 
-        _nodeOrder.resize(usedNodes.size());
-        _nodeOrder.assign(usedNodes.begin(), usedNodes.end());
+        _nodeOrder = usedNodesVec;
     }
 }
 

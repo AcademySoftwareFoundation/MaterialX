@@ -313,6 +313,7 @@
   <implementation name="IM_floor_vector2_genmdl" nodedef="ND_floor_vector2" sourcecode="math::floor({{in}})" target="genmdl" />
   <implementation name="IM_floor_vector3_genmdl" nodedef="ND_floor_vector3" sourcecode="math::floor({{in}})" target="genmdl" />
   <implementation name="IM_floor_vector4_genmdl" nodedef="ND_floor_vector4" sourcecode="math::floor({{in}})" target="genmdl" />
+  <implementation name="IM_floor_integer_genmdl" nodedef="ND_floor_integer" sourcecode="int(math::floor({{in}}))" target="genmdl" />
 
   <!-- <ceil> -->
   <implementation name="IM_ceil_float_genmdl" nodedef="ND_ceil_float" sourcecode="math::ceil({{in}})" target="genmdl" />
@@ -321,6 +322,7 @@
   <implementation name="IM_ceil_vector2_genmdl" nodedef="ND_ceil_vector2" sourcecode="math::ceil({{in}})" target="genmdl" />
   <implementation name="IM_ceil_vector3_genmdl" nodedef="ND_ceil_vector3" sourcecode="math::ceil({{in}})" target="genmdl" />
   <implementation name="IM_ceil_vector4_genmdl" nodedef="ND_ceil_vector4" sourcecode="math::ceil({{in}})" target="genmdl" />
+  <implementation name="IM_ceil_integer_genmdl" nodedef="ND_ceil_integer" sourcecode="int(math::ceil({{in}}))" target="genmdl" />
 
   <!-- <power> -->
   <implementation name="IM_power_float_genmdl" nodedef="ND_power_float" sourcecode="math::pow({{in1}}, {{in2}})" target="genmdl" />
@@ -612,8 +614,8 @@
   <implementation name="IM_mix_vector4_genmdl" nodedef="ND_mix_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_vector4_vector4_genmdl" nodedef="ND_mix_vector4_vector4" sourcecode="math::lerp({{bg}}, {{fg}}, {{mix}})" target="genmdl" />
   <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_surfaceshader" sourcecode="mx::stdlib::mx_mix_surfaceshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_volumeshader" sourcecode="mx::stdlib::mx_mix_volumeshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_mix_surfaceshader_genmdl" nodedef="ND_mix_displacementshader" sourcecode="mx::stdlib::mx_mix_displacementshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_volumeshader_genmdl" nodedef="ND_mix_volumeshader" sourcecode="mx::stdlib::mx_mix_volumeshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
+  <implementation name="IM_mix_displacementshader_genmdl" nodedef="ND_mix_displacementshader" sourcecode="mx::stdlib::mx_mix_displacementshader({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->

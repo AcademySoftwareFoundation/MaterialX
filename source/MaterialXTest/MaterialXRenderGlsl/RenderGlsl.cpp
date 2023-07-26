@@ -73,7 +73,7 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
 void GlslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
                                                      GenShaderUtil::TestSuiteOptions& options)
 {
-    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
+    mx::FilePath lightDir = mx::getDefaultDataSearchPath().find("resources/Materials/TestSuite/lights");
     for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);
@@ -128,6 +128,7 @@ void GlslShaderRenderTester::createRenderer(std::ostream& log)
         // Set image handler on renderer
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
         mx::ImageHandlerPtr imageHandler = _renderer->createImageHandler(stbLoader);
+        imageHandler->setSearchPath(mx::getDefaultDataSearchPath());
 #if defined(MATERIALX_BUILD_OIIO)
         mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
         imageHandler->addLoader(oiioLoader);
@@ -174,6 +175,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
     mx::ScopedTimer totalGLSLTime(&profileTimes.languageTimes.totalTime);
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     // Perform validation if requested
     if (testOptions.validateElementToRender)
@@ -271,7 +273,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 {
                     if (!testOptions.renderGeometry.isAbsolute())
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.renderGeometry;
+                        geomPath = searchPath.find("resources/Geometry") / testOptions.renderGeometry;
                     }
                     else
                     {
@@ -280,7 +282,7 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
                 else
                 {
-                    geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
+                    geomPath = searchPath.find("resources/Geometry/sphere.obj");
                 }
 
                 if (!geomHandler->hasGeometry(geomPath))
@@ -450,9 +452,9 @@ void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPa
 
 TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+
     GlslShaderRenderTester renderTester(mx::GlslShaderGenerator::create());
-
-    mx::FilePath optionsFilePath("resources/Materials/TestSuite/_options.mtlx");
-
     renderTester.validate(optionsFilePath);
 }

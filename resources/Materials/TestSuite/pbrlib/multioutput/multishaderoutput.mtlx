@@ -5,7 +5,7 @@
       <input name="color" type="color3" interfacename="diffuse_color" />
     </burley_diffuse_bsdf>
     <dielectric_bsdf name="dielectric_bsdf" type="BSDF">
-    <input name="tint" type="color3" interfacename="diffuse_color" />  
+      <input name="tint" type="color3" interfacename="diffuse_color" />
     </dielectric_bsdf>
     <surface name="burley_surface" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="burley_bsdf" />

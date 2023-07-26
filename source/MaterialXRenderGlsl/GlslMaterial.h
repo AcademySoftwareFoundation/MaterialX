@@ -84,10 +84,6 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
                       ImageHandlerPtr imageHandler,
                       const ShadowState& shadowState) override;
 
-    /// Bind units.
-    void bindUnits(UnitConverterRegistryPtr& registry,
-                   const GenContext& context) override;
-
     /// Bind the given mesh to this material.
     void bindMesh(MeshPtr mesh) override;
 
