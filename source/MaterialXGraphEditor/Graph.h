@@ -64,8 +64,7 @@ private:
     void buildUiBaseGraph(mx::DocumentPtr doc);
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
     void buildGroupNode(UiNodePtr node);
-    template <typename Element>
-    void setName(const Element& node,const std::string &name);
+    void setName(mx::ElementPtr node, const std::string &name);
     // handling link information
     void linkGraph();
     void connectLinks();
@@ -238,6 +237,7 @@ private:
 
     // DPI scaling for fonts
     float _fontScale = 1.0f;
+
 };
 
 #endif

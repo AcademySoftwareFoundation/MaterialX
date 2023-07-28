@@ -1660,14 +1660,16 @@ void Graph::copyUiNode(UiNodePtr node)
             copyNode->setOutput(mxOutput);
         }
         setName(copyNode->getMxElement(), newName);
-        setName(copyNode, newName);
+        copyNode->setName(newName);
+        //setName(copyNode, newName);
     }
     else if (node->getNodeGraph())
     {
         _graphDoc->addNodeGraph();
         std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
         copyNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
-        setName(copyNode, nodeGraphName);
+        copyNode->setName(nodeGraphName);
+        copyNode->setName(nodeGraphName);
         copyNodeGraph(node, copyNode);
     }
     setUiNodeInfo(copyNode, node->getType(), node->getCategory());
@@ -1970,7 +1972,7 @@ void Graph::buildGroupNode(UiNodePtr node)
         ImVec2 nameSize = ImGui::CalcTextSize(temp.c_str());
         ImGui::PushItemWidth(nameSize.x);
         ImGui::InputText("##edit", &tempName);
-        setName(node,tempName);
+        node->setName(tempName);
         ImGui::PopID();
         ImGui::EndGroup();
 
@@ -3087,7 +3089,7 @@ void Graph::propertyEditor()
                         }
                     }
                 }
-                setName(_currUiNode, name);
+                _currUiNode->setName(name);
                 setName(_currUiNode->getNode(),name);
             }
         }
@@ -3124,7 +3126,7 @@ void Graph::propertyEditor()
                 }
 
                 setName(_currUiNode->getInput(),name);
-                setName(_currUiNode,name);
+                _currUiNode->setName(name);
             }
         }
         else if (_currUiNode->getOutput())
@@ -3133,12 +3135,12 @@ void Graph::propertyEditor()
             {
                 std::string name = _currUiNode->getOutput()->getParent()->createValidChildName(temp);
                 setName(_currUiNode->getOutput(),name);
-                setName(_currUiNode,name);
+                _currUiNode->setName(name);
             }
         }
         else if (_currUiNode->getCategory() == "group")
         {
-            setName(_currUiNode, temp);
+            _currUiNode->setName(temp);
         }
         else if (_currUiNode->getCategory() == "nodegraph")
         {
@@ -3146,7 +3148,7 @@ void Graph::propertyEditor()
             {
                 std::string name = _currUiNode->getNodeGraph()->getParent()->createValidChildName(temp);
                 setName(_currUiNode->getNodeGraph(), name);
-                setName(_currUiNode,name);
+                _currUiNode->setName(name);
             }
         }
 
@@ -4201,8 +4203,7 @@ void Graph::writeText(std::string fileName, mx::FilePath filePath)
     mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
 }
 
-template <typename Element>
-void Graph::setName(const Element& node, const std::string &name) {
+void Graph::setName(mx::ElementPtr node, const std::string &name) {
     if(name.empty()) {
         auto childName = _currGraphElem->createValidChildName(name + "1");
         node->setName(childName);
@@ -4210,3 +4211,4 @@ void Graph::setName(const Element& node, const std::string &name) {
         node->setName(name);
     }
 }
+
