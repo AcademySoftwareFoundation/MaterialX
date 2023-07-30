@@ -34,7 +34,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c23baac0-5c01-4099-8010-5d4f503bf6b8" name="Changes" comment="Use of a guarded setName to ensure that empty names don't get set anywhere.">
-      <change beforePath="$PROJECT_DIR$/source/MaterialXGraphEditor/Graph.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/source/MaterialXGraphEditor/Graph.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/MaterialXGraphEditor/Graph.h" beforeDir="false" afterPath="$PROJECT_DIR$/source/MaterialXGraphEditor/Graph.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

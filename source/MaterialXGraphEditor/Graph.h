@@ -24,8 +24,8 @@ struct Link
     int id;
     int _startAttr, _endAttr;
     Link() :
-            _startAttr(-1),
-            _endAttr(-1)
+        _startAttr(-1),
+        _endAttr(-1)
     {
         static int _id = 0;
         id = ++_id;
@@ -34,7 +34,7 @@ struct Link
 
 class Graph
 {
-public:
+ public:
     Graph(const std::string& materialFilename,
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
@@ -57,7 +57,7 @@ public:
 
     ~Graph(){};
 
-private:
+ private:
     mx::ElementPredicate getElementPredicate() const;
     void loadStandardLibraries();
     void createNodeUIList(mx::DocumentPtr doc);
@@ -240,4 +240,4 @@ private:
 
 };
 
-#endif
+ #endif
