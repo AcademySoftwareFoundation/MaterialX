@@ -47,18 +47,12 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           static_analysis: ON
 
-        - name: Linux_Clang_13_Python39
-          os: ubuntu-22.04
-          compiler: clang
-          compiler_version: "13"
-          python: 3.9
-          test_render: ON
-
         - name: Linux_Clang_14_Python311
           os: ubuntu-22.04
           compiler: clang
           compiler_version: "14"
           python: 3.11
+          test_render: ON
           clang_format: ON
 
         - name: Linux_Clang_14_DynamicAnalysis
