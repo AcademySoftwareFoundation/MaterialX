@@ -41,7 +41,7 @@ def dynamic_metadata(
                 [
                     "cmake",
                     "-S",
-                    current_dir,
+                    os.path.dirname(current_dir),
                     "-B",
                     tmpdir,
                     "-DMATERIALX_BUILD_SHARED_LIBS=OFF",

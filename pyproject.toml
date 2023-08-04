@@ -47,7 +47,7 @@ cmake.build-type = "Release"
 # the project version from cmake.
 experimental = true
 metadata.version.provider = "mtx_skbuild_plugin"
-metadata.version.provider-path = "./"
+metadata.version.provider-path = "./python"
 
 # Uncoment when developing locally to enable inplace builds.
 # build-dir = "build/"
