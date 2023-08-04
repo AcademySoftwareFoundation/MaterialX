@@ -1700,6 +1700,14 @@
     <modulo name="mod_texcoord" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord_bias" />
     </modulo>
+    <multiply name="mod_texcoord_2" type="vector2">
+      <input name="in1" type="vector2" nodename="mod_texcoord" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="recenter" type="vector2">
+      <input name="in1" type="vector2" nodename="mod_texcoord_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
     <modulo name="stagg_Y" type="float">
       <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
       <input name="in2" type="float" value="1.73205" />
@@ -1720,22 +1728,6 @@
       <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
       <input name="in2" type="float" value="0.866025" />
     </modulo>
-    <multiply name="modx_2" type="float">
-      <input name="in1" type="float" nodename="mod_texcoord" channels="x" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <subtract name="subX_1" type="float">
-      <input name="in1" type="float" nodename="modx_2" />
-      <input name="in2" type="float" value="1" />
-    </subtract>
-    <multiply name="mody_2" type="float">
-      <input name="in1" type="float" nodename="mod_texcoord" channels="y" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <subtract name="subY_1" type="float">
-      <input name="in1" type="float" nodename="mody_2" />
-      <input name="in2" type="float" value="1" />
-    </subtract>
     <subtract name="coord_adj_1" type="float">
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" nodename="mod_X_1" />
@@ -1784,10 +1776,6 @@
       <input name="in1" type="float" nodename="max1" />
       <input name="in2" type="float" nodename="circle_stagg3" />
     </max>
-    <combine2 name="recenter" type="vector2">
-      <input name="in1" type="float" nodename="subX_1" />
-      <input name="in2" type="float" nodename="subY_1" />
-    </combine2>
     <circle name="circle_regular" type="float">
       <input name="sample" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
