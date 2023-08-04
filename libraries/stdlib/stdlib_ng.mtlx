@@ -1915,18 +1915,19 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
-    <separate2 name="separate_coord" type="multioutput">
-      <input name="in" type="vector2" nodename="texcoord_bias" />
-    </separate2>
-    <modulo name="mod_X_1" type="float">
-      <input name="in1" type="float" nodename="shift_X" />
+    <modulo name="mod_texcoord" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord_bias" />
     </modulo>
-    <modulo name="mod_Y_1" type="float">
-      <input name="in1" type="float" nodename="separate_coord" output="outy" />
-      <input name="in2" type="float" value="0.866025" />
-    </modulo>
+    <multiply name="mod_texcoord_2" type="vector2">
+      <input name="in1" type="vector2" nodename="mod_texcoord" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="recenter" type="vector2">
+      <input name="in1" type="vector2" nodename="mod_texcoord_2" />
+      <input name="in2" type="float" value="1" />
+    </subtract>
     <modulo name="stagg_Y" type="float">
-      <input name="in1" type="float" nodename="separate_coord" output="outy" />
+      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
       <input name="in2" type="float" value="1.73205" />
     </modulo>
     <ifgreater name="delta_X" type="float">
@@ -1935,15 +1936,16 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="separate_coord" output="outx" />
+      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
       <input name="in2" type="float" nodename="delta_X" />
     </add>
-    <ifequal name="pattern_selection" type="float">
-      <input name="value1" type="boolean" interfacename="staggered" />
-      <input name="value2" type="boolean" value="true" />
-      <input name="in1" type="float" nodename="max" />
-      <input name="in2" type="float" nodename="hexagon_regular" />
-    </ifequal>
+    <modulo name="mod_X_1" type="float">
+      <input name="in1" type="float" nodename="shift_X" />
+    </modulo>
+    <modulo name="mod_Y_1" type="float">
+      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in2" type="float" value="0.866025" />
+    </modulo>
     <subtract name="coord_adj_1" type="float">
       <input name="in1" type="float" value="1" />
       <input name="in2" type="float" nodename="mod_X_1" />
@@ -1955,40 +1957,6 @@
     <subtract name="coord_adj_3" type="float">
       <input name="in1" type="float" value="0.866025" />
       <input name="in2" type="float" nodename="mod_Y_1" />
-    </subtract>
-    <max name="max1" type="float">
-      <input name="in1" type="float" nodename="hexagon_stagg1" />
-      <input name="in2" type="float" nodename="hexagon_stagg2" />
-    </max>
-    <max name="max" type="float">
-      <input name="in1" type="float" nodename="max1" />
-      <input name="in2" type="float" nodename="hexagon_stagg3" />
-    </max>
-    <divide name="scale_half" type="float">
-      <input name="in1" type="float" interfacename="size" />
-      <input name="in2" type="float" value="2" />
-    </divide>
-    <multiply name="modx_2" type="float">
-      <input name="in1" type="float" nodename="mod_X" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <modulo name="mod_X" type="float">
-      <input name="in1" type="float" nodename="separate_coord" output="outx" />
-    </modulo>
-    <modulo name="mod_Y" type="float">
-      <input name="in1" type="float" nodename="separate_coord" output="outy" />
-    </modulo>
-    <subtract name="subX_1" type="float">
-      <input name="in1" type="float" nodename="modx_2" />
-      <input name="in2" type="float" value="1" />
-    </subtract>
-    <multiply name="mody_2" type="float">
-      <input name="in1" type="float" nodename="mod_Y" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <subtract name="subY_1" type="float">
-      <input name="in1" type="float" nodename="mody_2" />
-      <input name="in2" type="float" value="1" />
     </subtract>
     <combine2 name="coord_circ1" type="vector2">
       <input name="in1" type="float" nodename="mod_X_1" />
@@ -2002,14 +1970,10 @@
       <input name="in1" type="float" nodename="coord_adj_2" />
       <input name="in2" type="float" nodename="coord_adj_3" />
     </combine2>
-    <combine2 name="recenter" type="vector2">
-      <input name="in1" type="float" nodename="subX_1" />
-      <input name="in2" type="float" nodename="subY_1" />
-    </combine2>
-    <hexagon name="hexagon_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
-      <input name="radius" type="float" interfacename="size" />
-    </hexagon>
+    <divide name="scale_half" type="float">
+      <input name="in1" type="float" interfacename="size" />
+      <input name="in2" type="float" value="2" />
+    </divide>
     <hexagon name="hexagon_stagg1" type="float">
       <input name="sample" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
@@ -2022,6 +1986,24 @@
       <input name="sample" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
+    <max name="max1" type="float">
+      <input name="in1" type="float" nodename="hexagon_stagg1" />
+      <input name="in2" type="float" nodename="hexagon_stagg2" />
+    </max>
+    <max name="max" type="float">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" nodename="hexagon_stagg3" />
+    </max>
+    <hexagon name="hexagon_regular" type="float">
+      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="radius" type="float" interfacename="size" />
+    </hexagon>
+    <ifequal name="pattern_selection" type="float">
+      <input name="value1" type="boolean" interfacename="staggered" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="max" />
+      <input name="in2" type="float" nodename="hexagon_regular" />
+    </ifequal>
     <convert name="to_rgb" type="color3">
       <input name="in" type="float" nodename="pattern_selection" />
     </convert>
