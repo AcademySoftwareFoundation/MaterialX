@@ -1772,29 +1772,17 @@
       <input name="in1" type="float" nodename="subX_1" />
       <input name="in2" type="float" nodename="subY_1" />
     </combine2>
-    <constant name="diag1_point1" type="vector2">
-      <input name="value" type="vector2" value="1, 1" />
-    </constant>
-    <constant name="diag1_point2" type="vector2">
-      <input name="value" type="vector2" value="-1, -1" />
-    </constant>
-    <constant name="diag2_point1" type="vector2">
-      <input name="value" type="vector2" value="-1, 1" />
-    </constant>
-    <constant name="diag2_point2" type="vector2">
-      <input name="value" type="vector2" value="1, -1" />
-    </constant>
     <line name="line_diag1" type="float">
       <input name="sample" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
-      <input name="point1" type="vector2" nodename="diag1_point1" />
-      <input name="point2" type="vector2" nodename="diag1_point2" />
+      <input name="point1" type="vector2" value="1, 1" />
+      <input name="point2" type="vector2" value="-1, -1" />
     </line>
     <line name="line_diag2" type="float">
       <input name="sample" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
-      <input name="point1" type="vector2" nodename="diag2_point1" />
-      <input name="point2" type="vector2" nodename="diag2_point2" />
+      <input name="point1" type="vector2" value="-1, 1" />
+      <input name="point2" type="vector2" value="1, -1" />
     </line>
     <max name="composite_diags" type="float">
       <input name="in1" type="float" nodename="line_diag1" />
