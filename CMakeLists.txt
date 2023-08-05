@@ -193,6 +193,12 @@ set(MATERIALX_SAME_DIR_RPATH "${RPATH_RELATIVE_SYMBOL};${CMAKE_INSTALL_PREFIX}/$
 set(MATERIALX_UP_ONE_RPATH "${RPATH_RELATIVE_SYMBOL}/../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
 # For linking to libraries where source is two directories deep, ie: "MATX/python/MaterialX/../../lib"
 set(MATERIALX_UP_TWO_RPATH "${RPATH_RELATIVE_SYMBOL}/../../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
+if(SKBUILD)
+    # When building the Python wheels, we don't want to set any RPATH because
+    # we want to wheel to be self-contained. We don't want any interference from
+    # external paths.
+    set(MATERIALX_UP_TWO_RPATH "${RPATH_RELATIVE_SYMBOL}")
+endif()
 
 # Adjust compiler settings
 if(MSVC)
