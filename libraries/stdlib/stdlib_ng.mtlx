@@ -1653,7 +1653,6 @@
     </divide>
     <clamp name="clamp" type="float">
       <input name="in" type="float" nodename="divide_dots" />
-      <input name="low" type="float" value="0" />
     </clamp>
     <multiply name="multiply_clamp_ba" type="vector2">
       <input name="in1" type="vector2" nodename="b_a" />
