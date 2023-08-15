@@ -1168,7 +1168,7 @@
 
   <!--
     Node: <tiledcircles>
-    Creates a black and white pattern of circles with a defined spacing and size (diameter).
+    Creates a black and white pattern of circles with a defined tiling and size (diameter).
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
@@ -1182,7 +1182,7 @@
 
   <!--
     Node: <tiledcloverleafs>
-    Creates a black and white pattern of cloverleafs with a defined spacing and size (diameter of the circles circumscribing the shape).
+    Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
@@ -1190,14 +1190,13 @@
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
   <!--
     Node: <tiledhexagons>
-    Creates a black and white pattern of hexagons with a defined spacing and size (diameter of the circles circumscribing the shape).
+    Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).
     Pattern can be regular or staggered.
   -->
   <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
@@ -1205,7 +1204,6 @@
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
     <input name="size" type="float" value="0.5" />
-    <input name="spacing" type="float" value="1" />
     <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
