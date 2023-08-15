@@ -1090,6 +1090,21 @@
   </nodedef>
 
   <!--
+    Node: <line>
+    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Segment ends will be rounded.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.1" />
+    <input name="point1" type="vector2" value="0.25, 0.25" />
+    <input name="point2" type="vector2" value="0.75, 0.75" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
     Node: <circle>
     Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
   -->
@@ -1120,21 +1135,6 @@
     <input name="sample" type="vector2" value="0, 0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
-    <output name="out" type="float" />
-  </nodedef>
-
-  <!--
-    Node: <line>
-    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
-    Segment ends will be rounded.
-    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
-  -->
-  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" />
-    <input name="center" type="vector2" value="0, 0" />
-    <input name="radius" type="float" value="0.1" />
-    <input name="point1" type="vector2" value="0.25, 0.25" />
-    <input name="point2" type="vector2" value="0.75, 0.75" />
     <output name="out" type="float" />
   </nodedef>
 
