@@ -1426,12 +1426,12 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_line_float" nodedef="ND_line_float">
-    <subtract name="dist" type="vector2">
+    <subtract name="delta" type="vector2">
       <input name="in1" type="vector2" interfacename="sample" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <subtract name="p_a" type="vector2">
-      <input name="in1" type="vector2" nodename="dist" />
+      <input name="in1" type="vector2" nodename="delta" />
       <input name="in2" type="vector2" interfacename="point1" />
     </subtract>
     <subtract name="b_a" type="vector2">
@@ -1457,23 +1457,12 @@
       <input name="in1" type="vector2" nodename="b_a" />
       <input name="in2" type="float" nodename="clamp" />
     </multiply>
-    <subtract name="subtract_mul_pa" type="vector2">
+    <distance name="distance" type="float">
       <input name="in1" type="vector2" nodename="p_a" />
       <input name="in2" type="vector2" nodename="multiply_clamp_ba" />
-    </subtract>
-    <multiply name="mulpa_square" type="vector2">
-      <input name="in1" type="vector2" nodename="subtract_mul_pa" />
-      <input name="in2" type="vector2" nodename="subtract_mul_pa" />
-    </multiply>
-    <dotproduct name="sum_xy" type="float">
-      <input name="in1" type="vector2" nodename="mulpa_square" />
-      <input name="in2" type="vector2" value="1, 1" />
-    </dotproduct>
-    <sqrt name="sum_sqrt" type="float">
-      <input name="in" type="float" nodename="sum_xy" />
-    </sqrt>
+    </distance>
     <ifgreater name="dist_comp" type="float">
-      <input name="value1" type="float" nodename="sum_sqrt" />
+      <input name="value1" type="float" nodename="distance" />
       <input name="value2" type="float" interfacename="radius" />
       <input name="in1" type="float" value="0" />
       <input name="in2" type="float" value="1" />
