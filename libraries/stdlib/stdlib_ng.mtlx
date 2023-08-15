@@ -2115,10 +2115,6 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
-    <subtract name="thick_to_size" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="thickness" />
-    </subtract>
     <modulo name="mod_Y" type="float">
       <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
     </modulo>
