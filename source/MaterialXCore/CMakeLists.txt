@@ -3,6 +3,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_BINARY
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_BINARY_DIR}/*.h")
+
 add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_CORE_EXPORTS)

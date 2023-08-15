@@ -4,6 +4,7 @@ file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 assign_source_group("Source Files" ${materialx_source})
 assign_source_group("Header Files" ${materialx_headers})
+
 add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_FORMAT_EXPORTS)
