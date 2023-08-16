@@ -56,9 +56,6 @@ ImageHandler::ImageHandler(ImageLoaderPtr imageLoader)
 {
     addLoader(imageLoader);
     _zeroImage = createUniformImage(2, 2, 4, Image::BaseType::UINT8, Color4(0.0f));
-
-    // Generated shaders interpret 1x1 textures as invalid images.
-    _invalidImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, Color4(0.0f));
 }
 
 void ImageHandler::addLoader(ImageLoaderPtr loader)
@@ -118,7 +115,7 @@ bool ImageHandler::saveImage(const FilePath& filePath,
     return false;
 }
 
-ImagePtr ImageHandler::acquireImage(const FilePath& filePath)
+ImagePtr ImageHandler::acquireImage(const FilePath& filePath, const Color4& defaultColor)
 {
     // Resolve the input filepath.
     FilePath resolvedFilePath = filePath;
@@ -142,9 +139,12 @@ ImagePtr ImageHandler::acquireImage(const FilePath& filePath)
         return image;
     }
 
-    // No valid image was found, so cache the sentinel invalid image.
-    cacheImage(resolvedFilePath, _invalidImage);
-    return _invalidImage;
+    // No valid image was found, so generate a uniform texture with the given default color.
+    // TODO: This step assumes that the missing image and its default color are in the same
+    //       color space, which is not always the case.
+    ImagePtr defaultImage = createUniformImage(1, 1, 4, Image::BaseType::UINT8, defaultColor);
+    cacheImage(resolvedFilePath, defaultImage);
+    return defaultImage;
 }
 
 bool ImageHandler::bindImage(ImagePtr, const ImageSamplingProperties&)
@@ -189,7 +189,7 @@ ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
         if (file)
         {
             ImagePtr image = acquireImage(file->getResolvedValueString());
-            if (image && image != _invalidImage)
+            if (image)
             {
                 imageVec.push_back(image);
             }
