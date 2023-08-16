@@ -305,7 +305,7 @@ InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
     {
-        ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
         if (graph)
         {
             return graph->getInput(getInterfaceName());
