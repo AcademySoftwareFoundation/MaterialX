@@ -275,8 +275,6 @@
       <input name="tint" type="color3" interfacename="transmission_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="vector2" nodename="transmission_roughness" />
-      <input name="thinfilm_thickness" type="float" interfacename="thin_film_thickness" />
-      <input name="thinfilm_ior" type="float" interfacename="thin_film_IOR" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -294,8 +292,6 @@
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" interfacename="specular_IOR" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
-      <input name="thinfilm_thickness" type="float" interfacename="thin_film_thickness" />
-      <input name="thinfilm_ior" type="float" interfacename="thin_film_IOR" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -324,8 +320,6 @@
       <input name="ior" type="color3" nodename="artistic_ior" output="ior" />
       <input name="extinction" type="color3" nodename="artistic_ior" output="extinction" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
-      <input name="thinfilm_thickness" type="float" interfacename="thin_film_thickness" />
-      <input name="thinfilm_ior" type="float" interfacename="thin_film_IOR" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="main_tangent" />
       <input name="distribution" type="string" value="ggx" />
@@ -336,14 +330,24 @@
       <input name="mix" type="float" interfacename="metalness" />
     </mix>
 
+    <!-- Thin-film Layer -->
+    <thin_film_bsdf name="thin_film_bsdf" type="BSDF">
+      <input name="thickness" type="float" interfacename="thin_film_thickness" />
+      <input name="ior" type="float" interfacename="thin_film_IOR" />
+    </thin_film_bsdf>
+    <layer name="thin_film_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="thin_film_bsdf" />
+      <input name="base" type="BSDF" nodename="metalness_mix" />
+    </layer>
+
     <!-- Coat Layer -->
     <mix name="coat_attenuation" type="color3">
       <input name="fg" type="color3" interfacename="coat_color" />
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
       <input name="mix" type="float" interfacename="coat" />
     </mix>
-    <multiply name="metalness_mix_attenuated" type="BSDF">
-      <input name="in1" type="BSDF" nodename="metalness_mix" />
+    <multiply name="thin_film_layer_attenuated" type="BSDF">
+      <input name="in1" type="BSDF" nodename="thin_film_layer" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
     <roughness_anisotropy name="coat_roughness_vector" type="vector2">
@@ -362,7 +366,7 @@
     </dielectric_bsdf>
     <layer name="coat_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="coat_bsdf" />
-      <input name="base" type="BSDF" nodename="metalness_mix_attenuated" />
+      <input name="base" type="BSDF" nodename="thin_film_layer_attenuated" />
     </layer>
 
     <!-- Emission Layer -->
