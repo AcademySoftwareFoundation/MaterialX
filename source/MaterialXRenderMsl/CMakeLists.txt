@@ -1,3 +1,5 @@
+set(MATERIALX_MODULE_NAME MaterialXRenderMsl)
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -34,7 +36,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-deprecated-declarations)
 endif()
 
-add_library(MaterialXRenderMsl ${materialx_source} ${materialx_headers})
+add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERMSL_EXPORTS)
 
@@ -45,12 +47,12 @@ set(COMMON_LIBRARIES
 
 if(MSVC)
     target_link_libraries(
-        MaterialXRenderMsl
+        ${MATERIALX_MODULE_NAME}
         ${COMMON_LIBRARIES}
         Opengl32)
 elseif(APPLE)
     target_link_libraries(
-        MaterialXRenderMsl
+        ${MATERIALX_MODULE_NAME}
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
@@ -58,7 +60,7 @@ elseif(APPLE)
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
-        MaterialXRenderMsl
+        ${MATERIALX_MODULE_NAME}
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${X11_LIBRARIES}
@@ -66,14 +68,14 @@ elseif(UNIX)
 endif()
 
 set_target_properties(
-    MaterialXRenderMsl PROPERTIES
-    OUTPUT_NAME MaterialXRenderMsl${MATERIALX_LIBNAME_SUFFIX}
+    ${MATERIALX_MODULE_NAME} PROPERTIES
+    OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-target_include_directories(MaterialXRenderMsl
+target_include_directories(${MATERIALX_MODULE_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
@@ -81,16 +83,16 @@ target_include_directories(MaterialXRenderMsl
         ${EXTERNAL_INCLUDE_DIRS})
 
 if(NOT SKBUILD)
-    install(TARGETS MaterialXRenderMsl
+    install(TARGETS ${MATERIALX_MODULE_NAME}
         EXPORT MaterialX
         ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
         LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
         RUNTIME DESTINATION bin)
 
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-        DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRenderMsl/ MESSAGE_NEVER
+        DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
         FILES_MATCHING PATTERN "*.h*")
 
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRenderMsl.pdb"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
         DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
 endif()
