@@ -1,25 +1,33 @@
+set(MATERIALX_MODULE_NAME MaterialXCore)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Generated.h.in ${CMAKE_CURRENT_BINARY_DIR}/Generated.h)
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_BINARY_DIR}/*.h")
 
-add_library(MaterialXCore ${materialx_source} ${materialx_headers})
+add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_CORE_EXPORTS)
 
+# Create version resource
+if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+    target_sources(${MATERIALX_MODULE_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+endif()
+
 set_target_properties(
-    MaterialXCore PROPERTIES
-    OUTPUT_NAME MaterialXCore${MATERIALX_LIBNAME_SUFFIX}
+    ${MATERIALX_MODULE_NAME} PROPERTIES
+    OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 target_link_libraries(
-    MaterialXCore
+    ${MATERIALX_MODULE_NAME}
     ${CMAKE_DL_LIBS})
 
-target_include_directories(MaterialXCore
+target_include_directories(${MATERIALX_MODULE_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../>
@@ -27,14 +35,14 @@ target_include_directories(MaterialXCore
     PRIVATE
         ${EXTERNAL_INCLUDE_DIRS})
 
-install(TARGETS MaterialXCore
+install(TARGETS ${MATERIALX_MODULE_NAME}
     EXPORT MaterialX
     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
     RUNTIME DESTINATION bin)
 
 install(FILES ${materialx_headers}
-    DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXCore/)
+    DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/)
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXCore.pdb"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
     DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
