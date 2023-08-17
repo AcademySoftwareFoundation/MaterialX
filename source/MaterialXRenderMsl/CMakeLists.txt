@@ -1,4 +1,5 @@
 set(MATERIALX_MODULE_NAME MaterialXRenderMsl)
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 

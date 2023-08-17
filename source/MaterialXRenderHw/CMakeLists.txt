@@ -1,4 +1,5 @@
 set(MATERIALX_MODULE_NAME MaterialXRenderHw)
+
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
