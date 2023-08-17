@@ -281,10 +281,10 @@ GlslSyntax::GlslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { vec3 response; vec3 throughput; float thickness; float ior; };"));
+            "struct BSDF { vec3 response; vec3 throughput; };"));
 
     registerTypeSyntax(
         Type::EDF,
@@ -299,7 +299,7 @@ GlslSyntax::GlslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING));
 
     registerTypeSyntax(

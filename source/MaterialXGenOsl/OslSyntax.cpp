@@ -451,10 +451,10 @@ OslSyntax::OslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(null_closure, color(1.0), 0.0, 0.0)",
-            "{ 0, color(1.0), 0.0, 0.0 }",
+            "BSDF(null_closure, color(1.0))",
+            "{ 0, color(1.0) }",
             "closure color",
-            "struct BSDF { closure color response; color throughput; float thickness; float ior; };"));
+            "struct BSDF { closure color response; color throughput; };"));
 
 #else
 
