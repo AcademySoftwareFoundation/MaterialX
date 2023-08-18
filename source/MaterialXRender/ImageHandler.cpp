@@ -214,14 +214,6 @@ ImagePtr ImageHandler::loadImage(const FilePath& filePath)
         }
         if (image)
         {
-            // Generated shaders interpret 1x1 textures as invalid images, so valid 1x1
-            // images must be resized.
-            if (image->getWidth() == 1 && image->getHeight() == 1)
-            {
-                image = createUniformImage(2, 2, image->getChannelCount(),
-                                           image->getBaseType(), image->getTexelColor(0, 0));
-            }
-
             return image;
         }
     }
