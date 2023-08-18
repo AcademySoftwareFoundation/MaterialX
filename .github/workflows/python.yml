@@ -9,10 +9,6 @@ on:
       - '**.md'
   workflow_dispatch:
 
-concurrency:
-  cancel-in-progress: true
-  group: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   # Generate the sdist first. We'll use it to create the wheels.
   # https://packaging.python.org/en/latest/flow#the-source-distribution-sdist
