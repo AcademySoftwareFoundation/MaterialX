@@ -280,23 +280,23 @@ void ImageSamplingProperties::setProperties(const string& fileNameUniform,
         root = root.substr(0, pos);
     }
 
-    const string uaddressmodeStr = root + UADDRESS_MODE_SUFFIX;
-    const ShaderPort* port = uniformBlock.find(uaddressmodeStr);
+    const ShaderPort* port = uniformBlock.find(root + UADDRESS_MODE_SUFFIX);
     ValuePtr intValue = port ? port->getValue() : nullptr;
     uaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string vaddressmodeStr = root + VADDRESS_MODE_SUFFIX;
-    port = uniformBlock.find(vaddressmodeStr);
+    port = uniformBlock.find(root + VADDRESS_MODE_SUFFIX);
     intValue = port ? port->getValue() : nullptr;
     vaddressMode = ImageSamplingProperties::AddressMode(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string filtertypeStr = root + FILTER_TYPE_SUFFIX;
-    port = uniformBlock.find(filtertypeStr);
+    port = uniformBlock.find(root + FILTER_TYPE_SUFFIX);
     intValue = port ? port->getValue() : nullptr;
     filterType = ImageSamplingProperties::FilterType(intValue && intValue->isA<int>() ? intValue->asA<int>() : INVALID_MAPPED_INT_VALUE);
 
-    const string defaultColorStr = root + DEFAULT_COLOR_SUFFIX;
-    port = uniformBlock.find(defaultColorStr);
+    port = uniformBlock.find(root + DEFAULT_COLOR_SUFFIX);
+    if (!port)
+    {
+        port = uniformBlock.find(root + DEFAULT_COLOR_SUFFIX + "_cm_in");
+    }
     ValuePtr colorValue = port ? port->getValue() : nullptr;
     if (colorValue)
     {
