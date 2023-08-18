@@ -209,7 +209,7 @@ ImagePtr GlslMaterial::bindImage(const FilePath& filePath, const std::string& un
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    ImagePtr image = imageHandler->acquireImage(filePath);
+    ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
     if (!image)
     {
         return nullptr;
