@@ -15,7 +15,6 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.6"
 
-# TODO: Add more classifiers.
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
