@@ -3796,11 +3796,11 @@ void Graph::drawGraph(ImVec2 mousePos)
             linkGraph();
             ImVec2 canvasPos = ed::ScreenToCanvas(mousePos);
             // place the copied nodes or the individual new nodes
-            if ((int) _copiedNodes.size() > 0)
+            if (!_copiedNodes.empty())
             {
                 positionPasteBin(canvasPos);
             }
-            else
+            else if (!_graphNodes.empty())
             {
                 ed::SetNodePosition(_graphNodes.back()->getId(), canvasPos);
             }
