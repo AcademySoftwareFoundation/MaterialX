@@ -170,53 +170,44 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
-                                         const string& version, bool isDefaultVersion, const string& group, const string& newGraphName)
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph,
+                                         const string& nodeDefName, const string& category,
+                                         const string& newGraphName)
 {
+    if (category.empty())
+    {
+        throw Exception("Cannote create a nodedef without a category identifier");
+    }
+
     if (getNodeDef(nodeDefName))
     {
         throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
     }
 
-    NodeGraphPtr graph = nodeGraph;
-    if (!newGraphName.empty())
+    if (getNodeGraph(newGraphName))
     {
-        if (getNodeGraph(newGraphName))
-        {
-            throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
-        }
-        graph = addNodeGraph(newGraphName);
-        graph->copyContentFrom(nodeGraph);
-
-        for (auto graphChild : graph->getChildren())
-        {
-            graphChild->removeAttribute("xpos");
-            graphChild->removeAttribute("ypos");
-        }        
+        throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
     }
+    
+    // Create a new functional nodegraph, and copy over the
+    // contents from the compound nodegraph
+    NodeGraphPtr graph = addNodeGraph(newGraphName);
+    graph->copyContentFrom(nodeGraph);
+
+    for (auto graphChild : graph->getChildren())
+    {
+        graphChild->removeAttribute("xpos");
+        graphChild->removeAttribute("ypos");
+    }        
     graph->setNodeDefString(nodeDefName);
 
+    // Create a new nodedef and set it's category
     NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
-    nodeDef->setNodeString(node);
-    if (!group.empty())
-    {
-        nodeDef->setNodeGroup(group);
-    }
+    nodeDef->setNodeString(category);
 
-    if (!version.empty())
-    {
-        nodeDef->setVersionString(version);
-
-        // Can only be a default version if there is a version string
-        if (isDefaultVersion)
-        {
-            nodeDef->setDefaultVersion(true);
-        }
-    }
-
-    // Expose any existing interface.
-    // Any connection attributes on the existing interface should be removed from the definition.
-    // as well as any source URI
+    // Expose any existing interfaces from the graph.
+    // Any connection attributes ("nodegraph", "nodename", "channels", "interfacename") on the 
+    // existing interface should be removed from the definition as well as any source URI.
 
     // Attributes which should not be copied over
     StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
@@ -238,7 +229,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
             input->setInterfaceName(nodeDefInput->getName());
         }        
     }
-    // Remove interface from the nodegraph
+    // Remove interfaces from the nodegraph
     for (InputPtr input : graph->getInputs())
     {
         graph->removeInput(input->getName());
