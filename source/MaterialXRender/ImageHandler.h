@@ -188,7 +188,7 @@ class MX_RENDER_API ImageHandler
     /// found in the cache, then each image loader will be applied in turn.
     /// @param filePath File path of the image.
     /// @return On success, a shared pointer to the acquired image.
-    ImagePtr acquireImage(const FilePath& filePath);
+    ImagePtr acquireImage(const FilePath& filePath, const Color4& defaultColor = Color4(0.0f));
 
     /// Bind an image for rendering.
     /// @param image The image to bind.
@@ -247,13 +247,6 @@ class MX_RENDER_API ImageHandler
         return _zeroImage;
     }
 
-    /// Return the sentinel invalid image, representing images that cannot be loaded
-    /// and should be replaced with their declared default value.
-    ImagePtr getInvalidImage() const
-    {
-        return _invalidImage;
-    }
-
     /// Acquire all images referenced by the given document, and return the
     /// images in a vector.
     ImageVec getReferencedImages(ConstDocumentPtr doc);
@@ -278,7 +271,6 @@ class MX_RENDER_API ImageHandler
     FileSearchPath _searchPath;
     StringResolverPtr _resolver;
     ImagePtr _zeroImage;
-    ImagePtr _invalidImage;
 };
 
 MATERIALX_NAMESPACE_END
