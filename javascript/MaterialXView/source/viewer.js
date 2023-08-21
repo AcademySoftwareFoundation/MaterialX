@@ -559,14 +559,28 @@ export class Material
         shaderElement.setNodeName(ssName);
     }
 
-    async loadMaterialFile(loader, materialFilename)
+    async loadMaterialFile(loader, materialFilename, fileEntry = undefined)
     {
+        if (fileEntry) {
+            return new Promise((resolve, reject) => {
+                fileEntry.file(function(file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function(e) {
+                        resolve(this.result);
+                    };
+                    reader.readAsText(file);
+                }, (e) => {
+                    console.error("Error reading file ", e);
+                });
+            });
+        }
+
         return new Promise((resolve, reject) => {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
     }
 
-    async loadMaterials(viewer, materialFilename)
+    async loadMaterials(viewer, materialFilename, file = undefined)
     {
         var startTime = performance.now();
 
@@ -580,7 +594,7 @@ export class Material
 
         const fileloader = viewer.getFileLoader(); 
 
-        let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
+        let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename, file);
 
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
@@ -589,6 +603,7 @@ export class Material
 
         // Set search path. Assumes images are relative to current file
         // location.
+        if (!materialFilename) materialFilename = "/";
         const paths = materialFilename.split('/');
         paths.pop(); 
         const searchPath = paths.join('/');
