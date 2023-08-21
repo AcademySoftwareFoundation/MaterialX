@@ -116,8 +116,11 @@ function init()
         console.error(Number.isInteger(err) ? this.getMx().getExceptionMessage(err) : err);
     })
 
+    // allow dropping files and directories
+    document.addEventListener('drop', dropHandler, false);
+    document.addEventListener('dragover', dragOverHandler, false);
+
     setLoadingCallback(file => {
-        console.log("Loading callback", file);
         materialFilename = file.fullPath || file.name;
         viewer.getEditor().clearFolders();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
@@ -125,14 +128,8 @@ function init()
         viewer.getScene().setUpdateTransforms();
     });
 
-    // allow dropping files and directories
-
-    document.addEventListener('drop', dropHandler, false);
-    document.addEventListener('dragover', dragOverHandler, false);
-
-    // enable three.js Cache
+    // enable three.js Cache so that dropped files can reference each other
     THREE.Cache.enabled = true;
-    window.THREE = THREE;
 }
 
 function onWindowResize() 

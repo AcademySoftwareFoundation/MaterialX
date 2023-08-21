@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as fflate from 'three/examples/jsm/libs/fflate.module.js';
 
-const debugFileHandling = true;
+const debugFileHandling = false;
 let loadingCallback;
 
 export function setLoadingCallback(cb) {
