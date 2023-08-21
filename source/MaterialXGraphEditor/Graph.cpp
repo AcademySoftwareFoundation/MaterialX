@@ -1018,6 +1018,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             ImGui::PushItemWidth(-100);
             if (ImGui::Button("Browse"))
             {
+                _fileDialogInput = input;
                 _fileDialogImage.setTitle("Node Input Dialog");
                 _fileDialogImage.open();
                 _fileDialogImage.setTypeFilters(_imageFilter);
@@ -1029,7 +1030,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             ImGui::PopStyleColor();
 
             // create and load document from selected file
-            if (_fileDialogImage.hasSelected())
+            if (_fileDialogImage.hasSelected() && _fileDialogInput == input)
             {
                 // set the new filename to the complete file path
                 mx::FilePath fileName = _fileDialogImage.getSelected();
