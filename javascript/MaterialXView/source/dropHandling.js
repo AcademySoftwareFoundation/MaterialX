@@ -20,46 +20,51 @@ export function dropHandler(ev) {
 
         let haveGetAsEntry = false;
         if (ev.dataTransfer.items.length > 0)
-        haveGetAsEntry = ("getAsEntry" in ev.dataTransfer.items[0]) || ("webkitGetAsEntry" in ev.dataTransfer.items[0]);
+        haveGetAsEntry = 
+            ("getAsEntry" in ev.dataTransfer.items[0]) || 
+            ("webkitGetAsEntry" in ev.dataTransfer.items[0]);
+
+        // Useful for debugging file handling on platforms that don't support newer file system APIs
+        // haveGetAsEntry = false;
 
         if (haveGetAsEntry) {
+            for (var i = 0; i < ev.dataTransfer.items.length; i++)
+            {
+                let item = ev.dataTransfer.items[i];
+                let entry = ("getAsEntry" in item) ? item.getAsEntry() : item.webkitGetAsEntry();
+                allEntries.push(entry);
+            }
+            handleFilesystemEntries(allEntries);
+            return;
+        }
+
         for (var i = 0; i < ev.dataTransfer.items.length; i++)
         {
             let item = ev.dataTransfer.items[i];
-            let entry = ("getAsEntry" in item) ? item.getAsEntry() : item.webkitGetAsEntry();
-            allEntries.push(entry);
-        }
-        handleFilesystemEntries(allEntries);
-        return;
-        }
-
-        for (var i = 0; i < ev.dataTransfer.items.length; i++)
-        {
-        let item = ev.dataTransfer.items[i];
-        
-        // API when there's no "getAsEntry" support
-        console.log(item.kind, item, entry);
-        if (item.kind === 'file')
-        {
-            var file = item.getAsFile();
-            testAndLoadFile(file);
-        }
-        // could also be a directory
-        else if (item.kind === 'directory')
-        {
-            var dirReader = item.createReader();
-            dirReader.readEntries(function(entries) {
-            for (var i = 0; i < entries.length; i++) {
-                console.log(entries[i].name);
-                var entry = entries[i];
-                if (entry.isFile) {
-                entry.file(function(file) {
-                    testAndLoadFile(file);
-                });
-                }
+            
+            // API when there's no "getAsEntry" support
+            console.log(item.kind, item);
+            if (item.kind === 'file')
+            {
+                var file = item.getAsFile();
+                testAndLoadFile(file);
             }
-            });
-        }
+            // could also be a directory
+            else if (item.kind === 'directory')
+            {
+                var dirReader = item.createReader();
+                dirReader.readEntries(function(entries) {
+                for (var i = 0; i < entries.length; i++) {
+                    console.log(entries[i].name);
+                    var entry = entries[i];
+                    if (entry.isFile) {
+                    entry.file(function(file) {
+                        testAndLoadFile(file);
+                    });
+                    }
+                }
+                });
+            }
         }
     } else {
         for (var i = 0; i < ev.dataTransfer.files.length; i++) {
@@ -74,16 +79,41 @@ export function dragOverHandler(ev) {
 }
 
 async function getBufferFromFile(fileEntry) {
+
+    if (fileEntry instanceof ArrayBuffer) return fileEntry;
+    if (fileEntry instanceof String) return fileEntry;
+
+    const name = fileEntry.fullPath || fileEntry.name;
+    const ext = name.split('.').pop();
+    const readAsText = ext === 'mtlx';
+
+    if (debugFileHandling) console.log("reading ", fileEntry, "as text?", readAsText);
+
+    if (debugFileHandling) console.log("getBufferFromFile", fileEntry);
     const buffer = await new Promise((resolve, reject) => {
-        fileEntry.file(function(file) {
+        function readFile(file) {
             var reader = new FileReader();
             reader.onloadend = function(e) {
+                if (debugFileHandling) console.log("loaded", "should be text?", readAsText, this.result);
                 resolve(this.result);
             };
-            reader.readAsArrayBuffer(file);
-        }, (e) => {
-            console.error("Error reading file ", e);
-        });
+            
+            if (readAsText)
+                reader.readAsText(file);
+            else
+                reader.readAsArrayBuffer(file);
+        }
+
+        if ("file" in fileEntry) {
+            fileEntry.file(function(file) {
+                readFile(file);
+            }, (e) => {
+                console.error("Error reading file ", e);
+            });
+        }
+        else {
+            readFile(fileEntry);
+        }
     });
     return buffer;
 }
@@ -145,7 +175,8 @@ async function handleFilesystemEntries(entries) {
                             name: filePath.split('/').pop(),
                             file: (callback) => {
                                 callback(blob);
-                            }
+                            },
+                            isFile: true,
                         };
                         allFiles.push(newFileEntry);
                     }
@@ -178,20 +209,25 @@ async function handleFilesystemEntries(entries) {
 
         const ext = fileEntry.fullPath.split('.').pop();
         if (!allowedFileTypes.includes(ext)) {
-            console.log("skipping file", fileEntry.fullPath);
+            // console.log("skipping file", fileEntry.fullPath);
             continue;
         }
 
         const buffer = await getBufferFromFile(fileEntry);
         const img = await imageLoader.loadAsync(URL.createObjectURL(new Blob([buffer])));
-        console.log("caching file", fileEntry.fullPath, img);
+        if (debugFileHandling) console.log("caching file", fileEntry.fullPath, img);
         THREE.Cache.add(fileEntry.fullPath, img);
     }
 
     // TODO we could also allow dropping of multiple MaterialX files (or folders with them inside) 
     // and seed the dropdown from that.
     // At that point, actually reading files and textures into memory should be deferred until they are actually used.
-    loadingCallback(allFiles[0]);
+    const rootFile = allFiles[0];
+    THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
+
+    if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
+
+    loadingCallback(rootFile);
 }
 
 async function readDirectory(directory) {
@@ -215,7 +251,7 @@ async function readDirectory(directory) {
             resolve();
             },
             (error) => {
-            /* handle error — error is a FileError object */
+                /* handle error — error is a FileError object */
             },
         )}
     )};
@@ -224,12 +260,22 @@ async function readDirectory(directory) {
     return entries;
 }
 
-function testAndLoadFile(file) {
+async function testAndLoadFile(file) {
     let ext = file.name.split('.').pop();
     if (debugFileHandling) console.log(file.name + ", " + file.size + ", " + ext);
-    if(ext == 'usd' || ext == 'usdz' || ext == 'usda' || ext == 'usdc') {
-        clearStage();
-        // loadFile(file);
-        loadingCallback(file);
-    }
+
+    const arrayBuffer = await getBufferFromFile(file);
+    console.log(arrayBuffer)
+
+    // mock a fileEntry and pass through the same loading logic
+    const newFileEntry = {
+        fullPath: "/" + file.name,
+        name: file.name.split('/').pop(),
+        isFile: true,
+        file: (callback) => {
+            callback(file);
+        }
+    };
+
+    handleFilesystemEntries([newFileEntry]);
 }

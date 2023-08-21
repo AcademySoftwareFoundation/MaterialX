@@ -118,7 +118,7 @@ function init()
 
     setLoadingCallback(file => {
         console.log("Loading callback", file);
-        materialFilename = file.fullPath;
+        materialFilename = file.fullPath || file.name;
         viewer.getEditor().clearFolders();
         viewer.getMaterial().loadMaterials(viewer, materialFilename, file);
         viewer.getEditor().updateProperties(0.9);

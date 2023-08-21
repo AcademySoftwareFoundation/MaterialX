@@ -561,20 +561,6 @@ export class Material
 
     async loadMaterialFile(loader, materialFilename, fileEntry = undefined)
     {
-        if (fileEntry) {
-            return new Promise((resolve, reject) => {
-                fileEntry.file(function(file) {
-                    var reader = new FileReader();
-                    reader.onloadend = function(e) {
-                        resolve(this.result);
-                    };
-                    reader.readAsText(file);
-                }, (e) => {
-                    console.error("Error reading file ", e);
-                });
-            });
-        }
-
         return new Promise((resolve, reject) => {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
