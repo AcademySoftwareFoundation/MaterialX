@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as fflate from 'three/examples/jsm/libs/fflate.module.js';
 
 const debugFileHandling = true;
 let loadingCallback;
@@ -72,6 +73,21 @@ export function dragOverHandler(ev) {
     ev.preventDefault();
 }
 
+async function getBufferFromFile(fileEntry) {
+    const buffer = await new Promise((resolve, reject) => {
+        fileEntry.file(function(file) {
+            var reader = new FileReader();
+            reader.onloadend = function(e) {
+                resolve(this.result);
+            };
+            reader.readAsArrayBuffer(file);
+        }, (e) => {
+            console.error("Error reading file ", e);
+        });
+    });
+    return buffer;
+}
+
 async function handleFilesystemEntries(entries) {
     const allFiles = [];
     const fileIgnoreList = [
@@ -108,6 +124,38 @@ async function handleFilesystemEntries(entries) {
       }
     }
 
+    const imageLoader = new THREE.ImageLoader();
+
+    // unpack zip files first
+    for (const fileEntry of allFiles) {
+        // special case: zip archives
+        if (fileEntry.fullPath.toLowerCase().endsWith('.zip')) {
+            await new Promise(async (resolve, reject) => {
+                const arrayBuffer = await getBufferFromFile(fileEntry);
+
+                // use fflate to unpack them and add the files to the cache
+                fflate.unzip(new Uint8Array(arrayBuffer), (error, unzipped) => {
+                    // push these files into allFiles
+                    for (const [filePath, buffer] of Object.entries(unzipped)) {
+
+                        // mock FileEntry for easier usage downstream
+                        const blob = new Blob([buffer]);
+                        const newFileEntry = {
+                            fullPath: "/" + filePath,
+                            name: filePath.split('/').pop(),
+                            file: (callback) => {
+                                callback(blob);
+                            }
+                        };
+                        allFiles.push(newFileEntry);
+                    }
+
+                    resolve();
+                });
+            });
+        }
+    }
+
     // sort so mtlx files come first
     allFiles.sort((a, b) => {
         if (a.name.endsWith('.mtlx') && !b.name.endsWith('.mtlx')) {
@@ -121,10 +169,9 @@ async function handleFilesystemEntries(entries) {
 
     if (debugFileHandling) console.log("all files", allFiles);
 
-    const imageLoader = new THREE.ImageLoader();
-
     // put all files in three' Cache
     for (const fileEntry of allFiles) {
+
         const allowedFileTypes = [
             'png', 'jpg', 'jpeg'
         ];
@@ -135,24 +182,15 @@ async function handleFilesystemEntries(entries) {
             continue;
         }
 
-
-        const buffer = await new Promise((resolve, reject) => {
-            fileEntry.file(function(file) {
-                var reader = new FileReader();
-                reader.onloadend = function(e) {
-                    resolve(this.result);
-                };
-                reader.readAsArrayBuffer(file);
-            }, (e) => {
-                console.error("Error reading file ", e);
-            });
-        });
-
+        const buffer = await getBufferFromFile(fileEntry);
         const img = await imageLoader.loadAsync(URL.createObjectURL(new Blob([buffer])));
         console.log("caching file", fileEntry.fullPath, img);
         THREE.Cache.add(fileEntry.fullPath, img);
     }
 
+    // TODO we could also allow dropping of multiple MaterialX files (or folders with them inside) 
+    // and seed the dropdown from that.
+    // At that point, actually reading files and textures into memory should be deferred until they are actually used.
     loadingCallback(allFiles[0]);
 }
 
