@@ -35,7 +35,12 @@ ShaderRenderer::ShaderRenderer(unsigned int width, unsigned int height, Image::B
     float fW = fH * 1.0f;
     _camera = Camera::create();
     _camera->setViewMatrix(Camera::createViewMatrix(DEFAULT_EYE_POSITION, DEFAULT_TARGET_POSITION, DEFAULT_UP_VECTOR));
-    _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE));
+
+    #if defined (__APPLE__)
+        _camera->setProjectionMatrix(Camera::createPerspectiveMatrixZP(-fW, fW, -fH, fH, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE));
+    #else
+        _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE));
+    #endif
 }
 
 void ShaderRenderer::createProgram(ShaderPtr)
