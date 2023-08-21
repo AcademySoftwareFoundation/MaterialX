@@ -175,6 +175,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
     {
         if (!filename.isEmpty())
         {
+            std::cout << ">>> Reading file " << filename.asString() << std::endl;
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
             doc->importLibrary(_stdLib);
             std::string message;
