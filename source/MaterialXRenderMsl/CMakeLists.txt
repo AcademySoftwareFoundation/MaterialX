@@ -11,8 +11,10 @@ if(POLICY CMP0072)
 endif()
 
 if(APPLE)
+if(NOT MATERIALX_BUILD_IOS)
     find_library(COCOA_FRAMEWORK Cocoa)
     find_package(OpenGL REQUIRED)
+endif()
     file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
     message("Objective C files: " ${materialx_source_oc})
     set_source_files_properties(${materialx_source_oc} PROPERTIES
@@ -44,6 +46,12 @@ set(COMMON_LIBRARIES
     MaterialXRenderHw
     MaterialXGenMsl
     ${CMAKE_DL_LIBS})
+    
+if(APPLE AND NOT MATERIALX_BUILD_IOS)
+set(COMMON_LIBRARIES
+    ${COMMON_LIBRARIES}
+    "-framework Cocoa")
+endif()
 
 if(MSVC)
     target_link_libraries(
@@ -56,7 +64,6 @@ elseif(APPLE)
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
-        "-framework Cocoa"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
