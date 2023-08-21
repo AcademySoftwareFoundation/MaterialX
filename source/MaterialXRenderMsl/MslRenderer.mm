@@ -37,8 +37,6 @@ MslRenderer::MslRenderer(unsigned int width, unsigned int height, Image::BaseTyp
 
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(TinyObjLoader::create());
-
-    _camera = Camera::create();
 }
 
 void MslRenderer::initialize(RenderContextHandle)
