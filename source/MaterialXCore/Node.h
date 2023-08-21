@@ -308,7 +308,6 @@ class MX_CORE_API GraphElement : public InterfaceElement
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
-    /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
 
     /// If not yet present, add a geometry node to this graph matching the given property

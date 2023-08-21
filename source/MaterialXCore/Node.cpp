@@ -439,9 +439,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         }
     }
 
-    size_t visitCount = 0;
     vector<ElementPtr> result;
-
     while (!childQueue.empty())
     {
         // Pop the queue and add to topological order.
@@ -467,14 +465,6 @@ vector<ElementPtr> GraphElement::topologicalSort() const
                 }
             }
         }
-
-        visitCount++;
-    }
-
-    // Check if there was a cycle.
-    if (visitCount != children.size())
-    {
-        throw ExceptionFoundCycle("Encountered a cycle in graph: " + getName());
     }
 
     return result;

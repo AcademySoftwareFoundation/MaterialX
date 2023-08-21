@@ -381,7 +381,17 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
         ShaderInput* input = getInput(nodeValue->getName());
         if (input)
         {
-            input->setPath(nodeValue->getNamePath());
+            string path = nodeValue->getNamePath();
+            InputPtr nodeInput = nodeValue->asA<Input>();
+            if (nodeInput)
+            {
+                InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                if (interfaceInput)
+                {
+                    path = interfaceInput->getNamePath();
+                }
+            }
+            input->setPath(path);
         }
     }
 
