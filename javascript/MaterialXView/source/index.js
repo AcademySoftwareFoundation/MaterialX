@@ -120,7 +120,7 @@ function init()
         console.log("Loading callback", file);
         materialFilename = file.fullPath || file.name;
         viewer.getEditor().clearFolders();
-        viewer.getMaterial().loadMaterials(viewer, materialFilename, file);
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
     });

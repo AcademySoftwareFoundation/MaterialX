@@ -559,14 +559,14 @@ export class Material
         shaderElement.setNodeName(ssName);
     }
 
-    async loadMaterialFile(loader, materialFilename, fileEntry = undefined)
+    async loadMaterialFile(loader, materialFilename)
     {
         return new Promise((resolve, reject) => {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
     }
 
-    async loadMaterials(viewer, materialFilename, file = undefined)
+    async loadMaterials(viewer, materialFilename)
     {
         var startTime = performance.now();
 
@@ -580,7 +580,7 @@ export class Material
 
         const fileloader = viewer.getFileLoader(); 
 
-        let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename, file);
+        let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
 
         // Load lighting setup into document
         doc.importLibrary(viewer.getLightRig());
