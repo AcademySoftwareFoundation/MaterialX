@@ -5,10 +5,9 @@
 
 #if defined(__APPLE__)
 
-#ifndef TARGET_OS_IOS
+#ifdef TARGET_OS_IOS
 
 #include <MaterialXRenderHw/SimpleWindow.h>
-#include <MaterialXRenderHw/WindowCocoaWrappers.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -26,19 +25,12 @@ bool SimpleWindow::initialize(const char* title,
                               unsigned int width, unsigned int height,
                               void* /*applicationShell*/)
 {
-    void* win = NSUtilCreateWindow(width, height, title, true);
-    if (!win)
-    {
-        return false;
-    }
-    _windowWrapper = WindowWrapper::create(win);
+    _windowWrapper = WindowWrapper::create(nullptr);
     return true;
 }
 
 SimpleWindow::~SimpleWindow()
 {
-    void* hWnd = _windowWrapper->externalHandle();
-    NSUtilDisposeWindow(hWnd);
 }
 
 MATERIALX_NAMESPACE_END

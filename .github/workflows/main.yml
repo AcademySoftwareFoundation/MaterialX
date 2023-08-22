@@ -83,6 +83,15 @@ jobs:
           python: 3.11
           test_shaders: ON
 
+        - name: iOS_Xcode_14_Python311
+          os: macos-13
+          compiler: xcode
+          compiler_version: "14.3"
+          python: None
+          cmake_config: -DMATERIALX_BUILD_IOS=ON -DMATERIALX_BUILD_PYTHON=OFF -DMATERIALX_BUILD_VIEWER=OFF -DMATERIALX_BUILD_GRAPH_EDITOR=OFF
+              -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path`
+              -DCMAKE_OSX_ARCHITECTURES=arm64
+
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019
           architecture: x86
