@@ -4,7 +4,9 @@ file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if(APPLE)
+if (NOT MATERIALX_BUILD_IOS)
   find_library(COCOA_FRAMEWORK Cocoa)
+endif()
   file(GLOB materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
   message("Objective C files: " ${materialx_source_oc})
   set_source_files_properties(${materialx_source_oc} PROPERTIES
@@ -26,6 +28,12 @@ add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERHW_EXPORTS)
 
+if(APPLE AND NOT MATERIALX_BUILD_IOS)
+set(CMAKE_DL_LIBS
+${CMAKE_DL_LIBS}
+"-framework Cocoa")
+endif()
+
 # Create version resource
 if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
@@ -43,7 +51,6 @@ elseif(APPLE)
         MaterialXRender
         ${CMAKE_DL_LIBS}
         "-framework Foundation"
-        "-framework Cocoa"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(

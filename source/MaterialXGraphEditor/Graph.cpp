@@ -84,7 +84,6 @@ Graph::Graph(const std::string& materialFilename,
     _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
-    _graphDoc->importLibrary(_stdLib);
 
     _initial = true;
     createNodeUIList(_stdLib);
@@ -177,6 +176,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         if (!filename.isEmpty())
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+            doc->importLibrary(_stdLib);
             std::string message;
             if (!doc->validate(&message))
             {
@@ -3796,11 +3796,11 @@ void Graph::drawGraph(ImVec2 mousePos)
             linkGraph();
             ImVec2 canvasPos = ed::ScreenToCanvas(mousePos);
             // place the copied nodes or the individual new nodes
-            if ((int) _copiedNodes.size() > 0)
+            if (!_copiedNodes.empty())
             {
                 positionPasteBin(canvasPos);
             }
-            else
+            else if (!_graphNodes.empty())
             {
                 ed::SetNodePosition(_graphNodes.back()->getId(), canvasPos);
             }
@@ -4057,7 +4057,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         std::string graphName = fileName.getBaseName();
         _currGraphName.push_back(graphName.substr(0, graphName.length() - 5));
         _graphDoc = loadDocument(fileName);
-        _graphDoc->importLibrary(_stdLib);
 
         _initial = true;
         buildUiBaseGraph(_graphDoc);
