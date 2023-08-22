@@ -570,7 +570,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                         UiNodePtr nextNode = layoutNode->getConnectedNode(pins[i]->_name);
                         if (nextNode)
                         {
-                            startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
+                            startingPos.x = (1200.f - ((layoutNode->_level) * 250)) * _fontScale;
                             ed::SetNodePosition(layoutNode->getId(), startingPos);
                             layoutNode->setPos(ImVec2(startingPos));
                             // call layout position on upstream node with newPos as -140 to the left of current node
@@ -581,7 +581,7 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
             }
             else
             {
-                startingPos.x = (1200.f - ((layoutNode->_level) * 350)) * _fontScale;
+                startingPos.x = (1200.f - ((layoutNode->_level) * 250)) * _fontScale;
                 layoutNode->setPos(ImVec2(startingPos));
                 // set current node position
                 ed::SetNodePosition(layoutNode->getId(), ImVec2(startingPos));
