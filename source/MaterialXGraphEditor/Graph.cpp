@@ -821,12 +821,6 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
         else
         {
             std::string name = input->getNamePath();
-            // need to use exact interface name in order for input
-            mx::InputPtr interfaceInput = findInput(input, input->getName());
-            if (interfaceInput)
-            {
-                name = interfaceInput->getNamePath();
-            }
             // Note that if there is a topogical change due to
             // this value change or a transparency change, then
             // this is not currently caught here.
