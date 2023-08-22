@@ -179,6 +179,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
     std::cout << "Validating MSL rendering for: " << doc->getSourceUri() << std::endl;
 
     mx::ScopedTimer totalMSLTime(&profileTimes.languageTimes.totalTime);
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
 
     const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -277,7 +278,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 {
                     if (!testOptions.renderGeometry.isAbsolute())
                     {
-                        geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry") / testOptions.renderGeometry;
+                        geomPath = searchPath.find("resources/Geometry") / testOptions.renderGeometry;
                     }
                     else
                     {
@@ -286,7 +287,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 }
                 else
                 {
-                    geomPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Geometry/sphere.obj");
+                    geomPath = searchPath.find("resources/Geometry/sphere.obj");
                 }
 
                 if (!geomHandler->hasGeometry(geomPath))
@@ -456,18 +457,10 @@ void MslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPat
 
 TEST_CASE("Render: MSL TestSuite", "[rendermsl]")
 {
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+
     MslShaderRenderTester renderTester(mx::MslShaderGenerator::create());
-
-    const mx::FilePath testRootPath = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite");
-    const mx::FilePath testRootPath2 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/StandardSurface");
-    const mx::FilePath testRootPath3 = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/Examples/UsdPreviewSurface");
-    mx::FilePathVec testRootPaths;
-    testRootPaths.push_back(testRootPath);
-    testRootPaths.push_back(testRootPath2);
-    testRootPaths.push_back(testRootPath3);
-
-    mx::FilePath optionsFilePath = testRootPath / mx::FilePath("_options.mtlx");
-
     renderTester.validate(optionsFilePath);
 }
 

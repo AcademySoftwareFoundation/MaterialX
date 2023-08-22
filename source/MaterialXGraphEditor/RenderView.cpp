@@ -720,7 +720,7 @@ void RenderView::loadEnvironmentLight()
     envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getInvalidImage())
+    if (envIrradianceMap == _imageHandler->getZeroImage())
     {
         mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
         envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
