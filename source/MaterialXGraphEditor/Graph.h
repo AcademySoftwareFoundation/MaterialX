@@ -214,7 +214,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
-    mx::InputPtr _fileDialogInput;
+    mx::InputPtr _fileDialogImageInput;
 
     bool _isNodeGraph;
 
