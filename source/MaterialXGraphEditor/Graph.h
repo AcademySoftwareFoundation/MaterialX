@@ -214,7 +214,7 @@ class Graph
     FileDialog _fileDialogSave;
     FileDialog _fileDialogImage;
     FileDialog _fileDialogGeom;
-
+    std::string _fileDialogImageInputName;
 
     bool _isNodeGraph;
 
