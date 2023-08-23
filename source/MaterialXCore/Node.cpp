@@ -733,17 +733,9 @@ vector<PortElementPtr> NodeGraph::getDownstreamPorts() const
     vector<PortElementPtr> downstreamPorts;
     for (PortElementPtr port : getDocument()->getMatchingPorts(getQualifiedName(getName())))
     {
-        ConstGraphElementPtr graph = nullptr;
         ElementPtr node = port->getParent();
-        if (node)
-        {
-            node = node->getParent();
-            if (node->isA<GraphElement>())
-            {
-                graph = node->asA<GraphElement>();
-            }
-        }
-        if (graph && graph->getChild(getName()) == getSelf())
+        ElementPtr graph = node ? node->getParent() : nullptr;
+        if (graph && graph->isA<GraphElement>() && graph == getParent())
         {
             downstreamPorts.push_back(port);
         }
