@@ -25,10 +25,11 @@ const float DEFAULT_FAR_PLANE = 100.0f;
 // ShaderRenderer methods
 //
 
-ShaderRenderer::ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
+ShaderRenderer::ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType, ConventionAPI conventionAPI) :
     _width(width),
     _height(height),
-    _baseType(baseType)
+    _baseType(baseType),
+    _conventionAPI(conventionAPI)
 {
     // Initialize a default camera.
     float fH = std::tan(DEFAULT_FIELD_OF_VIEW / 360.0f * PI) * DEFAULT_NEAR_PLANE;
@@ -36,11 +37,14 @@ ShaderRenderer::ShaderRenderer(unsigned int width, unsigned int height, Image::B
     _camera = Camera::create();
     _camera->setViewMatrix(Camera::createViewMatrix(DEFAULT_EYE_POSITION, DEFAULT_TARGET_POSITION, DEFAULT_UP_VECTOR));
 
-    #if defined (__APPLE__)
+    if (_conventionAPI == ShaderRenderer::ConventionAPI::METAL)
+    {
         _camera->setProjectionMatrix(Camera::createPerspectiveMatrixZP(-fW, fW, -fH, fH, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE));
-    #else
+    }
+    else // ConventionAPI::OPENGL (default)
+    {
         _camera->setProjectionMatrix(Camera::createPerspectiveMatrix(-fW, fW, -fH, fH, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE));
-    #endif
+    }
 }
 
 void ShaderRenderer::createProgram(ShaderPtr)

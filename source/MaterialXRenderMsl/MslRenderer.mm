@@ -29,7 +29,7 @@ id<MTLDevice> MslRenderer::getMetalDevice() const
 }
 
 MslRenderer::MslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-    ShaderRenderer(width, height, baseType),
+    ShaderRenderer(width, height, baseType, ConventionAPI::METAL),
     _initialized(false),
     _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {

@@ -30,6 +30,12 @@ using ShaderRendererPtr = std::shared_ptr<class ShaderRenderer>;
 class MX_RENDER_API ShaderRenderer
 {
   public:
+    /// API viewing conventions designation (default to OpenGL).
+    enum class ConventionAPI
+    {
+        OPENGL = 0,
+        METAL  = 1
+    };
     /// A map with name and source code for each shader stage.
     using StageMap = StringMap;
 
@@ -123,12 +129,15 @@ class MX_RENDER_API ShaderRenderer
     /// @}
 
   protected:
-    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
+    ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType,
+        ConventionAPI conventionAPI = ConventionAPI::OPENGL);
 
   protected:
     unsigned int _width;
     unsigned int _height;
     Image::BaseType _baseType;
+
+    ConventionAPI _conventionAPI;
 
     CameraPtr _camera;
     ImageHandlerPtr _imageHandler;
