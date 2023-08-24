@@ -1062,6 +1062,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             ImGui::PushItemWidth(-100);
             if (ImGui::Button("Browse"))
             {
+                _fileDialogImageInputName = input->getName();
                 _fileDialogImage.setTitle("Node Input Dialog");
                 _fileDialogImage.open();
                 _fileDialogImage.setTypeFilters(_imageFilter);
@@ -1073,7 +1074,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
             ImGui::PopStyleColor();
 
             // create and load document from selected file
-            if (_fileDialogImage.hasSelected())
+            if (_fileDialogImage.hasSelected() && _fileDialogImageInputName == input->getName())
             {
                 // set the new filename to the complete file path
                 mx::FilePath fileName = _fileDialogImage.getSelected();
@@ -1082,6 +1083,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
                 _fileDialogImage.clearSelected();
                 _fileDialogImage.setTypeFilters(std::vector<std::string>());
+                _fileDialogImageInputName = "";
             }
 
             // set input value  and update materials if different from previous value
