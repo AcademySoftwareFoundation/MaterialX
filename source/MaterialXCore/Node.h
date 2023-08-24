@@ -358,6 +358,14 @@ class MX_CORE_API NodeGraph : public GraphElement
     InterfaceElementPtr getImplementation() const;
 
     /// @}
+    /// @name Traversal
+    /// @{
+
+    /// Return a vector of all downstream ports that connect to this graph, ordered by
+    /// the names of the port elements.
+    vector<PortElementPtr> getDownstreamPorts() const;
+
+    /// @}
     /// @name Utility
     /// @{
 
