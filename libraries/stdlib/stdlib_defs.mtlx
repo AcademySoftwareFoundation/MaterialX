@@ -1089,6 +1089,125 @@
     <output name="out" type="color3" />
   </nodedef>
 
+  <!--
+    Node: <line>
+    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Segment ends will be rounded.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.1" />
+    <input name="point1" type="vector2" value="0.25, 0.25" />
+    <input name="point2" type="vector2" value="0.75, 0.75" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <circle>
+    Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_circle_float" node="circle" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <cloverleaf>
+    Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <hexagon>
+    Returns 1 if sample is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="procedural2d">
+    <input name="sample" type="vector2" value="0, 0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <grid>
+    Creates a grid pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_grid_color3" node="grid" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <crosshatch>
+    Creates a crosshatch pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_crosshatch_color3" node="crosshatch" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcircles>
+    Creates a black and white pattern of circles with a defined tiling and size (diameter).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcloverleafs>
+    Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledhexagons>
+    Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->

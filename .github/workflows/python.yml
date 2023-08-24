@@ -19,9 +19,11 @@ jobs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Sync Repository
+      uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v4
+    - name: Install Python ${{ matrix.python }}
+      uses: actions/setup-python@v4
       with:
         python-version: 3.11
 
@@ -37,7 +39,7 @@ jobs:
     - name: Upload Sdist
       uses: actions/upload-artifact@v3
       with:
-        name: sdist
+        name: MaterialX_Python_Source_Distribution
         path: ./dist/*.tar.gz
 
   # Create the wheels. It'll use the sdist to confirm that we can compile MaterialX from the sdist.
@@ -56,7 +58,7 @@ jobs:
     - name: Download Sdist
       uses: actions/download-artifact@v3
       with:
-        name: sdist
+        name: MaterialX_Python_Source_Distribution
         path: sdist
 
     - name: Build Wheel
@@ -83,7 +85,7 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@v3
       with:
-        name: wheels
+        name: MaterialX_Python_Wheels
         path: ./wheels/*.whl
 
   test:
@@ -106,7 +108,7 @@ jobs:
     - name: Download Wheels
       uses: actions/download-artifact@v3
       with:
-        name: wheels
+        name: MaterialX_Python_Wheels
         path: wheels
 
     - name: Install Wheel
