@@ -728,6 +728,25 @@ InterfaceElementPtr NodeGraph::getImplementation() const
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
 }
 
+vector<PortElementPtr> NodeGraph::getDownstreamPorts() const
+{
+    vector<PortElementPtr> downstreamPorts;
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getQualifiedName(getName())))
+    {
+        ElementPtr node = port->getParent();
+        ElementPtr graph = node ? node->getParent() : nullptr;
+        if (graph && graph->isA<GraphElement>() && graph == getParent())
+        {
+            downstreamPorts.push_back(port);
+        }
+    }
+    std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
+    {
+        return a->getName() > b->getName();
+    });
+    return downstreamPorts;
+}
+
 bool NodeGraph::validate(string* message) const
 {
     bool res = true;

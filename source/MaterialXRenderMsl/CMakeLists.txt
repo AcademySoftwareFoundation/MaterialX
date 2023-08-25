@@ -11,8 +11,10 @@ if(POLICY CMP0072)
 endif()
 
 if(APPLE)
+if(NOT MATERIALX_BUILD_IOS)
     find_library(COCOA_FRAMEWORK Cocoa)
     find_package(OpenGL REQUIRED)
+endif()
     file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
     message("Objective C files: " ${materialx_source_oc})
     set_source_files_properties(${materialx_source_oc} PROPERTIES
@@ -44,6 +46,12 @@ set(COMMON_LIBRARIES
     MaterialXRenderHw
     MaterialXGenMsl
     ${CMAKE_DL_LIBS})
+    
+if(APPLE AND NOT MATERIALX_BUILD_IOS)
+set(COMMON_LIBRARIES
+    ${COMMON_LIBRARIES}
+    "-framework Cocoa")
+endif()
 
 if(MSVC)
     target_link_libraries(
@@ -56,7 +64,6 @@ elseif(APPLE)
         ${COMMON_LIBRARIES}
         ${OPENGL_LIBRARIES}
         "-framework Foundation"
-        "-framework Cocoa"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
@@ -82,15 +89,17 @@ target_include_directories(${MATERIALX_MODULE_NAME}
     PRIVATE
         ${EXTERNAL_INCLUDE_DIRS})
 
-install(TARGETS ${MATERIALX_MODULE_NAME}
-    EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    RUNTIME DESTINATION bin)
+if(NOT SKBUILD)
+    install(TARGETS ${MATERIALX_MODULE_NAME}
+        EXPORT MaterialX
+        ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+        LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+        RUNTIME DESTINATION bin)
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
-    FILES_MATCHING PATTERN "*.h*")
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+        DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+        FILES_MATCHING PATTERN "*.h*")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
-    DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
+        DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+endif()

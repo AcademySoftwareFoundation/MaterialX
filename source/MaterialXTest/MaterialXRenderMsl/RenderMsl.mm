@@ -78,7 +78,7 @@ class MslShaderRenderTester : public RenderUtil::ShaderRenderTester
 void MslShaderRenderTester::loadAdditionalLibraries(mx::DocumentPtr document,
                                                      GenShaderUtil::TestSuiteOptions& options)
 {
-    mx::FilePath lightDir = mx::FilePath::getCurrentPath() / mx::FilePath("resources/Materials/TestSuite/lights");
+    mx::FilePath lightDir = mx::getDefaultDataSearchPath().find("resources/Materials/TestSuite/lights");
     for (const auto& lightFile : options.lightFiles)
     {
         loadLibrary(lightDir / mx::FilePath(lightFile), document);
@@ -135,6 +135,7 @@ void MslShaderRenderTester::createRenderer(std::ostream& log)
         mx::StbImageLoaderPtr stbLoader = mx::StbImageLoader::create();
         mx::ImageHandlerPtr imageHandler =
             _renderer->createImageHandler(stbLoader);
+        imageHandler->setSearchPath(mx::getDefaultDataSearchPath());
 #if defined(MATERIALX_BUILD_OIIO)
         mx::OiioImageLoaderPtr oiioLoader = mx::OiioImageLoader::create();
         imageHandler->addLoader(oiioLoader);
@@ -374,7 +375,7 @@ bool MslShaderRenderTester::runRenderer(const std::string& shaderName,
                 {
                     {
                         mx::ScopedTimer renderTimer(&profileTimes.languageTimes.renderTime);
-                        _renderer->getImageHandler()->setSearchPath(imageSearchPath);
+                        _renderer->getImageHandler()->setSearchPath(mx::getDefaultDataSearchPath());
                         _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
                         _renderer->render();
                     }
