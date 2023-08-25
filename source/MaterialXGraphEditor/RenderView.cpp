@@ -452,7 +452,7 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         if (typedElem)
         {
             mx::NodePtr node = typedElem->asA<mx::Node>();
-            materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
+            materialNode = node;
             if (udimSetValue && udimSetValue->isA<mx::StringVec>())
             {
                 for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
