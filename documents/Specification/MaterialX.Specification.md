@@ -787,8 +787,8 @@ Standard Procedural nodes:
 * **`checkerboard`**: a 2D checkerboard pattern.
     * `color1` (color3): The first color used in the checkerboard pattern.
     * `color2` (color3): The second color used in the checkerboard pattern.
-    * `freq` (vector2): The frequency of checkers, with higher values producing smaller squares. Default is (8, 8).
-    * `offset` (vector2): Shift the pattern in 2d space. Default is (0, 0).
+    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
+    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
     * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
 
 <a id="node-noise2d"> </a>
