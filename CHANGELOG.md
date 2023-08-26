@@ -3,11 +3,10 @@
 ## [1.38.8] - Development
 
 ### Added
-- Added new [Random Color, Random Float](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1330), [Checkerboard](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1328), [Triangle Wave](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1334), and [Distance](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1333) nodes for common artistic patterns.
-- Added new [Line, Circle, Hexagon, Cloverleaf, Grid, and Crosshatch](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1411) nodes for common architecture, engineering, and construction patterns.
+- Added a broad set of new pattern nodes to MaterialX, including [Circle, Hexagon, Cloverleaf, Line, Grid, Crosshatch](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1411), [Checkerboard](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1328), [Random Color, Random Float](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1330), [Triangle Wave](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1334), [Integer Floor, Integer Ceiling](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1362), and [Distance](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1333).
 - Added support for [MaterialX builds on iOS](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1435).
-- Added generation of [MaterialX Python wheels](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1317) in GitHub Actions, enabling the distribution of MaterialX Python packages through PyPI.
 - Added support for [drag-and-drop import](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1482) of MaterialX files in the [Web Viewer](https://academysoftwarefoundation.github.io/MaterialX/).
+- Added generation of [MaterialX Python wheels](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1317) in GitHub Actions, enabling the distribution of MaterialX Python packages through PyPI.
 - Added support for the [lin_displayp3 and srgb_displayp3](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1368) colorspaces in shader generation.
 - Added support for the [blackbody PBR node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1367) in shader generation.
 - Added support for [displacement](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1396) in MDL generation.
@@ -17,10 +16,11 @@
 ### Changed
 - Raised the minimum C++ version for MaterialX builds to [C++14](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1340).
 - Upgraded the [PyBind11 library](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1343) to version 2.10.4, raising the minimum Python version to 3.6, and enabling support for Python versions 3.11 and beyond.
-- Improved the performance and accuracy of [GGX importance sampling](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1390) in GLSL shader generation.
+- Improved the performance and convergence of [GGX importance sampling](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1390) in GLSL generation, leveraging insights from the HPG 2023 paper by Jonathan Dupuy and Anis Benyoub.
 - Improved [property panel display](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1346) in the MaterialX Graph Editor.
 - Improved [node spacing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1476) in the MaterialX Graph Editor.
 - Improved the robustness of [MaterialX unit tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1370) with respect to the current working directory.
+- Simplified the handling of [default colors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1452) in GLSL generation, removing dynamic branches on texture size.
 - Simplified the definitions of the [default color transforms](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1352), implementing them as language-independent MaterialX graphs.
 - Moved the MaterialX specification to [public Markdown files in GitHub](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/documents/Specification), enabling direct contributions from the community.
 
