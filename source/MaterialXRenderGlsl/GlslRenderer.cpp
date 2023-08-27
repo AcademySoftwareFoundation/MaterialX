@@ -25,7 +25,7 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 }
 
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-    ShaderRenderer(width, height, baseType),
+    ShaderRenderer(width, height, baseType, MatrixConvention::OpenGL),
     _initialized(false),
     _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {

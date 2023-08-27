@@ -452,7 +452,7 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         if (typedElem)
         {
             mx::NodePtr node = typedElem->asA<mx::Node>();
-            materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
+            materialNode = node;
             if (udimSetValue && udimSetValue->isA<mx::StringVec>())
             {
                 for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
@@ -720,7 +720,7 @@ void RenderView::loadEnvironmentLight()
     envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getInvalidImage())
+    if (envIrradianceMap == _imageHandler->getZeroImage())
     {
         mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
         envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);
