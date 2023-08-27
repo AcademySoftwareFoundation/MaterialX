@@ -51,6 +51,7 @@ std::string getNodeDefId(const std::string& val)
 } // anonymous namespace
 
 Graph::Graph(const std::string& materialFilename,
+             bool isDefaultFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
@@ -84,6 +85,12 @@ Graph::Graph(const std::string& materialFilename,
     _geomFilter.push_back(".gltf");
 
     _graphDoc = loadDocument(materialFilename);
+    // Clear the current file name after initial load so don't accidently
+    // overwrite the default.
+    if (isDefaultFilename)
+    {
+        _materialFilename = mx::EMPTY_STRING;
+    }
 
     _initial = true;
     createNodeUIList(_stdLib);
@@ -167,7 +174,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         else
         {
             std::cerr << "Include file not found: " << filename.asString() << std::endl;
-        }
+        }        
     };
 
     mx::DocumentPtr doc = mx::createDocument();
@@ -177,12 +184,17 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
             doc->importLibrary(_stdLib);
+
+            std::cout << "Read file: " << filename.asString() << std::endl;
+
             std::string message;
             if (!doc->validate(&message))
             {
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
                 std::cerr << message << std::endl;
             }
+            // Cache the currently loaded file
+            _materialFilename = filename;
         }
     }
     catch (mx::Exception& e)
@@ -2939,7 +2951,7 @@ void Graph::clearGraph()
     _renderer->updateMaterials(nullptr);
 }
 
-void Graph::loadGraphFromFile()
+void Graph::loadGraphFromFile(bool prompt)
 {
     // deselect node before loading new file
     if (_currUiNode != nullptr)
@@ -2948,16 +2960,42 @@ void Graph::loadGraphFromFile()
         _currUiNode = nullptr;
     }
 
-    _fileDialog.setTitle("Open File");
-    _fileDialog.setTypeFilters(_mtlxFilter);
-    _fileDialog.open();
+    if (prompt)
+    {
+        _fileDialog.setTitle("Open File");
+        _fileDialog.setTypeFilters(_mtlxFilter);
+        _fileDialog.open();
+    }
+    else
+    { 
+        if (_materialFilename.isEmpty())
+        {
+            std::cout << "No file has been loaded to reload.";
+        }
+        else if (!_materialFilename.exists())
+        {
+            std::cout << "File to reload does not exist:" << _materialFilename.asString() << std::endl;
+        }
+        else
+        {
+            loadDocument(_materialFilename);
+        }
+    }
 }
 
-void Graph::saveGraphToFile()
+void Graph::saveGraphToFile(bool saveAs)
 {
-    _fileDialogSave.setTypeFilters(_mtlxFilter);
-    _fileDialogSave.setTitle("Save File As");
-    _fileDialogSave.open();
+    bool promptForFile = (saveAs || _materialFilename.isEmpty());
+    if (promptForFile)
+    {
+        _fileDialogSave.setTypeFilters(_mtlxFilter);
+        _fileDialogSave.setTitle("Save File As");
+        _fileDialogSave.open();
+    }
+    else
+    {
+        saveDocument(_materialFilename);
+    }
 }
 
 void Graph::loadGeometry()
@@ -2984,11 +3022,19 @@ void Graph::graphButtons()
             }
             else if (ImGui::MenuItem("Open", "Ctrl-O"))
             {
-                loadGraphFromFile();
+                loadGraphFromFile(true);
+            }
+            else if (ImGui::MenuItem("Reload", "Ctrl-R"))
+            {
+                loadGraphFromFile(false);
             }
             else if (ImGui::MenuItem("Save", "Ctrl-S"))
             {
-                saveGraphToFile();
+                saveGraphToFile(false);
+            }
+            else if (ImGui::MenuItem("Save As", "Ctrl-Shift-S"))
+            {
+                saveGraphToFile(true);
             }
             ImGui::EndMenu();
         }
@@ -3030,15 +3076,19 @@ void Graph::graphButtons()
     {
         if (ImGui::IsKeyReleased(ImGuiKey_O))
         {
-            loadGraphFromFile();
+            loadGraphFromFile(true);
         }
         else if (ImGui::IsKeyReleased(ImGuiKey_N))
         {
             clearGraph();
         }
+        else if (ImGui::IsKeyReleased(ImGuiKey_R))
+        {
+            loadGraphFromFile(false);
+        }
         else if (ImGui::IsKeyReleased(ImGuiKey_S))
         {
-            saveGraphToFile();
+            saveGraphToFile(guiIO.KeyShift);
         }
     }
 
@@ -4076,7 +4126,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         ed::Resume();
         savePosition();
 
-        writeText(fileName, name);
+        saveDocument(name);
         _fileDialogSave.clearSelected();
     }
     else
@@ -4227,7 +4277,7 @@ void Graph::savePosition()
         }
     }
 }
-void Graph::writeText(std::string fileName, mx::FilePath filePath)
+void Graph::saveDocument(mx::FilePath filePath)
 {
     if (filePath.getExtension() != mx::MTLX_EXTENSION)
     {
@@ -4237,4 +4287,6 @@ void Graph::writeText(std::string fileName, mx::FilePath filePath)
     mx::XmlWriteOptions writeOptions;
     writeOptions.elementPredicate = getElementPredicate();
     mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
+
+    std::cout << "Wrote document to: " << filePath.asString() << std::endl;
 }

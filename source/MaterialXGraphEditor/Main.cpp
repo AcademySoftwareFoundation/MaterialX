@@ -98,6 +98,7 @@ int main(int argc, char* const argv[])
     }
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx";
+    bool isDefaultFilename = true;
     std::string meshFilename = "resources/Geometry/shaderball.glb";
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
@@ -112,7 +113,11 @@ int main(int argc, char* const argv[])
 
         if (token == "--material")
         {
-            materialFilename = nextToken;
+            if (nextToken != materialFilename)
+            {
+                materialFilename = nextToken;
+                isDefaultFilename = true;
+            }
         }
         else if (token == "--mesh")
         {
@@ -214,6 +219,7 @@ int main(int argc, char* const argv[])
 
     // Create graph editor.
     Graph* graph = new Graph(materialFilename,
+                             isDefaultFilename,
                              meshFilename,
                              searchPath,
                              libraryFolders,

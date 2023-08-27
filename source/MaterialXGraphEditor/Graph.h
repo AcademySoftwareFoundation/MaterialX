@@ -36,6 +36,7 @@ class Graph
 {
   public:
     Graph(const std::string& materialFilename,
+          bool isDefaultFilename,
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
@@ -106,7 +107,7 @@ class Graph
     void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
     void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
-    void writeText(std::string filename, mx::FilePath filePath);
+    void saveDocument(mx::FilePath filePath);
     void savePosition();
     bool checkPosition(UiNodePtr node);
 
@@ -148,8 +149,8 @@ class Graph
 
     // File I/O
     void clearGraph();
-    void loadGraphFromFile();
-    void saveGraphToFile();
+    void loadGraphFromFile(bool prompt);
+    void saveGraphToFile(bool saveAs);
     void loadGeometry();
 
     mx::StringVec _geomFilter;
@@ -161,7 +162,7 @@ class Graph
 
     RenderViewPtr _renderer;
 
-    // document and intializing information
+    // document and intializing information    
     mx::FilePath _materialFilename;
     mx::DocumentPtr _graphDoc;
     mx::StringSet _xincludeFiles;
