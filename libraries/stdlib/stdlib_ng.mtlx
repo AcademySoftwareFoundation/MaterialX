@@ -1609,13 +1609,13 @@
 
   <!--
     Node: <line>
-    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
     Segment ends will be rounded.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_line_float" nodedef="ND_line_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <subtract name="p_a" type="vector2">
@@ -1660,11 +1660,11 @@
 
   <!--
     Node: <circle>
-    Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_circle_float" nodedef="ND_circle_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <dotproduct name="dist_square" type="float">
@@ -1686,12 +1686,12 @@
 
   <!--
     Node: <cloverleaf>
-    Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_cloverleaf_float" nodedef="ND_cloverleaf_float">
     <add name="sample_double" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="texcoord" />
     </add>
     <add name="sample_add" type="vector2">
       <input name="in1" type="vector2" nodename="sample_double" />
@@ -1718,22 +1718,22 @@
       <input name="in2" type="float" nodename="sample_add" channels="y" />
     </combine2>
     <circle name="circle1" type="float">
-      <input name="sample" type="vector2" nodename="coord1" />
+      <input name="texcoord" type="vector2" nodename="coord1" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle2" type="float">
-      <input name="sample" type="vector2" nodename="coord2" />
+      <input name="texcoord" type="vector2" nodename="coord2" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle3" type="float">
-      <input name="sample" type="vector2" nodename="coord3" />
+      <input name="texcoord" type="vector2" nodename="coord3" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle4" type="float">
-      <input name="sample" type="vector2" nodename="coord4" />
+      <input name="texcoord" type="vector2" nodename="coord4" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
@@ -1754,12 +1754,12 @@
 
   <!--
     Node: <hexagon>
-    Returns 1 if sample is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_hexagon_float" nodedef="ND_hexagon_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <absval name="delta_abs" type="vector2">
@@ -2010,13 +2010,13 @@
       <input name="in2" type="float" nodename="subY_1" />
     </combine2>
     <line name="line_diag1" type="float">
-      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="texcoord" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" value="1, 1" />
       <input name="point2" type="vector2" value="-1, -1" />
     </line>
     <line name="line_diag2" type="float">
-      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="texcoord" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" value="-1, 1" />
       <input name="point2" type="vector2" value="1, -1" />
@@ -2109,15 +2109,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <circle name="circle_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <circle name="circle_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <circle name="circle_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <max name="max1" type="float">
@@ -2129,7 +2129,7 @@
       <input name="in2" type="float" nodename="circle_stagg3" />
     </max>
     <circle name="circle_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </circle>
     <ifequal name="pattern_selection" type="float">
@@ -2218,15 +2218,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <cloverleaf name="cloverleaf_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <cloverleaf name="cloverleaf_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <cloverleaf name="cloverleaf_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <max name="max1" type="float">
@@ -2238,7 +2238,7 @@
       <input name="in2" type="float" nodename="cloverleaf_stagg3" />
     </max>
     <cloverleaf name="cloverleaf_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </cloverleaf>
     <ifequal name="pattern_selection" type="float">
@@ -2327,15 +2327,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <hexagon name="hexagon_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <hexagon name="hexagon_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <hexagon name="hexagon_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <max name="max1" type="float">
@@ -2347,7 +2347,7 @@
       <input name="in2" type="float" nodename="hexagon_stagg3" />
     </max>
     <hexagon name="hexagon_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </hexagon>
     <ifequal name="pattern_selection" type="float">
