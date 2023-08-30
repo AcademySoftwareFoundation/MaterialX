@@ -193,7 +193,6 @@ class Graph
     // for adding new nodes
     std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> _nodesToAdd;
     std::unordered_map<std::string, std::vector<std::vector<std::string>>> _extraNodes;
-    std::unordered_map<std::string, std::vector<std::vector<std::string>>> _extraNodes_NodeGraph;
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;

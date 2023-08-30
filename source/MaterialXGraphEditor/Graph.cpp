@@ -228,9 +228,6 @@ void Graph::addExtraNodes()
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
     _extraNodes["Group Nodes"].push_back(groupNode);
 
-    // Add all but "nodegraph" to the node list for usage inside nodegraphs.
-    _extraNodes_NodeGraph = _extraNodes;
-
     // add nodegraph node
     std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
     _extraNodes["Node Graph"].push_back(nodeGraph);
@@ -3505,12 +3502,8 @@ void Graph::addNodePopup(bool cursor)
         std::string subs(input);
         // input string length
         // filter extra nodes - includes inputs, outputs, groups, and node graphs
-
-        // Choose which list to use based on if the context is within a nodegraph
-        std::unordered_map<std::string, std::vector<std::vector<std::string>>>* nodeList = 
-            _isNodeGraph ? &_extraNodes_NodeGraph : &_extraNodes;
-
-        for (std::unordered_map<std::string, std::vector<std::vector<std::string>>>::iterator it = nodeList->begin(); it != nodeList->end(); ++it)
+        const std::string NODEGRAPH_ENTRY = "Node Graph";
+        for (std::unordered_map<std::string, std::vector<std::vector<std::string>>>::iterator it = _extraNodes.begin(); it != _extraNodes.end(); ++it)
         {
             // filter out list of nodes
             if (subs.size() > 0)
@@ -3521,8 +3514,8 @@ void Graph::addNodePopup(bool cursor)
                     std::string str(it->second[i][0]);
                     std::string nodeName = it->second[i][0];
 
-                    // Firewall check. Disallow nested nodegraphs 
-                    if (str == "nodegraph" && this->_isNodeGraph)
+                    // Disallow creating nested nodegraphs 
+                    if (_isNodeGraph && it->first == NODEGRAPH_ENTRY)
                     {
                         continue;
                     }
