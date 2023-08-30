@@ -2597,7 +2597,6 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
                         {
                             if (uiUpNode->getInput())
                             {
-
                                 pin->_input->setInterfaceName(uiUpNode->getName());
                             }
                             else
