@@ -159,7 +159,6 @@ RenderView::RenderView(mx::DocumentPtr doc,
     _genContext(mx::GlslShaderGenerator::create()),
     _unitRegistry(mx::UnitConverterRegistry::create()),
     _splitByUdims(true),
-    _mergeMaterials(false),
     _materialCompilation(false),
     _renderTransparency(true),
     _renderDoubleSided(true),
@@ -410,18 +409,15 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
     // Clear user data on the generator.
     _genContext.clearUserData();
 
-    // Clear materials if merging is not requested.
-    if (!_mergeMaterials)
+    // Clear materials.
+    for (mx::MeshPartitionPtr geom : _geometryList)
     {
-        for (mx::MeshPartitionPtr geom : _geometryList)
+        if (_materialAssignments.count(geom))
         {
-            if (_materialAssignments.count(geom))
-            {
-                assignMaterial(geom, nullptr);
-            }
+            assignMaterial(geom, nullptr);
         }
-        _materials.clear();
     }
+    _materials.clear();
 
     std::vector<mx::GlslMaterialPtr> newMaterials;
     try
@@ -434,10 +430,19 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         // Apply direct lights.
         applyDirectLights(_document);
 
-        //// Check for any udim set.
+        // Check for any udim set.
         mx::ValuePtr udimSetValue = _document->getGeomPropValue(mx::UDIM_SET_PROPERTY);
 
-        //// Create new materials.
+        // Skip material nodes without upstream shaders.
+        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
+        if (node &&
+            node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
+            mx::getShaderNodes(node).empty())
+        {
+            typedElem = nullptr;
+        }
+
+        // Create new materials.
         if (!typedElem)
         {
             std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_document);
@@ -451,8 +456,7 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
         mx::NodePtr materialNode = nullptr;
         if (typedElem)
         {
-            mx::NodePtr node = typedElem->asA<mx::Node>();
-            materialNode = node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr;
+            materialNode = node;
             if (udimSetValue && udimSetValue->isA<mx::StringVec>())
             {
                 for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
@@ -551,14 +555,11 @@ void RenderView::updateMaterials(mx::TypedElementPtr typedElem)
 
             // Apply fallback assignments.
             mx::GlslMaterialPtr fallbackMaterial = newMaterials[0];
-            if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
+            for (mx::MeshPartitionPtr geom : _geometryList)
             {
-                for (mx::MeshPartitionPtr geom : _geometryList)
+                if (!_materialAssignments[geom])
                 {
-                    if (!_materialAssignments[geom])
-                    {
-                        assignMaterial(geom, fallbackMaterial);
-                    }
+                    assignMaterial(geom, fallbackMaterial);
                 }
             }
 
@@ -720,7 +721,7 @@ void RenderView::loadEnvironmentLight()
     envIrradianceMap = _imageHandler->acquireImage(envIrradiancePath);
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getInvalidImage())
+    if (envIrradianceMap == _imageHandler->getZeroImage())
     {
         mx::Sh3ColorCoeffs shIrradiance = mx::projectEnvironment(envRadianceMap, true);
         envIrradianceMap = mx::renderEnvironment(shIrradiance, IRRADIANCE_MAP_WIDTH, IRRADIANCE_MAP_HEIGHT);

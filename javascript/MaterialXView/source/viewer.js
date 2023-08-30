@@ -589,6 +589,7 @@ export class Material
 
         // Set search path. Assumes images are relative to current file
         // location.
+        if (!materialFilename) materialFilename = "/";
         const paths = materialFilename.split('/');
         paths.pop(); 
         const searchPath = paths.join('/');
@@ -777,7 +778,7 @@ export class Material
         Object.assign(uniforms, {
             u_numActiveLightSources: { value: lights.length },
             u_lightData: { value: lightData },
-            u_envMatrix: { value: new THREE.Matrix4().multiplyMatrices(getLightRotation(), new THREE.Matrix4().makeScale(1, -1, 1)) },
+            u_envMatrix: { value: getLightRotation() },
             u_envRadiance: { value: radianceTexture },
             u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
             u_envRadianceSamples: { value: 16 },
