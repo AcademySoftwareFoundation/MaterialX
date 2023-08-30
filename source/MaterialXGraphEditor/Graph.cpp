@@ -174,7 +174,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         else
         {
             std::cerr << "Include file not found: " << filename.asString() << std::endl;
-        }        
+        }
     };
 
     mx::DocumentPtr doc = mx::createDocument();
