@@ -162,7 +162,7 @@ class Graph
 
     RenderViewPtr _renderer;
 
-    // document and intializing information    
+    // document and intializing information
     mx::FilePath _materialFilename;
     mx::DocumentPtr _graphDoc;
     mx::StringSet _xincludeFiles;
