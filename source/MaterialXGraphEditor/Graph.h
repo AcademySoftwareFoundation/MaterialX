@@ -36,7 +36,6 @@ class Graph
 {
   public:
     Graph(const std::string& materialFilename,
-          bool isDefaultFilename,
           const std::string& meshFilename,
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
@@ -150,7 +149,7 @@ class Graph
     // File I/O
     void clearGraph();
     void loadGraphFromFile(bool prompt);
-    void saveGraphToFile(bool saveAs);
+    void saveGraphToFile();
     void loadGeometry();
 
     mx::StringVec _geomFilter;
