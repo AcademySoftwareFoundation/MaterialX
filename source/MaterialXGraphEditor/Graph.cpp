@@ -3000,9 +3000,18 @@ void Graph::loadGraphFromFile(bool prompt)
         }
         else
         {
-            loadDocument(_materialFilename);
+            _graphDoc = loadDocument(_materialFilename);
+
+            // Rebuild the UI
+            _initial = true;
+            buildUiBaseGraph(_graphDoc);
+            _currGraphElem = _graphDoc;
+            _prevUiNode = nullptr;
+
+            _renderer->setDocument(_graphDoc);
+            _renderer->updateMaterials(nullptr);
         }
-    }
+    }   
 }
 
 void Graph::saveGraphToFile(bool saveAs)
