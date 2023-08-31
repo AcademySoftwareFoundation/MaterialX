@@ -116,7 +116,7 @@ int main(int argc, char* const argv[])
             if (nextToken != materialFilename)
             {
                 materialFilename = nextToken;
-                isDefaultFilename = true;
+                isDefaultFilename = false;
             }
         }
         else if (token == "--mesh")
