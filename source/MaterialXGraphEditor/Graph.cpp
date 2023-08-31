@@ -2603,7 +2603,33 @@ void Graph::AddLink(ed::PinId inputPinId, ed::PinId outputPinId)
                             {
                                 if (uiUpNode->getNode())
                                 {
-                                    pin->_input->setConnectedNode(uiUpNode->getNode());
+                                    mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
+                                    mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
+                                    bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
+
+                                    // This is purely to avoid adding a reference to an update node only 1 output,
+                                    // as currently validation consides adding this an error. Otherwise
+                                    // it will add an "output" attribute all the time.
+                                    if (!isMultiOutput)
+                                    {
+                                        pin->_input->setConnectedNode(uiUpNode->getNode());
+                                    }
+                                    else
+                                    {
+                                        for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
+                                        {
+                                            // set pin connection to correct output
+                                            if (outPin->_pinId == inputPinId)
+                                            {
+                                                mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
+                                                if (!outputs)
+                                                {
+                                                    outputs = uiUpNode->getNode()->addOutput(outPin->_name, pin->_input->getType());
+                                                }
+                                                pin->_input->setConnectedOutput(outputs);
+                                            }
+                                        }
+                                    }
                                 }
                                 else if (uiUpNode->getNodeGraph())
                                 {
@@ -2712,6 +2738,9 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     setDefaults(pin->_input);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
+
+                // Remove any output reference
+                pin->_input->removeAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
 
                 pin->setConnected(false);
                 // if a value exists update the input with it
