@@ -177,13 +177,13 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         {
             mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
             doc->importLibrary(_stdLib);
-
             std::string message;
             if (!doc->validate(&message))
             {
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
                 std::cerr << message << std::endl;
             }
+            
             // Cache the currently loaded file
             _materialFilename = filename;
         }
