@@ -112,10 +112,7 @@ int main(int argc, char* const argv[])
 
         if (token == "--material")
         {
-            if (nextToken != materialFilename)
-            {
-                materialFilename = nextToken;
-            }
+            materialFilename = nextToken;
         }
         else if (token == "--mesh")
         {
