@@ -124,6 +124,17 @@ void MslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
+void MslRenderer::updateUniform(ShaderPort* uniform)
+{
+
+    if (!uniform)
+    {
+        return;
+    }
+
+    _glProgram->bindUniform(uniform->getVariable(), uniform->getValue());
+}
+
 void MslRenderer::createFrameBuffer(bool encodeSrgb)
 {
     _framebuffer = MetalFramebuffer::create(_device,

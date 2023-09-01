@@ -372,6 +372,11 @@ void OslRenderer::validateInputs()
     throw ExceptionRenderError("OSL input validation is not yet supported");
 }
 
+void  OslRenderer::updateUniform(ShaderPort* /*uniform*/)
+{
+    throw ExceptionRenderError("OSL update uniform is not yet supported");
+}
+
 void OslRenderer::render()
 {
     if (_oslOutputFilePath.isEmpty())

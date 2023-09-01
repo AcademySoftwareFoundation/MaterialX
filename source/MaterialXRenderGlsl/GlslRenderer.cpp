@@ -119,6 +119,21 @@ void GlslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
+void GlslRenderer::updateUniform(ShaderPort* uniform)
+{
+    if (!uniform)
+    {
+        return;
+    }
+
+    if (!_program->bind())
+    {
+        return;
+    }
+
+    _program->bindUniform(uniform->getVariable(), uniform->getValue());
+}
+
 void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
