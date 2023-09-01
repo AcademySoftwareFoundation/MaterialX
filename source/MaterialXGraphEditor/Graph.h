@@ -60,104 +60,159 @@ class Graph
   private:
     mx::ElementPredicate getElementPredicate() const;
     void loadStandardLibraries();
+
+    // Generate node UI from nodedefs
     void createNodeUIList(mx::DocumentPtr doc);
+
+    // Build UiNode nodegraph upon loading a document
     void buildUiBaseGraph(mx::DocumentPtr doc);
+
+    // Build UiNode node graph upon diving into a nodegraph node
     void buildUiNodeGraph(const mx::NodeGraphPtr& nodeGraphs);
+
+    // Based on the comment node in the ImGui Node Editor blueprints-example.cpp.
     void buildGroupNode(UiNodePtr node);
 
-    // handling link information
+    // Connect links via connected nodes in UiNodePtr
     void linkGraph();
+
+    // Connect all links via the graph editor library
     void connectLinks();
+
+    // Find link position in current links vector from link id
     int findLinkPosition(int id);
+
+    // Find link from attribute id
     std::vector<int> findLinkId(int attrId);
+
+    // Check if link exists in the current link vector
     bool linkExists(Link newLink);
-    void AddLink(ed::PinId inputPinId, ed::PinId outputPinId);
+
+    // Add link to nodegraph and set up connections between UiNodes and
+    // MaterialX Nodes to update shader
+    void addLink(ed::PinId inputPinId, ed::PinId outputPinId);
+
+    // Delete link from current link vector and remove any connections in
+    // UiNode or MaterialX Nodes to update shader
     void deleteLink(ed::LinkId deletedLinkId);
+
     void deleteLinkInfo(int startAtrr, int endAttr);
 
-    // functions for the layout of the nodes
+    // Layout the x-position by assigning the node levels based on its distance from the first node
     ImVec2 layoutPosition(UiNodePtr node, ImVec2 pos, bool initialLayout, int level);
+
+    // Extra layout pass for inputs and nodes that do not attach to an output node
     void layoutInputs();
+
     void findYSpacing(float startPos);
     float totalHeight(int level);
     void setYSpacing(int level, float startingPos);
     float findAvgY(const std::vector<UiNodePtr>& nodes);
 
-    // pin information
+    // Return pin color based on the type of the value of that pin
     void setPinColor();
-    void DrawPinIcon(std::string type, bool connected, int alpha);
+
+    // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
+    void drawPinIcon(std::string type, bool connected, int alpha);
+
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
+
+    // Return output pin needed to link the inputs and outputs
     ed::PinId getOutputPin(UiNodePtr node, UiNodePtr inputNode, UiPinPtr input);
+
     void drawOutputPins(UiNodePtr node, const std::string& longestInputLabel);
+
+    // Create pins for outputs/inputs added while inside the node graph
     void addNodeGraphPins();
 
-    // UiNode functions
     std::vector<int> createNodes(bool nodegraph);
     int getNodeId(ed::PinId pinId);
+
+    // Find node location in graph nodes vector from node id
     int findNode(int nodeId);
+
+    // Return node position in _graphNodes from node name and type to account for
+    // input/output UiNodes with same names as MaterialX nodes
     int findNode(const std::string& name, const std::string& type);
+
+    // Add node to graphNodes based on nodedef information
     void addNode(const std::string& category, const std::string& name, const std::string& type);
+
     void deleteNode(UiNodePtr node);
+
+    // Build the initial graph of a loaded document including shader, material and nodegraph node
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
-    // UiEdge functions
+    // Check if edge exists in edge vector
     bool edgeExists(UiEdge edge);
+
     void createEdge(UiNodePtr upNode, UiNodePtr downNode, mx::InputPtr connectingInput);
+
+    // Remove node edge based on connecting input
     void removeEdge(int downNode, int upNode, UiPinPtr pin);
 
     void saveDocument(mx::FilePath filePath);
+
+    // Set position attributes for nodes which changed position
     void savePosition();
+
+    // Check if node has already been assigned a position
     bool checkPosition(UiNodePtr node);
 
+    // Add input pointer to node based on input pin
     void addNodeInput(UiNodePtr node, mx::InputPtr& input);
-    mx::InputPtr findInput(mx::InputPtr input, std::string name);
 
-    // travel up from inside a node graph
+    mx::InputPtr findInput(mx::InputPtr input, const std::string& name);
     void upNodeGraph();
 
-    // property editor information
+    // Set the value of the selected node constants in the node property editor
     void setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIProperties& uiProperties);
+
     void propertyEditor();
     void setDefaults(mx::InputPtr input);
 
-    // set up Ui information for add node popup
+    // Setup UI information for add node popup
     void addExtraNodes();
 
-    // copy and paste functions
     void copyInputs();
+
+    // Set position of pasted nodes based on original node position
     void positionPasteBin(ImVec2 pos);
+
     void copyNodeGraph(UiNodePtr origGraph, UiNodePtr copyGraph);
     void copyUiNode(UiNodePtr node);
 
-    // renderview window and buttons
     void graphButtons();
 
-    // popup information
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
     bool readOnly();
     void readOnlyPopup();
+
+    // Compiling shaders message
     void shaderPopup();
 
-    // modifying materials
     void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
     void selectMaterial(UiNodePtr node);
+
+    // Allow for camera manipulation of render view window
     void handleRenderViewInputs(ImVec2 minValue, float width, float height);
+
+    // Set the node to display in render view based on selected node or nodegraph
     void setRenderMaterial(UiNodePtr node);
 
-    // File I/O
     void clearGraph();
     void loadGraphFromFile(bool prompt);
     void saveGraphToFile();
     void loadGeometry();
 
+    void showHelp() const;
+
+  private:
     mx::StringVec _geomFilter;
     mx::StringVec _mtlxFilter;
     mx::StringVec _imageFilter;
-
-    // Help
-    void showHelp() const;
 
     RenderViewPtr _renderer;
 
@@ -236,7 +291,10 @@ class Graph
     std::string _pinFilterType;
 
     // DPI scaling for fonts
-    float _fontScale = 1.0f;
+    float _fontScale;
+
+    // Options
+    bool _saveNodePositions;
 };
 
 #endif
