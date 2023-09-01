@@ -1225,12 +1225,6 @@ void ShaderGraph::topologicalSort()
             }
         }
     }
-
-    // Check if there was a cycle.
-    if (count != _nodeMap.size())
-    {
-        throw ExceptionFoundCycle("Encountered a cycle in graph: " + getName());
-    }
 }
 
 void ShaderGraph::setVariableNames(GenContext& context)
