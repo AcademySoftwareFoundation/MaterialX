@@ -1880,7 +1880,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
     {
         auto groupNode = std::make_shared<UiNode>(name, int(++_graphTotalSize));
 
-        // Set message of group uinode in order to identify it as such
+        // Set message of group UiNode in order to identify it as such
         groupNode->setMessage("Comment");
         setUiNodeInfo(groupNode, type, "group");
 
@@ -1895,7 +1895,7 @@ void Graph::addNode(const std::string& category, const std::string& name, const 
         std::string nodeGraphName = _graphDoc->getNodeGraphs().back()->getName();
         auto nodeGraphNode = std::make_shared<UiNode>(nodeGraphName, int(++_graphTotalSize));
 
-        // Cet mx::Nodegraph as node graph for uiNode
+        // Set mx::Nodegraph as node graph for uiNode
         nodeGraphNode->setNodeGraph(_graphDoc->getNodeGraphs().back());
 
         setUiNodeInfo(nodeGraphNode, type, "nodegraph");
