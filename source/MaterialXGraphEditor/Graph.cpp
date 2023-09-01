@@ -72,7 +72,8 @@ Graph::Graph(const std::string& materialFilename,
     _isCut(false),
     _autoLayout(false),
     _frameCount(INT_MIN),
-    _pinFilterType(mx::EMPTY_STRING)
+    _fontScale(1.0f),
+    _saveNodePositions(true)
 {
     loadStandardLibraries();
     setPinColor();
@@ -3085,6 +3086,12 @@ void Graph::graphButtons()
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Options"))
+        {
+            ImGui::Checkbox("Save Node Positions", &_saveNodePositions);
+            ImGui::EndMenu();
+        }
+
         if (ImGui::Button("Help"))
         {
             ImGui::OpenPopup("Help");
@@ -4318,7 +4325,20 @@ void Graph::saveDocument(mx::FilePath filePath)
         filePath.addExtension(mx::MTLX_EXTENSION);
     }
 
+    mx::DocumentPtr writeDoc = _graphDoc;
+
+    // If requested, create a modified version of the document for saving.
+    if (!_saveNodePositions)
+    {
+        writeDoc = _graphDoc->copy();
+        for (mx::ElementPtr elem : writeDoc->traverseTree())
+        {
+            elem->removeAttribute("xpos");
+            elem->removeAttribute("ypos");
+        }
+    }
+
     mx::XmlWriteOptions writeOptions;
     writeOptions.elementPredicate = getElementPredicate();
-    mx::writeToXmlFile(_graphDoc, filePath, &writeOptions);
+    mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
 }
