@@ -308,7 +308,6 @@ class MX_CORE_API GraphElement : public InterfaceElement
 
     /// Return a vector of all children (nodes and outputs) sorted in
     /// topological order.
-    /// @throws ExceptionFoundCycle if a cycle is encountered.
     vector<ElementPtr> topologicalSort() const;
 
     /// If not yet present, add a geometry node to this graph matching the given property
@@ -357,6 +356,14 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// @return An implementation for this node, or an empty shared pointer if
     ///    none was found.
     InterfaceElementPtr getImplementation() const;
+
+    /// @}
+    /// @name Traversal
+    /// @{
+
+    /// Return a vector of all downstream ports that connect to this graph, ordered by
+    /// the names of the port elements.
+    vector<PortElementPtr> getDownstreamPorts() const;
 
     /// @}
     /// @name Utility
