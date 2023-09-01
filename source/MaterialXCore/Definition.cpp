@@ -72,7 +72,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     const TargetDefPtr targetDef = getDocument()->getTargetDef(target);
     const StringVec candidateTargets = targetDef ? targetDef->getMatchingTargets() : StringVec();
 
-    // Search the candidate targets in inheritance order
+    // First, search for a target-specific match.
     for (const string& candidateTarget : candidateTargets)
     {
         for (InterfaceElementPtr interface : interfaces)
@@ -84,7 +84,8 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
             }
         }
     }
-    // If no exact target match is found then return the first interface without a target
+    
+    // Then search for a generic match.
     for (InterfaceElementPtr interface : interfaces)
     {
         // Look for interfaces without targets
