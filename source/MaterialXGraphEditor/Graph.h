@@ -236,7 +236,10 @@ class Graph
     std::string _pinFilterType;
 
     // DPI scaling for fonts
-    float _fontScale = 1.0f;
+    float _fontScale;
+
+    // Options
+    bool _saveNodePositions;
 };
 
 #endif
