@@ -161,10 +161,18 @@ jobs:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
 
-    - name: Install OpenImageIO
-      if: matrix.install_oiio == 'ON' && runner.os == 'Windows'
+    - name: Build Python SDist
+      if: matrix.python_sdist
       run: |
-        vcpkg/vcpkg install openimageio --triplet=x64-windows
+        python -m pip install build
+        python -m build -s . --outdir dist
+
+    - name: Upload Python SDist
+      if: matrix.python_sdist
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_Python_SDist
+        path: dist/*.tar.gz
 
     - name: Install Emscripten
       if: matrix.build_javascript == 'ON'
@@ -327,19 +335,6 @@ jobs:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
         if-no-files-found: ignore   
-
-    - name: Build Python SDist
-      if: matrix.python_sdist
-      run: |
-        python -m pip install build
-        python -m build -s . --outdir dist
-
-    - name: Upload Python SDist
-      if: matrix.python_sdist
-      uses: actions/upload-artifact@v3
-      with:
-        name: MaterialX_Python_SDist
-        path: dist/*.tar.gz
 
   wheels:
     name: Python Wheels
