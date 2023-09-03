@@ -387,6 +387,11 @@ jobs:
         # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
         MACOSX_DEPLOYMENT_TARGET: '10.15'
 
+    - name: Install Python 3.${{ matrix.python-minor }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.${{ matrix.python-minor }}
+
     - name: Install Wheel
       run: python -m pip install MaterialX --find-links wheelhouse --no-index
 
