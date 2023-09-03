@@ -349,7 +349,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MaterialX_Python_SDist
-        path: ./dist/*.tar.gz
+        path: dist/*.tar.gz
 
   wheels:
     name: Python Wheels
@@ -408,4 +408,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MaterialX_Python_Wheels
-        path: ./wheelhouse/*.whl
+        path: wheelhouse/*.whl
