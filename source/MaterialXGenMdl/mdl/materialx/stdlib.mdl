@@ -2779,7 +2779,7 @@ export color4 mx_screen_color4(
 
 float mx_overlay(float mxp_fg, float mxp_bg)
 {
-	return (mxp_fg < 0.5) ? (2 * mxp_fg * mxp_bg) : (1 - (1 - mxp_fg) * (1 - mxp_bg));
+	return (mxp_bg < 0.5) ? (2 * mxp_fg * mxp_bg) : (1 - 2 * (1 - mxp_fg) * (1 - mxp_bg));
 }
 float2 mx_overlay(float2 mxp_fg, float2 mxp_bg) [[ anno::unused() ]]
 {

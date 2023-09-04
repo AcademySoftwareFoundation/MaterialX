@@ -1,6 +1,6 @@
 float overlay(float fg, float bg)
 {
-    return (fg < 0.5) ? (2 * fg * bg) : (1 - (1 - fg) * (1 - bg));
+    return (bg < 0.5) ? (2 * fg * bg) : (1 - 2 * (1 - fg) * (1 - bg));
 }
 
 color overlay(color fg, color bg)

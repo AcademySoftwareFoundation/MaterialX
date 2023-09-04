@@ -255,9 +255,9 @@ def _writeOverlay(file, outputType):
     	file.write(INDENT + 'color4 fg_ = color4(mxp_fg);\n')
     	file.write(INDENT + 'color4 bg_ = color4(mxp_bg);\n')
     	file.write(INDENT + 'upper = mx_multiply(mx_multiply(mk_color4(2.0),bg_),fg_);\n')
-    	file.write(INDENT + 'lower = mx_subtract(mx_add(bg_,fg_),mx_multiply(bg_,fg_));\n')
+    	file.write(INDENT + 'lower = mx_subtract(mk_color4(1.0), mx_multiply(mk_color4(2.0), mx_multiply(mx_subtract(mk_color4(1.0), fg_), mx_subtract(mk_color4(1.0), bg_))));\n')
     	file.write(INDENT + 'color maskRGB = color(::math::step(float3(.5), float3(fg_.rgb)));\n')
-    	file.write(INDENT + 'float maskA = ::math::step(.5, fg_.a);\n')
+    	file.write(INDENT + 'float maskA = ::math::step(.5, bg_.a);\n')
     	file.write(INDENT + 'color overlayvalRGB = ::math::lerp(lower.rgb, upper.rgb, maskRGB);\n')
     	file.write(INDENT + 'float overlayvalA = ::math::lerp(lower.a, upper.a, maskA);\n')
     	file.write(INDENT + 'color returnRGB = ::math::lerp(mxp_bg.rgb, overlayvalRGB, color(mxp_mix));\n')
@@ -268,11 +268,11 @@ def _writeOverlay(file, outputType):
         file.write(INDENT + outputType + ' fg_ = ' + outputType + '(mxp_fg);\n')
         file.write(INDENT + outputType + ' bg_ = ' + outputType + '(mxp_bg);\n')
         file.write(INDENT + 'upper = 2.0*bg_*fg_;\n')
-        file.write(INDENT + 'lower = bg_+fg_-bg_*fg_;\n')
+        file.write(INDENT + 'lower = 1.0-2.0*((1.0-fg_)*(1.0-bg_));\n')
         if outputType == 'color':
-            file.write(INDENT + 'mask = color(::math::step(float3(.5), float3(fg_)));\n')
+            file.write(INDENT + 'mask = color(::math::step(float3(.5), float3(bg_)));\n')
         else:
-            file.write(INDENT + 'mask = ::math::step(' + outputType + '(.5), fg_);\n')
+            file.write(INDENT + 'mask = ::math::step(' + outputType + '(.5), bg_);\n')
         file.write(INDENT + 'overlayval = ::math::lerp(lower, upper, mask);\n')
         file.write(INDENT + 'return ' + outputType + '(::math::lerp(mxp_bg, overlayval, mxp_mix));\n')
 
