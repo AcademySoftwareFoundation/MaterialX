@@ -295,7 +295,7 @@
     Node: <triplanarprojection> Supplemental Node
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
-    a weighted blend of the three samples using the geometric normal.
+    an adjustable weighted blend of the three samples using the geometric normal.
   -->
   <nodedef name="ND_triplanarprojection_float" node="triplanarprojection" nodegroup="texture3d">
     <input name="filex" type="filename" value="" uniform="true" />
@@ -307,6 +307,8 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -323,6 +325,8 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -339,6 +343,8 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -355,6 +361,8 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -371,6 +379,8 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -387,6 +397,8 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
+    <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
     <input name="frameoffset" type="integer" value="0" uniform="true" />
@@ -1025,15 +1037,180 @@
   </nodedef>
 
   <!--
+    Node: <randomfloat>
+    Produces a randomized float, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomfloat_float" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="float" uiname="Input" value="0.0" doc="Initial randomization seed." />
+    <input name="min" type="float" uiname="Minimum" value="0.0" doc="The minimum output value." />
+    <input name="max" type="float" uiname="Maximum" value="1.0" doc="The maximum output value." />
+    <input name="seed" type="integer" uiname="Seed" value="0" doc="Additional seed." />
+    <output name="out" type="float" />
+  </nodedef>
+  <nodedef name="ND_randomfloat_integer" node="randomfloat" nodegroup="procedural">
+    <input name="in" type="integer" uiname="Input" value="0" />
+    <input name="min" type="float" uiname="Minimum" value="0.0" />
+    <input name="max" type="float" uiname="Maximum" value="1.0" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <randomcolor>
+    Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
+  -->
+  <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodedef name="ND_randomcolor_integer" node="randomcolor" nodegroup="procedural3d">
+    <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
+    <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
+    <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="saturationlow" type="float" uiname="Saturation Low" uisoftmin="0.0" uisoftmax="1.0" value="0.825" />
+    <input name="saturationhigh" type="float" uiname="Saturation High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesslow" type="float" uiname="Brightness Low" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="brightnesshigh" type="float" uiname="Brightness High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
+    <input name="seed" type="integer" uiname="Seed" value="0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
     Node: <checkerboard>
     A 2D checkerboard pattern.
   -->
   <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="procedural2d">
     <input name="color1" type="color3" uiname="Color 1" value="1.0, 1.0, 1.0" doc="The first color used in the checkerboard pattern." />
     <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." />
-    <input name="freq" type="vector2" uiname="Frequency" value="8, 8" doc="The frequency of checkers, with higher values producing smaller squares. Default is (8, 8)." />
-    <input name="offset" type="vector2" uiname="Offset" value="0, 0" doc="Shift the pattern in 2d space. Default is (0, 0)." />
+    <input name="uvtiling" type="vector2" uiname="UV Tiling" value="8, 8" doc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8)." />
+    <input name="uvoffset" type="vector2" uiname="UV Offset" value="0, 0" doc="The offset of the checkerboard pattern along each axis. Default is (0, 0)." />
     <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <line>
+    Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Segment ends will be rounded.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.1" />
+    <input name="point1" type="vector2" value="0.25, 0.25" />
+    <input name="point2" type="vector2" value="0.75, 0.75" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <circle>
+    Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_circle_float" node="circle" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <cloverleaf>
+    Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+  -->
+  <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <hexagon>
+    Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
+  -->
+  <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="center" type="vector2" value="0, 0" />
+    <input name="radius" type="float" value="0.5" />
+    <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <grid>
+    Creates a grid pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_grid_color3" node="grid" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <crosshatch>
+    Creates a crosshatch pattern with the given tiling, offset, and line thickness.
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_crosshatch_color3" node="crosshatch" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="thickness" type="float" value="0.05" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcircles>
+    Creates a black and white pattern of circles with a defined tiling and size (diameter).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledcloverleafs>
+    Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!--
+    Node: <tiledhexagons>
+    Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).
+    Pattern can be regular or staggered.
+  -->
+  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="uvtiling" type="vector2" value="1.0, 1.0" />
+    <input name="uvoffset" type="vector2" value="0.0, 0.0" />
+    <input name="size" type="float" value="0.5" />
+    <input name="staggered" type="boolean" value="false" />
     <output name="out" type="color3" />
   </nodedef>
 
@@ -2228,7 +2405,7 @@
     <input name="in2" type="vector4" uiname="in2" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="float" />
   </nodedef>
-  
+
   <!--
     Node: <dotproduct>
     Perform a dot product of two 2-4 channel vectors
@@ -2492,6 +2669,16 @@
     <input name="in1" type="stringarray" value="" />
     <input name="in2" type="string" value="" />
     <output name="out" type="stringarray" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <trianglewave>
+    Generate a triangle wave from the given scalar input.
+    The generated wave ranges from zero to one and repeats on integer boundaries.
+  -->
+  <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
+    <input name="in" type="float" value="0" />
+    <output name="out" type="float" />
   </nodedef>
 
   <!-- ======================================================================== -->

@@ -126,9 +126,6 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
     
   protected:
     MslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType);
-
-    virtual void updateViewInformation();
-    virtual void updateWorldInformation();
     
     void triggerProgrammaticCapture();
     void stopProgrammaticCapture();
@@ -145,11 +142,6 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
     MetalFramebufferPtr  _framebuffer;
 
     bool _initialized;
-
-    const Vector3 _eye;
-    const Vector3 _center;
-    const Vector3 _up;
-    float _objectScale;
 
     SimpleWindowPtr _window;
     Color3 _screenColor;

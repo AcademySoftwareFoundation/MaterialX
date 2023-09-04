@@ -641,22 +641,53 @@ export material mx_light(
 // TODO: Check if this works in the translator and higher level nodes, like
 //       mxp_material, if not, we have to switch to the material type and 
 //       use two different names for mxp_displacemnnt.
-export float3 mx_displacement_float(
+export material mx_displacement_float(
     float mxp_displacement = 0.0,
     float mxp_scale        = 1.0
-)
-{
-    return mxp_displacement * mxp_scale * state::normal();
-}
+) [[ 
+    anno::usage( "materialx:displacementshader") 
+]] = material(
+    geometry: material_geometry(
+        displacement: mxp_displacement * mxp_scale * state::scene_units_per_meter() * state::normal()
+    )
+);
 
-export float3 mx_displacement_vector3(
+export material mx_displacement_vector3(
     float3 mxp_displacement = float3(0.0),
     float  mxp_scale        = 1.0
-)
+) [[ 
+    anno::usage( "materialx:displacementshader") 
+]] = let
 {
-    return mxp_scale * ( mxp_displacement.x * state::texture_tangent_u(0)
-                       + mxp_displacement.y * state::texture_tangent_v(0)
-                       + mxp_displacement.z * state::normal());
+    float3 vec = (mxp_displacement.x * state::texture_tangent_u(0)
+                + mxp_displacement.y * state::texture_tangent_v(0)
+                + mxp_displacement.z * state::normal());
+} in material(
+    geometry: material_geometry(
+        displacement: vec * mxp_scale * state::scene_units_per_meter()
+    )
+);
+
+
+// helper function to mix two scattering volumes:
+// - combined scattering coefficient is just the sum of the two
+// - VDF mixer weight is the relative probability of encountering the corresponding
+//   particle type
+// NOTE: mixer weight should be a color, but due to a bug in current MDL compilers
+//       the color mixers don't accept non-uniform weights yet
+struct volume_mix_return {
+    color scattering_coefficient;
+    float mix_weight1; // mix_weight2 = 1.0 - mix_weight1, can use any mixer
+};
+volume_mix_return volume_mix(
+    color scattering_coefficient1,
+    float weight1,
+    color scattering_coefficient2,
+    float weight2)
+{
+    color s1 = weight1 * scattering_coefficient1;
+    color s = s1 + weight2 * scattering_coefficient2;
+    return volume_mix_return(scattering_coefficient: s, mix_weight1: math::average(s1 / s));
 }
 
 export material mx_mix_bsdf(
@@ -666,7 +697,11 @@ export material mx_mix_bsdf(
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
-= material(
+= let {
+    volume_mix_return v = volume_mix(
+        mxp_fg.volume.scattering_coefficient, mxp_mix,
+        mxp_bg.volume.scattering_coefficient, (1.0f - mxp_mix));
+} in material(
     surface: material_surface( 
         scattering: df::weighted_layer(
             weight: mxp_mix,
@@ -677,15 +712,14 @@ export material mx_mix_bsdf(
     // we need to carry volume properties along for SSS
     ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
-        scattering: df::clamped_mix( 
+        scattering: df::unbounded_mix( 
             df::vdf_component[]( 
-                df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
-                df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
+                df::vdf_component(v.mix_weight1, mxp_fg.volume.scattering), 
+                df::vdf_component(1.0 - v.mix_weight1, mxp_bg.volume.scattering))
         ),
         absorption_coefficient: mxp_mix * mxp_fg.volume.absorption_coefficient + 
                     (1.0 - mxp_mix) * mxp_bg.volume.absorption_coefficient,
-        scattering_coefficient: mxp_mix * mxp_fg.volume.scattering_coefficient + 
-                    (1.0 - mxp_mix) * mxp_bg.volume.scattering_coefficient
+        scattering_coefficient: v.scattering_coefficient
     )
 );
 
@@ -699,7 +733,7 @@ export material mx_mix_edf(
 = material(
     surface: material_surface( 
         emission: material_emission(
-            emission: df::clamped_mix( 
+            emission: df::unbounded_mix( // unbounded_mix is cheaper
             df::edf_component[]( 
                 df::edf_component( mxp_mix, mxp_fg.surface.emission.emission), 
                 df::edf_component( 1.0 - mxp_mix, mxp_bg.surface.emission.emission))
@@ -717,18 +751,21 @@ export material mx_mix_vdf(
 ) [[ 
     anno::usage( "materialx:vdf") 
 ]]
-= material(
+= let {
+    volume_mix_return v = volume_mix(
+        mxp_fg.volume.scattering_coefficient, mxp_mix,
+        mxp_bg.volume.scattering_coefficient, (1.0f - mxp_mix));
+} in material(
     ior:    mxp_fg.ior, // NOTE: IOR is uniform, cannot mix here
     volume: material_volume(
-        scattering: df::clamped_mix( 
+        scattering: df::unbounded_mix( 
         df::vdf_component[]( 
-            df::vdf_component( mxp_mix, mxp_fg.volume.scattering), 
-            df::vdf_component( 1.0 - mxp_mix, mxp_bg.volume.scattering))
+            df::vdf_component( v.mix_weight1, mxp_fg.volume.scattering), 
+            df::vdf_component( 1.0 - v.mix_weight1, mxp_bg.volume.scattering))
         ),
         absorption_coefficient: mxp_mix * mxp_fg.volume.absorption_coefficient +
                    (1.0 - mxp_mix) * mxp_bg.volume.absorption_coefficient,
-        scattering_coefficient: mxp_mix * mxp_fg.volume.scattering_coefficient +
-                   (1.0 - mxp_mix) * mxp_bg.volume.scattering_coefficient
+        scattering_coefficient: v.scattering_coefficient
     )
 );
 
@@ -741,7 +778,11 @@ export material mx_add_bsdf(
 ) [[ 
     anno::usage( "materialx:bsdf") 
 ]]
-= material(
+= let {
+    volume_mix_return v = volume_mix(
+        mxp_in1.volume.scattering_coefficient, 1.0f,
+        mxp_in2.volume.scattering_coefficient, 1.0f);
+} in material(
     surface: material_surface( 
         scattering: df::unbounded_mix(
             df::bsdf_component[](
@@ -754,13 +795,12 @@ export material mx_add_bsdf(
     volume: material_volume(
         scattering: df::unbounded_mix( 
             df::vdf_component[]( 
-                df::vdf_component( 1.0, mxp_in1.volume.scattering), 
-                df::vdf_component( 1.0, mxp_in2.volume.scattering))
+                df::vdf_component( v.mix_weight1, mxp_in1.volume.scattering), 
+                df::vdf_component( 1.0 - v.mix_weight1, mxp_in2.volume.scattering))
         ),
         absorption_coefficient: mxp_in1.volume.absorption_coefficient + 
                                 mxp_in2.volume.absorption_coefficient,
-        scattering_coefficient: mxp_in1.volume.scattering_coefficient + 
-                                mxp_in2.volume.scattering_coefficient
+        scattering_coefficient: v.scattering_coefficient
     )
 );
 
@@ -796,19 +836,22 @@ export material mx_add_vdf(
 ) [[ 
     anno::usage( "materialx:vdf") 
 ]]
-= material(
+= let {
+    volume_mix_return v = volume_mix(
+        mxp_in1.volume.scattering_coefficient, 1.0f,
+        mxp_in2.volume.scattering_coefficient, 1.0f);
+} in material(
     // assuming mixing the IOR is the best we can do here
     ior:    0.5 * mxp_in1.ior + 0.5 * mxp_in2.ior,
     volume: material_volume(
         scattering: df::unbounded_mix( 
             df::vdf_component[]( 
-                df::vdf_component( 1.0, mxp_in1.volume.scattering), 
-                df::vdf_component( 1.0, mxp_in2.volume.scattering))
+                df::vdf_component( v.mix_weight1, mxp_in1.volume.scattering), 
+                df::vdf_component( 1.0 - v.mix_weight1, mxp_in2.volume.scattering))
         ),
         absorption_coefficient: mxp_in1.volume.absorption_coefficient + 
                                 mxp_in2.volume.absorption_coefficient,
-        scattering_coefficient: mxp_in1.volume.scattering_coefficient + 
-                                mxp_in2.volume.scattering_coefficient
+        scattering_coefficient: v.scattering_coefficient
     )
 );
 

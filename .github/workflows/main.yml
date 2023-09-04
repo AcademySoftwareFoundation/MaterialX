@@ -47,20 +47,20 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           static_analysis: ON
 
-        - name: Linux_Clang_13_Python39
-          os: ubuntu-22.04
-          compiler: clang
-          compiler_version: "13"
-          python: 3.9
-          test_render: ON
-
         - name: Linux_Clang_14_Python311
           os: ubuntu-22.04
           compiler: clang
           compiler_version: "14"
           python: 3.11
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
+          test_render: ON
           clang_format: ON
+
+        - name: Linux_Clang_14_DynamicAnalysis
+          os: ubuntu-22.04
+          compiler: clang
+          compiler_version: "14"
+          python: None
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
 
         - name: MacOS_Xcode_11_Python37
@@ -77,11 +77,18 @@ jobs:
           python: 3.9
 
         - name: MacOS_Xcode_14_Python311
-          os: macos-12
+          os: macos-13
           compiler: xcode
-          compiler_version: "14.2"
+          compiler_version: "14.3"
           python: 3.11
           test_shaders: ON
+
+        - name: iOS_Xcode_14
+          os: macos-13
+          compiler: xcode
+          compiler_version: "14.3"
+          python: None
+          cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019
@@ -147,15 +154,11 @@ jobs:
         Add-Content $env:GITHUB_PATH "$PWD/vcpkg/installed/x64-windows/tools"
 
     - name: Install Python ${{ matrix.python }}
+      if: matrix.python != 'None'
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
-
-    - name: Install OpenImageIO
-      if: matrix.install_oiio == 'ON' && runner.os == 'Windows'
-      run: |
-        vcpkg/vcpkg install openimageio --triplet=x64-windows
 
     - name: Install Emscripten
       if: matrix.build_javascript == 'ON'
@@ -192,11 +195,11 @@ jobs:
       working-directory: build
 
     - name: Python Tests
-      if: matrix.dynamic_analysis != 'ON'
+      if: matrix.python != 'None'
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
-        python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgradeVersion True
+        python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
@@ -249,7 +252,7 @@ jobs:
       working-directory: build/render
 
     - name: Upload Installed Package
-      if: matrix.dynamic_analysis != 'ON'
+      if: matrix.python != 'None'
       uses: actions/upload-artifact@v3
       with:
         name: MaterialX_${{ matrix.name }}
@@ -318,3 +321,91 @@ jobs:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
         if-no-files-found: ignore   
+
+  sdist:
+    name: Python SDist
+    runs-on: ubuntu-latest
+    if: github.repository == 'AcademySoftwareFoundation/MaterialX'
+    outputs:
+      sdist_filename: ${{ steps.generate.outputs.filename }}
+
+    steps:
+    - name: Sync Repository
+      uses: actions/checkout@v3
+
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Build SDist
+      id: generate
+      run: |
+        python -m pip install build
+        python -m build -s . --outdir dist
+        echo "filename=$(ls dist)" >> "$GITHUB_OUTPUT"
+
+    - name: Upload SDist
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_Python_SDist
+        path: dist/*.tar.gz
+
+  wheels:
+    name: Python Wheels
+    runs-on: ${{ matrix.os }}
+    needs: ['sdist']
+    if: github.repository == 'AcademySoftwareFoundation/MaterialX'
+    strategy:
+      fail-fast: false
+      matrix:
+        python-minor: ['7', '8', '9', '10', '11']
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+
+    steps:
+    - name: Sync Repository
+      uses: actions/checkout@v3
+
+    - name: Install Python 3.${{ matrix.python-minor }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.${{ matrix.python-minor }}
+
+    - name: Download Sdist
+      uses: actions/download-artifact@v3
+      with:
+        name: MaterialX_Python_SDist
+        path: sdist
+
+    - name: Build Wheel
+      uses: pypa/cibuildwheel@v2.13.1
+      with:
+        package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
+      env:
+        CIBW_BUILD: 'cp3${{ matrix.python-minor }}-*'
+        CIBW_SKIP: '*musllinux*'
+        CIBW_ARCHS: 'auto64'
+        # https://github.com/pypa/manylinux
+        # manylinux2014 is CentOS 7 based. Which means GCC 10 and glibc 2.17.
+        CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+        CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
+        CIBW_BEFORE_ALL_MACOS: sudo xcode-select -switch /Applications/Xcode_13.4.app
+        CIBW_BUILD_VERBOSITY: 1
+        CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
+        # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
+        MACOSX_DEPLOYMENT_TARGET: '10.15'
+
+    - name: Install Wheel
+      run: python -m pip install MaterialX --find-links wheelhouse --no-index
+
+    - name: Python Tests
+      run: |
+        python MaterialXTest/main.py
+        python MaterialXTest/genshader.py
+      working-directory: python
+
+    - name: Upload Wheel
+      uses: actions/upload-artifact@v3
+      with:
+        name: MaterialX_Python_Wheels
+        path: wheelhouse/*.whl

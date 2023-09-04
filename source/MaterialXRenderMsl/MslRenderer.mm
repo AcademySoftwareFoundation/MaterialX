@@ -14,13 +14,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const float PI = std::acos(-1.0f);
-
-// View information
-const float FOV_PERSP = 45.0f; // degrees
-const float NEAR_PLANE_PERSP = 0.05f;
-const float FAR_PLANE_PERSP = 100.0f;
-
 //
 // MslRenderer methods
 //
@@ -36,20 +29,14 @@ id<MTLDevice> MslRenderer::getMetalDevice() const
 }
 
 MslRenderer::MslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-    ShaderRenderer(width, height, baseType),
+    ShaderRenderer(width, height, baseType, MatrixConvention::Metal),
     _initialized(false),
-    _eye(0.0f, 0.0f, 3.0f),
-    _center(0.0f, 0.0f, 0.0f),
-    _up(0.0f, 1.0f, 0.0f),
-    _objectScale(1.0f),
     _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {
     _program = MslProgram::create();
 
     _geometryHandler = GeometryHandler::create();
     _geometryHandler->addLoader(TinyObjLoader::create());
-
-    _camera = Camera::create();
 }
 
 void MslRenderer::initialize(RenderContextHandle)
@@ -160,20 +147,6 @@ void MslRenderer::setSize(unsigned int width, unsigned int height)
     
 }
 
-void MslRenderer::updateViewInformation()
-{
-    float fH = std::tan(FOV_PERSP / 360.0f * PI) * NEAR_PLANE_PERSP;
-    float fW = fH * 1.0f;
-
-    _camera->setViewMatrix(Camera::createViewMatrix(_eye, _center, _up));
-    _camera->setProjectionMatrix(Camera::createPerspectiveMatrixZP(-fW, fW, -fH, fH, NEAR_PLANE_PERSP, FAR_PLANE_PERSP));
-}
-
-void MslRenderer::updateWorldInformation()
-{
-     _camera->setWorldMatrix(Matrix44::createScale(Vector3(_objectScale)));
-}
-
 void MslRenderer::triggerProgrammaticCapture()
 {
     MTLCaptureManager*    captureManager    = [MTLCaptureManager sharedCaptureManager];
@@ -217,9 +190,6 @@ void MslRenderer::render()
 
     
     [renderCmdEncoder setCullMode:MTLCullModeBack];
-    
-    updateViewInformation();
-    updateWorldInformation();
 
     try
     {
