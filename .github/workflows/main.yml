@@ -83,10 +83,10 @@ jobs:
           python: 3.11
           test_shaders: ON
 
-        - name: iOS_Xcode_14
+        - name: iOS_Xcode_15
           os: macos-13
           compiler: xcode
-          compiler_version: "14.3"
+          compiler_version: "15.0"
           python: None
           cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
