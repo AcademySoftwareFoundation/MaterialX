@@ -25,6 +25,7 @@ void bindPyShaderRenderer(py::module& mod)
         .def("createProgram", static_cast<void (mx::ShaderRenderer::*)(mx::ShaderPtr)>(&mx::ShaderRenderer::createProgram))
         .def("createProgram", static_cast<void (mx::ShaderRenderer::*)(const mx::ShaderRenderer::StageMap&)>(&mx::ShaderRenderer::createProgram))
         .def("validateInputs", &mx::ShaderRenderer::validateInputs)
+        .def("updateUniform", &mx::ShaderRenderer::updateUniform)
         .def("setSize", &mx::ShaderRenderer::setSize)
         .def("render", &mx::ShaderRenderer::render);
 
