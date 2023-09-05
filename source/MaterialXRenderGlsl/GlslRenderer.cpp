@@ -119,6 +119,16 @@ void GlslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
+void GlslRenderer::updateUniform(const string& name, ConstValuePtr value)
+{
+    if (!_program->bind())
+    {
+        return;
+    }
+
+    _program->bindUniform(name, value);
+}
+
 void GlslRenderer::setSize(unsigned int width, unsigned int height)
 {
     if (_context->makeCurrent())
