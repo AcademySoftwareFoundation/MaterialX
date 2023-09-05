@@ -5,7 +5,7 @@ set(MATERIALX_BUILD_VERSION 8)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
@@ -31,7 +31,7 @@ if (MATERIALX_BUILD_JS)
     endif()
 endif()
 
-project(MaterialX)
+project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
@@ -54,6 +54,19 @@ option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. G
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." ON)
+
+option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
+if (MATERIALX_BUILD_IOS)
+    set(CMAKE_SYSTEM_NAME iOS)
+    add_definitions(-DTARGET_OS_IOS=1)
+    set(MATERIALX_BUILD_PYTHON        OFF)
+    set(MATERIALX_BUILD_VIEWER        OFF)
+    set(MATERIALX_BUILD_GRAPH_EDITOR  OFF)
+    set(MATERIALX_BUILD_GEN_GLSL      OFF)
+    set(MATERIALX_BUILD_GEN_OSL       OFF)
+    set(MATERIALX_BUILD_GEN_MDL       OFF)
+    set(MATERIALX_BUILD_TESTS         OFF)
+endif()
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '3.9').")
@@ -79,6 +92,12 @@ set(MATERIALX_INSTALL_STDLIB_PATH "libraries" CACHE STRING "Install path for mtl
 set(MATERIALX_OSL_BINARY_OSLC "" CACHE FILEPATH "Full path to the OSL compiler binary.")
 set(MATERIALX_OSL_BINARY_TESTRENDER "" CACHE FILEPATH "Full path to the OSL test render binary.")
 set(MATERIALX_OSL_INCLUDE_PATH "" CACHE PATH "Full path to OSL shader includes (e.g. 'stdosl.h').")
+
+set(MATERIALX_PYTHON_FOLDER_NAME "python/MaterialX" CACHE INTERNAL "Folder name to user for installing the Python library.")
+
+if(SKBUILD)
+    set(MATERIALX_PYTHON_FOLDER_NAME "MaterialX")
+endif()
 
 # Helpers for MDL validation
 if (MATERIALX_BUILD_GEN_MDL)
@@ -134,6 +153,7 @@ mark_as_advanced(MATERIALX_INSTALL_LIB_PATH)
 mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
+mark_as_advanced(MATERIALX_BUILD_IOS)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
@@ -185,6 +205,12 @@ set(MATERIALX_SAME_DIR_RPATH "${RPATH_RELATIVE_SYMBOL};${CMAKE_INSTALL_PREFIX}/$
 set(MATERIALX_UP_ONE_RPATH "${RPATH_RELATIVE_SYMBOL}/../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
 # For linking to libraries where source is two directories deep, ie: "MATX/python/MaterialX/../../lib"
 set(MATERIALX_UP_TWO_RPATH "${RPATH_RELATIVE_SYMBOL}/../../${MATERIALX_INSTALL_LIB_PATH};${MATERIALX_SAME_DIR_RPATH}")
+if(SKBUILD)
+    # When building the Python wheels, we don't want to set any RPATH because
+    # we want to wheel to be self-contained. We don't want any interference from
+    # external paths.
+    set(MATERIALX_UP_TWO_RPATH "${RPATH_RELATIVE_SYMBOL}")
+endif()
 
 # Adjust compiler settings
 if(MSVC)
@@ -278,7 +304,7 @@ if(MATERIALX_BUILD_RENDER)
     if(MATERIALX_BUILD_GRAPH_EDITOR)
         add_subdirectory(source/MaterialXGraphEditor)
     endif()
-    if(MATERIALX_INSTALL_RESOURCES)
+    if(MATERIALX_INSTALL_RESOURCES AND NOT SKBUILD)
         add_subdirectory(resources)
     endif()
 endif()
@@ -313,26 +339,28 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.6.2")
 endif()
 
 # Install root-level documents
-install(FILES LICENSE CHANGELOG.md README.md THIRD-PARTY.md
-        DESTINATION .)
+if(NOT SKBUILD)
+    install(FILES LICENSE CHANGELOG.md README.md THIRD-PARTY.md
+            DESTINATION .)
 
-set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
+    set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
-                              ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
-                              INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
-                              PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
-write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-                                 VERSION ${MATERIALX_LIBRARY_VERSION}
-                                 COMPATIBILITY AnyNewerVersion)
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
+                                ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
+                                INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+                                PATH_VARS CMAKE_INSTALL_PREFIX CMAKE_PROJECT_NAME)
+    write_basic_package_version_file(${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+                                    VERSION ${MATERIALX_LIBRARY_VERSION}
+                                    COMPATIBILITY AnyNewerVersion)
 
-# Install the auto-generated CMake configuration files:
+    # Install the auto-generated CMake configuration files:
 
-install(EXPORT MaterialX
-        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
-        FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
+    install(EXPORT MaterialX
+            DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
+            FILE ${CMAKE_PROJECT_NAME}Targets.cmake)
 
-install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
-        "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
-        DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
+    install(FILES "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}ConfigVersion.cmake"
+            "${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
+            DESTINATION "${MATERIALX_GEN_CONFIG_PATH}")
+endif()

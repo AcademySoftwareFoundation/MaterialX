@@ -199,7 +199,7 @@ ImagePtr MslMaterial::bindImage(const FilePath& filePath,
     imageHandler->setFilenameResolver(resolver);
 
     // Acquire the given image.
-    return imageHandler->acquireImage(filePath);
+    return imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
 }
 
 void MslMaterial::bindLighting(LightHandlerPtr lightHandler,
