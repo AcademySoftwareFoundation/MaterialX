@@ -124,15 +124,9 @@ void MslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
-void MslRenderer::updateUniform(ShaderPort* uniform)
+void MslRenderer::updateUniform(const string& name, ConstValuePtr value)
 {
-
-    if (!uniform)
-    {
-        return;
-    }
-
-    _glProgram->bindUniform(uniform->getVariable(), uniform->getValue());
+    _program->bindUniform(name, value);
 }
 
 void MslRenderer::createFrameBuffer(bool encodeSrgb)

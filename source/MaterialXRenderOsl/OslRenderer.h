@@ -74,9 +74,6 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Note: Currently no validation has been implemented.
     void validateInputs() override;
 
-    /// Update the program with value of the uniform.
-    void updateUniform(ShaderPort* uniform) override;
-
     /// Set the size for rendered image
     void setSize(unsigned int width, unsigned int height) override;
 

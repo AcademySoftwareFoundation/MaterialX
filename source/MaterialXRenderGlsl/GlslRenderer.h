@@ -80,7 +80,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     void validateInputs() override;
 
     /// Update the program with value of the uniform.
-    void updateUniform(ShaderPort* uniform) override;
+    void updateUniform(const string& name, ConstValuePtr value) override;
 
     /// Set the size of the rendered image
     void setSize(unsigned int width, unsigned int height) override;

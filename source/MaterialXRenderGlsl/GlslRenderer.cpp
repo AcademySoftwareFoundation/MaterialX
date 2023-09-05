@@ -119,19 +119,14 @@ void GlslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
-void GlslRenderer::updateUniform(ShaderPort* uniform)
+void GlslRenderer::updateUniform(const string& name, ConstValuePtr value)
 {
-    if (!uniform)
-    {
-        return;
-    }
-
     if (!_program->bind())
     {
         return;
     }
 
-    _program->bindUniform(uniform->getVariable(), uniform->getValue());
+    _program->bindUniform(name, value);
 }
 
 void GlslRenderer::setSize(unsigned int width, unsigned int height)
