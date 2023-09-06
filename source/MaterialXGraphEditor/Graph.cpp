@@ -877,7 +877,6 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
         }
         else
         {
-            // Need to use exact interface name in order for input
             std::string name = input->getNamePath();
             _renderer->getMaterials()[0]->modifyUniform(name, value);
         }
