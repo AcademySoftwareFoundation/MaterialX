@@ -207,13 +207,13 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
 
     for (auto graphChild : graph->getChildren())
     {
-        graphChild->removeAttribute("xpos");
-        graphChild->removeAttribute("ypos");
+        graphChild->removeAttribute(Element::XPOS_ATTRIBUTE);
+        graphChild->removeAttribute(Element::YPOS_ATTRIBUTE);
     }        
     graph->setNodeDefString(nodeDefName);
 
     // Create a new nodedef and set it's category
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
+    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
     nodeDef->setNodeString(category);
 
     // Expose any existing interfaces from the graph.
@@ -223,7 +223,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     // Attributes which should not be copied over
     StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
                                    PortElement::CHANNELS_ATTRIBUTE, PortElement::INTERFACE_NAME_ATTRIBUTE,
-                                   "xpos", "ypos" };
+                                   Element::XPOS_ATTRIBUTE, Element::YPOS_ATTRIBUTE };
 
     // Transfer input interface from the graph to the nodedef
     for (InputPtr input : graph->getInputs())

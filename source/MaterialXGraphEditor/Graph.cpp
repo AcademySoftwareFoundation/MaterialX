@@ -411,7 +411,7 @@ bool Graph::checkPosition(UiNodePtr node)
 {
     if (node->getMxElement() != nullptr)
     {
-        if (node->getMxElement()->getAttribute("xpos") != "")
+        if (node->getMxElement()->getAttribute(mx::Element::XPOS_ATTRIBUTE) != mx::EMPTY_STRING)
         {
             return true;
         }
@@ -509,12 +509,12 @@ ImVec2 Graph::layoutPosition(UiNodePtr layoutNode, ImVec2 startingPos, bool init
                 // Don't set position of group nodes
                 if (node->getMessage().empty())
                 {
-                    if (node->getMxElement()->hasAttribute("xpos"))
+                    if (node->getMxElement()->hasAttribute(mx::Element::XPOS_ATTRIBUTE))
                     {
-                        float x = std::stof(node->getMxElement()->getAttribute("xpos"));
-                        if (node->getMxElement()->hasAttribute("ypos"))
+                        float x = std::stof(node->getMxElement()->getAttribute(mx::Element::XPOS_ATTRIBUTE));
+                        if (node->getMxElement()->hasAttribute(mx::Element::YPOS_ATTRIBUTE))
                         {
-                            float y = std::stof(node->getMxElement()->getAttribute("ypos"));
+                            float y = std::stof(node->getMxElement()->getAttribute(mx::Element::YPOS_ATTRIBUTE));
                             x *= DEFAULT_NODE_SIZE.x;
                             y *= DEFAULT_NODE_SIZE.y;
                             ed::SetNodePosition(node->getId(), ImVec2(x, y));
@@ -4319,8 +4319,8 @@ void Graph::savePosition()
             ImVec2 pos = ed::GetNodePosition(node->getId());
             pos.x /= DEFAULT_NODE_SIZE.x;
             pos.y /= DEFAULT_NODE_SIZE.y;
-            node->getMxElement()->setAttribute("xpos", std::to_string(pos.x));
-            node->getMxElement()->setAttribute("ypos", std::to_string(pos.y));
+            node->getMxElement()->setAttribute(mx::Element::XPOS_ATTRIBUTE, std::to_string(pos.x));
+            node->getMxElement()->setAttribute(mx::Element::YPOS_ATTRIBUTE, std::to_string(pos.y));
             if (node->getMxElement()->hasAttribute("nodedef"))
             {
                 node->getMxElement()->removeAttribute("nodedef");
@@ -4343,8 +4343,8 @@ void Graph::saveDocument(mx::FilePath filePath)
         writeDoc = _graphDoc->copy();
         for (mx::ElementPtr elem : writeDoc->traverseTree())
         {
-            elem->removeAttribute("xpos");
-            elem->removeAttribute("ypos");
+            elem->removeAttribute(mx::Element::XPOS_ATTRIBUTE);
+            elem->removeAttribute(mx::Element::YPOS_ATTRIBUTE);
         }
     }
 

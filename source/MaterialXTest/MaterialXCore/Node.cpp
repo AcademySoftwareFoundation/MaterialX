@@ -659,7 +659,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             mx::PortElement::NODE_NAME_ATTRIBUTE,
             mx::PortElement::CHANNELS_ATTRIBUTE,
             mx::PortElement::INTERFACE_NAME_ATTRIBUTE,
-            "xpos", "ypos"};
+            mx::Element::XPOS_ATTRIBUTE, mx::Element::YPOS_ATTRIBUTE};
         for (mx::OutputPtr origOutput : graph->getOutputs())
         {
             mx::OutputPtr nodeDefOutput = nodeDef->getOutput(origOutput->getName());
