@@ -372,7 +372,7 @@ void MslProgram::bindAttribute(id<MTLRenderCommandEncoder> renderCmdEncoder, con
         unsigned int index = input.second->value ? input.second->value->asA<int>() : 0;
 
         unsigned int stride = 0;
-        MeshStreamPtr stream = mesh->getStream(input.first);
+        MeshStreamPtr stream = mesh->getStream(input.first, true);
         if (!stream)
         {
             errors.push_back("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
