@@ -1133,7 +1133,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
 
     if (updateMaterialRequired)
     {
-        if (!_renderer->getMaterialCompilation() && mx::inputChangeRequiresShaderGen(input))
+        if (!_renderer->getMaterialCompilation() && mx::inputValueAffectsShaderCode(input))
         {
             _frameCount = ImGui::GetFrameCount();
             _renderer->setMaterialCompilation(true);

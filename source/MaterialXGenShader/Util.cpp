@@ -588,7 +588,7 @@ bool hasElementAttributes(OutputPtr output, const StringVec& attributes)
     return false;
 }
 
-bool inputChangeRequiresShaderGen(InputPtr input, const string& target)
+bool inputValueAffectsShaderCode(InputPtr input, const string& target)
 {
     ElementPtr inputParent = input ? input->getParent() : nullptr;
     if (inputParent)

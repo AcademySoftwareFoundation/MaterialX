@@ -36,5 +36,5 @@ void bindPyUtil(py::module& mod)
     mod.def("getUdimScaleAndOffset", &mx::getUdimScaleAndOffset);
     mod.def("connectsToWorldSpaceNode", &mx::connectsToWorldSpaceNode);
     mod.def("hasElementAttributes", &mx::hasElementAttributes);
-    mod.def("inputChangeRequiresShaderGen", &mx::inputChangeRequiresShaderGen);
+    mod.def("inputValueAffectsShaderCode", &mx::inputValueAffectsShaderCode);
 }

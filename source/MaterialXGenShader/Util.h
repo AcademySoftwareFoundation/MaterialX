@@ -86,13 +86,13 @@ MX_GENSHADER_API NodePtr connectsToWorldSpaceNode(OutputPtr output);
 /// @param attributes Attributes to test for
 MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& attributes);
 
-/// Returns true if a value change on a given input could require a shader compilation as it changes the output shader
-/// graph configuration (i.e. is a topological change). 
+/// Returns true if a value change on a given input requires shader code generation to 
+/// produce new shader code.
 /// The current criteria is:
-/// * any input on a conditional node is considered to modify the topology of the output shader graph.
+/// * Any input on a conditional node is considered to require code generation.
 /// @param input Input to test
 /// @param target An optional target name which may be used as part of the criteria
-MX_GENSHADER_API bool inputChangeRequiresShaderGen(InputPtr input, const string& target = EMPTY_STRING);
+MX_GENSHADER_API bool inputValueAffectsShaderCode(InputPtr input, const string& target = EMPTY_STRING);
 
 //
 // These are deprecated wrappers for older versions of the function interfaces in this module.
