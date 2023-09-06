@@ -3737,7 +3737,9 @@ void Graph::readOnlyPopup()
 void Graph::shaderPopup()
 {
     if (!_shaderPopup)
+    {
         return;
+    }
 
     if (_renderer->getMaterialCompilation())
     {
