@@ -799,10 +799,8 @@ void Graph::setRenderMaterial(UiNodePtr node)
                             {
                                 if (RENDERABLE_TYPES.count(nodeDef->getType()))
                                 {
-                                    _currRenderNode = shaderOut[0];
-                                    _frameCount = ImGui::GetFrameCount();
-                                    _renderer->setMaterialCompilation(true);
-                                    _shaderPopup = true;
+                                    foundNode = downstreamNode;
+                                    break;
                                 }
                             }
                         }
@@ -881,12 +879,7 @@ void Graph::updateMaterials(mx::InputPtr input, mx::ValuePtr value)
         {
             // Need to use exact interface name in order for input
             std::string name = input->getNamePath();
-            mx::InputPtr interfaceInput = findInput(input, input->getName());
-            if (interfaceInput)
-            {
-                name = interfaceInput->getNamePath();
-            }
-            _renderer->getMaterials()[num]->modifyUniform(name, value);
+            _renderer->getMaterials()[0]->modifyUniform(name, value);
         }
     }
 }
