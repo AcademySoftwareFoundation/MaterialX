@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRender/Mesh.h>
+#include <MaterialXCore/Util.h>
 
 #include <limits>
 #include <map>
@@ -41,8 +42,17 @@ Mesh::Mesh(const string& name) :
 
 MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
 {
+    const string normalStreamName = "i_" + MeshStream::NORMAL_ATTRIBUTE;
+
+    // Return if already exists
+    MeshStreamPtr normalStream = getStream(normalStreamName, false);
+    if (normalStream)
+    {
+        return normalStream;
+    }
+
     // Create the normal stream.
-    MeshStreamPtr normalStream = MeshStream::create("i_" + MeshStream::NORMAL_ATTRIBUTE, MeshStream::NORMAL_ATTRIBUTE, 0);
+    normalStream = MeshStream::create(normalStreamName, MeshStream::NORMAL_ATTRIBUTE, 0);
     normalStream->resize(positionStream->getSize());
 
     // Iterate through partitions.
@@ -77,8 +87,18 @@ MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
 
 MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
 {
+    const string texcoordStreamName = "i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0";
+
+    // Return if already exists
+    MeshStreamPtr texcoordStream = getStream(texcoordStreamName, false);
+    if (texcoordStream)
+    {
+        return texcoordStream;
+    }
+
+    // Create stream from x,y of position stream
+    texcoordStream = MeshStream::create(texcoordStreamName, MeshStream::TEXCOORD_ATTRIBUTE, 0);
     size_t vertexCount = positionStream->getData().size() / MeshStream::STRIDE_3D;
-    MeshStreamPtr texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
     texcoordStream->setStride(MeshStream::STRIDE_2D);
     texcoordStream->resize(vertexCount);
     std::fill(texcoordStream->getData().begin(), texcoordStream->getData().end(), 0.0f);
@@ -88,6 +108,15 @@ MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
 
 MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr normalStream, MeshStreamPtr texcoordStream)
 {
+    const string tangentStreamName = "i_" + MeshStream::TANGENT_ATTRIBUTE;
+
+    // Return if already exists
+    MeshStreamPtr tangentStream = getStream(tangentStreamName, false);
+    if (tangentStream)
+    {
+        return tangentStream;
+    }
+
     size_t vertexCount = positionStream->getData().size() / positionStream->getStride();
     size_t normalCount = normalStream->getData().size() / normalStream->getStride();
     size_t texcoordCount = texcoordStream->getData().size() / texcoordStream->getStride();
@@ -97,7 +126,7 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
     }
 
     // Create the tangent stream.
-    MeshStreamPtr tangentStream = MeshStream::create("i_" + MeshStream::TANGENT_ATTRIBUTE, MeshStream::TANGENT_ATTRIBUTE, 0);
+    tangentStream = MeshStream::create(tangentStreamName, MeshStream::TANGENT_ATTRIBUTE, 0);
     tangentStream->resize(positionStream->getSize());
     std::fill(tangentStream->getData().begin(), tangentStream->getData().end(), 0.0f);
 
@@ -172,12 +201,21 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
 
 MeshStreamPtr Mesh::generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr tangentStream)
 {
+    const string bitangentStreamName = "i_" + MeshStream::BITANGENT_ATTRIBUTE;
+
+    // Return if already exists
+    MeshStreamPtr bitangentStream = getStream(bitangentStreamName, false);
+    if (bitangentStream)
+    {
+        return bitangentStream;
+    }
+
     if (normalStream->getSize() != tangentStream->getSize())
     {
         return nullptr;
     }
 
-    MeshStreamPtr bitangentStream = MeshStream::create("i_" + MeshStream::BITANGENT_ATTRIBUTE, MeshStream::BITANGENT_ATTRIBUTE, 0);
+    bitangentStream = MeshStream::create(bitangentStreamName, MeshStream::BITANGENT_ATTRIBUTE, 0);
     bitangentStream->resize(normalStream->getSize());
 
     for (size_t i = 0; i < normalStream->getSize(); i++)
@@ -217,7 +255,7 @@ void Mesh::mergePartitions()
 
 void Mesh::splitByUdims()
 {
-    MeshStreamPtr texcoords = getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0);
+    MeshStreamPtr texcoords = getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0, false);
     if (!texcoords)
     {
         return;
@@ -310,5 +348,106 @@ void MeshStream::transform(const Matrix44 &matrix)
         }
     }
 }
+
+MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
+{
+    for (const auto& stream : _streams)
+    {
+        if (stream->getName() == name)
+        {
+            return stream;
+        }
+    }
+    if (returnFallbackStream)
+    {
+        const std::string POSITION_NAME("i_" + MeshStream::POSITION_ATTRIBUTE);
+        MeshStreamPtr positionStream = getStream(POSITION_NAME, false);
+        // Fail if there are no positions.
+        if (!positionStream)
+        {
+            return MeshStreamPtr();
+        }
+
+        MeshStreamPtr returnStream = nullptr;
+        bool needTexCoords = stringStartsWith(name, "i_" + MeshStream::TEXCOORD_ATTRIBUTE);
+        bool needNormals = stringStartsWith(name, "i_" + MeshStream::NORMAL_ATTRIBUTE);
+        bool needTangents = stringStartsWith(name, "i_" + MeshStream::TANGENT_ATTRIBUTE);
+        if (needTangents)
+        {
+            needNormals = true;
+            needTexCoords = true;
+        }
+        bool needBiTangents = stringStartsWith(name, "i_" + MeshStream::BITANGENT_ATTRIBUTE);
+        if (needBiTangents)
+        {
+            needNormals = true;
+            needTangents = true;
+            needTexCoords = true;
+        }
+
+        // Return texcoord 0. If it does not exist then create it.
+        MeshStreamPtr texcoordStream = getStream("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0");
+        if (needTexCoords)
+        {
+            if (!texcoordStream)
+            {
+                texcoordStream = generateTextureCoordinates(positionStream);
+                if (texcoordStream)
+                {
+                    addStream(texcoordStream);
+                }
+            }
+            returnStream = texcoordStream;
+        }
+
+        MeshStreamPtr normalStream = nullptr;
+        if (needNormals)
+        {
+            normalStream = generateNormals(positionStream);
+            if (normalStream)
+            {
+                addStream(normalStream);
+            }
+        }
+
+        MeshStreamPtr tangentStream = nullptr;
+        if (needTangents)
+        {
+            tangentStream = generateTangents(positionStream, normalStream, texcoordStream);
+            if (tangentStream)
+            {
+                addStream(tangentStream);
+            }
+        }
+
+        if (needBiTangents)
+        {
+            MeshStreamPtr bitangentStream = generateBitangents(normalStream, tangentStream);
+            if (bitangentStream)
+            {
+                addStream(bitangentStream);
+            }
+        }
+
+        // Return position as fallback color stream
+        if (stringStartsWith(name, "i_" + MeshStream::COLOR_ATTRIBUTE))
+        {
+            returnStream = positionStream;
+        }
+
+        return returnStream;
+    }
+
+    return MeshStreamPtr();
+}
+
+MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool returnFallbackStream)
+{
+    const string streamName = "i_" + type + "_" + std::to_string(index);
+    MeshStreamPtr foundStream = getStream(streamName, returnFallbackStream);
+    return foundStream;
+}
+
+
 
 MATERIALX_NAMESPACE_END

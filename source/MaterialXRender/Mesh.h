@@ -275,39 +275,25 @@ class MX_RENDER_API Mesh
 
     /// Get a mesh stream by name
     /// @param name Name of stream
+    /// @param returnFallbackStream If true will attempt to return fallback stream if it does not exist. Default is false.
     /// @return Reference to a mesh stream if found
-    MeshStreamPtr getStream(const string& name) const
-    {
-        for (const auto& stream : _streams)
-        {
-            if (stream->getName() == name)
-            {
-                return stream;
-            }
-        }
-        return MeshStreamPtr();
-    }
+    MeshStreamPtr getStream(const string& name, bool returnFallbackStream = false);
 
     /// Get a mesh stream by type and index
     /// @param type Type of stream
     /// @param index Index of stream
+    /// @param generateIfMissing If true will attempt to return a fallback stream if it does not exist. Default is false
     /// @return Reference to a mesh stream if found
-    MeshStreamPtr getStream(const string& type, unsigned int index) const
-    {
-        for (const auto& stream : _streams)
-        {
-            if (stream->getType() == type &&
-                stream->getIndex() == index)
-            {
-                return stream;
-            }
-        }
-        return MeshStreamPtr();
-    }
+    MeshStreamPtr getStream(const string& type, unsigned int index, bool returnFallbackStream = false);
 
     /// Add a mesh stream
     void addStream(MeshStreamPtr stream)
     {
+        for (MeshStreamPtr s : _streams)
+        {
+            if (s->getName() == stream->getName())
+                return;
+        }
         _streams.push_back(stream);
     }
 

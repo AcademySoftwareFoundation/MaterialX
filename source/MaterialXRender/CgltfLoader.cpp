@@ -267,6 +267,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                 MeshStreamPtr texcoordStream = nullptr;
                 MeshStreamPtr vec4TangentStream = nullptr;
                 int colorAttrIndex = 0;
+                int texcoordIndex = 0;
 
                 // Read in vertex streams
                 for (cgltf_size prim = 0; prim < primitive->attributes_count; prim++)
@@ -277,12 +278,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     {
                         continue;
                     }
-                    // Only load one stream of each type for now.
                     cgltf_int streamIndex = attribute->index;
-                    if (streamIndex != 0)
-                    {
-                        continue;
-                    }
 
                     // Get data as floats
                     cgltf_size floatCount = cgltf_accessor_unpack_floats(accessor, NULL, 0);
@@ -335,7 +331,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     }
                     else if (isTexCoordStream)
                     {
-                        texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0", MeshStream::TEXCOORD_ATTRIBUTE, 0);
+                        texcoordStream = MeshStream::create("i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_" + std::to_string(texcoordIndex), MeshStream::TEXCOORD_ATTRIBUTE, texcoordIndex);
                         mesh->addStream(texcoordStream);
                         if (vectorSize == 2)
                         {
@@ -343,6 +339,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                             desiredVectorSize = 2;
                         }
                         geomStream = texcoordStream;
+                        texcoordIndex++;
                     }
                     else
                     {

@@ -255,7 +255,8 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
         unsigned int index = input.second->value ? input.second->value->asA<int>() : 0;
 
         unsigned int stride = 0;
-        MeshStreamPtr stream = mesh->getStream(input.first);
+        bool generateIfMissing = true;
+        MeshStreamPtr stream = mesh->getStream(input.first, generateIfMissing);
         if (!stream)
         {
             throw ExceptionRenderError("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
@@ -1054,10 +1055,11 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 
 const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 {
-    if (_attributeList.size() > 0)
-    {
-        return _attributeList;
-    }
+    //if (_attributeList.size() > 0)
+    //{
+    //    return _attributeList;
+    //}
+    _attributeList.clear();
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
