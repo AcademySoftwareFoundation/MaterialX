@@ -10,6 +10,7 @@
 - Added support for the [lin_displayp3 and srgb_displayp3](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1368) colorspaces in shader generation.
 - Added support for the [blackbody PBR node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1367) in shader generation.
 - Added support for [displacement](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1396) in MDL generation.
+- Added an up-axis control to the [triplanar projection node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1489).
 - Added version details to [shared libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1447) on Windows.
 - Added a [MacOS 13](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1375) build to GitHub Actions.
 
@@ -30,6 +31,7 @@
 - Fixed [volume mixing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1395) in MDL generation.
 - Fixed a bug to improve [shader generation determinism](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1376).
 - Fixed a bug to improve the [consistency of auto layout](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1389) in the MaterialX Graph Editor.
+- Fixed a bug to enable [multi-output connection edits](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1506) in the MaterialX Graph Editor.
 
 ## [1.38.7] - 2023-04-21
 
