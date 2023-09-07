@@ -143,11 +143,11 @@ TEST_CASE("Node inputCount repro", "[node]")
     mx::NodePtr constant = doc->addNode("constant");
     constant->setInputValue<float>("value", 0.5f);
  
-    // Check inputCount is correct after clearContent
+    // Check that input count is correct after clearContent
     constant->clearContent();
     CHECK(constant->getInputCount() == 0);
 
-    // Validate crashes if the _inputCount is wrong so test that
+    // Check that validate succeeds after clear and rebuild
     constant->setType("float");
     mx::OutputPtr output = doc->addOutput(mx::EMPTY_STRING, "float");
     output->setConnectedNode(constant);
