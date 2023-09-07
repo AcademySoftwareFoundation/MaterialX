@@ -282,7 +282,7 @@ class MX_RENDER_API Mesh
     /// Get a mesh stream by type and index
     /// @param type Type of stream
     /// @param index Index of stream
-    /// @param generateIfMissing If true will attempt to return a fallback stream if it does not exist. Default is false
+    /// @param returnFallbackStream If true will attempt to return a fallback stream if it does not exist. Default is false.
     /// @return Reference to a mesh stream if found
     MeshStreamPtr getStream(const string& type, unsigned int index, bool returnFallbackStream = false);
 

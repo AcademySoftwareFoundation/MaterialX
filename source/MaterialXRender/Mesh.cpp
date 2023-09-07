@@ -407,6 +407,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
             if (normalStream)
             {
                 addStream(normalStream);
+                returnStream = normalStream;
             }
         }
 
@@ -417,6 +418,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
             if (tangentStream)
             {
                 addStream(tangentStream);
+                returnStream = tangentStream;
             }
         }
 
@@ -426,6 +428,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
             if (bitangentStream)
             {
                 addStream(bitangentStream);
+                returnStream = bitangentStream;
             }
         }
 
@@ -451,3 +454,4 @@ MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool retur
 
 
 MATERIALX_NAMESPACE_END
+
