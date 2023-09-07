@@ -629,4 +629,10 @@ bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, 
     return true;
 }
 
+void InterfaceElement::clearContent() {
+    _inputCount = 0;
+    _outputCount = 0;
+    TypedElement::clearContent();
+}
+
 MATERIALX_NAMESPACE_END

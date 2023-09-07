@@ -647,6 +647,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
     /// is provided, then an error message will be appended to the given string.
     bool hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message = nullptr) const;
 
+    /// Clear all attributes and descendants from this element.
+    void clearContent() override;
+
     /// @}
 
   public:
