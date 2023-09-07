@@ -629,7 +629,8 @@ bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, 
     return true;
 }
 
-void InterfaceElement::clearContent() {
+void InterfaceElement::clearContent()
+{
     _inputCount = 0;
     _outputCount = 0;
     TypedElement::clearContent();
