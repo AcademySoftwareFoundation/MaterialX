@@ -187,7 +187,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
 {
     if (category.empty())
     {
-        throw Exception("Cannote create a nodedef without a category identifier");
+        throw Exception("Cannot create a nodedef without a category identifier");
     }
 
     if (getNodeDef(nodeDefName))
