@@ -611,6 +611,13 @@ ConstInterfaceElementPtr InterfaceElement::getDeclaration(const string&) const
     return InterfaceElementPtr();
 }
 
+void InterfaceElement::clearContent()
+{
+    _inputCount = 0;
+    _outputCount = 0;
+    TypedElement::clearContent();
+}
+
 bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message) const
 {
     for (InputPtr input : getActiveInputs())
