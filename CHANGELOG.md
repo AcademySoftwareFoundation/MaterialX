@@ -24,6 +24,7 @@
 - Simplified the handling of [default colors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1452) in GLSL generation, removing dynamic branches on texture size.
 - Simplified the definitions of the [default color transforms](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1352), implementing them as language-independent MaterialX graphs.
 - Simplified the interface of [ShaderGenerator::emitFunctionCall](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1344), marking its original interface as deprecated.
+- Marked legacy interfaces for [findRenderableElements and findRenderableMaterialNodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1340) as deprecated, making their usage visible to clients as compiler warnings.
 - Moved the MaterialX specification to [public Markdown files in GitHub](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/documents/Specification), enabling direct contributions from the community.
 
 ### Fixed
@@ -33,6 +34,7 @@
 - Fixed a bug to improve [shader generation determinism](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1376).
 - Fixed a bug to improve the [consistency of auto layout](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1389) in the MaterialX Graph Editor.
 - Fixed a bug to enable [multi-output connection edits](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1506) in the MaterialX Graph Editor.
+- Fixed a bug in [dot node optimizations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1522) for shader generation.
 
 ## [1.38.7] - 2023-04-21
 
