@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.38.8] - Development
+## [1.38.8] - 2023-09-08
 
 ### Added
 - Added a broad set of new pattern nodes to MaterialX, including [Circle, Hexagon, Cloverleaf, Line, Grid, Crosshatch](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1411), [Checkerboard](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1328), [Random Color, Random Float](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1330), [Triangle Wave](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1334), [Integer Floor, Integer Ceiling](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1362), and [Distance](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1333).
@@ -10,7 +10,7 @@
 - Added support for the [lin_displayp3 and srgb_displayp3](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1368) colorspaces in shader generation.
 - Added support for the [blackbody PBR node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1367) in shader generation.
 - Added support for [displacement](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1396) in MDL generation.
-- Added an up-axis control to the [triplanar projection node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1489).
+- Added [blend](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1350) and [up-axis](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1489) controls to the triplanar projection node.
 - Added version details to [shared libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1447) on Windows.
 - Added a [MacOS 13](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1375) build to GitHub Actions.
 
@@ -23,6 +23,7 @@
 - Improved the robustness of [MaterialX unit tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1370) with respect to the current working directory.
 - Simplified the handling of [default colors](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1452) in GLSL generation, removing dynamic branches on texture size.
 - Simplified the definitions of the [default color transforms](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1352), implementing them as language-independent MaterialX graphs.
+- Simplified the interface of [ShaderGenerator::emitFunctionCall](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1344), marking its original interface as deprecated.
 - Moved the MaterialX specification to [public Markdown files in GitHub](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/documents/Specification), enabling direct contributions from the community.
 
 ### Fixed
