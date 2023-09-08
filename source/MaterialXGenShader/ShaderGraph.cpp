@@ -1027,9 +1027,10 @@ void ShaderGraph::optimize(GenContext& context)
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
-            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            // Filename dot nodes must be elided by moving their connection downstream.
+            // This prevents creating unnecessary samplers in generated code.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty())
+            if (in->getChannels().empty() && in->getType() == Type::FILENAME)
             {
                 bypass(context, node, 0);
                 ++numEdits;
