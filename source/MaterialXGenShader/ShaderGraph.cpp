@@ -1027,48 +1027,16 @@ void ShaderGraph::optimize(GenContext& context)
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
-            // Dot nodes without modifiers can be elided by moving their connection downstream.
+            // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty())
+            if (in->getChannels().empty() && in->getType() == Type::FILENAME)
             {
                 bypass(context, node, 0);
                 ++numEdits;
             }
         }
-        else if (node->hasClassification(ShaderNode::Classification::IFELSE))
-        {
-            // Check if we have a constant conditional expression
-            ShaderInput* intest = node->getInput("intest");
-            if (!intest->getConnection())
-            {
-                // Find which branch should be taken
-                ShaderInput* cutoff = node->getInput("cutoff");
-                ValuePtr value = intest->getValue();
-                const float intestValue = value ? value->asA<float>() : 0.0f;
-                const int branch = (intestValue <= cutoff->getValue()->asA<float>() ? 2 : 3);
-
-                // Bypass the conditional using the taken branch
-                bypass(context, node, branch);
-
-                ++numEdits;
-            }
-        }
-        else if (node->hasClassification(ShaderNode::Classification::SWITCH))
-        {
-            // Check if we have a constant conditional expression
-            const ShaderInput* which = node->getInput("which");
-            if (!which->getConnection())
-            {
-                // Find which branch should be taken
-                ValuePtr value = which->getValue();
-                const int branch = int(value == nullptr ? 0 : (which->getType() == Type::FLOAT ? value->asA<float>() : value->asA<int>()));
-
-                // Bypass the conditional using the taken branch
-                bypass(context, node, branch);
-
-                ++numEdits;
-            }
-        }
+        // Adding more nodes here requires them to have an input that is tagged
+        // "uniform" in the NodeDef or to handle very specific cases, like FILENAME.
     }
 
     if (numEdits > 0)
