@@ -59,6 +59,7 @@ void bindPyNode(py::module& mod)
         .def("addInterfaceName", &mx::NodeGraph::addInterfaceName)
         .def("removeInterfaceName", &mx::NodeGraph::removeInterfaceName)
         .def("modifyInterfaceName", &mx::NodeGraph::modifyInterfaceName)
+        .def("getDownstreamPorts", &mx::NodeGraph::getDownstreamPorts)
         .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
 
     py::class_<mx::Backdrop, mx::BackdropPtr, mx::Element>(mod, "Backdrop")

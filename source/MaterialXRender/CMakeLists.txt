@@ -1,3 +1,5 @@
+set(MATERIALX_MODULE_NAME MaterialXRender)
+
 include_directories(
     ${EXTERNAL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../)
@@ -18,12 +20,18 @@ if(UNIX)
     add_compile_options(-Wno-unused-function)
 endif()
 
-add_library(MaterialXRender ${materialx_source} ${materialx_headers} ${materialx_inlined})
+add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers} ${materialx_inlined})
 
 add_definitions(-DMATERIALX_RENDER_EXPORTS)
 
+# Create version resource
+if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+    target_sources(${MATERIALX_MODULE_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+endif()
+
 target_link_libraries(
-    MaterialXRender
+    ${MATERIALX_MODULE_NAME}
     MaterialXGenShader
     ${CMAKE_DL_LIBS})
 
@@ -33,7 +41,7 @@ if(MATERIALX_BUILD_OIIO)
     find_package(OpenImageIO REQUIRED)
     if(OPENIMAGEIO_FOUND)
         include_directories(${OPENIMAGEIO_INCLUDE_DIR})
-        target_link_libraries(MaterialXRender ${OPENIMAGEIO_LIBRARIES})
+        target_link_libraries(${MATERIALX_MODULE_NAME} ${OPENIMAGEIO_LIBRARIES})
         # Also needed by MaterialXTest:
         set(OPENIMAGEIO_FOUND "${OPENIMAGEIO_FOUND}" PARENT_SCOPE)
         set(OPENIMAGEIO_INCLUDE_DIR "${OPENIMAGEIO_INCLUDE_DIR}" PARENT_SCOPE)
@@ -44,25 +52,27 @@ if(MATERIALX_BUILD_OIIO)
 endif()
 
 set_target_properties(
-    MaterialXRender PROPERTIES
-    OUTPUT_NAME MaterialXRender${MATERIALX_LIBNAME_SUFFIX}
+    ${MATERIALX_MODULE_NAME} PROPERTIES
+    OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
     COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
     INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
     VERSION "${MATERIALX_LIBRARY_VERSION}"
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-install(TARGETS MaterialXRender
-    EXPORT MaterialX
-    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-    RUNTIME DESTINATION bin)
+if(NOT SKBUILD)
+    install(TARGETS ${MATERIALX_MODULE_NAME}
+        EXPORT MaterialX
+        ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+        LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+        RUNTIME DESTINATION bin)
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-    DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/MaterialXRender/ MESSAGE_NEVER
-    FILES_MATCHING
-    PATTERN "*.h*"
-    PATTERN "*.inl")
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+        DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+        FILES_MATCHING
+        PATTERN "*.h*"
+        PATTERN "*.inl")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/MaterialXRender.pdb"
-    DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
+        DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+endif()

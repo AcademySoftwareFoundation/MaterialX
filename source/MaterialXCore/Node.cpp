@@ -439,9 +439,7 @@ vector<ElementPtr> GraphElement::topologicalSort() const
         }
     }
 
-    size_t visitCount = 0;
     vector<ElementPtr> result;
-
     while (!childQueue.empty())
     {
         // Pop the queue and add to topological order.
@@ -467,14 +465,6 @@ vector<ElementPtr> GraphElement::topologicalSort() const
                 }
             }
         }
-
-        visitCount++;
-    }
-
-    // Check if there was a cycle.
-    if (visitCount != children.size())
-    {
-        throw ExceptionFoundCycle("Encountered a cycle in graph: " + getName());
     }
 
     return result;
@@ -736,6 +726,25 @@ InterfaceElementPtr NodeGraph::getImplementation() const
 {
     NodeDefPtr nodedef = getNodeDef();
     return nodedef ? nodedef->getImplementation() : InterfaceElementPtr();
+}
+
+vector<PortElementPtr> NodeGraph::getDownstreamPorts() const
+{
+    vector<PortElementPtr> downstreamPorts;
+    for (PortElementPtr port : getDocument()->getMatchingPorts(getQualifiedName(getName())))
+    {
+        ElementPtr node = port->getParent();
+        ElementPtr graph = node ? node->getParent() : nullptr;
+        if (graph && graph->isA<GraphElement>() && graph == getParent())
+        {
+            downstreamPorts.push_back(port);
+        }
+    }
+    std::sort(downstreamPorts.begin(), downstreamPorts.end(), [](const ConstElementPtr& a, const ConstElementPtr& b)
+    {
+        return a->getName() > b->getName();
+    });
+    return downstreamPorts;
 }
 
 bool NodeGraph::validate(string* message) const

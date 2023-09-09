@@ -5,6 +5,8 @@
 
 #if defined(__APPLE__)
 
+#ifndef TARGET_OS_IOS
+
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRenderHw/WindowCocoaWrappers.h>
 
@@ -40,5 +42,7 @@ SimpleWindow::~SimpleWindow()
 }
 
 MATERIALX_NAMESPACE_END
+
+#endif
 
 #endif

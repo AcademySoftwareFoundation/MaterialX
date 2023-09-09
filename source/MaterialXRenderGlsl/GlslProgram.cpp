@@ -491,7 +491,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
         uniformType >= GL_SAMPLER_1D && uniformType <= GL_SAMPLER_CUBE)
     {
         // Acquire the image.
-        ImagePtr image = imageHandler->acquireImage(filePath);
+        ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
         if (imageHandler->bindImage(image, samplingProperties))
         {
             GLTextureHandlerPtr textureHandler = std::static_pointer_cast<GLTextureHandler>(imageHandler);

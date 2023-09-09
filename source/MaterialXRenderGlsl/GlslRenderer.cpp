@@ -25,7 +25,7 @@ GlslRendererPtr GlslRenderer::create(unsigned int width, unsigned int height, Im
 }
 
 GlslRenderer::GlslRenderer(unsigned int width, unsigned int height, Image::BaseType baseType) :
-    ShaderRenderer(width, height, baseType),
+    ShaderRenderer(width, height, baseType, MatrixConvention::OpenGL),
     _initialized(false),
     _screenColor(DEFAULT_SCREEN_COLOR_LIN_REC709)
 {
@@ -117,6 +117,16 @@ void GlslRenderer::validateInputs()
     // Check that the generated uniforms and attributes are valid
     _program->getUniformsList();
     _program->getAttributesList();
+}
+
+void GlslRenderer::updateUniform(const string& name, ConstValuePtr value)
+{
+    if (!_program->bind())
+    {
+        return;
+    }
+
+    _program->bindUniform(name, value);
 }
 
 void GlslRenderer::setSize(unsigned int width, unsigned int height)

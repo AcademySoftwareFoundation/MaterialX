@@ -589,6 +589,7 @@ export class Material
 
         // Set search path. Assumes images are relative to current file
         // location.
+        if (!materialFilename) materialFilename = "/";
         const paths = materialFilename.split('/');
         paths.pop(); 
         const searchPath = paths.join('/');

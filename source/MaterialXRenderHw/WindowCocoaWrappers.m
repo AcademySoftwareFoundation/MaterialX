@@ -5,6 +5,8 @@
 
 #if defined (__APPLE__)
 
+#ifndef TARGET_OS_IOS
+
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSApplication.h>
 #import <MaterialXRenderHw/WindowCocoaWrappers.h>
@@ -70,5 +72,7 @@ void NSUtilDisposeWindow(void* pWindow)
 	// Free up memory
 	[pool release];
 }
+
+#endif
 
 #endif

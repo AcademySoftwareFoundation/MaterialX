@@ -542,7 +542,7 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
 {
     // Acquire the image.
     string error;
-    ImagePtr image = imageHandler->acquireImage(filePath);
+    ImagePtr image = imageHandler->acquireImage(filePath, samplingProperties.defaultColor);
     imageHandler->bindImage(image, samplingProperties);
     return bindTexture(renderCmdEncoder, uniformLocation, image, imageHandler);
 }

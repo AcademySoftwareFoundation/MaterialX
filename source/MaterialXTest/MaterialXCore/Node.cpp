@@ -136,6 +136,24 @@ TEST_CASE("Node", "[node]")
     REQUIRE(doc->getOutputs().empty());
 }
 
+TEST_CASE("Node inputCount repro", "[node]")
+{
+    // Create a document.
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::NodePtr constant = doc->addNode("constant");
+    constant->setInputValue<float>("value", 0.5f);
+ 
+    // Check that input count is correct after clearContent
+    constant->clearContent();
+    CHECK(constant->getInputCount() == 0);
+
+    // Check that validate succeeds after clear and rebuild
+    constant->setType("float");
+    mx::OutputPtr output = doc->addOutput(mx::EMPTY_STRING, "float");
+    output->setConnectedNode(constant);
+    CHECK(doc->validate());
+}
+
 TEST_CASE("Flatten", "[nodegraph]")
 {
     // Read an example containing graph-based custom nodes.
