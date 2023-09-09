@@ -8,6 +8,8 @@
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
 
+#include <MaterialXRender/GltfMaterialHandler.h>
+
 #include <imgui_stdlib.h>
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
@@ -110,6 +112,8 @@ Graph::Graph(const std::string& materialFilename,
 
     // Set up filters load and save
     _mtlxFilter.push_back(".mtlx");
+    _mtlxFilter.push_back(".gltf");
+    _mtlxFilter.push_back(".glb");
     _geomFilter.push_back(".obj");
     _geomFilter.push_back(".glb");
     _geomFilter.push_back(".gltf");
@@ -201,12 +205,32 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
         }
     };
 
-    mx::DocumentPtr doc = mx::createDocument();
+    mx::DocumentPtr doc = nullptr;
     try
     {
         if (!filename.isEmpty())
         {
-            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+            doc = mx::createDocument();
+            if (filename.getExtension() == "gltf" || filename.getExtension() == "glb")
+            {
+                mx::StringVec log;
+                mx::MaterialHandlerPtr gltfMTLXLoader = mx::GltfMaterialHandler::create();
+                gltfMTLXLoader->setDefinitions(_stdLib);
+                gltfMTLXLoader->setGenerateAssignments(false);
+                gltfMTLXLoader->setGenerateFullDefinitions(false);
+                bool loadedMaterial = gltfMTLXLoader->load(filename, log);
+                if (loadedMaterial)
+                {
+                    doc = gltfMTLXLoader->getMaterials();
+                }       
+            }         
+            else
+            {
+                mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+            }
+        }
+        if (doc)
+        {
             doc->importLibrary(_stdLib);
             std::string message;
             if (!doc->validate(&message))
@@ -4330,7 +4354,7 @@ void Graph::savePosition()
 }
 void Graph::saveDocument(mx::FilePath filePath)
 {
-    if (filePath.getExtension() != mx::MTLX_EXTENSION)
+    if (filePath.getExtension().empty())
     {
         filePath.addExtension(mx::MTLX_EXTENSION);
     }
@@ -4348,7 +4372,17 @@ void Graph::saveDocument(mx::FilePath filePath)
         }
     }
 
-    mx::XmlWriteOptions writeOptions;
-    writeOptions.elementPredicate = getElementPredicate();
-    mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
+    if (filePath.getExtension() == mx::MTLX_EXTENSION)
+    {
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.elementPredicate = getElementPredicate();
+        mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
+    }
+    else
+    {
+        mx::StringVec log;
+        mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
+        gltfHandler->setMaterials(writeDoc);
+        gltfHandler->save(filePath, log);
+    }
 }

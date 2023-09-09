@@ -20,6 +20,7 @@ void bindPyTinyObjLoader(py::module& mod);
 void bindPyCamera(py::module& mod);
 void bindPyShaderRenderer(py::module& mod);
 void bindPyCgltfLoader(py::module& mod);
+void bindPyGltfMaterialHandler(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
@@ -38,4 +39,5 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
     bindPyCamera(mod);
     bindPyShaderRenderer(mod);
     bindPyCgltfLoader(mod);
+    bindPyGltfMaterialHandler(mod);
 }

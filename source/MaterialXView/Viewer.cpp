@@ -34,6 +34,8 @@
 #endif
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
+#include <MaterialXRender/GltfMaterialHandler.h>
+
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>
 
@@ -640,7 +642,9 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->set_callback([this]()
     {
         m_process_events = false;
-        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, false);
+        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" },
+                                                 { "gltf", "GLTF ASCII"},
+                                                 { "glb", "GLTF Binary"}}, false);
         if (!filename.empty())
         {
             _materialFilename = filename;
@@ -683,19 +687,31 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     {
         m_process_events = false;
         mx::MaterialPtr material = getSelectedMaterial();
-        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" },
+                                                  { "gltf", "GLTF ASCII" },
+                                                  { "glb", "GLTF Binary"} }, true);
 
         // Save document
         if (material && !filename.isEmpty())
         {
-            if (filename.getExtension() != mx::MTLX_EXTENSION)
+            if (filename.getExtension() == mx::EMPTY_STRING)
             {
                 filename.addExtension(mx::MTLX_EXTENSION);
             }
 
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            if (filename.getExtension() == mx::MTLX_EXTENSION)
+            {
+                mx::XmlWriteOptions writeOptions;
+                writeOptions.elementPredicate = getElementPredicate();
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            }
+            else
+            {
+                mx::StringVec log;
+                mx::MaterialHandlerPtr gltfHandler = mx::GltfMaterialHandler::create();
+                gltfHandler->setMaterials(material->getDocument());
+                gltfHandler->save(filename, log);    
+            }
 
             // Update material file name
             _materialFilename = filename;
@@ -1247,220 +1263,242 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     std::vector<mx::MaterialPtr> newMaterials;
     try
     {
-        // Load source document.
-        mx::DocumentPtr doc = mx::createDocument();
-        mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
-        _materialSearchPath = mx::getSourceSearchPath(doc);
-
-        // Import libraries.
-        doc->importLibrary(libraries);
-
-        // Apply direct lights.
-        applyDirectLights(doc);
-
-        // Apply modifiers to the content document.
-        applyModifiers(doc, _modifiers);
-
-        // Flatten subgraphs if requested.
-        if (_flattenSubgraphs)
+        mx::DocumentPtr doc = nullptr;
+        if (filename.getExtension() == "gltf" || filename.getExtension() == "glb")
         {
-            doc->flattenSubgraphs();
-            for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
+            mx::StringVec log;
+            mx::MaterialHandlerPtr gltfMTLXLoader = mx::GltfMaterialHandler::create();
+            gltfMTLXLoader->setDefinitions(libraries);
+            gltfMTLXLoader->setGenerateAssignments(true);
+            gltfMTLXLoader->setGenerateFullDefinitions(false);
+    
+            bool loadedMaterial = gltfMTLXLoader->load(filename, log);
+            if (loadedMaterial)
             {
-                if (graph->getActiveSourceUri() == doc->getActiveSourceUri())
+                doc = gltfMTLXLoader->getMaterials();
+            }
+        }
+        else
+        {
+            // Load source document.
+            doc = mx::createDocument();
+            mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
+        }
+
+        if (doc)
+        {
+            _materialSearchPath = mx::getSourceSearchPath(doc);
+
+            // Import libraries.
+            doc->importLibrary(libraries);
+
+            // Apply direct lights.
+            applyDirectLights(doc);
+
+            // Apply modifiers to the content document.
+            applyModifiers(doc, _modifiers);
+
+            // Flatten subgraphs if requested.
+            if (_flattenSubgraphs)
+            {
+                doc->flattenSubgraphs();
+                for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
                 {
-                    graph->flattenSubgraphs();
+                    if (graph->getActiveSourceUri() == doc->getActiveSourceUri())
+                    {
+                        graph->flattenSubgraphs();
+                    }
                 }
             }
-        }
 
-        // Validate the document.
-        std::string message;
-        if (!doc->validate(&message))
-        {
-            std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
-            std::cerr << message;
-        }
-
-        // If requested, add implicit inputs to top-level nodes.
-        if (_showAllInputs)
-        {
-            for (mx::NodePtr node : doc->getNodes())
+            // Validate the document.
+            std::string message;
+            if (!doc->validate(&message))
             {
-                node->addInputsFromNodeDef();
+                std::cerr << "*** Validation warnings for " << _materialFilename.getBaseName() << " ***" << std::endl;
+                std::cerr << message;
             }
-        }
 
-        // Find new renderable elements.
-        mx::StringVec renderablePaths;
-        std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(doc);
-        if (elems.empty())
-        {
-            throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
-        }
-        std::vector<mx::NodePtr> materialNodes;
-        for (mx::TypedElementPtr elem : elems)
-        {
-            mx::TypedElementPtr renderableElem = elem;
-            mx::NodePtr node = elem->asA<mx::Node>();
-            materialNodes.push_back(node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
-            renderablePaths.push_back(renderableElem->getNamePath());
-        }
+            // If requested, add implicit inputs to top-level nodes.
+            if (_showAllInputs)
+            {
+                for (mx::NodePtr node : doc->getNodes())
+                {
+                    node->addInputsFromNodeDef();
+                }
+            }
 
-        // Check for any udim set.
-        mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
+            // Find new renderable elements.
+            mx::StringVec renderablePaths;
+            std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(doc);
+            if (elems.empty())
+            {
+                throw mx::Exception("No renderable elements found in " + _materialFilename.getBaseName());
+            }
+            std::vector<mx::NodePtr> materialNodes;
+            for (mx::TypedElementPtr elem : elems)
+            {
+                mx::TypedElementPtr renderableElem = elem;
+                mx::NodePtr node = elem->asA<mx::Node>();
+                materialNodes.push_back(node && node->getType() == mx::MATERIAL_TYPE_STRING ? node : nullptr);
+                renderablePaths.push_back(renderableElem->getNamePath());
+            }
 
-        // Create new materials.
-        mx::TypedElementPtr udimElement;
+            // Check for any udim set.
+            mx::ValuePtr udimSetValue = doc->getGeomPropValue(mx::UDIM_SET_PROPERTY);
+
+            // Create new materials.
+            mx::TypedElementPtr udimElement;
         for (size_t i=0; i<renderablePaths.size(); i++)
-        {
-            const auto& renderablePath = renderablePaths[i];
-            mx::ElementPtr elem = doc->getDescendant(renderablePath);
-            mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
-            if (!typedElem)
             {
-                continue;
-            }
-            if (udimSetValue && udimSetValue->isA<mx::StringVec>())
-            {
-                for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
+                const auto& renderablePath = renderablePaths[i];
+                mx::ElementPtr elem = doc->getDescendant(renderablePath);
+                mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
+                if (!typedElem)
+                {
+                    continue;
+                }
+                if (udimSetValue && udimSetValue->isA<mx::StringVec>())
+                {
+                    for (const std::string& udim : udimSetValue->asA<mx::StringVec>())
+                    {
+                        mx::MaterialPtr mat = _renderPipeline->createMaterial();
+                        mat->setDocument(doc);
+                        mat->setElement(typedElem);
+                        mat->setMaterialNode(materialNodes[i]);
+                        mat->setUdim(udim);
+                        newMaterials.push_back(mat);
+
+                        udimElement = typedElem;
+                    }
+                }
+                else
                 {
                     mx::MaterialPtr mat = _renderPipeline->createMaterial();
                     mat->setDocument(doc);
                     mat->setElement(typedElem);
                     mat->setMaterialNode(materialNodes[i]);
-                    mat->setUdim(udim);
                     newMaterials.push_back(mat);
-                    
-                    udimElement = typedElem;
                 }
             }
-            else
+
+            if (!newMaterials.empty())
             {
-                mx::MaterialPtr mat = _renderPipeline->createMaterial();
-                mat->setDocument(doc);
-                mat->setElement(typedElem);
-                mat->setMaterialNode(materialNodes[i]);
-                newMaterials.push_back(mat);
-            }
-        }
+                // Extend the image search path to include material source folders.
+                mx::FileSearchPath extendedSearchPath = _searchPath;
+                extendedSearchPath.append(_materialSearchPath);
+                _imageHandler->setSearchPath(extendedSearchPath);
 
-        if (!newMaterials.empty())
-        {
-            // Extend the image search path to include material source folders.
-            mx::FileSearchPath extendedSearchPath = _searchPath;
-            extendedSearchPath.append(_materialSearchPath);
-            _imageHandler->setSearchPath(extendedSearchPath);
+                // Add new materials to the global vector.
+                _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
 
-            // Add new materials to the global vector.
-            _materials.insert(_materials.end(), newMaterials.begin(), newMaterials.end());
-
-            mx::MaterialPtr udimMaterial = nullptr;
-            for (mx::MaterialPtr mat : newMaterials)
-            {
-                // Clear cached implementations, in case libraries on the file system have changed.
-                _genContext.clearNodeImplementations();
+                mx::MaterialPtr udimMaterial = nullptr;
+                for (mx::MaterialPtr mat : newMaterials)
+                {
+                    // Clear cached implementations, in case libraries on the file system have changed.
+                    _genContext.clearNodeImplementations();
 #ifndef MATERIALXVIEW_METAL_BACKEND
-                _genContextEssl.clearNodeImplementations();
+                    _genContextEssl.clearNodeImplementations();
 #endif
 
-                mx::TypedElementPtr elem = mat->getElement();
+                    mx::TypedElementPtr elem = mat->getElement();
 
-                std::string udim = mat->getUdim();
-                if (!udim.empty())
-                {
-                    if ((udimElement == elem) && udimMaterial)
+                    std::string udim = mat->getUdim();
+                    if (!udim.empty())
                     {
-                        // Reuse existing material for all udims
-                        mat->copyShader(udimMaterial);
+                        if ((udimElement == elem) && udimMaterial)
+                        {
+                            // Reuse existing material for all udims
+                            mat->copyShader(udimMaterial);
+                        }
+                        else
+                        {
+                            // Generate a shader for the new material.
+                            mat->generateShader(_genContext);
+                            if (udimElement == elem)
+                            {
+                                udimMaterial = mat;
+                            }
+                        }
                     }
                     else
                     {
                         // Generate a shader for the new material.
                         mat->generateShader(_genContext);
-                        if (udimElement == elem)
-                        {
-                            udimMaterial = mat;
-                        }
                     }
                 }
-                else
+
+                // Apply material assignments in the order in which they are declared within the document,
+                // with later assignments superseding earlier ones.
+                for (mx::LookPtr look : doc->getLooks())
                 {
-                    // Generate a shader for the new material.
-                    mat->generateShader(_genContext);
-                }
-            }
-       
-            // Apply material assignments in the order in which they are declared within the document,
-            // with later assignments superseding earlier ones.
-            for (mx::LookPtr look : doc->getLooks())
-            {
-                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
-                {
-                    const std::string& activeGeom = matAssign->getActiveGeom();
-                    for (mx::MeshPartitionPtr part : _geometryList)
+                    for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
                     {
-                        std::string geom = part->getName();
-                        for (const std::string& id : part->getSourceNames())
+                        const std::string& activeGeom = matAssign->getActiveGeom();
+                        for (mx::MeshPartitionPtr part : _geometryList)
                         {
-                            geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
-                        }
-                        if (mx::geomStringsMatch(activeGeom, geom, true))
-                        {
-                            for (mx::MaterialPtr mat : newMaterials)
+                            std::string geom = part->getName();
+                            for (const std::string& id : part->getSourceNames())
                             {
-                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                geom += mx::ARRAY_PREFERRED_SEPARATOR + id;
+                            }
+                            if (mx::geomStringsMatch(activeGeom, geom, true))
+                            {
+                                for (mx::MaterialPtr mat : newMaterials)
                                 {
-                                    assignMaterial(part, mat);
-                                    break;
+                                    if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                    {
+                                        assignMaterial(part, mat);
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        mx::CollectionPtr coll = matAssign->getCollection();
-                        if (coll && coll->matchesGeomString(geom))
-                        {
-                            for (mx::MaterialPtr mat : newMaterials)
+                            mx::CollectionPtr coll = matAssign->getCollection();
+                            if (coll && coll->matchesGeomString(geom))
                             {
-                                if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                for (mx::MaterialPtr mat : newMaterials)
                                 {
-                                    assignMaterial(part, mat);
-                                    break;
+                                    if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
+                                    {
+                                        assignMaterial(part, mat);
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // Apply implicit udim assignments, if any.
-            for (mx::MaterialPtr mat : newMaterials)
-            {
-                mx::NodePtr materialNode = mat->getMaterialNode();
-                if (materialNode)
+                // Apply implicit udim assignments, if any.
+                for (mx::MaterialPtr mat : newMaterials)
                 {
-                    std::string udim = mat->getUdim();
-                    if (!udim.empty())
+                    mx::NodePtr materialNode = mat->getMaterialNode();
+                    if (materialNode)
                     {
-                        for (mx::MeshPartitionPtr geom : _geometryList)
+                        std::string udim = mat->getUdim();
+                        if (!udim.empty())
                         {
-                            if (geom->getName() == udim)
+                            for (mx::MeshPartitionPtr geom : _geometryList)
                             {
-                                assignMaterial(geom, mat);
+                                if (geom->getName() == udim)
+                                {
+                                    assignMaterial(geom, mat);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Apply fallback assignments.
-            mx::MaterialPtr fallbackMaterial = newMaterials[0];
-            if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
-            {
-                for (mx::MeshPartitionPtr geom : _geometryList)
+                // Apply fallback assignments.
+                mx::MaterialPtr fallbackMaterial = newMaterials[0];
+                if (!_mergeMaterials || fallbackMaterial->getUdim().empty())
                 {
-                    if (!_materialAssignments[geom])
+                    for (mx::MeshPartitionPtr geom : _geometryList)
                     {
-                        assignMaterial(geom, fallbackMaterial);
+                        if (!_materialAssignments[geom])
+                        {
+                            assignMaterial(geom, fallbackMaterial);
+                        }
                     }
                 }
             }

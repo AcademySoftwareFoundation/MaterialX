@@ -699,6 +699,7 @@ void RenderView::applyDirectLights(mx::DocumentPtr doc)
         _lightHandler->findLights(doc, lights);
         _lightHandler->registerLights(doc, lights, _genContext);
         _lightHandler->setLightSources(lights);
+        _lightHandler->setEnvSampleCount(4);
     }
     catch (std::exception& e)
     {
