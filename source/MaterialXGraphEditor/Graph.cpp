@@ -8,7 +8,7 @@
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
 
-#include <MaterialXRender/GltfMaterialHandler.h>
+#include <MaterialXRender/External/glTF_MaterialX/GltfMaterialHandler.h>
 
 #include <imgui_stdlib.h>
 #include <imgui_node_editor_internal.h>

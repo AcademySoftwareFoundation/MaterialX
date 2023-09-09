@@ -34,7 +34,7 @@
 #endif
 #include <MaterialXGenGlsl/EsslShaderGenerator.h>
 
-#include <MaterialXRender/GltfMaterialHandler.h>
+#include <MaterialXRender/External/glTF_MaterialX/GltfMaterialHandler.h>
 
 #include <MaterialXFormat/Environ.h>
 #include <MaterialXFormat/Util.h>

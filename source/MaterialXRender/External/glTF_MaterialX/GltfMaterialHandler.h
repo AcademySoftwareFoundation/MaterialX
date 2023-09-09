@@ -1,6 +1,26 @@
+/*
+
+Copyright 2022 - 2023 Bernard Kwok
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http ://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
 
 #ifndef MATERIALX_CGLTF_MaterialHandler_H
 #define MATERIALX_CGLTF_MaterialHandler_H
+
+// This line added to original source code to place this into the MaterialX Render module.
+#define MX_GLTF_API MX_RENDER_API
 
 /// @file 
 /// GLTF material loader using the Cgltf library
@@ -20,7 +40,7 @@ using GltfMaterialHandlerPtr = std::shared_ptr<class GltfMaterialHandler>;
 
 /// @class MaterialHandler
 /// Wrapper for handler to convert materials to / from MaterialX
-class MX_RENDER_API MaterialHandler
+class MX_GLTF_API MaterialHandler
 {
   public:
     MaterialHandler() 
@@ -135,7 +155,7 @@ class MX_RENDER_API MaterialHandler
 
 /// @class GltfMaterialHandler
 /// Wrapper for handling import / export of materials to / from GLTF files
-class MX_RENDER_API GltfMaterialHandler : public MaterialHandler
+class MX_GLTF_API GltfMaterialHandler : public MaterialHandler
 {
   public:
     GltfMaterialHandler() 
@@ -185,16 +205,16 @@ class MX_RENDER_API GltfMaterialHandler : public MaterialHandler
     NodePtr createTexture(DocumentPtr& doc, const std::string & nodeName, const std::string& fileName,
                           const std::string & textureType, const std::string & colorspace, 
                           const std::string& nodeType = "gltf_image");
-    void    setColorInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
+    void    readColorInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
                           const Color3& color, float alpha, const std::string& alphaInputName, 
                           const void* textureView, const std::string& inputImageNodeName);
-    void    setFloatInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
+    void    readFloatInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
                           float floatFactor, const void* textureView,
                           const std::string& inputImageNodeName);
-    void    setVector3Input(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
+    void    readVector3Input(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
                             const Vector3& vecFactor, const void* textureViewIn,
                             const std::string& inputImageNodeName);
-    void    setNormalMapInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
+    void    readNormalMapInput(DocumentPtr materials, NodePtr shaderNode, const std::string& inputName, 
                               const void* textureViewIn, const std::string& inputImageNodeName);
 
     void loadMaterials(void *);
