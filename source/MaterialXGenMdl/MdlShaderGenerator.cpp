@@ -168,22 +168,11 @@ MdlShaderGenerator::MdlShaderGenerator() :
     registerImplementation("IM_layer_bsdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
     registerImplementation("IM_layer_vdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
 
-    registerImplementation("IM_mix_bsdf_" + MdlShaderGenerator::TARGET, MixBsdfNodeMdl::create);
-    registerImplementation("IM_add_bsdf_" + MdlShaderGenerator::TARGET, AddOrMultiplyBsdfNodeMdl::create);
-    registerImplementation("IM_multiply_bsdfC_" + MdlShaderGenerator::TARGET, AddOrMultiplyBsdfNodeMdl::create);
-    registerImplementation("IM_multiply_bsdfF_" + MdlShaderGenerator::TARGET, AddOrMultiplyBsdfNodeMdl::create);
-
-    // <!-- <thin_film_bsdf> -->
-    registerImplementation("IM_thin_film_bsdf_" + MdlShaderGenerator::TARGET, ClosureLayerNodeMdl::create);
-
     // <!-- <dielectric_bsdf> -->
-    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
-
-    // <!-- <conductor_bsdf> -->
-    registerImplementation("IM_conductor_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
+    registerImplementation("IM_dielectric_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <generalized_schlick_bsdf> -->
-    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, ThinFilmReceiverNodeMdl::create);
+    registerImplementation("IM_generalized_schlick_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
