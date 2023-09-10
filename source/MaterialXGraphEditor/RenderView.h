@@ -145,11 +145,6 @@ class RenderView
         return _materialAssignments;
     }
 
-    bool getMergeMaterials()
-    {
-        return _mergeMaterials;
-    }
-
     std::vector<mx::GlslMaterialPtr> getMaterials()
     {
         return _materials;
@@ -323,7 +318,6 @@ class RenderView
     bool _splitByUdims;
 
     // Material options
-    bool _mergeMaterials;
     bool _materialCompilation;
 
     // Unit options

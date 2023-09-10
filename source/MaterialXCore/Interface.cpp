@@ -305,7 +305,7 @@ InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
     {
-        ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
         if (graph)
         {
             return graph->getInput(getInterfaceName());
@@ -609,6 +609,13 @@ void InterfaceElement::unregisterChildElement(ElementPtr child)
 ConstInterfaceElementPtr InterfaceElement::getDeclaration(const string&) const
 {
     return InterfaceElementPtr();
+}
+
+void InterfaceElement::clearContent()
+{
+    _inputCount = 0;
+    _outputCount = 0;
+    TypedElement::clearContent();
 }
 
 bool InterfaceElement::hasExactInputMatch(ConstInterfaceElementPtr declaration, string* message) const
