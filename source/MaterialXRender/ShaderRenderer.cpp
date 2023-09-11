@@ -59,4 +59,9 @@ void ShaderRenderer::setSize(unsigned int, unsigned int)
 {
 }
 
+void ShaderRenderer::updateUniform(const string&, ConstValuePtr)
+{
+    throw ExceptionRenderError("Update uniform is not yet supported");
+}
+
 MATERIALX_NAMESPACE_END
