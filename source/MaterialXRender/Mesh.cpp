@@ -349,7 +349,7 @@ void MeshStream::transform(const Matrix44 &matrix)
     }
 }
 
-MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
+MeshStreamPtr Mesh::getStream(const string& name, bool allowFallback)
 {
     for (const auto& stream : _streams)
     {
@@ -358,7 +358,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
             return stream;
         }
     }
-    if (returnFallbackStream)
+    if (allowFallback)
     {
         const std::string POSITION_NAME("i_" + MeshStream::POSITION_ATTRIBUTE);
         MeshStreamPtr positionStream = getStream(POSITION_NAME, false);
@@ -444,10 +444,10 @@ MeshStreamPtr Mesh::getStream(const string& name, bool returnFallbackStream)
     return MeshStreamPtr();
 }
 
-MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool returnFallbackStream)
+MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool allowFallback)
 {
     const string streamName = "i_" + type + "_" + std::to_string(index);
-    MeshStreamPtr foundStream = getStream(streamName, returnFallbackStream);
+    MeshStreamPtr foundStream = getStream(streamName, allowFallback);
     return foundStream;
 }
 
