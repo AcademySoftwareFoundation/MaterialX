@@ -451,7 +451,5 @@ MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool allow
     return foundStream;
 }
 
-
-
 MATERIALX_NAMESPACE_END
 
