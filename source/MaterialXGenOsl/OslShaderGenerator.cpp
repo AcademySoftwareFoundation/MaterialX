@@ -509,44 +509,22 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
     emitLineBreak(stage);
 }
 
-namespace
-{
-
-std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
-{
-    { "Pobject", "transform(\"object\", P)" },
-    { "Pworld", "P" },
-    { "Nobject", "transform(\"object\", N)" },
-    { "Nworld", "N" },
-    { "Tobject", "transform(\"object\", dPdu)" },
-    { "Tworld", "dPdu" },
-    { "Bobject", "transform(\"object\", dPdv)" },
-    { "Bworld", "dPdv" },
-    { "UV0", "{u,v}" },
-    { "Vworld", "I" }
-};
-
-const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
-{
-    { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-    { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-    { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-    { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
-};
-
-const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
-{
-    Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
-    Type::VECTOR4,  //
-    Type::COLOR4,   //
-    Type::FILENAME, //
-    Type::BSDF      //
-};
-
-} // anonymous namespace
-
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
+    static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
+    {
+        { "Pobject", "transform(\"object\", P)" },
+        { "Pworld", "P" },
+        { "Nobject", "transform(\"object\", N)" },
+        { "Nworld", "N" },
+        { "Tobject", "transform(\"object\", dPdu)" },
+        { "Tworld", "dPdu" },
+        { "Bobject", "transform(\"object\", dPdv)" },
+        { "Bworld", "dPdv" },
+        { "UV0", "{u,v}" },
+        { "Vworld", "I" }
+    };
+
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
@@ -626,6 +604,23 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
 
 void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage) const
 {
+    static const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    {
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+    };
+
+    static const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    {
+        Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
+        Type::VECTOR4,  //
+        Type::COLOR4,   //
+        Type::FILENAME, //
+        Type::BSDF      //
+    };
+
     auto widgetMetadataIt = UI_WIDGET_METADATA.find(port->getType());
     const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
     const ShaderMetadataVecPtr& metadata = port->getMetadata();
