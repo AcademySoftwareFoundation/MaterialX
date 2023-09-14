@@ -307,6 +307,7 @@
     <input name="default" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -324,6 +325,7 @@
     <input name="default" type="color3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -341,6 +343,7 @@
     <input name="default" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -358,6 +361,7 @@
     <input name="default" type="vector2" value="0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -375,6 +379,7 @@
     <input name="default" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -392,6 +397,7 @@
     <input name="default" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="normal" type="vector3" defaultgeomprop="Nobject" />
+    <input name="upaxis" type="integer" value="2" enum="X,Y,Z" enumvalues="0,1,2" uniform="true" />
     <input name="blend" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="filtertype" type="string" value="linear" enum="closest,linear,cubic" uniform="true" />
     <input name="framerange" type="string" value="" uniform="true" />
@@ -1083,20 +1089,20 @@
   <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="procedural2d">
     <input name="color1" type="color3" uiname="Color 1" value="1.0, 1.0, 1.0" doc="The first color used in the checkerboard pattern." />
     <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." />
-    <input name="freq" type="vector2" uiname="Frequency" value="8, 8" doc="The frequency of checkers, with higher values producing smaller squares. Default is (8, 8)." />
-    <input name="offset" type="vector2" uiname="Offset" value="0, 0" doc="Shift the pattern in 2d space. Default is (0, 0)." />
+    <input name="uvtiling" type="vector2" uiname="UV Tiling" value="8, 8" doc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8)." />
+    <input name="uvoffset" type="vector2" uiname="UV Offset" value="0, 0" doc="The offset of the checkerboard pattern along each axis. Default is (0, 0)." />
     <input name="texcoord" type="vector2" uiname="Texture Coordinates" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
     <output name="out" type="color3" />
   </nodedef>
 
   <!--
     Node: <line>
-    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
     Segment ends will be rounded.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.1" />
     <input name="point1" type="vector2" value="0.25, 0.25" />
@@ -1106,10 +1112,10 @@
 
   <!--
     Node: <circle>
-    Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
   -->
   <nodedef name="ND_circle_float" node="circle" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />
@@ -1117,10 +1123,10 @@
 
   <!--
     Node: <cloverleaf>
-    Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
   <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />
@@ -1128,11 +1134,11 @@
 
   <!--
     Node: <hexagon>
-    Returns 1 if sample is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="procedural2d">
-    <input name="sample" type="vector2" value="0, 0" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
     <output name="out" type="float" />

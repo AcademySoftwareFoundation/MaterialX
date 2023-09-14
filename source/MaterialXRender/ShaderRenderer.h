@@ -110,6 +110,9 @@ class MX_RENDER_API ShaderRenderer
     /// Validate inputs for the program.
     virtual void validateInputs() { }
 
+    /// Update the program with value of the uniform.
+    virtual void updateUniform(const string& name, ConstValuePtr value);
+
     /// Set the size of the rendered image.
     virtual void setSize(unsigned int width, unsigned int height);
 

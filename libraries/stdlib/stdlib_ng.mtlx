@@ -226,11 +226,45 @@
       <input name="in1" type="float" nodename="N_extX_float" />
       <input name="in2" type="float" nodename="N_extY_float" />
     </combine2>
+    <multiply name="N_vecXY_invert_float" type="float">
+      <input name="in1" type="float" nodename="N_extY_float" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_float" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_float" />
+      <input name="in2" type="float" nodename="N_extX_float" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_float" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_float" />
+      <input name="in2" type="float" nodename="N_extX_float" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_float" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_float" />
+      <input name="in2" type="float" nodename="N_extY_float" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_float" />
+      <input name="in2" type="vector2" nodename="N_vecXY_float" />
+      <input name="in3" type="vector2" nodename="N_vecXY_float" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_float" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_float" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_float" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_float" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_float" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_float" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_float" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_float" type="float">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="float" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_float" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_float" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -242,7 +276,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="float" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_float" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_float" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -254,7 +288,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="float" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_float" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_float" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -346,11 +380,45 @@
       <input name="in1" type="float" nodename="N_extX_color3" />
       <input name="in2" type="float" nodename="N_extY_color3" />
     </combine2>
+    <multiply name="N_vecXY_invert_color3" type="float">
+      <input name="in1" type="float" nodename="N_extY_color3" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_color3" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_color3" />
+      <input name="in2" type="float" nodename="N_extX_color3" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_color3" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_color3" />
+      <input name="in2" type="float" nodename="N_extX_color3" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_color3" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_color3" />
+      <input name="in2" type="float" nodename="N_extY_color3" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_color3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_color3" />
+      <input name="in2" type="vector2" nodename="N_vecXY_color3" />
+      <input name="in3" type="vector2" nodename="N_vecXY_color3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_color3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_color3" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_color3" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_color3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_color3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_color3" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_color3" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_color3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_color3" type="color3">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="color3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_color3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_color3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -362,7 +430,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="color3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_color3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_color3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -374,7 +442,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="color3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_color3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_color3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -466,11 +534,45 @@
       <input name="in1" type="float" nodename="N_extX_color4" />
       <input name="in2" type="float" nodename="N_extY_color4" />
     </combine2>
+    <multiply name="N_vecXY_invert_color4" type="float">
+      <input name="in1" type="float" nodename="N_extY_color4" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_color4" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_color4" />
+      <input name="in2" type="float" nodename="N_extX_color4" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_color4" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_color4" />
+      <input name="in2" type="float" nodename="N_extX_color4" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_color4" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_color4" />
+      <input name="in2" type="float" nodename="N_extY_color4" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_color4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_color4" />
+      <input name="in2" type="vector2" nodename="N_vecXY_color4" />
+      <input name="in3" type="vector2" nodename="N_vecXY_color4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_color4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_color4" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_color4" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_color4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_color4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_color4" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_color4" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_color4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_color4" type="color4">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="color4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_color4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_color4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -482,7 +584,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="color4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_color4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_color4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -494,7 +596,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="color4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_color4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_color4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -586,11 +688,45 @@
       <input name="in1" type="float" nodename="N_extX_vector2" />
       <input name="in2" type="float" nodename="N_extY_vector2" />
     </combine2>
+    <multiply name="N_vecXY_invert_vector2" type="float">
+      <input name="in1" type="float" nodename="N_extY_vector2" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_vector2" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_vector2" />
+      <input name="in2" type="float" nodename="N_extX_vector2" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_vector2" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector2" />
+      <input name="in2" type="float" nodename="N_extX_vector2" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_vector2" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector2" />
+      <input name="in2" type="float" nodename="N_extY_vector2" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_vector2" />
+      <input name="in2" type="vector2" nodename="N_vecXY_vector2" />
+      <input name="in3" type="vector2" nodename="N_vecXY_vector2" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_vector2" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_vector2" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_vector2" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_vector2" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_vector2" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_vector2" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_vector2" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_vector2" type="vector2">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="vector2" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_vector2" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_vector2" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -602,7 +738,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="vector2" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_vector2" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_vector2" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -614,7 +750,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="vector2" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_vector2" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_vector2" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -706,11 +842,45 @@
       <input name="in1" type="float" nodename="N_extX_vector3" />
       <input name="in2" type="float" nodename="N_extY_vector3" />
     </combine2>
+    <multiply name="N_vecXY_invert_vector3" type="float">
+      <input name="in1" type="float" nodename="N_extY_vector3" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_vector3" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_vector3" />
+      <input name="in2" type="float" nodename="N_extX_vector3" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_vector3" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector3" />
+      <input name="in2" type="float" nodename="N_extX_vector3" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_vector3" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector3" />
+      <input name="in2" type="float" nodename="N_extY_vector3" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_vector3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_vector3" />
+      <input name="in2" type="vector2" nodename="N_vecXY_vector3" />
+      <input name="in3" type="vector2" nodename="N_vecXY_vector3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_vector3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_vector3" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_vector3" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_vector3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_vector3" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_vector3" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_vector3" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_vector3" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_vector3" type="vector3">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="vector3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_vector3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_vector3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -722,7 +892,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="vector3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_vector3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_vector3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -734,7 +904,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="vector3" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_vector3" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_vector3" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -826,11 +996,45 @@
       <input name="in1" type="float" nodename="N_extX_vector4" />
       <input name="in2" type="float" nodename="N_extY_vector4" />
     </combine2>
+    <multiply name="N_vecXY_invert_vector4" type="float">
+      <input name="in1" type="float" nodename="N_extY_vector4" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <combine2 name="N_vecXY_xUp_vector4" type="vector2">
+      <input name="in1" type="float" nodename="N_vecXY_invert_vector4" />
+      <input name="in2" type="float" nodename="N_extX_vector4" />
+    </combine2>
+    <combine2 name="N_vecXZ_xUp_vector4" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector4" />
+      <input name="in2" type="float" nodename="N_extX_vector4" />
+    </combine2>
+    <combine2 name="N_vecYZ_yUp_vector4" type="vector2">
+      <input name="in1" type="float" nodename="N_extZ_vector4" />
+      <input name="in2" type="float" nodename="N_extY_vector4" />
+    </combine2>
+    <switch name="N_upDirSwitchXY_vector4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXY_xUp_vector4" />
+      <input name="in2" type="vector2" nodename="N_vecXY_vector4" />
+      <input name="in3" type="vector2" nodename="N_vecXY_vector4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchXZ_vector4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecXZ_xUp_vector4" />
+      <input name="in2" type="vector2" nodename="N_vecXZ_vector4" />
+      <input name="in3" type="vector2" nodename="N_vecXZ_vector4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
+    <switch name="N_upDirSwitchYZ_vector4" type="vector2">
+      <input name="in1" type="vector2" nodename="N_vecYZ_yUp_vector4" />
+      <input name="in2" type="vector2" nodename="N_vecYZ_yUp_vector4" />
+      <input name="in3" type="vector2" nodename="N_vecYZ_vector4" />
+      <input name="which" type="integer" interfacename="upaxis" />
+    </switch>
     <image name="N_imgX_vector4" type="vector4">
       <input name="file" type="filename" interfacename="filex" />
       <input name="layer" type="string" interfacename="layerx" />
       <input name="default" type="vector4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecYZ_vector4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchYZ_vector4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -842,7 +1046,7 @@
       <input name="file" type="filename" interfacename="filey" />
       <input name="layer" type="string" interfacename="layery" />
       <input name="default" type="vector4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXZ_vector4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXZ_vector4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -854,7 +1058,7 @@
       <input name="file" type="filename" interfacename="filez" />
       <input name="layer" type="string" interfacename="layerz" />
       <input name="default" type="vector4" interfacename="default" />
-      <input name="texcoord" type="vector2" nodename="N_vecXY_vector4" />
+      <input name="texcoord" type="vector2" nodename="N_upDirSwitchXY_vector4" />
       <input name="uaddressmode" type="string" value="periodic" />
       <input name="vaddressmode" type="string" value="periodic" />
       <input name="filtertype" type="string" interfacename="filtertype" />
@@ -1376,58 +1580,42 @@
     A 2D checkerboard pattern.
   -->
   <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
-    <separate2 name="N_mtlxseparate2" type="multioutput">
-      <input name="in" type="vector2" nodename="N_mtlxplace2d1" />
-    </separate2>
-    <modulo name="N_mtlxmodulo1" type="float">
-      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outx" />
-      <input name="in2" type="float" value="2" />
-    </modulo>
-    <multiply name="N_mult" type="vector2">
+    <multiply name="N_mtlxmult" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
-      <input name="in2" type="vector2" interfacename="freq" />
+      <input name="in2" type="vector2" interfacename="uvtiling" />
     </multiply>
-    <modulo name="N_mtlxmodulo2" type="float">
-      <input name="in1" type="float" nodename="N_mtlxseparate2" output="outy" />
+    <subtract name="N_mtlxsubtract" type="vector2">
+      <input name="in1" type="vector2" nodename="N_mtlxmult" />
+      <input name="in2" type="vector2" interfacename="uvoffset" />
+    </subtract>
+    <floor name="N_mtlxfloor" type="vector2">
+      <input name="in" type="vector2" nodename="N_mtlxsubtract" />
+    </floor>
+    <dotproduct name="N_mtlxdotproduct" type="float">
+      <input name="in1" type="vector2" nodename="N_mtlxfloor" />
+      <input name="in2" type="vector2" value="1, 1" />
+    </dotproduct>
+    <modulo name="N_modulo" type="float">
+      <input name="in1" type="float" nodename="N_mtlxdotproduct" />
       <input name="in2" type="float" value="2" />
     </modulo>
-    <floor name="N_mtlxfloor2" type="float">
-      <input name="in" type="float" nodename="N_mtlxmodulo1" />
-    </floor>
-    <floor name="N_mtlxfloor3" type="float">
-      <input name="in" type="float" nodename="N_mtlxmodulo2" />
-    </floor>
-    <add name="N_mtlxadd2" type="float">
-      <input name="in1" type="float" nodename="N_mtlxfloor2" />
-      <input name="in2" type="float" nodename="N_mtlxfloor3" />
-    </add>
-    <ifequal name="N_mtlxifequal2" type="float">
-      <input name="value1" type="float" nodename="N_mtlxadd2" />
-      <input name="value2" type="float" value="1" />
-      <input name="in1" type="float" value="1" />
-      <input name="in2" type="float" value="0" />
-    </ifequal>
-    <place2d name="N_mtlxplace2d1" type="vector2">
-      <input name="texcoord" type="vector2" nodename="N_mult" />
-      <input name="offset" type="vector2" interfacename="offset" />
-    </place2d>
-    <mix name="N_mix_color3" type="color3">
+    <mix name="N_mtlxmix" type="color3">
       <input name="bg" type="color3" interfacename="color2" />
       <input name="fg" type="color3" interfacename="color1" />
-      <input name="mix" type="float" nodename="N_mtlxifequal2" />
+      <input name="mix" type="float" nodename="N_modulo" />
     </mix>
-    <output name="out" type="color3" nodename="N_mix_color3" />
+    <output name="out" type="color3" nodename="N_mtlxmix" />
   </nodegraph>
 
   <!--
     Node: <line>
-    Returns 1 if sample is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
+    Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.
     Segment ends will be rounded.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_line_float" nodedef="ND_line_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <subtract name="p_a" type="vector2">
@@ -1472,11 +1660,11 @@
 
   <!--
     Node: <circle>
-    Returns 1 if sample is inside a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_circle_float" nodedef="ND_circle_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <dotproduct name="dist_square" type="float">
@@ -1498,12 +1686,12 @@
 
   <!--
     Node: <cloverleaf>
-    Returns 1 if sample is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
   <nodegraph name="NG_cloverleaf_float" nodedef="ND_cloverleaf_float">
     <add name="sample_double" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
-      <input name="in2" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
+      <input name="in2" type="vector2" interfacename="texcoord" />
     </add>
     <add name="sample_add" type="vector2">
       <input name="in1" type="vector2" nodename="sample_double" />
@@ -1530,22 +1718,22 @@
       <input name="in2" type="float" nodename="sample_add" channels="y" />
     </combine2>
     <circle name="circle1" type="float">
-      <input name="sample" type="vector2" nodename="coord1" />
+      <input name="texcoord" type="vector2" nodename="coord1" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle2" type="float">
-      <input name="sample" type="vector2" nodename="coord2" />
+      <input name="texcoord" type="vector2" nodename="coord2" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle3" type="float">
-      <input name="sample" type="vector2" nodename="coord3" />
+      <input name="texcoord" type="vector2" nodename="coord3" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
     <circle name="circle4" type="float">
-      <input name="sample" type="vector2" nodename="coord4" />
+      <input name="texcoord" type="vector2" nodename="coord4" />
       <input name="center" type="vector2" interfacename="center" />
       <input name="radius" type="float" interfacename="radius" />
     </circle>
@@ -1566,12 +1754,12 @@
 
   <!--
     Node: <hexagon>
-    Returns 1 if sample is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
+    Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_hexagon_float" nodedef="ND_hexagon_float">
     <subtract name="delta" type="vector2">
-      <input name="in1" type="vector2" interfacename="sample" />
+      <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
     </subtract>
     <absval name="delta_abs" type="vector2">
@@ -1822,13 +2010,13 @@
       <input name="in2" type="float" nodename="subY_1" />
     </combine2>
     <line name="line_diag1" type="float">
-      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="texcoord" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" value="1, 1" />
       <input name="point2" type="vector2" value="-1, -1" />
     </line>
     <line name="line_diag2" type="float">
-      <input name="sample" type="vector2" nodename="sample_vec" />
+      <input name="texcoord" type="vector2" nodename="sample_vec" />
       <input name="radius" type="float" interfacename="thickness" />
       <input name="point1" type="vector2" value="-1, 1" />
       <input name="point2" type="vector2" value="1, -1" />
@@ -1921,15 +2109,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <circle name="circle_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <circle name="circle_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <circle name="circle_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </circle>
     <max name="max1" type="float">
@@ -1941,7 +2129,7 @@
       <input name="in2" type="float" nodename="circle_stagg3" />
     </max>
     <circle name="circle_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </circle>
     <ifequal name="pattern_selection" type="float">
@@ -2030,15 +2218,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <cloverleaf name="cloverleaf_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <cloverleaf name="cloverleaf_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <cloverleaf name="cloverleaf_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </cloverleaf>
     <max name="max1" type="float">
@@ -2050,7 +2238,7 @@
       <input name="in2" type="float" nodename="cloverleaf_stagg3" />
     </max>
     <cloverleaf name="cloverleaf_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </cloverleaf>
     <ifequal name="pattern_selection" type="float">
@@ -2139,15 +2327,15 @@
       <input name="in2" type="float" value="2" />
     </divide>
     <hexagon name="hexagon_stagg1" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ1" />
+      <input name="texcoord" type="vector2" nodename="coord_circ1" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <hexagon name="hexagon_stagg2" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ2" />
+      <input name="texcoord" type="vector2" nodename="coord_circ2" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <hexagon name="hexagon_stagg3" type="float">
-      <input name="sample" type="vector2" nodename="coord_circ3" />
+      <input name="texcoord" type="vector2" nodename="coord_circ3" />
       <input name="radius" type="float" nodename="scale_half" />
     </hexagon>
     <max name="max1" type="float">
@@ -2159,7 +2347,7 @@
       <input name="in2" type="float" nodename="hexagon_stagg3" />
     </max>
     <hexagon name="hexagon_regular" type="float">
-      <input name="sample" type="vector2" nodename="recenter" />
+      <input name="texcoord" type="vector2" nodename="recenter" />
       <input name="radius" type="float" interfacename="size" />
     </hexagon>
     <ifequal name="pattern_selection" type="float">
