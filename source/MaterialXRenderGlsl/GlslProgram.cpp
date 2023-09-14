@@ -1055,10 +1055,6 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 
 const GlslProgram::InputMap& GlslProgram::updateAttributesList()
 {
-    //if (_attributeList.size() > 0)
-    //{
-    //    return _attributeList;
-    //}
     _attributeList.clear();
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
