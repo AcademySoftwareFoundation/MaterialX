@@ -386,6 +386,10 @@
       <input name="in1" type="float" nodename="coat_ior_to_F0_sqrt" />
       <input name="in2" type="float" nodename="coat_ior_to_F0_sqrt" />
     </multiply>
+    <subtract name="one_minus_coat_ior_to_F0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="coat_ior_to_F0" />
+    </subtract>
     <multiply name="emission_weight" type="color3">
       <input name="in1" type="color3" interfacename="emission_color" />
       <input name="in2" type="float" interfacename="emission" />
@@ -398,8 +402,8 @@
       <input name="in2" type="color3" interfacename="coat_color" />
     </multiply>
     <generalized_schlick_edf name="coat_emission_edf" type="EDF">
-      <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="color90" type="color3" nodename="coat_ior_to_F0" channels="rrr" />
+      <input name="color0" type="color3" nodename="one_minus_coat_ior_to_F0" channels="rrr" />
+      <input name="color90" type="color3" value="0.0, 0.0, 0.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="base" type="EDF" nodename="coat_tinted_emission_edf" />
     </generalized_schlick_edf>
