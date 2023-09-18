@@ -38,7 +38,8 @@ class MX_RENDER_API LightHandler
         _directLighting(true),
         _indirectLighting(true),
         _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
-        _refractionTwoSided(false)
+        _refractionTwoSided(false),
+        _envRadianceMapPreConvolved(nullptr)
     {
     }
     virtual ~LightHandler() { }

@@ -115,7 +115,11 @@ void GLRenderPipeline::convolveEnvironment()
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
-    mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
+
+    if (lightHandler->getEnvRadianceMapPreConvolved())
+    {
+        return;
+    }
 
     // Create the convolution shader.
     mx::GlslMaterialPtr material = nullptr;
@@ -137,6 +141,7 @@ void GLRenderPipeline::convolveEnvironment()
     int numMips = srcTex->getMaxMipCount();
 
     // Create texture to hold the convolved environment.
+    mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
     glImageHandler->createRenderResources(outTex, true);
 

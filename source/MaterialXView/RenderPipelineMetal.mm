@@ -160,7 +160,6 @@ void MetalRenderPipeline::convolveEnvironment()
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
-    mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
 
     if (lightHandler->getEnvRadianceMapPreConvolved())
     {
@@ -171,6 +170,7 @@ void MetalRenderPipeline::convolveEnvironment()
     int w = srcTex->getWidth();
     int h = srcTex->getHeight();
 
+    mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
     mtlImageHandler->createRenderResources(outTex, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
