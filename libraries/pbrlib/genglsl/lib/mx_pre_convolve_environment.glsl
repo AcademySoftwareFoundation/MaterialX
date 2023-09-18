@@ -33,13 +33,6 @@ mat3 get_local_frame(vec3 localZ)
     return mat3(localX, localY, localZ);
 }
   
-// Precompute part of lambdaV
-float get_smith_joint_ggx_part_lambda_v(float NdotV, float alpha)
-{
-    float a2 = alpha * alpha;
-    return sqrt((-NdotV * a2 + NdotV) * NdotV + a2);
-}
-
 vec3 spherical_to_cartesian(float phi, float cosTheta)
 {
     float sinPhi = sin(phi);
@@ -83,25 +76,6 @@ void sample_ggx_dir(
     L = localToWorld * localL;
 }
 
-// Note: V = G / (4 * NdotL * NdotV)
-// Ref: http://jcgt.org/published/0003/02/03/paper.pdf
-float v_smith_joint_ggx(float NdotL, float NdotV, float alpha, float partLambdaV)
-{
-    float a2 = alpha * alpha;
-
-    // Original formulation:
-    // lambda_v = (-1 + sqrt(a2 * (1 - NdotL2) / NdotL2 + 1)) * 0.5
-    // lambda_l = (-1 + sqrt(a2 * (1 - NdotV2) / NdotV2 + 1)) * 0.5
-    // G        = 1 / (1 + lambda_v + lambda_l);
-
-    float lambdaV = NdotL * partLambdaV;
-    float lambdaL = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
-
-    // Simplify visibility term: (2.0 * NdotL * NdotV) /  ((4.0 * NdotL * NdotV) * (lambda_v + lambda_l))
-    #define EPSILON 0.00001
-    return 0.5 / max(lambdaV + lambdaL, EPSILON);
-}
-
 vec3 mx_pre_convolve_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $convolutionMipLevel) / vec2(2048.0, 1024.0);
@@ -116,7 +90,6 @@ vec3 mx_pre_convolve_environment()
     vec3 V = N;
     float NdotV = 1; // Because N == V
     float alpha = mx_lod_to_alpha(float($convolutionMipLevel));
-    float partLambdaV =  get_smith_joint_ggx_part_lambda_v(NdotV, alpha);
     // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
     // the variance of the samples by choosing higher mip levels where necessary. We haven't
     // implemented prefiltering yet, so we use a high sample count.
@@ -140,7 +113,7 @@ vec3 mx_pre_convolve_environment()
         float mipLevel = 0;
         vec3 val = mx_latlong_map_lookup(L, $envMatrix, mipLevel, $envRadiance);
         const float F = 1.0;
-        float G = v_smith_joint_ggx(NdotL, NdotV, alpha, partLambdaV) * NdotL * NdotV; // 4 cancels out
+        float G = mx_ggx_smith_G2(NdotL, NdotV, alpha);
         lightInt += F * G * val;
         cbsdfInt += F * G;
     }
