@@ -91,7 +91,7 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget)
+bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool)
 {
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
