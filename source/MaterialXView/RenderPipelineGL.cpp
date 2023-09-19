@@ -143,7 +143,7 @@ void GLRenderPipeline::convolveEnvironment()
     // Create texture to hold the convolved environment.
     mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
-    glImageHandler->createRenderResources(outTex, true);
+    glImageHandler->createRenderResources(outTex, true, true);
 
 	mx::GlslProgramPtr program = material->getProgram();
 

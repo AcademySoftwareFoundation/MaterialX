@@ -165,7 +165,7 @@ void ImageHandler::unbindImages()
     }
 }
 
-bool ImageHandler::createRenderResources(ImagePtr, bool)
+bool ImageHandler::createRenderResources(ImagePtr, bool, bool)
 {
     return false;
 }

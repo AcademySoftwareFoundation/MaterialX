@@ -172,7 +172,7 @@ void MetalRenderPipeline::convolveEnvironment()
 
     mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
-    mtlImageHandler->createRenderResources(outTex, true);
+    mtlImageHandler->createRenderResources(outTex, true, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
 
 
@@ -266,7 +266,7 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
            !mtlImageHandler->getAssociatedMetalTexture(_shadowMap[i]))
         {
             _shadowMap[i] = mx::Image::create(shadowMapSize, shadowMapSize, 2, mx::Image::BaseType::FLOAT);
-            _viewer->_imageHandler->createRenderResources(_shadowMap[i], false);
+            _viewer->_imageHandler->createRenderResources(_shadowMap[i], false, true);
         }
         
         shadowMapTex[i] =

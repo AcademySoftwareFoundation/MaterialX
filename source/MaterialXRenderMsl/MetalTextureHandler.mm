@@ -24,7 +24,7 @@ bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingPropertie
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false))
         {
             return false;
         }
@@ -63,7 +63,7 @@ bool MetalTextureHandler::bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false))
         {
             return false;
         }
@@ -128,7 +128,7 @@ bool MetalTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
+bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget)
 {
     id<MTLTexture> texture = nil;
     
@@ -148,7 +148,8 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.width = image->getWidth();
         texDesc.height = image->getHeight();
         texDesc.mipmapLevelCount = generateMipMaps ? image->getMaxMipCount() : 1;
-        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+        texDesc.usage = MTLTextureUsageShaderRead |
+                    (useAsRenderTarget ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
         texDesc.pixelFormat = pixelFormat;
         if(generateMipMaps)

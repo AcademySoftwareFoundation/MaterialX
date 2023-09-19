@@ -37,7 +37,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true))
+        if (!createRenderResources(image, true, false))
         {
             return false;
         }
@@ -91,7 +91,7 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
+bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget)
 {
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
