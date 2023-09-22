@@ -283,9 +283,7 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
 {
     ShaderPtr shader = createShader(name, element, context);
 
-    // Turn on fixed float formatting to make sure float values are
-    // emitted with a decimal point and not as integers, and to avoid
-    // any scientific notation which isn't supported by all OpenGL targets.
+    // Request fixed floating-point notation for consistency across targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
