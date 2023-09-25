@@ -14,7 +14,8 @@ MaterialX is an open standard for representing rich material and look-developmen
 ### Quick Start for Developers
 
 - Download the latest version of the [CMake](https://cmake.org/) build system.
-- Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
+- Create a new sub-folder called `build` under the root of the MaterialX library.
+- From the `build` folder, point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
 
@@ -63,6 +64,8 @@ The following packages contain pre-built binaries for the latest release, includ
 - [Microsoft Windows (Visual Studio 2022, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python39.zip)
 - [MacOS (Xcode 13, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_13_Python39.zip)
 - [Linux (GCC 11, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python39.zip)
+
+Python packages can be installed from the [Python Package Index (PyPI)](https://pypi.org/project/materialx/) repository.
 
 ### Additional Resources
 

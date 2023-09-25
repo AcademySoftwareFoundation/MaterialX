@@ -5,9 +5,11 @@ MaterialX is an open standard for transfer of rich material and look-development
 ### Quick Start for Developers
 
 - Download the latest version of the [CMake](https://cmake.org/) build system.
-- Point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
+- Create a new sub-folder called `build` under the root of the MaterialX library.
+- From the `build` folder, point CMake to the root of the MaterialX library and generate C++ projects for your platform and compiler.
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.
+- Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the MaterialX graph editor.
 
 ### Supported Platforms
 
@@ -30,7 +32,7 @@ To enable OpenImageIO support in MaterialX builds, the following additional opti
 - `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.
 - `MATERIALX_OIIO_DIR`: Path to the root folder of an OpenImageIO installation.  If MATERIALX_BUILD_OIIO has been enabled, then this option may be used to select which installation is used.
 
-See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, and MDL.
+See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, MSL, and MDL.
 
 #### Building MaterialX Python
 
@@ -46,7 +48,10 @@ Additional options for the generation of MaterialX Python include the following:
 
 #### Building The MaterialX Viewer
 
-Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `bin/` directory within the selected install folder.
+Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX viewer.  Installation will copy the **MaterialXView** executable to a `bin/` directory within the selected install folder.
+
+#### Building The MaterialX Graph Editor
+Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the MaterialX graph editor.  Installation will copy the **MaterialXGraphEditor** executable to a `bin/` directory within the selected install folder.
 
 #### Building API Documentation
 
@@ -55,6 +60,13 @@ To generate HTML documentation for the MaterialX C++ API, make sure a version of
 ### Installing MaterialX
 
 Building the `install` target of your project will install the MaterialX C++ and Python libraries to the folder specified by the `CMAKE_INSTALL_PREFIX` setting, and will install MaterialX Python as a third-party library in your Python environment.  Installation of MaterialX Python as a third-party library can be disabled by setting `MATERIALX_INSTALL_PYTHON` to `OFF`.
+
+### Building Javascript Bindings
+
+MaterialX Javascript bindings are built using [Emscripten](https://emscripten.org/). To build the MaterialX Javascript bindings, follow the instructions in the [MaterialX Javascript](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/javascript)
+documentation.
+
+As part of the build process, a sample `three.js` based viewer is created and deployed as a [github page](https://academysoftwarefoundation.github.io/MaterialX/).
 
 ### MaterialX Versioning
 
@@ -67,4 +79,7 @@ Upgrading of MaterialX documents from earlier versions is handled at import time
 - The main [MaterialX website](http://www.materialx.org) provides background on the project's history, industry collaborations, and recent presentations.
 - The [Python Scripts](https://github.com/materialx/MaterialX/tree/main/python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [MaterialX Unit Tests](https://github.com/materialx/MaterialX/tree/main/source/MaterialXTest) folder contains examples of useful patterns for MaterialX C++.
-- The [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md) is a complete, cross-platform C++ application based upon [MaterialX Shader Generation](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/ShaderGeneration.md)
+- The [MaterialX Viewer](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md) and the [MaterialX Graph Editor](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md) are a cross-platform C++ viewer and node graph editor
+respectively.
+- Both the viewer and graph editor use [MaterialX Shader Generation](https://github.com/materialx/MaterialX/blob/main/documents/DeveloperGuide/ShaderGeneration.md) for rendering.
+
