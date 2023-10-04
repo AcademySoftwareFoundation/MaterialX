@@ -26,7 +26,6 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string OslShaderGenerator::TARGET = "genosl";
-const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 
 //
 // OslShaderGenerator methods
@@ -161,9 +160,6 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
-
-    // Extra arguments for texture lookups.
-    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
