@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.36">
   <!--
-
-  Upgrade path test from 1.36 to 1.37
-
+    Examples of MaterialX 1.36 syntax
   -->
 
   <!-- invert matrix to invertmatrix -->

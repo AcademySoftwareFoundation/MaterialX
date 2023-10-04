@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
-<materialx version="1.37">
+<materialx version="1.37" colorspace="lin_rec709">
+  <!--
+    Examples of MaterialX 1.37 syntax
+  -->
+
   <nodegraph name="atan2_graph">
     <atan2 name="atan2_float" type="float">
       <input name="in1" type="float" value="0.5" />
@@ -37,4 +41,24 @@
       <input name="in2" type="float" value="1.0" />
     </add>
   </nodegraph>
+
+  <nodegraph name="NG_aiMixColor31">
+    <mix name="aiMixColor31" type="color3">
+      <input name="fg" type="color3" nodename="aiAbsvalColor31" />
+      <input name="bg" type="color3" nodename="aiAbsvalColor32" />
+      <input name="mix" type="float" value="0.5" />
+    </mix>
+    <absval name="aiAbsvalColor31" type="color3">
+      <input name="in" type="color3" value="1, 0, 0" />
+    </absval>
+    <absval name="aiAbsvalColor32" type="color3">
+      <input name="in" type="color3" value="0.671, 0.671, 0.671" />
+    </absval>
+    <output name="out" type="color3" nodename="aiMixColor31" />
+  </nodegraph>
+  <material name="my_surface">
+    <shaderref name="my_surface" node="standard_surface">
+      <bindinput name="base_color" type="color3" nodegraph="NG_aiMixColor31" output="out" />
+    </shaderref>
+  </material>
 </materialx>

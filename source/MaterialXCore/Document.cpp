@@ -492,12 +492,10 @@ void Document::upgradeVersion()
                     if (nodeDef->hasAttribute("shadertype"))
                     {
                         nodeDef->setType(SURFACE_SHADER_TYPE_STRING);
-                        nodeDef->removeAttribute("shadertype");
                     }
                     if (nodeDef->hasAttribute("shaderprogram"))
                     {
                         nodeDef->setNodeString(nodeDef->getAttribute("shaderprogram"));
-                        nodeDef->removeAttribute("shaderprogram");
                     }
                 }
                 else if (child->getCategory() == "shaderref")
@@ -751,8 +749,18 @@ void Document::upgradeVersion()
         // Remove legacy shader nodedefs.
         for (NodeDefPtr nodeDef : getNodeDefs())
         {
-            if (nodeDef->getType() == "surface")
+            if (nodeDef->hasAttribute("shadertype"))
             {
+                for (ElementPtr mat : getChildrenOfType<Element>("material"))
+                {
+                    for (ElementPtr shaderRef : mat->getChildrenOfType<Element>("shaderref"))
+                    {
+                        if (shaderRef->getAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE) == nodeDef->getName())
+                        {
+                            shaderRef->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+                        }
+                    }
+                }
                 removeNodeDef(nodeDef->getName());
             }
         }
