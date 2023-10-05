@@ -754,7 +754,7 @@
   <implementation name="IM_combine4_vector4_genmsl" nodedef="ND_combine4_vector4" target="genmsl" />
 
   <!-- <combine_v_m> -->
-  <implementation name="IM_combine_v3_matrix33_genmsl" nodedef="ND_combine_v3_matrix33" file="../genglsl/mx_combine_v3_m3.glsl" function="mx_combine_v3_m3" nodegroup="genmsl">
+  <implementation name="IM_combine_v3_matrix33_genmsl" nodedef="ND_combine_v3_matrix33" file="../genglsl/mx_combine_v3_m3.glsl" function="mx_combine_v3_m3" nodegroup="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
