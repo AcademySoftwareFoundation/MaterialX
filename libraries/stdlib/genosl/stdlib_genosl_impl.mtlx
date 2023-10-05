@@ -757,7 +757,7 @@
   <implementation name="IM_combine4_vector4_genosl" nodedef="ND_combine4_vector4" target="genosl" />
 
   <!-- <combine_v_m> -->
-  <implementation name="IM_combine_v3_matrix33_genosl" nodedef="ND_combine_v3_matrix33" file="mx_dodge_color4.osl" function="mx_dodge_color4" nodegroup="genosl">
+  <implementation name="IM_combine_v3_matrix33_genosl" nodedef="ND_combine_v3_matrix33" file="mx_combine_v3_m3.osl" function="mx_combine_v3_m3" nodegroup="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
