@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+  <standard_surface name="plain" type="surfaceshader" xpos="11.405797" ypos="-2.000000">
+    <input name="normal" type="vector3" nodename="transformmatrix_vector3" />
+  </standard_surface>
+  <surfacematerial name="Marble_3D" type="material" xpos="14.094203" ypos="2.008621">
+    <input name="surfaceshader" type="surfaceshader" nodename="plain" />
+  </surfacematerial>
+  <combine_v3 name="combine_v3_matrix33" type="matrix33" xpos="-0.985507" ypos="-1.793103">
+    <input name="in1" type="vector3" nodename="tangent_vector3" />
+    <input name="in2" type="vector3" nodename="bitangent_vector3" />
+    <input name="in3" type="vector3" nodename="normal_vector3" />
+  </combine_v3>
+  <transformmatrix name="transformmatrix_vector3" type="vector3" xpos="4.028986" ypos="-1.784483">
+    <input name="in" type="vector3" nodename="constant_vector4" />
+    <input name="mat" type="matrix33" nodename="combine_v3_matrix33" />
+  </transformmatrix>
+  <normal name="normal_vector3" type="vector3" xpos="-2.347826" ypos="-0.620690">
+    <input name="space" type="string" value="world" />
+  </normal>
+  <bitangent name="bitangent_vector3" type="vector3" xpos="-2.478261" ypos="-1.758621">
+    <input name="space" type="string" value="world" />
+  </bitangent>
+  <tangent name="tangent_vector3" type="vector3" xpos="-2.500000" ypos="-2.896552">
+    <input name="space" type="string" value="world" />
+  </tangent>
+  <constant name="constant_vector4" type="vector3" xpos="0.905797" ypos="-3.163793">
+    <input name="value" type="vector3" value="0, 0, 1" />
+  </constant>
+</materialx>

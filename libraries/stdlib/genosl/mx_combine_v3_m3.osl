@@ -1,0 +1,9 @@
+#include "lib/matrix33.h"
+
+void mx_combine_v3_m3(vector in1, vector in2, vector in3, out matrix33 result)
+{
+    result = matrix33.matrix44To33(matrix(in1.x, in1.y, in1.z,  0.0,
+                                      in2.x, in2.y, in2.z,  0.0,
+                                      in3.x, in3.y, in3.z,  0.0,
+                                      0.0, 0.0, 0.0,  0.0));
+}
