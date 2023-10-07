@@ -81,26 +81,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
             }
         }
     }
-
-    // Remap references to unimplemented shader nodedefs.
-    for (mx::NodePtr materialNode : doc->getMaterialNodes())
-    {
-        for (mx::NodePtr shader : getShaderNodes(materialNode))
-        {
-            mx::NodeDefPtr nodeDef = shader->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shader->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
 }
 
 void RenderView::setDocument(mx::DocumentPtr document)
