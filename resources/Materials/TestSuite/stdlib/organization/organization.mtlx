@@ -90,4 +90,14 @@
     </transformmatrix>
     <output name="out" type="vector4" nodename="transformvector1" />
   </nodegraph>
+  <nodegraph name="dot_filename">
+    <dot name="dot1" type="filename">
+      <input name="in" type="filename" value="resources/Images/grid.png" />
+      <input name="note" type="string" value="Checking for spurious samplers" />
+    </dot>
+    <image name="image_color3" type="color3">
+      <input name="file" type="filename" nodename="dot1" />
+    </image>
+    <output name="out" type="color3" nodename="image_color3" />
+  </nodegraph>
 </materialx>

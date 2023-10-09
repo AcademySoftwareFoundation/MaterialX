@@ -198,6 +198,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
 
     ShaderPtr shader = createShader(name, element, context);
 
+    // Request fixed floating-point notation for consistency across targets.
+    ScopedFloatFormatting fmt(Value::FloatFormatFixed);
+
     ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 

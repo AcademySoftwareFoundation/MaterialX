@@ -11,6 +11,21 @@ namespace mx = MaterialX;
 
 TEST_CASE("Geom strings", "[geom]")
 {
+    // Test conversion between geometry strings and paths.
+    mx::StringVec geomStrings =
+    {
+        "",
+        "/",
+        "/robot1",
+        "/robot1/left_arm"
+    };
+    for (const std::string& geomString : geomStrings)
+    {
+        mx::GeomPath geomPath(geomString);
+        std::string newGeomString(geomPath);
+        REQUIRE(newGeomString == geomString);
+    }
+
     // Test for overlapping paths.
     REQUIRE(mx::geomStringsMatch("/", "/robot1"));
     REQUIRE(mx::geomStringsMatch("/robot1", "/robot1/left_arm"));
