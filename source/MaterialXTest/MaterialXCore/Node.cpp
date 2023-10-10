@@ -710,13 +710,13 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
         // 2. Try and fail to create the same definition
         mx::NodeDefPtr temp;
-                    try
-                    {
+        try
+        {
             temp = nullptr;
             temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
-                    }
+        }
         catch (mx::Exception&)
-                    {
+        {
             REQUIRE(temp == nullptr);
         }
 
