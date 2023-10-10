@@ -755,7 +755,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(findDefault);
 
         doc->removeChild(graph->getName());
-        mx::writeToXmlFile(doc, "definition_from_nodegraph_out.mtlx");
     }
 }
 
@@ -830,6 +829,5 @@ TEST_CASE("Functional Graph Interface Change", "[nodedef]")
             }
         }
         REQUIRE(doc->validate());
-        mx::writeToXmlFile(doc, "definition_from_nodegraph_out.mtlx");
     }
 }
