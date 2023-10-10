@@ -685,7 +685,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             for (const std::string& attribName : origOutput->getAttributeNames())
             {
                 if (connectionAttributes.count(attribName))
-        {
+                {
                     REQUIRE(!nodeDefOutput->hasAttribute(attribName));
                     continue;
                 }
@@ -705,7 +705,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         if (!errors.empty())
         {
             INFO(errors);
-                }
+        }
         REQUIRE(doc->validate());
 
         // 2. Try and fail to create the same definition
