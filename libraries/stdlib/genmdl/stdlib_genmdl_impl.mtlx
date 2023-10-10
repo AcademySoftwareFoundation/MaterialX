@@ -760,8 +760,9 @@
   <implementation name="IM_combine4_vector4_genmdl" nodedef="ND_combine4_vector4" target="genmdl" />
 
   <!-- <creatematrix> -->
-  <implementation name="IM_creatematrix_vector3_genmdl" nodedef="ND_creatematrix_vector3" sourcecode="mx::stdlib::mx_creatematrix_vector3({{in1}}, {{in2}}, {{in3}}, {{result}})" target="genmdl" />
-  <implementation name="IM_creatematrix_vector4_genmdl" nodedef="ND_creatematrix_vector4" sourcecode="mx::stdlib::mx_creatematrix_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{result}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector3_matrix33_genmdl" nodedef="ND_creatematrix_vector3_matrix33" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix33({{in1}}, {{in2}}, {{in3}}, {{result}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genmdl" nodedef="ND_creatematrix_vector3_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{result}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genmdl" nodedef="ND_creatematrix_vector4_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector4_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{result}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

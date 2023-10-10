@@ -757,8 +757,9 @@
   <implementation name="IM_combine4_vector4_genosl" nodedef="ND_combine4_vector4" target="genosl" />
 
   <!-- <creatematrix> -->
-  <implementation name="IM_creatematrix_vector3_genosl" nodedef="ND_creatematrix_vector3" file="mx_creatematrix.osl" function="mx_creatematrix_vector3" nodegroup="genosl" />
-  <implementation name="IM_creatematrix_vector4_genosl" nodedef="ND_creatematrix_vector4" file="mx_creatematrix.osl" function="mx_creatematrix_vector4" nodegroup="genosl" />
+  <implementation name="IM_creatematrix_vector3_matrix33_genosl" nodedef="ND_creatematrix_vector3_matrix33" file="mx_creatematrix.osl" function="mx_creatematrix_vector3_matrix33" nodegroup="genosl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genosl" nodedef="ND_creatematrix_vector3_matrix44" file="mx_creatematrix.osl" function="mx_creatematrix_vector3_matrix44" nodegroup="genosl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genosl" nodedef="ND_creatematrix_vector4_matrix44" file="mx_creatematrix.osl" function="mx_creatematrix_vector4_matrix44" nodegroup="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
