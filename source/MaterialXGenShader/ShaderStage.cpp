@@ -70,6 +70,12 @@ ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePt
     auto it = _variableMap.find(name);
     if (it != _variableMap.end())
     {
+        // Automatically try to widen the type of the shader port if the requested type differs from
+        // the existing port's type.
+        if (it->second->getType()->getSize() < type->getSize())
+        {
+            it->second->setType(type);
+        }
         return it->second.get();
     }
 

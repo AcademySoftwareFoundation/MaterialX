@@ -3,21 +3,21 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/Nodes/TexCoordNodeGlsl.h>
-
+#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr TexCoordNodeGlsl::create()
+ShaderNodeImplPtr HwTexCoordNode::create()
 {
-    return std::make_shared<TexCoordNodeGlsl>();
+    return std::make_shared<HwTexCoordNode>();
 }
 
-void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwTexCoordNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     const ShaderOutput* output = node.getOutput();
-    const ShaderInput* indexInput = node.getInput(INDEX);
+    const ShaderInput* indexInput = getIndexInput(node);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
 
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
@@ -27,11 +27,11 @@ void TexCoordNodeGlsl::createVariables(const ShaderNode& node, GenContext&, Shad
     addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_TEXCOORD + "_" + index, vs, ps);
 }
 
-void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderInput* indexInput = node.getInput(INDEX);
+    const ShaderInput* indexInput = getIndexInput(node);
     const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
     const string variable = HW::T_TEXCOORD + "_" + index;
 
@@ -54,9 +54,25 @@ void TexCoordNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
         ShaderPort* texcoord = vertexData[variable];
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        shadergen.emitString(" = " + prefix + texcoord->getVariable(), stage);
+
+        // Extract the requested number of components from the texture coordinates (which may be a
+        // larger datatype than the requested number of texture coordinates, if several texture
+        // coordinate nodes with different width coexist).
+        std::array<const char*, 5> components { "", "x", "xy", "xyz", "xyzw" };
+        const string texCoord = shadergen.getSyntax().getSwizzledVariable(
+            prefix + texcoord->getVariable(), texcoord->getType(),
+            components[node.getOutput()->getType()->getSize()],
+            node.getOutput()->getType());
+
+        shadergen.emitString(" = " + texCoord, stage);
         shadergen.emitLineEnd(stage);
     }
 }
 
+const ShaderInput* HwTexCoordNode::getIndexInput(const ShaderNode& node) const
+{
+    return node.getInput("index");
+}
+
 MATERIALX_NAMESPACE_END
+
