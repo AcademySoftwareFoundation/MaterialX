@@ -1,4 +1,4 @@
-#include "lib/matrix33.h"
+#include "matrix33.h"
 
 void mx_creatematrix_vector3_matrix33(vector in1, vector in2, vector in3, out matrix33 result)
 {
