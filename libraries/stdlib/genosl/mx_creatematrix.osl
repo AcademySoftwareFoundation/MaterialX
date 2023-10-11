@@ -1,4 +1,4 @@
-void mx_creatematrix_vector3_matrix33(vector in1, vector in2, vector in3, out matrix33 result)
+void mx_creatematrix_vector3_matrix33(vector in1, vector in2, vector in3, out matrix result)
 {
     result = matrix(in1.x, in1.y, in1.z,  0.0,
                     in2.x, in2.y, in2.z,  0.0,
