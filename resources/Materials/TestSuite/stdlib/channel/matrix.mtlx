@@ -2,20 +2,24 @@
 <materialx version="1.38" colorspace="lin_rec709">
   <standard_surface name="plain" type="surfaceshader" xpos="11.405797" ypos="-2.000000">
     <input name="normal" type="vector3" nodename="transformmatrix_vector3" />
+    <input name="base_color" type="color3" nodename="swizzle_vector4_color3" />
+    <input name="diffuse_roughness" type="float" nodename="separate4_vector4" />
+    <input name="metalness" type="float" nodename="separate4_vector4" />
+    <input name="specular_roughness" type="float" nodename="separate4_vector4" />
   </standard_surface>
-  <surfacematerial name="Marble_3D" type="material" xpos="14.094203" ypos="2.008621">
+  <surfacematerial name="MatrixDemo" type="material" xpos="13.768116" ypos="0.560345">
     <input name="surfaceshader" type="surfaceshader" nodename="plain" />
   </surfacematerial>
-  <creatematrix name="creatematrix33" type="matrix33" xpos="0.666667" ypos="-1.689655">
+  <creatematrix name="creatematrix33" type="matrix33" xpos="0.666667" ypos="-1.681034">
     <input name="in1" type="vector3" nodename="tangent_vector3" />
     <input name="in2" type="vector3" nodename="bitangent_vector3" />
     <input name="in3" type="vector3" nodename="normal_vector3" />
   </creatematrix>
-  <transformmatrix name="transformmatrix_vector3" type="vector3" xpos="4.028986" ypos="-1.784483">
+  <transformmatrix name="transformmatrix_vector3" type="vector3" xpos="5.000000" ypos="-1.784483">
     <input name="in" type="vector3" nodename="constant_vector4" />
     <input name="mat" type="matrix33" nodename="creatematrix33" />
   </transformmatrix>
-  <normal name="normal_vector3" type="vector3" xpos="-4.043478" ypos="-0.586207">
+  <normal name="normal_vector3" type="vector3" xpos="-4.036232" ypos="-0.586207">
     <input name="space" type="string" value="world" />
   </normal>
   <bitangent name="bitangent_vector3" type="vector3" xpos="-4.173913" ypos="-1.724138">
@@ -46,4 +50,18 @@
   <convert name="convert_vector3_vector6" type="vector4" xpos="-2.231884" ypos="3.387931">
     <input name="in" type="vector3" nodename="normal_vector3" />
   </convert>
+  <transformmatrix name="transformmatrix_vector4" type="vector4" xpos="5.000000" ypos="0.896552">
+    <input name="mat" type="matrix44" nodename="creatematrix_vector3_matrix44" />
+    <input name="in" type="vector4" value="0, 0, 1, 0" />
+  </transformmatrix>
+  <transformmatrix name="transformmatrix_vector5" type="vector4" xpos="5.072464" ypos="2.620690">
+    <input name="mat" type="matrix44" nodename="creatematrix_vector4_matrix44" />
+  </transformmatrix>
+  <swizzle name="swizzle_vector4_color3" type="color3" xpos="8.086957" ypos="0.793103">
+    <input name="in" type="vector4" nodename="transformmatrix_vector4" />
+    <input name="channels" type="string" value="xyz" />
+  </swizzle>
+  <separate4 name="separate4_vector4" type="multioutput" xpos="8.210145" ypos="2.594828">
+    <input name="in" type="vector4" nodename="transformmatrix_vector5" />
+  </separate4>
 </materialx>

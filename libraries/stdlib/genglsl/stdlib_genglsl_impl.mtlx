@@ -755,9 +755,9 @@
 
 
   <!-- <creatematrix> -->
-  <implementation name="IM_creatematrix_vector3_matrix33_genglsl" nodedef="ND_creatematrix_vector3_matrix33_genglsl" file="mx_creatematrix.glsl" function="mx_creatematrix_vector3_matrix33" target="genglsl" />
-  <implementation name="IM_creatematrix_vector4_matrix44_genglsl" nodedef="ND_creatematrix_vector3_matrix44_genglsl" file="mx_creatematrix.glsl" function="mx_creatematrix_vector3_matrix44" target="genglsl" />
-  <implementation name="IM_creatematrix_vector4_matrix44_genglsl" nodedef="ND_creatematrix_vector4_matrix44_genglsl" file="mx_creatematrix.glsl" function="mx_creatematrix_vector4_matrix44" target="genglsl" />
+  <implementation name="IM_creatematrix_vector3_matrix33_genglsl" nodedef="ND_creatematrix_vector3_matrix33_genglsl" file="mx_creatematrix_vector3_matrix33.glsl" function="mx_creatematrix_vector3_matrix33" target="genglsl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genglsl" nodedef="ND_creatematrix_vector3_matrix44_genglsl" file="mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" target="genglsl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genglsl" nodedef="ND_creatematrix_vector4_matrix44_genglsl" file="mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" target="genglsl" />
 
 
   <!-- ======================================================================== -->
