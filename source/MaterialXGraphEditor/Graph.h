@@ -187,6 +187,8 @@ class Graph
 
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
+    bool isPinHovered();
+    void addPinPopup();
     bool readOnly();
     void readOnlyPopup();
 

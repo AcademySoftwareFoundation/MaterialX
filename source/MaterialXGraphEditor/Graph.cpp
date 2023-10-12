@@ -3707,6 +3707,39 @@ void Graph::searchNodePopup(bool cursor)
     }
 }
 
+bool Graph::isPinHovered() {
+    ed::PinId currentPin = ed::GetHoveredPin();
+    ed::PinId nullPin = 0;
+    return currentPin != nullPin;
+}
+
+void Graph::addPinPopup() {
+    // Add a floating popup to pin when hovered
+    if (isPinHovered()) {
+        ed::Suspend();
+        UiPinPtr pin = getPin(ed::GetHoveredPin());
+        std::string connected = "";
+        std::string value = "";
+        if (pin->_connected) {
+            connected = "\nConnected to";
+            if (pin->_name == "out") {
+                for (UiPinPtr connectedPins : pin->getConnections()) {
+                    connected = connected + " " + connectedPins->_name + ",";
+                }
+            }
+            else {
+                connected = connected + " out";
+            }
+        }
+        else {
+            value = "\nValue: " + pin->_input->getValueString();
+        }
+        std::string const message{ "Name: " + pin->_name + "\nType: " + pin->_type + value + connected};
+        ImGui::SetTooltip(message.c_str());
+        ed::Resume();
+    }
+}
+
 void Graph::readOnlyPopup()
 {
     if (_popup)
@@ -3823,6 +3856,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
         addNodePopup(TextCursor);
         searchNodePopup(TextCursor);
+        addPinPopup();
         readOnlyPopup();
         ImGui::PopStyleVar();
 
