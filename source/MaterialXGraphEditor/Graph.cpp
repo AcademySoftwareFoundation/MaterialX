@@ -236,9 +236,6 @@ void Graph::addExtraNodes()
         return;
     }
 
-    // Clear any old nodes, if we previously used tab with another graph doc
-    _extraNodes.clear();
-
     // Get all types from the doc
     std::vector<std::string> types;
     std::vector<mx::TypeDefPtr> typeDefs = _graphDoc->getTypeDefs();
@@ -252,18 +249,18 @@ void Graph::addExtraNodes()
     for (const std::string& type : types)
     {
         std::string nodeName = "ND_input_" + type;
-        _extraNodes["Input Nodes"].push_back({ nodeName, type, "input" });
+        _nodesToAdd["Input Nodes"].push_back({ nodeName, type, "input" });
         nodeName = "ND_output_" + type;
-        _extraNodes["Output Nodes"].push_back({ nodeName, type, "output" });
+        _nodesToAdd["Output Nodes"].push_back({ nodeName, type, "output" });
     }
 
     // Add group node
     std::vector<std::string> groupNode{ "ND_group", "", "group" };
-    _extraNodes["Group Nodes"].push_back(groupNode);
+    _nodesToAdd["Group Nodes"].push_back(groupNode);
 
     // Add nodegraph node
     std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph" };
-    _extraNodes["Node Graph"].push_back(nodeGraph);
+    _nodesToAdd["Node Graph"].push_back(nodeGraph);
 }
 
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
@@ -1224,23 +1221,59 @@ void Graph::setUiNodeInfo(UiNodePtr node, const std::string& type, const std::st
 void Graph::createNodeUIList(mx::DocumentPtr doc)
 {
     _nodesToAdd.clear();
-    const std::string EXTRA_GROUP_NAME = "extra";
-    for (mx::NodeDefPtr nodeDef : doc->getNodeDefs())
+    const std::string EXTRA_NODES = "EXTRA_NODES";
+    std::vector<std::string> ordered_groups = {
+        "texture2d",
+        "texture3d",
+        "procedural",
+        "procedural2d",
+        "procedural3d",
+        "geometric",
+        "translation",
+        "convolution2d",
+        "math",
+        "adjustment",
+        "compositing",
+        "conditional",
+        "channel",
+        "organization",
+        EXTRA_NODES,
+        "global",
+        "application",
+        "material",
+        "shader",
+        "pbr",
+        "light",
+        "colortransform"
+    };
+
+    auto nodeDefs = doc->getNodeDefs();
+    std::unordered_map<std::string, mx::NodeDefPtr> groupToNodeDef;
+
+    for (const auto& nodeDef : nodeDefs)
     {
-        // NodeDef is the key for the map
         std::string group = nodeDef->getNodeGroup();
-        if (group.empty())
-        {
-            group = EXTRA_GROUP_NAME;
-        }
-        if (_nodesToAdd.find(group) == _nodesToAdd.end())
-        {
-            _nodesToAdd[group] = std::vector<mx::NodeDefPtr>();
-        }
-        _nodesToAdd[group].push_back(nodeDef);
+        groupToNodeDef[group] = nodeDef;
     }
 
-    addExtraNodes();
+    for (const auto& group : ordered_groups)
+    {
+        auto it = groupToNodeDef.find(group);
+        if (it != groupToNodeDef.end())
+        {
+            const auto& nodeDef = it->second;
+            if (_nodesToAdd.find(group) == _nodesToAdd.end())
+            {
+                _nodesToAdd[group] = std::vector<std::vector<std::string>>();
+            }
+            _nodesToAdd[group].push_back({ nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString() });
+        }
+        else if (group == EXTRA_NODES)
+        {
+            addExtraNodes();
+        }
+    }
+
 }
 
 void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
@@ -3567,132 +3600,57 @@ void Graph::addNodePopup(bool cursor)
         // Filter extra nodes - includes inputs, outputs, groups, and node graphs
         const std::string NODEGRAPH_ENTRY = "Node Graph";
 
-        std::vector<std::string> ordered_keys = {
-            "texture2d",
-            "texture3d",
-            "procedural",
-            "procedural2d",
-            "procedural3d",
-            "geometric",
-            "translation",
-            "convolution2d",
-            "math",
-            "adjustment",
-            "compositing",
-            "conditional",
-            "channel",
-            "organization",
-            "Input Nodes",
-            "Output Nodes",
-            "Group Nodes",
-            "Node Graph",
-            "global",
-            "application",
-            "material",
-            "shader",
-            "pbr",
-            "light",
-            "colortransform"
-        };
         // Filter nodedefs and add to menu if matches filter
 
-        for (const auto& key : ordered_keys)
+         // Filter nodedefs and add to menu if matches filter
+        for (std::unordered_map<std::string, std::vector<std::vector<std::string>>>::iterator it = _nodesToAdd.begin(); it != _nodesToAdd.end(); ++it)
         {
-            auto it = _nodesToAdd.find(key);
-            if (it != _nodesToAdd.end())
+
+            // Filter out list of nodes
+            if (subs.size() > 0)
             {
-                //Filter out list of nodes
-                if (subs.size() > 0)
+                ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
+                for (size_t i = 0; i < it->second.size(); i++)
                 {
-                    ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
-                    for (size_t i = 0; i < it->second.size(); i++)
+                    std::string str(it->second[i][0]);
+                    std::string nodeName = it->second[i][0];
+
+                    // Disallow creating nested nodegraphs
+                    if (_isNodeGraph && it->first == NODEGRAPH_ENTRY)
                     {
-                        std::string str(it->second[i]->getName());
-                        std::string nodeName = it->second[i]->getName();
-                        if (str.find(subs) != std::string::npos)
-                        {
-                            std::string val = getUserNodeDefName(nodeName);
-                            if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
-                            {
-                                addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
-                                _addNewNode = true;
-                                memset(input, '\0', sizeof(input));
-                            }
-                        }
+                        continue;
                     }
-                }
-                else
-                {
-                    ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
-                    if (ImGui::BeginMenu(it->first.c_str()))
+
+                    // Allow spaces to be used to search for node names
+                    std::replace(subs.begin(), subs.end(), ' ', '_');
+
+                    if (str.find(subs) != std::string::npos)
                     {
-                        ImGui::SetWindowFontScale(_fontScale);
-                        for (size_t i = 0; i < it->second.size(); i++)
+                        if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            std::string name = it->second[i]->getName();
-                            std::string val = getUserNodeDefName(name);
-                            if (ImGui::MenuItem(val.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
-                            {
-                                addNode(it->second[i]->getNodeString(), val, it->second[i]->getType());
-                                _addNewNode = true;
-                            }
+                            addNode(it->second[i][2], getUserNodeDefName(nodeName), it->second[i][1]);
+                            _addNewNode = true;
+                            memset(input, '\0', sizeof(input));
                         }
-                        ImGui::EndMenu();
                     }
                 }
             }
             else
             {
-                auto it = _extraNodes.find(key);
-                if (it != _extraNodes.end())
+                ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
+                if (ImGui::BeginMenu(it->first.c_str()))
                 {
-                    // Filter out list of nodes
-                    if (subs.size() > 0)
+                    ImGui::SetWindowFontScale(_fontScale);
+                    for (size_t j = 0; j < it->second.size(); j++)
                     {
-                        ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
-                        for (size_t i = 0; i < it->second.size(); i++)
+                        std::string name = it->second[j][0];
+                        if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            std::string str(it->second[i][0]);
-                            std::string nodeName = it->second[i][0];
-
-                            // Disallow creating nested nodegraphs
-                            if (_isNodeGraph && it->first == NODEGRAPH_ENTRY)
-                            {
-                                continue;
-                            }
-
-                            // Allow spaces to be used to search for node names
-                            std::replace(subs.begin(), subs.end(), ' ', '_');
-
-                            if (str.find(subs) != std::string::npos)
-                            {
-                                if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
-                                {
-                                    addNode(it->second[i][2], getUserNodeDefName(nodeName), it->second[i][1]);
-                                    _addNewNode = true;
-                                    memset(input, '\0', sizeof(input));
-                                }
-                            }
+                            addNode(it->second[j][2], getUserNodeDefName(name), it->second[j][1]);
+                            _addNewNode = true;
                         }
                     }
-                    else
-                    {
-                        ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
-                        if (ImGui::BeginMenu(it->first.c_str()))
-                        {
-                            ImGui::SetWindowFontScale(_fontScale);
-                            for (size_t j = 0; j < it->second.size(); j++)
-                            {
-                                std::string name = it->second[j][0];
-                                if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
-                                {
-                                    addNode(it->second[j][2], getUserNodeDefName(name), it->second[j][1]);
-                                    _addNewNode = true;
-                                }
-                            }
-                            ImGui::EndMenu();
-                        }
-                    }
+                    ImGui::EndMenu();
                 }
             }
         }
