@@ -119,6 +119,15 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
+TEST_CASE("GenShader: ShaderGen Performance", "[genglsl]")
+{
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    BENCHMARK("Load documents, validate and generate shader") 
+    {
+            return GenShaderUtil::shaderGenPerformanceTest(context);
+    };
+}
+
 enum class GlslType
 {
     Glsl400,
