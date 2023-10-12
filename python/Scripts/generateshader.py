@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Utility to generate the shader for materials found in a MaterialX document. One file will be generated
-for each material / shader found. The currently supported target languages are GLSL, OSL, MDL and ESSL.
+for each material / shader found. The currently supported target languages are GLSL, OSL, MDL, ESSL, Vulkan and MSL.
 '''
 
 import sys, os, argparse, subprocess
@@ -45,12 +45,13 @@ def main():
     parser = argparse.ArgumentParser(description='Generate shader code for each material / shader in a document.')
     parser.add_argument('--path', dest='paths', action='append', nargs='+', help='An additional absolute search path location (e.g. "/projects/MaterialX")')
     parser.add_argument('--library', dest='libraries', action='append', nargs='+', help='An additional relative path to a custom data library folder (e.g. "libraries/custom")')
-    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, essl, vulkan"). Default is glsl.')
+    parser.add_argument('--target', dest='target', default='glsl', help='Target shader generator to use (e.g. "glsl, osl, mdl, msl, essl, vulkan"). Default is glsl.')
     parser.add_argument('--outputPath', dest='outputPath', help='File path to output shaders to. If not specified, is the location of the input document is used.')
     parser.add_argument('--validator', dest='validator', nargs='?', const=' ', type=str, help='Name of executable to perform source code validation.')
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
     parser.add_argument('--shaderInterfaceType', dest='shaderInterfaceType', default=0, type=int, help='Set the type of shader interface to be generated')
+    parser.add_argument('--shaderPath', dest='shaderPath', default="", type=str, help='Path to a specific shader element to generate code for. Default is none')
     parser.add_argument(dest='inputFilename', help='Path to input document or folder containing input documents.')
     opts = parser.parse_args()
 
@@ -139,11 +140,25 @@ def main():
         genoptions.targetDistanceUnit = 'meter'
 
         # Look for renderable nodes
-        nodes = mx_gen_shader.findRenderableElements(doc)
+        nodes = None
+        shaderPath = opts.shaderPath
+        print('--------------- shaderPath', shaderPath)
+        shader = None
+        if len(shaderPath) > 0:
+            shader = doc.getDescendant(shaderPath)
+            if shader:
+                nodes = [ shader ]
+
+        if not nodes:
+            nodes = mx_gen_shader.findRenderableElements(doc)
         if not nodes:
             nodes = doc.getMaterialNodes()
             if not nodes:
                 nodes = doc.getNodesOfType(mx.SURFACE_SHADER_TYPE_STRING)
+
+        if not nodes:
+            print("Failed to find any shader nodes in document")
+            return -1
 
         pathPrefix = ''
         if opts.outputPath and os.path.exists(opts.outputPath):

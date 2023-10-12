@@ -3088,6 +3088,27 @@ void Graph::graphButtons()
 
                     std::string runCmd = cmd[1];
                     mx::StringMap tokenMap;
+                    // Set up renderable path replacement
+                    if (std::string::npos != runCmd.find("%r"))
+                    {
+                        std::string renderablePath;
+                        if (_currRenderNode)
+                        {
+                            if (_currRenderNode->getNode())
+                            {
+                                renderablePath = _currRenderNode->getNode()->getNamePath();
+                            }
+                            else if (_currRenderNode->getOutput())
+                            {
+                                renderablePath = _currRenderNode->getOutput()->getNamePath();
+                            }
+                        }
+                        if (!renderablePath.empty())
+                        {
+                            tokenMap["%r"] = renderablePath;
+                        }
+                    }
+
                     if (std::string::npos != runCmd.find("%D"))
                     {
                         std::string docString = mx::writeToXmlString(writeDoc, &writeOptions);
@@ -3132,12 +3153,36 @@ void Graph::graphButtons()
 
                     std::string runCmd = cmd[1];
                     mx::StringMap tokenMap;
+
+                    // Set up filename replacement
                     if (std::string::npos != runCmd.find("%F"))
                     {
                         mx::writeToXmlFile(editDoc, _materialFilename, &writeOptions);
                     }
                     tokenMap["%f"] = _materialFilename;
                     tokenMap["%F"] = _materialFilename;
+
+                    // Set up renderable path replacement
+                    if (std::string::npos != runCmd.find("%r"))
+                    {
+                        std::string renderablePath;
+                        if (_currRenderNode)
+                        {
+                            if (_currRenderNode->getNode())
+                            {
+                                renderablePath = _currRenderNode->getNode()->getNamePath();
+                            }
+                            else if (_currRenderNode->getOutput())
+                            {
+                                renderablePath = _currRenderNode->getOutput()->getNamePath();
+                            }
+                        }
+                        if (!renderablePath.empty())
+                        {
+                            tokenMap["%r"] = renderablePath;
+                        }
+                    }
+
                     runCmd = mx::replaceSubstrings(runCmd, tokenMap);
                     int result = std::system(runCmd.c_str());
                     if (result < 0)
