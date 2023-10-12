@@ -40,7 +40,10 @@ class Graph
           const mx::FileSearchPath& searchPath,
           const mx::FilePathVec& libraryFolders,
           int viewWidth,
-          int viewHeight);
+          int viewHeight,
+            const std::vector<mx::StringVec>& outputCommands,
+        const std::vector<mx::StringVec>& editCommands
+          );
 
     mx::DocumentPtr loadDocument(mx::FilePath filename);
     void drawGraph(ImVec2 mousePos);
@@ -295,6 +298,8 @@ class Graph
 
     // Options
     bool _saveNodePositions;
+    std::vector<mx::StringVec> _outputCommands;
+    std::vector<mx::StringVec> _editCommands;
 };
 
 #endif

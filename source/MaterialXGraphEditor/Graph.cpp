@@ -13,6 +13,7 @@
 #include <widgets.h>
 
 #include <iostream>
+#include <regex>
 
 namespace
 {
@@ -85,7 +86,9 @@ Graph::Graph(const std::string& materialFilename,
              const mx::FileSearchPath& searchPath,
              const mx::FilePathVec& libraryFolders,
              int viewWidth,
-             int viewHeight) :
+             int viewHeight,
+             const std::vector<mx::StringVec> & outputCommands,
+             const std::vector<mx::StringVec> & editCommands) :
     _materialFilename(materialFilename),
     _searchPath(searchPath),
     _libraryFolders(libraryFolders),
@@ -103,7 +106,9 @@ Graph::Graph(const std::string& materialFilename,
     _autoLayout(false),
     _frameCount(INT_MIN),
     _fontScale(1.0f),
-    _saveNodePositions(true)
+    _saveNodePositions(true),
+    _outputCommands(outputCommands),
+    _editCommands(editCommands)
 {
     loadStandardLibraries();
     setPinColor();
@@ -3063,6 +3068,50 @@ void Graph::graphButtons()
             {
                 saveGraphToFile();
             }
+            for (const mx::StringVec& cmd : _outputCommands)
+            {
+                if (ImGui::MenuItem(cmd[0].c_str()))
+                {
+                    mx::XmlWriteOptions writeOptions;
+                    writeOptions.elementPredicate = getElementPredicate();
+                    mx::DocumentPtr writeDoc = _graphDoc;
+                    // If requested, create a modified version of the document for saving.
+                    if (!_saveNodePositions)
+                    {
+                        writeDoc = _graphDoc->copy();
+                        for (mx::ElementPtr elem : writeDoc->traverseTree())
+                        {
+                            elem->removeAttribute("xpos");
+                            elem->removeAttribute("ypos");
+                        }
+                    }
+
+                    std::string runCmd = cmd[1];
+                    mx::StringMap tokenMap;
+                    if (std::string::npos != runCmd.find("%D"))
+                    {
+                        std::string docString = mx::writeToXmlString(writeDoc, &writeOptions);
+                        docString = std::regex_replace(docString,
+                            std::regex("\\r\\n|\\r|\\n"),
+                            "");
+                        tokenMap["%D"] = docString;
+                    }
+                    else if (std::string::npos != runCmd.find("%d"))
+                    {
+                        std::string docString = mx::writeToXmlString(writeDoc, &writeOptions);
+                        tokenMap["%d"] = docString;
+                    }                    
+                    if (std::string::npos != runCmd.find("%F"))
+                    {
+                        mx::writeToXmlFile(writeDoc, _materialFilename, &writeOptions);
+                    }
+                    tokenMap["%f"] = _materialFilename;
+                    tokenMap["%F"] = _materialFilename;
+                    runCmd = mx::replaceSubstrings(runCmd, tokenMap);
+                    //std::cout << "---- RUN COMMAND: " + runCmd << std::endl;
+                    std::system(runCmd.c_str());
+                }
+            }
             ImGui::EndMenu();
         }
 
@@ -3071,6 +3120,29 @@ void Graph::graphButtons()
             if (ImGui::MenuItem("Auto Layout"))
             {
                 _autoLayout = true;
+            }
+            for (const mx::StringVec& cmd : _editCommands)
+            {
+                if (ImGui::MenuItem(cmd[0].c_str()))
+                {
+                    mx::XmlWriteOptions writeOptions;
+                    writeOptions.elementPredicate = getElementPredicate();
+                    mx::DocumentPtr editDoc = _graphDoc;
+
+                    std::string runCmd = cmd[1];
+                    mx::StringMap tokenMap;
+                    if (std::string::npos != runCmd.find("%F"))
+                    {
+                        mx::writeToXmlFile(editDoc, _materialFilename, &writeOptions);
+                    }
+                    tokenMap["%f"] = _materialFilename;
+                    tokenMap["%F"] = _materialFilename;
+                    runCmd = mx::replaceSubstrings(runCmd, tokenMap);
+                    std::cout << "Run edit command: \"" << runCmd << "\"" << std::endl;
+                    std::system(runCmd.c_str());
+
+                    loadGraphFromFile(false);
+                }
             }
             ImGui::EndMenu();
         }

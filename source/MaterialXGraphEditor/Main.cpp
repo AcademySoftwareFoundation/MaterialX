@@ -104,6 +104,8 @@ int main(int argc, char* const argv[])
     int viewWidth = 256;
     int viewHeight = 256;
     std::string captureFilename;
+    std::vector<mx::StringVec> outputCommands;
+    std::vector<mx::StringVec> editCommands;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -137,6 +139,28 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--editCommand")
+        {
+            std::string cmdString;
+            parseToken(nextToken, "string", cmdString);
+            mx::StringVec cmd = mx::splitString(cmdString, ",");
+            if (cmd.size() == 2)
+            {
+                std::cout << "Add edit command: \"" << cmdString << "\"" << std::endl;
+                editCommands.push_back(cmd);
+            }
+        }
+        else if (token == "--outputCommand")
+        {
+            std::string cmdString;
+            parseToken(nextToken, "string", cmdString);
+            mx::StringVec cmd = mx::splitString(cmdString, ",");
+            if (cmd.size() == 2)
+            {
+                std::cout << "Add outputcommand: \"" << cmdString << "\"" << std::endl;
+                outputCommands.push_back(cmd);
+            }
         }
         else if (token == "--help")
         {
@@ -218,7 +242,9 @@ int main(int argc, char* const argv[])
                              searchPath,
                              libraryFolders,
                              viewWidth,
-                             viewHeight);
+                             viewHeight,
+                             outputCommands, 
+                             editCommands);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
