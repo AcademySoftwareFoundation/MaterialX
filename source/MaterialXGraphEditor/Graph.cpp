@@ -3108,8 +3108,9 @@ void Graph::graphButtons()
                     tokenMap["%f"] = _materialFilename;
                     tokenMap["%F"] = _materialFilename;
                     runCmd = mx::replaceSubstrings(runCmd, tokenMap);
-                    //std::cout << "---- RUN COMMAND: " + runCmd << std::endl;
-                    std::system(runCmd.c_str());
+                    int result = std::system(runCmd.c_str());
+                    if (result < 0)
+                        std::cout << "Command failed : \"" << runCmd << "\"" << std::endl;
                 }
             }
             ImGui::EndMenu();
@@ -3138,10 +3139,16 @@ void Graph::graphButtons()
                     tokenMap["%f"] = _materialFilename;
                     tokenMap["%F"] = _materialFilename;
                     runCmd = mx::replaceSubstrings(runCmd, tokenMap);
-                    std::cout << "Run edit command: \"" << runCmd << "\"" << std::endl;
-                    std::system(runCmd.c_str());
-
-                    loadGraphFromFile(false);
+                    int result = std::system(runCmd.c_str());
+                    if (result < 0)
+                    {
+                        std::cout << "Command failed: \"" << runCmd << "\"" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "Command succeeded: \"" << runCmd << "\"" << std::endl;
+                        loadGraphFromFile(false);
+                    }
                 }
             }
             ImGui::EndMenu();
