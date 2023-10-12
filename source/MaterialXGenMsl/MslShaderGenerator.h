@@ -137,11 +137,6 @@ class MX_GENMSL_API MslImplementation : public ShaderNodeImpl
 
     /// Internal string constants
     static const string SPACE;
-    static const string TO_SPACE;
-    static const string FROM_SPACE;
-    static const string WORLD;
-    static const string OBJECT;
-    static const string MODEL;
     static const string INDEX;
     static const string GEOMPROP;
 };
