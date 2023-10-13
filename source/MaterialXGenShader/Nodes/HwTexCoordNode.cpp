@@ -81,4 +81,3 @@ string HwTexCoordNode::getIndex(const ShaderNode& node) const
 }
 
 MATERIALX_NAMESPACE_END
-
