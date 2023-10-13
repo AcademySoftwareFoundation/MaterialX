@@ -23,7 +23,7 @@ void bindPyCgltfLoader(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRender library";
+    mod.doc() = "Core rendering functionality for MaterialX";
 
     bindPyMesh(mod);
     bindPyGeometryHandler(mod);

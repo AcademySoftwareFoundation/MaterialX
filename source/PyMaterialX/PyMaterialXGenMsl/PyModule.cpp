@@ -12,7 +12,7 @@ void bindPyMslResourceBindingContext(py::module &mod);
 
 PYBIND11_MODULE(PyMaterialXGenMsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenMsl library";
+    mod.doc() = "Shader generation using Metal Shading Language";
 
     bindPyMslShaderGenerator(mod);
     bindPyMslResourceBindingContext(mod);

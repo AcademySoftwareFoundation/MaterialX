@@ -5,7 +5,7 @@ A shader generation framework is implemented as part of MaterialX. This can help
 
 Note that this system has no runtime and the output produced is source code, not binary executable code. The source code produced needs to be compiled by a shading language compiler before being executed by the renderer. See Figure 1 for a high level overview of the system.
 
-![Shader generation with multiple shader generators](/documents/Images/shadergen.png)
+![Shader generation with multiple shader generators](../Images/shadergen.png)
 
 **Figure 1**: Shader generation with multiple shader generators.
 
@@ -43,12 +43,12 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
   <input name="in2" type="color3" />
   <output name="out" type="color3" defaultinput="in1" />
 </nodedef>
-<... more types ...>
+// ... more types ...
 
 // Implementation elements for node <add>
 <implementation name="IM_add_float" nodedef="ND_add_float" file="mx_add.inline" />
 <implementation name="IM_add_color3" nodedef="ND_add_color3" file="mx_add.inline" />
-<... more types ...>
+// ... more types ...
 
 // Nodedef elements for node <mix>
 <nodedef name="ND_mix_float" node="mix">
@@ -63,12 +63,12 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
   <input name="mix" type="color3" />
   <output name="out" type="color3" defaultinput="bg" />
 </nodedef>
-<... more types ...>
+// ... more types ...
 
 // Implementation elements for node <mix>
 <implementation name="IM_mix_float" nodedef="ND_mix_float" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
 <implementation name="IM_mix_color3" nodedef="ND_mix_color3" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
-<... more types ...>
+// ... more types ...
 ```
 ```c++
 // File 'mx_add.inline' contains:

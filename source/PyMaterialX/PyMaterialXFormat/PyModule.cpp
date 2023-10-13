@@ -13,7 +13,7 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXFormat library";
+    mod.doc() = "Cross-platform support for working with files, paths, and environment variables";
 
     bindPyFile(mod);
     bindPyXmlIo(mod);

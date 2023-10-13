@@ -14,7 +14,7 @@ void bindPyVkShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenGlsl library";
+    mod.doc() = "Shader generation using OpenGL Shading Language";
 
     bindPyGlslShaderGenerator(mod);
     bindPyGlslResourceBindingContext(mod);

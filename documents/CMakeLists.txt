@@ -1,3 +1,4 @@
+# MaterialX C++ API Documentation
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(DOXYGEN_HTML_OUTPUT_DIR ${DOXYGEN_OUTPUT_DIR}/html)
 set(DOXYGEN_INPUT_LIST ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide/MainPage.md
@@ -22,13 +23,62 @@ if(DOXYGEN_FOUND)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
     add_custom_target(MaterialXDocs ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                      COMMENT "Generating HTML documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
+                      COMMENT "Building MaterialX C++ API Documentation: ${DOXYGEN_HTML_OUTPUT_DIR}/index.html")
     add_custom_command(TARGET MaterialXDocs PRE_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/documents/DoxygenAwesome ${CMAKE_CURRENT_BINARY_DIR})
+                       ${CMAKE_SOURCE_DIR}/documents/DoxygenAwesome ${DOXYGEN_HTML_OUTPUT_DIR})
     add_custom_command(TARGET MaterialXDocs PRE_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/documents/Images ${CMAKE_CURRENT_BINARY_DIR})
+                       ${CMAKE_SOURCE_DIR}/documents/Images ${DOXYGEN_HTML_OUTPUT_DIR})
     install(DIRECTORY ${DOXYGEN_HTML_OUTPUT_DIR}
             DESTINATION "documents" MESSAGE_NEVER)
+else()
+    message(WARNING "Unable to build MaterialX C++ API Documentation: Doxygen not found.")
 endif(DOXYGEN_FOUND)
+
+
+# MaterialX Python API Documentation
+set(SPHINX_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(SPHINX_HTML_OUTPUT_DIR ${SPHINX_OUTPUT_DIR}/html-sphinx)
+set(
+    SPHINX_INPUT_LIST
+    ${CMAKE_SOURCE_DIR}/documents/DeveloperGuide/
+)
+set(MATERIALX_PYTHONPATH ${CMAKE_SOURCE_DIR}/lib)
+set(MATERIALX_LOGO_FILENAME "MaterialXLogo_200x155.png")
+
+find_package(Sphinx)
+
+if(SPHINX_FOUND)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sphinx-conf.py.in ${CMAKE_CURRENT_BINARY_DIR}/conf.py)
+
+    add_custom_target(MaterialXDocsPython ${SPHINX_EXECUTABLE}
+                      -c ${CMAKE_CURRENT_BINARY_DIR}
+                      ${SPHINX_INPUT_LIST}
+                      ${SPHINX_HTML_OUTPUT_DIR}
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                      COMMENT "Building MaterialX Python API Documentation: ${SPHINX_HTML_OUTPUT_DIR}/index.html")
+
+    # Add post-build commands to copy our logo and custom style sheet to the
+    # "_static" folder
+    add_custom_command(
+        TARGET MaterialXDocsPython POST_BUILD COMMAND ${CMAKE_COMMAND}
+        -E copy ${CMAKE_SOURCE_DIR}/documents/sphinx-custom.css
+                ${SPHINX_HTML_OUTPUT_DIR}/_static/custom.css
+    )
+    add_custom_command(
+        TARGET MaterialXDocsPython POST_BUILD COMMAND ${CMAKE_COMMAND}
+        -E copy ${CMAKE_SOURCE_DIR}/documents/Images/${MATERIALX_LOGO_FILENAME}
+                ${SPHINX_HTML_OUTPUT_DIR}/_static/
+    )
+
+    # Add a post-build command to copy the DoxygenAwesome style sheet to the
+    # "_static" folder
+    add_custom_command(
+        TARGET MaterialXDocsPython POST_BUILD COMMAND ${CMAKE_COMMAND}
+        -E copy_directory ${CMAKE_SOURCE_DIR}/documents/DoxygenAwesome
+                          ${SPHINX_HTML_OUTPUT_DIR}/_static/DoxygenAwesome
+    )
+else()
+    message(WARNING "Unable to build MaterialX Python API Documentation: Sphinx not found.")
+endif(SPHINX_FOUND)

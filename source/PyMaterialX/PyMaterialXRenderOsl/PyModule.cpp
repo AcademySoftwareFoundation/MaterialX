@@ -11,7 +11,7 @@ void bindPyOslRenderer(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRenderOsl library";
+    mod.doc() = "Rendering materials using Open Shading Language";
 
     bindPyOslRenderer(mod);
 }

@@ -1,0 +1,207 @@
+/*
+Dark Mode colors and other variables copied from "doxygen-awesome.css".
+We could potentially import the entire style sheet here, but we're only
+interested in the color definitions and a select few other styles.
+DoxygenAwesome is licensed under the MIT License.
+*/
+html {
+    /* font-families. will affect all text on the website
+     * font-family: the normal font for text, headlines, menus
+     * font-family-monospace: used for preformatted text in memtitle, code, fragments
+     */
+    --font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    --font-family-monospace: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+
+    /* font sizes */
+    --page-font-size: 15.6px;
+    --navigation-font-size: 14.4px;
+    --toc-font-size: 13.4px;
+    --code-font-size: 14px; /* affects code, fragment */
+    --title-font-size: 22px;
+
+    /* color for all separators on the website: hr, borders, ... */
+    --separator-color: #dedede;
+
+    /* border radius for all rounded components. Will affect many components, like dropdowns, memitems, codeblocks, ... */
+    --border-radius-large: 8px;
+    --border-radius-small: 4px;
+    --border-radius-medium: 6px;
+
+    color-scheme: dark;
+
+    --primary-color: #1982d2;
+    --primary-dark-color: #86a9c4;
+    --primary-light-color: #4779ac;
+
+    --box-shadow: 0 2px 8px 0 rgba(0,0,0,.30);
+
+    --odd-color: rgba(100,100,100,.06);
+
+    --menu-selected-background: rgba(0,0,0,.4);
+
+    --page-background-color: #1C1D1F;
+    --page-foreground-color: #d2dbde;
+    --page-secondary-foreground-color: #859399;
+    --separator-color: #38393b;
+    --side-nav-background: #252628;
+
+    --code-background: #2a2c2f;
+
+    --tablehead-background: #2a2c2f;
+
+    --blockquote-background: #222325;
+    --blockquote-foreground: #7e8c92;
+
+    --warning-color: #2e1917;
+    --warning-color-dark: #ad2617;
+    --warning-color-darker: #f5b1aa;
+    --note-color: #3b2e04;
+    --note-color-dark: #f1b602;
+    --note-color-darker: #ceb670;
+    --todo-color: #163750;
+    --todo-color-dark: #1982D2;
+    --todo-color-darker: #dcf0fa;
+    --deprecated-color: #2e323b;
+    --deprecated-color-dark: #738396;
+    --deprecated-color-darker: #abb0bd;
+    --bug-color: #2a2536;
+    --bug-color-dark: #7661b3;
+    --bug-color-darker: #ae9ed6;
+    --invariant-color: #303a35;
+    --invariant-color-dark: #76ce96;
+    --invariant-color-darker: #cceed5;
+
+    --fragment-background: #282c34;
+    --fragment-foreground: #dbe4eb;
+    --fragment-keyword: #cc99cd;
+    --fragment-keywordtype: #ab99cd;
+    --fragment-keywordflow: #e08000;
+    --fragment-token: #7ec699;
+    --fragment-comment: #999999;
+    --fragment-link: #98c0e3;
+    --fragment-preprocessor: #65cabe;
+    --fragment-linenumber-color: #cccccc;
+    --fragment-linenumber-background: #35393c;
+    --fragment-linenumber-border: #1f1f1f;
+}
+
+/* Apply the dark mode colors on top of the default Alabastar styles */
+body, div.body {
+    background-color: var(--page-background-color);
+    color: var(--page-foreground-color);
+    font-family: var(--font-family);
+    font-size: var(--page-font-size);
+}
+div.sphinxsidebar {
+    background-color: var(--side-nav-background);
+}
+div.sphinxsidebar p,
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+    color: var(--page-foreground-color);
+    font-family: var(--font-family);
+}
+a {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+}
+a:link, a:visited, a:hover, a:focus, a:active {
+    font-weight: 500;
+}
+a.reference,
+div.sphinxsidebar a {
+    text-decoration: none;
+    border-bottom: none;
+}
+a.reference:hover,
+div.sphinxsidebar a:hover {
+    text-decoration: underline;
+    border-bottom: none;
+}
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6
+{
+    font-family: var(--font-family);
+}
+
+code,
+div.fragment,
+pre.fragment {
+    border-radius: var(--border-radius-small);
+    border: 1px solid var(--separator-color);
+    overflow: hidden;
+}
+code {
+    display: inline;
+    color: var(--code-foreground);
+    padding: 2px 6px;
+}
+tt,
+tt.xref,
+code,
+code.xref,
+a tt {
+    background-color: var(--code-background);
+    border-bottom: none;
+}
+code,
+code a,
+pre.fragment,
+div.fragment,
+div.fragment span,
+div.fragment .line,
+div.fragment .line a,
+div.fragment .line span {
+    font-family: var(--font-family-monospace);
+    font-size: var(--code-font-size) !important;
+}
+code.xref,
+a code {
+    font-weight: normal;
+}
+table,
+table.docutils {
+    border: none;
+    border-collapse: collapse;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+table tr:nth-child(even) {
+    background-color: transparent;
+}
+table tr:nth-child(odd) {
+    background-color: var(--odd-color);
+}
+/* table header rows */
+table tr.row-odd:nth-child(odd) {
+    background-color: transparent;
+    border-bottom: 1px solid var(--separator-color);
+}
+table tr.row-even:nth-child(even) {
+    border-bottom: 1px solid var(--separator-color);
+}
+table.docutils td,
+table.docutils th {
+    border: none;
+}
+
+/* Make the MaterialX logo a little smaller */
+img.logo {
+    width: 60%;
+    height: 60%;
+}
+
+/* Turn off auto-hyphenation in text blocks */
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote {
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    -webkit-hyphens: none;
+    hyphens: none;
+}

@@ -1,0 +1,77 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+project = 'MaterialX'
+copyright = '2023, MaterialX Maintainers'
+author = 'MaterialX Maintainers'
+release = '${MATERIALX_LIBRARY_VERSION}'
+
+
+# -- Path Manipulation -------------------------------------------------------
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath('${MATERIALX_PYTHONPATH}'))
+
+
+# -- Module Import Order Dependencies ----------------------------------------
+
+# Make sure to import the core module before modules like `PyMaterialXFormat`
+# and `PyMaterialXRender`, as otherwise, their import fails with an
+# `ImportError` exception:
+# ```
+# ImportError: arg(): could not convert default argument into a Python object
+# (type not registered yet?).
+# ```
+import PyMaterialXCore
+
+# Make sure to import `PyMaterialXRender` before modules like
+# `PyMaterialXRenderMsl`, as otherwise, their import fails with an
+# `ImportError` exception, for example:
+# ```
+# ImportError: generic_type: type "MslRenderer" referenced unknown base type
+# "MaterialX_v1_38_9::ShaderRenderer"
+# ```
+import PyMaterialXRender
+
+# Make sure to import `PyMaterialXGenShader` before modules like
+# `PyMaterialXGenGlsl`, as otherwise, their import fails with an `ImportError`
+# exception, for example:
+# ```
+# ImportError: generic_type: type "GlslShaderGenerator" referenced unknown base
+# type "MaterialX_v1_38_9::HwShaderGenerator"
+# ```
+import PyMaterialXGenShader
+
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+extensions = [
+    'myst_parser',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+]
+
+exclude_patterns = []
+
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+html_theme = 'alabaster'
+html_theme_options = {
+    'logo': '${MATERIALX_LOGO_FILENAME}',
+    'description': '<b>MaterialX</b> &ndash; An open standard for the exchange of rich material and look-development content across applications and renderers.',
+    'github_button': True,
+    'github_user': 'AcademySoftwareFoundation',
+    'github_repo': 'MaterialX',
+    'extra_nav_links': {
+        'MaterialX C++ API Docs': 'https://materialx.org/docs/api/index.html',
+    },
+}
