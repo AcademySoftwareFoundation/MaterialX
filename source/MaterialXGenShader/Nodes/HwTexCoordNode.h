@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Generic texture coordinate node for hardware languages.
+/// Generic texture coordinate node for hardware languages
 class MX_GENSHADER_API HwTexCoordNode : public ShaderNodeImpl
 {
   public:
