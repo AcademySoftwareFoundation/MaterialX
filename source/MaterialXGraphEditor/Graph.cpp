@@ -3731,11 +3731,11 @@ void Graph::addPinPopup() {
                 connected = connected + " out";
             }
         }
-        else {
+        else if(pin->_input != nullptr) {
             value = "\nValue: " + pin->_input->getValueString();
         }
         std::string const message{ "Name: " + pin->_name + "\nType: " + pin->_type + value + connected};
-        ImGui::SetTooltip(message.c_str());
+        ImGui::SetTooltip("%s", message.c_str());
         ed::Resume();
     }
 }
