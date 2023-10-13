@@ -3716,20 +3716,25 @@ bool Graph::isPinHovered() {
     return currentPin != nullPin;
 }
 
-void Graph::addPinPopup() {
+void Graph::addPinPopup()
+{
     // Add a floating popup to pin when hovered
-    if (isPinHovered()) {
+    if (isPinHovered())
+    {
         ed::Suspend();
         UiPinPtr pin = getPin(ed::GetHoveredPin());
         std::string connected = "";
         std::string value = "";
-        if (pin->_connected) {
+        if (pin->_connected)
+        {
             connected = "\nConnected to";
-            for (UiPinPtr connectedPins : pin->getConnections()) {
+            for (UiPinPtr connectedPins : pin->getConnections())
+            {
                 connected = connected + " " + connectedPins->_name + ",";
             }
         }
-        else if(pin->_input != nullptr) {
+        else if(pin->_input != nullptr)
+        {
             value = "\nValue: " + pin->_input->getValueString();
         }
         std::string const message{ "Name: " + pin->_name + "\nType: " + pin->_type + value + connected};
