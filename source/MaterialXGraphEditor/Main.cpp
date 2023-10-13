@@ -197,6 +197,13 @@ int main(int argc, char* const argv[])
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    // Set ini and log filename to NULL. This will prevent the automatic creation of imgui.ini
+    // in the same folder as the saved material.
+    // TODO: Consider setting the ini and log file paths to an application directory.
+    io.IniFilename = NULL;
+    io.LogFilename = NULL;
+
     io.Fonts->AddFontDefault();
 
     mx::FilePath configPath = getConfigPath();
