@@ -2219,6 +2219,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                             }
 
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                         pin->setConnected(true);
                     }
@@ -2284,6 +2285,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                 }
                             }
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                         pin->setConnected(true);
                     }
@@ -2354,6 +2356,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                 }
                             }
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                     }
 
@@ -3722,13 +3725,8 @@ void Graph::addPinPopup() {
         std::string value = "";
         if (pin->_connected) {
             connected = "\nConnected to";
-            if (pin->_name == "out") {
-                for (UiPinPtr connectedPins : pin->getConnections()) {
-                    connected = connected + " " + connectedPins->_name + ",";
-                }
-            }
-            else {
-                connected = connected + " out";
+            for (UiPinPtr connectedPins : pin->getConnections()) {
+                connected = connected + " " + connectedPins->_name + ",";
             }
         }
         else if(pin->_input != nullptr) {
