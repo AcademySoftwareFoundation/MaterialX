@@ -32,6 +32,11 @@ string ShaderPort::getFullName() const
     return (_node->getName() + "_" + _name);
 }
 
+string ShaderPort::getValueString() const
+{
+    return getValue() ? getValue()->getValueString() : EMPTY_STRING;
+}
+
 //
 // ShaderInput methods
 //

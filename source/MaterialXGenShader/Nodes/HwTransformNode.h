@@ -22,9 +22,11 @@ class MX_GENSHADER_API HwTransformNode : public ShaderNodeImpl
     virtual string getHomogeneousCoordinate() const = 0;
     virtual bool shouldNormalize() const { return false; }
 
-    virtual const ShaderInput* getFromSpaceInput(const ShaderNode&) const;
-    virtual const ShaderInput* getToSpaceInput(const ShaderNode&) const;
+    virtual string getFromSpace(const ShaderNode&) const;
+    virtual string getToSpace(const ShaderNode&) const;
 
+    static string FROM_SPACE;
+    static string TO_SPACE;
     static string MODEL;
     static string OBJECT;
     static string WORLD;
