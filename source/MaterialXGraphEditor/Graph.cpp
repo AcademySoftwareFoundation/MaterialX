@@ -3637,11 +3637,29 @@ void Graph::addNodePopup(bool cursor)
                 {
                     ImGui::SetWindowFontScale(_fontScale);
                     std::string name = node[0];
-                    if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                    std::string prefix = "ND_";
+                    if (name.compare(0, prefix.size(), prefix) == 0 && name.compare(prefix.size(), std::string::npos, node[2]) == 0)
                     {
-                        addNode(node[2], getUserNodeDefName(name), node[1]);
-                        _addNewNode = true;
+                        if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        {
+                            addNode(node[2], getUserNodeDefName(name), node[1]);
+                            _addNewNode = true;
+                        }
                     }
+                    else
+                    {
+                        if (ImGui::BeginMenu(node[2].c_str()))
+                        {
+                            if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                            {
+                                addNode(node[2], getUserNodeDefName(name), node[1]);
+                                _addNewNode = true;
+                            }
+                            ImGui::EndMenu();
+                        }
+                    }
+
+                    
                     ImGui::EndMenu();
                 }
             }
