@@ -124,7 +124,7 @@ TEST_CASE("GenShader: ShaderGen Performance", "[genglsl]")
     mx::GenContext context(mx::GlslShaderGenerator::create());
     BENCHMARK("Load documents, validate and generate shader") 
     {
-            return GenShaderUtil::shaderGenPerformanceTest(context);
+        return GenShaderUtil::shaderGenPerformanceTest(context);
     };
 }
 
