@@ -10,7 +10,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Generic transformation node for hardware languages.
+/// Generic transformation node for hardware languages
 class MX_GENSHADER_API HwTransformNode : public ShaderNodeImpl
 {
   public:
