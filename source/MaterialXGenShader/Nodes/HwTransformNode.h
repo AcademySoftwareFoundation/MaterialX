@@ -6,7 +6,7 @@
 #ifndef MATERIALX_HWTRANSFORMNODE_H
 #define MATERIALX_HWTRANSFORMNODE_H
 
-#include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -18,7 +18,9 @@ class MX_GENSHADER_API HwTransformNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const = 0;
+    virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const;
+    virtual const string& getModelToWorldMatrix() const = 0;
+    virtual const string& getWorldToModelMatrix() const = 0;
     virtual string getHomogeneousCoordinate() const = 0;
     virtual bool shouldNormalize() const { return false; }
 
@@ -38,8 +40,9 @@ class MX_GENSHADER_API HwTransformVectorNode : public HwTransformNode
     static ShaderNodeImplPtr create();
 
   protected:
-    const string& getMatrix(const string& fromSpace, const string& toSpace) const override;
-    string getHomogeneousCoordinate() const override;
+    const string& getModelToWorldMatrix() const override { return HW::T_WORLD_MATRIX; }
+    const string& getWorldToModelMatrix() const override { return HW::T_WORLD_INVERSE_MATRIX; }
+    string getHomogeneousCoordinate() const override { return "0.0"; }
 };
 
 class MX_GENSHADER_API HwTransformPointNode : public HwTransformVectorNode
@@ -48,7 +51,7 @@ class MX_GENSHADER_API HwTransformPointNode : public HwTransformVectorNode
     static ShaderNodeImplPtr create();
 
   protected:
-    string getHomogeneousCoordinate() const override;
+    string getHomogeneousCoordinate() const override { return "1.0"; }
 };
 
 class MX_GENSHADER_API HwTransformNormalNode : public HwTransformNode
@@ -57,8 +60,9 @@ class MX_GENSHADER_API HwTransformNormalNode : public HwTransformNode
     static ShaderNodeImplPtr create();
 
   protected:
-    const string& getMatrix(const string& fromSpace, const string& toSpace) const override;
-    string getHomogeneousCoordinate() const override;
+    const string& getModelToWorldMatrix() const override { return HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX; }
+    const string& getWorldToModelMatrix() const override { return HW::T_WORLD_TRANSPOSE_MATRIX; }
+    string getHomogeneousCoordinate() const override { return "0.0"; }
     bool shouldNormalize() const override { return true; }
 };
 

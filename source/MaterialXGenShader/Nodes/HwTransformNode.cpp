@@ -79,27 +79,22 @@ string HwTransformNode::getToSpace(const ShaderNode& node) const
     return input ? input->getValueString() : EMPTY_STRING;
 }
 
-ShaderNodeImplPtr HwTransformVectorNode::create()
-{
-    return std::make_shared<HwTransformVectorNode>();
-}
-
-const string& HwTransformVectorNode::getMatrix(const string& fromSpace, const string& toSpace) const
+const string& HwTransformNode::getMatrix(const string& fromSpace, const string& toSpace) const
 {
     if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
     {
-        return HW::T_WORLD_MATRIX;
+        return getModelToWorldMatrix();
     }
     else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
     {
-        return HW::T_WORLD_INVERSE_MATRIX;
+        return getWorldToModelMatrix();
     }
     return EMPTY_STRING;
 }
 
-string HwTransformVectorNode::getHomogeneousCoordinate() const
+ShaderNodeImplPtr HwTransformVectorNode::create()
 {
-    return "0.0";
+    return std::make_shared<HwTransformVectorNode>();
 }
 
 ShaderNodeImplPtr HwTransformPointNode::create()
@@ -107,32 +102,9 @@ ShaderNodeImplPtr HwTransformPointNode::create()
     return std::make_shared<HwTransformPointNode>();
 }
 
-string HwTransformPointNode::getHomogeneousCoordinate() const
-{
-    return "1.0";
-}
-
 ShaderNodeImplPtr HwTransformNormalNode::create()
 {
     return std::make_shared<HwTransformNormalNode>();
-}
-
-const string& HwTransformNormalNode::getMatrix(const string& fromSpace, const string& toSpace) const
-{
-    if ((fromSpace == MODEL || fromSpace == OBJECT) && toSpace == WORLD)
-    {
-        return HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX;
-    }
-    else if (fromSpace == WORLD && (toSpace == MODEL || toSpace == OBJECT))
-    {
-        return HW::T_WORLD_TRANSPOSE_MATRIX;
-    }
-    return EMPTY_STRING;
-}
-
-string HwTransformNormalNode::getHomogeneousCoordinate() const
-{
-    return "0.0";
 }
 
 MATERIALX_NAMESPACE_END
