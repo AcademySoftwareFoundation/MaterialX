@@ -3710,7 +3710,8 @@ void Graph::searchNodePopup(bool cursor)
     }
 }
 
-bool Graph::isPinHovered() {
+bool Graph::isPinHovered()
+{
     ed::PinId currentPin = ed::GetHoveredPin();
     ed::PinId nullPin = 0;
     return currentPin != nullPin;
