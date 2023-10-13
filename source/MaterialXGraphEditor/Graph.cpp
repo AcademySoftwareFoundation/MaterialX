@@ -1248,12 +1248,17 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
     };
 
     auto nodeDefs = doc->getNodeDefs();
-    std::unordered_map<std::string, mx::NodeDefPtr> groupToNodeDef;
+    std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> groupToNodeDef;
 
     for (const auto& nodeDef : nodeDefs)
     {
         std::string group = nodeDef->getNodeGroup();
-        groupToNodeDef[group] = nodeDef;
+
+        if (groupToNodeDef.find(group) == groupToNodeDef.end())
+        {
+            groupToNodeDef[group] = std::vector<mx::NodeDefPtr>();
+        }
+        groupToNodeDef[group].push_back(nodeDef);
     }
 
     for (const auto& group : ordered_groups)
@@ -1261,12 +1266,16 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         auto it = groupToNodeDef.find(group);
         if (it != groupToNodeDef.end())
         {
-            const auto& nodeDef = it->second;
-            if (_nodesToAdd.find(group) == _nodesToAdd.end())
+            const auto& groupNodeDefs = it->second;
+
+            for (const auto& nodeDef : groupNodeDefs)
             {
-                _nodesToAdd[group] = std::vector<std::vector<std::string>>();
+                if (_nodesToAdd.find(group) == _nodesToAdd.end())
+                {
+                    _nodesToAdd[group] = std::vector<std::vector<std::string>>();
+                }
+                _nodesToAdd[group].push_back({ nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString() });
             }
-            _nodesToAdd[group].push_back({ nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString() });
         }
         else if (group == EXTRA_NODES)
         {
