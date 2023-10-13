@@ -34,6 +34,7 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
     const string index = getIndex(node);
     const string variable = HW::T_TEXCOORD + "_" + index;
+    const ShaderOutput* output = node.getOutput();
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {
@@ -53,18 +54,22 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         ShaderPort* texcoord = vertexData[variable];
         shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(node.getOutput(), true, false, context, stage);
+        shadergen.emitOutput(output, true, false, context, stage);
 
         // Extract the requested number of components from the texture coordinates (which may be a
         // larger datatype than the requested number of texture coordinates, if several texture
         // coordinate nodes with different width coexist).
-        std::array<const char*, 5> components { "", "x", "xy", "xyz", "xyzw" };
-        const string texCoord = shadergen.getSyntax().getSwizzledVariable(
-            prefix + texcoord->getVariable(), texcoord->getType(),
-            components[node.getOutput()->getType()->getSize()],
-            node.getOutput()->getType());
+        string suffix = EMPTY_STRING;
+        if (output->getType() == Type::VECTOR2)
+        {
+            suffix = ".xy";
+        }
+        else if (output->getType() == Type::VECTOR3)
+        {
+            suffix = ".xyz";
+        }
 
-        shadergen.emitString(" = " + texCoord, stage);
+        shadergen.emitString(" = " + prefix + texcoord->getVariable() + suffix, stage);
         shadergen.emitLineEnd(stage);
     }
 }
