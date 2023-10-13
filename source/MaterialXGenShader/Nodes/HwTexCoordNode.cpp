@@ -9,6 +9,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+string HwTexCoordNode::INDEX = "index";
+
 ShaderNodeImplPtr HwTexCoordNode::create()
 {
     return std::make_shared<HwTexCoordNode>();
@@ -17,8 +19,7 @@ ShaderNodeImplPtr HwTexCoordNode::create()
 void HwTexCoordNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     const ShaderOutput* output = node.getOutput();
-    const ShaderInput* indexInput = getIndexInput(node);
-    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
+    const string index = getIndex(node);
 
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -31,8 +32,7 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 {
     const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
-    const ShaderInput* indexInput = getIndexInput(node);
-    const string index = indexInput ? indexInput->getValue()->getValueString() : "0";
+    const string index = getIndex(node);
     const string variable = HW::T_TEXCOORD + "_" + index;
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
@@ -69,9 +69,10 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
     }
 }
 
-const ShaderInput* HwTexCoordNode::getIndexInput(const ShaderNode& node) const
+string HwTexCoordNode::getIndex(const ShaderNode& node) const
 {
-    return node.getInput("index");
+    const ShaderInput* input = node.getInput(INDEX);
+    return input ? input->getValue()->getValueString() : "0";
 }
 
 MATERIALX_NAMESPACE_END

@@ -20,7 +20,10 @@ class MX_GENSHADER_API HwTexCoordNode : public ShaderNodeImpl
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
-    virtual const ShaderInput* getIndexInput(const ShaderNode& node) const;
+  protected:
+    virtual string getIndex(const ShaderNode& node) const;
+
+    static string INDEX;
 };
 
 MATERIALX_NAMESPACE_END
