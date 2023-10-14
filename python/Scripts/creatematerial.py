@@ -13,7 +13,7 @@ import MaterialX as mx
 
 # Configure the logger
 logging.basicConfig(
-    level=logging.INFO,  # Set DEBUD for more logs
+    level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
@@ -174,12 +174,14 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-dir', '--directory', dest='dir', help='The directory where the textures in')
-    parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`)')
-    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true",help='Make the texture paths absolute inside the materialX file')
-
+    parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
+    parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
+    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true",help='Make the texture paths absolute inside the materialX file.')
+    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",help='Turn on verbose mode to create loggings.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
-    parser.add_argument(dest='outputFilename', nargs='?', help='Filename of the output materialX document (default material.mtlx)')
+    # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
+    # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
+    # TODO : Flag for forcing texture extention if there are multiple extentions in directory.
 
     options = parser.parse_args()
 
@@ -189,19 +191,22 @@ def main():
         if not os.path.isdir(texture_dir):
             logger.error("The texture directory does not exist `{}`".format(texture_dir))
             return
-
+    print('texture_dir:', texture_dir)
     mtlx_file = os.path.join(texture_dir, 'standard_surface.mtlx')
     if options.outputFilename:
         filename = options.outputFilename
-        if os.path.abspath(filename):
+        if not os.path.abspath(filename):
             mtlx_file = filename
         else:
             mtlx_file = os.path.join(texture_dir, filename)
-
+    print('mtlx_file:', mtlx_file)
     # Colorspace
     colorspace = 'srgb_texture'
     if options.colorSpace:
         colorspace = options.colorSpace
+
+    if options.verbose:
+        logger.setLevel(logging.DEBUG)
 
     create_mtlx_doc(
         texture_dir,
