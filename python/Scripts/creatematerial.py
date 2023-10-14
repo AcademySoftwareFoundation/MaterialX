@@ -191,7 +191,7 @@ def main():
         if not os.path.isdir(texture_dir):
             logger.error("The texture directory does not exist `{}`".format(texture_dir))
             return
-    print('texture_dir:', texture_dir)
+
     mtlx_file = os.path.join(texture_dir, 'standard_surface.mtlx')
     if options.outputFilename:
         filename = options.outputFilename
@@ -199,7 +199,7 @@ def main():
             mtlx_file = filename
         else:
             mtlx_file = os.path.join(texture_dir, filename)
-    print('mtlx_file:', mtlx_file)
+
     # Colorspace
     colorspace = 'srgb_texture'
     if options.colorSpace:
