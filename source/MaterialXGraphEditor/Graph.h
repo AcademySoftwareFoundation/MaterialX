@@ -90,7 +90,9 @@ class Graph
 
     // Add link to nodegraph and set up connections between UiNodes and
     // MaterialX Nodes to update shader
-    void addLink(ed::PinId inputPinId, ed::PinId outputPinId);
+    // startPinId - where the link was initiated
+    // endPinId - where the link was ended
+    void addLink(ed::PinId startPinId, ed::PinId endPinId);
 
     // Delete link from current link vector and remove any connections in
     // UiNode or MaterialX Nodes to update shader

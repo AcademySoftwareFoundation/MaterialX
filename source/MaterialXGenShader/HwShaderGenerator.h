@@ -306,6 +306,9 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     /// Unbind all light shaders previously bound.
     static void unbindLightShaders(GenContext& context);
 
+    /// Determine the prefix of vertex data variables.
+    virtual string getVertexDataPrefix(const VariableBlock& vertexData) const = 0;
+
     /// Types of closure contexts for HW.
     enum ClosureContextType
     {
