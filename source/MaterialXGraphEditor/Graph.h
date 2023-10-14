@@ -27,10 +27,10 @@ class MenuItem
     std::string getGroup() const { return group; }
 
     // setters
-    void setName(const std::string& name) { this->name = name; }
-    void setType(const std::string& type) { this->type = type; }
-    void setCategory(const std::string& category) { this->category = category; }
-    void setGroup(const std::string& group) { this->group = group; }
+    void setName(const std::string& newName) { this->name = newName; }
+    void setType(const std::string& newType) { this->type = newType; }
+    void setCategory(const std::string& newCategory) { this->category = newCategory; }
+    void setGroup(const std::string& newGroup) { this->group = newGroup; }
 
   private:
     std::string name;
