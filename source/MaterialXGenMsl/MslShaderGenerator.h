@@ -48,7 +48,7 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables.
-    virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
+    string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
   public:
     /// Unique identifier for this generator target

@@ -10,7 +10,6 @@
 #include <MaterialXGenMsl/Nodes/NormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/TangentNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/BitangentNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TexCoordNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/FrameNodeMsl.h>
@@ -34,6 +33,7 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -178,8 +178,8 @@ MslShaderGenerator::MslShaderGenerator() :
     // <!-- <bitangent> -->
     registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, BitangentNodeMsl::create);
     // <!-- <texcoord> -->
-    registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, TexCoordNodeMsl::create);
-    registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, TexCoordNodeMsl::create);
+    registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
+    registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     // <!-- <geomcolor> -->
     registerImplementation("IM_geomcolor_float_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
     registerImplementation("IM_geomcolor_color3_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
