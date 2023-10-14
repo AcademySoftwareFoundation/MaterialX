@@ -14,6 +14,30 @@
 
 #include <stack>
 
+class MenuItem
+{
+  public:
+    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group) :
+        name(name), type(type), category(category), group(group) { }
+
+    // getters
+    std::string getName() const { return name; }
+    std::string getType() const { return type; }
+    std::string getCategory() const { return category; }
+    std::string getGroup() const { return group; }
+
+    // setters
+    void setName(const std::string& name) { this->name = name; }
+    void setType(const std::string& type) { this->type = type; }
+    void setCategory(const std::string& category) { this->category = category; }
+    void setGroup(const std::string& group) { this->group = group; }
+
+  private:
+    std::string name;
+    std::string type;
+    std::string category;
+    std::string group;
+};
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -246,7 +270,7 @@ class Graph
     std::vector<std::string> _currGraphName;
 
     // for adding new nodes
-    std::vector<std::vector<std::string>> _nodesToAdd;
+    std::vector<MenuItem> _nodesToAdd;
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;

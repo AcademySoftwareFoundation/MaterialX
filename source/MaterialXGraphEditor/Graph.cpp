@@ -249,18 +249,16 @@ void Graph::addExtraNodes()
     for (const std::string& type : types)
     {
         std::string nodeName = "ND_input_" + type;
-        _nodesToAdd.push_back({ nodeName, type, "input", "Input Nodes" });
+        _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes");
         nodeName = "ND_output_" + type;
-        _nodesToAdd.push_back({ nodeName, type, "output", "Output Nodes" });
+        _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes");
     }
 
     // Add group node
-    std::vector<std::string> groupNode{ "ND_group", "", "group", "Group Nodes" };
-    _nodesToAdd.push_back(groupNode);
+    _nodesToAdd.emplace_back("ND_group", "", "group", "Group Nodes");
 
     // Add nodegraph node
-    std::vector<std::string> nodeGraph{ "ND_nodegraph", "", "nodegraph", "Node Graph" };
-    _nodesToAdd.push_back(nodeGraph);
+    _nodesToAdd.emplace_back("ND_nodegraph", "", "nodegraph", "Node Graph");
 }
 
 ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
@@ -1243,7 +1241,8 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         "shader",
         "pbr",
         "light",
-        "colortransform"
+        "colortransform",
+        "no_group"
     };
 
     auto nodeDefs = doc->getNodeDefs();
@@ -1252,6 +1251,11 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
     for (const auto& nodeDef : nodeDefs)
     {
         std::string group = nodeDef->getNodeGroup();
+
+        if (group.empty())
+        {
+            group = "no_group";
+        }
 
         if (groupToNodeDef.find(group) == groupToNodeDef.end())
         {
@@ -1269,7 +1273,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 
             for (const auto& nodeDef : groupNodeDefs)
             {
-                _nodesToAdd.push_back({ nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group });
+                _nodesToAdd.emplace_back(nodeDef->getName(), nodeDef->getType(), nodeDef->getNodeString(), group);
             }
         }
     }
@@ -3608,11 +3612,11 @@ void Graph::addNodePopup(bool cursor)
             if (subs.size() > 0)
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
-                std::string str(node[0]);
-                std::string nodeName = node[0];
+                std::string str(node.getName());
+                std::string nodeName = node.getName();
 
                 // Disallow creating nested nodegraphs
-                if (_isNodeGraph && node[3] == NODEGRAPH_ENTRY)
+                if (_isNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
                 {
                     continue;
                 }
@@ -3624,7 +3628,7 @@ void Graph::addNodePopup(bool cursor)
                 {
                     if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                     {
-                        addNode(node[2], getUserNodeDefName(nodeName), node[1]);
+                        addNode(node.getCategory(), getUserNodeDefName(nodeName), node.getType());
                         _addNewNode = true;
                         memset(input, '\0', sizeof(input));
                     }
@@ -3633,26 +3637,26 @@ void Graph::addNodePopup(bool cursor)
             else
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(100, 10), ImVec2(-1, 300));
-                if (ImGui::BeginMenu(node[3].c_str()))
+                if (ImGui::BeginMenu(node.getGroup().c_str()))
                 {
                     ImGui::SetWindowFontScale(_fontScale);
-                    std::string name = node[0];
+                    std::string name = node.getName();
                     std::string prefix = "ND_";
-                    if (name.compare(0, prefix.size(), prefix) == 0 && name.compare(prefix.size(), std::string::npos, node[2]) == 0)
+                    if (name.compare(0, prefix.size(), prefix) == 0 && name.compare(prefix.size(), std::string::npos, node.getCategory()) == 0)
                     {
                         if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(node[2], getUserNodeDefName(name), node[1]);
+                            addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
                             _addNewNode = true;
                         }
                     }
                     else
                     {
-                        if (ImGui::BeginMenu(node[2].c_str()))
+                        if (ImGui::BeginMenu(node.getCategory().c_str()))
                         {
                             if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                             {
-                                addNode(node[2], getUserNodeDefName(name), node[1]);
+                                addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
                                 _addNewNode = true;
                             }
                             ImGui::EndMenu();
