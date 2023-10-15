@@ -22,9 +22,6 @@
 #include <MaterialXGenMsl/Nodes/HeightToNormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformVectorNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformPointNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformNormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -34,6 +31,7 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -232,13 +230,13 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation(elementNames, BlurNodeMsl::create);
 
     // <!-- <ND_transformpoint> ->
-    registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, TransformPointNodeMsl::create);
+    registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
 
     // <!-- <ND_transformvector> ->
-    registerImplementation("IM_transformvector_vector3_" + MslShaderGenerator::TARGET, TransformVectorNodeMsl::create);
+    registerImplementation("IM_transformvector_vector3_" + MslShaderGenerator::TARGET, HwTransformVectorNode::create);
 
     // <!-- <ND_transformnormal> ->
-    registerImplementation("IM_transformnormal_vector3_" + MslShaderGenerator::TARGET, TransformNormalNodeMsl::create);
+    registerImplementation("IM_transformnormal_vector3_" + MslShaderGenerator::TARGET, HwTransformNormalNode::create);
 
     // <!-- <image> -->
     elementNames = {
@@ -1404,11 +1402,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
 }
 
 const string MslImplementation::SPACE = "space";
-const string MslImplementation::TO_SPACE = "tospace";
-const string MslImplementation::FROM_SPACE = "fromspace";
-const string MslImplementation::WORLD = "world";
-const string MslImplementation::OBJECT = "object";
-const string MslImplementation::MODEL = "model";
 const string MslImplementation::INDEX = "index";
 const string MslImplementation::GEOMPROP = "geomprop";
 
