@@ -9,11 +9,11 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-string HwTransformNode::FROM_SPACE = "fromspace";
-string HwTransformNode::TO_SPACE = "tospace";
-string HwTransformNode::MODEL = "model";
-string HwTransformNode::OBJECT = "object";
-string HwTransformNode::WORLD = "world";
+const string HwTransformNode::FROM_SPACE = "fromspace";
+const string HwTransformNode::TO_SPACE = "tospace";
+const string HwTransformNode::MODEL = "model";
+const string HwTransformNode::OBJECT = "object";
+const string HwTransformNode::WORLD = "world";
 
 void HwTransformNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {

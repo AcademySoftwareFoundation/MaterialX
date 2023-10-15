@@ -27,11 +27,11 @@ class MX_GENSHADER_API HwTransformNode : public ShaderNodeImpl
     virtual string getFromSpace(const ShaderNode&) const;
     virtual string getToSpace(const ShaderNode&) const;
 
-    static string FROM_SPACE;
-    static string TO_SPACE;
-    static string MODEL;
-    static string OBJECT;
-    static string WORLD;
+    static const string FROM_SPACE;
+    static const string TO_SPACE;
+    static const string MODEL;
+    static const string OBJECT;
+    static const string WORLD;
 };
 
 class MX_GENSHADER_API HwTransformVectorNode : public HwTransformNode
