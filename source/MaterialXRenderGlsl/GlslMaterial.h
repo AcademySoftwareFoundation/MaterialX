@@ -16,6 +16,31 @@
 #include <MaterialXGenShader/UnitSystem.h>
 
 MATERIALX_NAMESPACE_BEGIN
+using GlslMaterialDefinitionStatePtr = std::shared_ptr<class GlslMaterialDefinitionState>;
+
+class GlslMaterialDefinitionState : public MaterialDefinitionState
+{
+  public:
+    GlslMaterialDefinitionState(const MaterialDefinition& def) :
+        MaterialDefinitionState(def) { }
+
+    static GlslMaterialDefinitionStatePtr create(const MaterialDefinition& def)
+    {
+        return std::make_shared<GlslMaterialDefinitionState>(def);
+    }
+
+    bool generateShader(GenContext& context) override;
+    bool generateShader(ShaderPtr hwShader) override;
+
+    void clearShader();
+    void setProgram(GlslProgramPtr program, bool hasTransparency) { 
+        _glProgram = program; 
+        _hasTransparency = hasTransparency;
+    }
+    GlslProgramPtr getProgram() { return _glProgram; }
+  protected:
+    GlslProgramPtr _glProgram;
+};
 
 using GlslMaterialPtr = std::shared_ptr<class GlslMaterial>;
 
@@ -39,24 +64,10 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
                     const FilePath& pixelShaderFile,
                     bool hasTransparency) override;
 
-    /// Generate a shader from our currently stored element and
-    /// the given generator context.
-    bool generateShader(GenContext& context) override;
-
-    /// Generate a shader from the given hardware shader.
-    bool generateShader(ShaderPtr hwShader) override;
-    
-    /// Copy shader from one material to this one
-    void copyShader(MaterialPtr material) override
-    {
-        _hwShader = std::static_pointer_cast<GlslMaterial>(material)->_hwShader;
-        _glProgram = std::static_pointer_cast<GlslMaterial>(material)->_glProgram;
-    }
-
     /// Return the underlying GLSL program.
     GlslProgramPtr getProgram() const
     {
-        return _glProgram;
+        return _pState ? std::static_pointer_cast<GlslMaterialDefinitionState>(_pState)->getProgram() : nullptr;
     }
 
     /// Bind shader
@@ -92,6 +103,9 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
 
     /// Draw the given mesh partition.
     void drawPartition(MeshPartitionPtr part) const override;
+    
+    /// Bind the uniform overrides for this material.
+    void bindUniformOverrides();
 
     /// Unbind all geometry from this material.
     void unbindGeometry() override;
@@ -109,9 +123,12 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
 
   protected:
     void clearShader() override;
+    virtual MaterialDefinitionStatePtr createDefinitionState() override {
+        return GlslMaterialDefinitionState::create(_def);
+    }
 
-  protected:
-    GlslProgramPtr _glProgram;
+  private:
+    GlslMaterialDefinitionStatePtr getState() const;
 };
 
 MATERIALX_NAMESPACE_END

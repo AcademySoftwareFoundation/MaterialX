@@ -10,6 +10,7 @@
 /// ShaderMaterial helper classes
 
 #include <MaterialXCore/Generated.h>
+#include <MaterialXCore/Override.h>
 #include <MaterialXRender/Image.h>
 #include <MaterialXRender/Mesh.h>
 #include <MaterialXRender/ImageHandler.h>
@@ -32,6 +33,47 @@ class MX_RENDER_API ShadowState
     Matrix44 shadowMatrix;
     ImagePtr ambientOcclusionMap;
     float ambientOcclusionGain = 0.0f;
+};
+
+struct MaterialDefinition {
+    DocumentPtr _doc;
+    TypedElementPtr _elem;
+    NodePtr _materialNode;
+
+    bool operator<(const MaterialDefinition& other) const
+    {
+        return uint64_t(_doc.get()) < uint64_t(other._doc.get()) &&
+               uint64_t(_elem.get()) < uint64_t(other._elem.get()) &&
+               uint64_t(_materialNode.get()) < uint64_t(other._materialNode.get());
+    }
+    bool operator==(const MaterialDefinition& other) const
+    {
+        return _doc == other._doc &&
+               _elem == other._elem &&
+               _materialNode == other._materialNode;
+    }
+};
+
+
+using MaterialDefinitionStatePtr = std::shared_ptr<class MaterialDefinitionState>;
+
+class MaterialDefinitionState
+{
+  public:
+    MaterialDefinitionState(const MaterialDefinition& def) :
+        _def(def) { }
+    ShaderPtr getShader() const { return _hwShader; }
+    bool hasTransparency() const
+    {
+        return _hasTransparency;
+    }
+    virtual bool generateShader(GenContext& context) = 0;
+    virtual bool generateShader(ShaderPtr hwShader) = 0;
+
+  protected:
+    ShaderPtr _hwShader;
+    bool _hasTransparency = false;
+    const MaterialDefinition& _def;
 };
 
 /// @class ShaderMaterial
@@ -60,6 +102,12 @@ class MX_RENDER_API ShaderMaterial
     /// Return the ShaderMaterial node associated with this ShaderMaterial
     NodePtr getMaterialNode() const;
 
+    /// Set the override properties associated with this ShaderMaterial
+    void setOverride(OverridePtr node);
+
+    /// Return the override properties associated with this ShaderMaterial
+    OverridePtr getOverride() const;
+
     /// Set udim identifier
     void setUdim(const std::string& val);
 
@@ -73,13 +121,16 @@ class MX_RENDER_API ShaderMaterial
 
     /// Generate a shader from our currently stored element and
     /// the given generator context.
-    virtual bool generateShader(GenContext& context) = 0;
+    virtual bool generateShader(GenContext& context);
     
     /// Copies shader and API specific generated program from ShaderMaterial to this one.
-    virtual void copyShader(MaterialPtr ShaderMaterial) = 0;
+    virtual void copyShader(MaterialPtr shaderMaterial)
+    {
+        _pState = shaderMaterial->_pState;
+    }
 
     /// Generate a shader from the given hardware shader.
-    virtual bool generateShader(ShaderPtr hwShader) = 0;
+    virtual bool generateShader(ShaderPtr hwShader);
 
     /// Generate an environment background shader
     virtual bool generateEnvironmentShader(GenContext& context,
@@ -127,6 +178,9 @@ class MX_RENDER_API ShaderMaterial
     /// Draw the given mesh partition.
     virtual void drawPartition(MeshPartitionPtr part) const = 0;
 
+    /// Bind the given mesh to this ShaderMaterial.
+    virtual void bindUniformOverrides() = 0;
+
     /// Unbind all geometry from this ShaderMaterial.
     virtual void unbindGeometry() = 0;
 
@@ -143,19 +197,18 @@ class MX_RENDER_API ShaderMaterial
 
   protected:
     virtual void clearShader() = 0;
-
+    virtual MaterialDefinitionStatePtr createDefinitionState() = 0;
   protected:
-    ShaderPtr _hwShader;
     MeshPtr _boundMesh;
 
-    DocumentPtr _doc;
-    TypedElementPtr _elem;
-    NodePtr _materialNode;
-
+    MaterialDefinition _def;
+    MaterialDefinitionStatePtr _pState;
+    OverridePtr _override;
     std::string _udim;
-    bool _hasTransparency;
 
     ImageVec _boundImages;
+
+    static std::map<MaterialDefinition, std::weak_ptr<MaterialDefinitionState>> _sDefinitions;
 };
 
 MATERIALX_NAMESPACE_END

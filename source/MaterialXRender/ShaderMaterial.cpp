@@ -8,39 +8,53 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderMaterial::ShaderMaterial() : _hasTransparency(false) {}
+ShaderMaterial::ShaderMaterial() {}
 ShaderMaterial::~ShaderMaterial() {}
+
+std::map<MaterialDefinition, std::weak_ptr<MaterialDefinitionState>> ShaderMaterial::_sDefinitions;
 
 void ShaderMaterial::setDocument(DocumentPtr doc)
 {
-    _doc = doc;
+    _def._doc = doc;
+    _pState.reset();
 }
 
 DocumentPtr ShaderMaterial::getDocument() const
 {
-    return _doc;
+    return _def._doc;
 }
 
 void ShaderMaterial::setElement(TypedElementPtr val)
 {
-    _elem = val;
+    _def._elem = val;
+    _pState.reset();
 }
 
 TypedElementPtr ShaderMaterial::getElement() const
 {
-    return _elem;
+    return _def._elem;
 }
 
 void ShaderMaterial::setMaterialNode(NodePtr node)
 {
-    _materialNode = node;
+    _def._materialNode = node;
+    _pState.reset();
 }
 
 NodePtr ShaderMaterial::getMaterialNode() const
 {
-    return _materialNode;
+    return _def._materialNode;
 }
 
+void ShaderMaterial::setOverride(OverridePtr override)
+{
+    _override = override;
+}
+
+OverridePtr ShaderMaterial::getOverride() const
+{
+    return _override;
+}
 void ShaderMaterial::setUdim(const std::string& val)
 {
     _udim = val;
@@ -53,12 +67,42 @@ const std::string& ShaderMaterial::getUdim()
 
 ShaderPtr ShaderMaterial::getShader() const
 {
-    return _hwShader;
+    return _pState?_pState->getShader():nullptr;
 }
 
 bool ShaderMaterial::hasTransparency() const
 {
-    return _hasTransparency;
+    return _pState ? _pState->hasTransparency() : false;
+}
+
+bool ShaderMaterial::generateShader(GenContext& context)
+{
+    if (!_pState) {
+        auto iter = _sDefinitions.find(_def);
+        if (iter != _sDefinitions.end()) {
+            _pState = iter->second.lock();
+            if (!_pState)
+                _sDefinitions.erase(_def);
+        }
+        if (!_pState) {
+            _pState = createDefinitionState();
+            _sDefinitions[_def] = _pState;
+            if (!_pState->generateShader(context))
+            {
+                _pState.reset();
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool ShaderMaterial::generateShader(ShaderPtr hwShader)
+{
+    // Generate new state.
+    _pState = createDefinitionState();
+
+    return _pState->generateShader(hwShader);
 }
 
 bool ShaderMaterial::generateEnvironmentShader(GenContext& context,
@@ -92,12 +136,12 @@ bool ShaderMaterial::generateEnvironmentShader(GenContext& context,
 
     // Create the shader.
     std::string shaderName = "__ENV_SHADER__";
-    _hwShader = createShader(shaderName, context, output);
-    if (!_hwShader)
+    ShaderPtr hwShader = createShader(shaderName, context, output);
+    if (hwShader)
     {
         return false;
     }
-    return generateShader(_hwShader);
+    return generateShader(hwShader);
 }
 
 MATERIALX_NAMESPACE_END
