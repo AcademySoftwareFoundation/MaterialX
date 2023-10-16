@@ -8,7 +8,6 @@
 #include <MaterialXCore/Override.h>
 #include <map>
 
-
 MATERIALX_NAMESPACE_BEGIN
 
 Override::Override(
@@ -20,7 +19,7 @@ Override::Override(
     _values(values)
 {
     // Should we get default input values from document?
-    bool getValues = _values.size()==0;
+    bool getValues = _values.size() == 0;
 
     // Find the document inputs associated with the override properties.
     // The material inputs are at the start of the traversed tree, so a linear search is most efficent.
@@ -34,7 +33,7 @@ Override::Override(
             MaterialX::InputPtr pInput = elem->asA<MaterialX::Input>();
             for (int i = 0; i < properties.size(); i++)
             {
-                if (pInput->getNamePath().compare(properties[i])==0)
+                if (pInput->getNamePath().compare(properties[i]) == 0)
                 {
                     _propertyInputs[i] = pInput;
                     foundProps++;
@@ -57,11 +56,22 @@ Override::Override(
             if (val)
                 _values.push_back(val->copy());
             else
-                _values.push_back(Value::createValue(nullptr));
-
+                _values.push_back(Value::createValue(""));
         }
     }
+}
 
+Override::Override(const Override& other) :
+    _doc(other._doc),
+    _propertyInputs(other._propertyInputs),
+    _properties(other._properties),
+    _indexLookup(other._indexLookup)
+{
+    // Shallow copy all the members except _values, which are cloned.
+    for (int i = 0; i < _properties.size(); i++)
+    {
+        _values.push_back(other._values[i]->copy());
+    }
 }
 
 MATERIALX_NAMESPACE_END

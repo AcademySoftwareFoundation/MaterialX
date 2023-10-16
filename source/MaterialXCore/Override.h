@@ -30,6 +30,7 @@ class MX_CORE_API Override
         std::shared_ptr<Document> doc,
         const vector<string>& properties,
         const vector<ValuePtr>& values = {});
+    Override(const Override& other);
     ~Override() { }
 
     /// Create an override for this document with a list of properties.
@@ -45,6 +46,12 @@ class MX_CORE_API Override
         return std::make_shared<Override>(doc, properties, values);
     }
 
+    /// Create override from an existing override object.
+    /// @param other An existing Override to copy.
+    static OverridePtr copy(OverridePtr other)
+    {
+        return std::make_shared<Override>(*other);
+    }
 
     /// Set the value of the named override property.
     /// @param name The name of the property to set.
