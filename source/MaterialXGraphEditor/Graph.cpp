@@ -2593,6 +2593,11 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         _frameCount = ImGui::GetFrameCount();
         _renderer->setMaterialCompilation(true);
 
+        inputPin->addConnection(outputPin);
+        outputPin->addConnection(inputPin);
+        outputPin->setConnected(true);
+        inputPin->setConnected(true);
+
         if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
         {
             mx::InputPtr connectingInput = nullptr;
@@ -2686,6 +2691,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                     }
 
+                    
                     pin->setConnected(true);
                     pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     connectingInput = pin->_input;
@@ -2771,9 +2777,13 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
 
+                for (UiPinPtr connect : pin->_connections) {
+                    pin->deleteConnection(connect);
+                }
+
                 // Remove any output reference
                 pin->_input->removeAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
-
+                
                 pin->setConnected(false);
 
                 // If a value exists update the input with it
@@ -2798,6 +2808,9 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
+                for (UiPinPtr connect : pin->_connections) {
+                    pin->deleteConnection(connect);
+                }
                 pin->_input->setConnectedNode(nullptr);
                 pin->setConnected(false);
                 setDefaults(pin->_input);
@@ -2812,6 +2825,9 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
             {
                 removeEdge(downNode, upNode, pin);
                 _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
+                for (UiPinPtr connect : pin->_connections) {
+                    pin->deleteConnection(connect);
+                }
                 pin->setConnected(false);
             }
         }
@@ -3758,9 +3774,13 @@ void Graph::addPinPopup()
         if (pin->_connected)
         {
             connected = "\nConnected to";
-            for (UiPinPtr connectedPins : pin->getConnections())
+            for (int i = 0; i < pin->getConnections().size(); i++)
             {
-                connected = connected + " " + connectedPins->_name + ",";
+                UiPinPtr connectedPin = pin->getConnections()[i];
+                connected = connected + " " + connectedPin->_name;
+                if (i != pin->getConnections().size() -1) {
+                    connected = connected + ",";
+                }
             }
         }
         else if (pin->_input != nullptr)
