@@ -3774,11 +3774,12 @@ void Graph::addPinPopup()
         if (pin->_connected)
         {
             connected = "\nConnected to";
-            for (int i = 0; i < pin->getConnections().size(); i++)
+            int size = static_cast<int>(pin->getConnections().size());
+            for (int i = 0; i < size; i++)
             {
                 UiPinPtr connectedPin = pin->getConnections()[i];
                 connected = connected + " " + connectedPin->_name;
-                if (i != pin->getConnections().size() -1) {
+                if (i != size - 1) {
                     connected = connected + ",";
                 }
             }
