@@ -71,7 +71,6 @@ def list_textures(directory: str) -> List[str]:
     return List(texture_names)
     """
     img_extensions = get_cfg().get('texture_extensions')
-
     return [
         x for x in os.listdir(directory) if
         (os.path.isfile(os.path.join(directory, x)))
@@ -80,22 +79,24 @@ def list_textures(directory: str) -> List[str]:
 
 
 def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = True,
-                    colorspace: str = 'srgb_texture') -> None:
+                    colorspace: str = 'srgb_texture', use_tileimage: bool =False) -> None:
     """
     Create a metrical document with uber shader
     @param texture_dir: The texture path directory
     @param mtlx_file: The output path of document
     @param relative_paths: Will create relative texture path or not inside document
     @param colorspace: The given colorspace
+    @param use_tileimage: use tileimage node or image node
     """
     material_type = 'standard_surface'
     # Create document
     doc = mx.createDocument()
 
     mtlx_filename = os.path.basename(mtlx_file).rsplit('.', 1)[0]
+    mtlx_filename = doc.createValidChildName(mtlx_filename)
 
     # Create node graph and material
-    graph_name = 'NG_' + mtlx_filename
+    graph_name = doc.createValidChildName('NG_' + mtlx_filename)
     node_graph = doc.getNodeGraph(graph_name)
     if not node_graph:
         node_graph = doc.addNodeGraph(graph_name)
@@ -104,10 +105,11 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
     doc.addMaterialNode('M_' + mtlx_filename, shader_node)
 
     udim_numbers = set()
-    texture_names =  list_textures(texture_dir)
+    texture_names = list_textures(texture_dir)
 
     if not texture_names:
-        logger.warning("The directory does not contain any matched texture with given cfg file.. Skipping")
+        logger.warning(
+            "The directory does not contain any matched texture with given cfg file.. Skipping")
         return
 
     for tex_file_name in texture_names:
@@ -135,13 +137,21 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
         plug_name, plug_type = mtl_plug
 
         # Skip if the plug already created (in case of udim)
-        if shader_node.getInput(plug_name):
+        if shader_node.getInput(plug_name) or node_graph.getChild(tex_name):
             continue
 
-        mtl_input = shader_node.addInput(plug_name)
-        image_node = node_graph.addNode('image', tex_name, plug_type)
+        if plug_name == 'displacement':
+            # create displacement shader
+            continue
 
-        # set path
+        plug_name = shader_node.createValidChildName(plug_name)
+        mtl_input = shader_node.addInput(plug_name)
+        tex_name = node_graph.createValidChildName(tex_name)
+
+        image_type = 'tileimage' if use_tileimage else 'image'
+        image_node = node_graph.addNode(image_type, tex_name, plug_type)
+
+        # set file path
         image_node.setInputValue('file', tex_path, 'filename')
 
         # set colorspace
@@ -161,7 +171,8 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
 
     # Create udim set
     if udim_numbers:
-        geom_info = doc.addGeomInfo('GI_' + mtlx_filename)
+        geom_info_name = doc.createValidChildName('GI_' + mtlx_filename)
+        geom_info = doc.addGeomInfo(geom_info_name)
         geom_info.setGeomPropValue('udimset', list(udim_numbers), "stringarray")
 
     # Write mtlx file
@@ -177,11 +188,12 @@ def main():
     parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
     parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
     parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true",help='Make the texture paths absolute inside the materialX file.')
+    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true",help='Use tileimage node instead of image node.')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",help='Turn on verbose mode to create loggings.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
     # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
     # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
-    # TODO : Flag for forcing texture extention if there are multiple extentions in directory.
+    # TODO : Flag for forcing texture extension if there are multiple extensions in directory.
 
     options = parser.parse_args()
 
@@ -213,6 +225,7 @@ def main():
         mtlx_file,
         relative_paths=not options.absolutePaths,
         colorspace=colorspace,
+        use_tileimage=options.tileimage
     )
 
 
