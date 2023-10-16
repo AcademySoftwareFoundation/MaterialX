@@ -14,6 +14,30 @@
 
 #include <stack>
 
+class MenuItem
+{
+  public:
+    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group) :
+        name(name), type(type), category(category), group(group) { }
+
+    // getters
+    std::string getName() const { return name; }
+    std::string getType() const { return type; }
+    std::string getCategory() const { return category; }
+    std::string getGroup() const { return group; }
+
+    // setters
+    void setName(const std::string& newName) { this->name = newName; }
+    void setType(const std::string& newType) { this->type = newType; }
+    void setCategory(const std::string& newCategory) { this->category = newCategory; }
+    void setGroup(const std::string& newGroup) { this->group = newGroup; }
+
+  private:
+    std::string name;
+    std::string type;
+    std::string category;
+    std::string group;
+};
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -90,7 +114,9 @@ class Graph
 
     // Add link to nodegraph and set up connections between UiNodes and
     // MaterialX Nodes to update shader
-    void addLink(ed::PinId inputPinId, ed::PinId outputPinId);
+    // startPinId - where the link was initiated
+    // endPinId - where the link was ended
+    void addLink(ed::PinId startPinId, ed::PinId endPinId);
 
     // Delete link from current link vector and remove any connections in
     // UiNode or MaterialX Nodes to update shader
@@ -187,6 +213,8 @@ class Graph
 
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
+    bool isPinHovered();
+    void addPinPopup();
     bool readOnly();
     void readOnlyPopup();
 
@@ -246,8 +274,7 @@ class Graph
     std::vector<std::string> _currGraphName;
 
     // for adding new nodes
-    std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> _nodesToAdd;
-    std::unordered_map<std::string, std::vector<std::vector<std::string>>> _extraNodes;
+    std::vector<MenuItem> _nodesToAdd;
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
