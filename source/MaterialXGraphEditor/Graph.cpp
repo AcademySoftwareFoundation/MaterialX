@@ -2815,13 +2815,13 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
 
-                for (UiPinPtr connect : pin->_connections) {
+                for (UiPinPtr connect : pin->_connections)
+                {
                     pin->deleteConnection(connect);
                 }
 
                 // Remove any output reference
                 pin->_input->removeAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
-                
                 pin->setConnected(false);
 
                 // If a value exists update the input with it
@@ -2846,7 +2846,8 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
-                for (UiPinPtr connect : pin->_connections) {
+                for (UiPinPtr connect : pin->_connections)
+                {
                     pin->deleteConnection(connect);
                 }
                 pin->_input->setConnectedNode(nullptr);
@@ -2863,7 +2864,8 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
             {
                 removeEdge(downNode, upNode, pin);
                 _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
-                for (UiPinPtr connect : pin->_connections) {
+                for (UiPinPtr connect : pin->_connections)
+                {
                     pin->deleteConnection(connect);
                 }
                 pin->setConnected(false);
