@@ -119,7 +119,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-TEST_CASE("GenShader: ShaderGen Performance", "[genglsl]")
+TEST_CASE("PerformanceTest: ShaderGen and Validation", "[performancetest]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
     BENCHMARK("Load documents, validate and generate shader") 

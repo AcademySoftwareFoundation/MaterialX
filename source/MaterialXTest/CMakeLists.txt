@@ -16,6 +16,10 @@ function(add_tests _sources)
       add_test(NAME "MaterialXTest_${test_safe_name}"
           COMMAND MaterialXTest ${test_name}
           WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+      # Disable Performance test
+      if(${test_name} MATCHES "^PerformanceTest" AND NOT MATERIALX_DYNAMIC_ANALYSIS)
+          set_tests_properties(MaterialXTest_${test_safe_name} PROPERTIES DISABLED TRUE)
+      endif()
       if(MATERIALX_BUILD_OIIO AND MSVC)
         # Add path to OIIO library so it can be found for the test.
         # On windows we have to escape the semicolons, otherwise only
