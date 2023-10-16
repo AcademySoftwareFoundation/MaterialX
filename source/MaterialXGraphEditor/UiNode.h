@@ -111,7 +111,8 @@ class UiPin
                 pin->_connections.erase(pin->_connections.begin() + i);
             }
         }
-        if (pin->_connections.size() == 0) {
+        if (pin->_connections.size() == 0)
+        {
             pin->setConnected(false);
         }
         return;
