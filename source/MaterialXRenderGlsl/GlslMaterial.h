@@ -16,17 +16,21 @@
 #include <MaterialXGenShader/UnitSystem.h>
 
 MATERIALX_NAMESPACE_BEGIN
-using GlslMaterialDefinitionStatePtr = std::shared_ptr<class GlslMaterialDefinitionState>;
 
-class GlslMaterialDefinitionState : public MaterialDefinitionState
+using GlslShaderMaterialStatePtr = std::shared_ptr<class GlslShaderMaterialState>;
+
+/// @class GlslShaderMaterialState
+/// Sub-class of ShaderMaterialState contain a glProgram that is created in generateShader.
+class GlslShaderMaterialState : public ShaderMaterialState
 {
   public:
-    GlslMaterialDefinitionState(const MaterialDefinition& def) :
-        MaterialDefinitionState(def) { }
+    GlslShaderMaterialState(const ShaderMaterialDefinition& def) :
+        ShaderMaterialState(def) { }
 
-    static GlslMaterialDefinitionStatePtr create(const MaterialDefinition& def)
+    /// Static creation function.
+    static GlslShaderMaterialStatePtr create(const ShaderMaterialDefinition& def)
     {
-        return std::make_shared<GlslMaterialDefinitionState>(def);
+        return std::make_shared<GlslShaderMaterialState>(def);
     }
 
     bool generateShader(GenContext& context) override;
@@ -67,7 +71,7 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
     /// Return the underlying GLSL program.
     GlslProgramPtr getProgram() const
     {
-        return _pState ? std::static_pointer_cast<GlslMaterialDefinitionState>(_pState)->getProgram() : nullptr;
+        return _pState ? std::static_pointer_cast<GlslShaderMaterialState>(_pState)->getProgram() : nullptr;
     }
 
     /// Bind shader
@@ -123,12 +127,12 @@ class MX_RENDERGLSL_API GlslMaterial : public ShaderMaterial
 
   protected:
     void clearShader() override;
-    virtual MaterialDefinitionStatePtr createDefinitionState() override {
-        return GlslMaterialDefinitionState::create(_def);
+    virtual ShaderMaterialStatePtr createState() override {
+        return GlslShaderMaterialState::create(_def);
     }
 
   private:
-    GlslMaterialDefinitionStatePtr getState() const;
+    GlslShaderMaterialStatePtr getState() const;
 };
 
 MATERIALX_NAMESPACE_END

@@ -35,45 +35,58 @@ class MX_RENDER_API ShadowState
     float ambientOcclusionGain = 0.0f;
 };
 
-struct MaterialDefinition {
-    DocumentPtr _doc;
-    TypedElementPtr _elem;
-    NodePtr _materialNode;
+/// @struct ShaderMaterialDefinition
+/// Structure representing the information that defines ShaderMaterial: a materialX document, a renderable element, and a ShaderMaterial node node.
+struct ShaderMaterialDefinition
+{
+    DocumentPtr doc;
+    TypedElementPtr elem;
+    NodePtr materialNode;
 
-    bool operator<(const MaterialDefinition& other) const
+    bool operator<(const ShaderMaterialDefinition& other) const
     {
-        return uint64_t(_doc.get()) < uint64_t(other._doc.get()) &&
-               uint64_t(_elem.get()) < uint64_t(other._elem.get()) &&
-               uint64_t(_materialNode.get()) < uint64_t(other._materialNode.get());
+        return uint64_t(doc.get()) < uint64_t(other.doc.get()) &&
+               uint64_t(elem.get()) < uint64_t(other.elem.get()) &&
+               uint64_t(materialNode.get()) < uint64_t(other.materialNode.get());
     }
-    bool operator==(const MaterialDefinition& other) const
+    bool operator==(const ShaderMaterialDefinition& other) const
     {
-        return _doc == other._doc &&
-               _elem == other._elem &&
-               _materialNode == other._materialNode;
+        return doc == other.doc &&
+               elem == other.elem &&
+               materialNode == other.materialNode;
     }
 };
 
 
-using MaterialDefinitionStatePtr = std::shared_ptr<class MaterialDefinitionState>;
+using ShaderMaterialStatePtr = std::shared_ptr<class ShaderMaterialState>;
 
-class MaterialDefinitionState
+/// @class ShaderMaterialState
+/// Abstract class representing the shared state of a ShaderMaterial including it's hardware shader.
+class ShaderMaterialState
 {
   public:
-    MaterialDefinitionState(const MaterialDefinition& def) :
+    ShaderMaterialState(const ShaderMaterialDefinition& def) :
         _def(def) { }
+
+    /// Get the hardware shader.
     ShaderPtr getShader() const { return _hwShader; }
+    
+    // Get the has transparency flag.
     bool hasTransparency() const
     {
         return _hasTransparency;
     }
+
+    /// Generate a shader from the definition with the given generator context.
     virtual bool generateShader(GenContext& context) = 0;
+
+    /// Generate a shader from from the given hardware shader (ignoring the definition.)
     virtual bool generateShader(ShaderPtr hwShader) = 0;
 
   protected:
     ShaderPtr _hwShader;
     bool _hasTransparency = false;
-    const MaterialDefinition& _def;
+    const ShaderMaterialDefinition& _def;
 };
 
 /// @class ShaderMaterial
@@ -124,6 +137,7 @@ class MX_RENDER_API ShaderMaterial
     virtual bool generateShader(GenContext& context);
     
     /// Copies shader and API specific generated program from ShaderMaterial to this one.
+    /// TODO: This is proof of concept code, this causes the materials to share the same state, does not actually copy shader or program.
     virtual void copyShader(MaterialPtr shaderMaterial)
     {
         _pState = shaderMaterial->_pState;
@@ -178,7 +192,10 @@ class MX_RENDER_API ShaderMaterial
     /// Draw the given mesh partition.
     virtual void drawPartition(MeshPartitionPtr part) const = 0;
 
-    /// Bind the given mesh to this ShaderMaterial.
+    /// Bind the overrides (if any) for this ShaderMaterial as 
+    /// uniforms in the current GL context.
+    /// TODO: Could be done as part fo binding the shader, also 
+    /// should have associated unbind function to reset to defaults.
     virtual void bindUniformOverrides() = 0;
 
     /// Unbind all geometry from this ShaderMaterial.
@@ -197,18 +214,22 @@ class MX_RENDER_API ShaderMaterial
 
   protected:
     virtual void clearShader() = 0;
-    virtual MaterialDefinitionStatePtr createDefinitionState() = 0;
+
+    // Abstract method to create a new state object for this material.
+    virtual ShaderMaterialStatePtr createState() = 0;
   protected:
     MeshPtr _boundMesh;
 
-    MaterialDefinition _def;
-    MaterialDefinitionStatePtr _pState;
+    ShaderMaterialDefinition _def;
+    ShaderMaterialStatePtr _pState;
     OverridePtr _override;
     std::string _udim;
 
     ImageVec _boundImages;
 
-    static std::map<MaterialDefinition, std::weak_ptr<MaterialDefinitionState>> _sDefinitions;
+    // Global singleton to store previously created state.
+    // TODO: Just proof-of-concept code, a singleton may not be best design pattern here.
+    static std::map<ShaderMaterialDefinition, std::weak_ptr<ShaderMaterialState>> _sStateCache;
 };
 
 MATERIALX_NAMESPACE_END

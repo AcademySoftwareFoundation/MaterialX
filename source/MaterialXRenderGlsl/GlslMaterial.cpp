@@ -37,15 +37,18 @@ bool GlslMaterial::loadSource(const FilePath& vertexShaderFile, const FilePath& 
     }
 
     // TODO:
-    // Here we set new source code on the _glProgram without rebuilding 
-    // the _hwShader instance. So the _hwShader is not in sync with the
+    // Here we set new source code on the glProgram without rebuilding 
+    // the _hwShader in the definition. So the _hwShader is not in sync with the
     // _glProgram after this operation.
     auto glProgram = GlslProgram::create();
     glProgram->addStage(Stage::VERTEX, vertexShader);
     glProgram->addStage(Stage::PIXEL, pixelShader);
 
-    _pState = createDefinitionState();
-    auto glslState = std::static_pointer_cast<GlslMaterialDefinitionState>(_pState);
+    // Create a new state object as we are ignoring the definition in this case.
+    _pState = createState();
+
+    // Set the program in the new state.
+    auto glslState = std::static_pointer_cast<GlslShaderMaterialState>(_pState);
     glslState->setProgram(glProgram, hasTransparency);
 
     return true;
@@ -56,22 +59,23 @@ void GlslMaterial::clearShader()
     _pState = nullptr;
 }
 
-bool GlslMaterialDefinitionState::generateShader(GenContext& context)
+bool GlslShaderMaterialState::generateShader(GenContext& context)
 {
-    if (!_def._elem)
+    if (!_def.elem)
     {
         return false;
     }
 
-    _hasTransparency = isTransparentSurface(_def._elem, context.getShaderGenerator().getTarget());
+    _hasTransparency = isTransparentSurface(_def.elem, context.getShaderGenerator().getTarget());
 
+    // TODO: Just proof-of-concept code, we will need handle the case were generateShader is called twice on the same shared state, with different contexts.
     GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
 
     // Initialize in case creation fails and throws an exception
     clearShader();
 
-    _hwShader = createShader("Shader", materialContext, _def._elem);
+    _hwShader = createShader("Shader", materialContext, _def.elem);
     if (!_hwShader)
     {
         return false;
@@ -82,13 +86,13 @@ bool GlslMaterialDefinitionState::generateShader(GenContext& context)
 
     return true;
 }
-void GlslMaterialDefinitionState::clearShader()
+void GlslShaderMaterialState::clearShader()
 {
     _hwShader = nullptr;
     _glProgram = nullptr;
 }
 
-bool GlslMaterialDefinitionState::generateShader(ShaderPtr hwShader)
+bool GlslShaderMaterialState::generateShader(ShaderPtr hwShader)
 {
     _hwShader = hwShader;
 
@@ -241,11 +245,15 @@ void GlslMaterial::bindUniformOverrides()
     if (!_override)
         return;
 
+    // TODO: This is proof-of-concept code, in production this should probably use uniform blocks, or at least precompute the uniform locations.
     for (int i = 0; i < _override->getPropertyCount(); i++) {
         auto input = _override->getPropertyInput(i);
         auto value = _override->getValue(i);
+        // Compute a variable name from property input using an underscore seperator.
         string variableName = input->getParent()->getName() + "_" + input->getName();
-        getProgram()->bindUniform(variableName, value);
+        // Set the uniform if it exists.
+        if (getProgram()->hasUniform(variableName))
+            getProgram()->bindUniform(variableName, value);
     }
 }
 
@@ -340,9 +348,9 @@ VariableBlock* GlslMaterial::getPublicUniforms() const
     return &block;
 }
 
-GlslMaterialDefinitionStatePtr GlslMaterial::getState() const
+GlslShaderMaterialStatePtr GlslMaterial::getState() const
 {
-    return std::static_pointer_cast<GlslMaterialDefinitionState>(_pState);
+    return std::static_pointer_cast<GlslShaderMaterialState>(_pState);
 }
 
 ShaderPort* GlslMaterial::findUniform(const std::string& path) const
@@ -387,9 +395,9 @@ void GlslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, s
         valueString = value->getValueString();
     }
     uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType()->getName()));
-    if (_def._doc)
+    if (_def.doc)
     {
-        ElementPtr element = _def._doc->getDescendant(uniform->getPath());
+        ElementPtr element = _def.doc->getDescendant(uniform->getPath());
         if (element)
         {
             ValueElementPtr valueElement = element->asA<ValueElement>();

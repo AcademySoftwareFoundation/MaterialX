@@ -95,6 +95,8 @@ class MX_CORE_API Override
     /// @return The property count.
     int getPropertyCount() { return int(_properties.size()); }
 
+    // TODO: Add the ability to serialize overrides (to/from XML, JSON, etc.)
+    // TODO: Add the method to produce an entirely new document from an override (a copy of the original document with inputs set to values in override.).
   private:
     std::shared_ptr<Document> _doc;
     vector<string> _properties;

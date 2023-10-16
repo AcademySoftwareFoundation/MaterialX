@@ -11,39 +11,42 @@ MATERIALX_NAMESPACE_BEGIN
 ShaderMaterial::ShaderMaterial() {}
 ShaderMaterial::~ShaderMaterial() {}
 
-std::map<MaterialDefinition, std::weak_ptr<MaterialDefinitionState>> ShaderMaterial::_sDefinitions;
+std::map<ShaderMaterialDefinition, std::weak_ptr<ShaderMaterialState>> ShaderMaterial::_sStateCache;
 
 void ShaderMaterial::setDocument(DocumentPtr doc)
 {
-    _def._doc = doc;
+    _def.doc = doc;
+    // Clear the state, as the definition for this material has changed.
     _pState.reset();
 }
 
 DocumentPtr ShaderMaterial::getDocument() const
 {
-    return _def._doc;
+    return _def.doc;
 }
 
 void ShaderMaterial::setElement(TypedElementPtr val)
 {
-    _def._elem = val;
+    _def.elem = val;
+    // Clear the state, as the definition for this material has changed.
     _pState.reset();
 }
 
 TypedElementPtr ShaderMaterial::getElement() const
 {
-    return _def._elem;
+    return _def.elem;
 }
 
 void ShaderMaterial::setMaterialNode(NodePtr node)
 {
-    _def._materialNode = node;
+    _def.materialNode = node;
+    // Clear the state, as the definition for this material has changed.
     _pState.reset();
 }
 
 NodePtr ShaderMaterial::getMaterialNode() const
 {
-    return _def._materialNode;
+    return _def.materialNode;
 }
 
 void ShaderMaterial::setOverride(OverridePtr override)
@@ -55,6 +58,7 @@ OverridePtr ShaderMaterial::getOverride() const
 {
     return _override;
 }
+
 void ShaderMaterial::setUdim(const std::string& val)
 {
     _udim = val;
@@ -77,16 +81,23 @@ bool ShaderMaterial::hasTransparency() const
 
 bool ShaderMaterial::generateShader(GenContext& context)
 {
+    // If there not state currently associated with this material, find or create one.
     if (!_pState) {
-        auto iter = _sDefinitions.find(_def);
-        if (iter != _sDefinitions.end()) {
+
+        // See if there is state already cached for the current definition.
+        auto iter = _sStateCache.find(_def);
+        if (iter != _sStateCache.end()) {
             _pState = iter->second.lock();
+            // Cache stores weak pointers that may have been invaliding
             if (!_pState)
-                _sDefinitions.erase(_def);
+                _sStateCache.erase(_def);
         }
+        // Create a new state if one was not found in the cache.
         if (!_pState) {
-            _pState = createDefinitionState();
-            _sDefinitions[_def] = _pState;
+            _pState = createState();
+            _sStateCache[_def] = _pState;
+            // Only create generate shader if there is no existing state.
+            // TODO: This is proof of concept code, this behavior is probably not what we want in production.
             if (!_pState->generateShader(context))
             {
                 _pState.reset();
@@ -94,13 +105,15 @@ bool ShaderMaterial::generateShader(GenContext& context)
             }
         }
     }
+    // Do nothing if we already have valid state.
+    // TODO: This is proof of concept code, this behavior is probably not what we want in production.
     return true;
 }
 
 bool ShaderMaterial::generateShader(ShaderPtr hwShader)
 {
-    // Generate new state.
-    _pState = createDefinitionState();
+    // Generate new state without looking in cache, as we are ignoring the def in this case.
+    _pState = createState();
 
     return _pState->generateShader(hwShader);
 }
