@@ -68,7 +68,7 @@ bool GlslShaderMaterialState::generateShader(GenContext& context)
 
     _hasTransparency = isTransparentSurface(_def.elem, context.getShaderGenerator().getTarget());
 
-    // TODO: Just proof-of-concept code, we will need handle the case were generateShader is 
+    // TODO: Just proof-of-concept code, we will need handle the case where generateShader is 
     // called twice on the same shared state, with different contexts.
     GenContext materialContext = context;
     materialContext.getOptions().hwTransparency = _hasTransparency;
