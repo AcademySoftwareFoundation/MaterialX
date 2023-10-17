@@ -23,6 +23,32 @@ const ImVec2 DEFAULT_NODE_SIZE = ImVec2(138, 116);
 const int DEFAULT_ALPHA = 255;
 const int FILTER_ALPHA = 50;
 
+const std::array<std::string, 22> NODE_GROUP_ORDER =
+{
+    "texture2d",
+    "texture3d",
+    "procedural",
+    "procedural2d",
+    "procedural3d",
+    "geometric",
+    "translation",
+    "convolution2d",
+    "math",
+    "adjustment",
+    "compositing",
+    "conditional",
+    "channel",
+    "organization",
+    "global",
+    "application",
+    "material",
+    "shader",
+    "pbr",
+    "light",
+    "colortransform",
+    "none"
+};
+
 // Based on ImRect_Expanded function in ImGui Node Editor blueprints-example.cpp
 ImRect expandImRect(const ImRect& rect, float x, float y)
 {
@@ -1220,41 +1246,15 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 {
     _nodesToAdd.clear();
 
-    std::vector<std::string> ordered_groups = {
-        "texture2d",
-        "texture3d",
-        "procedural",
-        "procedural2d",
-        "procedural3d",
-        "geometric",
-        "translation",
-        "convolution2d",
-        "math",
-        "adjustment",
-        "compositing",
-        "conditional",
-        "channel",
-        "organization",
-        "global",
-        "application",
-        "material",
-        "shader",
-        "pbr",
-        "light",
-        "colortransform",
-        "no_group"
-    };
-
     auto nodeDefs = doc->getNodeDefs();
     std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> groupToNodeDef;
 
     for (const auto& nodeDef : nodeDefs)
     {
         std::string group = nodeDef->getNodeGroup();
-
         if (group.empty())
         {
-            group = "no_group";
+            group = NODE_GROUP_ORDER.back();
         }
 
         if (groupToNodeDef.find(group) == groupToNodeDef.end())
@@ -1264,7 +1264,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         groupToNodeDef[group].push_back(nodeDef);
     }
 
-    for (const auto& group : ordered_groups)
+    for (const auto& group : NODE_GROUP_ORDER)
     {
         auto it = groupToNodeDef.find(group);
         if (it != groupToNodeDef.end())
@@ -2526,7 +2526,7 @@ void Graph::setDefaults(mx::InputPtr input)
 
 void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
 {
-    // prefer to assume left to right - start is an output, end is an input; swap if inaccurate
+    // Prefer to assume left to right - start is an output, end is an input; swap if inaccurate
     if (UiPinPtr inputPin = getPin(endPinId); inputPin && inputPin->_kind != ed::PinKind::Input)
     {
         auto tmp = startPinId;
@@ -2575,7 +2575,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         return;
     }
 
-    // make sure there is an implementation for node
+    // Make sure there is an implementation for node
     const mx::ShaderGenerator& shadergen = _renderer->getGenContext().getShaderGenerator();
 
     // Prevent direct connecting from input to output
@@ -2613,7 +2613,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
             {
                 if (linksItr->_endAttr == end_attr)
                 {
-                    // found existing link - remove it; adapted from deleteLink
+                    // Found existing link - remove it; adapted from deleteLink
                     // note: ed::BreakLinks doesn't work as the order ends up inaccurate
                     deleteLinkInfo(linksItr->_startAttr, linksItr->_endAttr);
                     _currLinks.erase(linksItr);
@@ -2644,7 +2644,8 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                 if (pin->_pinId == inputPinId)
                 {
                     addNodeInput(uiDownNode, pin->_input);
-                    // update value to be empty
+
+                    // Update value to be empty
                     if (uiDownNode->getNode() && uiDownNode->getNode()->getType() == mx::SURFACE_SHADER_TYPE_STRING)
                     {
                         if (uiUpNode->getOutput() != nullptr)
@@ -2657,12 +2658,11 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                         else
                         {
-                            // node graph
                             if (uiUpNode->getNodeGraph() != nullptr)
                             {
                                 for (UiPinPtr outPin : uiUpNode->outputPins)
                                 {
-                                    // set pin connection to correct output
+                                    // Set pin connection to correct output
                                     if (outPin->_pinId == outputPinId)
                                     {
                                         mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
@@ -2689,10 +2689,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                                 mx::NodePtr upstreamNode = _graphNodes[upNode]->getNode();
                                 mx::NodeDefPtr upstreamNodeDef = upstreamNode->getNodeDef();
                                 bool isMultiOutput = upstreamNodeDef ? upstreamNodeDef->getOutputs().size() > 1 : false;
-
-                                // This is purely to avoid adding a reference to an update node only 1 output,
-                                // as currently validation consides adding this an error. Otherwise
-                                // it will add an "output" attribute all the time.
                                 if (!isMultiOutput)
                                 {
                                     pin->_input->setConnectedNode(uiUpNode->getNode());
@@ -2701,7 +2697,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                                 {
                                     for (UiPinPtr outPin : _graphNodes[upNode]->outputPins)
                                     {
-                                        // set pin connection to correct output
+                                        // Set pin connection to correct output
                                         if (outPin->_pinId == outputPinId)
                                         {
                                             mx::OutputPtr outputs = uiUpNode->getNode()->getOutput(outPin->_name);
@@ -2718,7 +2714,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                             {
                                 for (UiPinPtr outPin : uiUpNode->outputPins)
                                 {
-                                    // set pin connection to correct output
+                                    // Set pin connection to correct output
                                     if (outPin->_pinId == outputPinId)
                                     {
                                         mx::OutputPtr outputs = uiUpNode->getNodeGraph()->getOutput(outPin->_name);
@@ -2729,14 +2725,14 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                     }
 
-                    
                     pin->setConnected(true);
                     pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     connectingInput = pin->_input;
                     break;
                 }
             }
-            // create new edge and set edge information
+
+            // Create new edge and set edge information
             createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
         }
         else if (_graphNodes[downNode]->getOutput() != nullptr)
@@ -2744,19 +2740,19 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
             mx::InputPtr connectingInput = nullptr;
             _graphNodes[downNode]->getOutput()->setConnectedNode(_graphNodes[upNode]->getNode());
 
-            // create new edge and set edge information
+            // Create new edge and set edge information
             createEdge(_graphNodes[upNode], _graphNodes[downNode], connectingInput);
         }
         else
         {
-            // create new edge and set edge info
+            // Create new edge and set edge info
             UiEdge newEdge = UiEdge(_graphNodes[upNode], _graphNodes[downNode], nullptr);
             if (!edgeExists(newEdge))
             {
                 _graphNodes[downNode]->edges.push_back(newEdge);
                 _currEdge.push_back(newEdge);
 
-                // update input node num and output connections
+                // Update input node num and output connections
                 _graphNodes[downNode]->setInputNodeNum(1);
                 _graphNodes[upNode]->setOutputConnection(_graphNodes[downNode]);
             }
@@ -3779,23 +3775,18 @@ void Graph::addPinPopup()
     {
         ed::Suspend();
         UiPinPtr pin = getPin(ed::GetHoveredPin());
-        std::string connected = "";
-        std::string value = "";
+        std::string connected;
+        std::string value;
         if (pin->_connected)
         {
-            connected = "\nConnected to";
-            int size = static_cast<int>(pin->getConnections().size());
-            for (int i = 0; i < size; i++)
+            mx::StringVec connectedNames;
+            for (UiPinPtr connectedPin : pin->getConnections())
             {
-                UiPinPtr connectedPin = pin->getConnections()[i];
-                connected = connected + " " + connectedPin->_name;
-                if (i != size - 1)
-                {
-                    connected = connected + ",";
-                }
+                connectedNames.push_back(connectedPin->_name);
             }
+            connected = "\nConnected to " + mx::joinStrings(connectedNames, ", ");
         }
-        else if (pin->_input != nullptr)
+        else if (pin->_input)
         {
             value = "\nValue: " + pin->_input->getValueString();
         }
