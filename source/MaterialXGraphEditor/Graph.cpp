@@ -2257,6 +2257,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                             }
 
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                         pin->setConnected(true);
                     }
@@ -2322,6 +2323,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                 }
                             }
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                         pin->setConnected(true);
                     }
@@ -2392,6 +2394,7 @@ std::vector<int> Graph::createNodes(bool nodegraph)
                                 }
                             }
                             upUiNode->outputPins[pinIndex]->addConnection(pin);
+                            pin->addConnection(upUiNode->outputPins[pinIndex]);
                         }
                     }
 
@@ -2628,6 +2631,11 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         _frameCount = ImGui::GetFrameCount();
         _renderer->setMaterialCompilation(true);
 
+        inputPin->addConnection(outputPin);
+        outputPin->addConnection(inputPin);
+        outputPin->setConnected(true);
+        inputPin->setConnected(true);
+
         if (uiDownNode->getNode() || uiDownNode->getNodeGraph())
         {
             mx::InputPtr connectingInput = nullptr;
@@ -2721,6 +2729,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                     }
 
+                    
                     pin->setConnected(true);
                     pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     connectingInput = pin->_input;
@@ -2806,9 +2815,13 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
 
+                for (UiPinPtr connect : pin->_connections)
+                {
+                    pin->deleteConnection(connect);
+                }
+
                 // Remove any output reference
                 pin->_input->removeAttribute(mx::PortElement::OUTPUT_ATTRIBUTE);
-
                 pin->setConnected(false);
 
                 // If a value exists update the input with it
@@ -2833,6 +2846,10 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                     _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
+                for (UiPinPtr connect : pin->_connections)
+                {
+                    pin->deleteConnection(connect);
+                }
                 pin->_input->setConnectedNode(nullptr);
                 pin->setConnected(false);
                 setDefaults(pin->_input);
@@ -2847,6 +2864,10 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
             {
                 removeEdge(downNode, upNode, pin);
                 _graphNodes[downNode]->getOutput()->removeAttribute("nodename");
+                for (UiPinPtr connect : pin->_connections)
+                {
+                    pin->deleteConnection(connect);
+                }
                 pin->setConnected(false);
             }
         }
@@ -3744,6 +3765,46 @@ void Graph::searchNodePopup(bool cursor)
     }
 }
 
+bool Graph::isPinHovered()
+{
+    ed::PinId currentPin = ed::GetHoveredPin();
+    ed::PinId nullPin = 0;
+    return currentPin != nullPin;
+}
+
+void Graph::addPinPopup()
+{
+    // Add a floating popup to pin when hovered
+    if (isPinHovered())
+    {
+        ed::Suspend();
+        UiPinPtr pin = getPin(ed::GetHoveredPin());
+        std::string connected = "";
+        std::string value = "";
+        if (pin->_connected)
+        {
+            connected = "\nConnected to";
+            int size = static_cast<int>(pin->getConnections().size());
+            for (int i = 0; i < size; i++)
+            {
+                UiPinPtr connectedPin = pin->getConnections()[i];
+                connected = connected + " " + connectedPin->_name;
+                if (i != size - 1)
+                {
+                    connected = connected + ",";
+                }
+            }
+        }
+        else if (pin->_input != nullptr)
+        {
+            value = "\nValue: " + pin->_input->getValueString();
+        }
+        const std::string message("Name: " + pin->_name + "\nType: " + pin->_type + value + connected);
+        ImGui::SetTooltip("%s", message.c_str());
+        ed::Resume();
+    }
+}
+
 void Graph::readOnlyPopup()
 {
     if (_popup)
@@ -3860,6 +3921,7 @@ void Graph::drawGraph(ImVec2 mousePos)
         ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
         addNodePopup(TextCursor);
         searchNodePopup(TextCursor);
+        addPinPopup();
         readOnlyPopup();
         ImGui::PopStyleVar();
 
