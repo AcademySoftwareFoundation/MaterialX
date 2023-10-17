@@ -186,6 +186,11 @@ if (MATERIALX_BUILD_GEN_MDL)
     add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
 endif()
 
+# Enable additional benchmark tests
+if (MATERIALX_DYNAMIC_ANALYSIS)
+    add_definitions(-DMATERIALX_DYNAMIC_ANALYSIS)
+endif()
+
 # Adjust the default installation path
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/installed" CACHE PATH "Default install path" FORCE)
