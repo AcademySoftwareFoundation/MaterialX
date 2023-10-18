@@ -10,6 +10,7 @@ import logging
 from typing import List, Dict
 
 import MaterialX as mx
+import udimutils
 
 # Configure the logger
 logging.basicConfig(
@@ -53,32 +54,27 @@ def texture_type_from_name(texture_name: str) -> List[str]:
                 return [plug_name, texture_patterns[plug_name]['type']]
 
 
-def get_udim(texture_name: str) -> str:
-    """
-    Check and get the UDIM number like 1001, 1002 in case of UDIM
-    @param texture_name: The texture filename
-    return UDIM number if UDIM pattern detected and None if not UDIM
-    """
-    pattern = re.search(r"[.-_]\d+\.", texture_name)
-    if pattern:
-        return re.search(r"\d+", pattern.group()).group()
-
-
-def list_textures(directory: str) -> List[str]:
+def list_textures(texture_dir: mx.FilePath) -> List[udimutils.UDIMFile]:
     """
     List all textures that matched extensions in cfg file
-    @param directory: the directory where the textures exist
+    @param texture_dir: the directory where the textures exist
     return List(texture_names)
     """
-    img_extensions = get_cfg().get('texture_extensions')
-    return [
-        x for x in os.listdir(directory) if
-        (os.path.isfile(os.path.join(directory, x)))
-        and (x.split('.')[-1].lower() in img_extensions)
-    ]
+    tex_extensions = get_cfg().get('texture_extensions')
+    all_textures = []
+    for ext in tex_extensions:
+        textures = [texture_dir / f for f in texture_dir.getFilesInDirectory(ext)]
+
+        while textures:
+            texture_file = udimutils.UDIMFile(textures[0].asString())
+            all_textures.append(texture_file)
+            for udim_file in texture_file.getUdimFiles():
+                textures.remove(udim_file)
+
+    return all_textures
 
 
-def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = True,
+def create_mtlx_doc(texture_dir: mx.FilePath, mtlx_file: mx.FilePath, relative_paths: bool = True,
                     colorspace: str = 'srgb_texture', use_tileimage: bool =False) -> None:
     """
     Create a metrical document with uber shader
@@ -92,7 +88,7 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
     # Create document
     doc = mx.createDocument()
 
-    mtlx_filename = os.path.basename(mtlx_file).rsplit('.', 1)[0]
+    mtlx_filename = mtlx_file.getBaseName()
     mtlx_filename = doc.createValidChildName(mtlx_filename)
 
     # Create node graph and material
@@ -105,39 +101,35 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
     doc.addMaterialNode('M_' + mtlx_filename, shader_node)
 
     udim_numbers = set()
-    texture_names = list_textures(texture_dir)
+    texture_files = list_textures(texture_dir)
 
-    if not texture_names:
+    if not texture_files:
         logger.warning(
             "The directory does not contain any matched texture with given cfg file.. Skipping")
         return
 
-    for tex_file_name in texture_names:
-        tex_path = os.path.join(texture_dir, tex_file_name)
-        tex_name = tex_file_name.rsplit('.', 1)[0]
+    for texture_file in texture_files:
 
         # set relative path
-        if relative_paths:
-            tex_path = os.path.relpath(tex_path, os.path.dirname(mtlx_file))
+        # if relative_paths:
+        #     tex_path = os.path.relpath(tex_file_name, os.path.dirname(mtlx_file))
 
-        # Check UDIM
-        udim_num = get_udim(tex_file_name)
-        if udim_num:
-            logger.debug("Texture UDIM: {} {}".format(udim_num, tex_file_name))
-            tex_path = re.sub(udim_num, "<UDIM>", tex_path)
-            udim_numbers.add(udim_num)
-            tex_name = tex_name.rsplit('.', 1)[0].replace('.', '_')
 
-        mtl_plug = texture_type_from_name(tex_name)
+        if texture_file.isUDIM():
+            logger.debug("Texture UDIM: `{}`".format(texture_file.getBaseName()))
+
+
+        mtl_plug = texture_type_from_name(texture_file.getBaseName())
         if not mtl_plug:
-            logger.debug("Skipping `{}` not matched pattern detected".format(tex_file_name))
+            logger.debug("Skipping `{}` not matched pattern detected".format(texture_file.getBaseName()))
             continue
 
         # Create texture
         plug_name, plug_type = mtl_plug
 
         # Skip if the plug already created (in case of udim)
-        if shader_node.getInput(plug_name) or node_graph.getChild(tex_name):
+        texture_name = texture_file.getNameWithoutExtension()
+        if shader_node.getInput(plug_name) or node_graph.getChild(texture_name):
             continue
 
         if plug_name == 'displacement':
@@ -146,13 +138,13 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
 
         plug_name = shader_node.createValidChildName(plug_name)
         mtl_input = shader_node.addInput(plug_name)
-        tex_name = node_graph.createValidChildName(tex_name)
+        texture_name = node_graph.createValidChildName(texture_name)
 
         image_type = 'tileimage' if use_tileimage else 'image'
-        image_node = node_graph.addNode(image_type, tex_name, plug_type)
+        image_node = node_graph.addNode(image_type, texture_name, plug_type)
 
         # set file path
-        image_node.setInputValue('file', tex_path, 'filename')
+        image_node.setInputValue('file', texture_file.asString(), 'filename')
 
         # set colorspace
         if 'color' in plug_type:
@@ -160,14 +152,17 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
 
         conn_node = image_node
         if plug_name == 'normal':
-            normal_map = node_graph.addNode('normalmap', tex_name + '_normal', plug_type)
+            normal_map = node_graph.addNode('normalmap', texture_name + '_normal', plug_type)
             normal_map.setConnectedNode('in', image_node)
             conn_node = normal_map
 
-        output_node = node_graph.addOutput(tex_name + '_output', plug_type)
+        output_node = node_graph.addOutput(texture_name + '_output', plug_type)
         output_node.setConnectedNode(conn_node)
         mtl_input.setConnectedOutput(output_node)
         mtl_input.setType(plug_type)
+
+        if texture_file.isUDIM():
+            udim_numbers.update(set(texture_file.getUdimNumbers()))
 
     # Create udim set
     if udim_numbers:
@@ -176,11 +171,11 @@ def create_mtlx_doc(texture_dir: str, mtlx_file: str, relative_paths: bool = Tru
         geom_info.setGeomPropValue('udimset', list(udim_numbers), "stringarray")
 
     # Write mtlx file
-    if not os.path.isdir(os.path.dirname(mtlx_file)):
-        os.makedirs(os.path.dirname(mtlx_file))
+    if not mtlx_file.getParentPath().exists():
+        mtlx_file.getParentPath().createDirectory()
 
-    mx.writeToXmlFile(doc, mtlx_file)
-    logger.info("MaterialX file created `{}`".format(mtlx_file))
+    mx.writeToXmlFile(doc, mtlx_file.asString())
+    logger.info("MaterialX file created `{}`".format(mtlx_file.asString()))
 
 
 def main():
@@ -197,20 +192,26 @@ def main():
 
     options = parser.parse_args()
 
-    texture_dir = os.getcwd()
+    texture_path = mx.FilePath.getCurrentPath()
+
     if options.inputDirectory:
-        texture_dir = options.inputDirectory
-        if not os.path.isdir(texture_dir):
-            logger.error("The texture directory does not exist `{}`".format(texture_dir))
+        texture_path = mx.FilePath(options.inputDirectory)
+
+        if not texture_path.isDirectory():
+            logger.error("The texture directory does not exist `{}`".format(texture_path))
             return
 
-    mtlx_file = os.path.join(texture_dir, 'standard_surface.mtlx')
+    default_doc_name = mx.FilePath('standard_surface.mtlx')
+    mtlx_file = texture_path / default_doc_name
     if options.outputFilename:
-        filename = options.outputFilename
-        if not os.path.abspath(filename):
-            mtlx_file = filename
+        filepath = mx.FilePath(options.outputFilename)
+
+        if filepath.isAbsolute():
+            mtlx_file = filepath
         else:
-            mtlx_file = os.path.join(texture_dir, filename)
+            mtlx_file = texture_path / filepath
+
+    # texture_search_path = mx.FileSearchPath(texture_path.asString())
 
     # Colorspace
     colorspace = 'srgb_texture'
@@ -221,7 +222,7 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     create_mtlx_doc(
-        texture_dir,
+        texture_path,
         mtlx_file,
         relative_paths=not options.absolutePaths,
         colorspace=colorspace,
