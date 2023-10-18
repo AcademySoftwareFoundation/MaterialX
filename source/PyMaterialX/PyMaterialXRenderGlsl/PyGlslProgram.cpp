@@ -38,7 +38,15 @@ void bindPyGlslProgram(py::module& mod)
         .def("bindViewInformation", &mx::GlslProgram::bindViewInformation)
         .def("bindTimeAndFrame", &mx::GlslProgram::bindTimeAndFrame,
             py::arg("time") = 1.0f, py::arg("frame") = 1.0f)
-        .def("unbind", &mx::GlslProgram::unbind);
+        .def("unbind", &mx::GlslProgram::unbind)
+        .doc() = R"docstring(
+    Class representing an executable GLSL program.
+
+    There are two main interfaces which can be used: one which takes in a
+    `HwShader`, and one which allows for explicit setting of shader stage code.
+
+    :see: https://materialx.org/docs/api/class_glsl_program.html
+)docstring";
 
     py::class_<mx::GlslProgram::Input>(mod, "Input")
         .def_readwrite_static("INVALID_OPENGL_TYPE", &mx::GlslProgram::Input::INVALID_OPENGL_TYPE)
@@ -49,5 +57,14 @@ void bindPyGlslProgram(py::module& mod)
         .def_readwrite("value", &mx::GlslProgram::Input::value)
         .def_readwrite("isConstant", &mx::GlslProgram::Input::isConstant)
         .def_readwrite("path", &mx::GlslProgram::Input::path)
-        .def(py::init<int, int, int, std::string>());
+        .def(py::init<int, int, int, std::string>())
+        .doc() = R"docstring(
+    Class representing a structure to hold information about program inputs.
+
+    The structure is populated by directly scanning the program so may not contain
+    some inputs listed on any associated `HwShader` as those inputs may have been
+    optimized out if they are unused.
+
+    :see: https://materialx.org/docs/api/struct_glsl_program_1_1_input.html
+)docstring";
 }

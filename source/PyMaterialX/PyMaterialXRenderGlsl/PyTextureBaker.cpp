@@ -43,5 +43,10 @@ void bindPyTextureBaker(py::module& mod)
         .def("setupUnitSystem", &mx::TextureBakerGlsl::setupUnitSystem)
         .def("bakeMaterialToDoc", &mx::TextureBakerGlsl::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBakerGlsl::bakeAllMaterials)
-        .def("writeDocumentPerMaterial", &mx::TextureBakerGlsl::writeDocumentPerMaterial);
+        .def("writeDocumentPerMaterial", &mx::TextureBakerGlsl::writeDocumentPerMaterial)
+        .doc() = R"docstring(
+    Class implementing a texture baker based on GLSL shader generation.
+
+    :see: https://materialx.org/docs/api/class_texture_baker_glsl.html
+)docstring";
 }
