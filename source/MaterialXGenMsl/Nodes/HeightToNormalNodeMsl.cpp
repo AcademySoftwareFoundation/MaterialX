@@ -33,6 +33,11 @@ ShaderNodeImplPtr HeightToNormalNodeMsl::create()
     return std::make_shared<HeightToNormalNodeMsl>();
 }
 
+// override removes undesirable parent ConvolutionNode shader code
+void HeightToNormalNodeMsl::createVariables(const ShaderNode&, GenContext&, Shader&) const
+{
+}
+
 void HeightToNormalNodeMsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                                        unsigned int, StringVec& offsetStrings) const
 {
