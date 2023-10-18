@@ -20,7 +20,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 using MslShaderGeneratorPtr = shared_ptr<class MslShaderGenerator>;
 
-/// Base class for MSL (OpenGL Shading Language) code generation.
+/// Base class for MSL (Metal Shading Language) code generation.
 /// A generator for a specific MSL target should be derived from this class.
 class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
 {

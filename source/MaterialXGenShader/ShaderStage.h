@@ -52,7 +52,7 @@ class VariableBlock;
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
 /// Shared pointer to a map between string identifiers and VariableBlocks
 using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
-/// A standard function predicate taking an ShaderPort pointer and returning a boolean.
+/// A standard function predicate taking a ShaderPort pointer and returning a boolean.
 using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 
 /// @class VariableBlock

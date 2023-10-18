@@ -6,18 +6,18 @@
 #ifndef MATERIALX_CGLTFLOADER_H
 #define MATERIALX_CGLTFLOADER_H
 
-/// @file 
-/// GLTF format loader using the Cgltf library
+/// @file
+/// glTF format loader using the cgltf library
 
 #include <MaterialXRender/GeometryHandler.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Shared pointer to a GLTFLoader
+/// Shared pointer to a CgltfLoader
 using CgltfLoaderPtr = std::shared_ptr<class CgltfLoader>;
 
 /// @class CgltfLoader
-/// Wrapper for loader to read in GLTF files using the Cgltf library.
+/// Wrapper for loader to read in glTF files using the Cgltf library.
 class MX_RENDER_API CgltfLoader : public GeometryLoader
 {
   public:

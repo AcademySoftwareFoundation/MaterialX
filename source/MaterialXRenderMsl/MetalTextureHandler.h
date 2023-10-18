@@ -24,7 +24,7 @@ MATERIALX_NAMESPACE_BEGIN
 using MetalTextureHandlerPtr = std::shared_ptr<class MetalTextureHandler>;
 
 /// @class MetalTextureHandler
-/// An Metal texture handler class
+/// A Metal texture handler class
 class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
 {
     friend class MslProgram;

@@ -23,7 +23,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class ShaderGenerator
-/// Base class for shader generators
+/// Base class for shader generators.
 /// All third-party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
 /// in their declaration / definition, and register with the Registry class.

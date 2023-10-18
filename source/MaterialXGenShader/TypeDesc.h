@@ -23,7 +23,7 @@ using ChannelMap = std::unordered_map<char, int>;
 /// about the type. All standard library data types are registered by default and their
 /// type descriptors can be accessed from the Type namespace, e.g. MaterialX::Type::FLOAT.
 /// If custom types are used they must be registered by calling TypeDesc::registerType().
-/// Descriptors for registered types can be retreived using TypeDesc::get(), see below.
+/// Descriptors for registered types can be retrieved using TypeDesc::get(), see below.
 class MX_GENSHADER_API TypeDesc
 {
   public:
