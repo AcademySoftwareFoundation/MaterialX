@@ -25,6 +25,9 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
 {
     mod.doc() = "Core rendering functionality for MaterialX";
 
+    // PyMaterialXRender depends on types defined in PyMaterialXCore
+    pybind11::module::import("PyMaterialXCore");
+
     bindPyMesh(mod);
     bindPyGeometryHandler(mod);
     bindPyLightHandler(mod);

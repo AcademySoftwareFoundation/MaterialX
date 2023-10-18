@@ -16,6 +16,9 @@ PYBIND11_MODULE(PyMaterialXRenderGlsl, mod)
 {
     mod.doc() = "Rendering materials using OpenGL Shading Language";
 
+    // PyMaterialXRenderGlsl depends on types defined in PyMaterialXRender
+    pybind11::module::import("PyMaterialXRender");
+
     bindPyGlslProgram(mod);
     bindPyGlslRenderer(mod);
     bindPyGLTextureHandler(mod);

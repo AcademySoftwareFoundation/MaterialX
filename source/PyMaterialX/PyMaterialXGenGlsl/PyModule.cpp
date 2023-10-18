@@ -16,6 +16,9 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
     mod.doc() = "Shader generation using OpenGL Shading Language";
 
+    // PyMaterialXGenGlsl depends on types defined in PyMaterialXGenShader
+    pybind11::module::import("PyMaterialXGenShader");
+
     bindPyGlslShaderGenerator(mod);
     bindPyGlslResourceBindingContext(mod);
 

@@ -15,6 +15,9 @@ PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
     mod.doc() = "Cross-platform support for working with files, paths, and environment variables";
 
+    // PyMaterialXFormat depends on types defined in PyMaterialXCore
+    pybind11::module::import("PyMaterialXCore");
+
     bindPyFile(mod);
     bindPyXmlIo(mod);
     bindPyUtil(mod);

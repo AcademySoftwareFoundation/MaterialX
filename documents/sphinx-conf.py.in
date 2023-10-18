@@ -19,36 +19,6 @@ import sys
 sys.path.insert(0, os.path.abspath('${MATERIALX_PYTHONPATH}'))
 
 
-# -- Module Import Order Dependencies ----------------------------------------
-
-# Make sure to import the core module before modules like `PyMaterialXFormat`
-# and `PyMaterialXRender`, as otherwise, their import fails with an
-# `ImportError` exception:
-# ```
-# ImportError: arg(): could not convert default argument into a Python object
-# (type not registered yet?).
-# ```
-import PyMaterialXCore
-
-# Make sure to import `PyMaterialXRender` before modules like
-# `PyMaterialXRenderMsl`, as otherwise, their import fails with an
-# `ImportError` exception, for example:
-# ```
-# ImportError: generic_type: type "MslRenderer" referenced unknown base type
-# "MaterialX_v1_38_9::ShaderRenderer"
-# ```
-import PyMaterialXRender
-
-# Make sure to import `PyMaterialXGenShader` before modules like
-# `PyMaterialXGenGlsl`, as otherwise, their import fails with an `ImportError`
-# exception, for example:
-# ```
-# ImportError: generic_type: type "GlslShaderGenerator" referenced unknown base
-# type "MaterialX_v1_38_9::HwShaderGenerator"
-# ```
-import PyMaterialXGenShader
-
-
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
