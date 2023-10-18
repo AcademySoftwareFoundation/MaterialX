@@ -18,7 +18,19 @@ void bindPyTraversal(py::module& mod)
         .def("getDownstreamElement", &mx::Edge::getDownstreamElement)
         .def("getConnectingElement", &mx::Edge::getConnectingElement)
         .def("getUpstreamElement", &mx::Edge::getUpstreamElement)
-        .def("getName", &mx::Edge::getName);
+        .def("getName", &mx::Edge::getName)
+        .doc() = R"docstring(
+    Class representing an edge between two connected `Element` objects,
+    returned during graph traversal.
+
+    A valid `Edge` consists of a downstream element, an upstream element, and
+    optionally a connecting element that binds them.  As an example, the edge
+    between two `Node` elements will contain a connecting element for the `Input`
+    of the downstream `Node`.
+
+    :see: `Element.traverseGraph()`
+    :see: https://materialx.org/docs/api/class_edge.html
+)docstring";
 
     py::class_<mx::TreeIterator>(mod, "TreeIterator")
         .def("getElement", &mx::TreeIterator::getElement)
@@ -34,7 +46,13 @@ void bindPyTraversal(py::module& mod)
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            })
+        .doc() = R"docstring(
+    Class implementing an iterator representing the state of a tree traversal.
+
+    :see: `Element.traverseTree()`
+    :see: https://materialx.org/docs/api/class_tree_iterator.html
+)docstring";
 
     py::class_<mx::GraphIterator>(mod, "GraphIterator")
         .def("getDownstreamElement", &mx::GraphIterator::getDownstreamElement)
@@ -54,7 +72,13 @@ void bindPyTraversal(py::module& mod)
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            })
+        .doc() = R"docstring(
+    Class implementing an iterator representing the state of an upstream graph traversal.
+
+    :see: `Element.traverseGraph()`
+    :see: https://materialx.org/docs/api/class_graph_iterator.html
+)docstring";
 
     py::class_<mx::InheritanceIterator>(mod, "InheritanceIterator")
         .def("__iter__", [](mx::InheritanceIterator& it) -> mx::InheritanceIterator&
@@ -66,7 +90,16 @@ void bindPyTraversal(py::module& mod)
                 if (++it == it.end())
                     throw py::stop_iteration();
                 return *it;
-            });
+            })
+        .doc() = R"docstring(
+    Class implementing an iterator representing the current state of an inheritance traversal.
 
-    py::register_exception<mx::ExceptionFoundCycle>(mod, "ExceptionFoundCycle");
+    :see: `Element.traverseInheritance()`
+    :see: https://materialx.org/docs/api/class_inheritance_iterator.html
+)docstring";
+
+    py::register_exception<mx::ExceptionFoundCycle>(mod, "ExceptionFoundCycle")
+        .doc() = R"docstring(
+    A type of exception that is raised when a traversal call encounters a cycle.
+)docstring";
 }

@@ -12,7 +12,11 @@ namespace mx = MaterialX;
 
 void bindPyNode(py::module& mod)
 {
-    py::class_<mx::NodePredicate>(mod, "NodePredicate");
+    py::class_<mx::NodePredicate>(mod, "NodePredicate")
+        .doc() = R"docstring(
+    Class representing a function that takes a `Node` and returns a `bool`,
+    to check whether some criteria has passed.
+)docstring";
 
     py::class_<mx::Node, mx::NodePtr, mx::InterfaceElement>(mod, "Node")
         .def("setConnectedNode", &mx::Node::setConnectedNode)
@@ -26,7 +30,15 @@ void bindPyNode(py::module& mod)
         .def("getDownstreamPorts", &mx::Node::getDownstreamPorts)
         .def("addInputFromNodeDef", &mx::Node::addInputFromNodeDef)
         .def("addInputsFromNodeDef", &mx::Node::addInputsFromNodeDef)
-        .def_readonly_static("CATEGORY", &mx::Node::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Node::CATEGORY)
+        .doc() = R"docstring(
+    A node element within a `NodeGraph` or `Document`.
+
+    A `Node` represents an instance of a `NodeDef` within a graph, and its `Input`
+    elements apply specific values and connections to that instance.
+
+    :see: https://materialx.org/docs/api/class_node.html
+)docstring";
 
     py::class_<mx::GraphElement, mx::GraphElementPtr, mx::InterfaceElement>(mod, "GraphElement")
         .def("addNode", &mx::GraphElement::addNode,
@@ -49,7 +61,12 @@ void bindPyNode(py::module& mod)
             py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)
         .def("addGeomNode", &mx::GraphElement::addGeomNode)
-        .def("asStringDot", &mx::GraphElement::asStringDot);
+        .def("asStringDot", &mx::GraphElement::asStringDot)
+        .doc() = R"docstring(
+    Base class for graph elements such as `NodeGraph` and `Document`.
+
+    :see: https://materialx.org/docs/api/class_graph_element.html
+)docstring";
 
     py::class_<mx::NodeGraph, mx::NodeGraphPtr, mx::GraphElement>(mod, "NodeGraph")
         .def("getMaterialOutputs", &mx::NodeGraph::getMaterialOutputs)        
@@ -60,7 +77,12 @@ void bindPyNode(py::module& mod)
         .def("removeInterfaceName", &mx::NodeGraph::removeInterfaceName)
         .def("modifyInterfaceName", &mx::NodeGraph::modifyInterfaceName)
         .def("getDownstreamPorts", &mx::NodeGraph::getDownstreamPorts)
-        .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::NodeGraph::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a node graph element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_node_graph.html
+)docstring";
 
     py::class_<mx::Backdrop, mx::BackdropPtr, mx::Element>(mod, "Backdrop")
         .def("setContainsString", &mx::Backdrop::setContainsString)
@@ -77,5 +99,11 @@ void bindPyNode(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Backdrop::CATEGORY)
         .def_readonly_static("CONTAINS_ATTRIBUTE", &mx::Backdrop::CONTAINS_ATTRIBUTE)
         .def_readonly_static("WIDTH_ATTRIBUTE", &mx::Backdrop::WIDTH_ATTRIBUTE)
-        .def_readonly_static("HEIGHT_ATTRIBUTE", &mx::Backdrop::HEIGHT_ATTRIBUTE);
+        .def_readonly_static("HEIGHT_ATTRIBUTE", &mx::Backdrop::HEIGHT_ATTRIBUTE)
+        .doc() = R"docstring(
+    Class representing a layout element used to contain, group, and document
+    nodes within a graph.
+
+    :see: https://materialx.org/docs/api/class_backdrop.html
+)docstring";
 }

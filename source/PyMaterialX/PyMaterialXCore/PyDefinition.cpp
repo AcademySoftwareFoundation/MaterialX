@@ -32,7 +32,15 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("GEOMETRIC_NODE_GROUP", &mx::NodeDef::GEOMETRIC_NODE_GROUP)
         .def_readonly_static("ADJUSTMENT_NODE_GROUP", &mx::NodeDef::ADJUSTMENT_NODE_GROUP)
         .def_readonly_static("CONDITIONAL_NODE_GROUP", &mx::NodeDef::CONDITIONAL_NODE_GROUP)
-        .def_readonly_static("ORGANIZATION_NODE_GROUP", &mx::NodeDef::ORGANIZATION_NODE_GROUP);
+        .def_readonly_static("ORGANIZATION_NODE_GROUP", &mx::NodeDef::ORGANIZATION_NODE_GROUP)
+        .doc() = R"docstring(
+    Class representing a node definition element within a `Document`.
+
+    A `NodeDef` provides the declaration of a node interface, which may then
+    be instantiated as a `Node`.
+
+    :see: https://materialx.org/docs/api/class_node_def.html
+)docstring";
 
     py::class_<mx::Implementation, mx::ImplementationPtr, mx::InterfaceElement>(mod, "Implementation")
         .def("setFile", &mx::Implementation::setFile)
@@ -48,7 +56,16 @@ void bindPyDefinition(py::module& mod)
         .def("getNodeGraph", &mx::Implementation::getNodeGraph)
         .def_readonly_static("CATEGORY", &mx::Implementation::CATEGORY)
         .def_readonly_static("FILE_ATTRIBUTE", &mx::Implementation::FILE_ATTRIBUTE)
-        .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE);
+        .def_readonly_static("FUNCTION_ATTRIBUTE", &mx::Implementation::FUNCTION_ATTRIBUTE)
+        .doc() = R"docstring(
+    Class representing an implementation element within a `Document`.
+
+    An `Implementation` is used to associate external source code with a specific
+    `NodeDef`, providing a definition for the node that may either be universal or
+    restricted to a specific target.
+
+    :see: https://materialx.org/docs/api/class_implementation.html
+)docstring";
 
     py::class_<mx::TypeDef, mx::TypeDefPtr, mx::Element>(mod, "TypeDef")
         .def("setSemantic", &mx::TypeDef::setSemantic)
@@ -64,13 +81,28 @@ void bindPyDefinition(py::module& mod)
         .def("removeMember", &mx::TypeDef::removeMember)
         .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY)
         .def_readonly_static("SEMANTIC_ATTRIBUTE", &mx::TypeDef::SEMANTIC_ATTRIBUTE)
-        .def_readonly_static("CONTEXT_ATTRIBUTE", &mx::TypeDef::CONTEXT_ATTRIBUTE);
+        .def_readonly_static("CONTEXT_ATTRIBUTE", &mx::TypeDef::CONTEXT_ATTRIBUTE)
+        .doc() = R"docstring(
+    Class representing a type definition element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_type_def.html
+)docstring";
 
     py::class_<mx::Member, mx::MemberPtr, mx::TypedElement>(mod, "Member")
-        .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::TypeDef::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a member element within a `TypeDef`.
+
+    :see: https://materialx.org/docs/api/class_member.html
+)docstring";
 
     py::class_<mx::Unit, mx::UnitPtr, mx::Element>(mod, "Unit")
-        .def_readonly_static("CATEGORY", &mx::Unit::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Unit::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a unit declaration element within a `UnitDef`.
+
+    :see: https://materialx.org/docs/api/class_unit.html
+)docstring";
 
     py::class_<mx::UnitDef, mx::UnitDefPtr, mx::Element>(mod, "UnitDef")
         .def("setUnitType", &mx::UnitDef::hasUnitType)
@@ -80,11 +112,21 @@ void bindPyDefinition(py::module& mod)
         .def("getUnit", &mx::UnitDef::getUnit)
         .def("getUnits", &mx::UnitDef::getUnits)
         .def_readonly_static("CATEGORY", &mx::UnitDef::CATEGORY)
-        .def_readonly_static("UNITTYPE_ATTRIBUTE", &mx::UnitDef::UNITTYPE_ATTRIBUTE);
+        .def_readonly_static("UNITTYPE_ATTRIBUTE", &mx::UnitDef::UNITTYPE_ATTRIBUTE)
+        .doc() = R"docstring(
+    Class representing a unit definition element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_unit_def.html
+)docstring";
 
     py::class_<mx::UnitTypeDef, mx::UnitTypeDefPtr, mx::Element>(mod, "UnitTypeDef")
         .def("getUnitDefs", &mx::UnitTypeDef::getUnitDefs)
-        .def_readonly_static("CATEGORY", &mx::UnitTypeDef::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::UnitTypeDef::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a unit type definition element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_unit_type_def.html
+)docstring";
 
     py::class_<mx::AttributeDef, mx::AttributeDefPtr, mx::TypedElement>(mod, "AttributeDef")
         .def("setAttrName", &mx::AttributeDef::setAttrName)
@@ -92,12 +134,22 @@ void bindPyDefinition(py::module& mod)
         .def("getAttrName", &mx::AttributeDef::getAttrName)
         .def("setValueString", &mx::AttributeDef::setValueString)
         .def("hasValueString", &mx::AttributeDef::hasValueString)
-        .def("getValueString", &mx::AttributeDef::getValueString) 
-        .def("setExportable", &mx::AttributeDef::setExportable)         
-        .def("getExportable", &mx::AttributeDef::getExportable)         
-        .def_readonly_static("CATEGORY", &mx::AttributeDef::CATEGORY);
+        .def("getValueString", &mx::AttributeDef::getValueString)
+        .def("setExportable", &mx::AttributeDef::setExportable)
+        .def("getExportable", &mx::AttributeDef::getExportable)
+        .def_readonly_static("CATEGORY", &mx::AttributeDef::CATEGORY)
+        .doc() = R"docstring(
+    Class representing an attribute definition element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_attribute_def.html
+)docstring";
 
     py::class_<mx::TargetDef, mx::TargetDefPtr, mx::TypedElement>(mod, "TargetDef")
         .def("getMatchingTargets", &mx::TargetDef::getMatchingTargets)
-        .def_readonly_static("CATEGORY", &mx::TargetDef::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::TargetDef::CATEGORY)
+        .doc() = R"docstring(
+    Class representing the definition of an implementation target as a `TypedElement`.
+
+    :see: https://materialx.org/docs/api/class_target_def.html
+)docstring";
 }

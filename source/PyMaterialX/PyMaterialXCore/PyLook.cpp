@@ -46,7 +46,12 @@ void bindPyLook(py::module& mod)
         .def("getVisibilities", &mx::Look::getVisibilities)
         .def("getActiveVisibilities", &mx::Look::getActiveVisibilities)
         .def("removeVisibility", &mx::Look::removeVisibility)
-        .def_readonly_static("CATEGORY", &mx::Look::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Look::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a look element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_look.html
+)docstring";
 
     py::class_<mx::LookGroup, mx::LookGroupPtr, mx::Element>(mod, "LookGroup")
         .def("getLooks", &mx::LookGroup::getLooks)
@@ -55,7 +60,12 @@ void bindPyLook(py::module& mod)
         .def("setActiveLook", &mx::LookGroup::setActiveLook)
         .def_readonly_static("CATEGORY", &mx::LookGroup::CATEGORY)
         .def_readonly_static("LOOKS_ATTRIBUTE", &mx::LookGroup::LOOKS_ATTRIBUTE)
-        .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE);
+        .def_readonly_static("ACTIVE_ATTRIBUTE", &mx::LookGroup::ACTIVE_ATTRIBUTE)
+        .doc() = R"docstring(
+    Class representing a look group element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_look_group.html
+)docstring";
 
     py::class_<mx::MaterialAssign, mx::MaterialAssignPtr, mx::GeomElement>(mod, "MaterialAssign")
         .def("setMaterial", &mx::MaterialAssign::setMaterial)
@@ -65,7 +75,12 @@ void bindPyLook(py::module& mod)
         .def("setExclusive", &mx::MaterialAssign::setExclusive)
         .def("getExclusive", &mx::MaterialAssign::getExclusive)
         .def("getReferencedMaterial", &mx::MaterialAssign::getReferencedMaterial)
-        .def_readonly_static("CATEGORY", &mx::MaterialAssign::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::MaterialAssign::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a material assignment element within a `Look`.
+
+    :see: https://materialx.org/docs/api/class_material_assign.html
+)docstring";
 
     py::class_<mx::Visibility, mx::VisibilityPtr, mx::GeomElement>(mod, "Visibility")
         .def("setViewerGeom", &mx::Visibility::setViewerGeom)
@@ -79,8 +94,29 @@ void bindPyLook(py::module& mod)
         .def("getVisibilityType", &mx::Visibility::getVisibilityType)
         .def("setVisible", &mx::Visibility::setVisible)
         .def("getVisible", &mx::Visibility::getVisible)
-        .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Visibility::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a visibility element within a `Look`.
+
+    A `Visibility` describes the visibility relationship between two geometries
+    or geometric collections.
+
+    :see: https://materialx.org/docs/api/class_visibility.html
+    :todo: Add a `Look.geomIsVisible()` method that computes the visibility between
+        two geometries in the context of a specific `Look`.
+)docstring";
 
     mod.def("getGeometryBindings", &mx::getGeometryBindings,
-        py::arg("materialNode") , py::arg("geom") = mx::UNIVERSAL_GEOM_NAME);
+            py::arg("materialNode"),
+            py::arg("geom") = mx::UNIVERSAL_GEOM_NAME,
+            R"docstring(
+    Return a list of all `MaterialAssign` elements that bind the given
+    `materialNode` to the given geometry string.
+
+    :param materialNode: The node to examine.
+    :param geom: The geometry for which material bindings should be returned.
+        By default, this argument is the universal geometry string `"/"`,
+        and all material bindings are returned.
+    :return: List of `MaterialAssign` elements.
+)docstring");
 }

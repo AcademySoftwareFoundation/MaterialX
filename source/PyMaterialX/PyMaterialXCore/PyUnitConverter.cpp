@@ -72,7 +72,14 @@ void bindPyUnitConverters(py::module& mod)
         .def("convert", (mx::Vector3 (mx::UnitConverter::*)(const mx::Vector3&, const std::string&, const std::string&)const) &mx::UnitConverter::convert)
         .def("convert", (mx::Vector4 (mx::UnitConverter::*)(const mx::Vector4&, const std::string&, const std::string&)const) &mx::UnitConverter::convert)
         .def("getUnitAsInteger", &mx::UnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger);
+        .def("getUnitFromInteger", &mx::UnitConverter::getUnitFromInteger)
+        .doc() = R"docstring(
+    Abstract base class for unit converters.
+
+    Each unit converter instance is responsible for a single unit type.
+
+    :see: https://materialx.org/docs/api/class_unit_converter.html
+)docstring";
 
     py::class_<mx::LinearUnitConverter, mx::UnitConverter, mx::LinearUnitConverterPtr>(mod, "LinearUnitConverter")
         .def_static("create", &mx::LinearUnitConverter::create)
@@ -82,12 +89,23 @@ void bindPyUnitConverters(py::module& mod)
         .def("convert", (mx::Vector3 (mx::LinearUnitConverter::*)(const mx::Vector3&, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
         .def("convert", (mx::Vector4 (mx::LinearUnitConverter::*)(const mx::Vector4&, const std::string&, const std::string&)const) &mx::LinearUnitConverter::convert)
         .def("getUnitAsInteger", &mx::LinearUnitConverter::getUnitAsInteger)
-        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger);
+        .def("getUnitFromInteger", &mx::LinearUnitConverter::getUnitFromInteger)
+        .doc() = R"docstring(
+    A `UnitConverter` class for linear units that require only a scalar
+    multiplication.
+
+    :see: https://materialx.org/docs/api/class_linear_unit_converter.html
+)docstring";
 
     py::class_<mx::UnitConverterRegistry, mx::UnitConverterRegistryPtr>(mod, "UnitConverterRegistry")
         .def_static("create", &mx::UnitConverterRegistry::create)
         .def("addUnitConverter", &mx::UnitConverterRegistry::addUnitConverter)
         .def("removeUnitConverter", &mx::UnitConverterRegistry::removeUnitConverter)
         .def("getUnitConverter", &mx::UnitConverterRegistry::getUnitConverter)
-        .def("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters);
+        .def("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters)
+        .doc() = R"docstring(
+    Class implementing a registry for `UnitConverter` objects.
+
+    :see: https://materialx.org/docs/api/class_unit_converter_registry.html
+)docstring";
 }

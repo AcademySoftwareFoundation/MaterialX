@@ -15,17 +15,132 @@ namespace mx = MaterialX;
 
 void bindPyUtil(py::module& mod)
 {
-    mod.def("getVersionString", &mx::getVersionString);
-    mod.def("getVersionIntegers", &mx::getVersionIntegers);
-    mod.def("createValidName", &mx::createValidName, py::arg("name"), py::arg("replaceChar") = '_');
-    mod.def("isValidName", &mx::isValidName);
-    mod.def("incrementName", &mx::incrementName);
-    mod.def("splitString", &mx::splitString);
-    mod.def("joinStrings", &mx::joinStrings);
-    mod.def("replaceSubstrings", &mx::replaceSubstrings);
-    mod.def("stringStartsWith", &mx::stringStartsWith);
-    mod.def("stringEndsWith", &mx::stringEndsWith);
-    mod.def("splitNamePath", &mx::splitNamePath);
-    mod.def("createNamePath", &mx::createNamePath);
-    mod.def("parentNamePath", &mx::parentNamePath);
+    mod.def("getVersionString", &mx::getVersionString,
+            R"docstring(
+    Return the version of the MaterialX library as a string.
+
+    >>> PyMaterialXCore.getVersionString()
+    '1.38.9'
+)docstring");
+
+    mod.def("getVersionIntegers", &mx::getVersionIntegers,
+            R"docstring(
+    Return the major, minor, and build versions of the MaterialX library as an
+    integer tuple.
+
+    >>> PyMaterialXCore.getVersionIntegers()
+    (1, 38, 9)
+)docstring");
+
+    mod.def("createValidName", &mx::createValidName,
+            py::arg("name"), py::arg("replaceChar") = '_',
+            R"docstring(
+    Create a valid MaterialX name from the given `name`,
+    replacing invalid characters with the given `replaceChar`.
+
+    >>> PyMaterialXCore.createValidName('left arm #123')
+    'left_arm__123'
+)docstring");
+
+    mod.def("isValidName", &mx::isValidName,
+            py::arg("name"),
+            R"docstring(
+    Return `True` if the given `name` is a valid MaterialX name,
+    otherwise False.
+
+    >>> PyMaterialXCore.isValidName('left arm #123')
+    False
+)docstring");
+
+    mod.def("incrementName", &mx::incrementName,
+            py::arg("name"),
+            R"docstring(
+    Increment the numeric suffix of the given `name`.
+
+    >>> PyMaterialXCore.incrementName('left arm #123')
+    'left arm #124'
+)docstring");
+
+    mod.def("splitString", &mx::splitString,
+            py::arg("string"), py::arg("sep"),
+            R"docstring(
+    Split the given `string` into a list of substrings using the
+    given set of separator characters.
+
+    >>> PyMaterialXCore.splitString('MaterialX', 'aeiou')
+    ['M', 't', 'r', 'lX']
+)docstring");
+
+    mod.def("joinStrings", &mx::joinStrings,
+            py::arg("strings"), py::arg("sep"),
+            R"docstring(
+    Join a list of substrings into a single string, placing the
+    given separator between each substring.
+
+    >>> PyMaterialXCore.joinStrings(['M', 'teri', 'lX'], 'a')
+    'MaterialX'
+)docstring");
+
+    mod.def("replaceSubstrings", &mx::replaceSubstrings,
+            py::arg("string"), py::arg("substitutions"),
+            R"docstring(
+    Apply the given substring `substitutions` to the input `string`.
+
+    >>> PyMaterialXCore.replaceSubstrings(
+    ...     '/bob/alice/guido',
+    ...     {'bob': 'b', 'alice': 'a', 'guido': 'g'}
+    ... )
+    '/b/a/g'
+)docstring");
+
+    mod.def("stringStartsWith", &mx::stringStartsWith,
+            py::arg("string"), py::arg("prefix"),
+            R"docstring(
+    Return `True` if the given `string` starts with the given `prefix`,
+    otherwise `False`.
+
+    >>> PyMaterialXCore.stringStartsWith('turbulence3d', 'turbulence')
+    True
+    >>> PyMaterialXCore.stringStartsWith('turbulence3d', 'Turbulence')
+    False
+)docstring");
+
+    mod.def("stringEndsWith", &mx::stringEndsWith,
+            py::arg("string"), py::arg("suffix"),
+            R"docstring(
+    Return `True` if the given `string` ends with the given `suffix`,
+    otherwise `False`.
+
+    >>> PyMaterialXCore.stringEndsWith('turbulence3d', '3d')
+    True
+    >>> PyMaterialXCore.stringEndsWith('turbulence3d', '3D')
+    False
+)docstring");
+
+    mod.def("splitNamePath", &mx::splitNamePath,
+            py::arg("namePath"),
+            R"docstring(
+    Split the given `namePath` into a list of names.
+
+    >>> PyMaterialXCore.splitNamePath('/robot2/right_arm')
+    ['robot2', 'right_arm']
+)docstring");
+
+    mod.def("createNamePath", &mx::createNamePath,
+            py::arg("names"),
+            R"docstring(
+    Create a name path from the given list of `names`.
+
+    >>> PyMaterialXCore.createNamePath(['robot2', 'right_arm'])
+    'robot2/right_arm'
+)docstring");
+
+    mod.def("parentNamePath", &mx::parentNamePath,
+            py::arg("namePath"),
+            R"docstring(
+    Given a `namePath`, return the parent name path.
+
+    >>> PyMaterialXCore.parentNamePath('/robot2/right_arm')
+    'robot2'
+)docstring");
 }

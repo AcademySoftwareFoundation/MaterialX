@@ -16,7 +16,12 @@ namespace mx = MaterialX;
 void bindPyProperty(py::module& mod)
 {
     py::class_<mx::Property, mx::PropertyPtr, mx::ValueElement>(mod, "Property")
-        .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Property::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a property element within a `PropertySet`.
+
+    :see: https://materialx.org/docs/api/class_property.html
+)docstring";
 
     py::class_<mx::PropertyAssign, mx::PropertyAssignPtr, mx::ValueElement>(mod, "PropertyAssign")
         .def("setProperty", &mx::PropertyAssign::setProperty)
@@ -30,7 +35,12 @@ void bindPyProperty(py::module& mod)
         .def("getCollectionString", &mx::PropertyAssign::getCollectionString)
         .def("setCollection", &mx::PropertyAssign::setCollection)
         .def("getCollection", &mx::PropertyAssign::getCollection)
-        .def_readonly_static("CATEGORY", &mx::PropertyAssign::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::PropertyAssign::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a property assignment element within a `Look`.
+
+    :see: https://materialx.org/docs/api/class_property_assign.html
+)docstring";
 
     py::class_<mx::PropertySet, mx::PropertySetPtr, mx::Element>(mod, "PropertySet")
         .def("addProperty", &mx::PropertySet::addProperty)
@@ -52,7 +62,12 @@ void bindPyProperty(py::module& mod)
         BIND_PROPERTYSET_TYPE_INSTANCE(booleanarray, mx::BoolVec)
         BIND_PROPERTYSET_TYPE_INSTANCE(floatarray, mx::FloatVec)
         BIND_PROPERTYSET_TYPE_INSTANCE(stringarray, mx::StringVec)
-        .def_readonly_static("CATEGORY", &mx::Property::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::Property::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a property set element within a `Document`.
+
+    :see: https://materialx.org/docs/api/class_property_set.html
+)docstring";
 
     py::class_<mx::PropertySetAssign, mx::PropertySetAssignPtr, mx::GeomElement>(mod, "PropertySetAssign")
         .def("setPropertySetString", &mx::PropertySetAssign::setPropertySetString)
@@ -60,5 +75,10 @@ void bindPyProperty(py::module& mod)
         .def("getPropertySetString", &mx::PropertySetAssign::getPropertySetString)
         .def("setPropertySet", &mx::PropertySetAssign::setPropertySet)
         .def("getPropertySet", &mx::PropertySetAssign::getPropertySet)
-        .def_readonly_static("CATEGORY", &mx::PropertySetAssign::CATEGORY);
+        .def_readonly_static("CATEGORY", &mx::PropertySetAssign::CATEGORY)
+        .doc() = R"docstring(
+    Class representing a property set assignment element within a `Look`.
+
+    :see: https://materialx.org/docs/api/class_property_set_assign.html
+)docstring";
 }

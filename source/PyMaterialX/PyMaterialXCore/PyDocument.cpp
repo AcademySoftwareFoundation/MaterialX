@@ -12,7 +12,11 @@ namespace mx = MaterialX;
 
 void bindPyDocument(py::module& mod)
 {
-    mod.def("createDocument", &mx::createDocument);
+    mod.def("createDocument", &mx::createDocument,
+            R"docstring(
+    Create a MaterialX `Document` instance, which represents the top-level
+    element in the MaterialX ownership hierarchy.
+)docstring");
 
     py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
@@ -102,5 +106,11 @@ void bindPyDocument(py::module& mod)
         .def("getColorManagementSystem", &mx::Document::getColorManagementSystem)
         .def("setColorManagementConfig", &mx::Document::setColorManagementConfig)
         .def("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
-        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig);
+        .def("getColorManagementConfig", &mx::Document::getColorManagementConfig)
+        .doc() = R"docstring(
+    Class representing the top-level element in the MaterialX ownership
+    hierarchy.
+
+    :see: https://materialx.org/docs/api/class_document.html
+)docstring";
 }
