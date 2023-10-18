@@ -11,7 +11,27 @@ void bindPyMdlShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenMdl, mod)
 {
-    mod.doc() = "Shader generation using Material Definition Language";
+    mod.doc() = R"docstring(
+    Shader generation using Material Definition Language.
+
+    :see: https://www.nvidia.com/en-us/design-visualization/technologies/material-definition-language/
+    :see: https://raytracing-docs.nvidia.com/mdl/index.html
+
+    MDL Shader Generation Classes
+    -----------------------------
+
+    **Class Hierarchy**
+
+    * `PyMaterialXGenShader.ShaderGenerator`
+        * `MdlShaderGenerator`
+
+    **Class Index**
+
+    .. autosummary::
+        :toctree: mdl-shader-generators
+
+        MdlShaderGenerator
+)docstring";
 
     // PyMaterialXGenMdl depends on types defined in PyMaterialXGenShader
     pybind11::module::import("PyMaterialXGenShader");
