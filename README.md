@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="documents/Images/MaterialXLogo.png" height="170" />
+  <img src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXLogo.png" height="170" />
 </p>
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/LICENSE)
@@ -32,29 +32,29 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.
 
+Marble | Copper | Plastic | Carpaint
+-------|--------|---------|---------
+![MaterialX Marble material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png) | ![MaterialX Copper material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png) | ![MaterialX Plastic material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png) | ![MaterialX Carpaint material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png) |
+
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
-<p float="left">
-  <img src="documents/Images/MaterialXView_Marble.png" width="204" />
-  <img src="documents/Images/MaterialXView_Copper.png" width="204" /> 
-  <img src="documents/Images/MaterialXView_Plastic.png" width="204" /> 
-  <img src="documents/Images/MaterialXView_Carpaint.png" width="204" /> 
-</p>
+
+Tiled Brass | Tiled Wood
+------------|-----------
+![MaterialX TiledBrass material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png) | ![MaterialX TiledWood material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png)
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
-<p float="left">
-  <img src="documents/Images/MaterialXView_TiledBrass.png" width="412" />
-  <img src="documents/Images/MaterialXView_TiledWood.png" width="412" /> 
-</p>
 
 ### Open Chess Set
 
 The Open Chess Set is an open reference asset, consisting of a [MaterialX file](resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx) in the Standard Surface shading model and a [geometry file](resources/Geometry) in the glTF format.  It was authored by Moeen Sayed and Mujtaba Sayed, and was contributed to the MaterialX project by Side Effects.
 
+![The Open Chess Set rendered in Arnold for Maya](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Arnold_01.png)
+
 **Figure 3:** The Open Chess Set, rendered in Arnold for Maya
-<img src="documents/Images/OpenChessSet_Arnold_01.png" />
+
+![The Open Chess Set rendered in Karma XPU for Houdini](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Karma_01.png)
 
 **Figure 4:** The Open Chess Set, rendered in Karma XPU for Houdini
-<img src="documents/Images/OpenChessSet_Karma_01.png" />
 
 ### Pre-Built Binaries
 

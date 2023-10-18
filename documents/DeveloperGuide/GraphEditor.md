@@ -21,7 +21,7 @@ Select the `MATERIALX_BUILD_GRAPH_EDITOR` option in CMake to build the MaterialX
 
 ## Buttons
 
-To display a new material and graph, click the `Load Material` button and and navigate to the [Example Materials](../../resources/Materials/Examples) folder, which contains a selection of materials in the MTLX format, and select a document to load.  The Graph Editor will display the graph hierarchy of the selected document for visualization and editing.
+To display a new material and graph, click the `Load Material` button and and navigate to the [Example Materials](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples) folder, which contains a selection of materials in the MTLX format, and select a document to load.  The Graph Editor will display the graph hierarchy of the selected document for visualization and editing.
 
 To save out changes to the graphs as MTLX files click the `Save Material` button.  This will save the position of the nodes in the graph for future use as well. 
 

@@ -29,23 +29,23 @@ Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewe
 
 ## Geometry
 
-The default display geometry for the MaterialX viewer is the Arnold Shader Ball, which was contributed to the MaterialX project by the Solid Angle team at Autodesk.  To change the display geometry, click `Load Mesh` and navigate to the [Geometry](../../resources/Geometry) folder for additional models in the OBJ format.
+The default display geometry for the MaterialX viewer is the Arnold Shader Ball, which was contributed to the MaterialX project by the Solid Angle team at Autodesk.  To change the display geometry, click `Load Mesh` and navigate to the [Geometry](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Geometry) folder for additional models in the OBJ format.
 
 If a loaded geometry contains more than one geometric group, then a `Select Geometry` drop-down box will appear, allowing the user to select which group is active.  The active geometric group will be used for subsequent actions such as material assignment and rendering property changes.
 
 ## Materials
 
-To change the displayed material, click `Load Material` and navigate to the [Materials/Examples/StandardSurface](../../resources/Materials/Examples/StandardSurface) or [Materials/Examples/UsdPreviewSurface](../../resources/Materials/Examples/UsdPreviewSurface) folders, which contain a selection of example materials in the MTLX format.
+To change the displayed material, click `Load Material` and navigate to the [Materials/Examples/StandardSurface](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples/StandardSurface) or [Materials/Examples/UsdPreviewSurface](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples/UsdPreviewSurface) folders, which contain a selection of example materials in the MTLX format.
 
 Once a material is loaded into the viewer, its parameters may be inspected and adjusted by clicking the `Property Editor` and scrolling through the list of parameters.  An edited material may be saved to the file system by clicking `Save Material`.
 
 Multiple material documents can be combined in a single session by navigating to `Advanced Settings` and enabling `Merge Materials`.  Loading new materials with this setting enabled will add them to the current material list, where they can be assigned to geometry via the `Assigned Material` drop-down box.  Alternatively the `LEFT` and `RIGHT` arrows can be used to cycle through the list of available materials.
 
-If a material document containing `look` elements is loaded into the viewer, then any material assignments within the look will be applied to geometric groups that match the specified geometry strings.  See [standard_surface_look_brass_tiled.mtlx](../../resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx) for an example of a material document containing look elements.
+If a material document containing `look` elements is loaded into the viewer, then any material assignments within the look will be applied to geometric groups that match the specified geometry strings.  See [standard_surface_look_brass_tiled.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx) for an example of a material document containing look elements.
 
 ## Lighting
 
-The default lighting environment for the viewer is the San Giuseppe Bridge environment from HDRI Haven.  To load another environment into the viewer, click `Load Environment` and navigate to the [Lights](../../resources/Lights) folder, or load any HDR environment in the latitude-longitude format.  If the HDR file on disk has a companion MaterialX document with a matching name, then this document will be loaded as the direct lighting rig for the environment; otherwise only indirect lighting will be rendered.  If the HDR file on disk has a companion image in an `irradiance` subfolder, then this image will be loaded as the diffuse convolution of the environment; otherwise, a diffuse convolution will be generated at load-time using spherical harmonics.
+The default lighting environment for the viewer is the San Giuseppe Bridge environment from HDRI Haven.  To load another environment into the viewer, click `Load Environment` and navigate to the [Lights](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Lights) folder, or load any HDR environment in the latitude-longitude format.  If the HDR file on disk has a companion MaterialX document with a matching name, then this document will be loaded as the direct lighting rig for the environment; otherwise only indirect lighting will be rendered.  If the HDR file on disk has a companion image in an `irradiance` subfolder, then this image will be loaded as the diffuse convolution of the environment; otherwise, a diffuse convolution will be generated at load-time using spherical harmonics.
 
 Shadow maps from the primary directional light may be enabled with the `Shadow Map` option under `Advanced Settings`.  Ambient occlusion, if available for the given geometry, may be enabled with the `Ambient Occlusion` option.  The fidelity of environment lighting may be improved by increasing the value of `Environment Samples`, though this requires additional GPU resources and can affect the interactivity of the viewer.
 
