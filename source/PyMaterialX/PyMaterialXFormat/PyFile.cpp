@@ -12,13 +12,21 @@ namespace mx = MaterialX;
 
 void bindPyFile(py::module& mod)
 {
-    py::enum_<mx::FilePath::Type>(mod, "Type")
+    py::enum_<mx::FilePath::Type>(mod, "Type", R"docstring(
+    Enumeration of `FilePath` types.
+
+    :see: https://materialx.org/docs/api/class_file_path.html#pub-types
+)docstring")
         .value("TypeRelative", mx::FilePath::Type::TypeRelative)
         .value("TypeAbsolute", mx::FilePath::Type::TypeAbsolute)
         .value("TypeNetwork", mx::FilePath::Type::TypeNetwork)
         .export_values();
 
-    py::enum_<mx::FilePath::Format>(mod, "Format")
+    py::enum_<mx::FilePath::Format>(mod, "Format", R"docstring(
+    Enumeration of `FilePath` formats.
+
+    :see: https://materialx.org/docs/api/class_file_path.html#pub-types
+)docstring")
         .value("FormatWindows", mx::FilePath::Format::FormatWindows)
         .value("FormatPosix", mx::FilePath::Format::FormatPosix)
         .value("FormatNative", mx::FilePath::Format::FormatNative)
@@ -47,7 +55,13 @@ void bindPyFile(py::module& mod)
         .def("getSubDirectories", &mx::FilePath::getSubDirectories)
         .def("createDirectory", &mx::FilePath::createDirectory)
         .def_static("getCurrentPath", &mx::FilePath::getCurrentPath)
-        .def_static("getModulePath", &mx::FilePath::getModulePath);
+        .def_static("getModulePath", &mx::FilePath::getModulePath)
+        .doc() = R"docstring(
+    Class representing a generic file path, supporting both syntactic and file
+    system operations.
+
+    :see: https://materialx.org/docs/api/class_file_path.html
+)docstring";
 
     py::class_<mx::FileSearchPath>(mod, "FileSearchPath")
         .def(py::init<>())
@@ -61,7 +75,14 @@ void bindPyFile(py::module& mod)
         .def("clear", &mx::FileSearchPath::clear)
         .def("size", &mx::FileSearchPath::size)
         .def("isEmpty", &mx::FileSearchPath::isEmpty)
-        .def("find", &mx::FileSearchPath::find);
+        .def("find", &mx::FileSearchPath::find)
+        .doc() = R"docstring(
+    Class representing a sequence of file paths, which may be queried to find
+    the first instance of a given filename on the file system.
+
+    :see: https://materialx.org/docs/api/class_file_search_path.html
+)docstring";
+        ;
 
     py::implicitly_convertible<std::string, mx::FilePath>();
     py::implicitly_convertible<std::string, mx::FileSearchPath>();

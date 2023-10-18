@@ -13,7 +13,50 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Cross-platform support for working with files, paths, and environment variables";
+    mod.doc() = R"docstring(
+    Cross-platform support for file and search paths, and XML serialization.
+
+    File and Search Paths
+    ---------------------
+
+    .. autofunction:: flattenFilenames
+    .. autofunction:: getEnvironmentPath
+    .. autofunction:: getSourceSearchPath
+    .. autofunction:: getSubdirectories
+    .. autofunction:: loadDocuments
+    .. autofunction:: loadLibraries
+    .. autofunction:: loadLibrary
+    .. autofunction:: prependXInclude
+
+    **Classes and Enumerations**
+
+    .. autosummary::
+        :toctree: file-and-search-paths
+
+        FilePath
+        FileSearchPath
+        Format
+        Type
+
+    XML Serialization
+    -----------------
+
+    .. autofunction:: readFile
+    .. autofunction:: readFromXmlFile
+    .. autofunction:: readFromXmlString
+    .. autofunction:: writeToXmlFile
+    .. autofunction:: writeToXmlString
+
+    **Classes and Exceptions**
+
+    .. autosummary::
+        :toctree: xml-serialization
+
+        XmlReadOptions
+        XmlWriteOptions
+        ExceptionParseError
+        ExceptionFileMissing
+)docstring";
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
     pybind11::module::import("PyMaterialXCore");
