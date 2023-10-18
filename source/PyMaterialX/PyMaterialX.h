@@ -12,6 +12,9 @@
 // include within any PyMaterialX source file.
 //
 
+// Set a flag to allow PyBind11 to provide more helpful error messages
+#define PYBIND11_DETAILED_ERROR_MESSAGES 1
+
 #include <pybind11/functional.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
