@@ -43,5 +43,11 @@ void bindPyTextureBaker(py::module& mod)
         .def("setupUnitSystem", &mx::TextureBakerMsl::setupUnitSystem)
         .def("bakeMaterialToDoc", &mx::TextureBakerMsl::bakeMaterialToDoc)
         .def("bakeAllMaterials", &mx::TextureBakerMsl::bakeAllMaterials)
-        .def("writeDocumentPerMaterial", &mx::TextureBakerMsl::writeDocumentPerMaterial);
+        .def("writeDocumentPerMaterial", &mx::TextureBakerMsl::writeDocumentPerMaterial)
+        .doc() = R"docstring(
+    A helper class for baking procedural material content to textures.
+
+    :todo: Add support for graphs containing geometric nodes such as position
+        and normal.
+)docstring";
 }

@@ -18,5 +18,8 @@ void bindPyMetalTextureHandler(py::module& mod)
         .def("unbindImage", &mx::MetalTextureHandler::unbindImage)
         .def("createRenderResources", &mx::MetalTextureHandler::createRenderResources)
         .def("releaseRenderResources", &mx::MetalTextureHandler::releaseRenderResources,
-            py::arg("image") = nullptr);
+            py::arg("image") = nullptr)
+        .doc() = R"docstring(
+    A Metal texture handler class.
+)docstring";
 }
