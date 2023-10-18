@@ -24,5 +24,11 @@ void bindPyOslShaderGenerator(py::module& mod)
         .def_static("create", &mx::OslShaderGenerator::create)
         .def(py::init<>())
         .def("getTarget", &mx::OslShaderGenerator::getTarget)
-        .def("generate", &mx::OslShaderGenerator::generate);
+        .def("generate", &mx::OslShaderGenerator::generate)
+        .doc() = R"docstring(
+    Base class for OSL (Open Shading Language) shader generators.
+    A generator for a specific OSL target should be derived from this class.
+
+    :see: https://materialx.org/docs/api/class_osl_shader_generator.html
+)docstring";
 }
