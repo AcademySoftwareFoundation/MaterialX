@@ -177,6 +177,9 @@ endif()
 if(MATERIALX_TEST_RENDER)
     add_definitions(-DMATERIALX_TEST_RENDER)
 endif()
+if (MATERIALX_DYNAMIC_ANALYSIS)
+    add_definitions(-DMATERIALX_DYNAMIC_ANALYSIS)
+endif()
 
 if (MATERIALX_BUILD_GEN_MDL)
     add_definitions(-DMATERIALX_MDLC_EXECUTABLE=\"${MATERIALX_MDLC_EXECUTABLE}\")
@@ -184,11 +187,6 @@ if (MATERIALX_BUILD_GEN_MDL)
     add_definitions(-DMATERIALX_MDL_RENDER_ARGUMENTS=\"${MATERIALX_MDL_RENDER_ARGUMENTS}\")
     add_definitions(-DMATERIALX_MDL_MODULE_PATHS=\"${MATERIALX_MDL_MODULE_PATHS}\")
     add_definitions(-DMATERIALX_INSTALL_MDL_MODULE_PATH=\"${MATERIALX_INSTALL_MDL_MODULE_PATH}\")
-endif()
-
-# Enable additional benchmark tests
-if (MATERIALX_DYNAMIC_ANALYSIS)
-    add_definitions(-DMATERIALX_DYNAMIC_ANALYSIS)
 endif()
 
 # Adjust the default installation path
