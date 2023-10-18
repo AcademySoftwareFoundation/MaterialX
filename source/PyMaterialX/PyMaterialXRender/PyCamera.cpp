@@ -30,5 +30,11 @@ void bindPyCamera(py::module& mod)
         .def_static("createViewMatrix", &mx::Camera::createViewMatrix)
         .def_static("createPerspectiveMatrix", &mx::Camera::createPerspectiveMatrix)
         .def_static("createOrthographicMatrix", &mx::Camera::createOrthographicMatrix)
-        .def_static("transformPointPerspective", &mx::Camera::transformPointPerspective);
+        .def_static("transformPointPerspective", &mx::Camera::transformPointPerspective)
+        .doc() = R"docstring(
+    A simple camera class, supporting transform matrices and arcball
+    functionality for object-viewing applications.
+
+    :see: https://materialx.org/docs/api/class_camera.html
+)docstring";
 }

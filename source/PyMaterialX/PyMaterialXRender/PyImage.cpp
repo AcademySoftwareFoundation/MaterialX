@@ -12,14 +12,21 @@ namespace mx = MaterialX;
 
 void bindPyImage(py::module& mod)
 {
-    py::enum_<mx::Image::BaseType>(mod, "BaseType")
+    py::enum_<mx::Image::BaseType>(mod, "BaseType", R"docstring(
+    Enumeration of `Image` base types.
+
+    :see: https://materialx.org/docs/api/class_image.html#pub-types
+)docstring")
         .value("UINT8", mx::Image::BaseType::UINT8)
         .value("UINT16", mx::Image::BaseType::UINT16)
         .value("HALF", mx::Image::BaseType::HALF)
         .value("FLOAT", mx::Image::BaseType::FLOAT)
         .export_values();
 
-    py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator");
+    py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator")
+        .doc() = R"docstring(
+    Class representing a function to perform image buffer deallocation.
+)docstring";
 
     py::class_<mx::Image, mx::ImagePtr>(mod, "Image")
         .def_static("create", &mx::Image::create)
@@ -44,7 +51,12 @@ void bindPyImage(py::module& mod)
         .def("createResourceBuffer", &mx::Image::createResourceBuffer)
         .def("releaseResourceBuffer", &mx::Image::releaseResourceBuffer)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
-        .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator);
+        .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator)
+        .doc() = R"docstring(
+    Class representing an image in system memory.
+
+    :see: https://materialx.org/docs/api/class_image.html
+)docstring";
 
         mod.def("createUniformImage", &mx::createUniformImage);
         mod.def("createImageStrip", &mx::createImageStrip);

@@ -16,5 +16,29 @@ void bindPyOiioImageLoader(py::module& mod)
         .def_static("create", &mx::OiioImageLoader::create)
         .def(py::init<>())
         .def("saveImage", &mx::OiioImageLoader::saveImage)
-        .def("loadImage", &mx::OiioImageLoader::loadImage);
+        .def("loadImage", &mx::OiioImageLoader::loadImage)
+        .doc() = R"docstring(
+    Class implementing an OpenImageIO image file loader.
+
+    Supports the following file extensions:
+
+    * `.bmp`
+    * `.exr`
+    * `.gif`
+    * `.hdr`
+    * `.jpg`
+    * `.jpeg`
+    * `.pic`
+    * `.png`
+    * `.psd`
+    * `.tga`
+    * `.tif`
+    * `.tiff`
+    * `.tx`
+    * `.txt`
+    * `.txr`
+
+    :see: https://materialx.org/docs/api/class_oiio_image_loader.html
+    :see: https://github.com/AcademySoftwareFoundation/OpenImageIO
+)docstring";
 }

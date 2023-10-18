@@ -14,5 +14,20 @@ void bindPyCgltfLoader(py::module& mod)
     py::class_<mx::CgltfLoader, mx::CgltfLoaderPtr, mx::GeometryLoader>(mod, "CgltfLoader")
         .def_static("create", &mx::CgltfLoader::create)
         .def(py::init<>())
-        .def("load", &mx::CgltfLoader::load);
+        .def("load", &mx::CgltfLoader::load)
+        .doc() = R"docstring(
+    Wrapper class for a geometry loader to read glTF files using the cgltf
+    library.
+
+    Supports the following file extensions:
+
+    * `.glb`
+    * `.GLB`
+    * `.gltf`
+    * `.GLTF`
+
+    :see: https://materialx.org/docs/api/class_cgltf_loader.html
+    :see: https://github.com/jkuhlmann/cgltf
+    :see: https://www.khronos.org/gltf/
+)docstring";
 }

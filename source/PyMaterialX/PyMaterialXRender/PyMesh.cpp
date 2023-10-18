@@ -31,7 +31,12 @@ void bindPyMesh(py::module& mod)
         .def("getStride", &mx::MeshStream::getStride)
         .def("setStride", &mx::MeshStream::setStride)
         .def("getSize", &mx::MeshStream::getSize)
-        .def("transform", &mx::MeshStream::transform);
+        .def("transform", &mx::MeshStream::transform)
+        .doc() = R"docstring(
+    Class to represent a mesh data stream.
+
+    :see: https://materialx.org/docs/api/class_mesh_stream.html
+)docstring";
 
     py::class_<mx::MeshPartition, mx::MeshPartitionPtr>(mod, "MeshPartition")
         .def_static("create", &mx::MeshPartition::create)
@@ -43,7 +48,14 @@ void bindPyMesh(py::module& mod)
         .def("getSourceNames", &mx::MeshPartition::getSourceNames)
         .def("getIndices", static_cast<mx::MeshIndexBuffer& (mx::MeshPartition::*)()>(&mx::MeshPartition::getIndices), py::return_value_policy::reference)
         .def("getFaceCount", &mx::MeshPartition::getFaceCount)
-        .def("setFaceCount", &mx::MeshPartition::setFaceCount);
+        .def("setFaceCount", &mx::MeshPartition::setFaceCount)
+        .doc() = R"docstring(
+    Class that describes a sub-region of a mesh using vertex indexing.
+
+    Note that a face is considered to be a triangle.
+
+    :see: https://materialx.org/docs/api/class_mesh_partition.html
+)docstring";
 
     py::class_<mx::Mesh, mx::MeshPtr>(mod, "Mesh")
         .def_static("create", &mx::Mesh::create)
@@ -73,5 +85,10 @@ void bindPyMesh(py::module& mod)
         .def("generateTangents", &mx::Mesh::generateTangents)
         .def("generateBitangents", &mx::Mesh::generateBitangents)
         .def("mergePartitions", &mx::Mesh::mergePartitions)
-        .def("splitByUdims", &mx::Mesh::splitByUdims);
+        .def("splitByUdims", &mx::Mesh::splitByUdims)
+        .doc() = R"docstring(
+    Class representing a container for mesh data.
+
+    :see: https://materialx.org/docs/api/class_mesh.html
+)docstring";
 }
