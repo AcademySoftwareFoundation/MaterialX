@@ -39,6 +39,14 @@ jobs:
           python: 3.11
           upload_shaders: ON
 
+        - name: Linux_GCC_CoverageAnalysis
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "None"
+          python: None
+          coverage_analysis: ON
+          cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
+
         - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
           compiler: clang
@@ -120,28 +128,32 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install xorg-dev mesa-utils
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
-          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-        else
-          sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
-          echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+        if [ "${{ matrix.compiler_version }}" != 'None' ]; then
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          else
+            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
       run: |
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          brew install gcc@${{ matrix.compiler_version }}
-          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-        else
-          ls -ls /Applications/
-          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CXX=clang++" >> $GITHUB_ENV
+        if [ "${{ matrix.compiler_version }}" != 'None' ]; then
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            brew install gcc@${{ matrix.compiler_version }}
+            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          else
+            ls -ls /Applications/
+            sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+            echo "CC=clang" >> $GITHUB_ENV
+            echo "CXX=clang++" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Install Dependencies (Windows)
@@ -222,6 +234,14 @@ jobs:
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
 
+    - name: Coverage Analysis Tests
+      if: matrix.coverage_analysis == 'ON'
+      run: |
+        sudo apt-get install gcovr
+        mkdir coverage
+        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --root .. .
+      working-directory: build
+
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
       run: |
@@ -278,6 +298,13 @@ jobs:
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      if: matrix.coverage_analysis == 'ON'
+      with:
+        name: MaterialX_Coverage
+        path: build/coverage
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'

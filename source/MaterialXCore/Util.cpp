@@ -93,10 +93,10 @@ StringVec splitString(const string& str, const string& sep)
 
 string joinStrings(const StringVec& stringVec, const string& sep)
 {
-    string res;
-    for (const string& name : stringVec)
+    string res = stringVec.empty() ? EMPTY_STRING : stringVec[0];
+    for (size_t i = 1; i < stringVec.size(); i++)
     {
-        res = res.empty() ? name : res + sep + name;
+        res += sep + stringVec[i];
     }
     return res;
 }
