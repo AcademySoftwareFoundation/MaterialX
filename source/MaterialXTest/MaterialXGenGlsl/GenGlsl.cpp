@@ -119,7 +119,7 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-TEST_CASE("GenShader: Performance Test, "[genglsl]")
+TEST_CASE("GenShader: Performance Test", "[genglsl]")
 {
 #ifdef MATERIALX_DYNAMIC_ANALYSIS
     SUCCEED("Skipping performance test in dynamic analysis build");
