@@ -32,5 +32,23 @@ void bindPyOslRenderer(py::module& mod)
         .def("setOslShaderName", &mx::OslRenderer::setOslShaderName)
         .def("setOslUtilityOSOPath", &mx::OslRenderer::setOslUtilityOSOPath)
         .def("useTestRender", &mx::OslRenderer::useTestRender)
-        .def("compileOSL", &mx::OslRenderer::compileOSL);
+        .def("compileOSL", &mx::OslRenderer::compileOSL)
+        .doc() = R"docstring(
+    Helper class for rendering generated OSL code to produce images.
+
+    The main services provided are:
+        - Source code validation: Use of the `oslc` executable to compile and
+          test output results.
+        - Introspection check: None at this time.
+        - Binding: None at this time.
+        - Render validation: Use of `testrender` to output rendered images.
+          Assumes source compliation was successful, as it depends on the
+          existence of corresponding `.oso` files.
+
+    The path to the OSL compiler binary (e.g. `oslc.exe`) can be set via the
+    `MATERIALX_OSL_BINARY_OSLC` build option.
+
+    The path to the OSL test render binary (e.g. `testrender.exe`) can be set
+    via the `MATERIALX_OSL_BINARY_TESTRENDER` build option.
+)docstring";
 }
