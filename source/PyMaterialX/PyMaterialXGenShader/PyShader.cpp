@@ -28,5 +28,16 @@ void bindPyShader(py::module& mod)
         .def("hasAttribute", &mx::Shader::hasAttribute)
         .def("getAttribute", &mx::Shader::getAttribute)
         .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&)>(&mx::Shader::setAttribute))
-        .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&, mx::ValuePtr)>(&mx::Shader::setAttribute));
+        .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&, mx::ValuePtr)>(&mx::Shader::setAttribute))
+        .doc() = R"docstring(
+    Class containing all data needed during shader generation.
+    After generation is completed it will contain the resulting source code
+    emitted by shader generators.
+
+    The class contains a default implementation using a single shader stage.
+    Derived shaders can override this, as well as overriding all methods
+    that add code to the shader.
+
+    :see: https://materialx.org/docs/api/class_shader.html
+)docstring";
 }

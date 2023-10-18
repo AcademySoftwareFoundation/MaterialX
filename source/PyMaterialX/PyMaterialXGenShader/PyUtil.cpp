@@ -30,7 +30,9 @@ void bindPyUtil(py::module& mod)
     mod.def("elementRequiresShading", &mx::elementRequiresShading);
     mod.def("findRenderableMaterialNodes", &findRenderableMaterialNodes);
     mod.def("findRenderableElements", &findRenderableElements, py::arg("doc"), py::arg("includeReferencedGraphs") = false);
-    mod.def("getNodeDefInput", &mx::getNodeDefInput);
+    mod.def("getNodeDefInput", &mx::getNodeDefInput,
+            py::arg("nodeInput"),
+            py::arg("target"));
     mod.def("tokenSubstitution", &mx::tokenSubstitution);
     mod.def("getUdimCoordinates", &mx::getUdimCoordinates);
     mod.def("getUdimScaleAndOffset", &mx::getUdimScaleAndOffset);

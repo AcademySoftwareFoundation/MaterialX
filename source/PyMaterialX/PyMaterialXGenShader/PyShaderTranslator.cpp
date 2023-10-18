@@ -15,5 +15,10 @@ void bindPyShaderTranslator(py::module& mod)
     py::class_<mx::ShaderTranslator, mx::ShaderTranslatorPtr>(mod, "ShaderTranslator")
         .def_static("create", &mx::ShaderTranslator::create)
         .def("translateShader", &mx::ShaderTranslator::translateShader)
-        .def("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials);
+        .def("translateAllMaterials", &mx::ShaderTranslator::translateAllMaterials)
+        .doc() = R"docstring(
+    A helper class for translating content between shading models.
+
+    :see: https://materialx.org/docs/api/class_shader_translator.html
+)docstring";
 }

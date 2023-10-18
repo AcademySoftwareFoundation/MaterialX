@@ -47,15 +47,30 @@ void bindPyColorManagement(py::module& mod)
         .def(py::init<const std::string&, const std::string&, const mx::TypeDesc*>())
         .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace)
         .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace)
-        .def_readwrite("type", &mx::ColorSpaceTransform::type);
+        .def_readwrite("type", &mx::ColorSpaceTransform::type)
+        .doc() = R"docstring(
+    Structure that represents color space transform information.
+
+    :see: https://materialx.org/docs/api/struct_color_space_transform.html
+)docstring";
 
     py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem")
         .def(py::init<>())
         .def("getName", &mx::ColorManagementSystem::getName)
         .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
-        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform);
+        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform)
+        .doc() = R"docstring(
+    Abstract base class for color management systems.
+
+    :see: https://materialx.org/docs/api/class_color_management_system.html
+)docstring";
 
     py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem")
         .def_static("create", &mx::DefaultColorManagementSystem::create)
-        .def("getName", &mx::DefaultColorManagementSystem::getName);
+        .def("getName", &mx::DefaultColorManagementSystem::getName)
+        .doc() = R"docstring(
+    Class for a default color management system.
+
+    :see: https://materialx.org/docs/api/class_default_color_management_system.html
+)docstring";
 }
