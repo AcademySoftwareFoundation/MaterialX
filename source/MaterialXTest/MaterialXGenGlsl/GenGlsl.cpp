@@ -119,18 +119,17 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
-
-TEST_CASE("PerformanceTest: ShaderGen and Validation", "[performancetest]")
+TEST_CASE("GenShader: Performance Test, "[genglsl]")
 {
 #ifdef MATERIALX_DYNAMIC_ANALYSIS
-    SUCCEED("PerformanceTest - skipped");
+    SUCCEED("Skipping performance test in dynamic analysis build");
 #else
     mx::GenContext context(mx::GlslShaderGenerator::create());
     BENCHMARK("Load documents, validate and generate shader") 
     {
         return GenShaderUtil::shaderGenPerformanceTest(context);
     };
-#endif // MATERIALX_DYNAMIC_ANALYSIS
+#endif
 }
 
 enum class GlslType
