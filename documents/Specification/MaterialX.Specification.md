@@ -1496,7 +1496,7 @@ Blend nodes take two 1-4 channel inputs and apply the same operator to all chann
 | **`burn`** | 1-(1-B)/F | float, color<em>N</em> |
 | **`dodge`** | B/(1-F) | float, color<em>N</em> |
 | **`screen`** | 1-(1-F)(1-B) | float, color<em>N</em> |
-| **`overlay`** | 2FB if F&lt;0.5;<br> 1-(1-F)(1-B) if F>=0.5 | float, color<em>N</em> |
+| **`overlay`** | 2FB if B&lt;0.5;<br> 1-2(1-F)(1-B) if B>=0.5 | float, color<em>N</em> |
 
 
 #### Merge Nodes
