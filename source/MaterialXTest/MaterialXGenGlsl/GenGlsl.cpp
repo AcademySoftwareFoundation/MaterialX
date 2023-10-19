@@ -121,14 +121,14 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
 
 TEST_CASE("GenShader: Performance Test", "[genglsl]")
 {
-#ifdef MATERIALX_DYNAMIC_ANALYSIS
-    SUCCEED("Skipping performance test in dynamic analysis build");
-#else
+#ifdef MATERIALX_BUILD_BENCHMARK_TESTS
     mx::GenContext context(mx::GlslShaderGenerator::create());
     BENCHMARK("Load documents, validate and generate shader") 
     {
         return GenShaderUtil::shaderGenPerformanceTest(context);
     };
+#else
+    SUCCEED("Performance tests are disabled");
 #endif
 }
 
