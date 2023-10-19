@@ -2777,66 +2777,6 @@ export color4 mx_screen_color4(
 	return color4(rgb,a);
 }
 
-float mx_overlay(float mxp_fg, float mxp_bg)
-{
-	return (mxp_fg < 0.5) ? (2 * mxp_fg * mxp_bg) : (1 - (1 - mxp_fg) * (1 - mxp_bg));
-}
-float2 mx_overlay(float2 mxp_fg, float2 mxp_bg) [[ anno::unused() ]]
-{
-	return float2(
-		mx_overlay(mxp_fg.x, mxp_bg.x),
-		mx_overlay(mxp_fg.y, mxp_bg.y)
-	);
-}
-color mx_overlay(color mxp_fg, color mxp_bg)
-{
-	float3 fg(mxp_fg);
-	float3 bg(mxp_bg);
-	return color(
-		mx_overlay(fg.x, bg.x),
-		mx_overlay(fg.y, bg.y),
-		mx_overlay(fg.z, bg.z)
-	);
-}
-
-export float mx_overlay_float(
-	float mxp_fg = 0.0,
-	float mxp_bg = 0.0,
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return mxp_mix * mx_overlay(mxp_fg, mxp_bg) + (1-mxp_mix) * mxp_bg;
-}
-
-export color mx_overlay_color3(
-	color mxp_fg = color(0.0),
-	color mxp_bg = color(0.0),
-	float mxp_mix = 1.0
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	return mxp_mix * mx_overlay(mxp_fg, mxp_bg) + (1-mxp_mix) * mxp_bg;
-}
-
-export color4 mx_overlay_color4(
-	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
-	float mxp_mix = float(1.0)
-)
-	[[
-		anno::description("Node Group: compositing")
-	]]
-{
-	color rgb = mxp_mix * mx_overlay(mxp_fg.rgb, mxp_bg.rgb) + (1-mxp_mix) * mxp_bg.rgb;
-	float   a = mxp_mix * mx_overlay(mxp_fg.a  , mxp_bg.a  ) + (1-mxp_mix) * mxp_bg.a;
-	return color4(rgb,a);
-}
-
 export color4 mx_disjointover_color4(
 	color4 mxp_fg = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_bg = mk_color4(0.0, 0.0, 0.0, 0.0),
