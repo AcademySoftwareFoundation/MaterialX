@@ -183,24 +183,24 @@
   </nodegraph>
   <nodegraph name="overlay_float">
     <overlay name="overlay1" type="float">
-      <input name="fg" type="float" value="0.5000" />
-      <input name="bg" type="float" value="0.5000" />
+      <input name="fg" type="float" value="0.2" />
+      <input name="bg" type="float" value="0.6" />
       <input name="mix" type="float" value="0.5000" />
     </overlay>
     <output name="out" type="float" nodename="overlay1" />
   </nodegraph>
   <nodegraph name="overlay_color3">
     <overlay name="overlay1" type="color3">
-      <input name="fg" type="color3" value="0.5000, 0.0, 0.0" />
-      <input name="bg" type="color3" value="0.5000, 1.0000, 0.0" />
+      <input name="fg" type="color3" value="0.2, 0.6, 0.6" />
+      <input name="bg" type="color3" value="0.8, 0.2, 0.4" />
       <input name="mix" type="float" value="0.5000" />
     </overlay>
     <output name="out" type="color3" nodename="overlay1" />
   </nodegraph>
   <nodegraph name="overlay_color4">
     <overlay name="overlay1" type="color4">
-      <input name="fg" type="color4" value="0.5000, 0.0, 0.0, 1.0" />
-      <input name="bg" type="color4" value="0.5000, 1.0000, 0.0, 1.0000" />
+      <input name="fg" type="color4" value="0.6, 0.8, 0.8, 1.0" />
+      <input name="bg" type="color4" value="0.6, 0.2, 0.4, 1.0" />
       <input name="mix" type="float" value="0.5000" />
     </overlay>
     <output name="out" type="color4" nodename="overlay1" />
