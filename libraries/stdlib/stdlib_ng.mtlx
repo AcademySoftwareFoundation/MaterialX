@@ -3391,6 +3391,118 @@
   <!-- Compositing nodes                                                        -->
   <!-- ======================================================================== -->
 
+  <!--
+    Node: <overlay>
+    Overlay is a compositing node which is a combination of multiply and screen.
+  -->
+  <nodegraph name="NG_overlay_float" nodedef="ND_overlay_float">
+    <output name="out" type="float" nodename="N_mix" />
+    <ifgreatereq name="N_ifgreatereq0_overlay_r" type="float" nodedef="ND_ifgreatereq_float">
+      <input name="value1" type="float" interfacename="bg" />
+      <input name="value2" type="float" value="0.5" />
+      <input name="in1" type="float" nodename="N_subtract_lower_one" />
+      <input name="in2" type="float" nodename="N_multiply_upper_two" />
+    </ifgreatereq>
+    <multiply name="N_multiply_upper_fg_bg" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" interfacename="fg" />
+      <input name="in2" type="float" interfacename="bg" />
+    </multiply>
+    <multiply name="N_multiply_upper_two" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" nodename="N_multiply_upper_fg_bg" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <subtract name="N_subtract_lower_one_bg" type="float" nodedef="ND_subtract_float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="bg" />
+    </subtract>
+    <subtract name="N_subtract_lower_one_fg" type="float" nodedef="ND_subtract_float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" interfacename="fg" />
+    </subtract>
+    <multiply name="N_multiply_lower_fg_bg" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" nodename="N_subtract_lower_one_bg" />
+      <input name="in2" type="float" nodename="N_subtract_lower_one_fg" />
+    </multiply>
+    <subtract name="N_subtract_lower_one" type="float" nodedef="ND_subtract_float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="N_multiply_lower_two" />
+    </subtract>
+    <mix name="N_mix" type="float" nodedef="ND_mix_float">
+      <input name="fg" type="float" nodename="N_ifgreatereq0_overlay_r" />
+      <input name="bg" type="float" interfacename="bg" />
+      <input name="mix" type="float" interfacename="mix" />
+    </mix>
+    <multiply name="N_multiply_lower_two" type="float" nodedef="ND_multiply_float">
+      <input name="in1" type="float" nodename="N_multiply_lower_fg_bg" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+  </nodegraph>
+  <nodegraph name="NG_overlay_color3" nodedef="ND_overlay_color3">
+    <output name="out" type="color3" nodename="N_combine" />
+    <separate3 name="N_split_color3_fg" type="multioutput" nodedef="ND_separate3_color3">
+      <input name="in" type="color3" interfacename="fg" />
+    </separate3>
+    <separate3 name="N_split_color3_bg" type="multioutput" nodedef="ND_separate3_color3">
+      <input name="in" type="color3" interfacename="bg" />
+    </separate3>
+    <combine3 name="N_combine" type="color3" nodedef="ND_combine3_color3">
+      <input name="in1" type="float" nodename="N_overlay_r" />
+      <input name="in2" type="float" nodename="N_overlay_g" />
+      <input name="in3" type="float" nodename="N_overlay_b" />
+    </combine3>
+    <overlay name="N_overlay_r" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_color3_fg" output="outr" />
+      <input name="bg" type="float" nodename="N_split_color3_bg" output="outr" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <overlay name="N_overlay_g" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_color3_fg" output="outg" />
+      <input name="bg" type="float" nodename="N_split_color3_bg" output="outg" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <overlay name="N_overlay_b" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_color3_fg" output="outb" />
+      <input name="bg" type="float" nodename="N_split_color3_bg" output="outb" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+  </nodegraph>
+  <nodegraph name="NG_overlay_color4" nodedef="ND_overlay_color4">
+    <output name="out" type="color4" nodename="N_combine" />
+    <separate4 name="N_split_fg" type="multioutput" nodedef="ND_separate4_color4">
+      <input name="in" type="color4" interfacename="fg" />
+    </separate4>
+    <separate4 name="N_split_bg" type="multioutput" nodedef="ND_separate4_color4">
+      <input name="in" type="color4" interfacename="bg" />
+    </separate4>
+    <overlay name="N_overlay_r" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_fg" output="outr" />
+      <input name="bg" type="float" nodename="N_split_bg" output="outr" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <overlay name="N_overlay_g" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_fg" output="outg" />
+      <input name="bg" type="float" nodename="N_split_bg" output="outg" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <overlay name="N_overlay_b" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_fg" output="outb" />
+      <input name="bg" type="float" nodename="N_split_bg" output="outb" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <overlay name="N_overlay_a" type="float" nodedef="ND_overlay_float">
+      <input name="fg" type="float" nodename="N_split_fg" output="outa" />
+      <input name="bg" type="float" nodename="N_split_bg" output="outa" />
+      <input name="mix" type="float" interfacename="mix" />
+    </overlay>
+    <combine4 name="N_combine" type="color4" nodedef="ND_combine4_color4">
+      <input name="in1" type="float" nodename="N_overlay_r" />
+      <input name="in2" type="float" nodename="N_overlay_g" />
+      <input name="in3" type="float" nodename="N_overlay_b" />
+      <input name="in4" type="float" nodename="N_overlay_a" />
+    </combine4>
+  </nodegraph>
+
+
   <!-- ======================================================================== -->
   <!-- Conditional nodes                                                        -->
   <!-- ======================================================================== -->
