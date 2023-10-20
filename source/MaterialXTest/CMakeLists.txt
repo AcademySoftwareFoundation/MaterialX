@@ -122,7 +122,9 @@ set_target_properties(
     SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
 # Enable Catch benchmarking
-target_compile_definitions(MaterialXTest PRIVATE -DCATCH_CONFIG_ENABLE_BENCHMARKING)
+if(MATERIALX_BUILD_BENCHMARK_TESTS)
+    target_compile_definitions(MaterialXTest PRIVATE -DCATCH_CONFIG_ENABLE_BENCHMARKING)
+endif()
 
 target_link_libraries(
     MaterialXTest
