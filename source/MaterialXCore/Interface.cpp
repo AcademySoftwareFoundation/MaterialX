@@ -175,6 +175,8 @@ bool PortElement::validate(string* message) const
     if (hasNodeName())
     {
         connectedElement = connectedNode = getConnectedNode();
+        //validateRequire(connectedNode != nullptr, res, message,
+        //    "Node '" + getNodeName() + "' not found for connection");
     }
     else if (hasNodeGraphString())
     {
@@ -328,7 +330,11 @@ NodePtr Input::getConnectedNode() const
     // Handle inputs of compound nodegraphs.
     if (getParent()->isA<NodeGraph>())
     {
-        return getDocument()->getNode(getNodeName());
+        NodePtr rootNode = getDocument()->getNode(getNodeName());
+        if (rootNode)
+        {
+            return rootNode;
+        }
     }
 
     // Handle transitive connections via outputs.
@@ -364,7 +370,7 @@ InputPtr Input::getInterfaceInput() const
         ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
         if (getParent() && getParent()->isA<NodeGraph>())
         {
-            graph = graph->getAncestorOfType<NodeGraph>();
+            graph = graph->getParent()->getAncestorOfType<NodeGraph>();
         }
         if (graph)
         {

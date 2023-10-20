@@ -590,7 +590,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         for (ConstElementPtr elem = self; elem; elem = elem->getParent())
         {
             shared_ptr<const T> typedElem = elem->asA<T>();
-            if (typedElem && typedElem != self)
+            if (typedElem)
             {
                 return typedElem;
             }
