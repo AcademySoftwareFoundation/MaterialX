@@ -12,11 +12,12 @@ namespace mx = MaterialX;
 
 void bindPyImage(py::module& mod)
 {
-    py::enum_<mx::Image::BaseType>(mod, "BaseType", R"docstring(
+    py::enum_<mx::Image::BaseType>(mod, "BaseType",
+                                   PYMATERIALX_DOCSTRING(R"docstring(
     Enumeration of `Image` base types.
 
     :see: https://materialx.org/docs/api/class_image.html#pub-types
-)docstring")
+)docstring"))
         .value("UINT8", mx::Image::BaseType::UINT8)
         .value("UINT16", mx::Image::BaseType::UINT16)
         .value("HALF", mx::Image::BaseType::HALF)
@@ -24,9 +25,9 @@ void bindPyImage(py::module& mod)
         .export_values();
 
     py::class_<mx::ImageBufferDeallocator>(mod, "ImageBufferDeallocator")
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a function to perform image buffer deallocation.
-)docstring";
+)docstring");
 
     py::class_<mx::Image, mx::ImagePtr>(mod, "Image")
         .def_static("create", &mx::Image::create)
@@ -52,13 +53,32 @@ void bindPyImage(py::module& mod)
         .def("releaseResourceBuffer", &mx::Image::releaseResourceBuffer)
         .def("setResourceBufferDeallocator", &mx::Image::setResourceBufferDeallocator)
         .def("getResourceBufferDeallocator", &mx::Image::getResourceBufferDeallocator)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing an image in system memory.
 
     :see: https://materialx.org/docs/api/class_image.html
-)docstring";
+)docstring");
 
-        mod.def("createUniformImage", &mx::createUniformImage);
-        mod.def("createImageStrip", &mx::createImageStrip);
-        mod.def("getMaxDimensions", &mx::getMaxDimensions);
+        mod.def("createUniformImage", &mx::createUniformImage,
+                py::arg("width"),
+                py::arg("height"),
+                py::arg("channelCount"),
+                py::arg("baseType"),
+                py::arg("color"),
+            PYMATERIALX_DOCSTRING(R"docstring(
+    Create a uniform-color image with the given properties.
+)docstring"));
+
+        mod.def("createImageStrip", &mx::createImageStrip,
+                py::arg("images"),
+            PYMATERIALX_DOCSTRING(R"docstring(
+    Create a horizontal image strip from a list of images with identical
+    resolutions and formats.
+)docstring"));
+
+        mod.def("getMaxDimensions", &mx::getMaxDimensions,
+                py::arg("images"),
+            PYMATERIALX_DOCSTRING(R"docstring(
+    Compute the maximum width and height of all images in the given list.
+)docstring"));
 }

@@ -14,7 +14,7 @@ void bindPyTextureBaker(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderMsl, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Rendering materials using Metal Shading Language.
 
     :see: https://developer.apple.com/metal/
@@ -31,7 +31,7 @@ PYBIND11_MODULE(PyMaterialXRenderMsl, mod)
         MetalTextureHandler
         Input
         TextureBaker
-)docstring";
+)docstring");
 
     // PyMaterialXRenderMsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);

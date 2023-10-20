@@ -20,30 +20,30 @@ void bindPyXmlIo(py::module& mod)
         .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines)
         .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
         .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class providing a set of options for controlling the behavior of XML read
     functions.
 
     :see: https://materialx.org/docs/api/class_xml_read_options.html
-)docstring";
+)docstring");
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
         .def(py::init())
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
         .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class providing a set of options for controlling the behavior of XML write
     functions.
 
     :see: https://materialx.org/docs/api/class_xml_write_options.html
-)docstring";
+)docstring");
 
     mod.def("readFromXmlFile", &mx::readFromXmlFile,
             py::arg("doc"),
             py::arg("filename"),
             py::arg("searchPath") = mx::FileSearchPath(),
             py::arg("readOptions") = (mx::XmlReadOptions*) nullptr,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Read a `Document` as XML from the given filename.
 
     :param doc: The `Document` into which data is read.
@@ -60,14 +60,14 @@ void bindPyXmlIo(py::module& mod)
     :type readOptions: XmlReadOptions
     :raises ExceptionParseError: If the document cannot be parsed.
     :raises ExceptionFileMissing: If the file cannot be opened.
-)docstring");
+)docstring"));
 
     mod.def("readFromXmlString", &mx::readFromXmlString,
             py::arg("doc"),
             py::arg("string"),
             py::arg("searchPath") = mx::FileSearchPath(),
             py::arg("readOptions") = (mx::XmlReadOptions*) nullptr,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Read a `Document` as XML from the given string.
 
     :param doc: The `Document` into which data is read.
@@ -83,13 +83,13 @@ void bindPyXmlIo(py::module& mod)
         behavior of the read function.
     :type readOptions: XmlReadOptions
     :raises ExceptionParseError: If the document cannot be parsed.
-)docstring");
+)docstring"));
 
     mod.def("writeToXmlFile", mx::writeToXmlFile,
             py::arg("doc"),
             py::arg("filename"),
             py::arg("writeOptions") = (mx::XmlWriteOptions*) nullptr,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Write a `Document` as XML to the given filename.
 
     :param doc: The `Document` to write.
@@ -99,12 +99,12 @@ void bindPyXmlIo(py::module& mod)
     :param writeOptions: An optional `XmlWriteOptions` object to affect the
         behavior of the write function.
     :type writeOptions: XmlWriteOptions, optional
-)docstring");
+)docstring"));
 
     mod.def("writeToXmlString", mx::writeToXmlString,
             py::arg("doc"),
             py::arg("writeOptions") = nullptr,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Write a `Document` as XML to a string and return it.
 
     :param doc: The `Document` to write.
@@ -113,12 +113,12 @@ void bindPyXmlIo(py::module& mod)
         behavior of the write function.
     :type writeOptions: XmlWriteOptions, optional
     :return: The output string.
-)docstring");
+)docstring"));
 
     mod.def("prependXInclude", mx::prependXInclude,
             py::arg("doc"),
             py::arg("filename"),
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Add an `XInclude` reference to the top of the given `Document`, creating a
     `GenericElement` to hold the reference filename.
 
@@ -126,30 +126,30 @@ void bindPyXmlIo(py::module& mod)
     :type doc: Document
     :param filename: The filename of the `XInclude` reference to be added.
     :type filename: FilePath
-)docstring");
+)docstring"));
 
     mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
             py::arg("sep") = mx::PATH_LIST_SEPARATOR,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Return a `FileSearchPath` object from the search path environment variable
     `MATERIALX_SEARCH_PATH`.
-)docstring");
+)docstring"));
 
     mod.attr("PATH_LIST_SEPARATOR") = mx::PATH_LIST_SEPARATOR;
     mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 
     py::register_exception<mx::ExceptionParseError>(mod, "ExceptionParseError")
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A type of exception that is raised when a requested document cannot be
     parsed.
 
     :see: https://materialx.org/docs/api/class_exception_parse_error.html
-)docstring";
+)docstring");
 
     py::register_exception<mx::ExceptionFileMissing>(mod, "ExceptionFileMissing")
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A type of exception that is raised when a requested file cannot be opened.
 
     :see: https://materialx.org/docs/api/class_exception_file_missing.html
-)docstring";
+)docstring");
 }

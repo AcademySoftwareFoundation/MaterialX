@@ -32,13 +32,13 @@ void bindPyInterface(py::module& mod)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode)
         .def("setConnectedOutput", &mx::PortElement::setConnectedOutput)
         .def("getConnectedOutput", &mx::PortElement::getConnectedOutput)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for port elements such as `Input` and `Output`.
 
     Port elements support spatially-varying upstream connections to nodes.
 
     :see: https://materialx.org/docs/api/class_port_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)
@@ -48,25 +48,25 @@ void bindPyInterface(py::module& mod)
         .def("getConnectedNode", &mx::Input::getConnectedNode)
         .def("getInterfaceInput", &mx::Input::getInterfaceInput)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing an input element within a `Node` or `NodeDef`.
 
     An `Input` holds either a uniform value or a connection to a spatially-varying
     `Output`, either of which may be modified within the scope of a `Material`.
 
     :see: https://materialx.org/docs/api/class_input.html
-)docstring";
+)docstring");
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")
         .def("hasUpstreamCycle", &mx::Output::hasUpstreamCycle)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY)
         .def_readonly_static("DEFAULT_INPUT_ATTRIBUTE", &mx::Output::DEFAULT_INPUT_ATTRIBUTE)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a spatially-varying output element within a `NodeGraph`
     or `NodeDef`.
 
     :see: https://materialx.org/docs/api/class_output.html
-)docstring";
+)docstring");
 
     py::class_<mx::InterfaceElement, mx::InterfaceElementPtr, mx::TypedElement>(mod, "InterfaceElement")
         .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
@@ -135,12 +135,12 @@ void bindPyInterface(py::module& mod)
         BIND_INTERFACE_TYPE_INSTANCE(stringarray, mx::StringVec)
 
         .def_readonly_static("NODE_DEF_ATTRIBUTE", &mx::InterfaceElement::NODE_DEF_ATTRIBUTE)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for interface elements such as `Node`, `NodeDef`, and `NodeGraph`.
 
     An `InterfaceElement` supports a set of `Input` and `Output` elements, with an API
     for setting their values.
 
     :see: https://materialx.org/docs/api/class_interface_element.html
-)docstring";
+)docstring");
 }

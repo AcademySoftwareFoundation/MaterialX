@@ -23,7 +23,7 @@ void bindPyMslRenderer(py::module& mod)
         .def("renderTextureSpace", &mx::MslRenderer::renderTextureSpace)
         .def("captureImage", &mx::MslRenderer::captureImage)
         .def("getProgram", &mx::MslRenderer::getProgram)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Helper class for rendering generated MSL code to produce images.
 
     There are two main interfaces which can be used: one which takes in a
@@ -41,5 +41,5 @@ void bindPyMslRenderer(py::module& mod)
           geometry to an offscreen buffer.
           An interface is provided to save this offscreen buffer to disk using
           an externally defined image handler.
-)docstring";
+)docstring");
 }

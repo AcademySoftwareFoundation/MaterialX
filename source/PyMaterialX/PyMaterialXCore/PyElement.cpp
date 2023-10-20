@@ -102,8 +102,10 @@ void bindPyElement(py::module& mod)
         .def("createStringResolver", &mx::Element::createStringResolver,
              py::arg("geom") = mx::EMPTY_STRING)
         .def("asString", &mx::Element::asString,
-             "Return a single-line description of this element, including its "
-             "category, name, and attributes.")
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return a single-line description of this element, including its category,
+    name, and attributes.
+)docstring"))
         .def("__str__", &mx::Element::asString)
 
         BIND_ELEMENT_FUNC_INSTANCE(Collection)
@@ -123,14 +125,14 @@ void bindPyElement(py::module& mod)
         BIND_ELEMENT_FUNC_INSTANCE(TypeDef)
         BIND_ELEMENT_FUNC_INSTANCE(Visibility)
 
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for MaterialX elements.
 
     An `Element` is a named object within a `Document`, which may possess any
     number of child elements and attributes.
 
     :see: https://materialx.org/docs/api/class_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::TypedElement, mx::TypedElementPtr, mx::Element>(mod, "TypedElement")
         .def("setType", &mx::TypedElement::setType)
@@ -139,11 +141,11 @@ void bindPyElement(py::module& mod)
         .def("isMultiOutputType", &mx::TypedElement::isMultiOutputType)
         .def("getTypeDef", &mx::TypedElement::getTypeDef)
         .def_readonly_static("TYPE_ATTRIBUTE", &mx::TypedElement::TYPE_ATTRIBUTE)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for typed elements.
 
     :see: https://materialx.org/docs/api/class_typed_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::ValueElement, mx::ValueElementPtr, mx::TypedElement>(mod, "ValueElement")
         .def("setValueString", &mx::ValueElement::setValueString)
@@ -200,26 +202,26 @@ void bindPyElement(py::module& mod)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(floatarray, mx::FloatVec)
         BIND_VALUE_ELEMENT_FUNC_INSTANCE(stringarray, mx::StringVec)
 
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for elements that support typed values.
 
     :see: https://materialx.org/docs/api/class_value_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::Token, mx::TokenPtr, mx::ValueElement>(mod, "Token")
         .def_readonly_static("CATEGORY", &mx::Token::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A token element representing a string value.
 
     Token elements are used to define input and output values for string
     substitutions in image filenames.
 
     :see: https://materialx.org/docs/api/class_token.html
-)docstring";
+)docstring");
 
     py::class_<mx::CommentElement, mx::CommentElementPtr, mx::Element>(mod, "CommentElement")
         .def_readonly_static("CATEGORY", &mx::CommentElement::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a block of descriptive text within a `Document`,
     which will be stored a comment when the document is written out.
 
@@ -227,24 +229,24 @@ void bindPyElement(py::module& mod)
     and `Element.setDocString()`.
 
     :see: https://materialx.org/docs/api/class_comment_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::NewlineElement, mx::NewlineElementPtr, mx::Element>(mod, "NewlineElement")
         .def_readonly_static("CATEGORY", &mx::NewlineElement::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a newline within a `Document`.
 
     :see: https://materialx.org/docs/api/class_newline_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::GenericElement, mx::GenericElementPtr, mx::Element>(mod, "GenericElement")
         .def_readonly_static("CATEGORY", &mx::GenericElement::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A generic element subclass, for instantiating elements with unrecognized
     categories.
 
     :see: https://materialx.org/docs/api/class_generic_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
@@ -258,7 +260,7 @@ void bindPyElement(py::module& mod)
         .def("setGeomNameSubstitution", &mx::StringResolver::setGeomNameSubstitution)
         .def("getGeomNameSubstitutions", &mx::StringResolver::getGeomNameSubstitutions)
         .def("resolve", &mx::StringResolver::resolve)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A helper class for applying string modifiers to data values in the context
     of a specific element and geometry.
 
@@ -273,35 +275,36 @@ void bindPyElement(py::module& mod)
     stored string modifiers before calling `StringResolver.resolve()`.
 
     :see: https://materialx.org/docs/api/class_string_resolver.html
-)docstring";
+)docstring");
 
     py::class_<mx::ElementPredicate>(mod, "ElementPredicate")
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a function that takes an `Element` and returns a `bool`,
     to check whether some criteria has passed.
-)docstring";
+)docstring");
 
     py::register_exception<mx::ExceptionOrphanedElement>(mod, "ExceptionOrphanedElement")
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A type of exception that is raised when an `Element` is used after its owning
     `Document` has gone out of scope.
 
     :see: https://materialx.org/docs/api/class_exception_orphaned_element.html
-)docstring";
+)docstring");
 
     mod.def("targetStringsMatch", &mx::targetStringsMatch,
             py::arg("target1"),
             py::arg("target2"),
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Given two target strings, each containing a string array of target names,
     return `True` if they have any targets in common.
 
     An empty target string matches all targets.
-)docstring");
+)docstring"));
+
     mod.def("prettyPrint", &mx::prettyPrint,
             py::arg("element"),
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Pretty-print the given `element` tree, calling `Element.asString()`
     recursively on each element in depth-first order.
-)docstring");
+)docstring"));
 }

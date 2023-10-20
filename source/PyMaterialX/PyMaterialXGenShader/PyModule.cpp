@@ -24,7 +24,7 @@ void bindPyUnitSystem(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenShader, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Core shader generation support.
 
     Shader Generation Classes
@@ -91,7 +91,7 @@ PYBIND11_MODULE(PyMaterialXGenShader, mod)
     .. autofunction:: mapValueToColor
     .. autofunction:: requiresImplementation
     .. autofunction:: tokenSubstitution
-)docstring";
+)docstring");
 
     bindPyColorManagement(mod);
     bindPyShaderPort(mod);

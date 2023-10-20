@@ -22,7 +22,7 @@ void bindPyGlslRenderer(py::module& mod)
         .def("renderTextureSpace", &mx::GlslRenderer::renderTextureSpace)
         .def("captureImage", &mx::GlslRenderer::captureImage)
         .def("getProgram", &mx::GlslRenderer::getProgram)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Helper class for rendering generated GLSL code to produce images.
 
     There are two main interfaces which can be used. One which takes in a
@@ -42,5 +42,5 @@ void bindPyGlslRenderer(py::module& mod)
           an externally defined image handler.
 
     :see: https://materialx.org/docs/api/class_glsl_renderer.html
-)docstring";
+)docstring");
 }

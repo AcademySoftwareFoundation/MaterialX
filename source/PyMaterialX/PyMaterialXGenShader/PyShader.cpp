@@ -29,7 +29,7 @@ void bindPyShader(py::module& mod)
         .def("getAttribute", &mx::Shader::getAttribute)
         .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&)>(&mx::Shader::setAttribute))
         .def("setAttribute", static_cast<void (mx::Shader::*)(const std::string&, mx::ValuePtr)>(&mx::Shader::setAttribute))
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class containing all data needed during shader generation.
     After generation is completed it will contain the resulting source code
     emitted by shader generators.
@@ -39,5 +39,5 @@ void bindPyShader(py::module& mod)
     that add code to the shader.
 
     :see: https://materialx.org/docs/api/class_shader.html
-)docstring";
+)docstring");
 }

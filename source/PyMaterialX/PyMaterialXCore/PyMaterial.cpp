@@ -17,7 +17,7 @@ void bindPyMaterial(py::module& mod)
             py::arg("materialNode"),
             py::arg("nodeType") = mx::SURFACE_SHADER_TYPE_STRING,
             py::arg("target") = mx::EMPTY_STRING,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Return a list of all shader nodes connected to the given `materialNode`'s inputs,
     filtered by the given shader `nodeType` and `target`.
 
@@ -26,11 +26,11 @@ void bindPyMaterial(py::module& mod)
     :param materialNode: The node to examine.
     :param nodeType: The shader node type to return.  Defaults to the surface shader type.
     :param target: An optional target name, which will be used to filter the returned nodes.
-)docstring");
+)docstring"));
 
     mod.def("getConnectedOutputs", &mx::getConnectedOutputs,
             py::arg("node"),
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Return a list of all outputs connected to the given `node`'s inputs.
-)docstring");
+)docstring"));
 }

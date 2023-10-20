@@ -31,11 +31,11 @@ void bindPyHwShaderGenerator(py::module& mod)
         .def("bindLightShader", &mx::HwShaderGenerator::bindLightShader)
         .def("unbindLightShader", &mx::HwShaderGenerator::unbindLightShader)
         .def("unbindLightShaders", &mx::HwShaderGenerator::unbindLightShaders)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for shader generators targeting HW rendering.
 
     :see: https://materialx.org/docs/api/class_hw_shader_generator.html
-)docstring";
+)docstring");
 }
 
 void bindPyHwResourceBindingContext(py::module& mod)
@@ -43,9 +43,9 @@ void bindPyHwResourceBindingContext(py::module& mod)
     py::class_<mx::HwResourceBindingContext, mx::GenUserData, mx::HwResourceBindingContextPtr>(mod, "HwResourceBindingContext")
         .def("emitDirectives", &mx::HwResourceBindingContext::emitDirectives)
         .def("emitResourceBindings", &mx::HwResourceBindingContext::emitResourceBindings)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a context for resource binding for hardware resources.
 
     :see: https://materialx.org/docs/api/class_hw_resource_binding_context.html
-)docstring";
+)docstring");
 }

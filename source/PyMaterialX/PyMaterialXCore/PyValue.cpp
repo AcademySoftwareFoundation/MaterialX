@@ -24,12 +24,12 @@ void bindPyValue(py::module& mod)
         .def("getValueString", &mx::Value::getValueString)
         .def("getTypeString", &mx::Value::getTypeString)
         .def_static("createValueFromStrings", &mx::Value::createValueFromStrings)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a generic, discriminated value, whose type may be
     queried dynamically.
 
     :see: https://materialx.org/docs/api/class_value.html
-)docstring";
+)docstring");
 
     BIND_TYPE_INSTANCE(integer, int)
     BIND_TYPE_INSTANCE(boolean, bool)

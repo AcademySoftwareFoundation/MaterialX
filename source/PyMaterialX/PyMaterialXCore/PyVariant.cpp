@@ -14,11 +14,11 @@ void bindPyVariant(py::module& mod)
 {
     py::class_<mx::Variant, mx::VariantPtr, mx::InterfaceElement>(mod, "Variant")
         .def_readonly_static("CATEGORY", &mx::Variant::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a variant element within a `VariantSet`.
 
     :see: https://materialx.org/docs/api/class_variant.html
-)docstring";
+)docstring");
 
     py::class_<mx::VariantSet, mx::VariantSetPtr, mx::Element>(mod, "VariantSet")
         .def("addVariant", &mx::VariantSet::addVariant,
@@ -27,11 +27,11 @@ void bindPyVariant(py::module& mod)
         .def("getVariants", &mx::VariantSet::getVariants)
         .def("removeVariant", &mx::VariantSet::removeVariant)
         .def_readonly_static("CATEGORY", &mx::VariantSet::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a variant set element within a `Document`.
 
     :see: https://materialx.org/docs/api/class_variant_set.html
-)docstring";
+)docstring");
 
     py::class_<mx::VariantAssign, mx::VariantAssignPtr, mx::Element>(mod, "VariantAssign")
         .def("setVariantSetString", &mx::VariantAssign::setVariantSetString)
@@ -41,9 +41,9 @@ void bindPyVariant(py::module& mod)
         .def("hasVariantString", &mx::VariantAssign::hasVariantString)
         .def("getVariantString", &mx::VariantAssign::getVariantString)
         .def_readonly_static("CATEGORY", &mx::VariantAssign::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a variant assignment element within a `Look`.
 
     :see: https://materialx.org/docs/api/class_variant_assign.html
-)docstring";
+)docstring");
 }

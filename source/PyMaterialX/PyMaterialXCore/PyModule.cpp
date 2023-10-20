@@ -26,7 +26,7 @@ void bindPyVariant(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXCore, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Core MaterialX elements and graph traversal.
 
     Library Version
@@ -287,7 +287,7 @@ PYBIND11_MODULE(PyMaterialXCore, mod)
     .. autofunction:: stringStartsWith
     .. autofunction:: geomStringsMatch
     .. autofunction:: targetStringsMatch
-)docstring";
+)docstring");
 
     bindPyElement(mod);
     bindPyTraversal(mod);

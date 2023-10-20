@@ -13,10 +13,10 @@ namespace mx = MaterialX;
 void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument,
-            R"docstring(
+            PYMATERIALX_DOCSTRING(R"docstring(
     Create a MaterialX `Document` instance, which represents the top-level
     element in the MaterialX ownership hierarchy.
-)docstring");
+)docstring"));
 
     py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)

@@ -24,12 +24,12 @@ void bindPyGeom(py::module& mod)
         .def("getCollectionString", &mx::GeomElement::getCollectionString)
         .def("setCollection", &mx::GeomElement::setCollection)
         .def("getCollection", &mx::GeomElement::getCollection)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for geometric elements, which support bindings to geometries
     and geometric collections.
 
     :see: https://materialx.org/docs/api/class_geom_element.html
-)docstring";
+)docstring");
 
     py::class_<mx::GeomInfo, mx::GeomInfoPtr, mx::GeomElement>(mod, "GeomInfo")
         .def("addGeomProp", &mx::GeomInfo::addGeomProp)
@@ -60,19 +60,19 @@ void bindPyGeom(py::module& mod)
         BIND_GEOMINFO_FUNC_INSTANCE(stringarray, mx::StringVec)
 
         .def_readonly_static("CATEGORY", &mx::GeomInfo::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a geometry info element within a `Document`.
 
     :see: https://materialx.org/docs/api/class_geom_info.html
-)docstring";
+)docstring");
 
     py::class_<mx::GeomProp, mx::GeomPropPtr, mx::ValueElement>(mod, "GeomProp")
         .def_readonly_static("CATEGORY", &mx::GeomProp::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a geometric property element within a `GeomInfo`.
 
     :see: https://materialx.org/docs/api/class_geom_prop.html
-)docstring";
+)docstring");
 
     py::class_<mx::GeomPropDef, mx::GeomPropDefPtr, mx::TypedElement>(mod, "GeomPropDef")
         .def("setGeomProp", &mx::GeomPropDef::setGeomProp)
@@ -88,7 +88,7 @@ void bindPyGeom(py::module& mod)
         .def("hasGeomProp", &mx::GeomPropDef::hasGeomProp)
         .def("getGeomProp", &mx::GeomPropDef::getGeomProp)
         .def_readonly_static("CATEGORY", &mx::GeomPropDef::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a declaration of geometric property data.
 
     A `GeomPropDef` element contains a reference to a geometric node and a set of
@@ -98,7 +98,7 @@ void bindPyGeom(py::module& mod)
     reference to the `"texcoord"` geometric node with an index setting of `"1"`.
 
     :see: https://materialx.org/docs/api/class_geom_prop_def.html
-)docstring";
+)docstring");
 
     py::class_<mx::Collection, mx::CollectionPtr, mx::Element>(mod, "Collection")
         .def("setIncludeGeom", &mx::Collection::setIncludeGeom)
@@ -116,16 +116,16 @@ void bindPyGeom(py::module& mod)
         .def("hasIncludeCycle", &mx::Collection::hasIncludeCycle)
         .def("matchesGeomString", &mx::Collection::matchesGeomString)
         .def_readonly_static("CATEGORY", &mx::Collection::CATEGORY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a collection element within a `Document`.
 
     :see: https://materialx.org/docs/api/class_geom_prop_def.html
-)docstring";
+)docstring");
 
     mod.def(
         "geomStringsMatch", &mx::geomStringsMatch,
         py::arg("geom1"), py::arg("geom2"), py::arg("contains"),
-        R"docstring(
+        PYMATERIALX_DOCSTRING(R"docstring(
     Given two geometry strings, each containing a list of geom names, return
     `True` if they have any geometries in common.
 
@@ -136,7 +136,7 @@ void bindPyGeom(py::module& mod)
     in the first string completely contains a geom path in the second string.
 
     :todo: Geometry name expressions are not yet supported.
-)docstring");
+)docstring"));
 
     mod.attr("GEOM_PATH_SEPARATOR") = mx::GEOM_PATH_SEPARATOR;
     mod.attr("UNIVERSAL_GEOM_NAME") = mx::UNIVERSAL_GEOM_NAME;

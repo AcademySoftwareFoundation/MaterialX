@@ -122,14 +122,14 @@ void bindPyTypes(py::module& mod)
         .def("transformNormal", &mx::Matrix33::transformNormal)
         .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A 3x3 matrix of floating-point values.
 
     Vector transformation methods follow the row-vector convention,
     with matrix-vector multiplication computed as `v' = vM`.
 
     :see: https://materialx.org/docs/api/class_matrix33.html
-)docstring";
+)docstring");
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
         BIND_MATRIX_SUBCLASS(mx::Matrix44, 4)
@@ -145,14 +145,14 @@ void bindPyTypes(py::module& mod)
         .def_static("createRotationY", &mx::Matrix44::createRotationY)
         .def_static("createRotationZ", &mx::Matrix44::createRotationZ)
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A 4x4 matrix of floating-point values.
 
     Vector transformation methods follow the row-vector convention,
     with matrix-vector multiplication computed as `v' = vM`.
 
     :see: https://materialx.org/docs/api/class_matrix44.html
-)docstring";
+)docstring");
 
     mod.attr("DEFAULT_TYPE_STRING") = mx::DEFAULT_TYPE_STRING;
     mod.attr("FILENAME_TYPE_STRING") = mx::FILENAME_TYPE_STRING;

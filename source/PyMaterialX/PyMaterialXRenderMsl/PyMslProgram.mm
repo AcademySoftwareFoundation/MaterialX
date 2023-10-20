@@ -35,12 +35,12 @@ void bindPyMslProgram(py::module& mod)
         .def("bindViewInformation", &mx::MslProgram::bindViewInformation)
         .def("bindTimeAndFrame", &mx::MslProgram::bindTimeAndFrame,
              py::arg("time") = 1.0f, py::arg("frame") = 1.0f)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing an executable MSL program.
 
     There are two main interfaces which can be used: one which takes in a
     `HwShader`, and one which allows for explicit setting of shader stage code.
-)docstring";
+)docstring");
 
     py::class_<mx::MslProgram::Input>(mod, "Input")
         .def_readwrite("location", &mx::MslProgram::Input::location)
@@ -50,11 +50,11 @@ void bindPyMslProgram(py::module& mod)
         .def_readwrite("isConstant", &mx::MslProgram::Input::isConstant)
         .def_readwrite("path", &mx::MslProgram::Input::path)
         .def(py::init<int, int, int, std::string>())
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a structure to hold information about program inputs.
 
     The structure is populated by directly scanning the program so may not contain
     some inputs listed on any associated `HwShader` as those inputs may have been
     optimized out if they are unused.
-)docstring";
+)docstring");
 }

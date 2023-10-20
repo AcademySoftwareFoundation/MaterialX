@@ -11,7 +11,7 @@ void bindPyOslRenderer(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Rendering materials using Open Shading Language.
 
     :see: https://openshadinglanguage.org/
@@ -24,7 +24,7 @@ PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
         :toctree: osl-rendering
 
         OslRenderer
-)docstring";
+)docstring");
 
     // PyMaterialXRenderOsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);

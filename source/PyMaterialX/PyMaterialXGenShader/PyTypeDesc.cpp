@@ -18,26 +18,26 @@ void bindPyTypeDesc(py::module& mod)
     py::class_<mx::TypeDesc, std::unique_ptr<MaterialX::TypeDesc, py::nodelete>>(mod, "TypeDesc")
         .def_static("get", &mx::TypeDesc::get,
                     py::arg("name"),
-                    R"docstring(
+                    PYMATERIALX_DOCSTRING(R"docstring(
     Return a type descriptor for the given `name`.
 
     :type name: `str`
     :param name: The name of the type descriptor to return.
     :return: A type descriptor for the given `name`, or `None` if no type with
         the given `name` could be found.
-)docstring")
+)docstring"))
         .def("getName", &mx::TypeDesc::getName)
         .def("getBaseType", &mx::TypeDesc::getBaseType)
         .def("getChannelIndex", &mx::TypeDesc::getChannelIndex,
              py::arg("channel"),
-             R"docstring(
+             PYMATERIALX_DOCSTRING(R"docstring(
     Return the channel index for the supplied channel name.
 
     :type channel: `str`
     :param channel: The name of the channel whose index to return.
     :return: The index that corresponds to the given `channel` name, or `-1` on
         failure to find a matching index.
-)docstring")
+)docstring"))
         .def("getSemantic", &mx::TypeDesc::getSemantic)
         .def("getSize", &mx::TypeDesc::getSize)
         .def("isEditable", &mx::TypeDesc::isEditable)
@@ -47,7 +47,7 @@ void bindPyTypeDesc(py::module& mod)
         .def("isFloat2", &mx::TypeDesc::isFloat2)
         .def("isFloat3", &mx::TypeDesc::isFloat3)
         .def("isFloat4", &mx::TypeDesc::isFloat4)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class implementing a type descriptor for MaterialX data types.
 
     All types need to have a type descriptor registered in order for shader generators
@@ -59,5 +59,5 @@ void bindPyTypeDesc(py::module& mod)
     Descriptors for registered types can be retrieved using `TypeDesc.get()`, see below.
 
     :see: https://materialx.org/docs/api/class_type_desc.html
-)docstring";
+)docstring");
 }

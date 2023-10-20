@@ -12,7 +12,7 @@ void bindPyMslResourceBindingContext(py::module &mod);
 
 PYBIND11_MODULE(PyMaterialXGenMsl, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Shader generation using Metal Shading Language.
 
     :see: https://developer.apple.com/metal/
@@ -37,7 +37,7 @@ PYBIND11_MODULE(PyMaterialXGenMsl, mod)
 
         MslShaderGenerator
         MslResourceBindingContext
-)docstring";
+)docstring");
 
     // PyMaterialXGenMsl depends on types defined in PyMaterialXGenShader
     PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);

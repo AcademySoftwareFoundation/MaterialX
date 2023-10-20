@@ -19,7 +19,7 @@ void bindPyMetalTextureHandler(py::module& mod)
         .def("createRenderResources", &mx::MetalTextureHandler::createRenderResources)
         .def("releaseRenderResources", &mx::MetalTextureHandler::releaseRenderResources,
             py::arg("image") = nullptr)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A Metal texture handler class.
-)docstring";
+)docstring");
 }

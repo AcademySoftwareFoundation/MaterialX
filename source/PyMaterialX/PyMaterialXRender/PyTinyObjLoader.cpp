@@ -16,7 +16,7 @@ void bindPyTinyObjLoader(py::module& mod)
         .def_static("create", &mx::TinyObjLoader::create)
         .def(py::init<>())
         .def("load", &mx::TinyObjLoader::load)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Wrapper class for a geometry loader to read OBJ files using the TinyObj
     library.
 
@@ -27,5 +27,5 @@ void bindPyTinyObjLoader(py::module& mod)
 
     :see: https://materialx.org/docs/api/class_tiny_obj_loader.html
     :see: https://github.com/tinyobjloader/tinyobjloader/
-)docstring";
+)docstring");
 }

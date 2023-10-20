@@ -17,11 +17,11 @@ void bindPyImageHandler(py::module& mod)
         .def_readwrite("vaddressMode", &mx::ImageSamplingProperties::vaddressMode)
         .def_readwrite("filterType", &mx::ImageSamplingProperties::filterType)
         .def_readwrite("defaultColor", &mx::ImageSamplingProperties::defaultColor)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing an interface to describe sampling properties for images.
 
     :see: https://materialx.org/docs/api/class_image_sampling_properties.html
-)docstring";
+)docstring");
 
     py::class_<mx::ImageLoader, mx::ImageLoaderPtr>(mod, "ImageLoader")
         .def_readonly_static("BMP_EXTENSION", &mx::ImageLoader::BMP_EXTENSION)
@@ -40,11 +40,11 @@ void bindPyImageHandler(py::module& mod)
         .def("supportedExtensions", &mx::ImageLoader::supportedExtensions)
         .def("saveImage", &mx::ImageLoader::saveImage)
         .def("loadImage", &mx::ImageLoader::loadImage)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Abstract base class for file-system image loaders.
 
     :see: https://materialx.org/docs/api/class_image_loader.html
-)docstring";
+)docstring");
 
     py::class_<mx::ImageHandler, mx::ImageHandlerPtr>(mod, "ImageHandler")
         .def_static("create", &mx::ImageHandler::create)
@@ -66,12 +66,12 @@ void bindPyImageHandler(py::module& mod)
         .def("clearImageCache", &mx::ImageHandler::clearImageCache)
         .def("getZeroImage", &mx::ImageHandler::getZeroImage)
         .def("getReferencedImages", &mx::ImageHandler::getReferencedImages)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base image handler class. Keeps track of images which are loaded from
     disk via supplied `ImageLoader`. Derived classes are responsible for
     determinining how to perform the logic for "binding" of these resources
     for a given target (such as a given shading language).
 
     :see: https://materialx.org/docs/api/class_image_handler.html
-)docstring";
+)docstring");
 }

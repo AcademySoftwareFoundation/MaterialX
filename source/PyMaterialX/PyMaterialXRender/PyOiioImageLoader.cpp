@@ -17,7 +17,7 @@ void bindPyOiioImageLoader(py::module& mod)
         .def(py::init<>())
         .def("saveImage", &mx::OiioImageLoader::saveImage)
         .def("loadImage", &mx::OiioImageLoader::loadImage)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class implementing an OpenImageIO image file loader.
 
     Supports the following file extensions:
@@ -40,5 +40,5 @@ void bindPyOiioImageLoader(py::module& mod)
 
     :see: https://materialx.org/docs/api/class_oiio_image_loader.html
     :see: https://github.com/AcademySoftwareFoundation/OpenImageIO
-)docstring";
+)docstring");
 }

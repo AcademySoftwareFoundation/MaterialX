@@ -41,10 +41,10 @@ void bindPyLightHandler(py::module& mod)
         .def("computeLightIdMap", &mx::LightHandler::computeLightIdMap)
         .def("findLights", &mx::LightHandler::findLights)
         .def("registerLights", &mx::LightHandler::registerLights)
-        .doc() = R"docstring(
+        .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a utility light handler for creating and providing
     light data for shader binding.
 
     :see: https://materialx.org/docs/api/class_light_handler.html
-)docstring";
+)docstring");
 }
