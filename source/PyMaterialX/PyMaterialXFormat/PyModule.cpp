@@ -16,7 +16,7 @@ PYBIND11_MODULE(PyMaterialXFormat, mod)
     mod.doc() = "Module containing Python bindings for the MaterialXFormat library";
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
-    pybind11::module::import("PyMaterialXCore");
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
 
     bindPyFile(mod);
     bindPyXmlIo(mod);
