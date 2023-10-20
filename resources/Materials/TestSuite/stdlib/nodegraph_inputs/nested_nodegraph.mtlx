@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+  <!-- Tests for nested nodegraphs -->
+  
+  <!-- Test parent interface element connection to child nodegraph input and parent node connected to output of child graph output -->
+  <nodegraph name="parentNG">
+    <input name="parentNGInput" type="color3" value="1, 1, 0.2"  />
+    <input name="parentNGInput2" type="color3" value="0.2, 1, 1" />
+    <input name="parentNGInput3" type="color3" value="1, 0.2, 1" />
+    <nodegraph name="childNG">
+      <input name="childNGInput" type="color3" interfacename="parentNGInput" />
+      <input name="childNGInput2" type="color3" interfacename="parentNGInput2" />
+      <multiply name="multiplyNode" type="color3">
+        <input name="in1" type="color3" interfacename="childNGInput" />
+        <input name="in2" type="color3" interfacename="childNGInput2" />
+      </multiply>
+      <output name="childNGOutput" type="color3" nodename="multiplyNode" />
+    </nodegraph>
+    <multiply name="parentmultiplyNode" type="color3">
+      <input name="in1" type="color3" nodegraph="childNG" output="childNGOutput"/>
+      <input name="in2" type="color3" interfacename="parentNGInput3" />
+    </multiply>
+    <output name="parentNGOutput1" type="color3" nodegraph="childNG" />
+    <output name="parentNGOutput2" type="color3" nodename="parentmultiplyNode" />
+  </nodegraph>
+
+  <standard_surface name="nestd_graph_shader" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="parentNG" output="parentNGOutput1"/>
+  </standard_surface>
+
+  <surfacematerial name="nested_graph_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="nestd_graph_shader" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+
+  <standard_surface name="nestd_graph_shader2" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="parentNG" output="parentNGOutput2"/>
+  </standard_surface>
+
+  <surfacematerial name="nested_graph_material2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="nestd_graph_shader2" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+
+</materialx>

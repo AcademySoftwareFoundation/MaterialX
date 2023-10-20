@@ -586,10 +586,11 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// pointer if no ancestor of this subclass is found.
     template <class T> shared_ptr<const T> getAncestorOfType() const
     {
-        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        ConstElementPtr self = getSelf();
+        for (ConstElementPtr elem = self; elem; elem = elem->getParent())
         {
             shared_ptr<const T> typedElem = elem->asA<T>();
-            if (typedElem)
+            if (typedElem && typedElem != self)
             {
                 return typedElem;
             }
