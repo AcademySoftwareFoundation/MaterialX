@@ -10,8 +10,6 @@
 
 #include <stdexcept>
 
-#include <iostream>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -175,8 +173,6 @@ bool PortElement::validate(string* message) const
     if (hasNodeName())
     {
         connectedElement = connectedNode = getConnectedNode();
-        //validateRequire(connectedNode != nullptr, res, message,
-        //    "Node '" + getNodeName() + "' not found for connection");
     }
     else if (hasNodeGraphString())
     {
