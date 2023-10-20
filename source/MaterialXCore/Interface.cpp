@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#pragma optimize( "", off )
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -253,17 +255,11 @@ bool PortElement::validate(string* message) const
         else 
         {
             OutputPtr output = nullptr;
+            string outputType = EMPTY_STRING;
+
             if (connectedNode)
             {
-                NodeDefPtr nodeDef = connectedNode->getNodeDef();
-                if (nodeDef)
-                {
-                    std::vector<OutputPtr> outputs = nodeDef->getOutputs();
-                    if (!outputs.empty())
-                    {
-                        output = outputs[0];
-                    }
-                }
+                outputType = connectedNode->getType();
             }
             else if (connectedGraph)
             {
@@ -271,18 +267,18 @@ bool PortElement::validate(string* message) const
                 if (!outputs.empty())
                 {
                     output = outputs[0];
+                    outputType = output->getType();
                 }
             }
 
-            if (output)
+            if (!outputType.empty())
             {
-                const string& outputType = output->getType();
                 if (hasChannels())
                 {
                     bool valid = validChannelsString(getChannels(), outputType, getType());
                     validateRequire(valid, res, message, "Invalid channels string in port connection");
                 }
-                else if (connectedElement->getType() != MULTI_OUTPUT_TYPE_STRING)
+                else if (outputType != MULTI_OUTPUT_TYPE_STRING)
                 {
                     validateRequire(getType() == outputType, res, message, "Mismatched types in port connection:" +
                         getType() + " versus " + outputType);
