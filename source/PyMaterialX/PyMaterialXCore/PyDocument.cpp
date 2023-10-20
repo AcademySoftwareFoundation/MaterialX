@@ -19,11 +19,6 @@ void bindPyDocument(py::module& mod)
         .def("copy", &mx::Document::copy)
         .def("importLibrary", &mx::Document::importLibrary)
         .def("getReferencedSourceUris", &mx::Document::getReferencedSourceUris)
-        .def("addNodeGraph", &mx::Document::addNodeGraph,
-            py::arg("name") = mx::EMPTY_STRING)
-        .def("getNodeGraph", &mx::Document::getNodeGraph)
-        .def("getNodeGraphs", &mx::Document::getNodeGraphs)
-        .def("removeNodeGraph", &mx::Document::removeNodeGraph)
         .def("getMatchingPorts", &mx::Document::getMatchingPorts)
         .def("addGeomInfo", &mx::Document::addGeomInfo,
             py::arg("name") = mx::EMPTY_STRING, py::arg("geom") = mx::UNIVERSAL_GEOM_NAME)

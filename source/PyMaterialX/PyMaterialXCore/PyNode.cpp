@@ -45,6 +45,11 @@ void bindPyNode(py::module& mod)
         .def("getBackdrop", &mx::GraphElement::getBackdrop)
         .def("getBackdrops", &mx::GraphElement::getBackdrops)
         .def("removeBackdrop", &mx::GraphElement::removeBackdrop)
+        .def("addNodeGraph", &mx::GraphElement::addNodeGraph,
+            py::arg("name") = mx::EMPTY_STRING)
+        .def("getNodeGraph", &mx::GraphElement::getNodeGraph)
+        .def("getNodeGraphs", &mx::GraphElement::getNodeGraphs)
+        .def("removeNodeGraph", &mx::GraphElement::removeNodeGraph)
         .def("flattenSubgraphs", &mx::GraphElement::flattenSubgraphs,
             py::arg("target") = mx::EMPTY_STRING, py::arg("filter") = nullptr)
         .def("topologicalSort", &mx::GraphElement::topologicalSort)

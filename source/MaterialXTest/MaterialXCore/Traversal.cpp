@@ -186,7 +186,18 @@ TEST_CASE("InterGraph Traversal", "[traversal]")
         {
             if (!interfaceInput->getNodeName().empty() || !interfaceInput->getNodeGraphString().empty())
             {
-                REQUIRE(interfaceInput->getConnectedNode() != nullptr);                    
+                bool connectionFound = true;
+                mx::OutputPtr output = interfaceInput->getConnectedOutput();
+                if (!output)
+                {
+                    mx::NodePtr node = interfaceInput->getConnectedNode();
+                    if (!node)
+                    {
+                        connectionFound = false;
+                        INFO("interface input has no connection:" + interfaceInput->getNamePath());
+                    }
+                }
+                CHECK(connectionFound);
             }
         }
     }
