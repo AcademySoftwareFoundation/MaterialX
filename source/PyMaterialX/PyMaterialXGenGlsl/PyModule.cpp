@@ -46,7 +46,7 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 )docstring";
 
     // PyMaterialXGenGlsl depends on types defined in PyMaterialXGenShader
-    pybind11::module::import("PyMaterialXGenShader");
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);
 
     bindPyGlslShaderGenerator(mod);
     bindPyGlslResourceBindingContext(mod);

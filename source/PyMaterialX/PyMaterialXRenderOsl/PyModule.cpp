@@ -27,7 +27,7 @@ PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 )docstring";
 
     // PyMaterialXRenderOsl depends on types defined in PyMaterialXRender
-    pybind11::module::import("PyMaterialXRender");
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);
 
     bindPyOslRenderer(mod);
 }

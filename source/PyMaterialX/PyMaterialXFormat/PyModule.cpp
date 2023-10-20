@@ -59,7 +59,7 @@ PYBIND11_MODULE(PyMaterialXFormat, mod)
 )docstring";
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
-    pybind11::module::import("PyMaterialXCore");
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
 
     bindPyFile(mod);
     bindPyXmlIo(mod);

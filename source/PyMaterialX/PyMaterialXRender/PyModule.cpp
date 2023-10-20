@@ -88,7 +88,7 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
 )docstring";
 
     // PyMaterialXRender depends on types defined in PyMaterialXCore
-    pybind11::module::import("PyMaterialXCore");
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
 
     bindPyMesh(mod);
     bindPyGeometryHandler(mod);
