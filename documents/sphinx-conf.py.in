@@ -3,6 +3,12 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import sphinx.util.logging
+
+
+logger = sphinx.util.logging.getLogger(__name__)
+
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -46,6 +52,52 @@ autodoc_default_options = {
 }
 
 _library_version_underscores = '${MATERIALX_LIBRARY_VERSION}'.replace(".", "_")
+_objects_found = {}
+_functions_with_empty_line_in_docstring = []
+_methods_with_empty_line_in_docstring = []
+_functions_with_unnamed_parameters = []
+_methods_with_unnamed_parameters = []
+_DOCSTRING_MACRO_NAME = "PYMATERIALX_DOCSTRING"
+
+
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    """
+    Event handler for processed docstrings.
+
+    Implemented in order to detect functions with empty lines in docstrings,
+    and flag them as Sphinx warnings when the build finishes
+    (see `build_finished()` below).
+
+    Emitted when autodoc has read and processed a docstring.
+
+    `lines` is a list of strings – the lines of the processed docstring – that
+    the event handler can modify in place to change what Sphinx puts into the
+    output.
+
+    Args:
+        app – the Sphinx application object
+        what – the type of the object to which the docstring belongs (one of
+               "module", "class", "exception", "function", "method", "attribute")
+        name – the fully qualified name of the object
+        obj – the object itself
+        options – the options given to the directive: an object with attributes
+                  `inherited_members`, `undoc_members`, `show_inheritance`, and
+                  `no-index` that are `True` if the flag option of same name
+                  was given to the auto directive
+        lines – the lines of the docstring, see above
+    """
+    if obj not in _objects_found.setdefault(what, []):
+        _objects_found[what].append(obj)
+
+    if (what == "function"
+            and obj not in _functions_with_empty_line_in_docstring
+            and "\n\n\n" in obj.__doc__):
+        _functions_with_empty_line_in_docstring.append(obj)
+
+    if (what == "method"
+            and obj not in _methods_with_empty_line_in_docstring
+            and "\n\n\n" in obj.__doc__):
+        _methods_with_empty_line_in_docstring.append(obj)
 
 
 def strip_module_names(text):
@@ -109,9 +161,9 @@ def autodoc_process_signature(app, what, name, obj, options, signature,
         name – the fully qualified name of the object
         obj – the object itself
         options – the options given to the directive: an object with attributes
-                  inherited_members, undoc_members, show_inheritance and no-index
-                  that are true if the flag option of same name was given to
-                  the auto directive
+                  `inherited_members`, `undoc_members`, `show_inheritance`, and
+                  `no-index` that are `True` if the flag option of same name
+                  was given to the auto directive
         signature – function signature, as a string of the form "(parameter_1,
                     parameter_2)", or `None` if introspection didn’t succeed
                     and signature wasn’t specified in the directive.
@@ -119,13 +171,151 @@ def autodoc_process_signature(app, what, name, obj, options, signature,
                             " -> annotation", or `None` if there is no return
                             annotation
     """
+    contains_unnamed_parameters = any(["arg{}".format(i) in signature
+                                       for i in range(10)])
+
+    if (what == "function"
+            and (obj, signature) not in _functions_with_unnamed_parameters
+            and contains_unnamed_parameters):
+        _functions_with_unnamed_parameters.append((obj, signature))
+
+    if (what == "method"
+            and (obj, signature) not in _methods_with_unnamed_parameters
+            and contains_unnamed_parameters):
+        _methods_with_unnamed_parameters.append((obj, signature))
+
     signature = strip_module_names(signature)
     return_annotation = strip_module_names(return_annotation)
     return (signature, return_annotation)
 
 
+def _format_function_qualname(function, signature="()"):
+    """
+    Returns the fully-qualified name of the function or method (if available),
+    e.g. "PyMaterialXCore.Matrix44.transformPoint".
+
+    This function works around a quirk in pybind11 where `__qualname__` of a
+    method starts with `PyCapsule.` rather than the name of the class.
+    See https://github.com/pybind/pybind11/issues/2059 __qualname__ for methods
+    """
+    if (function.__qualname__.startswith("PyCapsule.")
+            and signature.startswith("(self: ")):
+        # Extract the qualified name of the function's type from the name of
+        # the type of the `self` parameter in the function's signature, e.g.
+        # "(self: PyMaterialXCore.Matrix33, arg0: PyMaterialXCore.Vector2)"
+        qualname = "{}.{}".format(signature[7:signature.find(",")],
+                                  function.__name__)
+    else:
+        qualname = "{}.{}".format(function.__module__, function.__qualname__)
+    return qualname.replace("PyCapsule.", "<unknown-type>.")
+
+
+def _format_function_docstring(function):
+    return "{}()\n{}".format(_format_function_qualname(function),
+                             function.__doc__)
+
+
+def _format_function_signature(function, signature):
+    """
+    Returns the fully-qualified name of the function or method (if available)
+    followed by a textual representation of its parameters, each with a name
+    and a type, wrapped in parentheses, e.g.
+    "PyMaterialXCore.Matrix44.transformPoint(self: PyMaterialXCore.Matrix44, arg0: PyMaterialXCore.Vector3)".
+    """
+    return "{}{}".format(_format_function_qualname(function, signature),
+                         signature)
+
+
+def build_finished(app, exception):
+    """
+    Emitted when a build has finished, before Sphinx exits, usually used for
+    cleanup. This event is emitted even when the build process raised an
+    exception, given as the `exception` argument. The exception is reraised in
+    the application after the event handlers have run. If the build process
+    raised no exception, `exception` will be `None`. This allows to customize
+    cleanup actions depending on the exception status.
+    """
+    # Warn about possible issues in docstrings and signatures
+    if _functions_with_empty_line_in_docstring:
+        logger.info(
+            "\nFunctions with empty lines in docstrings:\n    {}"
+            .format("\n    ".join(
+                        _format_function_docstring(function)
+                        for function in _functions_with_empty_line_in_docstring)))
+    if _methods_with_empty_line_in_docstring:
+        logger.info(
+            "\nMethods with empty lines in docstrings:\n    {}"
+            .format("\n    ".join(
+                        _format_function_docstring(method)
+                        for method in _methods_with_empty_line_in_docstring)))
+    if _functions_with_unnamed_parameters:
+        logger.info(
+            "\nFunctions with possibly unnamed parameters:\n    {}"
+            .format("\n    ".join(
+                        _format_function_signature(function, signature)
+                        for function, signature in _functions_with_unnamed_parameters)))
+    if _methods_with_unnamed_parameters:
+        logger.info(
+            "\nMethods with possibly unnamed parameters:\n    {}"
+            .format("\n    ".join(
+                        _format_function_signature(method, signature)
+                        for method, signature in _methods_with_unnamed_parameters)))
+
+    # Show statistics about the API
+    statistics = "The MaterialX Python API consists of:"
+    for what in ("module", "function", "class", "attribute", "method", "exception"):
+        if what in _objects_found:
+            statistics += ("\n    * {} {}s".format(
+                               len(_objects_found[what]), what)
+                           .replace("classs", "classes")
+                           .replace("exceptions", "exception types"))
+    logger.info("\n{}\n".format(statistics))
+
+    # Show a summary of warnings about possible issues in docstrings and
+    # signatures
+    N = len(_functions_with_empty_line_in_docstring)
+    if N == 1:
+        logger.warning("1 function looks like its docstring contains an extra "
+                       "empty line, perhaps not wrapped in `{}()`."
+                       .format(_DOCSTRING_MACRO_NAME))
+    elif N > 1:
+        logger.warning("{} functions look like their docstrings contain an "
+                       "extra empty line, perhaps not wrapped in `()`."
+                       .format(N, _DOCSTRING_MACRO_NAME))
+
+    N = len(_methods_with_empty_line_in_docstring)
+    if N == 1:
+        logger.warning("1 method looks like its docstring contains an extra "
+                       "empty line, perhaps not wrapped in `{}()`."
+                       .format(_DOCSTRING_MACRO_NAME))
+    elif N > 1:
+        logger.warning("{} methods look like their docstrings contain an "
+                       "extra empty line, perhaps not wrapped in `()`."
+                       .format(N, _DOCSTRING_MACRO_NAME))
+
+    N = len(_functions_with_unnamed_parameters)
+    if N == 1:
+        logger.warning("1 function looks like its parameters have not all "
+                       "been named using `py::arg()`:")
+    elif N > 1:
+        logger.warning("{} functions look like their parameters have not all "
+                       "been named using `py::arg()`:"
+                       .format(N))
+
+    N = len(_methods_with_unnamed_parameters)
+    if N == 1:
+        logger.warning("1 method looks like its parameters have not all been "
+                       "named using `py::arg()`:")
+    elif N > 1:
+        logger.warning("{} methods look like their parameters have not all "
+                       "been named using `py::arg()`:"
+                       .format(N))
+
+
 def setup(app):
+    app.connect('autodoc-process-docstring', autodoc_process_docstring)
     app.connect('autodoc-process-signature', autodoc_process_signature)
+    app.connect('build-finished', build_finished)
 
 
 # -- Options for HTML output -------------------------------------------------
