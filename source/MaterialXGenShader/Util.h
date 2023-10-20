@@ -35,7 +35,7 @@ MX_GENSHADER_API bool isTransparentSurface(ElementPtr element, const string& tar
 
 /// Maps a value to a four channel color if it is of the appropriate type.
 /// Supported types include float, Vector2, Vector3, Vector4,
-/// and Color4. If not mapping is possible the color value is
+/// and Color4. If no mapping is possible the color value is
 /// set to opaque black.
 MX_GENSHADER_API void mapValueToColor(ConstValuePtr value, Color4& color);
 
@@ -62,7 +62,7 @@ MX_GENSHADER_API InputPtr getNodeDefInput(InputPtr nodeInput, const string& targ
 
 /// Perform token substitutions on the given source string, using the given substituation map.
 /// Tokens are required to start with '$' and can only consist of alphanumeric characters.
-/// The full token name, including '$' and all following alphanumeric character, will be replaced
+/// The full token name, including '$' and all following alphanumeric characters, will be replaced
 /// by the corresponding string in the substitution map, if the token exists in the map.
 MX_GENSHADER_API void tokenSubstitution(const StringMap& substitutions, string& source);
 
@@ -80,8 +80,8 @@ MX_GENSHADER_API void getUdimScaleAndOffset(const vector<Vector2>& udimCoordinat
 /// @return Return the node if found.
 MX_GENSHADER_API NodePtr connectsToWorldSpaceNode(OutputPtr output);
 
-/// Returns true if there is are any value elements with a given set of attributes either on the
-/// starting node or any graph upsstream of that node.
+/// Returns true if there are any value elements with a given set of attributes either on the
+/// starting node or any graph upstream of that node.
 /// @param output Starting node
 /// @param attributes Attributes to test for
 MX_GENSHADER_API bool hasElementAttributes(OutputPtr output, const StringVec& attributes);
