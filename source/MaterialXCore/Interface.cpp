@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-#pragma optimize( "", off )
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -66,8 +64,6 @@ void PortElement::setConnectedNode(ConstNodePtr node)
 NodePtr PortElement::getConnectedNode() const
 {
     ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-    //std::cout << "PortElement::getConnectedNode on graph: " << (graph ? graph->getNamePath() : "NONE") <<
-    //    std::endl; 
     return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
@@ -165,9 +161,6 @@ OutputPtr PortElement::getConnectedOutput() const
         result = getDocument()->getOutput(outputString);
     }
 
-    //if (result)
-    //    std::cout << "getConnecfedOutput for: " << getNamePath() << " = " <<  result->getNamePath()
-    //        << std::endl;
     return result;
 }
 
@@ -182,8 +175,6 @@ bool PortElement::validate(string* message) const
     if (hasNodeName())
     {
         connectedElement = connectedNode = getConnectedNode();
-        //validateRequire(connectedNode != nullptr, res, message,
-        //    "Node '" + getNodeName() + "' not found for connection");
     }
     else if (hasNodeGraphString())
     {
@@ -331,25 +322,13 @@ NodePtr Input::getConnectedNode() const
     InputPtr graphInput = getInterfaceInput();
     if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
     {
-        NodePtr result = graphInput->getConnectedNode();
-        if (result)
-        {
-            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
-            //std::cout << "-- return root node: " << result->getNamePath() << std::endl;
-        }
-        return result;
+        return graphInput->getConnectedNode();
     }
 
     // Handle inputs of compound nodegraphs.
     if (getParent()->isA<NodeGraph>())
     {
-        NodePtr rootNode = getDocument()->getNode(getNodeName());
-        if (rootNode)
-        {
-            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
-            //std::cout << "-- return root node: " << rootNode->getNamePath() << std::endl;
-            return rootNode;
-        }
+        return getDocument()->getNode(getNodeName());
     }
 
     // Handle transitive connections via outputs.
@@ -359,8 +338,6 @@ NodePtr Input::getConnectedNode() const
         NodePtr node = output->getConnectedNode();
         if (node)
         {
-            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
-            //std::cout << "-- return node: " << node->getNamePath() << std::endl;
             return node;
         }
         else if (output->hasNodeGraphString())
@@ -371,7 +348,6 @@ NodePtr Input::getConnectedNode() const
                 NodePtr childGraphNode = childGraphOutput->getConnectedNode();
                 if (childGraphNode)
                 {
-                    //std::cout << "-- return child graph node: " << childGraphNode->getNamePath() << std::endl;
                     return childGraphNode;
                 }
             }
@@ -389,7 +365,6 @@ InputPtr Input::getInterfaceInput() const
         if (getParent() && getParent()->isA<NodeGraph>())
         {
             graph = graph->getAncestorOfType<NodeGraph>();
-            //std::cout << "Skip to parent graph: " << graph->getNamePath() << std::endl;
         }
         if (graph)
         {
@@ -398,38 +373,13 @@ InputPtr Input::getInterfaceInput() const
             {
                 if (returnVal->hasInterfaceName())
                 {
-                    //std::cout << "Continue input interface traversal:" << 
-                    //    returnVal->getNamePath() << std::endl;
-                    //graph = getAncestorOfType<NodeGraph>();
-                    //if (graph)
-                    //{
-                    //    std::cout << "-- go up to graph:" << graph->getNamePath() << std::endl;
-                    //}
                     return returnVal->getInterfaceInput();
                 }
                 else
                 {
-                    //std::cout << "For input: " << getNamePath() << ". Get graph: " << graph->getName() 
-                    //<< ". Input:" << 
-                    //    (returnVal ? returnVal->getName() : "FAILED")                    
-                    //    << "for interfacename: " << getInterfaceName() << std::endl;
                     return returnVal;
                 }
             }
-            /* else
-            {
-                graph = graph->getAncestorOfType<NodeGraph>();
-                returnVal = graph->getInput(getInterfaceName());
-                if (returnVal)
-                {
-                    std::cout << "For input: " << getNamePath() << ". Get graph: " << graph->getName() 
-                    << ". Input:" << 
-                        (returnVal ? returnVal->getName() : "FAILED")                    
-                        << "for interfacename: " << getInterfaceName() << std::endl;
-                    return returnVal;
-                }
-
-            } */
         }
     }
     return nullptr;
