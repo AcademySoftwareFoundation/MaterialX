@@ -10,6 +10,8 @@
 
 #include <stdexcept>
 
+#include <iostream>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -62,6 +64,8 @@ void PortElement::setConnectedNode(ConstNodePtr node)
 NodePtr PortElement::getConnectedNode() const
 {
     ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+    //std::cout << "PortElement::getConnectedNode on graph: " << (graph ? graph->getNamePath() : "NONE") <<
+    //    std::endl; 
     return graph ? graph->getNode(getNodeName()) : nullptr;
 }
 
@@ -105,7 +109,11 @@ OutputPtr PortElement::getConnectedOutput() const
         NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), scope);
         if (!nodeGraph)
         {
-            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), parent);
+            if (!nodeGraph)
+            {
+                nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+            }
         }
         if (nodeGraph)
         {
@@ -154,6 +162,10 @@ OutputPtr PortElement::getConnectedOutput() const
     {
         result = getDocument()->getOutput(outputString);
     }
+
+    //if (result)
+    //    std::cout << "getConnecfedOutput for: " << getNamePath() << " = " <<  result->getNamePath()
+    //        << std::endl;
     return result;
 }
 
@@ -161,42 +173,60 @@ bool PortElement::validate(string* message) const
 {
     bool res = true;
 
-    NodePtr connectedNode = getConnectedNode();
-    if (hasNodeName() || hasOutputString())
+    const string& outputString = getOutputString();
+    InterfaceElementPtr connectedElement = nullptr;
+    NodePtr connectedNode = nullptr;
+    NodeGraphPtr connectedGraph = nullptr;
+    if (hasNodeName())
     {
-        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
-        if (!nodeGraph)
-        {
-            validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
-        }
+        connectedElement = connectedNode = getConnectedNode();
+        //validateRequire(connectedNode != nullptr, res, message,
+        //    "Node '" + getNodeName() + "' not found for connection");
     }
-    if (connectedNode)
+    else if (hasNodeGraphString())
     {
-        const string& outputString = getOutputString();
+        const string& nodeGraphString = getNodeGraphString();
+        connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString);
+        if (!connectedGraph)
+        {
+            if (getParent())
+            {
+                connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString, getParent());
+                if (!connectedGraph)
+                {
+                    connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString, getParent()->getParent());
+                }
+            }
+        }
+        connectedElement = connectedGraph;
+        validateRequire(connectedGraph != nullptr, res, message,
+            "Nodegraph '" + nodeGraphString + "' not found for connection");
+    }
+
+    if (connectedElement)
+    {
         if (!outputString.empty())
         {
-            OutputPtr output;
-            if (hasNodeName())
+            OutputPtr output = nullptr;
+            if (connectedNode)
             {
                 NodeDefPtr nodeDef = connectedNode->getNodeDef();
                 output = nodeDef ? nodeDef->getOutput(outputString) : OutputPtr();
                 if (output)
                 {
                     validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message,
-                                    "Multi-output type expected in port connection");
+                        "Multi-output type expected in port connection'");
                 }
             }
-            else if (hasNodeGraphString())
+            else if (connectedGraph)
             {
-                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
-                if (nodeGraph)
+                output = connectedGraph->getOutput(outputString);
+                validateRequire(output != nullptr, res, message,
+                    "Nodegraph output '" + outputString + "' not found for connection");
+                if (connectedGraph->getNodeDef())
                 {
-                    output = nodeGraph->getOutput(outputString);
-                    if (nodeGraph->getNodeDef())
-                    {
-                        validateRequire(nodeGraph->getOutputCount() > 1, res, message,
-                                        "Multi-output type expected in port connection");
-                    }
+                    validateRequire(connectedGraph->getOutputCount() > 1, res, message,
+                        "Multi-output type expected in port connection");
                 }
             }
             else
@@ -215,18 +245,49 @@ bool PortElement::validate(string* message) const
                 }
                 else
                 {
-                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
+                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection:" + 
+                        getType() + " versus " + output->getType());
                 }
             }
         }
-        else if (hasChannels())
+        else 
         {
-            bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
-            validateRequire(valid, res, message, "Invalid channels string in port connection");
-        }
-        else if (connectedNode->getType() != MULTI_OUTPUT_TYPE_STRING)
-        {
-            validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
+            OutputPtr output = nullptr;
+            if (connectedNode)
+            {
+                NodeDefPtr nodeDef = connectedNode->getNodeDef();
+                if (nodeDef)
+                {
+                    std::vector<OutputPtr> outputs = nodeDef->getOutputs();
+                    if (!outputs.empty())
+                    {
+                        output = outputs[0];
+                    }
+                }
+            }
+            else if (connectedGraph)
+            {
+                std::vector<OutputPtr> outputs = connectedGraph->getOutputs();
+                if (!outputs.empty())
+                {
+                    output = outputs[0];
+                }
+            }
+
+            if (output)
+            {
+                const string& outputType = output->getType();
+                if (hasChannels())
+                {
+                    bool valid = validChannelsString(getChannels(), outputType, getType());
+                    validateRequire(valid, res, message, "Invalid channels string in port connection");
+                }
+                else if (connectedElement->getType() != MULTI_OUTPUT_TYPE_STRING)
+                {
+                    validateRequire(getType() == outputType, res, message, "Mismatched types in port connection:" +
+                        getType() + " versus " + outputType);
+                }
+            }
         }
     }
     return ValueElement::validate(message) && res;
@@ -274,7 +335,13 @@ NodePtr Input::getConnectedNode() const
     InputPtr graphInput = getInterfaceInput();
     if (graphInput && (graphInput->hasNodeName() || graphInput->hasNodeGraphString()))
     {
-        return graphInput->getConnectedNode();
+        NodePtr result = graphInput->getConnectedNode();
+        if (result)
+        {
+            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
+            //std::cout << "-- return root node: " << result->getNamePath() << std::endl;
+        }
+        return result;
     }
 
     // Handle inputs of compound nodegraphs.
@@ -283,6 +350,8 @@ NodePtr Input::getConnectedNode() const
         NodePtr rootNode = getDocument()->getNode(getNodeName());
         if (rootNode)
         {
+            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
+            //std::cout << "-- return root node: " << rootNode->getNamePath() << std::endl;
             return rootNode;
         }
     }
@@ -294,7 +363,22 @@ NodePtr Input::getConnectedNode() const
         NodePtr node = output->getConnectedNode();
         if (node)
         {
+            //std::cout << "- START Look for node on input: " << getNamePath() << std::endl;
+            //std::cout << "-- return node: " << node->getNamePath() << std::endl;
             return node;
+        }
+        else if (output->hasNodeGraphString())
+        {
+            OutputPtr childGraphOutput = output->getConnectedOutput(); 
+            if (childGraphOutput)
+            {
+                NodePtr childGraphNode = childGraphOutput->getConnectedNode();
+                if (childGraphNode)
+                {
+                    //std::cout << "-- return child graph node: " << childGraphNode->getNamePath() << std::endl;
+                    return childGraphNode;
+                }
+            }
         }
     }
 
@@ -304,11 +388,52 @@ NodePtr Input::getConnectedNode() const
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
-    {
-        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+    {        
+        ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
+        if (getParent() && getParent()->isA<NodeGraph>())
+        {
+            graph = graph->getAncestorOfType<NodeGraph>();
+            //std::cout << "Skip to parent graph: " << graph->getNamePath() << std::endl;
+        }
         if (graph)
         {
-            return graph->getInput(getInterfaceName());
+            InputPtr returnVal = graph->getInput(getInterfaceName());
+            if (returnVal)
+            {
+                if (returnVal->hasInterfaceName())
+                {
+                    //std::cout << "Continue input interface traversal:" << 
+                    //    returnVal->getNamePath() << std::endl;
+                    //graph = getAncestorOfType<NodeGraph>();
+                    //if (graph)
+                    //{
+                    //    std::cout << "-- go up to graph:" << graph->getNamePath() << std::endl;
+                    //}
+                    return returnVal->getInterfaceInput();
+                }
+                else
+                {
+                    //std::cout << "For input: " << getNamePath() << ". Get graph: " << graph->getName() 
+                    //<< ". Input:" << 
+                    //    (returnVal ? returnVal->getName() : "FAILED")                    
+                    //    << "for interfacename: " << getInterfaceName() << std::endl;
+                    return returnVal;
+                }
+            }
+            /* else
+            {
+                graph = graph->getAncestorOfType<NodeGraph>();
+                returnVal = graph->getInput(getInterfaceName());
+                if (returnVal)
+                {
+                    std::cout << "For input: " << getNamePath() << ". Get graph: " << graph->getName() 
+                    << ". Input:" << 
+                        (returnVal ? returnVal->getName() : "FAILED")                    
+                        << "for interfacename: " << getInterfaceName() << std::endl;
+                    return returnVal;
+                }
+
+            } */
         }
     }
     return nullptr;

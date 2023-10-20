@@ -548,6 +548,14 @@ bool ValueElement::validate(string* message) const
         if (decl)
         {
             ValueElementPtr valueElem = decl->getActiveValueElement(getInterfaceName());
+            if (!valueElem)
+            {
+                nodeGraph = nodeGraph->getAncestorOfType<NodeGraph>();
+                if (nodeGraph)
+                {
+                    valueElem = nodeGraph->getActiveValueElement(getInterfaceName());
+                }
+            }
             validateRequire(valueElem != nullptr, res, message, "Interface name not found in referenced declaration");
             if (valueElem)
             {
