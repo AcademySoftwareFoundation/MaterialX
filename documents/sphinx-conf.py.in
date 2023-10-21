@@ -53,51 +53,13 @@ autodoc_default_options = {
 
 _library_version_underscores = '${MATERIALX_LIBRARY_VERSION}'.replace(".", "_")
 _objects_found = {}
+_undocumented_functions = []
+_undocumented_methods = []
 _functions_with_empty_line_in_docstring = []
 _methods_with_empty_line_in_docstring = []
 _functions_with_unnamed_parameters = []
 _methods_with_unnamed_parameters = []
 _DOCSTRING_MACRO_NAME = "PYMATERIALX_DOCSTRING"
-
-
-def autodoc_process_docstring(app, what, name, obj, options, lines):
-    """
-    Event handler for processed docstrings.
-
-    Implemented in order to detect functions with empty lines in docstrings,
-    and flag them as Sphinx warnings when the build finishes
-    (see `build_finished()` below).
-
-    Emitted when autodoc has read and processed a docstring.
-
-    `lines` is a list of strings – the lines of the processed docstring – that
-    the event handler can modify in place to change what Sphinx puts into the
-    output.
-
-    Args:
-        app – the Sphinx application object
-        what – the type of the object to which the docstring belongs (one of
-               "module", "class", "exception", "function", "method", "attribute")
-        name – the fully qualified name of the object
-        obj – the object itself
-        options – the options given to the directive: an object with attributes
-                  `inherited_members`, `undoc_members`, `show_inheritance`, and
-                  `no-index` that are `True` if the flag option of same name
-                  was given to the auto directive
-        lines – the lines of the docstring, see above
-    """
-    if obj not in _objects_found.setdefault(what, []):
-        _objects_found[what].append(obj)
-
-    if (what == "function"
-            and obj not in _functions_with_empty_line_in_docstring
-            and "\n\n\n" in obj.__doc__):
-        _functions_with_empty_line_in_docstring.append(obj)
-
-    if (what == "method"
-            and obj not in _methods_with_empty_line_in_docstring
-            and "\n\n\n" in obj.__doc__):
-        _methods_with_empty_line_in_docstring.append(obj)
 
 
 def strip_module_names(text):
@@ -142,6 +104,53 @@ def strip_module_names(text):
             .replace('MslProgram::Input', 'PyMaterialXRenderMsl.Input')
         )
     return text
+
+
+def autodoc_process_docstring(app, what, name, obj, options, lines):
+    """
+    Event handler for processed docstrings.
+
+    Implemented in order to detect undocumented functions, and functions with
+    empty lines in docstrings, and flag them as Sphinx warnings when the build
+    finishes (see `build_finished()` below).
+
+    Emitted when autodoc has read and processed a docstring.
+
+    `lines` is a list of strings – the lines of the processed docstring – that
+    the event handler can modify in place to change what Sphinx puts into the
+    output.
+
+    Args:
+        app – the Sphinx application object
+        what – the type of the object to which the docstring belongs (one of
+               "module", "class", "exception", "function", "method", "attribute")
+        name – the fully qualified name of the object
+        obj – the object itself
+        options – the options given to the directive: an object with attributes
+                  `inherited_members`, `undoc_members`, `show_inheritance`, and
+                  `no-index` that are `True` if the flag option of same name
+                  was given to the auto directive
+        lines – the lines of the docstring, see above
+    """
+    if obj not in _objects_found.setdefault(what, []):
+        _objects_found[what].append(obj)
+
+    if what == "function":
+        if (obj not in _undocumented_functions
+                and obj.__doc__.count("\n") < 2):
+            _undocumented_functions.append(obj)
+        if (obj not in _functions_with_empty_line_in_docstring
+                and "\n\n\n" in obj.__doc__):
+            _functions_with_empty_line_in_docstring.append(obj)
+
+    if what == "method":
+        if (obj not in _undocumented_methods
+                and obj.__doc__.count("\n") < 2):
+            _undocumented_methods.append(obj)
+
+        if (obj not in _methods_with_empty_line_in_docstring
+                and "\n\n\n" in obj.__doc__):
+            _methods_with_empty_line_in_docstring.append(obj)
 
 
 def autodoc_process_signature(app, what, name, obj, options, signature,
@@ -205,8 +214,10 @@ def _format_function_qualname(function, signature="()"):
         # "(self: PyMaterialXCore.Matrix33, arg0: PyMaterialXCore.Vector2)"
         qualname = "{}.{}".format(signature[7:signature.find(",")],
                                   function.__name__)
-    else:
+    elif hasattr(function, "__module__"):
         qualname = "{}.{}".format(function.__module__, function.__qualname__)
+    else:
+        qualname = function.__qualname__
     return qualname.replace("PyCapsule.", "<unknown-type>.")
 
 
@@ -236,6 +247,18 @@ def build_finished(app, exception):
     cleanup actions depending on the exception status.
     """
     # Warn about possible issues in docstrings and signatures
+    if _undocumented_functions:
+        logger.info(
+            "\nFunctions with empty docstrings:\n    {}"
+            .format("\n    ".join(
+                        _format_function_docstring(function)
+                        for function in _undocumented_functions)))
+    if _undocumented_methods:
+        logger.info(
+            "\nMethods with empty docstrings:\n    {}"
+            .format("\n    ".join(
+                        _format_function_docstring(function)
+                        for function in _undocumented_methods)))
     if _functions_with_empty_line_in_docstring:
         logger.info(
             "\nFunctions with empty lines in docstrings:\n    {}"
@@ -273,6 +296,20 @@ def build_finished(app, exception):
 
     # Show a summary of warnings about possible issues in docstrings and
     # signatures
+    N = len(_undocumented_functions)
+    if N == 1:
+        logger.warning("1 function looks like it does not have a docstring yet.")
+    elif N > 1:
+        logger.warning("{} functions look like they do not have docstrings yet."
+                       .format(N))
+
+    N = len(_undocumented_methods)
+    if N == 1:
+        logger.warning("1 method looks like it does not have a docstring yet.")
+    elif N > 1:
+        logger.warning("{} methods look like they do not have docstrings yet."
+                       .format(N))
+
     N = len(_functions_with_empty_line_in_docstring)
     if N == 1:
         logger.warning("1 function looks like its docstring contains an extra "
