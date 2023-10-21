@@ -29,13 +29,72 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
-        .def("setCategory", &mx::Element::setCategory)
-        .def("getCategory", &mx::Element::getCategory)
-        .def("setName", &mx::Element::setName)
-        .def("getName", &mx::Element::getName)
+
+        .def("setCategory", &mx::Element::setCategory,
+             py::arg("category"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Set the element's category string.
+
+    The category of a MaterialX element represents its role within a `Document`,
+    with common examples being `"material"`, `"nodegraph"`, and `"image"`.
+)docstring"))
+
+        .def("getCategory", &mx::Element::getCategory,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the element's category string.
+
+    The category of a MaterialX element represents its role within a `Document`,
+    with common examples being `"material"`, `"nodegraph"`, and `"image"`.
+)docstring"))
+
+        .def("setName", &mx::Element::setName,
+             py::arg("name"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Set the element's name string.
+
+    :attention: The name of a MaterialX element must be unique among all
+        elements at the same scope.
+    :type name: str
+    :param name: The name to set for the element.
+    :raises LookupError: If an element at the same scope already possesses the
+       given name.
+)docstring"))
+
+        .def("getName", &mx::Element::getName,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the element's name string.
+
+    :note: The name of a MaterialX element is unique among all elements at the
+        same scope.
+)docstring"))
+
         .def("getNamePath", &mx::Element::getNamePath,
-            py::arg("relativeTo") = nullptr)
-        .def("getDescendant", &mx::Element::getDescendant)
+             py::arg("relativeTo") = nullptr,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the element's hierarchical name path, relative to the root document.
+
+    The name of each ancestor will be prepended in turn, separated by forward
+    slashes.
+
+    :type relativeTo: Element
+    :param relativeTo: If a valid ancestor element is specified, then the
+        returned path will be relative to this ancestor.
+)docstring"))
+
+        .def("getDescendant", &mx::Element::getDescendant,
+             py::arg("namePath"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the element specified by the given hierarchical name path,
+    relative to the current element.
+
+    If the name path is empty, then the current element is returned.
+
+    If no element is found at the given path, then `None` is returned.
+
+    :type namePath: str
+    :param namePath: The relative name path of the element to return.
+)docstring"))
+
         .def("setFilePrefix", &mx::Element::setFilePrefix)
         .def("hasFilePrefix", &mx::Element::hasFilePrefix)
         .def("getFilePrefix", &mx::Element::getFilePrefix)
@@ -61,8 +120,26 @@ void bindPyElement(py::module& mod)
         .def("getQualifiedName", &mx::Element::getQualifiedName)
         .def("setDocString", &mx::Element::setDocString)
         .def("getDocString", &mx::Element::getDocString)
+
         .def("addChildOfCategory", &mx::Element::addChildOfCategory,
-            py::arg("category"), py::arg("name") = mx::EMPTY_STRING)
+             py::arg("category"),
+             py::arg("name") = mx::EMPTY_STRING,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Add a child element of the given category and name.
+
+    :type category: str
+    :param category: The category string of the new child element.
+        If the category string is recognized, then the correponding `Element`
+        subclass is generated; otherwise, a `GenericElement` is generated.
+    :type name: str
+    :param name: The name of the new child element.
+        If no name is specified, then a unique name will automatically be
+        generated.
+    :raises LookupError: If a child of this element already possesses the given
+        `name`.
+    :returns: The new child element.
+)docstring"))
+
         .def("changeChildCategory", &mx::Element::changeChildCategory)
         .def("_getChild", &mx::Element::getChild)
         .def("getChildren", &mx::Element::getChildren)
@@ -105,6 +182,8 @@ void bindPyElement(py::module& mod)
              PYMATERIALX_DOCSTRING(R"docstring(
     Return a single-line description of this element, including its category,
     name, and attributes.
+
+    :note: More pythonic alternative: `str(element)` equals `element.toString()`
 )docstring"))
         .def("__str__", &mx::Element::asString)
 
