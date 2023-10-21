@@ -9,7 +9,7 @@ import argparse
 import logging
 from typing import List, Dict
 
-import MaterialX as mx
+import MaterialX
 import udimutils
 
 # Configure the logger
@@ -54,11 +54,11 @@ def texture_type_from_name(texture_name: str) -> List[str]:
                 return [plug_name, texture_patterns[plug_name]['type']]
 
 
-def list_textures(texture_dir: mx.FilePath) -> List[udimutils.UDIMFile]:
+def list_textures(texture_dir: MaterialX.FilePath) -> List[udimutils.UDIMFile]:
     """
     List all textures that matched extensions in cfg file
     @param texture_dir: the directory where the textures exist
-    return List(texture_names)
+    return List(udimutils.UDIMFile)
     """
     tex_extensions = get_cfg().get('texture_extensions')
     all_textures = []
@@ -74,21 +74,27 @@ def list_textures(texture_dir: mx.FilePath) -> List[udimutils.UDIMFile]:
     return all_textures
 
 
-def create_mtlx_doc(texture_dir: mx.FilePath, mtlx_file: mx.FilePath, relative_paths: bool = True,
-                    colorspace: str = 'srgb_texture', use_tileimage: bool =False) -> None:
+def create_mtlx_doc(texture_dir: MaterialX.FilePath,
+                    mtlx_file: MaterialX.FilePath,
+                    relative_paths: bool = True,
+                    colorspace: str = 'srgb_texture',
+                    use_tile_image: bool =False
+                    ) -> None:
     """
     Create a metrical document with uber shader
     @param texture_dir: The texture path directory
     @param mtlx_file: The output path of document
     @param relative_paths: Will create relative texture path or not inside document
     @param colorspace: The given colorspace
-    @param use_tileimage: use tileimage node or image node
+    @param use_tile_image: use tileimage node or image node
     """
-    material_type = 'standard_surface'
-    # Create document
-    doc = mx.createDocument()
 
-    mtlx_filename = mtlx_file.getBaseName()
+    material_type = 'standard_surface'
+
+    # Create document
+    doc = MaterialX.createDocument()
+
+    mtlx_filename = mtlx_file.getBaseName().rsplit('.', 1)[0]
     mtlx_filename = doc.createValidChildName(mtlx_filename)
 
     # Create node graph and material
@@ -109,25 +115,16 @@ def create_mtlx_doc(texture_dir: mx.FilePath, mtlx_file: mx.FilePath, relative_p
         return
 
     for texture_file in texture_files:
-
-        # set relative path
-        # if relative_paths:
-        #     tex_path = os.path.relpath(tex_file_name, os.path.dirname(mtlx_file))
-
-
-        if texture_file.isUDIM():
-            logger.debug("Texture UDIM: `{}`".format(texture_file.getBaseName()))
-
-
         mtl_plug = texture_type_from_name(texture_file.getBaseName())
+
         if not mtl_plug:
             logger.debug("Skipping `{}` not matched pattern detected".format(texture_file.getBaseName()))
             continue
 
-        # Create texture
+        # Create textures
         plug_name, plug_type = mtl_plug
 
-        # Skip if the plug already created (in case of udim)
+        # Skip if the plug already created (in case of UDIMs)
         texture_name = texture_file.getNameWithoutExtension()
         if shader_node.getInput(plug_name) or node_graph.getChild(texture_name):
             continue
@@ -140,11 +137,17 @@ def create_mtlx_doc(texture_dir: mx.FilePath, mtlx_file: mx.FilePath, relative_p
         mtl_input = shader_node.addInput(plug_name)
         texture_name = node_graph.createValidChildName(texture_name)
 
-        image_type = 'tileimage' if use_tileimage else 'image'
+        image_type = 'tileimage' if use_tile_image else 'image'
         image_node = node_graph.addNode(image_type, texture_name, plug_type)
 
         # set file path
-        image_node.setInputValue('file', texture_file.asString(), 'filename')
+        filepath_string = texture_file.asString(MaterialX.FormatPosix)
+
+        # set relative path
+        if relative_paths:
+            filepath_string = os.path.relpath(filepath_string, mtlx_file.getParentPath().asString())
+
+        image_node.setInputValue('file', filepath_string, 'filename')
 
         # set colorspace
         if 'color' in plug_type:
@@ -174,7 +177,7 @@ def create_mtlx_doc(texture_dir: mx.FilePath, mtlx_file: mx.FilePath, relative_p
     if not mtlx_file.getParentPath().exists():
         mtlx_file.getParentPath().createDirectory()
 
-    mx.writeToXmlFile(doc, mtlx_file.asString())
+    MaterialX.writeToXmlFile(doc, mtlx_file.asString())
     logger.info("MaterialX file created `{}`".format(mtlx_file.asString()))
 
 
@@ -192,26 +195,24 @@ def main():
 
     options = parser.parse_args()
 
-    texture_path = mx.FilePath.getCurrentPath()
+    texture_path = MaterialX.FilePath.getCurrentPath()
 
     if options.inputDirectory:
-        texture_path = mx.FilePath(options.inputDirectory)
+        texture_path = MaterialX.FilePath(options.inputDirectory)
 
         if not texture_path.isDirectory():
             logger.error("The texture directory does not exist `{}`".format(texture_path))
             return
 
-    default_doc_name = mx.FilePath('standard_surface.mtlx')
+    default_doc_name = MaterialX.FilePath('standard_surface.mtlx')
     mtlx_file = texture_path / default_doc_name
     if options.outputFilename:
-        filepath = mx.FilePath(options.outputFilename)
+        filepath = MaterialX.FilePath(options.outputFilename)
 
         if filepath.isAbsolute():
             mtlx_file = filepath
         else:
             mtlx_file = texture_path / filepath
-
-    # texture_search_path = mx.FileSearchPath(texture_path.asString())
 
     # Colorspace
     colorspace = 'srgb_texture'
@@ -226,7 +227,7 @@ def main():
         mtlx_file,
         relative_paths=not options.absolutePaths,
         colorspace=colorspace,
-        use_tileimage=options.tileimage
+        use_tile_image=options.tileimage
     )
 
 
