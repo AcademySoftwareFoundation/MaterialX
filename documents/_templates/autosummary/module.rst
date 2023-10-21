@@ -61,3 +61,9 @@
 {%- endfor %}
 {% endif %}
 {% endblock %}
+
+Source:
+`MaterialX <https://github.com/AcademySoftwareFoundation/MaterialX/tree/main>`_ /
+`source <https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source>`_ /
+`PyMaterialX <https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/PyMaterialX>`_ /
+`{{ fullname }} <https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/PyMaterialX/{{ fullname }}>`_
