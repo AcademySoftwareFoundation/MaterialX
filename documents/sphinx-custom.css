@@ -81,6 +81,10 @@ html {
     --fragment-linenumber-color: #cccccc;
     --fragment-linenumber-background: #35393c;
     --fragment-linenumber-border: #1f1f1f;
+
+    /* Additional custom color variables */
+    --highlight-color: #fbe54e;
+    --target-color: #204D79;
 }
 
 /*
@@ -149,7 +153,11 @@ div.body li {
     margin-bottom: 3px;
 }
 dt:target {
-    background: #204D79;
+    background: var(--target-color);
+}
+span.highlighted {
+    background-color: var(--highlight-color);
+    color: black;
 }
 dt.sig {
     background-color: var(--code-background);
@@ -159,8 +167,7 @@ dt.sig {
     margin-bottom: 8px;
 }
 dt.sig:target {
-    background-color: var(--code-background-brighter);
-    border: 2px solid #204D79;
+    border: 2px solid var(--target-color);
     padding: 9px;
 }
 div.admonition {
@@ -213,6 +220,19 @@ a:hover tt,
 a:hover code {
     background-color: var(--code-background-brighter);
     color: var(--page-foreground-color);
+}
+
+/* Indexes */
+div.modindex-jumpbox {
+    border-top: 1px solid var(--separator-color);
+    border-bottom: 1px solid var(--separator-color);
+    color: var(--separator-color);
+}
+
+div.genindex-jumpbox {
+    border-top: 1px solid var(--separator-color);
+    border-bottom: 1px solid var(--separator-color);
+    color: var(--separator-color);
 }
 
 /* Tables */
