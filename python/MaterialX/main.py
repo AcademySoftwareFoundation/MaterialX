@@ -30,11 +30,12 @@ def _addChild(self, elementClass, name, typeString = ''):
     method = getattr(self.__class__, "_addChild" + elementClass.__name__)
     return method(self, name, typeString)
 
-def _getChild(self, name):
-    "Return the child element, if any, with the given name."
-    if (name == None):
+_Element_getChild = Element.getChild
+
+def getChild(self, name):
+    if name is None:
         return None
-    return self._getChild(name)
+    return _Element_getChild(self, name)
 
 def _getChildOfType(self, elementClass, name):
     "Return the child element, if any, with the given name and subclass."
@@ -54,7 +55,8 @@ def _removeChildOfType(self, elementClass, name):
 
 Element.isA = _isA
 Element.addChild = _addChild
-Element.getChild = _getChild
+Element.getChild = getChild
+Element.getChild.__doc__ = _Element_getChild.__doc__
 Element.getChildOfType = _getChildOfType
 Element.getChildrenOfType = _getChildrenOfType
 Element.removeChildOfType = _removeChildOfType

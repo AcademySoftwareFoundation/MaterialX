@@ -141,7 +141,7 @@ void bindPyElement(py::module& mod)
 )docstring"))
 
         .def("changeChildCategory", &mx::Element::changeChildCategory)
-        .def("_getChild", &mx::Element::getChild)
+        .def("getChild", &mx::Element::getChild)
         .def("getChildren", &mx::Element::getChildren)
         .def("setChildIndex", &mx::Element::setChildIndex)
         .def("getChildIndex", &mx::Element::getChildIndex)
