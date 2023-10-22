@@ -23,7 +23,7 @@ void bindPyCgltfLoader(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Core rendering support for MaterialX.
 
     Core Rendering Classes
@@ -85,7 +85,7 @@ PYBIND11_MODULE(PyMaterialXRender, mod)
         :toctree: exceptions
 
         ExceptionRenderError
-)docstring";
+)docstring");
 
     // PyMaterialXRender depends on types defined in PyMaterialXCore
     PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);

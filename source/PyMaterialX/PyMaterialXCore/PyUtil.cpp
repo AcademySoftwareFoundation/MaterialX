@@ -19,7 +19,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Return the version of the MaterialX library as a string.
 
-    >>> import MaterialX as mx
     >>> mx.getVersionString()
     '1.38.9'
 
@@ -36,7 +35,6 @@ void bindPyUtil(py::module& mod)
     Return the major, minor, and build versions of the MaterialX library as an
     integer tuple.
 
-    >>> import MaterialX as mx
     >>> mx.getVersionIntegers()
     (1, 38, 9)
 )docstring"));
@@ -47,7 +45,6 @@ void bindPyUtil(py::module& mod)
     Create a valid MaterialX name from the given `name`,
     replacing invalid characters with the given `replaceChar`.
 
-    >>> import MaterialX as mx
     >>> mx.createValidName('left arm #123')
     'left_arm__123'
 )docstring"));
@@ -58,7 +55,6 @@ void bindPyUtil(py::module& mod)
     Return `True` if the given `name` is a valid MaterialX name,
     otherwise False.
 
-    >>> import MaterialX as mx
     >>> mx.isValidName('left arm #123')
     False
 )docstring"));
@@ -68,7 +64,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Increment the numeric suffix of the given `name`.
 
-    >>> import MaterialX as mx
     >>> mx.incrementName('left arm #123')
     'left arm #124'
 )docstring"));
@@ -79,7 +74,6 @@ void bindPyUtil(py::module& mod)
     Split the given `string` into a list of substrings using the
     given set of separator characters.
 
-    >>> import MaterialX as mx
     >>> mx.splitString('MaterialX', 'aeiou')
     ['M', 't', 'r', 'lX']
 )docstring"));
@@ -90,7 +84,6 @@ void bindPyUtil(py::module& mod)
     Join a list of substrings into a single string, placing the
     given separator between each substring.
 
-    >>> import MaterialX as mx
     >>> mx.joinStrings(['M', 'teri', 'lX'], 'a')
     'MaterialX'
 )docstring"));
@@ -100,7 +93,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Apply the given substring `substitutions` to the input `string`.
 
-    >>> import MaterialX as mx
     >>> mx.replaceSubstrings(
     ...     '/bob/alice/guido',
     ...     {'bob': 'b', 'alice': 'a', 'guido': 'g'}
@@ -114,7 +106,6 @@ void bindPyUtil(py::module& mod)
     Return `True` if the given `string` starts with the given `prefix`,
     otherwise `False`.
 
-    >>> import MaterialX as mx
     >>> mx.stringStartsWith('turbulence3d', 'turbulence')
     True
     >>> mx.stringStartsWith('turbulence3d', 'Turbulence')
@@ -127,7 +118,6 @@ void bindPyUtil(py::module& mod)
     Return `True` if the given `string` ends with the given `suffix`,
     otherwise `False`.
 
-    >>> import MaterialX as mx
     >>> mx.stringEndsWith('turbulence3d', '3d')
     True
     >>> mx.stringEndsWith('turbulence3d', '3D')
@@ -139,7 +129,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Split the given `namePath` into a list of names.
 
-    >>> import MaterialX as mx
     >>> mx.splitNamePath('/robot2/right_arm')
     ['robot2', 'right_arm']
 )docstring"));
@@ -149,7 +138,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Create a name path from the given list of `names`.
 
-    >>> import MaterialX as mx
     >>> mx.createNamePath(['robot2', 'right_arm'])
     'robot2/right_arm'
 )docstring"));
@@ -159,7 +147,6 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Given a `namePath`, return the parent name path.
 
-    >>> import MaterialX as mx
     >>> mx.parentNamePath('/robot2/right_arm')
     'robot2'
 )docstring"));

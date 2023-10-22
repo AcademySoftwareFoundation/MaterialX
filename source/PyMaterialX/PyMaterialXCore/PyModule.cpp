@@ -29,6 +29,14 @@ PYBIND11_MODULE(PyMaterialXCore, mod)
     mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Core MaterialX elements and graph traversal.
 
+    All functions and classes that are defined in this module are available in
+    the top-level `MaterialX` Python package, and are typically used via an
+    `import` alias named `mx`:
+
+    .. code:: python
+
+        import MaterialX as mx
+
     Library Version
     ---------------
 

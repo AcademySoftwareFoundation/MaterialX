@@ -13,8 +13,16 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = R"docstring(
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Cross-platform support for file and search paths, and XML serialization.
+
+    All functions and classes that are defined in this module are available in
+    the top-level `MaterialX` Python package, and are typically used via an
+    `import` alias named `mx`:
+
+    .. code:: python
+
+        import MaterialX as mx
 
     File and Search Paths
     ---------------------
@@ -56,7 +64,7 @@ PYBIND11_MODULE(PyMaterialXFormat, mod)
         XmlWriteOptions
         ExceptionParseError
         ExceptionFileMissing
-)docstring";
+)docstring");
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
     PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
