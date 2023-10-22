@@ -333,19 +333,19 @@ def build_finished(app, exception):
     N = len(_functions_with_unnamed_parameters)
     if N == 1:
         logger.warning("1 function looks like its parameters have not all "
-                       "been named using `py::arg()`:")
+                       "been named using `py::arg()`.")
     elif N > 1:
         logger.warning("{} functions look like their parameters have not all "
-                       "been named using `py::arg()`:"
+                       "been named using `py::arg()`."
                        .format(N))
 
     N = len(_methods_with_unnamed_parameters)
     if N == 1:
         logger.warning("1 method looks like its parameters have not all been "
-                       "named using `py::arg()`:")
+                       "named using `py::arg()`.")
     elif N > 1:
         logger.warning("{} methods look like their parameters have not all "
-                       "been named using `py::arg()`:"
+                       "been named using `py::arg()`."
                        .format(N))
 
 
