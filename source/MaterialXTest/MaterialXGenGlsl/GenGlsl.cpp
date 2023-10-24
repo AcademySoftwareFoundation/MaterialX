@@ -119,18 +119,16 @@ TEST_CASE("GenShader: Bind Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
+#ifdef MATERIALX_BUILD_BENCHMARK_TESTS
 TEST_CASE("GenShader: Performance Test", "[genglsl]")
 {
-#ifdef MATERIALX_BUILD_BENCHMARK_TESTS
     mx::GenContext context(mx::GlslShaderGenerator::create());
     BENCHMARK("Load documents, validate and generate shader") 
     {
         return GenShaderUtil::shaderGenPerformanceTest(context);
     };
-#else
-    SUCCEED("Performance tests are disabled");
-#endif
 }
+#endif
 
 enum class GlslType
 {
