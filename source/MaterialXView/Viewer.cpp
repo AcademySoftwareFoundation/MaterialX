@@ -1360,7 +1360,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             // with later assignments superseding earlier ones.
             for (mx::LookPtr look : doc->getLooks())
             {
-                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
+                for (mx::MaterialAssignPtr matAssign : look->getActiveMaterialAssigns())
                 {
                     const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)
