@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_TRANSFORMVECTORNODEMSL_H
-#define MATERIALX_TRANSFORMVECTORNODEMSL_H
+#ifndef MATERIALX_HWTEXCOORDNODE_H
+#define MATERIALX_HWTEXCOORDNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// TransformVector node implementation for MSL
-class MX_GENMSL_API TransformVectorNodeMsl : public MslImplementation
+/// Generic texture coordinate node for hardware languages
+class MX_GENSHADER_API HwTexCoordNode : public ShaderNodeImpl
 {
   public:
     static ShaderNodeImplPtr create();
@@ -21,8 +21,9 @@ class MX_GENMSL_API TransformVectorNodeMsl : public MslImplementation
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
-    virtual const string& getMatrix(const string& fromSpace, const string& toSpace) const;
-    virtual string getHomogeneousCoordinate(const ShaderInput* in, GenContext& context) const;
+    virtual string getIndex(const ShaderNode& node) const;
+
+    static string INDEX;
 };
 
 MATERIALX_NAMESPACE_END
