@@ -5,8 +5,8 @@
 # - https://docs.python.org/3.8/library/os.html#os.add_dll_directory
 import os
 import sys
-import importlib.metadata
 if sys.platform == "win32" and sys.version_info >= (3, 8):
+    import importlib.metadata
     try:
         importlib.metadata.version('MaterialX')
     except importlib.metadata.PackageNotFoundError:
