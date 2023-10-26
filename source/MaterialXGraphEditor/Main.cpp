@@ -30,6 +30,7 @@ const std::string options =
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --disableScaling               Disable automatic HiDPI scaling\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -65,6 +66,7 @@ int main(int argc, char* const argv[])
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;
+    bool disableScaling = false;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -99,6 +101,10 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--disableScaling")
+        {
+            disableScaling = true;
         }
         else if (token == "--help")
         {
@@ -193,15 +199,17 @@ int main(int argc, char* const argv[])
     // Fonts are not handled, so a global font scale factor is set.
     // There appears to be no multi-monitor solution so use the primary monitor
     // for now.
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    if (monitor)
-    {
-        float xscale = 1.0f, yscale = 1.0f;
-        glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-        ImGuiStyle& style = ImGui::GetStyle();
-        float dpiScale = xscale > yscale ? xscale : yscale;
-        style.ScaleAllSizes(dpiScale);
-        graph->setFontScale(dpiScale);
+    if(!disableScaling) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        if (monitor)
+        {
+            float xscale = 1.0f, yscale = 1.0f;
+            glfwGetMonitorContentScale(monitor, &xscale, &yscale);
+            ImGuiStyle& style = ImGui::GetStyle();
+            float dpiScale = xscale > yscale ? xscale : yscale;
+            style.ScaleAllSizes(dpiScale);
+            graph->setFontScale(dpiScale);
+        }
     }
 
     // Create editor config and context.
