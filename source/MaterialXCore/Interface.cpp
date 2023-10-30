@@ -10,8 +10,6 @@
 
 #include <stdexcept>
 
-#include <iostream>
-
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -127,6 +125,12 @@ OutputPtr PortElement::getConnectedOutput() const
                     result = nodeGraph->getOutput(outputString);
                 }
             }
+        }
+
+        // Handl direct nodegraph -> nodegraph output connections
+        while (result && result->hasNodeGraphString())
+        {
+            result = result->getConnectedOutput();
         }
     }
     // Look for a node output.
@@ -346,7 +350,7 @@ NodePtr Input::getConnectedNode() const
         }
         else if (output->hasNodeGraphString())
         {
-            OutputPtr childGraphOutput = output->getConnectedOutput(); 
+            OutputPtr childGraphOutput = output->getConnectedOutput();
             if (childGraphOutput)
             {
                 NodePtr childGraphNode = childGraphOutput->getConnectedNode();
