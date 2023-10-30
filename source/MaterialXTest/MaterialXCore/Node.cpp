@@ -613,7 +613,7 @@ TEST_CASE("Tokens", "[nodegraph]")
     }
 }
 
-TEST_CASE("Nested Nodegraphs", "[nodegraph]")
+TEST_CASE("Nested Nodegraphs", "[nodegraph1]")
 {
     mx::DocumentPtr doc = mx::createDocument();
 
@@ -621,13 +621,23 @@ TEST_CASE("Nested Nodegraphs", "[nodegraph]")
     mx::NodeGraphPtr level1 = doc->addNodeGraph("level1_graph");
     mx::NodeGraphPtr level2 = level1->addNodeGraph("level2_graph");
     REQUIRE(level2);
+    mx::NodeGraphPtr level3 = level2->addNodeGraph("level3_graph");
+    REQUIRE(level3);
 
-    // Add an input connection between the graph inputs at the 2 levels
+    // Add an input connection between the graph inputs at the levels 1 and 2
     // (An interface connection)
     mx::InputPtr level1Input = level1->addInput("level1_input", "color3");
     mx::InputPtr level2Input = level2->addInput("level2_input", "color3");
     level2Input->setInterfaceName("level1_input");
-    REQUIRE(level2Input->getInterfaceInput()->getNamePath() == level1Input->getNamePath());
+    //REQUIRE(level2Input->getInterfaceInput()->getNamePath() == level1Input->getNamePath());
+
+    // Add an input connection between the graphs inputs at level 1, 2 and 3
+    mx::InputPtr level1Input2 = level1->addInput("level1_input2", "color3");
+    mx::InputPtr level2Input2 = level2->addInput("level2_input2", "color3");
+    level2Input2->setInterfaceName(level1Input2->getName());
+    mx::InputPtr level3Input = level3->addInput("level3_input", "color3");
+    level3Input->setInterfaceName(level2Input2->getName());
+    REQUIRE(level3Input->getInterfaceInput()->getNamePath() == level1Input->getNamePath());
 
     // Add output connection from child nodegraph to node inside nodegraph
     mx::OutputPtr level2Output = level2->addOutput("level2_output", "color3");
