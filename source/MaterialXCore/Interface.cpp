@@ -10,6 +10,8 @@
 
 #include <stdexcept>
 
+#include <iostream>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
@@ -362,25 +364,33 @@ NodePtr Input::getConnectedNode() const
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
-    {        
-        ConstNodeGraphPtr graph = getAncestorOfType<NodeGraph>();
-        if (getParent() && getParent()->isA<NodeGraph>())
+    {   
+        const string& interfaceName = getInterfaceName();
+        ConstElementPtr parent = getParent();
+        parent = parent->getParent();
+        ConstNodeGraphPtr graph = parent->asA<NodeGraph>();
+        if (graph && !graph->getNodeDef())
         {
-            graph = graph->getParent()->getAncestorOfType<NodeGraph>();
-        }
-        if (graph)
-        {
-            InputPtr returnVal = graph->getInput(getInterfaceName());
+            InputPtr returnVal = graph->getInput(interfaceName);
             if (returnVal)
             {
                 if (returnVal->hasInterfaceName())
                 {
-                    return returnVal->getInterfaceInput();
+                    InputPtr val = returnVal->getInterfaceInput();
+                    if (val)
+                    {
+                        returnVal = val;
+                    }
+                    return returnVal;
                 }
                 else
                 {
                     return returnVal;
                 }
+            }
+            else
+            {
+                throw Exception("Interface name cannot be found: '" + interfaceName + "'");
             }
         }
     }
