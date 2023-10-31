@@ -3,6 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import sphinx.ext.autosummary.generate
 import sphinx.util.logging
 
 
@@ -42,6 +43,53 @@ extensions = [
 pygments_style = 'monokai'
 
 templates_path = ['${CMAKE_CURRENT_SOURCE_DIR}/_templates']
+
+
+# Override the `render()` method of the `AutosummaryRenderer` class in order to
+# add a custom filter for extracting docstrings of attributes from their
+# corresponding properties
+_original_render = sphinx.ext.autosummary.generate.AutosummaryRenderer.render
+
+
+def get_docstring(module_name, class_name, attribute_name):
+    module = sys.modules.get(module_name)
+    if module:
+        class_object = getattr(module, class_name)
+        if class_object:
+            attr = getattr(class_object, attribute_name)
+            if isinstance(attr, str):
+                prop = class_object.__dict__.get(attribute_name)
+                if prop:
+                    return prop.__doc__.strip().replace("\n    ", "\n      ")
+                for base_class in class_object.__bases__:
+                    prop = base_class.__dict__.get(attribute_name)
+                    if prop:
+                        return "Inherited from `{}`.\n\n      {}".format(
+                            base_class.__name__,
+                            prop.__doc__.strip().replace("\n    ", "\n      "))
+
+    return "No docstring available for {}.{}.{}".format(module_name, class_name, attribute_name)
+
+
+def has_member(module_name, class_name, member_name):
+    module = sys.modules.get(module_name)
+    if module:
+        class_object = getattr(module, class_name)
+        if class_object:
+            member = class_object.__dict__.get(member_name)
+            if member:
+                return True
+
+    return False
+
+
+def render(self, template_name: str, context: dict) -> str:
+    self.env.globals['has_member'] = has_member
+    self.env.globals['getDocstring'] = get_docstring
+    return _original_render(self, template_name, context)
+
+
+sphinx.ext.autosummary.generate.AutosummaryRenderer.render = render
 
 
 # -- Autodoc Configuration ---------------------------------------------------
