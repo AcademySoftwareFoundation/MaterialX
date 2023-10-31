@@ -32,9 +32,10 @@
     }
 
 // Define a macro to process a block of docstring text
-// (currently, we strip the first character from the given text, so that we can
-// write the first line of the docstring on a new line, rather than on the same
-// line that starts the docstring)
-#define PYMATERIALX_DOCSTRING(TEXT) std::string(TEXT).erase(0, 1).c_str()
+// (currently, we strip the first and last character from the given text, so
+// that we can write the first and last lines of the docstring on new lines,
+// rather than on the same line that starts and ends the docstring)
+#define PYMATERIALX_DOCSTRING(TEXT) \
+    std::string(TEXT).substr(1, std::string(TEXT).length() - 2).c_str()
 
 #endif
