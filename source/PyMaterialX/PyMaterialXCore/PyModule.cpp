@@ -295,6 +295,147 @@ PYBIND11_MODULE(PyMaterialXCore, mod)
     .. autofunction:: stringStartsWith
     .. autofunction:: geomStringsMatch
     .. autofunction:: targetStringsMatch
+
+    Module Constants
+    ----------------
+
+    .. py:data:: DEFAULT_TYPE_STRING
+        :type: str
+        :value: "color3"
+
+        The name of the default type that is used when no other specific type
+        is given/available.
+
+        :see: `InterfaceElement.addInput()`
+        :see: `InterfaceElement.addOutput()`
+
+    .. py:data:: FILENAME_TYPE_STRING
+        :type: str
+        :value: "filename"
+
+        :see: `StringResolver.resolve()`
+
+    .. py:data:: GEOMNAME_TYPE_STRING
+        :type: str
+        :value: "geomname"
+
+        :see: `StringResolver.resolve()`
+
+    .. py:data:: STRING_TYPE_STRING
+        :type: str
+        :value: "string"
+
+    .. py:data:: BSDF_TYPE_STRING
+        :type: str
+        :value: "BSDF"
+
+    .. py:data:: EDF_TYPE_STRING
+        :type: str
+        :value: "EDF"
+
+    .. py:data:: VDF_TYPE_STRING
+        :type: str
+        :value: "VDF"
+
+    .. py:data:: SURFACE_SHADER_TYPE_STRING
+        :type: str
+        :value: "surfaceshader"
+
+        The node type name used for surface shader nodes.
+
+        :see: `getShaderNodes()`
+
+    .. py:data:: DISPLACEMENT_SHADER_TYPE_STRING
+        :type: str
+        :value: "displacementshader"
+
+        The node type name used for displacement shader nodes.
+
+        :see: `getShaderNodes()`
+
+    .. py:data:: VOLUME_SHADER_TYPE_STRING
+        :type: str
+        :value: "volumeshader"
+
+        The node type name used for volume shader nodes.
+
+        :see: `getShaderNodes()`
+
+    .. py:data:: LIGHT_SHADER_TYPE_STRING
+        :type: str
+        :value: "lightshader"
+
+        The node type name used for light shader nodes.
+
+        :see: `getShaderNodes()`
+
+    .. py:data:: MATERIAL_TYPE_STRING
+        :type: str
+        :value: "material"
+
+    .. py:data:: SURFACE_MATERIAL_NODE_STRING
+        :type: str
+        :value: "surfacematerial"
+
+    .. py:data:: VOLUME_MATERIAL_NODE_STRING
+        :type: str
+        :value: "volumematerial"
+
+    .. py:data:: MULTI_OUTPUT_TYPE_STRING
+        :type: str
+        :value: "multioutput"
+
+    .. py:data:: NONE_TYPE_STRING
+        :type: str
+        :value: "none"
+
+    .. py:data:: VALUE_STRING_TRUE
+        :type: str
+        :value: "true"
+
+    .. py:data:: VALUE_STRING_FALSE
+        :type: str
+        :value: "false"
+
+    .. py:data:: NAME_PREFIX_SEPARATOR
+        :type: str
+        :value: ":"
+
+    .. py:data:: NAME_PATH_SEPARATOR
+        :type: str
+        :value: "/"
+
+    .. py:data:: ARRAY_VALID_SEPARATORS
+        :type: str
+        :value: ", "
+
+    .. py:data:: ARRAY_PREFERRED_SEPARATOR
+        :type: str
+        :value: ", "
+
+    .. py:data:: GEOM_PATH_SEPARATOR
+        :type: str
+        :value: "/"
+
+    .. py:data:: UNIVERSAL_GEOM_NAME
+        :type: str
+        :value: GEOM_PATH_SEPARATOR
+
+        :see: `GEOM_PATH_SEPARATOR`
+        :see: `getGeometryBindings()`
+
+    .. py:data:: UDIM_TOKEN
+        :type: str
+        :value: "<UDIM>"
+
+    .. py:data:: UV_TILE_TOKEN
+        :type: str
+        :value: "<UVTILE>"
+
+    .. py:data:: UDIM_SET_PROPERTY
+        :type: str
+        :value: "udimset"
+
 )docstring");
 
     bindPyElement(mod);

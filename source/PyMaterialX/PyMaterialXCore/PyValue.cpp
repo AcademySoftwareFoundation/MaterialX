@@ -9,10 +9,15 @@
 
 #define BIND_TYPE_INSTANCE(NAME, T)                                                                         \
 py::class_<mx::TypedValue<T>, std::shared_ptr< mx::TypedValue<T> >, mx::Value>(mod, "TypedValue_" #NAME)    \
-    .def("getData", &mx::TypedValue<T>::getData)                                                            \
-    .def("getValueString", &mx::TypedValue<T>::getValueString)                                              \
-    .def_static("createValue", &mx::Value::createValue<T>)                                                  \
-    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE)                                                  \
+    .def("getData", &mx::TypedValue<T>::getData,                                                            \
+         "Return the data held by this typed value.")                                                       \
+    .def("getValueString", &mx::TypedValue<T>::getValueString,                                              \
+         "Return the data held by this typed value as a string.")                                           \
+    .def_static("createValue", &mx::Value::createValue<T>,                                                  \
+                py::arg("data"),                                                                            \
+                "Create a typed value holding the given `data`.")                                           \
+    .def_readonly_static("TYPE", &mx::TypedValue<T>::TYPE,                                                  \
+                         "The name of the type of this typed value.")                                       \
     .doc() = "A `TypedValue` of type `" #T "`.";
 
 namespace py = pybind11;
@@ -21,9 +26,27 @@ namespace mx = MaterialX;
 void bindPyValue(py::module& mod)
 {
     py::class_<mx::Value, mx::ValuePtr>(mod, "Value")
-        .def("getValueString", &mx::Value::getValueString)
-        .def("getTypeString", &mx::Value::getTypeString)
-        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings)
+
+        .def("getValueString", &mx::Value::getValueString,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the value string for this value.
+)docstring"))
+
+        .def("getTypeString", &mx::Value::getTypeString,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the type string for this value.
+)docstring"))
+
+        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings,
+                    py::arg("value"),
+                    py::arg("typeString"),
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Create a new value instance from value and type strings.
+
+    :returns: A typed value, or `None` if the conversion to the specified data
+        type cannot be performed.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a generic, discriminated value, whose type may be
     queried dynamically.
