@@ -20,7 +20,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Shared pointer to an Metal texture handler
+/// Shared pointer to a Metal texture handler
 using MetalTextureHandlerPtr = std::shared_ptr<class MetalTextureHandler>;
 
 /// @class MetalTextureHandler
@@ -34,10 +34,10 @@ class MX_RENDERMSL_API MetalTextureHandler : public ImageHandler
         return MetalTextureHandlerPtr(new MetalTextureHandler(device, imageLoader));
     }
 
-
     /// This method binds image and its corresponding sampling properties.
     /// It also creates the underlying resource if needed.
-    /// Actual binding of texture and sampler to command encoder happens autoamt
+    /// Actual binding of texture and sampler to command encoder happens
+    /// automatically.
     bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
     
 protected:

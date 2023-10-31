@@ -75,8 +75,8 @@ class MX_GENSHADER_API TypeDesc
     unsigned char getSemantic() const { return _semantic; }
 
     /// Return the number of elements the type is composed of.
-    /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
-    /// For array types 0 is returned since the number of elements is undefined
+    /// Will return 1 for scalar types and a size greater than 1 for aggregate types.
+    /// For array types, 0 is returned, since the number of elements is undefined
     /// until an array is instantiated.
     size_t getSize() const { return _size; }
 

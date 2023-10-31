@@ -66,13 +66,13 @@ class MX_GENSHADER_API VariableBlock
     {
     }
 
-    /// Get the name of this block.
+    /// Return the name of this block.
     const string& getName() const { return _name; }
 
     /// Set the name of this block.
     void setName(const string& name) { _name = name; }
 
-    /// Get the instance name of this block.
+    /// Return the instance name of this block.
     const string& getInstance() const { return _instance; }
 
     /// Set the instance name of this block.

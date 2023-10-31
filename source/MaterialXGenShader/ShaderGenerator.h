@@ -161,25 +161,25 @@ class MX_GENSHADER_API ShaderGenerator
     /// Return a registered shader node implementation for the given nodedef.
     virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
 
-    /// Sets the color management system
+    /// Set the color management system
     void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
     {
         _colorManagementSystem = colorManagementSystem;
     }
 
-    /// Returns the color management system
+    /// Return the color management system
     ColorManagementSystemPtr getColorManagementSystem() const
     {
         return _colorManagementSystem;
     }
 
-    /// Sets the unit system
+    /// Set the unit system
     void setUnitSystem(UnitSystemPtr unitSystem)
     {
         _unitSystem = unitSystem;
     }
 
-    /// Returns the unit system
+    /// Return the unit system
     UnitSystemPtr getUnitSystem() const
     {
         return _unitSystem;

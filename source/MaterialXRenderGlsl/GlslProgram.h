@@ -53,7 +53,7 @@ class MX_RENDERGLSL_API GlslProgram
     /// @param sourceCode Source code of the shader stage.
     void addStage(const string& stage, const string& sourceCode);
 
-    /// Get source code string for a given stage.
+    /// Return source code string for a given stage.
     /// @return Shader stage string. String is empty if not found.
     const string& getStageSourceCode(const string& stage) const;
 
@@ -77,7 +77,7 @@ class MX_RENDERGLSL_API GlslProgram
     /// Return true if built shader program data is present.
     bool hasBuiltData();
 
-    // Clear built shader program data, if any.
+    /// Clear built shader program data, if any.
     void clearBuiltData();
 
     /// @}
@@ -126,19 +126,19 @@ class MX_RENDERGLSL_API GlslProgram
     /// Program input shaded pointer map type
     using InputMap = std::unordered_map<string, InputPtr>;
 
-    /// Get list of program input uniforms.
+    /// Return list of program input uniforms.
     /// The program must have been created successfully first.
     /// An exception is thrown if the parsing of the program for uniforms cannot be performed.
     /// @return Program uniforms list.
     const InputMap& getUniformsList();
 
-    /// Get list of program input attributes.
+    /// Return list of program input attributes.
     /// The program must have been created successfully first.
-    /// An exception is thrown if the parsing of the program for attribute cannot be performed.
+    /// An exception is thrown if the parsing of the program for attributes cannot be performed.
     /// @return Program attributes list.
     const InputMap& getAttributesList();
 
-    /// Find the locations in the program which starts with a given variable name
+    /// Find the locations in the program which start with a given variable name.
     /// @param variable Variable to search for
     /// @param variableList List of program inputs to search
     /// @param foundList Returned list of found program inputs. Empty if none found.

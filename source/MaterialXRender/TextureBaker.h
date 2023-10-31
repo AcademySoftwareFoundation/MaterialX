@@ -60,7 +60,7 @@ class TextureBaker : public Renderer
         return _colorSpace;
     }
 
-    /// Set the distance unit to which textures are baked.  Defaults to meters.
+    /// Set the distance unit to which textures are baked. Defaults to "meter".
     void setDistanceUnit(const string& unitSpace)
     {
         _distanceUnit = unitSpace;
@@ -103,7 +103,7 @@ class TextureBaker : public Renderer
         _outputImagePath = outputImagePath;
     }
 
-    /// Get the current output location for baked texture images.
+    /// Return the current output location for baked texture images.
     const FilePath& getOutputImagePath()
     {
         return _outputImagePath;
@@ -133,7 +133,7 @@ class TextureBaker : public Renderer
         return _bakedGeomInfoName;
     }
 
-    /// Get the texture filename template.
+    /// Return the texture filename template.
     const string& getTextureFilenameTemplate() const
     {
         return _textureFilenameTemplate;
@@ -146,7 +146,7 @@ class TextureBaker : public Renderer
             filenameTemplate + ".$EXTENSION" : filenameTemplate;
     }
 
-    /// Set texFilenameOverrides if template variable exists.
+    /// Set texture template overrides if template variable exists.
     void setFilenameTemplateVarOverride(const string& key, const string& value)
     {
         if (_permittedOverrides.count(key))
@@ -167,7 +167,7 @@ class TextureBaker : public Renderer
         return _outputStream;
     }
 
-    /// Set whether to create a short name for baked images by hashing the baked image filenames
+    /// Set whether to create a short name for baked images by hashing the baked image filenames.
     /// This is useful for file systems which may have a maximum limit on filename size.
     /// By default names are not hashed.
     void setHashImageNames(bool enable)
@@ -175,7 +175,7 @@ class TextureBaker : public Renderer
         _hashImageNames = enable;
     }
 
-    /// Return whether automatic baked texture resolution is set.
+    /// Return whether hashing of baked image filenames is enabled.
     bool getHashImageNames() const
     {
         return _hashImageNames;

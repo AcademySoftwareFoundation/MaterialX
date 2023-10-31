@@ -30,10 +30,10 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     /// the element and all dependencies upstream into shader code.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
-    /// Return a unique identifier for the target this generator is for
+    /// Return a unique identifier for the target this generator is for.
     const string& getTarget() const override { return TARGET; }
 
-    /// Return the version string for the GLSL version this generator is for
+    /// Return the version string for the GLSL version this generator is for.
     virtual const string& getVersion() const { return VERSION; }
 
     /// Emit a shader variable.

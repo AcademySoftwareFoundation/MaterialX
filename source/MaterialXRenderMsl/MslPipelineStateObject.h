@@ -34,7 +34,7 @@ using MetalFramebufferPtr = std::shared_ptr<class MetalFramebuffer>;
 class MX_RENDERMSL_API MslProgram
 {
   public:
-    /// Create a MSL program instance
+    /// Create an MSL program instance
     static MslProgramPtr create()
     {
         return MslProgramPtr(new MslProgram());
@@ -56,7 +56,7 @@ class MX_RENDERMSL_API MslProgram
     /// @param sourceCode Source code of the shader stage.
     void addStage(const string& stage, const string& sourceCode);
 
-    /// Get source code string for a given stage.
+    /// Return source code string for a given stage.
     /// @return Shader stage string. String is empty if not found.
     const string& getStageSourceCode(const string& stage) const;
 
@@ -123,22 +123,22 @@ class MX_RENDERMSL_API MslProgram
     /// Program input shaded pointer map type
     using InputMap = std::unordered_map<string, InputPtr>;
 
-    /// Get list of program input uniforms.
+    /// Return list of program input uniforms.
     /// The program must have been created successfully first.
     /// An exception is thrown if the parsing of the program for uniforms cannot be performed.
     /// @return Program uniforms list.
     const InputMap& getUniformsList();
 
-    /// Get list of program input attributes.
+    /// Return list of program input attributes.
     /// The program must have been created successfully first.
-    /// An exception is thrown if the parsing of the program for attribute cannot be performed.
+    /// An exception is thrown if the parsing of the program for attributes cannot be performed.
     /// @return Program attributes list.
     const InputMap& getAttributesList();
 
     /// Find the locations in the program which starts with a given variable name
     /// @param variable Variable to search for
-    /// @param variableList List of program inputs to search
-    /// @param foundList Returned list of found program inputs. Empty if none found.
+    /// @param variableList Map of program inputs to search
+    /// @param foundList Returned map of found program inputs. Empty if none found.
     /// @param exactMatch Search for exact variable name match.
     void findInputs(const string& variable,
                     const InputMap& variableList,
@@ -150,17 +150,16 @@ class MX_RENDERMSL_API MslProgram
     /// @{
 
     /// Bind the pipeline state object to the command encoder.
-    /// @param renderCmdEncoder encoder that binds the pipeline state object.
+    /// @param renderCmdEncoder Encoder to which to bind the pipeline state object.
     /// @return False if failed
     bool bind(id<MTLRenderCommandEncoder> renderCmdEncoder);
     
-    /// Bind inputs
-    ///  @param renderCmdEncoder encoder that inputs will be bound to.
-    ///  @param cam Camera object use to view the object
-    ///  @param geometryHandler
-    ///  @param imageHandler
-    ///  @param lightHandler
-    ///  @return void - No return value
+    /// Bind inputs.
+    /// @param renderCmdEncoder Encoder that inputs will be bound to.
+    /// @param cam Camera object used to view the object.
+    /// @param geometryHandler Not currently used.
+    /// @param imageHandler The image handler to use for lighting and textures.
+    /// @param lightHandler The light handler to use for lighting and uniform buffers.
     void prepareUsedResources(id<MTLRenderCommandEncoder> renderCmdEncoder,
                         CameraPtr cam,
                         GeometryHandlerPtr geometryHandler,
@@ -176,7 +175,7 @@ class MX_RENDERMSL_API MslProgram
     /// Bind attribute buffers to attribute inputs.
     /// A hardware buffer of the given attribute type is created and bound to the program locations
     /// for the input attribute.
-    /// @param renderCmdEncoder Metal Render Command Encoder that the attribute being bind to
+    /// @param renderCmdEncoder Metal Render Command Encoder on which to set vertex buffers.
     /// @param inputs Attribute inputs to bind to
     /// @param mesh Mesh containing streams to bind
     void bindAttribute(id<MTLRenderCommandEncoder> renderCmdEncoder,

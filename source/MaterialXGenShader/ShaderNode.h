@@ -149,7 +149,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// Return the name of this port.
     const string& getName() const { return _name; }
 
-    /// Return the name of this port.
+    /// Return the full name of this port.
     string getFullName() const;
 
     /// Set the variable name of this port.
@@ -189,7 +189,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     /// geomprop to be assigned when it is unconnected.
     void setGeomProp(const string& geomprop) { _geomprop = geomprop; }
 
-    /// Get geomprop name.
+    /// Return geomprop name.
     const string& getGeomProp() const { return _geomprop; }
 
     /// Set the path to this port.

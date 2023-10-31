@@ -32,8 +32,7 @@ class MX_RENDER_API GeometryLoader
     }
     virtual ~GeometryLoader() { }
 
-    /// Returns a list of supported extensions
-    /// @return List of support extensions
+    /// Return a set of extensions supported by the loader.
     const StringSet& supportedExtensions() const
     {
         return _extensions;
@@ -47,7 +46,7 @@ class MX_RENDER_API GeometryLoader
     virtual bool load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip = false) = 0;
 
   protected:
-    // List of supported string extensions
+    // Set of supported string extensions
     StringSet _extensions;
 };
 
@@ -78,7 +77,7 @@ class MX_RENDER_API GeometryHandler
     /// @param loader Loader to add to list of available loaders.
     void addLoader(GeometryLoaderPtr loader);
 
-    /// Get a list of extensions supported by the handler
+    /// Fill a set of extensions supported by the handler
     void supportedExtensions(StringSet& extensions);
 
     /// Clear all loaded geometry
@@ -95,7 +94,7 @@ class MX_RENDER_API GeometryHandler
     /// @param texcoordVerticalFlip Flip texture coordinates in V. Default is to not flip.
     bool loadGeometry(const FilePath& filePath, bool texcoordVerticalFlip = false);
 
-    /// Get list of meshes
+    /// Return list of meshes
     const MeshList& getMeshes() const
     {
         return _meshes;
@@ -111,7 +110,7 @@ class MX_RENDER_API GeometryHandler
         return _minimumBounds;
     }
 
-    /// Return the minimum bounds for all meshes
+    /// Return the maximum bounds for all meshes
     const Vector3& getMaximumBounds() const
     {
         return _maximumBounds;

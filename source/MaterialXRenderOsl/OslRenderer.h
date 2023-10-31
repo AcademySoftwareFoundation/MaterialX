@@ -165,7 +165,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     /// Set the XML scene file to use for testrender. This is a template file
     /// with the following tokens for replacement:
     ///     - %shader% : which will be replaced with the name of the shader to use
-    ///     - %shader_output% : which will be replace with the name of the shader output to use
+    ///     - %shader_output% : which will be replaced with the name of the shader output to use
     /// @param templateFilePath Scene file name
     void setOslTestRenderSceneTemplateFile(const FilePath& templateFilePath)
     {
