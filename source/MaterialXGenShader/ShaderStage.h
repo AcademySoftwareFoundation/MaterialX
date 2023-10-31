@@ -113,7 +113,14 @@ class MX_GENSHADER_API VariableBlock
     ShaderPort* find(const ShaderPortPredicate& predicate);
 
     /// Add a new shader port to this block.
-    ShaderPort* add(const TypeDesc* type, const string& name, ValuePtr value = nullptr);
+    /// @param type The desired shader port type
+    /// @param name The shader port name
+    /// @param value The value to attach to the shader port
+    /// @param shouldWiden When false, an exception is thrown if the type of the existing port with
+    ///   the same name does not match the requested type. When true, the types can mismatch, and the
+    ///   type of any existing port is widened to match the requested type when necessary.
+    /// @return A new shader port, or a pre-existing shader port with the same name.
+    ShaderPort* add(const TypeDesc* type, const string& name, ValuePtr value = nullptr, bool shouldWiden = false);
 
     /// Add an existing shader port to this block.
     void add(ShaderPortPtr port);
@@ -339,20 +346,22 @@ inline ShaderPort* addStageUniform(const string& block,
 inline ShaderPort* addStageInput(const string& block,
                                  const TypeDesc* type,
                                  const string& name,
-                                 ShaderStage& stage)
+                                 ShaderStage& stage,
+                                 bool shouldWiden = false)
 {
     VariableBlock& inputs = stage.getInputBlock(block);
-    return inputs.add(type, name);
+    return inputs.add(type, name, {}, shouldWiden);
 }
 
 /// Utility function for adding a new shader port to an output block.
 inline ShaderPort* addStageOutput(const string& block,
                                   const TypeDesc* type,
                                   const string& name,
-                                  ShaderStage& stage)
+                                  ShaderStage& stage,
+                                  bool shouldWiden = false)
 {
     VariableBlock& outputs = stage.getOutputBlock(block);
-    return outputs.add(type, name);
+    return outputs.add(type, name, {}, shouldWiden);
 }
 
 /// Utility function for adding a connector block between stages.
@@ -370,10 +379,11 @@ inline void addStageConnector(const string& block,
                               const TypeDesc* type,
                               const string& name,
                               ShaderStage& from,
-                              ShaderStage& to)
+                              ShaderStage& to,
+                              bool shouldWiden = false)
 {
-    addStageOutput(block, type, name, from);
-    addStageInput(block, type, name, to);
+    addStageOutput(block, type, name, from, shouldWiden);
+    addStageInput(block, type, name, to, shouldWiden);
 }
 
 MATERIALX_NAMESPACE_END

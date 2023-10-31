@@ -18,6 +18,8 @@ class MX_GENGLSL_API HeightToNormalNodeGlsl : public ConvolutionNode
   public:
     static ShaderNodeImplPtr create();
 
+    void createVariables(const ShaderNode&, GenContext&, Shader& shader) const override;
+
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 

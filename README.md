@@ -60,13 +60,13 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python39.zip)
-- [MacOS (Xcode 13, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_13_Python39.zip)
-- [Linux (GCC 11, Python 3.9)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_11_Python39.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python311.zip)
+- [MacOS (Xcode 14, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_14_Python311.zip)
+- [Linux (GCC 12, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_12_Python311.zip)
 
 ### Additional Resources
 
 - The [Developer Guide](http://www.materialx.org/docs/api/index.html) contains a developer-oriented overview of MaterialX with API documentation.
 - The [Python Scripts](python/Scripts) folder contains standalone examples of MaterialX Python code.
 - The [JavaScript](javascript) folder contains details on building JavaScript bindings for MaterialX.
-- Presentations at [ASWF Open Source Days](http://www.materialx.org/assets/ASWF_OSD2022_MaterialX_OSL_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.
+- Presentations at [ASWF Open Source Days](https://materialx.org/assets/ASWF_OSD2023_MaterialX_Final.pdf) and the [SIGGRAPH Physically Based Shading Course](https://blog.selfshadow.com/publications/s2020-shading-course/#materialx) provide details on the roadmap for MaterialX development.

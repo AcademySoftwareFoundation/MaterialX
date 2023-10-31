@@ -113,7 +113,7 @@ Collections are recipes for building a list of geometries (which can be any path
 
 A **&lt;collection>** element contains lists of geometry expressions and/or collections to be included, and an optional list of geometry expressions to be excluded:
 
-```
+```xml
   <collection name="collectionname" [includegeom="geomexpr1[,geomexpr2]..."]
              [includecollection="collectionname1[,collectionname2]..."]
              [excludegeom="geomexpr3[,geomexpr4]..."]/>
@@ -132,7 +132,7 @@ As a shorthand convenience, MaterialX allows the specification of a `geomprefix`
 So the following MTLX file snippets are equivalent:
 
 
-```
+```xml
   <materialx>
     <collection name="c_plastic" includegeom="/a/b/g1, /a/b/g2, /a/b/g5, /a/b/c/d/g6"/>
   </materialx>
@@ -176,7 +176,7 @@ The most common use for geominfo elements is to define the filenames (or portion
 
 A **&lt;geominfo>** element contains one or more geometry property and/or token definitions, and associates them and their values with all geometries listed in the `geom` or `collection` attribute of the &lt;geominfo>:
 
-```
+```xml
   <geominfo name="name" [geom="geomexpr1,geomexpr2,geomexpr3"] [collection="coll"]>
     ...geometry property and token value definitions...
   </geominfo>
@@ -200,7 +200,7 @@ The core MaterialX Specification defines a Geometric Property, or "geomprop", as
 
 MaterialX Geometry Extensions expands upons this by allowing the use of &lt;geomprop> elements to define specific uniform values of a geometric property with specific geometries, as opposed to relying on those values being defined externally.  This could include application-specific metadata, attributes passed from a lighting package to a renderer, or other geometry-specific data.  A geomprop may also specify a `unittype` and `unit` if appropriate to indicate that the geometric property's value is in that unit; see the [**Units** section of the main MaterialX Specification](./MaterialX.Specification.md#units), although typically the &lt;geompropdef> would define the `unittype` and `unit`, and a geomprop would only provide an overriding `unit` if the unit for its value differed from the geompropdef's defined default unit.
 
-```
+```xml
     <geomprop name="propname" type="proptype" value="value"/>
 ```
 
@@ -216,7 +216,7 @@ Only float and vector<em>N</em> geometric properties may specify a `unittype` an
 
 For example, one could specify a unique surface ID value associated with a geometry:
 
-```
+```xml
   <geompropdef name="surfid" type="integer"/>
   <geominfo name="gi1" geom="/a/g1">
     <geomprop name="surfid" type="integer" value="15"/>
@@ -225,13 +225,13 @@ For example, one could specify a unique surface ID value associated with a geome
 
 GeomProp values can be accessed from a nodegraph using a `<geompropvalue>` node:
 
-```
+```xml
   <geompropvalue name="srfidval1" type="integer" geomprop="surfid" default="0">
 ```
 
 A &lt;geomprop> can also be used to define a default value for an intrinsic varying geometric property such as "geomcolor" for the geometry specified by the enclosing &lt;geominfo>, which would be returned by the corresponding Geometric node (e.g. &lt;geomcolor>) if the current geometry did not itself define values for that property.
 
-```
+```xml
   <geominfo name="gi2" geom="/a/g2">
     <geomprop name="geomcolor" type="color3" value="0.5, 0, 0"/>
   </geominfo>
@@ -243,7 +243,7 @@ A &lt;geomprop> can also be used to define a default value for an intrinsic vary
 
 Token elements may be used within &lt;geominfo> elements to define constant (typically string or integer) named values associated with specific geometries.  These geometry token values can be substituted into filenames within image nodes; see the [**Additional Filename Substitutions**](#additional-filename-substitutions) section above for details:
 
-```
+```xml
   <token name="tokenname" type="tokentype" value="value"/>
 ```
 
@@ -257,7 +257,7 @@ Token elements have the following attributes:
 
 For example, one could specify a texture identifier value associated with a geometry:
 
-```
+```xml
   <geominfo name="gi1" geom="/a/g1">
     <token name="txtid" type="string" value="Lengine"/>
   </geominfo>
@@ -265,7 +265,7 @@ For example, one could specify a texture identifier value associated with a geom
 
 and then reference that token's value in a filename:
 
-```
+```xml
   <image name="cc1" type="color3">
     <input name="file" type="filename"
         value="txt/color/asset.color.<txtid>.tif"/>
@@ -279,7 +279,7 @@ The &lt;txtid> in the file name would be replaced by whatever value the txtid to
 
 TokenDefault elements define the default value for a specified geometry token name; this default value will be used in a filename string substitution if an explicit token value is not defined for the current geometry.  Since TokenDefault does not apply to any geometry in particular, it must be used outside of a &lt;geominfo> element.
 
-```
+```xml
   <tokendefault name="diffmap" type="string" value="color1"/>
 ```
 
@@ -288,7 +288,7 @@ TokenDefault elements define the default value for a specified geometry token na
 
 Workflows involving textures with implicitly-computed filenames based on u,v coordinates (such as &lt;UDIM> and &lt;UVTILE>) can be made more efficient by explicitly listing the set of values that they resolve to for any given geometry.  The MaterialX specification reserves two geomprop names for this purpose, `udimset` and `uvtileset`, each of which is a stringarray containing a comma-separated list of UDIM or UVTILE values:
 
-```
+```xml
   <geominfo name="gi4" geom="/a/g1,/a/g2">
     <geomprop name="udimset" type="stringarray" value="1002,1003,1012,1013"/>
   </geominfo>
@@ -313,7 +313,7 @@ A MaterialX document can contain multiple property and/or look elements.
 
 A **&lt;property>** element defines the name, type and value of a look-specific non-material property of geometry; &lt;**propertyset**> elements are used to group a number of &lt;property>s into a single named object.  The connection between properties or propertysets and specific geometries or collections is done in a &lt;look> element, so that these properties can be reused across different geometries, and enabled in some looks but not others.  &lt;Property> elements may only be used within &lt;propertyset>s; they may not be used independently, although a dedicated &lt;propertyassign> element may be used within a &lt;look> to declare a property name, type, value and assignment all at once.
 
-```
+```xml
   <propertyset name="set1">
     <property name="twosided" type="boolean" value="true"/>
     <property name="trace_maxdiffusedepth" target="rmanris" type="float" value="3"/>
@@ -338,7 +338,7 @@ In the example above, the "trace_maxdiffusedepth" property is target-specific, h
 
 A **&lt;look>** element contains one or more material, variant, visibility and/or propertyset assignment declarations:
 
-```
+```xml
   <look name="lookname" [inherit="looktoinheritfrom"]>
     ...materialassign, variantassign, visibilityassign, property/propertysetassign declarations...
   </look>
@@ -348,7 +348,7 @@ Looks can inherit the assignments from another look by including an `inherit` at
 
 A number of looks can be grouped together into a **LookGroup**, e.g. to indicate which looks are defined for a particular asset:
 
-```
+```xml
   <lookgroup name="lookgroupname" looks="look1[,look2[,look3...]]" [default="lookname"]/>
 ```
 
@@ -368,7 +368,7 @@ For elements which make assignments to geometries, the pathed names within `geom
 
 MaterialAssign elements are used within a &lt;look> to connect a specified material to one or more geometries or collections (either a `geom` or a `collection` may be specified, but not both).
 
-```
+```xml
   <materialassign name="maname" material="materialname"
                  [geom="geomexpr1[,geomexpr2...]"] [collection="collectionname"]
                  [exclusive=true|false]>
@@ -383,7 +383,7 @@ Material assignments are generally assumed to be mutually-exclusive, that is, an
 
 VariantAssign elements are used within a &lt;materialassign> or a &lt;look> to apply the values defined in one variant of a variantset to one assigned material, or to all applicable materials in a look.
 
-```
+```xml
   <look name="look1">
     <variantassign name="va1" variantset="varset1" variant="var1"/>
     <materialassign name="ma1" material="material1" geom="...">
@@ -407,7 +407,7 @@ In the above example, the input/token values defined within variant "var1" will 
 
 Visibility elements are used within a &lt;look> to define various types of generalized visibility between a "viewer" object and other geometries.  A "viewer object" is simply a geometry that has the ability to "see" other geometries in some rendering context and thus may need to have the list of geometries that it "sees" in different contexts be specified; the most common examples are light sources and a primary rendering camera.
 
-```
+```xml
   <visibility name="vname" [viewergeom="objectname"]
              [geom="geomexpr1[,geomexpr2...]"] [collection="collectionname"]
              [vistype="visibilitytype"] [visible="false"]/>
@@ -442,7 +442,7 @@ If the &lt;visibility> `geom` or `collection` refers to light geometry, then ass
 
 For the "secondary" vistype, `viewergeom` should be renderable geometry rather than a light, to declare that certain other geometry is or is not visible to indirect bounce illumination or raytraced reflections in that `viewergeom`.  In this example, "/b" would not be seen in reflections nor contribute indirect bounce illumination to "/a", while geometry "/c" would not be visible to _any_ secondary rays:
 
-```
+```xml
   <visibility name="v2" viewergeom="/a" geom="/b" vistype="secondary" visible="false"/>
   <visibility name="v3" geom="/c" vistype="secondary" visible="false"/>
 ```
@@ -452,7 +452,7 @@ For the "secondary" vistype, `viewergeom` should be renderable geometry rather t
 
 PropertyAssign and PropertySetAssign elements are used within a &lt;look> to connect a specified property value or propertyset to one or more geometries or collections.
 
-```
+```xml
   <propertyassign name="paname" property="propertyname" type="type" value="value"
                  [target="target"]
                  [geom="geomexpr1[,geomexpr2...]"] [collection="collectionname"]/>
@@ -467,7 +467,7 @@ Either a `geom` or a `collection` may be specified, but not both.  Multiple prop
 
 This example defines four collections, a light shader and material, and a propertyset, which are then used by two looks:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx>
   <!-- assume <nodedef> and <surfacematerial> elements to define Mplastic1,2 and Mmetal1,2 are placed or included here -->

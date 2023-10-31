@@ -561,11 +561,6 @@
   <implementation name="IM_screen_color3_genosl" nodedef="ND_screen_color3" target="genosl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
   <implementation name="IM_screen_color4_genosl" nodedef="ND_screen_color4" target="genosl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
 
-  <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genosl" nodedef="ND_overlay_float" target="genosl" sourcecode="({{fg}} < 0.5) ? ({{mix}}*2.0*{{fg}}*{{bg}}) + ((1.0-{{mix}})*{{bg}}) : ({{mix}}*(1.0-(1.0-{{fg}})*(1.0-{{bg}}))) + ((1.0-{{mix}})*{{bg}})" />
-  <implementation name="IM_overlay_color3_genosl" nodedef="ND_overlay_color3" file="mx_overlay_color3.osl" function="mx_overlay_color3" target="genosl" />
-  <implementation name="IM_overlay_color4_genosl" nodedef="ND_overlay_color4" file="mx_overlay_color4.osl" function="mx_overlay_color4" target="genosl" />
-
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color4_genosl" nodedef="ND_disjointover_color4" file="mx_disjointover_color4.osl" function="mx_disjointover_color4" target="genosl" />
 

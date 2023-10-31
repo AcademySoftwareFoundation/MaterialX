@@ -121,26 +121,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
         }
     }
 
-    // Remap references to unimplemented shader nodedefs.
-    for (mx::NodePtr materialNode : doc->getMaterialNodes())
-    {
-        for (mx::NodePtr shader : getShaderNodes(materialNode))
-        {
-            mx::NodeDefPtr nodeDef = shader->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shader->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
-
     // Remap unsupported texture coordinate indices.
     for (mx::ElementPtr elem : doc->traverseTree())
     {
@@ -1395,7 +1375,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             // with later assignments superseding earlier ones.
             for (mx::LookPtr look : doc->getLooks())
             {
-                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
+                for (mx::MaterialAssignPtr matAssign : look->getActiveMaterialAssigns())
                 {
                     const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)

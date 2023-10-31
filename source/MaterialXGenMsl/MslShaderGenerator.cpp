@@ -10,7 +10,6 @@
 #include <MaterialXGenMsl/Nodes/NormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/TangentNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/BitangentNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TexCoordNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/FrameNodeMsl.h>
@@ -23,9 +22,6 @@
 #include <MaterialXGenMsl/Nodes/HeightToNormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightSamplerNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/NumLightsNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformVectorNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformPointNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TransformNormalNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -34,6 +30,8 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -178,8 +176,8 @@ MslShaderGenerator::MslShaderGenerator() :
     // <!-- <bitangent> -->
     registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, BitangentNodeMsl::create);
     // <!-- <texcoord> -->
-    registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, TexCoordNodeMsl::create);
-    registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, TexCoordNodeMsl::create);
+    registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
+    registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     // <!-- <geomcolor> -->
     registerImplementation("IM_geomcolor_float_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
     registerImplementation("IM_geomcolor_color3_" + MslShaderGenerator::TARGET, GeomColorNodeMsl::create);
@@ -232,13 +230,13 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation(elementNames, BlurNodeMsl::create);
 
     // <!-- <ND_transformpoint> ->
-    registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, TransformPointNodeMsl::create);
+    registerImplementation("IM_transformpoint_vector3_" + MslShaderGenerator::TARGET, HwTransformPointNode::create);
 
     // <!-- <ND_transformvector> ->
-    registerImplementation("IM_transformvector_vector3_" + MslShaderGenerator::TARGET, TransformVectorNodeMsl::create);
+    registerImplementation("IM_transformvector_vector3_" + MslShaderGenerator::TARGET, HwTransformVectorNode::create);
 
     // <!-- <ND_transformnormal> ->
-    registerImplementation("IM_transformnormal_vector3_" + MslShaderGenerator::TARGET, TransformNormalNodeMsl::create);
+    registerImplementation("IM_transformnormal_vector3_" + MslShaderGenerator::TARGET, HwTransformNormalNode::create);
 
     // <!-- <image> -->
     elementNames = {
@@ -283,9 +281,7 @@ ShaderPtr MslShaderGenerator::generate(const string& name, ElementPtr element, G
 {
     ShaderPtr shader = createShader(name, element, context);
 
-    // Turn on fixed float formatting to make sure float values are
-    // emitted with a decimal point and not as integers, and to avoid
-    // any scientific notation which isn't supported by all OpenGL targets.
+    // Request fixed floating-point notation for consistency across targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
@@ -1406,11 +1402,6 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
 }
 
 const string MslImplementation::SPACE = "space";
-const string MslImplementation::TO_SPACE = "tospace";
-const string MslImplementation::FROM_SPACE = "fromspace";
-const string MslImplementation::WORLD = "world";
-const string MslImplementation::OBJECT = "object";
-const string MslImplementation::MODEL = "model";
 const string MslImplementation::INDEX = "index";
 const string MslImplementation::GEOMPROP = "geomprop";
 

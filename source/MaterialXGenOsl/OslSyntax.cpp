@@ -220,7 +220,6 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
 
     string getValue(const Value& value, bool uniform) const override
     {
-        ScopedFloatFormatting fmt(Value::FloatFormatFixed, 3);
         StringVec values = splitString(value.getValueString(), ",");
         return getValue(values, uniform);
     }

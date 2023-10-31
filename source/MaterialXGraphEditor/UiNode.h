@@ -95,6 +95,29 @@ class UiPin
         _connections.push_back(pin);
     }
 
+    void deleteConnection(UiPinPtr pin)
+    {
+        for (size_t i = 0; i < _connections.size(); i++)
+        {
+            if (_connections[i]->_pinId == pin->_pinId)
+            {
+                _connections.erase(_connections.begin()+i);
+            }
+        }
+        for (size_t i = 0; i < pin->_connections.size(); i++)
+        {
+            if (pin->_connections[i]->_pinId == _pinId)
+            {
+                pin->_connections.erase(pin->_connections.begin() + i);
+            }
+        }
+        if (pin->_connections.size() == 0)
+        {
+            pin->setConnected(false);
+        }
+        return;
+    }
+
     const std::vector<UiPinPtr>& getConnections()
     {
         return _connections;

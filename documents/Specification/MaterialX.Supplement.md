@@ -99,7 +99,7 @@ A library of studio-custom material shading networks and example library materia
 
 Documents may include the above library using
 
-```
+```xml
    <xi:include href="mtllib/mtllib_defs.mtlx"/>
 ```
 

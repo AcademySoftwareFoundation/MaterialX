@@ -23,44 +23,6 @@ static void errorCallback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-mx::FilePath getConfigPath()
-{
-    mx::FilePath configPath;
-    auto xdgConfigHome = mx::getEnviron("XDG_CONFIG_HOME");
-    auto homeDirectory = mx::getEnviron("HOME");
-    if (!xdgConfigHome.empty())
-    {
-        configPath = mx::FilePath(xdgConfigHome);
-    }
-    else if (!homeDirectory.empty())
-    {
-#if defined(__APPLE__)
-        configPath = mx::FilePath(homeDirectory) / "Library" / "Preferences";
-#else
-        configPath = mx::FilePath(homeDirectory) / ".config";
-        if (!configPath.exists())
-        {
-            configPath.createDirectory();
-        }
-#endif
-    }
-    else
-    {
-        return {};
-    }
-
-    configPath = configPath / "MaterialX";
-    configPath.createDirectory();
-
-    if (!configPath.exists())
-    {
-        std::cerr << "Failed to create MaterialX config directory at " << configPath.asString() << std::endl;
-        return {};
-    }
-
-    return configPath / "GraphEditor.imgui.ini";
-}
-
 const std::string options =
     " Options: \n"
     "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the graph editor\n"
@@ -197,13 +159,14 @@ int main(int argc, char* const argv[])
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontDefault();
 
-    mx::FilePath configPath = getConfigPath();
-    if (!configPath.isEmpty())
-    {
-        io.IniFilename = configPath.asString().c_str();
-    }
+    // Set ini and log filename to NULL. This will prevent the automatic creation of imgui.ini
+    // in the same folder as the saved material.
+    // TODO: Consider setting the ini and log file paths to an application directory.
+    io.IniFilename = NULL;
+    io.LogFilename = NULL;
+
+    io.Fonts->AddFontDefault();
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();

@@ -87,9 +87,6 @@
     <!-- Suggested irradiance IBL file path -->
     <input name="irradianceIBLPath" type="string" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
 
-    <!-- Transforms UVs of loaded geometry -->
-    <input name="transformUVs" type="matrix44" value="1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -0.235f, 1.0f, 0.0f, 1.0f" />
-
     <!-- List of extra library paths for generator and render tests -->
     <input name="extraLibraryPaths" type="string" value="" />
 

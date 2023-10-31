@@ -568,11 +568,6 @@
   <implementation name="IM_screen_color3_genmdl" nodedef="ND_screen_color3" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
   <implementation name="IM_screen_color4_genmdl" nodedef="ND_screen_color4" sourcecode="mx::stdlib::mx_screen_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
-  <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genmdl" nodedef="ND_overlay_float" sourcecode="mx::stdlib::mx_overlay_float({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_overlay_color3_genmdl" nodedef="ND_overlay_color3" sourcecode="mx::stdlib::mx_overlay_color3({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_overlay_color4_genmdl" nodedef="ND_overlay_color4" sourcecode="mx::stdlib::mx_overlay_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color4_genmdl" nodedef="ND_disjointover_color4" sourcecode="mx::stdlib::mx_disjointover_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 

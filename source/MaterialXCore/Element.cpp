@@ -168,7 +168,7 @@ void Element::setChildIndex(const string& name, int index)
         return;
     }
 
-    if (index < 0 || index > (int) _childOrder.size())
+    if (index < 0 || index >= (int) _childOrder.size())
     {
         throw Exception("Invalid child index");
     }

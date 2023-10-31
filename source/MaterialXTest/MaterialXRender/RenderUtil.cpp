@@ -76,19 +76,6 @@ void ShaderRenderTester::loadDependentLibraries(GenShaderUtil::TestSuiteOptions 
     loadAdditionalLibraries(dependLib, options);
 }
 
-void ShaderRenderTester::addSkipFiles()
-{
-    _skipFiles.insert("_options.mtlx");
-    _skipFiles.insert("light_rig_test_1.mtlx");
-    _skipFiles.insert("light_rig_test_2.mtlx");
-    _skipFiles.insert("light_compound_test.mtlx");
-    _skipFiles.insert("xinclude_search_path.mtlx");
-    _skipFiles.insert("1_38_parameter_to_input.mtlx");
-    _skipFiles.insert("1_36_to_1_37.mtlx");
-    _skipFiles.insert("1_37_to_1_38.mtlx");
-    _skipFiles.insert("material_element_to_surface_material.mtlx");
-}
-
 bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 {
 #ifdef LOG_TO_FILE
@@ -143,9 +130,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
         dirs.insert(std::end(dirs), std::begin(testRootDirs), std::end(testRootDirs));
     }
     ioTimer.endTimer();
-
-    // Add files to skip
-    addSkipFiles();
 
     // Load in the library dependencies once
     // This will be imported in each test document below
@@ -215,11 +199,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
         for (const mx::FilePath& file : files)
         {
-            if (_skipFiles.count(file))
-            {
-                continue;
-            }
-
             ioTimer.startTimer();
             // Check if a file override set is used and ignore all files
             // not part of the override set

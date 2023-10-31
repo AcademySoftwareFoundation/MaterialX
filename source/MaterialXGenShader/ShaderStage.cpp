@@ -65,11 +65,26 @@ ShaderPort* VariableBlock::find(const ShaderPortPredicate& predicate)
     return nullptr;
 }
 
-ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value)
+ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value, bool shouldWiden)
 {
     auto it = _variableMap.find(name);
     if (it != _variableMap.end())
     {
+        if (shouldWiden)
+        {
+            // Automatically try to widen the type of the shader port if the requested type differs from
+            // the existing port's type.
+            if (it->second->getType()->getSize() < type->getSize())
+            {
+                it->second->setType(type);
+            }
+        }
+        else if (type != it->second->getType())
+        {
+            throw ExceptionShaderGenError("Trying to add shader port '" + name + "' with type '" +
+                type->getName() + "', but existing shader port with type '" +
+                it->second->getType()->getName() + "' was found");
+        }
         return it->second.get();
     }
 

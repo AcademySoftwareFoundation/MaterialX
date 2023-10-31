@@ -186,7 +186,10 @@ class MX_RENDER_API ImageHandler
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
+    /// If the image cannot be found by any loader, then a uniform image of the
+    /// given default color will be returned.
     /// @param filePath File path of the image.
+    /// @param defaultColor Default color to use as a fallback for missing images.
     /// @return On success, a shared pointer to the acquired image.
     ImagePtr acquireImage(const FilePath& filePath, const Color4& defaultColor = Color4(0.0f));
 

@@ -10,7 +10,6 @@
 #include <MaterialXGenGlsl/Nodes/NormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TangentNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BitangentNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TexCoordNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
@@ -23,9 +22,6 @@
 #include <MaterialXGenGlsl/Nodes/HeightToNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightSamplerNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/NumLightsNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TransformVectorNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TransformPointNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TransformNormalNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
@@ -34,6 +30,8 @@
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
+#include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
+#include <MaterialXGenShader/Nodes/HwTransformNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -174,8 +172,8 @@ GlslShaderGenerator::GlslShaderGenerator() :
     // <!-- <bitangent> -->
     registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::TARGET, BitangentNodeGlsl::create);
     // <!-- <texcoord> -->
-    registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::TARGET, TexCoordNodeGlsl::create);
-    registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::TARGET, TexCoordNodeGlsl::create);
+    registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
+    registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
     // <!-- <geomcolor> -->
     registerImplementation("IM_geomcolor_float_" + GlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
     registerImplementation("IM_geomcolor_color3_" + GlslShaderGenerator::TARGET, GeomColorNodeGlsl::create);
@@ -228,13 +226,13 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation(elementNames, BlurNodeGlsl::create);
 
     // <!-- <ND_transformpoint> ->
-    registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::TARGET, TransformPointNodeGlsl::create);
+    registerImplementation("IM_transformpoint_vector3_" + GlslShaderGenerator::TARGET, HwTransformPointNode::create);
 
     // <!-- <ND_transformvector> ->
-    registerImplementation("IM_transformvector_vector3_" + GlslShaderGenerator::TARGET, TransformVectorNodeGlsl::create);
+    registerImplementation("IM_transformvector_vector3_" + GlslShaderGenerator::TARGET, HwTransformVectorNode::create);
 
     // <!-- <ND_transformnormal> ->
-    registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::TARGET, TransformNormalNodeGlsl::create);
+    registerImplementation("IM_transformnormal_vector3_" + GlslShaderGenerator::TARGET, HwTransformNormalNode::create);
 
     // <!-- <image> -->
     elementNames = {
@@ -279,9 +277,7 @@ ShaderPtr GlslShaderGenerator::generate(const string& name, ElementPtr element, 
 {
     ShaderPtr shader = createShader(name, element, context);
 
-    // Turn on fixed float formatting to make sure float values are
-    // emitted with a decimal point and not as integers, and to avoid
-    // any scientific notation which isn't supported by all OpenGL targets.
+    // Request fixed floating-point notation for consistency across targets.
     ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     // Make sure we initialize/reset the binding context before generation.
@@ -904,11 +900,6 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
 }
 
 const string GlslImplementation::SPACE = "space";
-const string GlslImplementation::TO_SPACE = "tospace";
-const string GlslImplementation::FROM_SPACE = "fromspace";
-const string GlslImplementation::WORLD = "world";
-const string GlslImplementation::OBJECT = "object";
-const string GlslImplementation::MODEL = "model";
 const string GlslImplementation::INDEX = "index";
 const string GlslImplementation::GEOMPROP = "geomprop";
 

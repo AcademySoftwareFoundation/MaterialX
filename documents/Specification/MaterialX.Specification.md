@@ -267,7 +267,7 @@ Types not defined with a specific semantic are assumed to have semantic="default
 
 Custom types are defined using the &lt;typedef> element:
 
-```
+```xml
   <typedef name="spectrum" semantic="color"/>
   <typedef name="manifold"/>
 ```
@@ -292,7 +292,7 @@ The standard MaterialX distribution includes definitions for four "shader"-seman
 
 An MTLX file (with file extension ".mtlx") has the following general form:
 
-```
+```xml
   <?xml version="1.0" encoding="UTF-8"?>
   <materialx version="major.minor" [root-level attributes]>
     <!-- various combinations of MaterialX elements and sub-elements -->
@@ -303,7 +303,7 @@ That is, a standard XML declaration line followed by a root &lt;materialx> eleme
 
 Standard XML XIncludes are supported ([http://en/wikipedia.org/wiki/XInclude](http://en/wikipedia.org/wiki/Xinclude)), as well as standard XML comments and the XML character entities `&quot;`, `&amp;`, `&apos;`, `&lt;` and `&gt;`:
 
-```
+```xml
   <xi:include href="includedfile.mtlx"/>
   <!-- this is a comment -->
   <input name="example" type="string" value="&quot;text in quotes&quot;"/>
@@ -345,7 +345,7 @@ The working color space of a MaterialX document is defined by the `colorspace` a
 
 The color space of individual color image files and values may be defined via a `colorspace` attribute in an input which defines a filename or value.  Color images and values in spaces other than the working color space are expected to be transformed by the application into the working space before computations are performed.  In the example below, an image file has been defined in the “srgb_texture” color space, while its default value has been defined in “lin_rec709”; both should be transformed to the application’s working color space before being applied to any computations.
 
-```
+```xml
   <image name="in1" type="color3">
     <input name="file" type="filename" value="input1.tif"
          colorspace="srgb_texture"/>
@@ -364,7 +364,7 @@ MaterialX allows floating-point and vector values to be defined in terms of a sp
 
 Unit types are defined using a &lt;unittypedef> element, and a set of units of that type is defined using a &lt;unitdef> element with one or more child &lt;unit> elements:
 
-```
+```xml
   <unittypedef name="distance"/>
   <unitdef name="UD_stdlib_distance" unittype="distance">
     <unit name="micron" scale="0.000001"/>
@@ -397,7 +397,7 @@ References to elements in a different namespace are qualified using the syntax "
 
 Mtllib.mtlx contains the following (assuming that "..." contains any necessary material input connections and other element definitions):
 
-```
+```xml
   <?xml version="1.0" encoding="UTF-8"?>
   <materialx version="major.minor" namespace="stdmaterials">
     ...
@@ -412,7 +412,7 @@ Mtllib.mtlx contains the following (assuming that "..." contains any necessary m
 
 Then another MaterialX file could reference these materials like this:
 
-```
+```xml
     <xi:include href="mtllib.mtlx"/>
     ...
     <look name="hero">
@@ -423,7 +423,7 @@ Then another MaterialX file could reference these materials like this:
 
 Similarly, if a .mtlx file defining the "site_ops" namespace defined a custom color3-typed node "mynoise" with a single float input "f", it could be used in a node graph like this:
 
-```
+```xml
     <site_ops:mynoise name="mn1" type="color3">
       <input name="f" type="float" value="0.3"/>
     </site_ops:mynoise>
@@ -431,7 +431,7 @@ Similarly, if a .mtlx file defining the "site_ops" namespace defined a custom co
 
 A `namespace` attribute may also be added to individual &lt;nodedef>s or &lt;nodegraph>s, in which case the `name` and `node` of a &lt;nodedef>, or just the `name` of a &lt;nodegraph> will be assigned to the specified `namespace`.  In a &lt;nodegraph>, the `nodedef` must include a namespace reference if the &lt;nodedef> to which it refers is defined in a specific namespace, even if it's the same namespace as the &lt;nodegraph>: this is because the `namespace` only applies to the content that is created by or contained within an element, not to anything external referenced by that element.
 
-```
+```xml
   <nodedef name="ND_myshader" node="myshader" namespace="mynamespace">
     <output name="surfaceshader" type="surfaceshader"/>
   </nodedef>
@@ -453,14 +453,14 @@ Geometric Properties, or "geomprops", are intrinsic or user-defined surface coor
 
 One may also define custom geometric properties using a &lt;geompropdef> element:
 
-```
+```xml
   <geompropdef name="geompropname" type="geomproptype" [uniform="true|false"]
         [geomprop="geomproperty"] [space="geomspace"] [index="indexnumber"]/>
 ```
 
 e.g.
 
-```
+```xml
   <geompropdef name="Pworld" type="vector3" geomprop="position" space="world"/>
   <geompropdef name="uv1" type="vector2" geomprop="texcoord" index="1"/>
 ```
@@ -469,13 +469,13 @@ The `type` of the geomprop may be any non-array MaterialX type, although `string
 
 Once defined, a custom geomprop name may be used any place that a standard geomprop can:
 
-```
+```xml
   <nodedef name="ND1" ... internalgeomprops="position, Pworld, normal, uv1">
 ```
 
 A geompropdef may also specify a `unittype` and a `unit` to indicate that the geometric property is defined in terms of a specific unit.  If a geomprop with a defined unit is accessed in a nodegraph using &lt;geompropvalue>, the geometric property value will be converted from the unit specified by the geompropdef to the application-specified scene unit.
 
-```
+```xml
   <geompropdef name="objheight" type="float" unittype="distance" unit="meter"/>
 ```
 
@@ -487,7 +487,7 @@ As a shorthand convenience, MaterialX allows the specification of a `fileprefix`
 
 So the following snippets are equivalent:
 
-```
+```xml
   <nodegraph name="nodegraph1">
     <image name="in1" type="color3">
       <input name="file" type="filename" value="textures/color/color1.tif"/>
@@ -538,7 +538,7 @@ Nodes are individual data generation or processing "blocks".  Node functionality
 
 Individual node elements have the form:
 
-```
+```xml
   <nodecategory name="nodename" type="outputdatatype" [version="version"]
                [nodedef="nodedef_name"]>
     <input name="inputname" type="type" [nodename="nodename"] [value="value"]/>
@@ -560,7 +560,7 @@ Node elements contain zero or more &lt;input> elements defining the name, type, 
 
 A float/vector<em>N</em> input of a node, or a "filename"-type input referring to an image file containing float or vector<em>N</em> values, may specify a unit for its value by providing a `unit` attribute, and that unit must be one associated with the `unittype` for that input in the nodedef, if specified; please see the [Units](#units) section above for details on declaring units and unittypes.  If the nodedef for a node (see the [Custom Nodes](#custom-nodes) section below) does not declare a `unittype` for an input, the node may do so; it is not permissible to provide a `unit` for a node input without a compatible `unittype` being defined on either the node or applicable nodedef.
 
-```
+```xml
   <constant name="boxwidth" type="float">
     <input name="value" type="float" value="2.39" unittype="distance" unit="foot"/>
   </constant>
@@ -570,7 +570,7 @@ Unless specified otherwise, all inputs default to a value of 0 in all channels f
 
 A node input must generally be connected to outputs of the same type, but float inputs may also be connected to any single channel within a multi-channel data types by adding an integer "channel" attribute, indicating the channel number (0-3) to extract from the input:
 
-```
+```xml
   <constant name="c3" type="color3">
     <input name="value" type="color3" value="0.1, 0.2, 0.3"/>
   </constant>
@@ -593,7 +593,7 @@ Standard MaterialX nodes have exactly one output, while custom nodes may have an
 
 A graph containing any number of nodes and output declarations forms a Node Graph, which may be enclosed within a &lt;nodegraph> element to group them together into a single functional unit.  Please see the [Custom Node Definition Using Node Graphs](#custom-node-definition-using-node-graphs) section below for details on how nodegraphs can be used to describe the functionality of new nodes.
 
-```
+```xml
   <nodegraph name="graphname">
     ...node element(s)...
     ...output element(s)...
@@ -606,7 +606,7 @@ A graph containing any number of nodes and output declarations forms a Node Grap
 
 Output data streams are defined using **&lt;output>** elements, and may be used to declare which output streams are connectable to other MaterialX elements.  Within a node graph, an &lt;output> element declares an output stream that may be connected to a shader input or to the input of a referencing node in another graph when the nodegraph is the implementation of a custom node.  See the [Custom Node Definition Using Node Graphs](#custom-node-definition-using-node-graphs) section for details on the use of node graphs as node implementations.
 
-```
+```xml
   <output name="albedo" type="color3" nodename="n9"/>
   <output name="precomp" type="color4" nodename="n13" width="1024" height="512"
           bitdepth="16"/>
@@ -640,7 +640,7 @@ This section defines the Source Nodes that all MaterialX implementations are exp
 
 Texture nodes are used to read filtered image data from image or texture map files for processing within a node graph.
 
-```
+```xml
   <image name="in1" type="color4">
     <input name="file" type="filename" value="layer1.tif"/>
     <input name="default" type="color4" value="0.5,0.5,0.5,1"/>
@@ -721,7 +721,7 @@ Arbitrary frame number expressions and speed changes are not supported.
 
 Procedural nodes are used to generate value data programmatically.
 
-```
+```xml
   <constant name="n8" type="color3">
     <input name="value" type="color3" value="0.8,1.0,1.3"/>
   </constant>
@@ -900,7 +900,7 @@ To scale or offset the noise pattern generated by `noise3d`, `fractal3d` or `cel
 
 Geometric nodes are used to reference local geometric properties from within a node graph:
 
-```
+```xml
   <position name="wp1" type="vector3" space="world"/>
   <texcoord name="c1" type="vector2">
     <input name="index" type="integer" value="1"/>
@@ -982,7 +982,7 @@ Applications may also reference other renderer-specific named spaces, at the exp
 
 Global nodes generate color data using non-local geometric context, requiring access to geometric features beyond the surface point being processed.  This non-local context can be provided by tracing rays into the scene, rasterizing scene geometry, or any other appropriate method.
 
-```
+```xml
   <ambientocclusion name="occl1" type="float">
     <input name="maxdistance" type="float" value="10000.0"/>
   </ambientocclusion>
@@ -1002,7 +1002,7 @@ Standard Global nodes:
 
 Application nodes are used to reference application-defined properties within a node graph, and have no inputs:
 
-```
+```xml
   <frame name="f1" type="float"/>
   <updirection name="updir1" type="vector3"/>
 ```
@@ -1028,7 +1028,7 @@ Standard Application nodes:
 
 Operator nodes process one or more required input streams to form an output.  Like other nodes, each operator must define its output type, which in most cases also determines the type(s) of the required input streams.
 
-```
+```xml
   <multiply name="n7" type="color3">
     <input name="in1" type="color3" nodename="n5"/>
     <input name="in2" type="float" value="2.0"/>
@@ -1496,7 +1496,7 @@ Blend nodes take two 1-4 channel inputs and apply the same operator to all chann
 | **`burn`** | 1-(1-B)/F | float, color<em>N</em> |
 | **`dodge`** | B/(1-F) | float, color<em>N</em> |
 | **`screen`** | 1-(1-F)(1-B) | float, color<em>N</em> |
-| **`overlay`** | 2FB if F&lt;0.5;<br> 1-(1-F)(1-B) if F>=0.5 | float, color<em>N</em> |
+| **`overlay`** | 2FB if B&lt;0.5;<br> 1-2(1-F)(1-B) if B>=0.5 | float, color<em>N</em> |
 
 
 #### Merge Nodes
@@ -1786,7 +1786,7 @@ A simple merge of two single-layer images with a separate mask image, followed b
 
 ![Nodegraph Example 1](media/nodegraph1.png "Nodegraph Example 1")
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx>
   <image name="img1" type="color3">
@@ -1818,7 +1818,7 @@ A more complex nodegraph using geometry properties to define two diffuse albedo 
 
 ![Nodegraph Example 2](media/nodegraph2.png "Nodegraph Example 2")
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx>
   <image name="img1" type="color3">
@@ -1885,7 +1885,7 @@ MaterialX supports the definition of nodes, attributes and inputs that are speci
 
 Targets are declared using a &lt;targetdef> element:
 
-```
+```xml
   <targetdef name="oslpattern"/>
   <targetdef name="glsl"/>
   <targetdef name="mdl"/>
@@ -1893,7 +1893,7 @@ Targets are declared using a &lt;targetdef> element:
 
 A target may inherit from another target, so that any reference to a parent target will automatically include any definitions specific to the inherited child target that do not have a definition for the parent target itself:
 
-```
+```xml
   <targetdef name="osl" inherit="oslpattern"/>
   <targetdef name="vrayglsl" inherit="glsl"/>
   <targetdef name="vrayosl" inherit="oslpattern"/>
@@ -1913,14 +1913,14 @@ While the MaterialX specification describes the attributes and elements that are
 If an application requires additional information related to any MaterialX element, it may define and utilize additional attributes with non-standard names.  Custom attributes are defined using &lt;attributedef> elements:
 
 
-```
+```xml
   <attributedef name="name" attrname="attrname" type="type" value="defaultvalue"
                [target="targets"] [elements="elements"] [exportable="true"]/>
 ```
 
 where _name_ is a unique name for the attributedef, _attrname_ is the name of the custom attribute to define, _type_ is the type of the attribute (typically string, stringarray, integer or boolean, although any MaterialX type is allowed), _defaultvalue_ is the default value for the attribute, _target_ is an optional list of targets to which this attribute applies, and _elements_ is an optional list of element names or elementname/inputname in which the attribute may be used.  It is also permissible to provide enum and enumvalues attributes for an attributedef, to define specific labels and values that the custom attribute is allowed to take, using the same syntax and limitations as enum/enumvalues on nodedef inputs and tokens (see below).  By default, a custom attribute is not emitted as metadata in generated shaders, but can be exported if the `exportable` attribute is set to "true".  Examples:
 
-```
+```xml
   <attributedef name="AD_maxmtlname" attrname="maxmtlname" type="string" value=""
                 target="3dsmax" elements="surfacematerial"/>
   <attributedef name="AD_updir" attrname="updir" type="integer" value="1"
@@ -1933,7 +1933,7 @@ The first example above defines a 3ds Max-specific name attribute for surface ma
 
 Once defined, custom attributes may be used in exactly the same manner as standard attributes:
 
-```
+```xml
   <surfacematerial name="sssmarble" maxmtlname="SSS Marble">
     <input name="surfaceshader" node="marblesrf"/>
   </surfacematerial>
@@ -1948,7 +1948,7 @@ Once defined, custom attributes may be used in exactly the same manner as standa
 
 If an application requires additional custom inputs within a standard MaterialX node, it may define a target application-specific &lt;nodedef> for that node inheriting the base input definitions from the standard node's &lt;nodedef>, then add inputs specific to that target application.  
 
-```
+```xml
   <nodedef name="ND_image_color4_maya" node="image" target="maya" inherit="ND_image_color4">
     <input name="preFilter" type="boolean" value="true"/>
   </nodedef>
@@ -1958,7 +1958,7 @@ In the above example, a Maya-specific version of the color4-type &lt;image> node
 
 When using a node, the definition appropriate for the current target will automatically be used, and other targets will ignore any inputs that are not part of the nodedef for that target.  However, one may specify a documentational  `target` attribute on an input to hint what target it is intended for if desired.  In this example, the "preFilter" input has indicated that it is specific to the "maya" target.
 
-```
+```xml
   <image name="image1" type="color4">
     <input name="file" type="filename" value="image1.tif"/>
     <input name="preFilter" type="boolean" value="true" target="maya"/>
@@ -1998,7 +1998,7 @@ NodeDefs must define one or more child &lt;output> elements within the &lt;noded
 
 The parameter interface of a custom node is specified via a set of child &lt;input> and &lt;token> elements of the &lt;nodedef>, while documentation of the folder structure of a node may be defined using a number of &lt;uifolder> elements, each of which may provide a doc attribute to provide documentation for that folder layer.  A &lt;uifolder> element may not contain any other elements; in particular, the &lt;input>s and &lt;token>s of the nodedef interface must be direct children of the &lt;nodedef>.  Nested folders may be indicated using a full path for the folder, with a "/" separator between folder levels.
 
-```
+```xml
   <nodedef name="ND_multinoise" node="multinoise">
     <uifolder name="ui_noise" uifolder="Noise" doc="Noise Controls">
     <uifolder name="ui_noiselarge" uifolder="Noise/Large" doc="Large Scale Noise">
@@ -2012,7 +2012,7 @@ The parameter interface of a custom node is specified via a set of child &lt;inp
 
 **Input** elements are used within a &lt;nodedef> to declare the spatially-varying and uniform inputs for a node:
 
-```
+```xml
   <input name="inputname" type="inputtype" [value="value"]/>
 ```
 
@@ -2047,7 +2047,7 @@ It is permissible to define a `value` or a `defaultgeomprop` for an input but no
 
 **Token** elements are used within a &lt;nodedef> to declare uniform "interface token" string-substitution values to be referenced and substituted within filenames used in a node's nodegraph implementation:
 
-```
+```xml
   <token name="tokenname" type="tokentype" [value="value"]/>
 ```
 
@@ -2068,7 +2068,7 @@ Please see the [Example Pre-Shader Compositing Material](#example-pre-shader-com
 
 **Output** elements are used within a &lt;nodedef> to declare an output for node definitions, including the output's name, type, and default value or "defaultinput" connection:
 
-```
+```xml
   <output name="outputname" type="outputtype" [value="value"]/>
 ```
 
@@ -2103,7 +2103,7 @@ An &lt;implementation> may define a `file` or `sourcecode` attribute, or neither
 
 Because the names used for node inputs (such as "normal" or "default") may conflict with the reserved words in various shading languages, or may simply be different for specific targets, &lt;implementation> elements may contain a number of &lt;input> elements to remap the `name`s of &lt;input>s as specified in the &lt;nodedef> to different `implname`s to indicate what the input name is actually called in the implementation's code.  Only the inputs that need to be remapped to new `implname`s need to be listed; for each, it is recommended that the `type` of that input be listed for clarity, but if specified, it must match the type specified in the &lt;nodedef>: &lt;implementation>s are not allowed to change the type or any other attribute defined in the &lt;nodedef>.  In this example, the &lt;implementation> declares that the "default" input defined in the "ND_image_color3" nodedef is actually called "default_value" in the "mx_image_color" function:
 
-```
+```xml
   <implementation name="IM_image_color3_osl" nodedef="ND_image_color3"
       file="mx_image_color.osl" function="mx_image_color" target="oslpattern">
     <input name="default" type="color3" implname="default_value"/>
@@ -2112,7 +2112,7 @@ Because the names used for node inputs (such as "normal" or "default") may confl
 
 For uniform inputs and tokens whose nodedef description includes an enum list of allowable values, individual implementations may associate different target-specific resolved values for them potentially of a different type; these may be described by providing an `enumvalues` attribute on the uniform input or token within an &lt;implementation> and if appropriate, an `impltype` to declare the target-specific type of these enumvalues.  Note that if the type of an enum input in the nodedef is an array type, then the `impltype` (if specified) must also be an array type, while `enumvalues` is a list of values of the base (non-array) type.  The following &lt;implementation> states that for the "mystudio" target, the uaddressmode and vaddressmode inputs of the "image" node are actually called "extrapolate_u" and "extrapolate_v", are integers rather than strings, and take different values (e.g. "clamp" is 2):
 
-```
+```xml
   <!-- In ND_image_color3, u/vaddressmode have enum="constant,clamp,periodic,mirror" -->
   <implementation name="IM_image_color3_mystudio" nodedef="ND_image_color3" target="mystudio">
     <input name="uaddressmode" type="string"
@@ -2127,7 +2127,7 @@ For uniform inputs and tokens whose nodedef description includes an enum list of
 
 An &lt;implementation> element with a file attribute defining an external compiled implementation of a surface shader may contain one or more &lt;aov> elements to declare the names and types of arbitrary output variables ("AOVs") which the shader can output to the renderer.  AOVs must be of type float, color3, vector3, BSDF or EDF.  Note that in MaterialX, AOVs for pre-shading "pattern" colors are normally of type color3, while post-shaded color-like values are normally of type BSDF and emissive color-like values are normally of type EDF.  An &lt;implementation> with a `nodegraph` attribute may not contain &lt;aov> elements; instead, &lt;aovoutput> elements within the nodegraph should be used.
 
-```
+```xml
   <implementation name="IM_basicsurface_surface_rmanris"
                   nodedef="ND_basic_surface_surface" implname="basic_srf"
                   target="rmanris" file="basic_srf.C">
@@ -2139,7 +2139,7 @@ An &lt;implementation> element with a file attribute defining an external compil
 
 #### Example Custom Nodes Defined by External File Implementations
 
-```
+```xml
   <nodedef name="ND_mariblend_color3" node="mariBlend">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="in2" type="color3" value="1.0, 1.0, 1.0"/>
@@ -2179,7 +2179,7 @@ This example defines two templates for a custom operator node called "mariBlend"
 
 Here is an example of a two-output node definition and external implementation declaration.
 
-```
+```xml
   <nodedef name="ND_doublecolor_c3c3" node="doublecolor">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0"/>
     <input name="seed" type="float" value="1.0"/>
@@ -2203,7 +2203,7 @@ A **&lt;nodegraph>** element consists of at least one node element and at least 
 
 A **functional nodegraph** is a nodegraph-based implementation for a specified &lt;nodedef>, with the &lt;nodedef> declaring the set of inputs that the nodegraph accepts: a functional nodegraph may not itself specify any direct child input elements.
 
-```
+```xml
   <nodegraph name="graphname" nodedef="nodedefname" [target="target"]>
     ...node element(s)...
     ...output element(s)...
@@ -2212,7 +2212,7 @@ A **functional nodegraph** is a nodegraph-based implementation for a specified &
 
 or
 
-```
+```xml
   <nodegraph name="graphname">
     ...node element(s)...
     ...output element(s)...
@@ -2223,7 +2223,7 @@ or
 
 The type(s) of the &lt;output>(s) of the &lt;nodedef> and the type(s) of the nodegraph &lt;output>(s) must agree, and if there are multiple outputs, then the `name`s of the &lt;output>s in the &lt;nodegraph> and &lt;nodedef> must also agree.  The inputs and tokens of the &lt;nodedef> can be referenced within &lt;input> and &lt;token> elements of nodes within the nodegraph implementation using `interfacename` attributes in place of `value` or `nodename` attributes, e.g. a nodedef input "i2" and interface token "diffmap" could be referenced as follows:
 
-```
+```xml
     <input name="in2" type="color3" interfacename="i2"/>
     <token name="map1" type="string" interfacename="diffmap"/>
 ```
@@ -2235,7 +2235,7 @@ Note that a uniform &lt;input> of a node within the nodegraph may use `interface
 
 A **compound &lt;nodegraph>** element may specify one or more child &lt;input> and/or &lt;token> elements.  In this case, the &lt;nodegraph> functions as a collapsible "wrapper" for the contained nodes.
 
-```
+```xml
   <nodegraph name="graphname">
     [...input and/or token element(s)...]
     ...node and/or (compound) nodegraph element(s)...
@@ -2250,7 +2250,7 @@ It is permissible to define multiple nodegraph- and/or file-based implementation
 
 #### Example Custom Node Defined by a Nodegraph
 
-```
+```xml
   <nodedef name="ND_blendadd_color4" node="blend_add">
     <input name="fg" type="color4" value="0,0,0,0"/>
     <input name="bg" type="color4" value="0,0,0,0"/>
@@ -2277,7 +2277,7 @@ The inputs of the nodegraph are declared by the &lt;nodedef>, and the nodes with
 
 Once defined with a &lt;nodedef>, using a custom node within a node graph follows the same syntax as any other standard node: the name of the element is the name of the custom node, and the MaterialX type of the node's output is required; the custom node's child elements define connections of inputs to other node outputs as well as any input values for the custom node.
 
-```
+```xml
   <mariCustomNoise name="custnoise1" type="color3">
     <input name="ColorA" type="color3" value="1.0, 1.0, 1.0"/>
     <input name="Size" type="float" value="0.5"/>
@@ -2292,7 +2292,7 @@ Once defined with a &lt;nodedef>, using a custom node within a node graph follow
 
 When invoking nodes with multiple outputs, the `type` of the node should be declared as "multioutput", and other node inputs connecting to an output of the node must include an `output` attribute to specify which output of the node to connect to:
 
-```
+```xml
   <doublecolor name="dc1" type="multioutput">
     <input name="in1" type="color3" nodename="n0"/>
     <input name="seed" type="float" value="0.442367"/>
@@ -2313,7 +2313,7 @@ When invoking nodes with multiple outputs, the `type` of the node should be decl
 
 Custom nodes that output data types with a "shader" semantic are referred to in MaterialX as "Shader Nodes".  Shaders, along with their inputs, are declared using the same &lt;nodedef>, &lt;implementation> and &lt;nodegraph> elements described above:
 
-```
+```xml
   <nodedef name="name" node="shaderfunctionname">
     ...input declarations...
     <output name="out" type="shadertype"/>
@@ -2331,7 +2331,7 @@ NodeDef elements defining shader nodes do not typically include `default` or `de
 
 As mentioned in the [Custom Data Types](#custom-data-types) section earlier, the standard MaterialX distribution includes the following standard data types for shaders:
 
-```
+```xml
   <typedef name="surfaceshader" semantic="shader" context="surface"/>
   <typedef name="volumeshader" semantic="shader" context="volume"/>
   <typedef name="displacementshader" semantic="shader" context="displacement"/>
@@ -2342,7 +2342,7 @@ These types all declare that they have "shader" semantic, but define different c
 
 Instantiation of shader nodes to give them specific values is done the same way as instantiating any other node type:
 
-```
+```xml
   <unified_srf name="blueplasticsrf">
     <input name="diffColor" type="color3" value="0.04,0.12,0.64"/>
     <input name="specColor" type="color3" value="0.1,0.1,0.1"/>
@@ -2352,7 +2352,7 @@ Instantiation of shader nodes to give them specific values is done the same way 
 
 Instantiated shader nodes can also inherit from other shader nodes of the same class:
 
-```
+```xml
   <unified_srf name="glossyblueplasticsrf" inherit="blueplasticsrf">
     <input name="specRoughness" type="float" value="0.005"/>
   </unified_srf>
@@ -2398,7 +2398,7 @@ The Standard MaterialX Library defines the following nodes and node variants ope
 
 A functional nodegraph with either a "shader" or "material"-semantic output type may contain a number of &lt;aovoutput> elements to declare arbitrary output variables ("AOVs") which the renderer can see and output as additional streams of information.  AOVoutputs must be of type float, color3 or vector3 for pre-shading "pattern" values, or BSDF or EDF for shader-node output values; the renderer is expected to extract the appropriate color-like information from BSDF and EDF types.  AOVs defined within a shader-semantic node instantiated within this functional nodegraph may be "passed along" and potentially renamed (but may not be modified or operated on in any way) by providing a sourceaov attribute in the &lt;aovoutput>.
 
-```
+```xml
   <aovoutput name="name" type="type" aovname="aovname"
              nodename="node_to_connect_to" [sourceaov="aovname"]/>
 ```
@@ -2413,7 +2413,7 @@ The attributes for &lt;aovoutput> elements are:
 
 Examples:
 
-```
+```xml
   <aovoutput name="Aalbedo" type="color3" aovname="albedo"
              nodename="coat_affected_diffuse_color"/>
   <aovoutput name="Adiffuse" type="BSDF" aovname="diffuse">
@@ -2424,7 +2424,7 @@ Examples:
 
 Example of using &lt;aovoutput> with sourceaov to forward AOVs from within an instantiation of a shader-semantic node; this assumes that &lt;standard_surface> has itself defined &lt;aovoutput>s for "diffuse" and "specular" AOVs:
 
-```
+```xml
   <nodegraph name="NG_basic_surface_srfshader" nodedef="ND_basic_surface_srfshader">
     <image name="i_diff1" type="color3">
       <input name="file" type="filename"
@@ -2461,7 +2461,7 @@ Note: while it is syntactically possible to create &lt;aovoutput>s for geometric
 
 Custom nodes that output data types with a "material" semantic are referred to in MaterialX as "Material Nodes".  Material nodes typically have one or more "shader" semantic inputs which establish what shaders the material references; previous versions of MaterialX used &lt;shaderref> elements to establish these shader-to-material connections.  Material Nodes are declared using the same &lt;nodedef> elements as described above:
 
-```
+```xml
   <nodedef name="name" node="materialname">
     <input name="shaderinput1" type="shadertype" [target="target"]/>
     ...additional shader or input declarations...
@@ -2476,7 +2476,7 @@ The attributes for &lt;nodedef> elements as they pertain to the declaration of m
 
 The standard MaterialX distribution includes a single material type definition used as the output type for all material nodes:
 
-```
+```xml
   <typedef name="material" semantic="material"/>
 ```
 
@@ -2501,7 +2501,7 @@ as well as definitions for three standard material nodes, all outputting type "m
 
 Material nodes supporting multiple shaders of the same type for different rendering targets can be defined:
 
-```
+```xml
   <nodedef name="ND_surfacematerialmulti" node="surfacematerialmulti">
     <input name="surfaceshader" type="surfaceshader" value=""/>
     <input name="displacementshader" type="displacementshader" value=""/>
@@ -2514,7 +2514,7 @@ Material nodes supporting multiple shaders of the same type for different render
 
 Creating materials with specific values bound to shader inputs involves instantiating a Shader Node for each desired shader type and setting values on those shader nodes, and connecting the shader node(s) to the inputs of a Material Node:
 
-```
+```xml
   <standard_surface name="goldsrf" type="surfaceshader">
     <input name="base" type="float" value="1"/>
     <input name="base_color" type="color3" value="0.944, 0.776, 0.373"/>
@@ -2535,7 +2535,7 @@ Alternatively, and perhaps more usefully, a complete network of multiple shader 
 
 Materials can inherit from other materials, to add or change shaders connected to different inputs; in this example, a displacement shader is added to the above "Mgold" material to create a new "Mgolddsp" material:
 
-```
+```xml
   <noise2d name="noise1" type="float">
     <input name="amplitude" type="float" value="1.0"/>
     <input name="pivot" type="float" value="0.0"/>
@@ -2555,7 +2555,7 @@ Inheritance of material-type custom nodes is also allowed, so that new or change
 
 A material to blend between three different surface layers using mask textures.  This example also demonstrates the use of the "target" attribute of a shader implementation element to define multiple renderer-specific shaders of the same type referenced within a single material, and the use of interface tokens to define texture filenames.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <materialx>
   <!-- Define a basic surface shader node with two implementations; the first
@@ -2708,7 +2708,7 @@ A material to blend between three different surface layers using mask textures. 
 
 A Variant is a container for any number of uniform values for material inputs and interface tokens.  One or more mutually-exclusive variants are defined as part of a &lt;variantset>; variants may not be defined outside of a &lt;variantset>.
 
-```
+```xml
   <variantset name="wetvars">
     <variant name="wet1">
       <token name="diffmap" type="string" value="diff_wet1"/>
@@ -2725,7 +2725,7 @@ Example uses for variants include defining a number of allowable colors and text
 
 Variants and variantsets are not intrinsically associated with any particular material; they merely state a number of values for a number of named inputs/tokens.  However, variantsets may state that they are associated with specific shader-semantic nodes and/or &lt;nodedef> declarations by providing stringarray-type `node` and/or `nodedef` attributes:
 
-```
+```xml
   <variantset name="damagevars" node="Disney_BRDF_2012,Disney_BRDF_2015">
     ...
   <variantset name="costumevars" nodedef="ND_unifiedsrf_studio">

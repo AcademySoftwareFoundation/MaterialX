@@ -242,7 +242,10 @@ ScopedFloatFormatting::ScopedFloatFormatting(Value::FloatFormat format, int prec
     _precision(Value::getFloatPrecision())
 {
     Value::setFloatFormat(format);
-    Value::setFloatPrecision(precision);
+    if (precision >= 0)
+    {
+        Value::setFloatPrecision(precision);
+    }
 }
 
 ScopedFloatFormatting::~ScopedFloatFormatting()
