@@ -139,6 +139,11 @@ export float mx_image_float(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -153,7 +158,9 @@ export float mx_image_float(
 		return mxp_default;
 
 	float returnValue = ::tex::lookup_float(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -207,6 +214,11 @@ export color mx_image_color3(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -221,7 +233,9 @@ export color mx_image_color3(
 		return mxp_default;
 
 	color returnValue = ::tex::lookup_color(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -275,6 +289,11 @@ export color4 mx_image_color4(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -289,7 +308,9 @@ export color4 mx_image_color4(
 		return mxp_default;
 
 	color4 returnValue = mk_color4( ::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode)));
 	return returnValue;
@@ -343,6 +364,11 @@ export float2 mx_image_vector2(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -357,7 +383,9 @@ export float2 mx_image_vector2(
 		return mxp_default;
 
 	float2 returnValue = ::tex::lookup_float2(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -411,6 +439,11 @@ export float3 mx_image_vector3(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -425,7 +458,9 @@ export float3 mx_image_vector3(
 		return mxp_default;
 
 	float3 returnValue = ::tex::lookup_float3(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
@@ -479,6 +514,11 @@ export float4 mx_image_vector4(
 		anno::description("Enumeration {constant,clamp,periodic,mirror}."),
 		anno::display_name("Frame End Action"),
         anno::unused()
+	]],
+	uniform bool mxp_flip_v = false
+	[[
+		anno::usage("for applying the 'fileTextureVerticalFlip' shader generator option."),
+		anno::hidden()
 	]]
 )
 	[[
@@ -493,7 +533,9 @@ export float4 mx_image_vector4(
 		return mxp_default;
 
 	float4 returnValue = ::tex::lookup_float4(tex: mxp_file, 
-						coord: mxp_texcoord,
+						coord: mxp_flip_v
+							? float2(mxp_texcoord.x, 1.0f - mxp_texcoord.y) 
+							: mxp_texcoord,
 						wrap_u: map_addressmode(mxp_uaddressmode),
 						wrap_v: map_addressmode(mxp_vaddressmode));
 	return returnValue;
