@@ -21,10 +21,31 @@ void bindPyOslShaderGenerator(py::module& mod)
     mod.attr("OSL_OUTPUTS") = mx::OSL::OUTPUTS;
 
     py::class_<mx::OslShaderGenerator, mx::ShaderGenerator, mx::OslShaderGeneratorPtr>(mod, "OslShaderGenerator")
-        .def_static("create", &mx::OslShaderGenerator::create)
-        .def(py::init<>())
-        .def("getTarget", &mx::OslShaderGenerator::getTarget)
-        .def("generate", &mx::OslShaderGenerator::generate)
+
+        .def_static("create", &mx::OslShaderGenerator::create,
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Create an instance of this class.
+)docstring"))
+
+        .def(py::init<>(),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class.
+)docstring"))
+
+        .def("getTarget", &mx::OslShaderGenerator::getTarget,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return a unique identifier for the target this generator is for.
+)docstring"))
+
+        .def("generate", &mx::OslShaderGenerator::generate,
+             py::arg("name"),
+             py::arg("element"),
+             py::arg("context"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Generate a shader starting from the given `element`, translating the
+    element and all dependencies upstream into shader code.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for OSL (Open Shading Language) shader generators.
     A generator for a specific OSL target should be derived from this class.
