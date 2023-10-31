@@ -300,7 +300,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return the element, if any, that this one directly inherits from.
     ElementPtr getInheritsFrom() const
     {
-        return resolveNameReference<Element>(getInheritString());
+        return hasInheritString() ? resolveNameReference<Element>(getInheritString()) : nullptr;
     }
 
     /// Return true if this element has the given element as an inherited base,
@@ -739,13 +739,13 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     void copyContentFrom(const ConstElementPtr& source);
 
     /// Clear all attributes and descendants from this element.
-    void clearContent();
+    virtual void clearContent();
 
     /// Using the input name as a starting point, modify it to create a valid,
     /// unique name for a child element.
     string createValidChildName(string name) const
     {
-        name = createValidName(name);
+        name = name.empty() ? "_" : createValidName(name);
         while (_childMap.count(name))
         {
             name = incrementName(name);

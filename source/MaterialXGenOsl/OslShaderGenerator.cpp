@@ -26,7 +26,6 @@
 MATERIALX_NAMESPACE_BEGIN
 
 const string OslShaderGenerator::TARGET = "genosl";
-const string OslShaderGenerator::T_FILE_EXTRA_ARGUMENTS = "$extraTextureLookupArguments";
 
 //
 // OslShaderGenerator methods
@@ -161,14 +160,14 @@ OslShaderGenerator::OslShaderGenerator() :
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + OslShaderGenerator::TARGET, MaterialNodeOsl::create);
-
-    // Extra arguments for texture lookups.
-    _tokenSubstitutions[T_FILE_EXTRA_ARGUMENTS] = EMPTY_STRING;
 }
 
 ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = createShader(name, element, context);
+
+    // Request fixed floating-point notation for consistency across targets.
+    ScopedFloatFormatting fmt(Value::FloatFormatFixed);
 
     ShaderGraph& graph = shader->getGraph();
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
@@ -293,6 +292,25 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     {
         emitVariableDeclarations(constants, _syntax->getConstantQualifier(), Syntax::SEMICOLON, context, stage);
         emitLineBreak(stage);
+    }
+
+    // Inputs of type 'filename' has been generated into two shader inputs.
+    // So here we construct a single 'textureresource' from these inputs,
+    // to be used further downstream. See emitShaderInputs() for details.
+    VariableBlock& inputs = stage.getUniformBlock(OSL::UNIFORMS);
+    for (size_t i = 0; i < inputs.size(); ++i)
+    {
+        ShaderPort* input = inputs[i];
+        if (input->getType() == Type::FILENAME)
+        {
+            // Construct the textureresource variable.
+            const string newVariableName = input->getVariable() + "_";
+            const string& type = _syntax->getTypeName(input->getType());
+            emitLine(type + newVariableName + " = {" + input->getVariable() + ", " + input->getVariable() + "_colorspace}", stage);
+
+            // Update the variable name to be used downstream.
+            input->setVariable(newVariableName);
+        }
     }
 
     // Emit all texturing nodes. These are inputs to any
@@ -490,111 +508,75 @@ void OslShaderGenerator::emitLibraryIncludes(ShaderStage& stage, GenContext& con
     emitLineBreak(stage);
 }
 
-namespace
-{
-
-std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
-{
-    { "Pobject", "transform(\"object\", P)" },
-    { "Pworld", "P" },
-    { "Nobject", "transform(\"object\", N)" },
-    { "Nworld", "N" },
-    { "Tobject", "transform(\"object\", dPdu)" },
-    { "Tworld", "dPdu" },
-    { "Bobject", "transform(\"object\", dPdv)" },
-    { "Bworld", "dPdv" },
-    { "UV0", "{u,v}" },
-    { "Vworld", "I" }
-};
-
-} // anonymous namespace
-
 void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
 {
-    const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
-    };
-
-    const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
-    {
-        Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
-        Type::VECTOR4,  //
-        Type::COLOR4,   //
-        Type::FILENAME, //
-        Type::BSDF      //
+        { "Pobject", "transform(\"object\", P)" },
+        { "Pworld", "P" },
+        { "Nobject", "transform(\"object\", N)" },
+        { "Nworld", "N" },
+        { "Tobject", "transform(\"object\", dPdu)" },
+        { "Tworld", "dPdu" },
+        { "Bobject", "transform(\"object\", dPdv)" },
+        { "Bworld", "dPdv" },
+        { "UV0", "{u,v}" },
+        { "Vworld", "I" }
     };
 
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
-
         const string& type = _syntax->getTypeName(input->getType());
-        string value = _syntax->getValue(input, true);
 
-        emitLineBegin(stage);
-        emitString(type + " " + input->getVariable(), stage);
-
-        const string& geomprop = input->getGeomProp();
-        if (!geomprop.empty())
+        if (input->getType() == Type::FILENAME)
         {
-            auto it = GEOMPROP_DEFINITIONS.find(geomprop);
-            if (it != GEOMPROP_DEFINITIONS.end())
-            {
-                value = it->second;
-            }
+            // Shader inputs of type 'filename' (textures) need special handling.
+            // In OSL codegen a 'filename' is translated to the custom type 'textureresource',
+            // which is a struct containing a file string and a colorspace string.
+            // For the published shader interface we here split this into two separate inputs,
+            // which gives a nicer shader interface with widget metadata on each input.
+            
+            ValuePtr value = input->getValue();
+            const string valueStr = value ? value->getValueString() : EMPTY_STRING;
+
+            // Add the file string input
+            emitLineBegin(stage);
+            emitString("string " + input->getVariable() + " = \"" + valueStr + "\"", stage);
+            emitMetadata(input, stage);
+            emitString(",", stage);
+            emitLineEnd(stage, false);
+
+            // Add the colorspace string input
+            emitLineBegin(stage);
+            emitString("string " + input->getVariable() + "_colorspace = \"" + input->getColorSpace() + "\"", stage);
+            emitLineEnd(stage, false);
+            emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+            emitLine("string widget = \"colorspace\"", stage, false);
+            emitScopeEnd(stage, false, false);
         }
-
-        if (value.empty())
+        else
         {
-            value = _syntax->getDefaultValue(input->getType());
-        }
-        emitString(" = " + value, stage);
+            emitLineBegin(stage);
+            emitString(type + " " + input->getVariable(), stage);
 
-        //
-        // Add shader input metadata.
-        //
-
-        auto widgetMetadataIt = UI_WIDGET_METADATA.find(input->getType());
-        const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
-        const ShaderMetadataVecPtr& metadata = input->getMetadata();
-
-        if (widgetMetadata || (metadata && metadata->size()))
-        {
-            StringVec metadataLines;
-            if (metadata)
+            string value = _syntax->getValue(input, true);
+            const string& geomprop = input->getGeomProp();
+            if (!geomprop.empty())
             {
-                for (size_t j = 0; j < metadata->size(); ++j)
+                auto it = GEOMPROP_DEFINITIONS.find(geomprop);
+                if (it != GEOMPROP_DEFINITIONS.end())
                 {
-                    const ShaderMetadata& data = metadata->at(j);
-                    if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
-                    {
-                        const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
-                        const string& dataType = _syntax->getTypeName(data.type);
-                        const string dataValue = _syntax->getValue(data.type, *data.value, true);
-                        metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
-                    }
+                    value = it->second;
                 }
             }
-            if (widgetMetadata)
+            if (value.empty())
             {
-                const string& dataType = _syntax->getTypeName(widgetMetadata->type);
-                const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
-                metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+                value = _syntax->getDefaultValue(input->getType());
             }
-            if (metadataLines.size())
-            {
-                emitLineEnd(stage, false);
-                emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
-                for (auto line : metadataLines)
-                {
-                    emitLine(line, stage, false);
-                }
-                emitScopeEnd(stage, false, false);
-            }
+
+            emitString(" = " + value, stage);
+            emitMetadata(input, stage);
         }
 
         if (i < inputs.size())
@@ -616,6 +598,65 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
         const string value = _syntax->getDefaultValue(outputType, true);
         const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : Syntax::COMMA;
         emitLine(type + " " + output->getVariable() + " = " + value + delim, stage, false);
+    }
+}
+
+void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage) const
+{
+    static const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    {
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+    };
+
+    static const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    {
+        Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
+        Type::VECTOR4,  //
+        Type::COLOR4,   //
+        Type::FILENAME, //
+        Type::BSDF      //
+    };
+
+    auto widgetMetadataIt = UI_WIDGET_METADATA.find(port->getType());
+    const ShaderMetadata* widgetMetadata = widgetMetadataIt != UI_WIDGET_METADATA.end() ? &widgetMetadataIt->second : nullptr;
+    const ShaderMetadataVecPtr& metadata = port->getMetadata();
+
+    if (widgetMetadata || (metadata && metadata->size()))
+    {
+        StringVec metadataLines;
+        if (metadata)
+        {
+            for (size_t j = 0; j < metadata->size(); ++j)
+            {
+                const ShaderMetadata& data = metadata->at(j);
+                if (METADATA_TYPE_BLACKLIST.count(data.type) == 0)
+                {
+                    const string& delim = (widgetMetadata || j < metadata->size() - 1) ? Syntax::COMMA : EMPTY_STRING;
+                    const string& dataType = _syntax->getTypeName(data.type);
+                    const string dataValue = _syntax->getValue(data.type, *data.value, true);
+                    metadataLines.push_back(dataType + " " + data.name + " = " + dataValue + delim);
+                }
+            }
+        }
+        if (widgetMetadata)
+        {
+            const string& dataType = _syntax->getTypeName(widgetMetadata->type);
+            const string dataValue = _syntax->getValue(widgetMetadata->type, *widgetMetadata->value, true);
+            metadataLines.push_back(dataType + " " + widgetMetadata->name + " = " + dataValue);
+        }
+        if (metadataLines.size())
+        {
+            emitLineEnd(stage, false);
+            emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
+            for (auto line : metadataLines)
+            {
+                emitLine(line, stage, false);
+            }
+            emitScopeEnd(stage, false, false);
+        }
     }
 }
 

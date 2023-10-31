@@ -90,16 +90,7 @@ class MX_CORE_API GeomPath
         {
             return _empty ? EMPTY_STRING : UNIVERSAL_GEOM_NAME;
         }
-        string geom;
-        for (size_t i = 0; i < _vec.size(); i++)
-        {
-            geom += _vec[i];
-            if (i + 1 < _vec.size())
-            {
-                geom += GEOM_PATH_SEPARATOR;
-            }
-        }
-        return geom;
+        return GEOM_PATH_SEPARATOR + joinStrings(_vec, GEOM_PATH_SEPARATOR);
     }
 
     /// Return true if there is any geometry in common between the two paths.

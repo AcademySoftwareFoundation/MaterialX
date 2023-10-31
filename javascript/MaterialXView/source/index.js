@@ -12,6 +12,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 import { Viewer } from './viewer.js'
+import { dropHandler, dragOverHandler, setLoadingCallback } from './dropHandling.js';
 
 let renderer, composer, orbitControls;
 
@@ -115,6 +116,20 @@ function init()
         console.error(Number.isInteger(err) ? this.getMx().getExceptionMessage(err) : err);
     })
 
+    // allow dropping files and directories
+    document.addEventListener('drop', dropHandler, false);
+    document.addEventListener('dragover', dragOverHandler, false);
+
+    setLoadingCallback(file => {
+        materialFilename = file.fullPath || file.name;
+        viewer.getEditor().clearFolders();
+        viewer.getMaterial().loadMaterials(viewer, materialFilename);
+        viewer.getEditor().updateProperties(0.9);
+        viewer.getScene().setUpdateTransforms();
+    });
+
+    // enable three.js Cache so that dropped files can reference each other
+    THREE.Cache.enabled = true;
 }
 
 function onWindowResize() 

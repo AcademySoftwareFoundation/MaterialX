@@ -639,6 +639,9 @@ class MX_CORE_API InterfaceElement : public TypedElement
     ///    no declaration was found.
     virtual ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const;
 
+    /// Clear all attributes and descendants from this element.
+    void clearContent() override;
+
     /// Return true if this instance has an exact input match with the given
     /// declaration, where each input of this the instance corresponds to a
     /// declaration input of the same name and type.
