@@ -100,6 +100,7 @@ autodoc_default_options = {
 }
 
 _library_version_underscores = '${MATERIALX_LIBRARY_VERSION}'.replace(".", "_")
+_current_class_name = None
 _objects_found = {}
 _undocumented_functions = []
 _undocumented_methods = []
@@ -115,43 +116,75 @@ def strip_module_names(text):
     Returns the given text with prefixes of known Python modules stripped, in
     order to make the API documentation more readable.
     """
-    if text:
-        # Check if the given text references a type named `Input`, and if so,
-        # leave the given text as-is. Otherwise, `Input` by itself could mean
-        # either `PyMaterialXCore.Input` or `PyMaterialXRenderGlsl.Input`,
-        # leading to a warning when processing the docstring:
-        # ```
-        # docstring of PyMaterialXGenShader.PyCapsule.getNodeDefInput:1:
-        # WARNING: more than one target found for cross-reference 'Input':
-        # PyMaterialXCore.Input, PyMaterialXRenderGlsl.Input
-        # ```
-        if ".Input)" in text or ".Input, " in text or text.endswith(".Input"):
-            return text
+    if not text:
+        return text
 
-        text = (
-            text
-            .replace('MaterialX_v{}::'.format(_library_version_underscores), '')
-            .replace('PyMaterialXCore.', '')
-            .replace('PyMaterialXFormat.', '')
-            .replace('PyMaterialXGenShader.', '')
-            .replace('PyMaterialXGenGlsl.', '')
-            .replace('PyMaterialXGenOsl.', '')
-            .replace('PyMaterialXGenMdl.', '')
-            .replace('PyMaterialXGenMsl.', '')
-            .replace('PyMaterialXRender.', '')
-            .replace('PyMaterialXRenderGlsl.', '')
-            .replace('PyMaterialXRenderOsl.', '')
-            .replace('PyMaterialXRenderMsl.', '')
+    # Check if the given text references a type named `Input`, and if so, leave
+    # the given text as-is. Otherwise, `Input` by itself could mean either
+    # `PyMaterialXCore.Input` or `PyMaterialXRenderGlsl.Input`, leading to a
+    # warning when processing the docstring:
+    # ```
+    # docstring of PyMaterialXGenShader.PyCapsule.getNodeDefInput:1:
+    # WARNING: more than one target found for cross-reference 'Input':
+    # PyMaterialXCore.Input, PyMaterialXRenderGlsl.Input
+    # ```
+    if ".Input)" in text or ".Input, " in text or text.endswith(".Input"):
+        return text
 
-            # Special case handling for "PyMaterialXRenderGlsl.Input", which
-            # appears in `Dict[str, GlslProgram::Input]` in one case
-            .replace('GlslProgram::Input', 'PyMaterialXRenderGlsl.Input')
+    return (
+        text
+        .replace('MaterialX_v{}::'.format(_library_version_underscores), '')
+        .replace('PyMaterialXCore.', '')
+        .replace('PyMaterialXFormat.', '')
+        .replace('PyMaterialXGenShader.', '')
+        .replace('PyMaterialXGenGlsl.', '')
+        .replace('PyMaterialXGenOsl.', '')
+        .replace('PyMaterialXGenMdl.', '')
+        .replace('PyMaterialXGenMsl.', '')
+        .replace('PyMaterialXRender.', '')
+        .replace('PyMaterialXRenderGlsl.', '')
+        .replace('PyMaterialXRenderOsl.', '')
+        .replace('PyMaterialXRenderMsl.', '')
 
-            # Special case handling for "PyMaterialXRenderMsl.Input", which
-            # appears in `Dict[str, MslProgram::Input]` in one case
-            .replace('MslProgram::Input', 'PyMaterialXRenderMsl.Input')
-        )
-    return text
+        # Special case handling for "PyMaterialXRenderGlsl.Input", which
+        # appears in `Dict[str, GlslProgram::Input]` in one case
+        .replace('GlslProgram::Input', 'PyMaterialXRenderGlsl.Input')
+
+        # Special case handling for "PyMaterialXRenderMsl.Input", which
+        # appears in `Dict[str, MslProgram::Input]` in one case
+        .replace('MslProgram::Input', 'PyMaterialXRenderMsl.Input')
+    )
+
+
+def autodoc_process_bases(app, name, obj, options, bases):
+    """
+    Event handler for classes.
+
+    Emitted when autodoc has read and processed a class to determine the base
+    classes.
+
+    Is emitted only if the `show-inheritance` option is given.
+
+    Implemented to store the given fully-qualified name of the class in a
+    module-global variable named `_current_class_name` for use in method
+    signatures in `autodoc_process_docstring()` and `autodoc_process_signature()`
+    below.
+
+    This function works around a quirk in pybind11 where `__qualname__` of a
+    method starts with `PyCapsule.` rather than the name of the class.
+    See https://github.com/pybind/pybind11/issues/2059 __qualname__ for methods
+
+    Args:
+        app – the Sphinx application object
+        name – the fully-qualified name of the class
+        obj – the class itself
+        options – the options given to the class directive
+        bases – the list of base classes that can be modified in-place to
+                change what Sphinx puts into the output
+    """
+    global _current_class_name
+
+    _current_class_name = name
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
@@ -184,21 +217,28 @@ def autodoc_process_docstring(app, what, name, obj, options, lines):
         _objects_found[what].append(obj)
 
     if what == "function":
-        if (obj not in _undocumented_functions
+        sig = "{}()".format(obj.__qualname__)
+    elif what == "method":
+        sig = "{}.{}()".format(_current_class_name, obj.__name__)
+
+    if what == "function":
+        if (sig not in _undocumented_functions
                 and obj.__doc__.count("\n") < 2):
-            _undocumented_functions.append(obj)
-        if (obj not in _functions_with_empty_line_in_docstring
+            _undocumented_functions.append(sig)
+
+        if (sig not in _functions_with_empty_line_in_docstring
                 and "\n\n\n" in obj.__doc__):
-            _functions_with_empty_line_in_docstring.append(obj)
+            _functions_with_empty_line_in_docstring.append(sig)
 
     if what == "method":
-        if (obj not in _undocumented_methods
+        if (sig not in _undocumented_methods
+                and not name.endswith(".__init__")
                 and obj.__doc__.count("\n") < 2):
-            _undocumented_methods.append(obj)
+            _undocumented_methods.append(sig)
 
-        if (obj not in _methods_with_empty_line_in_docstring
+        if (sig not in _methods_with_empty_line_in_docstring
                 and "\n\n\n" in obj.__doc__):
-            _methods_with_empty_line_in_docstring.append(obj)
+            _methods_with_empty_line_in_docstring.append(sig)
 
 
 def autodoc_process_signature(app, what, name, obj, options, signature,
@@ -231,58 +271,30 @@ def autodoc_process_signature(app, what, name, obj, options, signature,
     contains_unnamed_parameters = any(["arg{}".format(i) in signature
                                        for i in range(10)])
 
+    # Check if an overloaded function contains unnamed parameters
+    if (not contains_unnamed_parameters
+            and "Overloaded function." in obj.__doc__):
+        contains_unnamed_parameters = any(["arg{}".format(i) in obj.__doc__
+                                           for i in range(10)])
+
+    if what == "function":
+        sig = "{}{}".format(obj.__qualname__, signature)
+    elif what == "method":
+        sig = "{}.{}{}".format(_current_class_name, obj.__name__, signature)
+
     if (what == "function"
-            and (obj, signature) not in _functions_with_unnamed_parameters
+            and sig not in _functions_with_unnamed_parameters
             and contains_unnamed_parameters):
-        _functions_with_unnamed_parameters.append((obj, signature))
+        _functions_with_unnamed_parameters.append(sig)
 
     if (what == "method"
-            and (obj, signature) not in _methods_with_unnamed_parameters
+            and sig not in _methods_with_unnamed_parameters
             and contains_unnamed_parameters):
-        _methods_with_unnamed_parameters.append((obj, signature))
+        _methods_with_unnamed_parameters.append(sig)
 
     signature = strip_module_names(signature)
     return_annotation = strip_module_names(return_annotation)
     return (signature, return_annotation)
-
-
-def _format_function_qualname(function, signature="()"):
-    """
-    Returns the fully-qualified name of the function or method (if available),
-    e.g. "PyMaterialXCore.Matrix44.transformPoint".
-
-    This function works around a quirk in pybind11 where `__qualname__` of a
-    method starts with `PyCapsule.` rather than the name of the class.
-    See https://github.com/pybind/pybind11/issues/2059 __qualname__ for methods
-    """
-    if (function.__qualname__.startswith("PyCapsule.")
-            and signature.startswith("(self: ")):
-        # Extract the qualified name of the function's type from the name of
-        # the type of the `self` parameter in the function's signature, e.g.
-        # "(self: PyMaterialXCore.Matrix33, arg0: PyMaterialXCore.Vector2)"
-        qualname = "{}.{}".format(signature[7:signature.find(",")],
-                                  function.__name__)
-    elif hasattr(function, "__module__"):
-        qualname = "{}.{}".format(function.__module__, function.__qualname__)
-    else:
-        qualname = function.__qualname__
-    return qualname.replace("PyCapsule.", "<unknown-type>.")
-
-
-def _format_function_docstring(function):
-    return "{}()\n{}".format(_format_function_qualname(function),
-                             function.__doc__)
-
-
-def _format_function_signature(function, signature):
-    """
-    Returns the fully-qualified name of the function or method (if available)
-    followed by a textual representation of its parameters, each with a name
-    and a type, wrapped in parentheses, e.g.
-    "PyMaterialXCore.Matrix44.transformPoint(self: PyMaterialXCore.Matrix44, arg0: PyMaterialXCore.Vector3)".
-    """
-    return "{}{}".format(_format_function_qualname(function, signature),
-                         signature)
 
 
 def build_finished(app, exception):
@@ -296,41 +308,23 @@ def build_finished(app, exception):
     """
     # Warn about possible issues in docstrings and signatures
     if _undocumented_functions:
-        logger.info(
-            "\nFunctions with empty docstrings:\n    {}"
-            .format("\n    ".join(
-                        _format_function_docstring(function)
-                        for function in _undocumented_functions)))
+        logger.info("\nFunctions with empty docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_undocumented_functions))))
     if _undocumented_methods:
-        logger.info(
-            "\nMethods with empty docstrings:\n    {}"
-            .format("\n    ".join(
-                        _format_function_docstring(function)
-                        for function in _undocumented_methods)))
+        logger.info("\nMethods with empty docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_undocumented_methods))))
     if _functions_with_empty_line_in_docstring:
-        logger.info(
-            "\nFunctions with empty lines in docstrings:\n    {}"
-            .format("\n    ".join(
-                        _format_function_docstring(function)
-                        for function in _functions_with_empty_line_in_docstring)))
+        logger.info("\nFunctions with empty lines in docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_functions_with_empty_line_in_docstring))))
     if _methods_with_empty_line_in_docstring:
-        logger.info(
-            "\nMethods with empty lines in docstrings:\n    {}"
-            .format("\n    ".join(
-                        _format_function_docstring(method)
-                        for method in _methods_with_empty_line_in_docstring)))
+        logger.info("\nMethods with empty lines in docstrings:\n    {}"
+                    .format("\n    ".join(sorted(_methods_with_empty_line_in_docstring))))
     if _functions_with_unnamed_parameters:
-        logger.info(
-            "\nFunctions with possibly unnamed parameters:\n    {}"
-            .format("\n    ".join(
-                        _format_function_signature(function, signature)
-                        for function, signature in _functions_with_unnamed_parameters)))
+        logger.info("\nFunctions with possibly unnamed parameters:\n    {}"
+                    .format("\n    ".join(sorted(_functions_with_unnamed_parameters))))
     if _methods_with_unnamed_parameters:
-        logger.info(
-            "\nMethods with possibly unnamed parameters:\n    {}"
-            .format("\n    ".join(
-                        _format_function_signature(method, signature)
-                        for method, signature in _methods_with_unnamed_parameters)))
+        logger.info("\nMethods with possibly unnamed parameters:\n    {}"
+                    .format("\n    ".join(sorted(_methods_with_unnamed_parameters))))
 
     # Show statistics about the API
     statistics = "The MaterialX Python API consists of:"
@@ -398,6 +392,7 @@ def build_finished(app, exception):
 
 
 def setup(app):
+    app.connect('autodoc-process-bases', autodoc_process_bases)
     app.connect('autodoc-process-docstring', autodoc_process_docstring)
     app.connect('autodoc-process-signature', autodoc_process_signature)
     app.connect('build-finished', build_finished)
