@@ -14,12 +14,57 @@ namespace mx = MaterialX;
 void bindPyXmlIo(py::module& mod)
 {
     py::class_<mx::XmlReadOptions>(mod, "XmlReadOptions")
-        .def(py::init())
-        .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction)
-        .def_readwrite("readComments", &mx::XmlReadOptions::readComments)
-        .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines)
-        .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion)        
-        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes)
+
+        .def(py::init(),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class using default options.
+)docstring"))
+
+        .def_readwrite("readXIncludeFunction", &mx::XmlReadOptions::readXIncludeFunction,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`XmlReadFunction`)
+    If provided, this function will be invoked when an XInclude reference
+    needs to be read into a document.
+
+    Defaults to `readFromXmlFile()`.
+)docstring"))
+
+        .def_readwrite("readComments", &mx::XmlReadOptions::readComments,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`bool`)
+    If true, then XML comments will be read into documents as comment elements.
+
+    Defaults to `False`.
+)docstring"))
+
+        .def_readwrite("readNewlines", &mx::XmlReadOptions::readNewlines,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`bool`)
+    If true, then XML newlines will be read into documents as newline elements.
+
+    Defaults to `False`.
+)docstring"))
+
+        .def_readwrite("upgradeVersion", &mx::XmlReadOptions::upgradeVersion,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`bool`)
+    If `True`, then documents from earlier versions of MaterialX will be
+    upgraded to the current version.
+
+    Defaults to `True`.
+
+    :see: `PyMaterialXCore.Document.upgradeVersion()`
+    :see: `PyMaterialXCore.getVersionString()`
+)docstring"))
+
+        .def_readwrite("parentXIncludes", &mx::XmlReadOptions::parentXIncludes,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`List[str]`)
+    The list of parent XIncludes at the scope of the current document.
+
+    Defaults to an empty list.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class providing a set of options for controlling the behavior of XML read
     functions.
@@ -28,9 +73,30 @@ void bindPyXmlIo(py::module& mod)
 )docstring");
 
     py::class_<mx::XmlWriteOptions>(mod, "XmlWriteOptions")
-        .def(py::init())
-        .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
-        .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate)
+
+        .def(py::init(),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class using default options.
+)docstring"))
+
+        .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`bool`)
+    If `True`, elements with source file markings will be written as XIncludes
+    rather than explicit data.
+
+    Defaults to `True`.
+)docstring"))
+
+        .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    (`ElementPredicate`)
+    If provided, this function will be used to exclude specific elements (those
+    returning `False`) from the write operation.
+
+    Defaults to `None`.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class providing a set of options for controlling the behavior of XML write
     functions.
@@ -41,7 +107,9 @@ void bindPyXmlIo(py::module& mod)
     mod.def("readFromXmlFile", &mx::readFromXmlFile,
             py::arg("doc"),
             py::arg("filename"),
-            py::arg("searchPath") = mx::FileSearchPath(),
+            py::arg_v("searchPath",
+                      mx::FileSearchPath(),
+                      "mx.FileSearchPath()"),
             py::arg("readOptions") = (mx::XmlReadOptions*) nullptr,
             PYMATERIALX_DOCSTRING(R"docstring(
     Read a `Document` as XML from the given filename.
@@ -65,7 +133,9 @@ void bindPyXmlIo(py::module& mod)
     mod.def("readFromXmlString", &mx::readFromXmlString,
             py::arg("doc"),
             py::arg("string"),
-            py::arg("searchPath") = mx::FileSearchPath(),
+            py::arg_v("searchPath",
+                      mx::FileSearchPath(),
+                      "mx.FileSearchPath()"),
             py::arg("readOptions") = (mx::XmlReadOptions*) nullptr,
             PYMATERIALX_DOCSTRING(R"docstring(
     Read a `Document` as XML from the given string.
@@ -129,7 +199,9 @@ void bindPyXmlIo(py::module& mod)
 )docstring"));
 
     mod.def("getEnvironmentPath", &mx::getEnvironmentPath,
-            py::arg("sep") = mx::PATH_LIST_SEPARATOR,
+            py::arg_v("sep",
+                      mx::PATH_LIST_SEPARATOR,
+                      "mx.PATH_LIST_SEPARATOR"),
             PYMATERIALX_DOCSTRING(R"docstring(
     Return a `FileSearchPath` object from the search path environment variable
     `MATERIALX_SEARCH_PATH`.
@@ -139,6 +211,7 @@ void bindPyXmlIo(py::module& mod)
     mod.attr("MATERIALX_SEARCH_PATH_ENV_VAR") = mx::MATERIALX_SEARCH_PATH_ENV_VAR;
 
     py::register_exception<mx::ExceptionParseError>(mod, "ExceptionParseError")
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A type of exception that is raised when a requested document cannot be
     parsed.
@@ -147,6 +220,7 @@ void bindPyXmlIo(py::module& mod)
 )docstring");
 
     py::register_exception<mx::ExceptionFileMissing>(mod, "ExceptionFileMissing")
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     A type of exception that is raised when a requested file cannot be opened.
 

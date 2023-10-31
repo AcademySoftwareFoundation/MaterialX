@@ -50,7 +50,9 @@ void bindPyUtil(py::module& mod)
     mod.def("loadLibrary", &mx::loadLibrary,
             py::arg("path"),
             py::arg("doc"),
-            py::arg("searchPath") = mx::FileSearchPath(),
+            py::arg_v("searchPath",
+                      mx::FileSearchPath(),
+                      "mx.FileSearchPath()"),
             py::arg("readOptions") = (mx::XmlReadOptions*) nullptr,
             PYMATERIALX_DOCSTRING(R"docstring(
     Load a MaterialX library specified by the given `path` into the given
@@ -70,15 +72,21 @@ void bindPyUtil(py::module& mod)
 
     mod.def("flattenFilenames", &mx::flattenFilenames,
             py::arg("doc"),
-            py::arg("searchPath") = mx::FileSearchPath(),
+            py::arg_v("searchPath",
+                      mx::FileSearchPath(),
+                      "mx.FileSearchPath()"),
             py::arg("customResolver") = (mx::StringResolverPtr) nullptr,
             PYMATERIALX_DOCSTRING(R"docstring(
     Flatten all filenames in the given document, applying string resolvers at
     the scope of each element and removing all fileprefix attributes.
 
     :param doc: The document to modify.
-    :param searchPath: An optional search path for relative to absolute path conversion.
+    :type doc: Document
+    :param searchPath: An optional search path for relative to absolute path
+        conversion.
+    :type searchPath: FileSearchPath
     :param customResolver: An optional custom resolver to apply.
+    :type customResolver: StringResolver
 )docstring"));
 
     mod.def("getSourceSearchPath", &mx::getSourceSearchPath,
