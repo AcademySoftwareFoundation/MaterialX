@@ -371,7 +371,7 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 
     // Flipping the texture lookups for the test renderer only.
     // This is because OSL testrender does not allow to change the UV layout of their sphere (yet) and the MaterialX test suite
-    // adopted to the OSL behavior in order to produce comparable results. This means that raw texture coordinates, or procedurals
+    // adopts the OSL behavior in order to produce comparable results. This means that raw texture coordinates, or procedurals
     // that use the texture coordinates, do not match what might be expected when reading the MaterialX spec:
     //    "[...] the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image 
     //     mapping to the (0,0) UV coordinate [...]"
