@@ -17,9 +17,22 @@ namespace mx = MaterialX;
 void bindPyMdlShaderGenerator(py::module& mod)
 {
     py::class_<mx::MdlShaderGenerator, mx::ShaderGenerator, mx::MdlShaderGeneratorPtr>(mod, "MdlShaderGenerator")
-        .def_static("create", &mx::MdlShaderGenerator::create)
-        .def(py::init<>())
-        .def("getTarget", &mx::MdlShaderGenerator::getTarget)
+
+        .def_static("create", &mx::MdlShaderGenerator::create,
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Create an instance of this class.
+)docstring"))
+
+        .def(py::init<>(),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class.
+)docstring"))
+
+        .def("getTarget", &mx::MdlShaderGenerator::getTarget,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return a unique identifier for the target this generator is for.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class implementing a shader generator for MDL (Material Definition Language).
 
