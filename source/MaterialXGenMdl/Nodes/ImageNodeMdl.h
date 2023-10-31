@@ -12,7 +12,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-
 /// Image node implementation for MDL
 class MX_GENMDL_API ImageNodeMdl : public SourceCodeNodeMdl
 {
@@ -29,7 +28,6 @@ class MX_GENMDL_API ImageNodeMdl : public SourceCodeNodeMdl
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 };
-
 
 MATERIALX_NAMESPACE_END
 
