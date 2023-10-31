@@ -44,10 +44,31 @@ class PyColorManagementSystem : public mx::ColorManagementSystem
 void bindPyColorManagement(py::module& mod)
 {
     py::class_<mx::ColorSpaceTransform>(mod, "ColorSpaceTransform")
-        .def(py::init<const std::string&, const std::string&, const mx::TypeDesc*>())
-        .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace)
-        .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace)
-        .def_readwrite("type", &mx::ColorSpaceTransform::type)
+
+        .def(py::init<const std::string&, const std::string&, const mx::TypeDesc*>(),
+             py::arg("sourceSpace"),
+             py::arg("targetSpace"),
+             py::arg("typeDesc"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class using the given source space, target
+    space, and type descriptor.
+)docstring"))
+
+        .def_readwrite("sourceSpace", &mx::ColorSpaceTransform::sourceSpace,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    The source color space of the color space transform.
+)docstring"))
+
+        .def_readwrite("targetSpace", &mx::ColorSpaceTransform::targetSpace,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    The target color space of the color space transform.
+)docstring"))
+
+        .def_readwrite("typeDesc", &mx::ColorSpaceTransform::type,
+                       PYMATERIALX_DOCSTRING(R"docstring(
+    The type descriptor of the color space transform.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Structure that represents color space transform information.
 
@@ -55,10 +76,31 @@ void bindPyColorManagement(py::module& mod)
 )docstring");
 
     py::class_<mx::ColorManagementSystem, PyColorManagementSystem, mx::ColorManagementSystemPtr>(mod, "ColorManagementSystem")
-        .def(py::init<>())
-        .def("getName", &mx::ColorManagementSystem::getName)
-        .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
-        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform)
+
+        .def(py::init<>(),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Initialize an instance of this class.
+)docstring"))
+
+        .def("getName", &mx::ColorManagementSystem::getName,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the name of the color management system.
+)docstring"))
+
+        .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary,
+             py::arg("document"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Load a library of implementations from the provided `document`,
+    replacing any previously loaded content.
+)docstring"))
+
+        .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform,
+             py::arg("transform"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Returns whether this color management system supports the provided
+    `transform`.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Abstract base class for color management systems.
 
@@ -66,8 +108,18 @@ void bindPyColorManagement(py::module& mod)
 )docstring");
 
     py::class_<mx::DefaultColorManagementSystem, mx::DefaultColorManagementSystemPtr, mx::ColorManagementSystem>(mod, "DefaultColorManagementSystem")
-        .def_static("create", &mx::DefaultColorManagementSystem::create)
-        .def("getName", &mx::DefaultColorManagementSystem::getName)
+
+        .def_static("create", &mx::DefaultColorManagementSystem::create,
+                    py::arg("target"),
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Create a new `DefaultColorManagementSystem` instance.
+)docstring"))
+
+        .def("getName", &mx::DefaultColorManagementSystem::getName,
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the name of the default color management system.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class for a default color management system.
 

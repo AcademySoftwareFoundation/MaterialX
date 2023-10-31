@@ -68,8 +68,8 @@ void bindPyUtil(py::module& mod)
             PYMATERIALX_DOCSTRING(R"docstring(
     Find all renderable material nodes in the given document.
 
-    :type doc: Document
     :param doc: The document to examine.
+    :type doc: Document
     :return: A list of renderable material nodes.
 )docstring"));
 
@@ -81,8 +81,8 @@ void bindPyUtil(py::module& mod)
     nodes if present, or graph outputs of renderable types if no material nodes
     are found.
 
-    :type doc: Document
     :param doc: The document to examine.
+    :type doc: Document
     :return: A list of renderable elements.
 )docstring"));
 
@@ -135,8 +135,8 @@ void bindPyUtil(py::module& mod)
     Determine whether the given `output` is directly connected to a node that
     generates world-space coordinates (e.g. the "normalmap" node).
 
-    :type output: Output
     :param output: The output to check.
+    :type output: Output
     :return: The node if found.
 )docstring"));
 
@@ -148,6 +148,8 @@ void bindPyUtil(py::module& mod)
     attributes either on the starting node or any graph upstream of that node.
 
     :param output: The starting node.
+    :type output: Node
     :param attributes: Attributes to test for.
+    :type attributes: List[str]
 )docstring"));
 }

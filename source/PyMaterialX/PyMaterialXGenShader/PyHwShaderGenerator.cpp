@@ -27,10 +27,40 @@ void bindPyHwShaderGenerator(py::module& mod)
     mod.attr("HW_ATTR_TRANSPARENT") =  mx::HW::ATTR_TRANSPARENT;
 
     py::class_<mx::HwShaderGenerator, mx::ShaderGenerator, mx::HwShaderGeneratorPtr>(mod, "HwShaderGenerator")
-        .def("getClosureContexts", &mx::HwShaderGenerator::getClosureContexts)
-        .def("bindLightShader", &mx::HwShaderGenerator::bindLightShader)
-        .def("unbindLightShader", &mx::HwShaderGenerator::unbindLightShader)
-        .def("unbindLightShaders", &mx::HwShaderGenerator::unbindLightShaders)
+
+        .def("getClosureContexts", &mx::HwShaderGenerator::getClosureContexts,
+             py::arg("node"),
+             py::arg("cct"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Return the closure contexts defined for the given node.
+)docstring"))
+
+        .def_static("bindLightShader", &mx::HwShaderGenerator::bindLightShader,
+                    py::arg("nodeDef"),
+                    py::arg("lightTypeId"),
+                    py::arg("context"),
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Bind a light shader to a light type ID, for usage in surface shaders created
+    by the generator.
+
+    The `lightTypeId` should be a unique identifier for the light type (node
+    definition) and the same ID should be used when setting light parameters on
+    a generated surface shader.
+)docstring"))
+
+        .def_static("unbindLightShader", &mx::HwShaderGenerator::unbindLightShader,
+                    py::arg("lightTypeId"),
+                    py::arg("context"),
+                    PYMATERIALX_DOCSTRING(R"docstring(
+    Unbind a light shader previously bound to the given light type ID.
+)docstring"))
+
+        .def_static("unbindLightShaders", &mx::HwShaderGenerator::unbindLightShaders,
+                    py::arg("context"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Unbind all light shaders previously bound.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Base class for shader generators targeting HW rendering.
 
@@ -41,8 +71,22 @@ void bindPyHwShaderGenerator(py::module& mod)
 void bindPyHwResourceBindingContext(py::module& mod)
 {
     py::class_<mx::HwResourceBindingContext, mx::GenUserData, mx::HwResourceBindingContextPtr>(mod, "HwResourceBindingContext")
-        .def("emitDirectives", &mx::HwResourceBindingContext::emitDirectives)
-        .def("emitResourceBindings", &mx::HwResourceBindingContext::emitResourceBindings)
+
+        .def("emitDirectives", &mx::HwResourceBindingContext::emitDirectives,
+             py::arg("context"),
+             py::arg("stage"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Emit directives required for binding support.
+)docstring"))
+
+        .def("emitResourceBindings", &mx::HwResourceBindingContext::emitResourceBindings,
+             py::arg("context"),
+             py::arg("uniforms"),
+             py::arg("stage"),
+             PYMATERIALX_DOCSTRING(R"docstring(
+    Emit uniforms with binding information.
+)docstring"))
+
         .doc() = PYMATERIALX_DOCSTRING(R"docstring(
     Class representing a context for resource binding for hardware resources.
 
