@@ -145,6 +145,9 @@ div.body h6
 {
     font-family: var(--font-family);
 }
+div.body h2 {
+    margin-bottom: 20px;
+}
 dl {
     margin-bottom: 40px;
 }
@@ -197,12 +200,14 @@ tt,
 tt.xref,
 code,
 code.xref,
+a em,
 a tt {
     background-color: var(--code-background);
     border-bottom: none;
 }
 code,
 code a,
+a em,
 pre.fragment,
 div.fragment,
 div.fragment span,
@@ -211,6 +216,7 @@ div.fragment .line a,
 div.fragment .line span {
     font-family: var(--font-family-monospace);
     font-size: var(--code-font-size) !important;
+    font-style: normal;
 }
 code.xref,
 a code {
