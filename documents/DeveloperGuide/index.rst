@@ -44,10 +44,11 @@ The `MaterialX` Python package is typically imported aliased as `mx`:
    import MaterialX as mx
 
 All functions and classes from the `PyMaterialXCore` and `PyMaterialXFormat`
-modules are available in the top-level `MaterialX` namespace.
+modules are available in the top-level `MaterialX` namespace, and, by aliasing,
+the `mx` namespace.
 
-For example, the `PyMaterialXCore.Matrix44` class is available as
-`MaterialX.Matrix44`:
+For example, the `PyMaterialXCore.Matrix44` class is typically used as
+`mx.Matrix44`:
 
 .. code:: python
 
@@ -56,8 +57,8 @@ For example, the `PyMaterialXCore.Matrix44` class is available as
     <class 'MaterialX.PyMaterialXCore.Matrix44'>
 
 You can use the *Quick search* box in the sidebar on the left to quickly find
-documentation for a particular function or class of interest, for example
-`getUdimCoordinates <search.html?q=getUdimCoordinates>`_
+documentation for a particular module, function, class, method, or attribute of
+interest, for example `getUdimCoordinates <search.html?q=getUdimCoordinates>`_
 or `MeshPartition <search.html?q=MeshPartition>`_.
 
 
