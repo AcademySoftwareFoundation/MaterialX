@@ -300,7 +300,7 @@ class MX_CORE_API MaterialAssign : public GeomElement
         setAttribute(MATERIAL_ATTRIBUTE, material);
     }
 
-    /// Return true if the given MaterialAssign has a material string.
+    /// Return true if this MaterialAssign has a material string.
     bool hasMaterial() const
     {
         return hasAttribute(MATERIAL_ATTRIBUTE);
@@ -312,20 +312,20 @@ class MX_CORE_API MaterialAssign : public GeomElement
         return getAttribute(MATERIAL_ATTRIBUTE);
     }
 
-    ///  Return the outputs on any referenced material
+    /// Return the outputs on any referenced material.
     vector<OutputPtr> getMaterialOutputs() const;
 
     /// @}
     /// @name Exclusive
     /// @{
 
-    /// Set the exclusive boolean for the MaterialAssign.
+    /// Set the exclusive flag for the MaterialAssign.
     void setExclusive(bool value)
     {
         setTypedAttribute<bool>(EXCLUSIVE_ATTRIBUTE, value);
     }
 
-    /// Return the exclusive boolean for the MaterialAssign.
+    /// Return the exclusive flag for the MaterialAssign.
     bool getExclusive() const
     {
         return getTypedAttribute<bool>(EXCLUSIVE_ATTRIBUTE);
@@ -406,7 +406,7 @@ class MX_CORE_API Visibility : public GeomElement
         setAttribute(VIEWER_GEOM_ATTRIBUTE, geom);
     }
 
-    /// Return true if the given element has a viewer geom string.
+    /// Return true if this element has a viewer geom string.
     bool hasViewerGeom() const
     {
         return hasAttribute(VIEWER_GEOM_ATTRIBUTE);
@@ -422,13 +422,13 @@ class MX_CORE_API Visibility : public GeomElement
     /// @name Viewer Collection
     /// @{
 
-    /// Set the viewer geom string of the element.
+    /// Set the viewer collection string of the element.
     void setViewerCollection(const string& collection)
     {
         setAttribute(VIEWER_COLLECTION_ATTRIBUTE, collection);
     }
 
-    /// Return true if the given element has a viewer collection string.
+    /// Return true if this element has a viewer collection string.
     bool hasViewerCollection() const
     {
         return hasAttribute(VIEWER_COLLECTION_ATTRIBUTE);
@@ -450,7 +450,7 @@ class MX_CORE_API Visibility : public GeomElement
         setAttribute(VISIBILITY_TYPE_ATTRIBUTE, type);
     }
 
-    /// Return true if the given element has a visibility type string.
+    /// Return true if this element has a visibility type string.
     bool hasVisibilityType() const
     {
         return hasAttribute(VISIBILITY_TYPE_ATTRIBUTE);
@@ -466,13 +466,13 @@ class MX_CORE_API Visibility : public GeomElement
     /// @name Visible
     /// @{
 
-    /// Set the visible boolean of the element.
+    /// Set the visible flag of the element.
     void setVisible(bool visible)
     {
         setTypedAttribute<bool>(VISIBLE_ATTRIBUTE, visible);
     }
 
-    /// Return the visible boolean of the element.
+    /// Return the visible flag of the element.
     bool getVisible() const
     {
         return getTypedAttribute<bool>(VISIBLE_ATTRIBUTE);

@@ -96,7 +96,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
         setAttribute(NODE_ATTRIBUTE, node);
     }
 
-    /// Return true if the given NodeDef has a node string.
+    /// Return true if this NodeDef has a node string.
     bool hasNodeString() const
     {
         return hasAttribute(NODE_ATTRIBUTE);
@@ -121,7 +121,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
         setAttribute(NODE_GROUP_ATTRIBUTE, category);
     }
 
-    /// Return true if the given NodeDef has a node group.
+    /// Return true if this NodeDef has a node group.
     bool hasNodeGroup() const
     {
         return hasAttribute(NODE_GROUP_ATTRIBUTE);
@@ -207,7 +207,7 @@ class MX_CORE_API Implementation : public InterfaceElement
         setAttribute(FILE_ATTRIBUTE, file);
     }
 
-    /// Return true if the given Implementation has a file string.
+    /// Return true if this Implementation has a file string.
     bool hasFile() const
     {
         return hasAttribute(FILE_ATTRIBUTE);
@@ -229,7 +229,7 @@ class MX_CORE_API Implementation : public InterfaceElement
         setAttribute(FUNCTION_ATTRIBUTE, function);
     }
 
-    /// Return true if the given Implementation has a function string.
+    /// Return true if this Implementation has a function string.
     bool hasFunction() const
     {
         return hasAttribute(FUNCTION_ATTRIBUTE);
@@ -251,7 +251,7 @@ class MX_CORE_API Implementation : public InterfaceElement
         setAttribute(NODE_GRAPH_ATTRIBUTE, nodegraph);
     }
 
-    /// Return true if the given Implementation has a nodegraph string.
+    /// Return true if this Implementation has a nodegraph string.
     bool hasNodeGraph() const
     {
         return hasAttribute(NODE_GRAPH_ATTRIBUTE);
@@ -277,7 +277,7 @@ class MX_CORE_API Implementation : public InterfaceElement
     /// @name Validation
     /// @{
 
-    /// Validate that the given element tree, including all descendants, is
+    /// Validate that this element tree, including all descendants, is
     /// consistent with the MaterialX specification.
     bool validate(string* message = nullptr) const override;
 
@@ -286,7 +286,7 @@ class MX_CORE_API Implementation : public InterfaceElement
     /// @{
 
     /// Return the first declaration of this interface, optionally filtered
-    ///    by the given target name.
+    /// by the given target name.
     ConstInterfaceElementPtr getDeclaration(const string& target = EMPTY_STRING) const override;
 
     /// @}
@@ -318,7 +318,7 @@ class MX_CORE_API TypeDef : public Element
         setAttribute(SEMANTIC_ATTRIBUTE, semantic);
     }
 
-    /// Return true if the given TypeDef has a semantic string.
+    /// Return true if this TypeDef has a semantic string.
     bool hasSemantic() const
     {
         return hasAttribute(SEMANTIC_ATTRIBUTE);
@@ -340,7 +340,7 @@ class MX_CORE_API TypeDef : public Element
         setAttribute(CONTEXT_ATTRIBUTE, context);
     }
 
-    /// Return true if the given TypeDef has a context string.
+    /// Return true if this TypeDef has a context string.
     bool hasContext() const
     {
         return hasAttribute(CONTEXT_ATTRIBUTE);
@@ -458,18 +458,18 @@ class MX_CORE_API UnitDef : public Element
     /// @{
 
     /// Set the element's unittype string.
-    void setUnitType(const string& type)
+    void setUnitType(const string& unitType)
     {
-        setAttribute(UNITTYPE_ATTRIBUTE, type);
+        setAttribute(UNITTYPE_ATTRIBUTE, unitType);
     }
 
-    /// Return true if the given element has a unittype string.
+    /// Return true if this element has a unittype string.
     bool hasUnitType() const
     {
         return hasAttribute(UNITTYPE_ATTRIBUTE);
     }
 
-    /// Return the element's type string.
+    /// Return the element's unittype string.
     const string& getUnitType() const
     {
         return getAttribute(UNITTYPE_ATTRIBUTE);
@@ -480,14 +480,14 @@ class MX_CORE_API UnitDef : public Element
     /// @{
 
     /// Add a Unit to the UnitDef.
-    /// @param name The name of the new Unit. An exception is thrown
-    /// if the name provided is an empty string.
+    /// @param name The name of the new Unit.
     /// @return A shared pointer to the new Unit.
+    /// @throws Exception if an empty name is given.
     UnitPtr addUnit(const string& name)
     {
         if (name.empty())
         {
-            throw Exception("A unit definition name cannot be empty");
+            throw Exception("A unit name cannot be empty");
         }
         return addChild<Unit>(name);
     }
@@ -571,19 +571,19 @@ class MX_CORE_API AttributeDef : public TypedElement
     /// @name Value String
     /// @{
 
-    /// Set the value string of an element.
+    /// Set the value string of the element.
     void setValueString(const string& value)
     {
         setAttribute(VALUE_ATTRIBUTE, value);
     }
 
-    /// Return true if the given element has a value string.
+    /// Return true if this element has a value string.
     bool hasValueString() const
     {
         return hasAttribute(VALUE_ATTRIBUTE);
     }
 
-    /// Get the value string of a element.
+    /// Return the value string of the element.
     const string& getValueString() const
     {
         return getAttribute(VALUE_ATTRIBUTE);
@@ -650,13 +650,13 @@ class MX_CORE_API AttributeDef : public TypedElement
     /// @name Exportable
     /// @{
 
-    /// Set the exportable boolean for the element.
+    /// Set the exportable flag for the element.
     void setExportable(bool value)
     {
         setTypedAttribute<bool>(EXPORTABLE_ATTRIBUTE, value);
     }
 
-    /// Return the exportable boolean for the element.
+    /// Return the exportable flag for the element.
     /// Defaults to false if exportable is not set.
     bool getExportable() const
     {

@@ -119,7 +119,7 @@ class MX_CORE_API VariantAssign : public Element
         setAttribute(VARIANT_SET_ATTRIBUTE, variantSet);
     }
 
-    /// Return true if the given element has a variant set string.
+    /// Return true if this element has a variant set string.
     bool hasVariantSetString() const
     {
         return hasAttribute(VARIANT_SET_ATTRIBUTE);
@@ -141,7 +141,7 @@ class MX_CORE_API VariantAssign : public Element
         setAttribute(VARIANT_ATTRIBUTE, variant);
     }
 
-    /// Return true if the given element has a variant string.
+    /// Return true if this element has a variant string.
     bool hasVariantString() const
     {
         return hasAttribute(VARIANT_ATTRIBUTE);
