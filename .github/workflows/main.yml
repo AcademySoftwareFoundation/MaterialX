@@ -37,7 +37,6 @@ jobs:
           compiler: gcc
           compiler_version: "12"
           python: 3.11
-          upload_shaders: ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-22.04
@@ -104,18 +103,19 @@ jobs:
           python: 3.7
           cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Windows_VS2022_x64_Python39
-          os: windows-2022
-          architecture: x64
-          python: 3.9
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
-
         - name: Windows_VS2022_x64_Python311
           os: windows-2022
           architecture: x64
           python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+
+        - name: Windows_VS2022_x64_Python312
+          os: windows-2022
+          architecture: x64
+          python: 3.12
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          upload_shaders: ON
 
     steps:
     - name: Sync Repository
@@ -171,6 +171,10 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
+
+    - name: Install Python Dependencies
+      if: matrix.python != 'None'
+      run: pip install setuptools
 
     - name: Install Emscripten
       if: matrix.build_javascript == 'ON'

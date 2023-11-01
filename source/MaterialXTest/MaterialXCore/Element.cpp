@@ -54,6 +54,9 @@ TEST_CASE("Element", "[element]")
     REQUIRE(*doc2 != *doc);
     doc2->setChildIndex("elem1", doc2->getChildIndex("elem2"));
     REQUIRE(*doc2 == *doc);
+    REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", -100), mx::Exception);
+    REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", -1), mx::Exception);
+    REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 2), mx::Exception);
     REQUIRE_THROWS_AS(doc2->setChildIndex("elem1", 100), mx::Exception);
     REQUIRE(*doc2 == *doc);
 
