@@ -2,31 +2,28 @@
 <materialx version="1.38">
   <nodegraph name="creatematrix_vector3_matrix33">
     <creatematrix name="creatematrix_vector3_matrix33" type="matrix33">
-      <input name="in1" type="vector3" nodename="constant_vector3" />
-      <input name="in2" type="vector3" nodename="constant_vector3" />
-      <input name="in3" type="vector3" nodename="constant_vector3" />
+      <input name="in1" type="vector3" value="1, 0, 0" />
+      <input name="in2" type="vector3" value="0, 1, 0" />
+      <input name="in3" type="vector3" value="0, 0, 1" />
     </creatematrix>
     <output name="out" type="matrix33" nodename="creatematrix_vector3_matrix33" />
-    <constant name="constant_vector3" type="vector3" />
   </nodegraph>
   <nodegraph name="creatematrix_vector3_matrix44">
     <creatematrix name="creatematrix_vector3_matrix44" type="matrix44">
-      <input name="in1" type="vector3" nodename="constant_vector3" />
-      <input name="in2" type="vector3" nodename="constant_vector3" />
-      <input name="in3" type="vector3" nodename="constant_vector3" />
-      <input name="in4" type="vector3" nodename="constant_vector3" />
+      <input name="in1" type="vector3" value="1, 0, 0" />
+      <input name="in2" type="vector3" value="0, 1, 0" />
+      <input name="in3" type="vector3" value="0, 0, 1" />
+      <input name="in4" type="vector3" value="0, 0, 0" />
     </creatematrix>
     <output name="out" type="matrix44" nodename="creatematrix_vector3_matrix44" />
-    <constant name="constant_vector3" type="vector3" />
   </nodegraph>
   <nodegraph name="creatematrix_vector4_matrix44">
     <creatematrix name="creatematrix_vector4_matrix44" type="matrix44">
-      <input name="in1" type="vector4" nodename="constant_vector4" />
-      <input name="in2" type="vector4" nodename="constant_vector4" />
-      <input name="in3" type="vector4" nodename="constant_vector4" />
-      <input name="in4" type="vector4" nodename="constant_vector4" />
+      <input name="in1" type="vector4" value="1, 0, 0, 0" />
+      <input name="in2" type="vector4" value="0, 1, 0, 0" />
+      <input name="in3" type="vector4" value="0, 0, 1, 0" />
+      <input name="in4" type="vector4" value="0, 0, 0, 1" />
     </creatematrix>
     <output name="out" type="matrix44" nodename="creatematrix_vector4_matrix44" />
-    <constant name="constant_vector4" type="vector4" />
   </nodegraph>
 </materialx>
