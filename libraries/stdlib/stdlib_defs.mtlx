@@ -4386,7 +4386,6 @@
     <output name="result" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
   </nodedef>
 
-
   <!--
     Node: <extract> Supplemental Node
     Extract a single channel from a colorN or vectorN stream, outputting a float.
