@@ -10,7 +10,7 @@
     <constant name="constant_vector3" type="vector3" />
   </nodegraph>
   <nodegraph name="creatematrix_vector3_matrix44">
-    <creatematrix name="creatematrix_vector3_matrix44" type="matrix44"">
+    <creatematrix name="creatematrix_vector3_matrix44" type="matrix44">
       <input name="in1" type="vector3" nodename="constant_vector3" />
       <input name="in2" type="vector3" nodename="constant_vector3" />
       <input name="in3" type="vector3" nodename="constant_vector3" />
