@@ -32,7 +32,7 @@ using GlslRendererPtr = std::shared_ptr<class GlslRenderer>;
 /// allows for explicit setting of shader stage code.
 ///
 /// The main services provided are:
-///     - Validation: All shader stages are compiled and atteched to a GLSL shader program.
+///     - Validation: All shader stages are compiled and attached to a GLSL shader program.
 ///     - Introspection: The compiled shader program is examined for uniforms and attributes.
 ///     - Binding: Uniforms and attributes which match the predefined variables generated the GLSL code generator
 ///       will have values assigned to this. This includes matrices, attribute streams, and textures.

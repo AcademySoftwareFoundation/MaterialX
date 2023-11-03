@@ -23,7 +23,72 @@ void bindPyCgltfLoader(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRender library";
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
+    Core rendering support for MaterialX.
+
+    Core Rendering Classes
+    ----------------------
+
+    .. autosummary::
+        :toctree: core-rendering
+
+        ShaderRenderer
+        Camera
+        LightHandler
+
+    Geometry Classes
+    ----------------
+
+    .. autosummary::
+        :toctree: geometry
+
+        GeometryHandler
+        GeometryLoader
+        CgltfLoader
+        TinyObjLoader
+        Mesh
+        MeshPartition
+        MeshStream
+
+    Image Classes
+    --------------
+
+    .. autosummary::
+        :toctree: images
+
+        ImageHandler
+        ImageLoader
+        StbImageLoader
+        Image
+        ImageBufferDeallocator
+        ImageSamplingProperties
+
+    Image Functions
+    ---------------
+
+    .. autofunction:: createImageStrip
+    .. autofunction:: createUniformImage
+    .. autofunction:: getMaxDimensions
+
+    Enumeration Classes
+    -------------------
+
+    .. autosummary::
+        :toctree: enumerations
+
+        BaseType
+
+    Exception Classes
+    -----------------
+
+    .. autosummary::
+        :toctree: exceptions
+
+        ExceptionRenderError
+)docstring");
+
+    // PyMaterialXRender depends on types defined in PyMaterialXCore
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
 
     bindPyMesh(mod);
     bindPyGeometryHandler(mod);

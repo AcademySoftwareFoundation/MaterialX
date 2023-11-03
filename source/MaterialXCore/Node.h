@@ -108,7 +108,7 @@ class MX_CORE_API Node : public InterfaceElement
     /// @{
 
     /// Return the first implementation for this node, optionally filtered by
-    /// the given target and language names.
+    /// the given target name.
     /// @param target An optional target name, which will be used to filter
     ///    the implementations that are considered.
     /// @return An implementation for this node, or an empty shared pointer if
@@ -315,7 +315,7 @@ class MX_CORE_API GraphElement : public InterfaceElement
     NodePtr addGeomNode(ConstGeomPropDefPtr geomPropDef, const string& namePrefix);
 
     /// Convert this graph to a string in the DOT language syntax.  This can be
-    /// used to visualise the graph using GraphViz (http://www.graphviz.org).
+    /// used to visualise the graph using Graphviz (https://www.graphviz.org).
     ///
     /// If declarations for the contained nodes are provided as nodedefs in
     /// the owning document, then they will be used to provide additional

@@ -23,7 +23,7 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class ShaderGenerator
-/// Base class for shader generators
+/// Base class for shader generators.
 /// All third-party shader generators should derive from this class.
 /// Derived classes should use DECLARE_SHADER_GENERATOR / DEFINE_SHADER_GENERATOR
 /// in their declaration / definition, and register with the Registry class.
@@ -161,25 +161,25 @@ class MX_GENSHADER_API ShaderGenerator
     /// Return a registered shader node implementation for the given nodedef.
     virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
 
-    /// Sets the color management system
+    /// Set the color management system
     void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
     {
         _colorManagementSystem = colorManagementSystem;
     }
 
-    /// Returns the color management system
+    /// Return the color management system
     ColorManagementSystemPtr getColorManagementSystem() const
     {
         return _colorManagementSystem;
     }
 
-    /// Sets the unit system
+    /// Set the unit system
     void setUnitSystem(UnitSystemPtr unitSystem)
     {
         _unitSystem = unitSystem;
     }
 
-    /// Returns the unit system
+    /// Return the unit system
     UnitSystemPtr getUnitSystem() const
     {
         return _unitSystem;

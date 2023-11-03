@@ -13,7 +13,61 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXFormat library";
+    mod.doc() = PYMATERIALX_DOCSTRING(R"docstring(
+    Cross-platform support for file and search paths, and XML serialization.
+
+    All functions and classes that are defined in this module are available in
+    the top-level `MaterialX` Python package, and are typically used via an
+    `import` alias named `mx`:
+
+    .. code:: python
+
+        import MaterialX as mx
+
+    File and Search Paths
+    ---------------------
+
+    .. autofunction:: flattenFilenames
+    .. autofunction:: getEnvironmentPath
+    .. autofunction:: getSourceSearchPath
+    .. autofunction:: getSubdirectories
+    .. autofunction:: loadDocuments
+    .. autofunction:: loadLibraries
+    .. autofunction:: loadLibrary
+    .. autofunction:: prependXInclude
+
+    **Classes and Enumerations**
+
+    .. autosummary::
+        :toctree: file-and-search-paths
+
+        FilePath
+        FileSearchPath
+        Format
+        Type
+
+    XML Serialization
+    -----------------
+
+    .. autofunction:: readFile
+    .. autofunction:: readFromXmlFile
+    .. autofunction:: readFromXmlString
+    .. autofunction:: writeToXmlFile
+    .. autofunction:: writeToXmlString
+
+    **Classes and Exceptions**
+
+    .. autosummary::
+        :toctree: xml-serialization
+
+        XmlReadOptions
+        XmlWriteOptions
+        ExceptionParseError
+        ExceptionFileMissing
+)docstring");
+
+    // PyMaterialXFormat depends on types defined in PyMaterialXCore
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
 
     bindPyFile(mod);
     bindPyXmlIo(mod);

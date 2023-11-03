@@ -88,19 +88,19 @@ class MX_FORMAT_API FilePath
     /// Return this path as a standard string with the given format.
     string asString(Format format = FormatNative) const;
 
-    /// Return true if the given path is empty.
+    /// Return true if this path is empty.
     bool isEmpty() const
     {
         return _vec.empty();
     }
 
-    /// Return true if the given path is absolute.
+    /// Return true if this path is absolute.
     bool isAbsolute() const
     {
         return _type != TypeRelative;
     }
 
-    /// Return the base name of the given path, with leading directory
+    /// Return the base name of this path, with leading directory
     /// information removed.
     const string& getBaseName() const
     {
@@ -111,8 +111,8 @@ class MX_FORMAT_API FilePath
         return _vec[_vec.size() - 1];
     }
 
-    /// Return the parent directory of the given path, if any.  If no
-    /// parent directory is present, then the empty path is returned.
+    /// Return the parent directory of this path, if any.
+    /// If no parent directory is present, then the empty path is returned.
     FilePath getParentPath() const
     {
         FilePath parent(*this);
@@ -123,7 +123,7 @@ class MX_FORMAT_API FilePath
         return parent;
     }
 
-    /// Return the file extension of the given path.
+    /// Return the file extension of this path.
     string getExtension() const
     {
         const string& baseName = getBaseName();
@@ -131,13 +131,13 @@ class MX_FORMAT_API FilePath
         return i != string::npos ? baseName.substr(i + 1) : EMPTY_STRING;
     }
 
-    /// Add a file extension to the given path.
+    /// Add a file extension to this path.
     void addExtension(const string& ext)
     {
         assign(asString() + "." + ext);
     }
 
-    /// Remove the file extension, if any, from the given path.
+    /// Remove the file extension, if any, from this path.
     void removeExtension()
     {
         if (!isEmpty())
@@ -173,7 +173,7 @@ class MX_FORMAT_API FilePath
         return _vec[index];
     }
 
-    /// Return a normalized version of the given path, collapsing current path and
+    /// Return a normalized version of this path, collapsing current path and
     /// parent path references so that 'a/./b' and 'c/../d/../a/b' become 'a/b'.
     FilePath getNormalized() const;
 
@@ -181,19 +181,19 @@ class MX_FORMAT_API FilePath
     /// @name File System Operations
     /// @{
 
-    /// Return true if the given path exists on the file system.
+    /// Return true if this path exists on the file system.
     bool exists() const;
 
-    /// Return true if the given path is a directory on the file system.
+    /// Return true if this path is a directory on the file system.
     bool isDirectory() const;
 
-    /// Return a vector of all files in the given directory with the given extension.
+    /// Return a vector of all files in this directory with the given extension.
     FilePathVec getFilesInDirectory(const string& extension) const;
 
-    /// Return a vector of all directories at or beneath the given path.
+    /// Return a vector of all directories at or beneath this path.
     FilePathVec getSubDirectories() const;
 
-    /// Create a directory on the file system at the given path.
+    /// Create a directory on the file system at this path.
     void createDirectory() const;
 
     /// Set the current working directory of the file system.

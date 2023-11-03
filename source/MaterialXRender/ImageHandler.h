@@ -129,8 +129,7 @@ class MX_RENDER_API ImageLoader
     static const string TX_EXTENSION;
     static const string TXR_EXTENSION;
 
-    /// Returns a list of supported extensions
-    /// @return List of support extensions
+    /// Return a set of extensions supported by the loader.
     const StringSet& supportedExtensions() const
     {
         return _extensions;
@@ -151,7 +150,7 @@ class MX_RENDER_API ImageLoader
     virtual ImagePtr loadImage(const FilePath& filePath);
 
   protected:
-    // List of supported string extensions
+    // Set of supported string extensions
     StringSet _extensions;
 };
 
@@ -173,7 +172,7 @@ class MX_RENDER_API ImageHandler
     /// existing loaders cannot load a given image.
     void addLoader(ImageLoaderPtr loader);
 
-    /// Get a list of extensions supported by the handler.
+    /// Return a set of extensions supported by the handler.
     StringSet supportedExtensions();
 
     /// Save image to disk. This method must be implemented by derived classes.

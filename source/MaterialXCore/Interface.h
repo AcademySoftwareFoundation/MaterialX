@@ -69,9 +69,9 @@ class MX_CORE_API PortElement : public ValueElement
 
     /// Set the node name string of this element, creating a connection to
     /// the Node with the given name within the same NodeGraph.
-    void setNodeName(const string& node)
+    void setNodeName(const string& nodeName)
     {
-        setAttribute(NODE_NAME_ATTRIBUTE, node);
+        setAttribute(NODE_NAME_ATTRIBUTE, nodeName);
     }
 
     /// Return true if this element has a node name string.
@@ -91,9 +91,9 @@ class MX_CORE_API PortElement : public ValueElement
     /// @{
 
     /// Set the node graph string of this element.
-    void setNodeGraphString(const string& node)
+    void setNodeGraphString(const string& nodeGraph)
     {
-        setAttribute(NODE_GRAPH_ATTRIBUTE, node);
+        setAttribute(NODE_GRAPH_ATTRIBUTE, nodeGraph);
     }
 
     /// Return true if this element has a node graph string.
@@ -219,19 +219,19 @@ class MX_CORE_API Input : public PortElement
     /// @name Default Geometric Property
     /// @{
 
-    /// Set the defaultgeomprop string for the input.
+    /// Set the defaultgeomprop string for this input.
     void setDefaultGeomPropString(const string& geomprop)
     {
         setAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE, geomprop);
     }
 
-    /// Return true if the given input has a defaultgeomprop string.
+    /// Return true if this input has a defaultgeomprop string.
     bool hasDefaultGeomPropString() const
     {
         return hasAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
     }
 
-    /// Return the defaultgeomprop string for the input.
+    /// Return the defaultgeomprop string for this input.
     const string& getDefaultGeomPropString() const
     {
         return getAttribute(DEFAULT_GEOM_PROP_ATTRIBUTE);
@@ -341,7 +341,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
         setAttribute(NODE_DEF_ATTRIBUTE, nodeDef);
     }
 
-    /// Return true if the given interface has a NodeDef string.
+    /// Return true if this interface has a NodeDef string.
     bool hasNodeDefString() const
     {
         return hasAttribute(NODE_DEF_ATTRIBUTE);
@@ -453,13 +453,13 @@ class MX_CORE_API InterfaceElement : public TypedElement
     /// taking inheritance into account.
     vector<OutputPtr> getActiveOutputs() const;
 
-    /// Set the output to which the given input is connected, creating a
-    /// child input if needed.  If the node argument is null, then any
+    /// Set the output to which the specified input is connected, creating a
+    /// child input if needed. If the output argument is null, then any
     /// existing output connection on the input will be cleared.
     void setConnectedOutput(const string& inputName, OutputPtr output);
 
-    /// Return the output connected to the given input.  If the given input is
-    /// not present, then an empty OutputPtr is returned.
+    /// Return the output connected to the specified input. If the specified
+    /// input is not present, then an empty OutputPtr is returned.
     OutputPtr getConnectedOutput(const string& inputName) const;
 
     /// @}
@@ -571,7 +571,7 @@ class MX_CORE_API InterfaceElement : public TypedElement
         setAttribute(TARGET_ATTRIBUTE, target);
     }
 
-    /// Return true if the given interface has a target string.
+    /// Return true if this interface has a target string.
     bool hasTarget() const
     {
         return hasAttribute(TARGET_ATTRIBUTE);

@@ -19,7 +19,7 @@ MATERIALX_NAMESPACE_BEGIN
 /// filtered by the given shader type and target.  By default, all surface shader nodes
 /// are returned.
 /// @param materialNode The node to examine.
-/// @param nodeType THe shader node type to return.  Defaults to the surface shader type.
+/// @param nodeType The shader node type to return.  Defaults to the surface shader type.
 /// @param target An optional target name, which will be used to filter the returned nodes.
 MX_CORE_API vector<NodePtr> getShaderNodes(NodePtr materialNode,
                                            const string& nodeType = SURFACE_SHADER_TYPE_STRING,

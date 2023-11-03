@@ -33,7 +33,7 @@ class MX_GENSHADER_API GenContext
     /// Constructor.
     GenContext(ShaderGeneratorPtr sg);
 
-    /// Return shader generatior.
+    /// Return shader generator.
     ShaderGenerator& getShaderGenerator()
     {
         return *_sg;
@@ -126,7 +126,7 @@ class MX_GENSHADER_API GenContext
     }
 
     /// Add user data to the context to make it
-    /// available during shader generator.
+    /// available during shader generation.
     void pushUserData(const string& name, GenUserDataPtr data)
     {
         auto it = _userData.find(name);
@@ -171,7 +171,7 @@ class MX_GENSHADER_API GenContext
     /// @param input Node input
     void removeInputSuffix(const ShaderInput* input);
 
-    /// Get an input suffix to be used for the input in this context.
+    /// Return an input suffix to be used for the input in this context.
     /// @param input Node input
     /// @param suffix Suffix string returned. Is empty if not found.
     void getInputSuffix(const ShaderInput* input, string& suffix) const;
@@ -185,7 +185,7 @@ class MX_GENSHADER_API GenContext
     /// @param output Node output
     void removeOutputSuffix(const ShaderOutput* output);
 
-    /// Get an output suffix to be used for the output in this context.
+    /// Return an output suffix to be used for the output in this context.
     /// @param output Node output
     /// @param suffix Suffix string returned. Is empty if not found.
     void getOutputSuffix(const ShaderOutput* output, string& suffix) const;
@@ -196,7 +196,7 @@ class MX_GENSHADER_API GenContext
         _applicationVariableHandler = handler;
     }
 
-    /// Get handler for application variables
+    /// Return handler for application variables
     ApplicationVariableHandler getApplicationVariableHandler() const
     {
         return _applicationVariableHandler;

@@ -65,20 +65,20 @@ class MX_GENSHADER_API UnitSystem
     /// Assign unit converter registry replacing any previous assignment
     virtual void setUnitConverterRegistry(UnitConverterRegistryPtr registry);
 
-    /// Returns the currently assigned unit converter registry
+    /// Return the currently assigned unit converter registry
     virtual UnitConverterRegistryPtr getUnitConverterRegistry() const;
 
-    /// assign document with unit implementations replacing any previously loaded content.
+    /// Assign document with unit implementations replacing any previously loaded content.
     virtual void loadLibrary(DocumentPtr document);
 
-    /// Returns whether this unit system supports a provided transform
+    /// Return whether this unit system supports a provided transform
     bool supportsTransform(const UnitTransform& transform) const;
 
     /// Create a node to use to perform the given unit space transformation.
     ShaderNodePtr createNode(ShaderGraph* parent, const UnitTransform& transform, const string& name,
                              GenContext& context) const;
 
-    /// Returns a nodedef for a given transform
+    /// Return a nodedef for a given transform
     virtual NodeDefPtr getNodeDef(const UnitTransform& transform) const;
 
     static const string UNITSYTEM_NAME;

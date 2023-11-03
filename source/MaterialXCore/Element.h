@@ -1053,14 +1053,14 @@ class MX_CORE_API ValueElement : public TypedElement
         return getAttribute(UNIT_ATTRIBUTE);
     }
 
-    /// Return the unit defined by the assocaited NodeDef if this element
+    /// Return the unit defined by the associated NodeDef if this element
     /// is a child of a Node.
     const string& getActiveUnit() const;
 
     /// Set the unit type of an element.
-    void setUnitType(const string& unit)
+    void setUnitType(const string& unitType)
     {
-        setAttribute(UNITTYPE_ATTRIBUTE, unit);
+        setAttribute(UNITTYPE_ATTRIBUTE, unitType);
     }
 
     /// Return true if the given element has a unit type.
@@ -1085,7 +1085,7 @@ class MX_CORE_API ValueElement : public TypedElement
         setTypedAttribute<bool>(UNIFORM_ATTRIBUTE, value);
     }
 
-    /// The the uniform attribute flag for this element.
+    /// Return the uniform attribute flag for this element.
     bool getIsUniform() const
     {
         return getTypedAttribute<bool>(UNIFORM_ATTRIBUTE);

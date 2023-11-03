@@ -59,7 +59,7 @@ class MX_CORE_API Document : public GraphElement
     /// @param library The library document to be imported.
     void importLibrary(const ConstDocumentPtr& library);
 
-    /// Get a list of source URI's referenced by the document
+    /// Get a list of source URI's referenced by the document.
     StringSet getReferencedSourceUris() const;
 
     /// @name NodeGraph Elements
@@ -338,13 +338,18 @@ class MX_CORE_API Document : public GraphElement
     /// @param nodeDefName Declaration name
     /// @param node Node type for the new declaration
     /// @param version Version for the new declaration
-    /// @param isDefaultVersion If a version is specified is thie definition the default version
+    /// @param isDefaultVersion Flag that specifies whether the given `version` is the default version.
     /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
-    ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    ///        modify the existing NodeGraph.
+    /// @param nodeGroup Optional node group for the new declaration.
     /// @return New declaration if successful.
-    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph,
+                                   const string& nodeDefName,
+                                   const string& node,
+                                   const string& version,
+                                   bool isDefaultVersion,
+                                   const string& nodeGroup,
+                                   const string& newGraphName);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
@@ -403,7 +408,7 @@ class MX_CORE_API Document : public GraphElement
     /// @name TargetDef Elements
     /// @{
 
-    /// Add an TargetDef to the document.
+    /// Add a TargetDef to the document.
     /// @param name The name of the new TargetDef.
     ///     If no name is specified, then a unique name will automatically be
     ///     generated.
@@ -413,7 +418,7 @@ class MX_CORE_API Document : public GraphElement
         return addChild<TargetDef>(name);
     }
 
-    /// Return the AttributeDef, if any, with the given name.
+    /// Return the TargetDef, if any, with the given name.
     TargetDefPtr getTargetDef(const string& name) const
     {
         return getChildOfType<TargetDef>(name);
@@ -536,6 +541,10 @@ class MX_CORE_API Document : public GraphElement
     /// @name UnitDef Elements
     /// @{
 
+    /// Add a UnitDef to the document.
+    /// @param name The name of the new UnitDef.
+    /// @return A shared pointer to the new UnitDef.
+    /// @throws Exception if an empty name is given.
     UnitDefPtr addUnitDef(const string& name)
     {
         if (name.empty())
@@ -551,7 +560,7 @@ class MX_CORE_API Document : public GraphElement
         return getChildOfType<UnitDef>(name);
     }
 
-    /// Return a vector of all Member elements in the TypeDef.
+    /// Return a vector of all UnitDef elements in the document.
     vector<UnitDefPtr> getUnitDefs() const
     {
         return getChildrenOfType<UnitDef>();
@@ -567,6 +576,10 @@ class MX_CORE_API Document : public GraphElement
     /// @name UnitTypeDef Elements
     /// @{
 
+    /// Add a UnitTypeDef to the document.
+    /// @param name The name of the new UnitTypeDef.
+    /// @return A shared pointer to the new UnitTypeDef.
+    /// @throws Exception if an empty name is given.
     UnitTypeDefPtr addUnitTypeDef(const string& name)
     {
         if (name.empty())

@@ -52,7 +52,7 @@ class VariableBlock;
 using VariableBlockPtr = std::shared_ptr<VariableBlock>;
 /// Shared pointer to a map between string identifiers and VariableBlocks
 using VariableBlockMap = std::unordered_map<string, VariableBlockPtr>;
-/// A standard function predicate taking an ShaderPort pointer and returning a boolean.
+/// A standard function predicate taking a ShaderPort pointer and returning a boolean.
 using ShaderPortPredicate = std::function<bool(ShaderPort*)>;
 
 /// @class VariableBlock
@@ -66,13 +66,13 @@ class MX_GENSHADER_API VariableBlock
     {
     }
 
-    /// Get the name of this block.
+    /// Return the name of this block.
     const string& getName() const { return _name; }
 
     /// Set the name of this block.
     void setName(const string& name) { _name = name; }
 
-    /// Get the instance name of this block.
+    /// Return the instance name of this block.
     const string& getInstance() const { return _instance; }
 
     /// Set the instance name of this block.

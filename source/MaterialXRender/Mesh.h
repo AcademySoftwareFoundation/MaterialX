@@ -65,25 +65,25 @@ class MX_RENDER_API MeshStream
         _data.reserve(elementCount * (size_t) _stride);
     }
 
-    /// Resize data to an given number of elements
+    /// Resize data to a given number of elements
     void resize(size_t elementCount)
     {
         _data.resize(elementCount * (size_t) _stride);
     }
 
-    /// Get stream name
+    /// Return stream name
     const string& getName() const
     {
         return _name;
     }
 
-    /// Get stream attribute name
+    /// Return stream attribute name
     const string& getType() const
     {
         return _type;
     }
 
-    /// Get stream index
+    /// Return stream index
     unsigned int getIndex() const
     {
         return _index;
@@ -113,7 +113,7 @@ class MX_RENDER_API MeshStream
         return reinterpret_cast<const T*>(getData().data())[index];
     }
 
-    /// Get stride between elements
+    /// Return stride between elements
     unsigned int getStride() const
     {
         return _stride;
@@ -125,7 +125,7 @@ class MX_RENDER_API MeshStream
         _stride = stride;
     }
 
-    /// Get the number of elements
+    /// Return the number of elements
     size_t getSize() const
     {
         return _data.size() / _stride;
@@ -188,7 +188,7 @@ class MX_RENDER_API MeshPartition
         _sourceNames.insert(val);
     }
 
-    /// Return the vector of source names, representing all partitions
+    /// Return the set of source names, representing all partitions
     /// that were processed to generate this one.
     const StringSet& getSourceNames() const
     {
@@ -273,7 +273,7 @@ class MX_RENDER_API Mesh
         return _sourceUri;
     }
 
-    /// Get a mesh stream by name
+    /// Return a mesh stream by name.
     /// @param name Name of stream
     /// @return Reference to a mesh stream if found
     MeshStreamPtr getStream(const string& name) const
@@ -288,7 +288,7 @@ class MX_RENDER_API Mesh
         return MeshStreamPtr();
     }
 
-    /// Get a mesh stream by type and index
+    /// Return a mesh stream by type and index.
     /// @param type Type of stream
     /// @param index Index of stream
     /// @return Reference to a mesh stream if found
@@ -327,7 +327,7 @@ class MX_RENDER_API Mesh
         _vertexCount = val;
     }
 
-    /// Get vertex count
+    /// Return vertex count
     size_t getVertexCount() const
     {
         return _vertexCount;
@@ -345,13 +345,13 @@ class MX_RENDER_API Mesh
         return _minimumBounds;
     }
 
-    /// Set the minimum bounds for the geometry
+    /// Set the maximum bounds for the geometry
     void setMaximumBounds(const Vector3& v)
     {
         _maximumBounds = v;
     }
 
-    /// Return the minimum bounds for the geometry
+    /// Return the maximum bounds for the geometry
     const Vector3& getMaximumBounds() const
     {
         return _maximumBounds;
