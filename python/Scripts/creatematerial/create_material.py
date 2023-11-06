@@ -1,47 +1,26 @@
-# -*- coding: utf-8 -*-
-__doc__ = 'Create materialX file conatin standard surface uber shader with input texture for given directory'
-
 import os
 import re
-import json
-import argparse
-
 import logging
-from typing import List, Dict
+
+from typing import List
 
 import MaterialX
-import udimutils
+from utils import UDIMFile, get_configration
 
-# Configure the logger
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
 
-# Create a logger instance
+SETTINGS = get_configration()
+
 logger = logging.getLogger('creatematerial')
 
-
-def get_cfg() -> Dict:
-    """
-    Get the patterns and settings from cfg file
-    return: dict of resultant settings
-    """
-    json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'textures_patterns.json')
-    # TODO: Add option here to take the user overrides customization file
-    with open(json_path, 'r') as f:
-        data = json.load(f)
-    return data
-
-
-def texture_type_from_name(texture_name: str) -> List[str]:
+def texture_type_from_name(texture_name: str, shader_model:str) -> List[str]:
     """
     Get the texture matched pattern and return the materialx plug name and the plug type
     @param texture_name: The texture filename
+    @param shader_model: The shader model name
     return: list(material_input_name, material_input_type)
     """
-    settings = get_cfg()
-    texture_patterns = settings.get('patterns')
+
+    texture_patterns = SETTINGS.get('shader_model').get(shader_model, {}).get('patterns', {})
 
     # reversed to take the color before weight e.g. specular_color before specular
     for plug_name in reversed(list(texture_patterns.keys())):
@@ -54,19 +33,19 @@ def texture_type_from_name(texture_name: str) -> List[str]:
                 return [plug_name, texture_patterns[plug_name]['type']]
 
 
-def list_textures(texture_dir: MaterialX.FilePath) -> List[udimutils.UDIMFile]:
+def list_textures(texture_dir: MaterialX.FilePath) -> List[UDIMFile]:
     """
     List all textures that matched extensions in cfg file
     @param texture_dir: the directory where the textures exist
     return List(udimutils.UDIMFile)
     """
-    tex_extensions = get_cfg().get('texture_extensions')
+    tex_extensions = SETTINGS.get('textures').get('extensions', [])
     all_textures = []
     for ext in tex_extensions:
         textures = [texture_dir / f for f in texture_dir.getFilesInDirectory(ext)]
 
         while textures:
-            texture_file = udimutils.UDIMFile(textures[0].asString())
+            texture_file = UDIMFile(textures[0].asString())
             all_textures.append(texture_file)
             for udim_file in texture_file.getUdimFiles():
                 textures.remove(udim_file)
@@ -76,6 +55,7 @@ def list_textures(texture_dir: MaterialX.FilePath) -> List[udimutils.UDIMFile]:
 
 def create_mtlx_doc(texture_dir: MaterialX.FilePath,
                     mtlx_file: MaterialX.FilePath,
+                    shader_model: str,
                     relative_paths: bool = True,
                     colorspace: str = 'srgb_texture',
                     use_tile_image: bool =False
@@ -89,8 +69,6 @@ def create_mtlx_doc(texture_dir: MaterialX.FilePath,
     @param use_tile_image: use tileimage node or image node
     """
 
-    material_type = 'standard_surface'
-
     # Create document
     doc = MaterialX.createDocument()
 
@@ -103,7 +81,7 @@ def create_mtlx_doc(texture_dir: MaterialX.FilePath,
     if not node_graph:
         node_graph = doc.addNodeGraph(graph_name)
 
-    shader_node = doc.addNode(material_type, 'SR_' + mtlx_filename, 'surfaceshader')
+    shader_node = doc.addNode(shader_model, 'SR_' + mtlx_filename, 'surfaceshader')
     doc.addMaterialNode('M_' + mtlx_filename, shader_node)
 
     udim_numbers = set()
@@ -115,7 +93,7 @@ def create_mtlx_doc(texture_dir: MaterialX.FilePath,
         return
 
     for texture_file in texture_files:
-        mtl_plug = texture_type_from_name(texture_file.getBaseName())
+        mtl_plug = texture_type_from_name(texture_file.getBaseName(), shader_model)
 
         if not mtl_plug:
             logger.debug("Skipping `{}` not matched pattern detected".format(texture_file.getBaseName()))
@@ -153,12 +131,19 @@ def create_mtlx_doc(texture_dir: MaterialX.FilePath,
         if 'color' in plug_type:
             image_node.setColorSpace(colorspace)
 
+        # inbetween nodes
+        input_node = image_node
         conn_node = image_node
-        if plug_name == 'normal':
-            normal_map = node_graph.addNode('normalmap', texture_name + '_normal', plug_type)
-            normal_map.setConnectedNode('in', image_node)
-            conn_node = normal_map
 
+        patterns = SETTINGS.get('shader_model').get(shader_model).get('patterns')
+        inbetween_nodes = patterns.get(plug_name).get('inbetween_nodes', [])
+
+        for in_node_name in inbetween_nodes:
+            conn_node = node_graph.addNode(in_node_name, texture_name+'_'+in_node_name, plug_type)
+            conn_node.setConnectedNode('in', input_node)
+            input_node = conn_node
+
+        # outputs
         output_node = node_graph.addOutput(texture_name + '_output', plug_type)
         output_node.setConnectedNode(conn_node)
         mtl_input.setConnectedOutput(output_node)
@@ -181,55 +166,4 @@ def create_mtlx_doc(texture_dir: MaterialX.FilePath,
     logger.info("MaterialX file created `{}`".format(mtlx_file.asString()))
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
-    parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
-    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true",help='Make the texture paths absolute inside the materialX file.')
-    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true",help='Use tileimage node instead of image node.')
-    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",help='Turn on verbose mode to create loggings.')
-    parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
-    # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
-    # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
-    # TODO : Flag for forcing texture extension if there are multiple extensions in directory.
 
-    options = parser.parse_args()
-
-    texture_path = MaterialX.FilePath.getCurrentPath()
-
-    if options.inputDirectory:
-        texture_path = MaterialX.FilePath(options.inputDirectory)
-
-        if not texture_path.isDirectory():
-            logger.error("The texture directory does not exist `{}`".format(texture_path))
-            return
-
-    default_doc_name = MaterialX.FilePath('standard_surface.mtlx')
-    mtlx_file = texture_path / default_doc_name
-    if options.outputFilename:
-        filepath = MaterialX.FilePath(options.outputFilename)
-
-        if filepath.isAbsolute():
-            mtlx_file = filepath
-        else:
-            mtlx_file = texture_path / filepath
-
-    # Colorspace
-    colorspace = 'srgb_texture'
-    if options.colorSpace:
-        colorspace = options.colorSpace
-
-    if options.verbose:
-        logger.setLevel(logging.DEBUG)
-
-    create_mtlx_doc(
-        texture_path,
-        mtlx_file,
-        relative_paths=not options.absolutePaths,
-        colorspace=colorspace,
-        use_tile_image=options.tileimage
-    )
-
-
-if __name__ == '__main__':
-    main()
