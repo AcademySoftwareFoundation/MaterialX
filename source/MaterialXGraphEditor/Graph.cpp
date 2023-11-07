@@ -126,11 +126,11 @@ Graph::Graph(const std::string& materialFilename,
     _addNewNode(false),
     _ctrlClick(false),
     _isCut(false),
-    _smartFilter(true),
     _autoLayout(false),
     _frameCount(INT_MIN),
     _fontScale(1.0f),
-    _saveNodePositions(true)
+    _saveNodePositions(true),
+    _smartFilter(true)
 {
     loadStandardLibraries();
     setPinColor();
