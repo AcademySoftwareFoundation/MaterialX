@@ -38,6 +38,13 @@ class MenuItem
     std::string category;
     std::string group;
 };
+
+namespace ax {
+namespace NodeEditor {
+    enum class PinKind;
+}
+}
+
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -54,6 +61,15 @@ struct Link
         static int _id = 0;
         id = ++_id;
     }
+};
+
+// A container which sorts input and output pins by type for a given node.
+// "inputsByType" maps a type name (ie. int) to the names of all of the input 
+// pins of that type for some node. "outputsByType" does the same for output pins.
+struct PinOrganizer
+{
+    std::unordered_map<std::string, std::vector<std::string>> inputsByType;
+    std::unordered_map<std::string, std::vector<std::string>> outputsByType;
 };
 
 class Graph
@@ -211,8 +227,14 @@ class Graph
 
     void graphButtons();
 
-    void addNodePopup(bool cursor);
-    void searchNodePopup(bool cursor);
+    /// @brief Constructs the popup menu to add a new node to the graph
+    /// @param originPin An optional pointer to the pin currently being clicked (if any). 
+    ///                  \p originPin will be non-null if a user tries to add a node by 
+    ///                  dragging a new link off of an existing pin. That pin is thus the
+    ///                  "origin" of the new node.
+    void addNodePopup(UiPinPtr originPin = nullptr);
+
+    void searchNodePopup();
     bool isPinHovered();
     void addPinPopup();
     bool readOnly();
@@ -236,6 +258,19 @@ class Graph
     void loadGeometry();
 
     void showHelp() const;
+
+    /// @brief Determines if \p node can be added to the graph considering the filtering context
+    /// @param node           Name of a node we might want to add to the graph
+    /// @param filterString   User-entered search string which must appear EXACTLY in the node name.
+    /// @param originPin      The pin from which this new node is being created. \p originPin 
+    ///                       will be a valid pointer if a user is trying to add a node by drawing
+    ///                       a link off of an existing node's pin (the "originating" pin).
+    /// @return               True iff node can be added to the graph considering filtering state.
+    bool isValidNodeToAdd(const std::string& node, const std::string& filterString, UiPinPtr originPin = nullptr);
+    
+    // Track the inputs and outputs for a node named `nodeName` in the graph's `_nodeIOMap`. This operation
+    // is performed once for every possible node that may be added to the graph upon the graph's construction.
+    void recordIOForNode(const std::string& name, const std::string& type, const ed::PinKind ioKind, const std::string& nodeName);
 
   private:
     mx::StringVec _geomFilter;
@@ -276,6 +311,10 @@ class Graph
     // for adding new nodes
     std::vector<MenuItem> _nodesToAdd;
 
+    // Maps node names to a struct containing their corresponding input and output pins by type 
+    // for every node that can be added to our graph.
+    std::unordered_map<std::string, PinOrganizer> _nodeIOMap;
+
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
     std::stack<std::vector<UiPinPtr>> _pinStack;
@@ -314,14 +353,26 @@ class Graph
 
     // used when updating materials
     int _frameCount;
-    // used for filtering pins when connecting links
-    std::string _pinFilterType;
 
     // DPI scaling for fonts
     float _fontScale;
 
     // Options
     bool _saveNodePositions;
+
+    // Variables for filtering connections based on the current state of the node graph.
+    
+    // if _smartFilter is true, filter the addNodePopup UI to only contain
+    // nodes that can be added based on the currently selected pin.
+    bool _smartFilter;
+
+    // The pin from which a new link is currently being drawn.
+    UiPinPtr _originPin;
+    
+    // used for filtering pins when connecting links
+    // _pinFilterType: The "type" of the currently selected pin (ex. bool, material, bsdf)
+    // _pinFilterKind: The "kind" of the currently selected pin (ex. Input or Output).
+    std::string _pinFilterType;
 };
 
 #endif

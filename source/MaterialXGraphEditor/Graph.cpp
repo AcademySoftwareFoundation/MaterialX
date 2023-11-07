@@ -95,7 +95,7 @@ auto showLabel = [](const char* label, ImColor color)
 // Create a more user-friendly node definition name
 std::string getUserNodeDefName(const std::string& val)
 {
-    const std::string ND_PREFIX = "ND_";
+    static const std::string ND_PREFIX = "ND_";
     std::string result = val;
     if (mx::stringStartsWith(val, ND_PREFIX))
     {
@@ -126,6 +126,7 @@ Graph::Graph(const std::string& materialFilename,
     _addNewNode(false),
     _ctrlClick(false),
     _isCut(false),
+    _smartFilter(true),
     _autoLayout(false),
     _frameCount(INT_MIN),
     _fontScale(1.0f),
@@ -276,8 +277,13 @@ void Graph::addExtraNodes()
     {
         std::string nodeName = "ND_input_" + type;
         _nodesToAdd.emplace_back(nodeName, type, "input", "Input Nodes");
+        recordIOForNode(nodeName, type, ed::PinKind::Input, nodeName);
+        recordIOForNode(nodeName, type, ed::PinKind::Output, nodeName);
+
         nodeName = "ND_output_" + type;
         _nodesToAdd.emplace_back(nodeName, type, "output", "Output Nodes");
+        recordIOForNode(nodeName, type, ed::PinKind::Input, nodeName);
+        recordIOForNode(nodeName, type, ed::PinKind::Output, nodeName);
     }
 
     // Add group node
@@ -1262,6 +1268,22 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
             groupToNodeDef[group] = std::vector<mx::NodeDefPtr>();
         }
         groupToNodeDef[group].push_back(nodeDef);
+
+        // Track the input and output pins of every possible node we can add one time
+        // when the graph is first constructed.
+        std::vector<mx::InputPtr> inputs = nodeDef->getActiveInputs();
+        for (mx::InputPtr input : inputs) {
+            if (input) {
+                recordIOForNode(input->getName(), input->getType(), ed::PinKind::Input, nodeDef->getName());
+            }
+        }
+
+        std::vector<mx::OutputPtr> outputs = nodeDef->getActiveOutputs();
+        for (mx::OutputPtr output : outputs) {
+            if (output) {
+                recordIOForNode(output->getName(), output->getType(), ed::PinKind::Output, nodeDef->getName());
+            }
+        }
     }
 
     for (const auto& group : NODE_GROUP_ORDER)
@@ -3644,57 +3666,116 @@ void Graph::showHelp() const
     }
 }
 
-void Graph::addNodePopup(bool cursor)
+// Is the node "nodeName" a valid node to add to the graph given the originating pin and
+// name-filter string?
+bool Graph::isValidNodeToAdd(const std::string& nodeName, const std::string& filterString, UiPinPtr originPin)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
-    static char input[32]{ "" };
-    if (open_AddPopup)
+    // See if the exact raw input string appears in the node name somewhere
+    // (TODO: maybe support regex patterns or wildcarded searches)
+    if (!filterString.empty() && nodeName.find(filterString) == std::string::npos) 
     {
+        return false;
+    }
+
+    // If we aren't using the smart filter, then every node at this point is valid.
+    if (!_smartFilter) 
+    {
+        return true;
+    }
+    
+    // If we have no "source" pin, then we have no pin type or pin kind restrictions -- every node is valid.
+    if (!originPin) 
+    {
+        return true;
+    }
+
+    // If "nodeName" is not in our _nodeIOMap, that means we have not found any 
+    // valid Input or Output pins for "nodeName". Thus "nodeName" is not a valid node
+    // to add in our current context.
+    if (_nodeIOMap.find(nodeName) == _nodeIOMap.end()) 
+    {
+        return false;
+    }
+    const PinOrganizer& pins = _nodeIOMap[nodeName];
+
+    // Output pins must feed into inputs, and input pins must feed into outputs. We need to check the validity
+    // of pin types of the opposite "KIND" from the origin pin.
+    // Ex. If our originPin is an OUTPUT of type "integer", only nodes that have an INPUT pin of type "integer"
+    // are valid connections to add here.
+    bool isOutput = originPin->_kind == ed::PinKind::Output;
+    const std::unordered_map<std::string, std::vector<std::string>>& pinIOMap = isOutput ? pins.inputsByType : pins.outputsByType;
+    const std::string pinType = originPin->_type;
+    if (pinIOMap.find(pinType) == pinIOMap.end()) {
+        return false;
+    }
+
+    return !pinIOMap.at(pinType).empty();
+}
+
+void Graph::recordIOForNode(const std::string& name, const std::string& type, const ed::PinKind ioKind, const std::string& nodeName)
+{
+    if (_nodeIOMap.find(nodeName) == _nodeIOMap.end()) {
+        _nodeIOMap[nodeName] = PinOrganizer();
+    }
+    auto& ioByType = (ioKind == ed::PinKind::Input) ? _nodeIOMap[nodeName].inputsByType : _nodeIOMap[nodeName].outputsByType;
+    ioByType[type].push_back(name);
+}
+
+void Graph::addNodePopup(UiPinPtr originPin)
+{
+    bool cursor = false;
+    static char input[32]{ "" };
+    const static std::string NODEGRAPH_ENTRY = "Node Graph";
+
+    bool hasFocus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    bool open_AddPopup = hasFocus && (!originPin ? ImGui::IsKeyReleased(ImGuiKey_Tab) : true);
+    if (open_AddPopup) {
         cursor = true;
         ImGui::OpenPopup("add node");
+        _originPin = originPin;
     }
     if (ImGui::BeginPopup("add node"))
     {
         ImGui::Text("Add Node");
+        ImGui::Checkbox("Smart Filter", &_smartFilter);
         ImGui::Separator();
         if (cursor)
         {
             ImGui::SetKeyboardFocusHere();
         }
         ImGui::InputText("##input", input, sizeof(input));
-        std::string subs(input);
-
-        // Input string length
-        // Filter extra nodes - includes inputs, outputs, groups, and node graphs
-        const std::string NODEGRAPH_ENTRY = "Node Graph";
-
-         // Filter nodedefs and add to menu if matches filter
-        for (auto node : _nodesToAdd)
+        std::string filterString(input);
+        if (!filterString.empty()) {
+            // Allow spaces to be used in the input filter entry
+            std::replace(filterString.begin(), filterString.end(), ' ', '_');
+        }
+        
+        // Filter nodedefs and add to menu if matches filter
+        for (const auto& node : _nodesToAdd)
         {
-            // Filter out list of nodes
-            if (subs.size() > 0)
+            // Disallow creating nested nodegraphs
+            if (_isNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
+            {
+                continue;
+            }
+
+            const std::string& nodeName = node.getName();
+            if (!isValidNodeToAdd(nodeName, filterString, _originPin))
+            {
+                continue;
+            }
+            
+            // If the filterString isn't empty, we're manually searching for some node in the search
+            // box. Eschew the tabbed menu format and display just a basic list of matching node names.
+            if (!filterString.empty())
             {
                 ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
-                std::string str(node.getName());
-                std::string nodeName = node.getName();
-
-                // Disallow creating nested nodegraphs
-                if (_isNodeGraph && node.getGroup() == NODEGRAPH_ENTRY)
+                const std::string nodeDisplayName = getUserNodeDefName(nodeName);
+                if (ImGui::MenuItem(nodeDisplayName.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                 {
-                    continue;
-                }
-
-                // Allow spaces to be used to search for node names
-                std::replace(subs.begin(), subs.end(), ' ', '_');
-
-                if (str.find(subs) != std::string::npos)
-                {
-                    if (ImGui::MenuItem(getUserNodeDefName(nodeName).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
-                    {
-                        addNode(node.getCategory(), getUserNodeDefName(nodeName), node.getType());
-                        _addNewNode = true;
-                        memset(input, '\0', sizeof(input));
-                    }
+                    addNode(node.getCategory(), nodeDisplayName, node.getType());
+                    _addNewNode = true;
+                    memset(input, '\0', sizeof(input));
                 }
             }
             else
@@ -3705,11 +3786,12 @@ void Graph::addNodePopup(bool cursor)
                     ImGui::SetWindowFontScale(_fontScale);
                     std::string name = node.getName();
                     std::string prefix = "ND_";
+                    const std::string nodeDisplayName = getUserNodeDefName(name);
                     if (name.compare(0, prefix.size(), prefix) == 0 && name.compare(prefix.size(), std::string::npos, node.getCategory()) == 0)
                     {
-                        if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                        if (ImGui::MenuItem(nodeDisplayName.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                         {
-                            addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
+                            addNode(node.getCategory(), nodeDisplayName, node.getType());
                             _addNewNode = true;
                         }
                     }
@@ -3717,28 +3799,26 @@ void Graph::addNodePopup(bool cursor)
                     {
                         if (ImGui::BeginMenu(node.getCategory().c_str()))
                         {
-                            if (ImGui::MenuItem(getUserNodeDefName(name).c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
+                            if (ImGui::MenuItem(nodeDisplayName.c_str()) || (ImGui::IsItemFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Enter)))
                             {
-                                addNode(node.getCategory(), getUserNodeDefName(name), node.getType());
+                                addNode(node.getCategory(), nodeDisplayName, node.getType());
                                 _addNewNode = true;
                             }
                             ImGui::EndMenu();
                         }
                     }
 
-                    
                     ImGui::EndMenu();
                 }
             }
         }
-        cursor = false;
         ImGui::EndPopup();
-        open_AddPopup = false;
     }
 }
 
-void Graph::searchNodePopup(bool cursor)
+void Graph::searchNodePopup()
 {
+    bool cursor = false;
     const bool open_search = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyDown(ImGuiKey_F) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     if (open_search)
     {
@@ -3773,7 +3853,6 @@ void Graph::searchNodePopup(bool cursor)
                 }
             }
         }
-        cursor = false;
         ImGui::EndPopup();
     }
 }
@@ -3906,8 +3985,6 @@ void Graph::drawGraph(ImVec2 mousePos)
         _searchNodeId = -1;
     }
 
-    bool TextCursor = false;
-
     // Center imgui window and set size
     ImGuiIO& io2 = ImGui::GetIO();
     ImGui::SetNextWindowSize(io2.DisplaySize);
@@ -3925,8 +4002,8 @@ void Graph::drawGraph(ImVec2 mousePos)
         // Set up popups for adding a node when tab is pressed
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.f, 8.f));
         ImGui::SetNextWindowSizeConstraints(ImVec2(250.0f, 300.0f), ImVec2(-1.0f, 500.0f));
-        addNodePopup(TextCursor);
-        searchNodePopup(TextCursor);
+        addNodePopup();
+        searchNodePopup();
         addPinPopup();
         readOnlyPopup();
         ImGui::PopStyleVar();
@@ -4164,9 +4241,24 @@ void Graph::drawGraph(ImVec2 mousePos)
             }
             if (ed::QueryNewNode(&filterPinId))
             {
-                if (getPin(filterPinId)->_type != "null")
+                UiPinPtr pin = getPin(filterPinId);
+                if (pin->_type != "null")
                 {
-                    _pinFilterType = getPin(filterPinId)->_type;
+                    _pinFilterType = pin->_type;
+                }
+
+                if (!readOnly()) 
+                {
+                    if (pin) 
+                    {
+                        showLabel("+", ImColor(32, 45, 32, 180));
+                        if (ed::AcceptNewItem())
+                        {
+                            ed::Suspend();
+                            addNodePopup(pin);
+                            ed::Resume();
+                        }
+                    }
                 }
             }
         }
