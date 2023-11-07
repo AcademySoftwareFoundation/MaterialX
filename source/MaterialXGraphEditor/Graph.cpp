@@ -3646,7 +3646,7 @@ void Graph::showHelp() const
 
 void Graph::addNodePopup(bool cursor)
 {
-    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyReleased(ImGuiKey_Tab);
+    bool open_AddPopup = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow) && ImGui::IsKeyReleased(ImGuiKey_Tab);
     static char input[32]{ "" };
     if (open_AddPopup)
     {
@@ -4098,7 +4098,8 @@ void Graph::drawGraph(ImVec2 mousePos)
 
         // Delete selected nodes and their links if delete key is pressed
         // or if the shortcut for cut is used
-        if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+        bool shouldProcessInput = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow);
+        if (shouldProcessInput && (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut))
         {
             if (selectedNodes.size() > 0)
             {
@@ -4135,16 +4136,19 @@ void Graph::drawGraph(ImVec2 mousePos)
             ed::NavigateToContent(0.0f);
         }
 
-        // Hotkey to frame selected node(s)
-        if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+        if (shouldProcessInput)
         {
-            ed::NavigateToSelection();
-        }
+            // Hotkey to frame selected node(s)
+            if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
+            {
+                ed::NavigateToSelection();
+            }
 
-        // Go back up from inside a subgraph
-        if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
-        {
-            upNodeGraph();
+            // Go back up from inside a subgraph
+            if (ImGui::IsKeyReleased(ImGuiKey_U) && (!ImGui::IsPopupOpen("add node")) && (!ImGui::IsPopupOpen("search")) && !_fileDialogSave.isOpened())
+            {
+                upNodeGraph();
+            }
         }
 
         // Add new link
