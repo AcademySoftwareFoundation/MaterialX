@@ -5,12 +5,13 @@ for each material / shader found. The currently supported target languages are G
 '''
 
 import sys, os, argparse, subprocess
+
 import MaterialX as mx
-import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
-import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenMsl as mx_gen_msl
+import MaterialX.PyMaterialXGenOsl as mx_gen_osl
+import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
