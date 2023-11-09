@@ -20,11 +20,12 @@
 // either within the `MaterialX` Python package, e.g. in `installed/python/`,
 // or as a standalone module, e.g. in `lib/`
 #define PYMATERIALX_IMPORT_MODULE(MODULE_NAME)                               \
-    try {                                                                    \
+    try                                                                      \
+    {                                                                        \
         pybind11::module::import("MaterialX." #MODULE_NAME);                 \
     }                                                                        \
-    catch (const py::error_already_set&) {                                   \
+    catch (const py::error_already_set&)                                     \
+    {                                                                        \
         pybind11::module::import(#MODULE_NAME);                              \
     }
-
 #endif
