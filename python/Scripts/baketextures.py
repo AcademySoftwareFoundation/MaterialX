@@ -5,9 +5,8 @@ Generate a baked version of each material in the input document, using the Textu
 
 import sys, os, argparse
 from sys import platform
+
 import MaterialX as mx
-from MaterialX import PyMaterialXGenShader
-from MaterialX import PyMaterialXGenGlsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
 if platform == "darwin":
