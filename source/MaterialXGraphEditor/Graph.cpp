@@ -240,7 +240,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
                 std::cerr << message << std::endl;
             }
-            
+
             // Cache the currently loaded file
             _materialFilename = filename;
         }
@@ -2102,11 +2102,11 @@ mx::InputPtr Graph::findInput(mx::InputPtr nodeInput, const std::string& name)
 {
     if (_isNodeGraph)
     {
-        for (UiNodePtr node : _graphNodes)
+        for (UiNodePtr uiNode : _graphNodes)
         {
-            if (node->getNode())
+            if (uiNode->getNode())
             {
-                for (mx::InputPtr input : node->getNode()->getActiveInputs())
+                for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                 {
                     if (input->getInterfaceInput())
                     {
@@ -2547,7 +2547,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         return;
     }
 
-    // Perform type check 
+    // Perform type check
     bool typesMatch = (outputPin->_type == inputPin->_type);
     if (!typesMatch)
     {
@@ -3093,7 +3093,7 @@ void Graph::loadGraphFromFile(bool prompt)
         _fileDialog.open();
     }
     else
-    { 
+    {
         _graphDoc = loadDocument(_materialFilename);
 
         // Rebuild the UI
@@ -3104,7 +3104,7 @@ void Graph::loadGraphFromFile(bool prompt)
 
         _renderer->setDocument(_graphDoc);
         _renderer->updateMaterials(nullptr);
-    }   
+    }
 }
 
 void Graph::saveGraphToFile()
@@ -3241,7 +3241,7 @@ void Graph::graphButtons()
 
     // Create two windows using splitter
     float paneWidth = (leftPaneWidth - 2.0f);
-    
+
     float aspectRatio = _renderer->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
 
@@ -3249,14 +3249,14 @@ void Graph::graphButtons()
     ImVec2 tempWindowPos = ImGui::GetCursorPos();
     bool cursorInRenderView = mousePos.x > tempWindowPos.x && mousePos.x < (tempWindowPos.x + screenSize.x) &&
                               mousePos.y > tempWindowPos.y && mousePos.y < (tempWindowPos.y + screenSize.y);
-    
+
     ImGuiWindowFlags windowFlags = 0;
 
     if (cursorInRenderView)
     {
         windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
     }
-    
+
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
 
@@ -3306,16 +3306,16 @@ void Graph::propertyEditor()
                 std::string name = _currUiNode->getNode()->getParent()->createValidChildName(temp);
 
                 std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr nodes : downstreamNodes)
+                for (UiNodePtr uiNode : downstreamNodes)
                 {
-                    if (nodes->getInput() == nullptr)
+                    if (!uiNode->getInput() && uiNode->getNode())
                     {
-                        for (mx::InputPtr input : nodes->getNode()->getActiveInputs())
+                        for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                         {
                             if (input->getConnectedNode() == _currUiNode->getNode())
                             {
                                 _currUiNode->getNode()->setName(name);
-                                nodes->getNode()->setConnectedNode(input->getName(), _currUiNode->getNode());
+                                uiNode->getNode()->setConnectedNode(input->getName(), _currUiNode->getNode());
                             }
                         }
                     }
@@ -3330,13 +3330,13 @@ void Graph::propertyEditor()
             {
                 std::string name = _currUiNode->getInput()->getParent()->createValidChildName(temp);
                 std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr nodes : downstreamNodes)
+                for (UiNodePtr uiNode : downstreamNodes)
                 {
-                    if (nodes->getInput() == nullptr)
+                    if (uiNode->getInput() == nullptr)
                     {
-                        if (nodes->getNode())
+                        if (uiNode->getNode())
                         {
-                            for (mx::InputPtr input : nodes->getNode()->getActiveInputs())
+                            for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                             {
                                 if (input->getInterfaceInput() == _currUiNode->getInput())
                                 {
@@ -3349,7 +3349,7 @@ void Graph::propertyEditor()
                         }
                         else
                         {
-                            nodes->getOutput()->setConnectedNode(_currUiNode->getNode());
+                            uiNode->getOutput()->setConnectedNode(_currUiNode->getNode());
                         }
                     }
                 }
@@ -3726,7 +3726,7 @@ void Graph::addNodePopup(bool cursor)
                         }
                     }
 
-                    
+
                     ImGui::EndMenu();
                 }
             }
@@ -3894,7 +3894,7 @@ void Graph::handleRenderViewInputs()
     {
         _renderer->setScrollEvent(scrollAmt);
     }
-    
+
 }
 
 void Graph::drawGraph(ImVec2 mousePos)
