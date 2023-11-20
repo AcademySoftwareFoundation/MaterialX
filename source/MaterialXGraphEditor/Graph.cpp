@@ -3726,7 +3726,6 @@ void Graph::addNodePopup(bool cursor)
                         }
                     }
 
-
                     ImGui::EndMenu();
                 }
             }
