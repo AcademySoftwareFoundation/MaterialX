@@ -3893,7 +3893,6 @@ void Graph::handleRenderViewInputs()
     {
         _renderer->setScrollEvent(scrollAmt);
     }
-
 }
 
 void Graph::drawGraph(ImVec2 mousePos)
