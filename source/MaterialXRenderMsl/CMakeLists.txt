@@ -57,7 +57,7 @@ elseif(APPLE)
         target_link_libraries(
             ${MATERIALX_MODULE_NAME}
             "-framework Cocoa"
-            ${OPENGL_LIBRARIES}
+            OpenGL::GL
             )
     endif()
     target_link_libraries(
@@ -67,7 +67,7 @@ elseif(APPLE)
 elseif(UNIX)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${OPENGL_LIBRARIES}
+        OpenGL::GL
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
 endif()

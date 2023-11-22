@@ -70,14 +70,14 @@ if(WIN32)
 elseif(APPLE)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${OPENGL_LIBRARIES}
+        OpenGL::GL
         "-framework Foundation"
         "-framework Cocoa"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${OPENGL_LIBRARIES}
+        OpenGL::GL
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
 endif()
