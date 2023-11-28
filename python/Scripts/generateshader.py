@@ -25,7 +25,7 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
         print(cmd_flatten)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            result = output.decode(encoding='utf-8')
+            return output.decode(encoding='utf-8')
         except subprocess.CalledProcessError as out:                                                                                                   
             return (out.output.decode(encoding='utf-8'))
     return ""
@@ -83,7 +83,7 @@ def main():
         try:
             mx.loadLibraries(libraryFolders, searchPath, stdlib)
             doc.importLibrary(stdlib)
-        except err:
+        except Exception as err:
             print('Generation failed: "', err, '"')
             sys.exit(-1)
 
