@@ -50,7 +50,8 @@ if(MATERIALX_BUILD_SHARED_LIBS)
     target_compile_definitions(${MATERIALX_MODULE_NAME} PUBLIC GLAD_GLAPI_EXPORT PRIVATE GLAD_GLAPI_EXPORT_BUILD)
 endif()
 
-set(COMMON_LIBRARIES
+target_link_libraries(
+    ${MATERIALX_MODULE_NAME}
     MaterialXRenderHw
     MaterialXGenGlsl
     ${CMAKE_DL_LIBS})
@@ -59,28 +60,24 @@ if(WIN32)
     if(MSVC)
         target_link_libraries(
             ${MATERIALX_MODULE_NAME}
-            ${COMMON_LIBRARIES}
             Opengl32)
     elseif(MINGW)
         target_link_libraries(
             ${MATERIALX_MODULE_NAME}
-            ${COMMON_LIBRARIES}
             Opengl32
             gdi32)
     endif()
 elseif(APPLE)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${COMMON_LIBRARIES}
-        ${OPENGL_LIBRARIES}
+        OpenGL::GL
         "-framework Foundation"
         "-framework Cocoa"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${COMMON_LIBRARIES}
-        ${OPENGL_LIBRARIES}
+        OpenGL::GL
         ${X11_LIBRARIES}
         ${X11_Xt_LIB})
 endif()
