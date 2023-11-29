@@ -61,13 +61,21 @@ option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
 if (MATERIALX_BUILD_IOS)
     set(CMAKE_SYSTEM_NAME iOS)
     add_definitions(-DTARGET_OS_IOS=1)
-    set(MATERIALX_BUILD_PYTHON        OFF)
-    set(MATERIALX_BUILD_VIEWER        OFF)
-    set(MATERIALX_BUILD_GRAPH_EDITOR  OFF)
-    set(MATERIALX_BUILD_GEN_GLSL      OFF)
-    set(MATERIALX_BUILD_GEN_OSL       OFF)
-    set(MATERIALX_BUILD_GEN_MDL       OFF)
-    set(MATERIALX_BUILD_TESTS         OFF)
+    set(MATERIALX_BUILD_PYTHON OFF)
+    set(MATERIALX_BUILD_VIEWER OFF)
+    set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_GEN_GLSL OFF)
+    set(MATERIALX_BUILD_GEN_OSL OFF)
+    set(MATERIALX_BUILD_GEN_MDL OFF)
+    set(MATERIALX_BUILD_TESTS OFF)
+endif()
+
+if (MATERIALX_BUILD_JS)
+    set(MATERIALX_BUILD_GEN_OSL OFF)
+    set(MATERIALX_BUILD_GEN_MSL OFF)
+    set(MATERIALX_BUILD_GEN_MDL OFF)
+    set(MATERIALX_BUILD_RENDER OFF)
+    set(MATERIALX_BUILD_TESTS OFF)
 endif()
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
@@ -80,10 +88,6 @@ set(MATERIALX_PYTHON_PYBIND11_DIR "" CACHE PATH
     "Path to a folder containing the PyBind11 source to be used in building MaterialX Python.")
 
 set(MATERIALX_OIIO_DIR "" CACHE PATH "Path to the root folder of the OpenImageIO installation.")
-
-if (MATERIALX_BUILD_JS)
-    set(MATERIALX_BUILD_GEN_GLSL ON)
-endif()
 
 # Settings to define installation layout
 set(MATERIALX_INSTALL_INCLUDE_PATH "include" CACHE STRING "Install header include path (e.g. 'inc', 'include').")
