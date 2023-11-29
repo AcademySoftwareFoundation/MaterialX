@@ -16,6 +16,9 @@ PYBIND11_MODULE(PyMaterialXRenderGlsl, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXRenderGlsl library";
 
+    // PyMaterialXRenderGlsl depends on types defined in PyMaterialXRender
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);
+
     bindPyGlslProgram(mod);
     bindPyGlslRenderer(mod);
     bindPyGLTextureHandler(mod);
