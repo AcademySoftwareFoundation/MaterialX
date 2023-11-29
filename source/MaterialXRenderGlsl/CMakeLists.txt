@@ -79,8 +79,7 @@ elseif(UNIX)
         ${MATERIALX_MODULE_NAME}
         OpenGL::GL
         X11::X11
-        X11::Xt
-    )
+        X11::Xt)
 endif()
 
 set_target_properties(
