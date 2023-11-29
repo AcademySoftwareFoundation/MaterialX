@@ -78,8 +78,8 @@ elseif(UNIX)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
         OpenGL::GL
-        ${X11_LIBRARIES}
-        ${X11_Xt_LIB})
+        X11::X11
+        X11::Xt)
 endif()
 
 set_target_properties(
