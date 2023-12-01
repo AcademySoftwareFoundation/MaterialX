@@ -4094,48 +4094,47 @@ void Graph::drawGraph(ImVec2 mousePos)
         _initial = false;
         _autoLayout = false;
 
-        // Delete selected nodes and their links if delete key is pressed
-        // or if the shortcut for cut is used
-        bool shouldProcessInput = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow);
-        if (shouldProcessInput && (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut))
-        {
-            if (selectedNodes.size() > 0)
-            {
-                _frameCount = ImGui::GetFrameCount();
-                _renderer->setMaterialCompilation(true);
-                for (ed::NodeId id : selectedNodes)
-                {
-
-                    if (int(id.Get()) > 0)
-                    {
-                        int pos = findNode(int(id.Get()));
-                        if (pos >= 0 && !readOnly())
-                        {
-                            deleteNode(_graphNodes[pos]);
-                            _delete = true;
-                            ed::DeselectNode(id);
-                            ed::DeleteNode(id);
-                            _currUiNode = nullptr;
-                        }
-                        else if (readOnly())
-                        {
-                            _popup = true;
-                        }
-                    }
-                }
-                linkGraph();
-            }
-            _isCut = false;
-        }
-
         // Start the session with content centered
         if (ImGui::GetFrameCount() == 2)
         {
             ed::NavigateToContent(0.0f);
         }
 
-        if (shouldProcessInput)
+        // Delete selected nodes and their links if delete key is pressed
+        // or if the shortcut for cut is used
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow))
         {
+            if (ImGui::IsKeyReleased(ImGuiKey_Delete) || _isCut)
+            {
+                if (selectedNodes.size() > 0)
+                {
+                    _frameCount = ImGui::GetFrameCount();
+                    _renderer->setMaterialCompilation(true);
+                    for (ed::NodeId id : selectedNodes)
+                    {
+
+                        if (int(id.Get()) > 0)
+                        {
+                            int pos = findNode(int(id.Get()));
+                            if (pos >= 0 && !readOnly())
+                            {
+                                deleteNode(_graphNodes[pos]);
+                                _delete = true;
+                                ed::DeselectNode(id);
+                                ed::DeleteNode(id);
+                                _currUiNode = nullptr;
+                            }
+                            else if (readOnly())
+                            {
+                                _popup = true;
+                            }
+                        }
+                    }
+                    linkGraph();
+                }
+                _isCut = false;
+            }
+
             // Hotkey to frame selected node(s)
             if (ImGui::IsKeyReleased(ImGuiKey_F) && !_fileDialogSave.isOpened())
             {
