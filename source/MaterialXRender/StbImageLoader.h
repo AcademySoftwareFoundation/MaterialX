@@ -34,7 +34,7 @@ class MX_RENDER_API StbImageLoader : public ImageLoader
         _extensions.insert(PSD_EXTENSION);
         _extensions.insert(TGA_EXTENSION);
     }
-    virtual ~StbImageLoader() { }    
+    virtual ~StbImageLoader() { }
 
     /// Create a new stb image loader
     static StbImageLoaderPtr create() { return std::make_shared<StbImageLoader>(); }
