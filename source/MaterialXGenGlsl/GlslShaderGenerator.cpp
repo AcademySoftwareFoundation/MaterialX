@@ -56,17 +56,17 @@ GlslShaderGenerator::GlslShaderGenerator() :
     //
 
     StringVec elementNames;
-    
+
     // <!-- <switch> -->
     elementNames = {
         // <!-- 'which' type : float -->
-        "IM_switch_float_"   + GlslShaderGenerator::TARGET,
-        "IM_switch_color3_"  + GlslShaderGenerator::TARGET,
-        "IM_switch_color4_"  + GlslShaderGenerator::TARGET,
+        "IM_switch_float_" + GlslShaderGenerator::TARGET,
+        "IM_switch_color3_" + GlslShaderGenerator::TARGET,
+        "IM_switch_color4_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector2_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector3_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- 'which' type : integer -->
         "IM_switch_floatI_" + GlslShaderGenerator::TARGET,
         "IM_switch_color3I_" + GlslShaderGenerator::TARGET,
@@ -85,7 +85,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_float_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_float_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_float_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color3 -->
         "IM_swizzle_color3_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_color3_" + GlslShaderGenerator::TARGET,
@@ -93,7 +93,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_color3_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color4 -->
         "IM_swizzle_color4_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_color3_" + GlslShaderGenerator::TARGET,
@@ -101,7 +101,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_color4_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector2 -->
         "IM_swizzle_vector2_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_color3_" + GlslShaderGenerator::TARGET,
@@ -109,7 +109,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_vector2_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector3 -->
         "IM_swizzle_vector3_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_color3_" + GlslShaderGenerator::TARGET,
@@ -117,7 +117,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_vector3_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector4 -->
         "IM_swizzle_vector4_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector4_color3_" + GlslShaderGenerator::TARGET,

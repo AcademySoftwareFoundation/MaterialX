@@ -368,12 +368,12 @@ const string& MixBsdfNodeMdl::getOperatorName(size_t index) const
 {
     switch (index)
     {
-    case 0:
-        return StringConstantsMdl::FG;
-    case 1:
-        return StringConstantsMdl::BG;
-    default:
-        return StringConstantsMdl::EMPTY;
+        case 0:
+            return StringConstantsMdl::FG;
+        case 1:
+            return StringConstantsMdl::BG;
+        default:
+            return StringConstantsMdl::EMPTY;
     }
 }
 
@@ -386,12 +386,12 @@ const string& AddOrMultiplyBsdfNodeMdl::getOperatorName(size_t index) const
 {
     switch (index)
     {
-    case 0:
-        return StringConstantsMdl::IN1;
-    case 1:
-        return StringConstantsMdl::IN2;
-    default:
-        return StringConstantsMdl::EMPTY;
+        case 0:
+            return StringConstantsMdl::IN1;
+        case 1:
+            return StringConstantsMdl::IN2;
+        default:
+            return StringConstantsMdl::EMPTY;
     }
 }
 

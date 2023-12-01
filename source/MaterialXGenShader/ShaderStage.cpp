@@ -82,8 +82,8 @@ ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePt
         else if (type != it->second->getType())
         {
             throw ExceptionShaderGenError("Trying to add shader port '" + name + "' with type '" +
-                type->getName() + "', but existing shader port with type '" +
-                it->second->getType()->getName() + "' was found");
+                                          type->getName() + "', but existing shader port with type '" +
+                                          it->second->getType()->getName() + "' was found");
         }
         return it->second.get();
     }

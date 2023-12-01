@@ -37,7 +37,7 @@ class MX_RENDERGLSL_API TextureBakerGlsl : public TextureBaker<GlslRenderer, Gls
     {
         return TextureBakerPtr(new TextureBakerGlsl(width, height, baseType));
     }
-    
+
     TextureBakerGlsl(unsigned int width, unsigned int height, Image::BaseType baseType);
 };
 
