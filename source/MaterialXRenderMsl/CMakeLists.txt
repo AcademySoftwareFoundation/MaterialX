@@ -42,36 +42,33 @@ add_library(${MATERIALX_MODULE_NAME} ${materialx_source} ${materialx_headers})
 
 add_definitions(-DMATERIALX_RENDERMSL_EXPORTS)
 
-set(COMMON_LIBRARIES
+target_link_libraries(
+    ${MATERIALX_MODULE_NAME}
     MaterialXRenderHw
     MaterialXGenMsl
     ${CMAKE_DL_LIBS})
-    
-if(APPLE AND NOT MATERIALX_BUILD_IOS)
-set(COMMON_LIBRARIES
-    ${COMMON_LIBRARIES}
-    "-framework Cocoa")
-endif()
 
 if(MSVC)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${COMMON_LIBRARIES}
         Opengl32)
 elseif(APPLE)
+    if(NOT MATERIALX_BUILD_IOS)
+        target_link_libraries(
+            ${MATERIALX_MODULE_NAME}
+            "-framework Cocoa"
+            OpenGL::GL)
+    endif()
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${COMMON_LIBRARIES}
-        ${OPENGL_LIBRARIES}
         "-framework Foundation"
         "-framework Metal")
 elseif(UNIX)
     target_link_libraries(
         ${MATERIALX_MODULE_NAME}
-        ${COMMON_LIBRARIES}
-        ${OPENGL_LIBRARIES}
-        ${X11_LIBRARIES}
-        ${X11_Xt_LIB})
+        OpenGL::GL
+        X11::X11
+        X11::Xt)
 endif()
 
 set_target_properties(

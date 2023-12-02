@@ -225,7 +225,7 @@ class Graph
     void selectMaterial(UiNodePtr node);
 
     // Allow for camera manipulation of render view window
-    void handleRenderViewInputs(ImVec2 minValue, float width, float height);
+    void handleRenderViewInputs();
 
     // Set the node to display in render view based on selected node or nodegraph
     void setRenderMaterial(UiNodePtr node);

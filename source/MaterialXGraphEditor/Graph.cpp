@@ -240,7 +240,7 @@ mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
                 std::cerr << "*** Validation warnings for " << filename.asString() << " ***" << std::endl;
                 std::cerr << message << std::endl;
             }
-            
+
             // Cache the currently loaded file
             _materialFilename = filename;
         }
@@ -2102,11 +2102,11 @@ mx::InputPtr Graph::findInput(mx::InputPtr nodeInput, const std::string& name)
 {
     if (_isNodeGraph)
     {
-        for (UiNodePtr node : _graphNodes)
+        for (UiNodePtr uiNode : _graphNodes)
         {
-            if (node->getNode())
+            if (uiNode->getNode())
             {
-                for (mx::InputPtr input : node->getNode()->getActiveInputs())
+                for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                 {
                     if (input->getInterfaceInput())
                     {
@@ -2547,7 +2547,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
         return;
     }
 
-    // Perform type check 
+    // Perform type check
     bool typesMatch = (outputPin->_type == inputPin->_type);
     if (!typesMatch)
     {
@@ -3093,7 +3093,7 @@ void Graph::loadGraphFromFile(bool prompt)
         _fileDialog.open();
     }
     else
-    { 
+    {
         _graphDoc = loadDocument(_materialFilename);
 
         // Rebuild the UI
@@ -3104,7 +3104,7 @@ void Graph::loadGraphFromFile(bool prompt)
 
         _renderer->setDocument(_graphDoc);
         _renderer->updateMaterials(nullptr);
-    }   
+    }
 }
 
 void Graph::saveGraphToFile()
@@ -3241,13 +3241,27 @@ void Graph::graphButtons()
 
     // Create two windows using splitter
     float paneWidth = (leftPaneWidth - 2.0f);
-    ImGui::BeginChild("Selection", ImVec2(paneWidth, 0));
+
+    float aspectRatio = _renderer->getPixelRatio();
+    ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
+
+    ImVec2 mousePos = ImGui::GetMousePos();
+    ImVec2 tempWindowPos = ImGui::GetCursorPos();
+    bool cursorInRenderView = mousePos.x > tempWindowPos.x && mousePos.x < (tempWindowPos.x + screenSize.x) &&
+                              mousePos.y > tempWindowPos.y && mousePos.y < (tempWindowPos.y + screenSize.y);
+
+    ImGuiWindowFlags windowFlags = 0;
+
+    if (cursorInRenderView)
+    {
+        windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+    }
+
+    ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
 
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
-    float aspectRatio = _renderer->getPixelRatio();
-    ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
     _renderer->setViewWidth((int) screenSize[0]);
     _renderer->setViewHeight((int) screenSize[1]);
 
@@ -3267,7 +3281,10 @@ void Graph::graphButtons()
     ImGui::EndChild();
     ImGui::SameLine(0.0f, 12.0f);
 
-    handleRenderViewInputs(windowPos, screenSize[0], screenSize[1]);
+    if (cursorInRenderView)
+    {
+        handleRenderViewInputs();
+    }
 }
 
 void Graph::propertyEditor()
@@ -3289,16 +3306,16 @@ void Graph::propertyEditor()
                 std::string name = _currUiNode->getNode()->getParent()->createValidChildName(temp);
 
                 std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr nodes : downstreamNodes)
+                for (UiNodePtr uiNode : downstreamNodes)
                 {
-                    if (nodes->getInput() == nullptr)
+                    if (!uiNode->getInput() && uiNode->getNode())
                     {
-                        for (mx::InputPtr input : nodes->getNode()->getActiveInputs())
+                        for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                         {
                             if (input->getConnectedNode() == _currUiNode->getNode())
                             {
                                 _currUiNode->getNode()->setName(name);
-                                nodes->getNode()->setConnectedNode(input->getName(), _currUiNode->getNode());
+                                uiNode->getNode()->setConnectedNode(input->getName(), _currUiNode->getNode());
                             }
                         }
                     }
@@ -3313,13 +3330,13 @@ void Graph::propertyEditor()
             {
                 std::string name = _currUiNode->getInput()->getParent()->createValidChildName(temp);
                 std::vector<UiNodePtr> downstreamNodes = _currUiNode->getOutputConnections();
-                for (UiNodePtr nodes : downstreamNodes)
+                for (UiNodePtr uiNode : downstreamNodes)
                 {
-                    if (nodes->getInput() == nullptr)
+                    if (uiNode->getInput() == nullptr)
                     {
-                        if (nodes->getNode())
+                        if (uiNode->getNode())
                         {
-                            for (mx::InputPtr input : nodes->getNode()->getActiveInputs())
+                            for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
                             {
                                 if (input->getInterfaceInput() == _currUiNode->getInput())
                                 {
@@ -3332,7 +3349,7 @@ void Graph::propertyEditor()
                         }
                         else
                         {
-                            nodes->getOutput()->setConnectedNode(_currUiNode->getNode());
+                            uiNode->getOutput()->setConnectedNode(_currUiNode->getNode());
                         }
                     }
                 }
@@ -3709,7 +3726,6 @@ void Graph::addNodePopup(bool cursor)
                         }
                     }
 
-                    
                     ImGui::EndMenu();
                 }
             }
@@ -3830,55 +3846,52 @@ void Graph::shaderPopup()
     }
 }
 
-void Graph::handleRenderViewInputs(ImVec2 minValue, float width, float height)
+void Graph::handleRenderViewInputs()
 {
     ImVec2 mousePos = ImGui::GetMousePos();
-    if (mousePos.x > minValue.x && mousePos.x < (minValue.x + width) && mousePos.y > minValue.y && mousePos.y < (minValue.y + height))
+    mx::Vector2 mxMousePos = mx::Vector2(mousePos.x, mousePos.y);
+    float scrollAmt = ImGui::GetIO().MouseWheel;
+    int button = -1;
+    bool down = false;
+    if (ImGui::IsMouseDragging(0) || ImGui::IsMouseDragging(1))
     {
-        mx::Vector2 mxMousePos = mx::Vector2(mousePos.x, mousePos.y);
-        float scrollAmt = ImGui::GetIO().MouseWheel;
-        int button = -1;
-        bool down = false;
-        if (ImGui::IsMouseDragging(0) || ImGui::IsMouseDragging(1))
-        {
-            _renderer->setMouseMotionEvent(mxMousePos);
-        }
-        if (ImGui::IsMouseClicked(0))
-        {
-            button = 0;
-            down = true;
-            _renderer->setMouseButtonEvent(button, down, mxMousePos);
-        }
-        else if (ImGui::IsMouseClicked(1))
-        {
-            button = 1;
-            down = true;
-            _renderer->setMouseButtonEvent(button, down, mxMousePos);
-        }
-        else if (ImGui::IsMouseReleased(0))
-        {
-            button = 0;
-            _renderer->setMouseButtonEvent(button, down, mxMousePos);
-        }
-        else if (ImGui::IsMouseReleased(1))
-        {
-            button = 1;
-            _renderer->setMouseButtonEvent(button, down, mxMousePos);
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_KeypadAdd))
-        {
-            _renderer->setKeyEvent(ImGuiKey_KeypadAdd);
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_KeypadSubtract))
-        {
-            _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
-        }
+        _renderer->setMouseMotionEvent(mxMousePos);
+    }
+    if (ImGui::IsMouseClicked(0))
+    {
+        button = 0;
+        down = true;
+        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+    }
+    else if (ImGui::IsMouseClicked(1))
+    {
+        button = 1;
+        down = true;
+        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+    }
+    else if (ImGui::IsMouseReleased(0))
+    {
+        button = 0;
+        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+    }
+    else if (ImGui::IsMouseReleased(1))
+    {
+        button = 1;
+        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_KeypadAdd))
+    {
+        _renderer->setKeyEvent(ImGuiKey_KeypadAdd);
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_KeypadSubtract))
+    {
+        _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
+    }
 
-        // Scrolling not possible if open or save file dialog is open
-        if (scrollAmt != 0 && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
-        {
-            _renderer->setScrollEvent(scrollAmt);
-        }
+    // Scrolling not possible if open or save file dialog is open
+    if (scrollAmt != 0 && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
+    {
+        _renderer->setScrollEvent(scrollAmt);
     }
 }
 
