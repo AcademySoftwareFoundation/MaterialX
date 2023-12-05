@@ -536,7 +536,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
             // which is a struct containing a file string and a colorspace string.
             // For the published shader interface we here split this into two separate inputs,
             // which gives a nicer shader interface with widget metadata on each input.
-            
+
             ValuePtr value = input->getValue();
             const string valueStr = value ? value->getValueString() : EMPTY_STRING;
 

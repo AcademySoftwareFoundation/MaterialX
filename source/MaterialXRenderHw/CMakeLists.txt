@@ -57,8 +57,8 @@ elseif(UNIX)
         ${MATERIALX_MODULE_NAME}
         MaterialXRender
         ${CMAKE_DL_LIBS}
-        ${X11_LIBRARIES}
-        ${X11_Xt_LIB})
+        X11::X11
+        X11::Xt)
 endif()
 
 set_target_properties(

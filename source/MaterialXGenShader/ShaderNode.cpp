@@ -290,7 +290,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
-    }    
+    }
     else if (nodeDef.getNodeString() == DOT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::DOT;
