@@ -132,7 +132,7 @@ class MX_RENDER_API MeshStream
     }
 
     /// Transform elements by a matrix
-    void transform(const Matrix44 &matrix);
+    void transform(const Matrix44& matrix);
 
   protected:
     string _name;

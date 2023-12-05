@@ -1018,7 +1018,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             emitLightData(context, stage);
         }
     }
-    
+
     bool needsLightBuffer = lighting && context.getOptions().hwMaxActiveLightSources > 0;
 
     emitMathMatrixScalarMathOperators(context, stage);

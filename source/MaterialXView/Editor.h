@@ -19,7 +19,7 @@ namespace ng = nanogui;
 
 class Viewer;
 
-class PropertyEditor 
+class PropertyEditor
 {
   public:
     PropertyEditor();
@@ -58,7 +58,7 @@ class PropertyEditor
 };
 
 ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& label, float value,
-                                       const mx::UIProperties*ui, std::function<void(float)> callback = nullptr);
+                                       const mx::UIProperties* ui, std::function<void(float)> callback = nullptr);
 ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
                                  const mx::UIProperties* ui, std::function<void(int)> callback);
 

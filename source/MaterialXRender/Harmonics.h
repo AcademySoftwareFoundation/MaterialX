@@ -27,7 +27,8 @@ template <class C, size_t B> class ShCoeffs
 
   public:
     ShCoeffs() = default;
-    explicit ShCoeffs(const std::array<C, NUM_COEFFS>& arr) : _arr(arr) { }
+    explicit ShCoeffs(const std::array<C, NUM_COEFFS>& arr) :
+        _arr(arr) { }
 
     /// @name Comparison Operators
     /// @{

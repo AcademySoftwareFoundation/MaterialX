@@ -33,7 +33,7 @@ class MX_RENDERGLSL_API GLTextureHandler : public ImageHandler
     /// will fail if there are not enough available image units to bind to.
     bool bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties) override;
 
-    /// Unbind an image. 
+    /// Unbind an image.
     bool unbindImage(ImagePtr image) override;
 
     /// Create rendering resources for the given image.

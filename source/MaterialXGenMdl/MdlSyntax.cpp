@@ -48,7 +48,7 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
         // assuming it ends with a slash ...
         if (outputValue.back() == '/')
         {
-             return getDefaultValue(true);
+            return getDefaultValue(true);
         }
         // ... or the last segment does not have an extension suffix
         size_t idx_s = outputValue.find_last_of('/');

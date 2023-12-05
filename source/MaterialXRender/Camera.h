@@ -163,17 +163,17 @@ class MX_RENDER_API Camera
     static Matrix44 createOrthographicMatrix(float left, float right,
                                              float bottom, float top,
                                              float nearP, float farP);
-    
+
     /// Create a perpective projection matrix given a set of clip planes with [0,1] projected Z.
     static Matrix44 createPerspectiveMatrixZP(float left, float right,
-                                            float bottom, float top,
-                                            float nearP, float farP);
+                                              float bottom, float top,
+                                              float nearP, float farP);
 
     /// Create an orthographic projection matrix given a set of clip planes with [0,1] projected Z.
     static Matrix44 createOrthographicMatrixZP(float left, float right,
-                                             float bottom, float top,
-                                             float nearP, float farP);
- 
+                                               float bottom, float top,
+                                               float nearP, float farP);
+
     /// Apply a perspective transform to the given 3D point, performing a
     /// homogeneous divide on the transformed result.
     static Vector3 transformPointPerspective(const Matrix44& m, const Vector3& v)
@@ -185,7 +185,7 @@ class MX_RENDER_API Camera
     /// @}
 
   protected:
-    // Transform matrices 
+    // Transform matrices
     Matrix44 _worldMatrix;
     Matrix44 _viewMatrix;
     Matrix44 _projectionMatrix;

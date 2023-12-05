@@ -65,7 +65,7 @@ class MX_RENDER_API Vector3d : public VectorN<Vector3d, double, 3>
     Vector3d() = default;
     Vector3d(double x, double y, double z) : VectorN(Uninit{})
     {
-        _arr = {x, y, z};
+        _arr = { x, y, z };
     }
 };
 
@@ -78,7 +78,7 @@ class MX_RENDER_API Vector4d : public VectorN<Vector4d, double, 4>
     Vector4d() = default;
     Vector4d(double x, double y, double z, double w) : VectorN(Uninit{})
     {
-        _arr = {x, y, z, w};
+        _arr = { x, y, z, w };
     }
 };
 
@@ -91,7 +91,7 @@ class MX_RENDER_API Color3d : public VectorN<Color3d, double, 3>
     Color3d() = default;
     Color3d(double r, double g, double b) : VectorN(Uninit{})
     {
-        _arr = {r, g, b};
+        _arr = { r, g, b };
     }
 };
 

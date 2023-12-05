@@ -7,7 +7,7 @@
 #define MATERIALX_OIIOIMAGELOADER_H
 
 /// @file
-/// Image loader wrapper using OpenImageIO 
+/// Image loader wrapper using OpenImageIO
 
 #include <MaterialXRender/ImageHandler.h>
 
@@ -21,7 +21,7 @@ using OiioImageLoaderPtr = std::shared_ptr<class OiioImageLoader>;
 class MX_RENDER_API OiioImageLoader : public ImageLoader
 {
   public:
-    OiioImageLoader() 
+    OiioImageLoader()
     {
         // Set all extensions supported by OpenImageIO
         _extensions.insert(BMP_EXTENSION);
@@ -40,7 +40,7 @@ class MX_RENDER_API OiioImageLoader : public ImageLoader
         _extensions.insert(TXT_EXTENSION);
         _extensions.insert(TXR_EXTENSION);
     }
-    virtual ~OiioImageLoader() { }    
+    virtual ~OiioImageLoader() { }
 
     /// Create a new OpenImageIO image loader
     static OiioImageLoaderPtr create() { return std::make_shared<OiioImageLoader>(); }
