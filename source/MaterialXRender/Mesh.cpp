@@ -46,7 +46,7 @@ MeshStreamPtr Mesh::generateNormals(MeshStreamPtr positionStream)
     const string normalStreamName = "i_" + MeshStream::NORMAL_ATTRIBUTE;
 
     // Return if already exists
-    MeshStreamPtr normalStream = getStream(normalStreamName, false);
+    MeshStreamPtr normalStream = getStream(normalStreamName);
     if (normalStream)
     {
         return normalStream;
@@ -91,7 +91,7 @@ MeshStreamPtr Mesh::generateTextureCoordinates(MeshStreamPtr positionStream)
     const string texcoordStreamName = "i_" + MeshStream::TEXCOORD_ATTRIBUTE + "_0";
 
     // Return if already exists
-    MeshStreamPtr texcoordStream = getStream(texcoordStreamName, false);
+    MeshStreamPtr texcoordStream = getStream(texcoordStreamName);
     if (texcoordStream)
     {
         return texcoordStream;
@@ -112,7 +112,7 @@ MeshStreamPtr Mesh::generateTangents(MeshStreamPtr positionStream, MeshStreamPtr
     const string tangentStreamName = "i_" + MeshStream::TANGENT_ATTRIBUTE;
 
     // Return if already exists
-    MeshStreamPtr tangentStream = getStream(tangentStreamName, false);
+    MeshStreamPtr tangentStream = getStream(tangentStreamName);
     if (tangentStream)
     {
         return tangentStream;
@@ -205,7 +205,7 @@ MeshStreamPtr Mesh::generateBitangents(MeshStreamPtr normalStream, MeshStreamPtr
     const string bitangentStreamName = "i_" + MeshStream::BITANGENT_ATTRIBUTE;
 
     // Return if already exists
-    MeshStreamPtr bitangentStream = getStream(bitangentStreamName, false);
+    MeshStreamPtr bitangentStream = getStream(bitangentStreamName);
     if (bitangentStream)
     {
         return bitangentStream;
@@ -256,7 +256,8 @@ void Mesh::mergePartitions()
 
 void Mesh::splitByUdims()
 {
-    MeshStreamPtr texcoords = getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0, false);
+    const unsigned int texcoord_stream = 0;
+    MeshStreamPtr texcoords = getStream(MeshStream::TEXCOORD_ATTRIBUTE, texcoord_stream);
     if (!texcoords)
     {
         return;
@@ -362,7 +363,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool allowFallback)
     if (allowFallback)
     {
         const std::string POSITION_NAME("i_" + MeshStream::POSITION_ATTRIBUTE);
-        MeshStreamPtr positionStream = getStream(POSITION_NAME, false);
+        MeshStreamPtr positionStream = getStream(POSITION_NAME);
         // Fail if there are no positions.
         if (!positionStream)
         {
