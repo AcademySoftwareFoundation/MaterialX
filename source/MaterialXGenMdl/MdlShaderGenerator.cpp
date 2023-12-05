@@ -17,6 +17,7 @@
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/SwizzleNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -187,6 +188,14 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <image> -->
+    registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_color3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_color4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector2_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -282,9 +291,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         {
             emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
             emitLine("color finalOutput__ = mk_color3("
-                "r: math::dot(displacement__, state::texture_tangent_u(0)),"
-                "g: math::dot(displacement__, state::texture_tangent_v(0)),"
-                "b: math::dot(displacement__, state::normal()))", stage);
+                     "r: math::dot(displacement__, state::texture_tangent_u(0)),"
+                     "g: math::dot(displacement__, state::texture_tangent_v(0)),"
+                     "b: math::dot(displacement__, state::normal()))", stage);
         }
         else
         {
