@@ -284,7 +284,7 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         _cameraTarget = mx::Vector3();
 
         initCamera();
-    
+
         if (_shadowMap)
         {
             _imageHandler->releaseRenderResources(_shadowMap);
@@ -833,7 +833,7 @@ void RenderView::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _viewWidth, (float) _viewHeight));
 
-    if ( _geometryHandler->getMeshes().empty())
+    if (_geometryHandler->getMeshes().empty())
     {
         return;
     }
