@@ -26,7 +26,7 @@ SimpleWindow::SimpleWindow() :
 
 bool SimpleWindow::initialize(const char* title,
                               unsigned int width, unsigned int height,
-                              void *applicationShell)
+                              void* applicationShell)
 {
     int n = 0;
 
@@ -49,13 +49,13 @@ bool SimpleWindow::initialize(const char* title,
     else
     {
         // Reuse existing application shell;
-        shell = (Widget)applicationShell;
+        shell = (Widget) applicationShell;
     }
 
     if (!shell)
     {
         _id = 0;
-        return false;;
+        return false;
     }
 
     Arg args[6];

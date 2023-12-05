@@ -2620,7 +2620,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     break;
                 }
             }
-
         }
 
         // Since we accepted new link, lets add one to our list of links.
@@ -3668,7 +3667,7 @@ void Graph::addNodePopup(bool cursor)
         // Filter extra nodes - includes inputs, outputs, groups, and node graphs
         const std::string NODEGRAPH_ENTRY = "Node Graph";
 
-         // Filter nodedefs and add to menu if matches filter
+        // Filter nodedefs and add to menu if matches filter
         for (auto node : _nodesToAdd)
         {
             // Filter out list of nodes

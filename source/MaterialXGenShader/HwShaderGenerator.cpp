@@ -260,9 +260,9 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             if (geomprop)
             {
                 // A default geomprop was assigned to this graph input.
-                // For all internal connections to this input, break the connection 
+                // For all internal connections to this input, break the connection
                 // and assign a geomprop node that generates this data.
-                // Note: If a geomprop node exists already it is reused, 
+                // Note: If a geomprop node exists already it is reused,
                 // so only a single node per geometry type is created.
                 ShaderInputVec connections = socket->getConnections();
                 for (auto connection : connections)
