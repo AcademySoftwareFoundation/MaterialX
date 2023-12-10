@@ -38,7 +38,7 @@ bool GlslMaterial::loadSource(const FilePath& vertexShaderFile, const FilePath& 
     }
 
     // TODO:
-    // Here we set new source code on the _glProgram without rebuilding 
+    // Here we set new source code on the _glProgram without rebuilding
     // the _hwShader instance. So the _hwShader is not in sync with the
     // _glProgram after this operation.
     _glProgram = GlslProgram::create();

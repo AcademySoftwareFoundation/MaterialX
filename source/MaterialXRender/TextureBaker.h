@@ -27,7 +27,7 @@ using BakedDocumentVec = std::vector<std::pair<std::string, DocumentPtr>>;
 /// A helper class for baking procedural material content to textures.
 /// TODO: Add support for graphs containing geometric nodes such as position
 ///       and normal.
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 class TextureBaker : public Renderer
 {
   public:
@@ -112,7 +112,7 @@ class TextureBaker : public Renderer
     /// Set the name of the baked graph element.
     void setBakedGraphName(const string& name)
     {
-        _bakedGraphName= name;
+        _bakedGraphName = name;
     }
 
     /// Return the name of the baked graph element.
@@ -218,13 +218,13 @@ class TextureBaker : public Renderer
     void optimizeBakedTextures(NodePtr shader);
 
     /// Bake material to document in memory and write baked textures to disk.
-    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath, 
+    DocumentPtr bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath,
                                   const StringVec& udimSet, std::string& documentName);
 
     /// Bake materials in the given document and write them to disk.  If multiple documents are written,
     /// then the given output filename will be used as a template.
     void bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFileName);
-    
+
     /// Set whether to write a separate document per material when calling bakeAllMaterials.
     /// By default separate documents are written.
     void writeDocumentPerMaterial(bool value)
@@ -295,7 +295,7 @@ class TextureBaker : public Renderer
     StringMap _bakedInputMap;
 
     std::unordered_map<string, NodePtr> _worldSpaceNodes;
-    
+
     bool _flipSavedImage;
 
     bool _writeDocumentPerMaterial;

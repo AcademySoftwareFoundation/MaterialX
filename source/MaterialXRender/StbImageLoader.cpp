@@ -7,9 +7,9 @@
 
 #if defined(_MSC_VER)
     #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4505)
-    #pragma warning(disable: 4996)
+    #pragma warning(disable : 4100)
+    #pragma warning(disable : 4505)
+    #pragma warning(disable : 4996)
 #endif
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -96,7 +96,7 @@ ImagePtr StbImageLoader::loadImage(const FilePath& filePath)
     int height = 0;
     int channelCount = 0;
     Image::BaseType baseType = Image::BaseType::UINT8;
-    void *buffer = nullptr;
+    void* buffer = nullptr;
 
     // Select standard or float reader based on file extension.
     string extension = filePath.getExtension();

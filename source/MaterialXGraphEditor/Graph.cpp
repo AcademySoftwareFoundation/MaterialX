@@ -2642,7 +2642,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     break;
                 }
             }
-
         }
 
         // Since we accepted new link, lets add one to our list of links.
@@ -3744,6 +3743,7 @@ void Graph::addNodePopup(UiPinPtr originPin)
             ImGui::SetKeyboardFocusHere();
         }
         ImGui::InputText("##input", input, sizeof(input));
+        
         std::string filterString(input);
         if (!filterString.empty()) {
             // Allow spaces to be used in the input filter entry

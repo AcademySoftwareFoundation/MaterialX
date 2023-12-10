@@ -48,7 +48,7 @@ class MX_RENDER_API LightHandler
 
     /// @name Global State
     /// @{
-    
+
     /// Set the light transform.
     void setLightTransform(const Matrix44& mat)
     {

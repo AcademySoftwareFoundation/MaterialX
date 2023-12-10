@@ -109,7 +109,7 @@ class MX_RENDERGLSL_API GlslProgram
         string path;
         /// Unit
         string unit;
-        /// Colorspace 
+        /// Colorspace
         string colorspace;
 
         /// Program input constructor
