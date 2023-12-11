@@ -105,6 +105,10 @@ int main(int argc, char* const argv[])
         else if (token == "--scaleFactor")
         {
             parseToken(nextToken, "float", scaleFactor);
+            if (scaleFactor <= 0.0) {
+                std::cout << "Scale factor must be a positive, non-zero value. Ignoring the supplied value." << std::endl;
+                scaleFactor = 0.0;
+            }
         }
         else if (token == "--help")
         {
