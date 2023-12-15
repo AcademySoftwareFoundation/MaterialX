@@ -270,7 +270,7 @@ void ShaderGenerator::registerImplementation(const string& name, CreatorFunction
 
 void ShaderGenerator::registerImplementation(const StringVec& nameVec, CreatorFunction<ShaderNodeImpl> creator)
 {
-    for(const string& name : nameVec)
+    for (const string& name : nameVec)
     {
         _implFactory.registerClass(name, creator);
     }

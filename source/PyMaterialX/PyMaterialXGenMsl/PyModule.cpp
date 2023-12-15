@@ -14,6 +14,9 @@ PYBIND11_MODULE(PyMaterialXGenMsl, mod)
 {
     mod.doc() = "Module containing Python bindings for the MaterialXGenMsl library";
 
+    // PyMaterialXGenMsl depends on types defined in PyMaterialXGenShader
+    PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);
+
     bindPyMslShaderGenerator(mod);
     bindPyMslResourceBindingContext(mod);
 }

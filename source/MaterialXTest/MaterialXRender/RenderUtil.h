@@ -114,9 +114,6 @@ class ShaderRenderTester
     }
 #endif
 
-    // Add files to skip
-    void addSkipFiles();
-
     // Load dependencies
     void loadDependentLibraries(GenShaderUtil::TestSuiteOptions options, mx::FileSearchPath searchPath,
                              mx::DocumentPtr& dependLib);
@@ -180,9 +177,6 @@ class ShaderRenderTester
     // Whether to resolve image file name references before code generation
     bool _resolveImageFilenames;
     mx::StringResolverPtr _customFilenameResolver;
-
-    // Files to skip
-    mx::StringSet _skipFiles;
 
     // Color management information
     mx::ColorManagementSystemPtr _colorManagementSystem;

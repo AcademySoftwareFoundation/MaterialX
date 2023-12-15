@@ -16,9 +16,9 @@ class FileDialog
   public:
     enum Flags
     {
-        SelectDirectory   = 1 << 0, // select directory instead of regular file
-        EnterNewFilename  = 1 << 1, // allow user to enter new filename when selecting regular file
-        NoTitleBar        = 1 << 2, // hide window title bar
+        SelectDirectory = 1 << 0,  // select directory instead of regular file
+        EnterNewFilename = 1 << 1, // allow user to enter new filename when selecting regular file
+        NoTitleBar = 1 << 2,       // hide window title bar
     };
 
   public:

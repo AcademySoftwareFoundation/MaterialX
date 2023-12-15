@@ -23,7 +23,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const float MAX_FLOAT = std::numeric_limits<float>::max();
 const size_t FACE_VERTEX_COUNT = 3;
@@ -32,9 +33,10 @@ class VertexVector : public VectorN<VertexVector, float, 8>
 {
   public:
     using VectorN<VertexVector, float, 8>::VectorN;
-    VertexVector(const Vector3& p, const Vector3& n, const Vector2& t) : VectorN(Uninit{})
+    VertexVector(const Vector3& p, const Vector3& n, const Vector2& t) :
+        VectorN(Uninit{})
     {
-        _arr = {p[0], p[1], p[2], n[0], n[1], n[2], t[0], t[1]};
+        _arr = { p[0], p[1], p[2], n[0], n[1], n[2], t[0], t[1] };
     }
 };
 

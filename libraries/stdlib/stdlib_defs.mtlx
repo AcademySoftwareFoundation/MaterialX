@@ -3343,8 +3343,8 @@
   <!--
     Node: <overlay>
     Take two 1-4 channel inputs and apply the same operator to all channels:
-      2FB if F<0.5;
-      1-(1-F)(1-B) if F>=0.5
+      2FB if B<0.5;
+      1-2(1-F)(1-B) if B>=0.5
   -->
   <nodedef name="ND_overlay_float" node="overlay" nodegroup="compositing">
     <input name="fg" type="float" value="0.0" />

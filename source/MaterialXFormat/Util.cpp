@@ -234,7 +234,7 @@ FileSearchPath getDefaultDataSearchPath()
         }
         currentPath = currentPath.getParentPath();
     }
-    return FileSearchPath();    
+    return FileSearchPath();
 }
 
 MATERIALX_NAMESPACE_END

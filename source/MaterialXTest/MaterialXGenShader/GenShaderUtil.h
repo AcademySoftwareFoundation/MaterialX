@@ -52,6 +52,9 @@ void checkImplementations(mx::GenContext& context,
 // Utility test to  check unique name generation on a shader generator
 void testUniqueNames(mx::GenContext& context, const std::string& stage);
 
+// Utility to perfrom simple performance test to load, validate and generate shaders
+void shaderGenPerformanceTest(mx::GenContext& context);
+
 //
 // Render validation options. Reflects the _options.mtlx
 // file in the test suite area.
@@ -180,13 +183,13 @@ class ShaderGeneratorTester
     virtual void setTestStages() = 0;
 
     // Add files in to not examine
-    virtual void addSkipFiles();
+    virtual void addSkipFiles() { };
 
     // Add nodedefs to not examine
-    virtual void addSkipNodeDefs();
+    virtual void addSkipNodeDefs() { };
 
     // Add files to be skipped while loading libraries
-    virtual void addSkipLibraryFiles();
+    virtual void addSkipLibraryFiles() { };
 
     // Add color management
     virtual void addColorManagement();
@@ -267,8 +270,6 @@ class ShaderGeneratorTester
     std::unordered_map<std::string, mx::GenUserDataPtr> _userData;
     mx::StringSet _usedImplementations;
 };
-
-
 
 } // namespace GenShaderUtil
 
