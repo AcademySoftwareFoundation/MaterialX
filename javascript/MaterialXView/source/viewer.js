@@ -1035,7 +1035,7 @@ export class Viewer
     // Create shader generator, generation context and "base" document which
     // contains the standard definition libraries and lighting elements.
     //
-    async initialize(mtlxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    async initialize(mtlxIn, renderer, radianceTexture, irradianceTexture, lightRigXml)
     {
         this.mx = mtlxIn;
 
@@ -1047,30 +1047,30 @@ export class Viewer
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
         this.document.importLibrary(this.stdlib);
 
-        this.initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+        this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
 
-        loadedRadianceTexture.mapping = THREE.EquirectangularReflectionMapping;
-        this.getScene().setBackgroundTexture(loadedRadianceTexture);
+        radianceTexture.mapping = THREE.EquirectangularReflectionMapping;
+        this.getScene().setBackgroundTexture(radianceTexture);
     }
 
     //
     // Load in lighting rig document and register lights with generation context
     // Initialize environment lighting (IBLs).
     //
-    async initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    async initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml)
     {
         // Load lighting setup into document
         const mx = this.getMx();
         this.lightRigDoc = mx.createDocument();
-        await mx.readFromXmlString(this.lightRigDoc, loadedLightSetup);
+        await mx.readFromXmlString(this.lightRigDoc, lightRigXml);
         this.document.importLibrary(this.lightRigDoc);
 
         // Register lights with generation context
         this.lights = findLights(this.document);
         this.lightData = registerLights(mx, this.lights, this.genContext);
 
-        this.radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
-        this.irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
+        this.radianceTexture = prepareEnvTexture(radianceTexture, renderer.capabilities);
+        this.irradianceTexture = prepareEnvTexture(irradianceTexture, renderer.capabilities);
     }
 
     getEditor() {

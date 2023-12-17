@@ -85,18 +85,18 @@ function init()
     const hdrLoader = viewer.getHdrLoader();
     const fileLoader = viewer.getFileLoader();
     Promise.all([
-        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => hdrLoader.load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => hdrLoader.load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileLoader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
-        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(function (resolve) {
             MaterialX().then((module) => {
                 resolve(module);
             });
         }) 
-    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, mxIn]) => 
+    ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) => 
     {
         // Initialize viewer + lighting
-        await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+        await viewer.initialize(mxIn, renderer, radianceTexture, irradianceTexture, lightRigXml);
 
         // Load geometry  
         let scene = viewer.getScene();
