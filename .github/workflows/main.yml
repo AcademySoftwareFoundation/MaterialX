@@ -78,17 +78,17 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
-        - name: MacOS_Xcode_13_Python39
-          os: macos-12
-          compiler: xcode
-          compiler_version: "13.4"
-          python: 3.9
-
         - name: MacOS_Xcode_14_Python311
           os: macos-13
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
+
+        - name: MacOS_Xcode_15_Python312
+          os: macos-13
+          compiler: xcode
+          compiler_version: "15.0"
+          python: 3.12
           test_shaders: ON
 
         - name: iOS_Xcode_15
@@ -195,14 +195,13 @@ jobs:
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
-      run: find source \( -name *.h -o -name *.cpp -o -name *.mm \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+      run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
       run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
 
     - name: CMake Build
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: build
+      run: cmake --build build --target install --config Release --parallel 2
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
@@ -314,8 +313,7 @@ jobs:
 
     - name: JavaScript CMake Build
       if: matrix.build_javascript == 'ON'
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: javascript/build
+      run: cmake --build javascript/build --target install --config Release --parallel 2
     
     - name: JavaScript Unit Tests
       if: matrix.build_javascript == 'ON'

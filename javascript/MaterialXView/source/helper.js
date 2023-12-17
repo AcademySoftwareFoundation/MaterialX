@@ -19,59 +19,15 @@ const IMAGE_PATH_SEPARATOR = "/";
  */
 export function prepareEnvTexture(texture, capabilities)
 {
-    const rgbaTexture = RGBToRGBA_Float(texture);
-    rgbaTexture.wrapS = THREE.RepeatWrapping;
-    rgbaTexture.anisotropy = capabilities.getMaxAnisotropy();
-    rgbaTexture.minFilter = THREE.LinearMipmapLinearFilter;
-    rgbaTexture.magFilter = THREE.LinearFilter;
-    rgbaTexture.generateMipmaps = true;
-    rgbaTexture.needsUpdate = true;
+    let newTexture = new THREE.DataTexture(texture.image.data, texture.image.width, texture.image.height, texture.format, texture.type);
+    newTexture.wrapS = THREE.RepeatWrapping;
+    newTexture.anisotropy = capabilities.getMaxAnisotropy();
+    newTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    newTexture.magFilter = THREE.LinearFilter;
+    newTexture.generateMipmaps = true;
+    newTexture.needsUpdate = true;
 
-    return rgbaTexture;
-}
-
-/**
- * Create a new (half)float texture containing an alpha channel with a value of 1 from a RGB (half)float texture.
- * @param {THREE.Texture} texture
- */
-function RGBToRGBA_Float(texture)
-{
-    const w = texture.image.width;
-    const h = texture.image.height;
-    const dataSize = texture.image.data.length; 
-    const stride = dataSize / (w *h);
-    // No need to convert to RGBA if already 4 channel.
-    if (stride == 3)
-    {
-        const rgbData = texture.image.data;
-        const length = (rgbData.length / 3) * 4;
-        let rgbaData;
-
-        switch (texture.type)
-        {
-            case THREE.FloatType:
-                rgbaData = new Float32Array(length);
-                break;
-            case THREE.HalfFloatType:
-                rgbaData = new Uint16Array(length);
-                break;
-            default:
-                break;
-        }
-
-        if (rgbaData)
-        {
-            for (let i = 0; i < length / 4; i++)
-            {
-                rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
-                rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
-                rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
-                rgbaData[(i * 4) + 3] = 1.0;
-            }
-            return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
-        }
-    }
-    return texture;
+    return newTexture;
 }
 
 /**
