@@ -460,11 +460,9 @@ export class Editor
     // Create the editor
     initialize() 
     {
-        // Search document to find GUI elements and remove them
-        // If not done then multiple GUIs will be created from different
-        // threads.
         this.clearFolders();
-        this._gui.open();
+        this._gui.title("Property Editor");
+        this._gui.close();
         
         return this._gui;
     }
