@@ -1258,8 +1258,9 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
             group = NODE_GROUP_ORDER.back();
         }
 
-        // if the group is not in the groupList already (seeded by NODE_GROUP_ORDER) then add it.
-        if(std::find(groupList.begin(), groupList.end(), group) == groupList.end()) {
+        // If the group is not in the groupList already (seeded by NODE_GROUP_ORDER) then add it.
+        if (std::find(groupList.begin(), groupList.end(), group) == groupList.end())
+        {
             groupList.emplace_back(group);
         }
 
