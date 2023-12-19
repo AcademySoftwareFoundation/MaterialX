@@ -1248,6 +1248,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
 
     auto nodeDefs = doc->getNodeDefs();
     std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> groupToNodeDef;
+    std::vector<std::string> groupList = std::vector(NODE_GROUP_ORDER.begin(), NODE_GROUP_ORDER.end());
 
     for (const auto& nodeDef : nodeDefs)
     {
@@ -1257,6 +1258,12 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
             group = NODE_GROUP_ORDER.back();
         }
 
+        // If the group is not in the groupList already (seeded by NODE_GROUP_ORDER) then add it.
+        if (std::find(groupList.begin(), groupList.end(), group) == groupList.end())
+        {
+            groupList.emplace_back(group);
+        }
+
         if (groupToNodeDef.find(group) == groupToNodeDef.end())
         {
             groupToNodeDef[group] = std::vector<mx::NodeDefPtr>();
@@ -1264,7 +1271,7 @@ void Graph::createNodeUIList(mx::DocumentPtr doc)
         groupToNodeDef[group].push_back(nodeDef);
     }
 
-    for (const auto& group : NODE_GROUP_ORDER)
+    for (const auto& group : groupList)
     {
         auto it = groupToNodeDef.find(group);
         if (it != groupToNodeDef.end())
