@@ -9,7 +9,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
-import { GUI } from 'dat.gui';
+import GUI from 'lil-gui'; 
 
 const ALL_GEOMETRY_SPECIFIER = "*";
 const NO_GEOMETRY_SPECIFIER = "";
@@ -445,13 +445,10 @@ export class Editor
     //
     clearFolders()
     {
-        Array.from(document.getElementsByClassName('folder')).forEach(
+        Array.from(document.getElementsByClassName('lil-gui')).forEach(
             function (element, index, array) {
                 if (element.className) {
-                    let child = element.firstElementChild;
-                    if (child && child.className == 'dg') {
-                        element.remove();
-                    }
+                    element.remove();
                 }
             }
         );
@@ -466,16 +463,7 @@ export class Editor
         // Search document to find GUI elements and remove them
         // If not done then multiple GUIs will be created from different
         // threads.
-        Array.from(document.getElementsByClassName('dg')).forEach(
-            function (element, index, array) {
-                if (element.className) {
-                    element.remove();
-                }
-            }
-        );
-    
-        // Create new GUI.
-        this._gui = new GUI();
+        this.clearFolders();
         this._gui.open();
         
         return this._gui;
