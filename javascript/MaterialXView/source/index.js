@@ -41,7 +41,7 @@ function init()
     materialsSelect.value = materialFilename;
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
-        viewer.getEditor().clearFolders();
+        viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
@@ -122,7 +122,7 @@ function init()
 
     setLoadingCallback(file => {
         materialFilename = file.fullPath || file.name;
-        viewer.getEditor().clearFolders();
+        viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
