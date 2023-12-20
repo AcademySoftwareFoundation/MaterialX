@@ -724,7 +724,7 @@ export class Material
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
         // Always set to reduced as the parsing of uniforms can be very expensive in WebGL
-        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+        //genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
 
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
@@ -754,7 +754,7 @@ export class Material
             u_envMatrix: { value: getLightRotation() },
             u_envRadiance: { value: radianceTexture },
             u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
-            u_envRadianceSamples: { value: 16 },
+            u_envRadianceSamples: { value: 4 },
             u_envIrradiance: { value: irradianceTexture },
             u_refractionEnv: { value: true }
         });
@@ -776,7 +776,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -784,21 +784,61 @@ export class Material
         return newMaterial;
     }
 
+    updateEnvironmentSamples(value, uniform, controller) {
+        const isValid = (value & (value - 1)) === 0;
+
+        if (!isValid) {
+            if (value > 64)
+            {
+                uniform = 64;
+            }
+            else
+            { 
+                // If the value is not a power of 2, find the nearest power of 2
+                uniform = Math.pow(2, Math.round(Math.log2(value)));
+            }
+            // Update the GUI to reflect the change
+            controller.setValue(uniform);
+        }
+    }
+
     //
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui)
+    updateEditor(elem, shader, material, gui, viewer)
     {
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
-        var matUI = gui.addFolder(elemPath + ' Properties');
+
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
+
+        // Settings UI
+        var settingsUI = gui.addFolder('Settings');        
+        var envSampleUniform = material.uniforms["u_envRadianceSamples"];
+        var envSampleControl = settingsUI.add(envSampleUniform, 'value', 1).name('Environment Samples');        
+        if (envSampleControl)
+        {
+            envSampleControl.domElement.style.backgroundColor = '#333333';
+            envSampleControl.onFinishChange(value => 
+                this.updateEnvironmentSamples(value, envSampleUniform, envSampleControl));
+        }
+        var dummyBool = {
+            bool: true
+        };
+        var w = settingsUI.add(dummyBool, 'bool').name('Show Environment').onChange(function (value) {
+            viewer.getScene().toggleBackgroundTexture();
+        });
+        w.domElement.style.backgroundColor = '#333333';
+        settingsUI.close();        
+
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
 
+        // Material UI
         var folderList = new Map();
+        var matUI = gui.addFolder(elemPath + ' Properties');
         folderList[elemPath] = matUI;
 
         uniformBlocks.forEach(uniforms => 
@@ -825,8 +865,13 @@ export class Material
                         continue;
                     }
 
-                    let currentNode = currentElem ? currentElem.getParent() : null;
-                    let uiname;
+                    let currentNode = null;
+                    if (currentElem.getParent() && currentElem.getParent().getNamePath() != "")
+                    { 
+                        currentNode = currentElem.getParent();
+                    }
+                    let uiname = "";
+                    let nodeDefInput = null;
                     if (currentNode) {
 
                         let currentNodePath = currentNode.getNamePath();
@@ -843,10 +888,10 @@ export class Material
                         // Check for ui attributes
                         var nodeDef = currentNode.getNodeDef();
                         if (nodeDef) {
-                            let input = nodeDef.getActiveInput(name);
-                            if (input) {
-                                uiname = input.getAttribute('uiname');
-                                let uifolderName = input.getAttribute('uifolder');
+                            nodeDefInput = nodeDef.getActiveInput(name);
+                            if (nodeDefInput) {
+                                uiname = nodeDefInput.getAttribute('uiname');
+                                let uifolderName = nodeDefInput.getAttribute('uifolder');
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
@@ -895,22 +940,57 @@ export class Material
 
                         case 'float':
                             uniformToUpdate = material.uniforms[name];
+                            var minValue = 0.0;
+                            var maxValue = 100.0;
+                            var step = 0;
+                            if (nodeDefInput) {
+                                if (nodeDefInput.hasAttribute('uimin'))
+                                    minValue = parseFloat(nodeDefInput.getAttribute('uimin'));
+                                if (nodeDefInput.hasAttribute('uimax'))
+                                    maxValue = parseFloat(nodeDefInput.getAttribute('uimax'));
+                                if (nodeDefInput.hasAttribute('uistep'))
+                                    step = parseFloat(nodeDefInput.getAttribute('uistep'));
+                            }
+                            if (step == 0)
+                            {
+                                step = (maxValue - minValue) / 1000.0;
+                            }
+                            //console.log(name, minValue, maxValue, step);
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                var w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                w.domElement.style.backgroundColor = '#333333';
                             }
                             break;
 
                         case 'integer':
+                            var minValue = 0;
+                            var maxValue = 100;
+                            var step = 0;
+                            if (nodeDefInput) {
+                                if (nodeDefInput.hasAttribute('uimin'))
+                                    minValue = parseInt(nodeDefInput.getAttribute('uimin'));
+                                if (nodeDefInput.hasAttribute('uimax'))
+                                    maxValue = parseInt(nodeDefInput.getAttribute('uimax'));
+                                if (nodeDefInput.hasAttribute('uistep'))
+                                    step = parseInt(nodeDefInput.getAttribute('uistep'));
+                            }
+                            if (step == 0)
+                            {
+                                step = 1 / (maxValue - minValue);
+                            }
+                            //console.log(name, minValue, maxValue);
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                var w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                w.domElement.style.backgroundColor = '#333333';
                             }
                             break;
 
                         case 'boolean':
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                var w = currentFolder.add(material.uniforms[name], 'value').name(path);
+                                w.domElement.style.backgroundColor = '#333333';
                             }
                             break;
 
@@ -921,7 +1001,8 @@ export class Material
                             if (uniformToUpdate && value != null) {
                                 let vecFolder = currentFolder.addFolder(path);
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
-                                    vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
+                                    var w = vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
+                                    w.domElement.style.backgroundColor = '#333333';
                                 })
                             }
                             break;
@@ -959,11 +1040,15 @@ export class Material
                                 item = currentFolder.add(material.uniforms[name], 'value');
                                 item.name(path);
                                 item.readonly(true);
+                                item.domElement.style.backgroundColor = '#333333';
                             }
                             break;
                         default:
                             break;
                     }
+
+                    // Start with sub-folders closed
+                    currentFolder.close();
                 }
             }
         });
