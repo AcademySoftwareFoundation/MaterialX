@@ -416,6 +416,21 @@ export class Scene
 */
 export class Editor
 {
+    // Initialize the editor, clearing any elements from previous materials.
+    initialize()
+    {
+        Array.from(document.getElementsByClassName('lil-gui')).forEach(
+            function (element, index, array) {
+                if (element.className) {
+                    element.remove();
+                }
+            }
+        );
+
+        this._gui = new GUI( { title: "Property Editor" } );
+        this._gui.close();
+    }
+
     // Update ui properties
     // - Hide close button
     // - Update transparency so scene shows through if overlapping
@@ -439,34 +454,6 @@ export class Editor
         }
     }
 
-    //
-    // Clear folders with children contain elements for any previous material
-    // and recreate top gui.
-    //
-    clearFolders()
-    {
-        Array.from(document.getElementsByClassName('lil-gui')).forEach(
-            function (element, index, array) {
-                if (element.className) {
-                    element.remove();
-                }
-            }
-        );
-
-        // Create new GUI.
-        this._gui = new GUI();
-    }
-
-    // Create the editor
-    initialize() 
-    {
-        this.clearFolders();
-        this._gui.title("Property Editor");
-        this._gui.close();
-        
-        return this._gui;
-    }
-    
     getGUI() 
     {
         return this._gui;
