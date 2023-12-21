@@ -395,7 +395,7 @@ export class Scene
     #_camera = null;
 
     // Background color
-    #_backgroundColor = 0x4c4c52;
+    #_backgroundColor = "rgb(128, 128, 128)";
 
     // Background texture
     #_backgroundTexture = null;
@@ -429,6 +429,19 @@ export class Editor
 
         this._gui = new GUI( { title: "Property Editor" } );
         this._gui.close();
+
+        this.folderColor = '#333333';
+        this.itemColor = '#334444';
+    }
+
+    getFolderColor()
+    {
+        return this.folderColor;
+    }
+
+    getItemColor()
+    {
+        return this.itemColor;
     }
 
     // Update ui properties
@@ -644,6 +657,8 @@ export class Material
             }
         }
         
+        viewer.updateUISettings(viewer.getEditor().getGUI());
+
         // Create a new shader for each material node.
         // Only create the shader once even if assigned more than once.
         var startGenTime = performance.now();
@@ -724,7 +739,7 @@ export class Material
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
         // Always set to reduced as the parsing of uniforms can be very expensive in WebGL
-        //genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
 
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
@@ -754,7 +769,7 @@ export class Material
             u_envMatrix: { value: getLightRotation() },
             u_envRadiance: { value: radianceTexture },
             u_envRadianceMips: { value: Math.trunc(Math.log2(Math.max(radianceTexture.image.width, radianceTexture.image.height))) + 1 },
-            u_envRadianceSamples: { value: 4 },
+            u_envRadianceSamples: { value: viewer.getEnvironmentSampleCount() },
             u_envIrradiance: { value: irradianceTexture },
             u_refractionEnv: { value: true }
         });
@@ -782,25 +797,7 @@ export class Material
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
 
         return newMaterial;
-    }
-
-    updateEnvironmentSamples(value, uniform, controller) {
-        const isValid = (value & (value - 1)) === 0;
-
-        if (!isValid) {
-            if (value > 64)
-            {
-                uniform = 64;
-            }
-            else
-            { 
-                // If the value is not a power of 2, find the nearest power of 2
-                uniform = Math.pow(2, Math.round(Math.log2(value)));
-            }
-            // Update the GUI to reflect the change
-            controller.setValue(uniform);
-        }
-    }
+    }    
 
     //
     // Update property editor for a given MaterialX element, it's shader, and
@@ -811,34 +808,21 @@ export class Material
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
-
-        const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
-
-        // Settings UI
-        var settingsUI = gui.addFolder('Settings');        
-        var envSampleUniform = material.uniforms["u_envRadianceSamples"];
-        var envSampleControl = settingsUI.add(envSampleUniform, 'value', 1).name('Environment Samples');        
-        if (envSampleControl)
-        {
-            envSampleControl.domElement.style.backgroundColor = '#333333';
-            envSampleControl.onFinishChange(value => 
-                this.updateEnvironmentSamples(value, envSampleUniform, envSampleControl));
-        }
-        var dummyBool = {
-            bool: true
-        };
-        var w = settingsUI.add(dummyBool, 'bool').name('Show Environment').onChange(function (value) {
-            viewer.getScene().toggleBackgroundTexture();
-        });
-        w.domElement.style.backgroundColor = '#333333';
-        settingsUI.close();        
+ 
+        const itemColor = viewer.getEditor().getItemColor();
+        const folderColor = viewer.getEditor().getFolderColor();
 
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
 
         // Material UI
+        const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var folderList = new Map();
         var matUI = gui.addFolder(elemPath + ' Properties');
+        var dom = matUI.domElement;
+        var title = dom.querySelector('.title');
+        title.style.backgroundColor = folderColor;
+
         folderList[elemPath] = matUI;
 
         uniformBlocks.forEach(uniforms => 
@@ -958,7 +942,7 @@ export class Material
                             //console.log(name, minValue, maxValue, step);
                             if (uniformToUpdate && value != null) {
                                 var w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
-                                w.domElement.style.backgroundColor = '#333333';
+                                w.domElement.style.backgroundColor = itemColor;
                             }
                             break;
 
@@ -982,7 +966,7 @@ export class Material
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
                                 var w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
-                                w.domElement.style.backgroundColor = '#333333';
+                                w.domElement.style.backgroundColor = itemColor;
                             }
                             break;
 
@@ -990,7 +974,7 @@ export class Material
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
                                 var w = currentFolder.add(material.uniforms[name], 'value').name(path);
-                                w.domElement.style.backgroundColor = '#333333';
+                                w.domElement.style.backgroundColor = itemColor;
                             }
                             break;
 
@@ -1002,7 +986,7 @@ export class Material
                                 let vecFolder = currentFolder.addFolder(path);
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
                                     var w = vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
-                                    w.domElement.style.backgroundColor = '#333333';
+                                    w.domElement.style.backgroundColor = itemColor;
                                 })
                             }
                             break;
@@ -1017,12 +1001,13 @@ export class Material
                                 const color3 = new THREE.Color(dummy.color);
                                 color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
-                                currentFolder.addColor(dummy, 'color').name(path)
+                                let w = currentFolder.addColor(dummy, 'color').name(path)
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
                                     }
                                     );
+                                w.domElement.style.backgroundColor = itemColor;
                             }
                             break;
 
@@ -1040,7 +1025,7 @@ export class Material
                                 item = currentFolder.add(material.uniforms[name], 'value');
                                 item.name(path);
                                 item.readonly(true);
-                                item.domElement.style.backgroundColor = '#333333';
+                                item.domElement.style.backgroundColor = itemColor;
                             }
                             break;
                         default:
@@ -1087,6 +1072,14 @@ export class Viewer
 
         this.fileLoader = new THREE.FileLoader();
         this.hdrLoader = new RGBELoader();    
+
+        // Options
+        this.envSampleCount = 4;
+    }
+
+    getEnvironmentSampleCount()
+    {
+        return this.envSampleCount;
     }
 
     //
@@ -1129,6 +1122,75 @@ export class Viewer
 
         this.radianceTexture = prepareEnvTexture(radianceTexture, renderer.capabilities);
         this.irradianceTexture = prepareEnvTexture(irradianceTexture, renderer.capabilities);
+    }
+
+    updateEnvironmentSamples(sampleCount, controller) {
+        if (!sampleCount)
+        {
+            return;
+        } 
+
+        if (sampleCount > 64)
+        {
+            sampleCount = 64;
+        }
+        else
+        { 
+            // If the value is not a power of 2, find the nearest power of 2
+            sampleCount = Math.pow(2, Math.round(Math.log2(sampleCount)));
+        }
+
+        // Update all shader uniforms
+        for (let i = 0; i < this.materials.length; i++)
+        {
+            let material = this.materials[i];
+            if (material)
+            {
+                for (let j = 0; j < material._materials.length; j++)
+                {
+                    if (material._materials[j])
+                    {
+                        let shader = material._materials[j].getShader();
+                        shader.uniforms["u_envRadianceSamples"] = { value: sampleCount };
+                    }
+                }
+            } 
+        }
+
+        // Update the GUI to reflect the change
+        controller.setValue(sampleCount);
+
+        this.envSampleCount = sampleCount;
+    }
+
+    // Update UI settings
+    updateUISettings(gui)
+    {
+        // Settings UI
+        var settingsUI = gui.addFolder('Settings');
+        var settingsUIDom = settingsUI.domElement;
+        var title = settingsUIDom.querySelector('.title');
+        title.style.backgroundColor = this.getEditor().getFolderColor();
+
+        var dummy = {
+            value: this.envSampleCount
+        };
+        var envSampleControl = settingsUI.add(dummy, 'value', 1);
+        if (envSampleControl)
+        {
+            envSampleControl.name('Environment Samples');        
+            envSampleControl.domElement.style.backgroundColor = this.getEditor().getItemColor();
+            envSampleControl.onFinishChange(value => 
+                this.updateEnvironmentSamples(value, envSampleControl));
+        }
+        var dummyBool = {
+            bool: this.getScene().getShowBackgroundTexture()
+        };
+        var w = settingsUI.add(dummyBool, 'bool').name('Show Environment');
+        w.onChange(value => this.getScene().toggleBackgroundTexture());
+        w.domElement.style.backgroundColor = this.getEditor().getItemColor();
+
+        settingsUI.close();
     }
 
     getEditor() {

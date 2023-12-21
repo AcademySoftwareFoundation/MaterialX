@@ -10,11 +10,12 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 import { Viewer } from './viewer.js'
 import { dropHandler, dragOverHandler, setLoadingCallback } from './dropHandling.js';
 
-let renderer, composer, orbitControls;
+let renderer = null, composer = null, orbitControls = null, fxaaPass = null;
 
 // Turntable option. For now the step size is fixed.
 let turntableEnabled = false;
@@ -68,6 +69,18 @@ function init()
     composer.addPass(renderPass);
     const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
     composer.addPass(gammaCorrectionPass);
+
+    // Leave off for now as it does not seem to help that much and slows down rendering
+    // a fair bit.
+    var wantAntialias = false;
+    if (wantAntialias)
+    {
+        console.log("Using FXAA antialiasing");
+        fxaaPass = new ShaderPass(FXAAShader);
+        const pixelRatio = renderer.getPixelRatio();
+        fxaaPass.material.uniforms['resolution'].value.set(1 / (pixelRatio*window.innerWidth), 1 / (pixelRatio*window.innerHeight));
+        composer.addPass(fxaaPass);
+    }
 
     window.addEventListener('resize', onWindowResize);
 
@@ -137,6 +150,15 @@ function onWindowResize()
     viewer.getScene().updateCamera();
     viewer.getScene().setUpdateTransforms(); 
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Update FXAA pass
+    if (fxaaPass)
+    {
+        composer.setSize(window.innerWidth, window.innerHeight);
+        const pixelRatio = renderer.getPixelRatio();
+        fxaaPass.material.uniforms['resolution'].value.set(1 / ( window.innerWidth * pixelRatio), 1 / 
+        ( window.innerHeight * pixelRatio ));   
+    }
 }
 
 function animate() 
