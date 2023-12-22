@@ -723,8 +723,10 @@ export class Material
         var startTranspCheckTime = performance.now();
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
-        // Always set to reduced as the parsing of uniforms can be very expensive in WebGL
-        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+        // Always set to complete. 
+        // Can consider option to set to reduced as the parsing of large numbers of uniforms (e.g. on shading models)
+        // can be quite expensive.
+        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
 
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
@@ -776,7 +778,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -790,6 +792,9 @@ export class Material
     //
     updateEditor(elem, shader, material, gui)
     {
+        const DEFAULT_MIN = 0;
+        const DEFAULT_MAX = 100;
+
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
@@ -825,8 +830,13 @@ export class Material
                         continue;
                     }
 
-                    let currentNode = currentElem ? currentElem.getParent() : null;
-                    let uiname;
+                    let currentNode = null;
+                    if (currentElem.getParent() && currentElem.getParent().getNamePath() != "")
+                    { 
+                        currentNode = currentElem.getParent();
+                    }
+                    let uiname = "";
+                    let nodeDefInput = null;
                     if (currentNode) {
 
                         let currentNodePath = currentNode.getNamePath();
@@ -843,15 +853,25 @@ export class Material
                         // Check for ui attributes
                         var nodeDef = currentNode.getNodeDef();
                         if (nodeDef) {
-                            let input = nodeDef.getActiveInput(name);
-                            if (input) {
-                                uiname = input.getAttribute('uiname');
-                                let uifolderName = input.getAttribute('uifolder');
+                            // Remove node name from shader uniform name for non root nodes
+                            let lookup_name = name.replace(currentNode.getName() + '_', '');
+                            nodeDefInput = nodeDef.getActiveInput(lookup_name);
+                            if (nodeDefInput) 
+                            {
+                                uiname = nodeDefInput.getAttribute('uiname');
+                                let uifolderName = nodeDefInput.getAttribute('uifolder');
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
                                     if (!currentFolder) {
-                                        currentFolder = matUI.addFolder(uifolderName);
+                                        if (nodeDefInput.hasAttribute('uiadvanced'))
+                                        {
+                                            currentFolder = matUI.addFolder(uifolderName + " (Advanced)");
+                                        }
+                                        else
+                                        {
+                                            currentFolder = matUI.addFolder(uifolderName);
+                                        }
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -896,14 +916,86 @@ export class Material
                         case 'float':
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+
+                                var minValue = DEFAULT_MIN;
+                                if (value < minValue)
+                                {
+                                    minValue = value;
+                                }
+                                var maxValue = DEFAULT_MAX;
+                                if (value > maxValue)
+                                {
+                                    maxValue = value;
+                                }
+                                var step = 0;
+                                if (nodeDefInput) {
+                                    if (nodeDefInput.hasAttribute('uimin'))
+                                        minValue = parseFloat(nodeDefInput.getAttribute('uimin'));
+                                    if (nodeDefInput.hasAttribute('uimax'))
+                                        maxValue = parseFloat(nodeDefInput.getAttribute('uimax'));
+                                    if (nodeDefInput.hasAttribute('uistep'))
+                                        step = parseFloat(nodeDefInput.getAttribute('uistep'));
+                                }
+                                if (step == 0)
+                                {
+                                    step = (maxValue - minValue) / 1000.0;
+                                }
+                                currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
                             }
                             break;
 
                         case 'integer':
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+
+                                var minValue = DEFAULT_MIN;
+                                if (value < minValue)
+                                {
+                                    minValue = value;
+                                }
+                                var maxValue = DEFAULT_MAX;
+                                if (value > maxValue)
+                                {
+                                    maxValue = value;
+                                }
+                                var step = 0;
+                                var enumList = []
+                                if (nodeDefInput) {
+                                    if (nodeDefInput.hasAttribute('enum'))
+                                    {
+                                        enumList = nodeDefInput.getAttribute('enum').split(',');
+                                    }
+                                    else
+                                    {
+                                        if (nodeDefInput.hasAttribute('uimin'))
+                                            minValue = parseInt(nodeDefInput.getAttribute('uimin'));
+                                        if (nodeDefInput.hasAttribute('uimax'))
+                                            maxValue = parseInt(nodeDefInput.getAttribute('uimax'));
+                                        if (nodeDefInput.hasAttribute('uistep'))
+                                            step = parseInt(nodeDefInput.getAttribute('uistep'));
+                                    }
+                                }
+                                if (enumList.length == 0)
+                                {
+                                    if (step == 0)
+                                    {
+                                        step = 1 / (maxValue - minValue);
+                                        step = Math.ceil(step);
+                                        if (step == 0)
+                                        {
+                                            step = 1;
+                                        }
+                                    }
+                                }
+                                if (enumList.length == 0)
+                                {
+                                    currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                }    
+                                else
+                                {
+                                    // TODO: Add enum support
+                                    currentFolder.add(material.uniforms[name], 'value' ).name(path);
+                                }
                             }
                             break;
 
@@ -919,9 +1011,30 @@ export class Material
                         case 'vector4':
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null) {
+                                var minValue = [DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN];
+                                var maxValue = [DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX];
+                                var step = [0, 0, 0, 0];
+
+                                if (nodeDefInput) 
+                                {
+                                    if (nodeDefInput.hasAttribute('uimin'))
+                                        minValue = nodeDefInput.getAttribute('uimin').split(',').map(Number);
+                                    if (nodeDefInput.hasAttribute('uimax'))
+                                        maxValue = nodeDefInput.getAttribute('uimax').split(',').map(Number);
+                                    if (nodeDefInput.hasAttribute('uistep'))
+                                            step = nodeDefInput.getAttribute('uistep').split(',').map(Number);
+                                }
+                                for (let i = 0; i < 4; ++i) {
+                                    if (step[i] == 0) {
+                                        step[i] = 1 / (maxValue[i] - minValue[i]);
+                                    }
+                                }
+
+                                const keyString = ["x", "y", "z", "w"];
                                 let vecFolder = currentFolder.addFolder(path);
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
-                                    vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
+                                    let w = vecFolder.add(material.uniforms[name].value, 
+                                        key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
                                 })
                             }
                             break;
