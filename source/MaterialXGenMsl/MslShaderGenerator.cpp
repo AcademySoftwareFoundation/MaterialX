@@ -1060,9 +1060,9 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         }
 
         // Emit environment pre-convolution code
-        if (context.getOptions().hwWriteEnvPreConvolution)
+        if (context.getOptions().hwWriteEnvPrefilter)
         {
-            emitLibraryInclude("pbrlib/genglsl/lib/mx_pre_convolve_environment.glsl", context, stage);
+            emitLibraryInclude("pbrlib/genglsl/lib/mx_prefilter_environment.glsl", context, stage);
             emitLineBreak(stage);
         }
 
@@ -1111,9 +1111,9 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         {
             emitLine(outputSocket->getVariable() + " = float4(mx_generate_dir_albedo_table(), 1.0)", stage);
         }
-        else if (context.getOptions().hwWriteEnvPreConvolution)
+        else if (context.getOptions().hwWriteEnvPrefilter)
         {
-            emitLine(outputSocket->getVariable() + " = float4(mx_pre_convolve_environment(), 1.0)", stage);
+            emitLine(outputSocket->getVariable() + " = float4(mx_prefilter_environment(), 1.0)", stage);
         }
         else
         {

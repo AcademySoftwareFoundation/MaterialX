@@ -363,7 +363,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     }
 
     // Add uniforms for the environment pre-convolution
-    if (context.getOptions().hwWriteEnvPreConvolution)
+    if (context.getOptions().hwWriteEnvPrefilter)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_CONVOLUTION_MIP_LEVEL, Value::createValue<int>(1));

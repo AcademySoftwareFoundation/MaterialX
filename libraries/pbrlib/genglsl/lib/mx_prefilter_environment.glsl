@@ -71,7 +71,7 @@ void sample_ggx_dir(vec2 u, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
     L = localToWorld * localL;
 }
 
-vec3 mx_pre_convolve_environment()
+vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $convolutionMipLevel) / vec2(2048.0, 1024.0);
     if ($convolutionMipLevel == 0)

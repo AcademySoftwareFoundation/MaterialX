@@ -37,7 +37,7 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envPreConvolvedMap(nullptr),
+        _envPrefilteredMap(nullptr),
         _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
         _refractionTwoSided(false)
     {
@@ -103,27 +103,27 @@ class MX_RENDER_API LightHandler
     }
 
     /// Set the environment radiance map for the pre-convolved environment lighting model.
-    void setEnvPreConvolvedMap(ImagePtr map)
+    void setEnvPrefilteredMap(ImagePtr map)
     {
-        _envPreConvolvedMap = map;
+        _envPrefilteredMap = map;
     }
 
     /// Return the environment radiance map for the pre-convolved environment lighting model.
-    ImagePtr getEnvPreConvolvedMap() const
+    ImagePtr getEnvPrefilteredMap() const
     {
-        return _envPreConvolvedMap;
+        return _envPrefilteredMap;
     }
 
     /// Set whether to use the pre-convolved environment lighting model.
-    void setUsePreConvolvedMap(bool val)
+    void setUsePrefilteredMap(bool val)
     {
-        _usePreConvolvedMap = val;
+        _usePrefilteredMap = val;
     }
 
     /// Return whether to use the pre-convolved environment lighting model.
-    bool getUsePreConvolvedMap()
+    bool getUsePrefilteredMap()
     {
-        return _usePreConvolvedMap;
+        return _usePrefilteredMap;
     }
 
     /// Set the environment irradiance map
@@ -241,10 +241,10 @@ class MX_RENDER_API LightHandler
     Matrix44 _lightTransform;
     bool _directLighting;
     bool _indirectLighting;
-    bool _usePreConvolvedMap;
+    bool _usePrefilteredMap;
 
     ImagePtr _envRadianceMap;
-    ImagePtr _envPreConvolvedMap;
+    ImagePtr _envPrefilteredMap;
     ImagePtr _envIrradianceMap;
     int _envSampleCount;
 

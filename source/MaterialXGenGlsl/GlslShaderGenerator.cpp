@@ -553,7 +553,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     bool lighting = requiresLighting(graph);
 
     // Define directional albedo approach
-    if (lighting || context.getOptions().hwWriteAlbedoTable || context.getOptions().hwWriteEnvPreConvolution)
+    if (lighting || context.getOptions().hwWriteAlbedoTable || context.getOptions().hwWriteEnvPrefilter)
     {
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
@@ -592,9 +592,9 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
 
     // Emit environment pre-convolution code
-    if (context.getOptions().hwWriteEnvPreConvolution)
+    if (context.getOptions().hwWriteEnvPrefilter)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_pre_convolve_environment.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_prefilter_environment.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -643,9 +643,9 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_generate_dir_albedo_table(), 1.0)", stage);
     }
-    else if (context.getOptions().hwWriteEnvPreConvolution)
+    else if (context.getOptions().hwWriteEnvPrefilter)
     {
-        emitLine(outputSocket->getVariable() + " = vec4(mx_pre_convolve_environment(), 1.0)", stage);
+        emitLine(outputSocket->getVariable() + " = vec4(mx_prefilter_environment(), 1.0)", stage);
     }
     else
     {

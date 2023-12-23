@@ -42,6 +42,6 @@ EMSCRIPTEN_BINDINGS(GenOptions)
         .property("hwMaxActiveLightSources", &mx::GenOptions::hwMaxActiveLightSources)
         .property("hwNormalizeUdimTexCoords", &mx::GenOptions::hwNormalizeUdimTexCoords)
         .property("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
-        .property("hwWriteEnvPreConvolution", &mx::GenOptions::hwWriteEnvPreConvolution)
+        .property("hwWriteEnvPrefilter", &mx::GenOptions::hwWriteEnvPrefilter)
         ;
 }

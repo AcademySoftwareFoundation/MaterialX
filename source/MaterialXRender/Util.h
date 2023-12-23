@@ -48,7 +48,7 @@ MX_RENDER_API ShaderPtr createAlbedoTableShader(GenContext& context,
                                                 const string& shaderName);
 
 /// Create a shader that generates a pre-convolution map for environment lighting.
-MX_RENDER_API ShaderPtr createEnvPreConvolutionShader(GenContext& context,
+MX_RENDER_API ShaderPtr createEnvPrefilterShader(GenContext& context,
                                   DocumentPtr stdLib,
                                   const string& shaderName);
 

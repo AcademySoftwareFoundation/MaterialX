@@ -116,7 +116,7 @@ void GLRenderPipeline::convolveEnvironment()
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
 
-    if (lightHandler->getEnvPreConvolvedMap())
+    if (lightHandler->getEnvPrefilteredMap())
     {
         return;
     }
@@ -125,7 +125,7 @@ void GLRenderPipeline::convolveEnvironment()
     mx::GlslMaterialPtr material = nullptr;
     try
     {
-        mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
+        mx::ShaderPtr hwShader = mx::createEnvPrefilterShader(genContext, _viewer->_stdLib, "__ENV_PREFILTER__");
         material = mx::GlslMaterial::create();
         material->generateShader(hwShader);
     }
@@ -186,7 +186,7 @@ void GLRenderPipeline::convolveEnvironment()
     glViewport(0, 0, _viewer->m_fbsize[0], _viewer->m_fbsize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-    lightHandler->setEnvPreConvolvedMap(outTex);
+    lightHandler->setEnvPrefilteredMap(outTex);
 }
 
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
@@ -299,7 +299,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
 
-    if (lightHandler->getUsePreConvolvedMap())
+    if (lightHandler->getUsePrefilteredMap())
     {
         convolveEnvironment();
     }

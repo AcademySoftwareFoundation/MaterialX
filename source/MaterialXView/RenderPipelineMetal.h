@@ -50,7 +50,7 @@ class MetalRenderPipeline : public RenderPipeline
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
     mx::MetalFramebufferPtr  _shadowMapFramebuffer;
-    mx::MetalFramebufferPtr  _preConvolutionFramebuffer;
+    mx::MetalFramebufferPtr  _prefilterFramebuffer;
     mx::ImagePtr             _shadowMap[SHADOWMAP_TEX_COUNT];
     void convolveEnvironment();
 };

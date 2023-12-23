@@ -76,7 +76,7 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
     return shader;
 }
 
-ShaderPtr createEnvPreConvolutionShader(GenContext& context,
+ShaderPtr createEnvPrefilterShader(GenContext& context,
                                         DocumentPtr stdLib,
                                         const string& shaderName)
 {
@@ -90,7 +90,7 @@ ShaderPtr createEnvPreConvolutionShader(GenContext& context,
 
     // Generate the shader
     GenContext tableContext = context;
-    tableContext.getOptions().hwWriteEnvPreConvolution = true;
+    tableContext.getOptions().hwWriteEnvPrefilter = true;
     ShaderPtr shader = createShader(shaderName, tableContext, output);
 
     return shader;

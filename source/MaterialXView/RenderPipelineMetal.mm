@@ -161,7 +161,7 @@ void MetalRenderPipeline::convolveEnvironment()
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
 
-    if (lightHandler->getEnvPreConvolvedMap())
+    if (lightHandler->getEnvPrefilteredMap())
     {
         return;
     }
@@ -177,7 +177,7 @@ void MetalRenderPipeline::convolveEnvironment()
 
 
     // Create framebuffer.
-    _preConvolutionFramebuffer = mx::MetalFramebuffer::create(
+    _prefilterFramebuffer = mx::MetalFramebuffer::create(
         MTL(device),
         w, h,
         4,
@@ -185,10 +185,10 @@ void MetalRenderPipeline::convolveEnvironment()
         metalTex
     );
 
-    MTL_PUSH_FRAMEBUFFER(_preConvolutionFramebuffer);
+    MTL_PUSH_FRAMEBUFFER(_prefilterFramebuffer);
 
     // Create shader.
-    mx::ShaderPtr hwShader = mx::createEnvPreConvolutionShader(genContext, _viewer->_stdLib, "__ENV_PRE_CONVOLUTION__");
+    mx::ShaderPtr hwShader = mx::createEnvPrefilterShader(genContext, _viewer->_stdLib, "__ENV_PREFILTER__");
     mx::MslMaterialPtr material = mx::MslMaterial::create();
     try
     {
@@ -209,7 +209,7 @@ void MetalRenderPipeline::convolveEnvironment()
         [desc.colorAttachments[0] setLevel:i];
         [desc.colorAttachments[0] setLoadAction:MTLLoadActionDontCare];
         [desc.colorAttachments[0] setStoreAction:MTLStoreActionStore];
-        [desc.depthAttachment setTexture:_preConvolutionFramebuffer->getDepthTexture()];
+        [desc.depthAttachment setTexture:_prefilterFramebuffer->getDepthTexture()];
         [desc.depthAttachment setLoadAction:MTLLoadActionDontCare];
         [desc.depthAttachment setStoreAction:MTLStoreActionDontCare];
         [desc setStencilAttachment:nil];
@@ -217,19 +217,19 @@ void MetalRenderPipeline::convolveEnvironment()
         MTL(beginEncoder(desc));
         [MTL(renderCmdEncoder) setDepthStencilState:MTL_DEPTHSTENCIL_STATE(opaque)];
 
-        _preConvolutionFramebuffer->bind(desc);
+        _prefilterFramebuffer->bind(desc);
         material->bindShader();
         material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
 
-        bool prevValue = lightHandler->getUsePreConvolvedMap();
-        lightHandler->setUsePreConvolvedMap(false);
+        bool prevValue = lightHandler->getUsePrefilteredMap();
+        lightHandler->setUsePrefilteredMap(false);
         material->getProgram()->prepareUsedResources(
                         MTL(renderCmdEncoder),
                         _viewer->_identityCamera,
                         nullptr,
                         imageHandler,
                         lightHandler);
-        lightHandler->setUsePreConvolvedMap(prevValue);
+        lightHandler->setUsePrefilteredMap(prevValue);
 
         _viewer->renderScreenSpaceQuad(material);
 
@@ -243,7 +243,7 @@ void MetalRenderPipeline::convolveEnvironment()
 
     MTL_POP_FRAMEBUFFER();
 
-    lightHandler->setEnvPreConvolvedMap(outTex);
+    lightHandler->setEnvPrefilteredMap(outTex);
 }
 
 mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
@@ -406,7 +406,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
     
-    if (lightHandler->getUsePreConvolvedMap())
+    if (lightHandler->getUsePrefilteredMap())
     {
         convolveEnvironment();
     }
