@@ -4,9 +4,12 @@
 float mx_lod_to_alpha(float lod)
 {
     float lodBias = lod / float($envRadianceMips);
-    if (lodBias < 0.5) {
+    if (lodBias < 0.5)
+    {
         return lodBias * lodBias;
-    } else {
+    }
+    else
+    {
         return 2.0 * (lodBias - 0.375);
     }
 }
@@ -44,16 +47,8 @@ vec3 spherical_to_cartesian(float phi, float cosTheta)
     return vec3(x, y, z);
 }
 
-void sample_ggx_dir(
-    vec2 u,
-    vec3 V,
-    mat3 localToWorld,
-    float alpha,
-    out vec3 L,
-    out float NdotL,
-    out float NdotH,
-    out float VdotH
-)
+void sample_ggx_dir(vec2 u, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
+                    out float NdotL, out float NdotH, out float VdotH)
 {
     // GGX NDF sampling
     float cosTheta = sqrt((1.0 - u.x) / (1.0 + (alpha * alpha - 1.0) * u.x));
@@ -79,7 +74,8 @@ void sample_ggx_dir(
 vec3 mx_pre_convolve_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $convolutionMipLevel) / vec2(2048.0, 1024.0);
-    if ($convolutionMipLevel == 0) {
+    if ($convolutionMipLevel == 0)
+    {
         return textureLod($envRadiance, uv, 0).rgb;
     }
 
@@ -96,7 +92,7 @@ vec3 mx_pre_convolve_environment()
     int sampleCount = 1597; // Must be a Fibonacci number
 
     vec3 lightInt = vec3(0.0, 0.0, 0.0);
-    float  cbsdfInt = 0.0;
+    float cbsdfInt = 0.0;
 
     for (int i = 0; i < sampleCount; ++i)
     {
