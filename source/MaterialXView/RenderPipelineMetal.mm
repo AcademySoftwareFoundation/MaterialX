@@ -221,15 +221,15 @@ void MetalRenderPipeline::convolveEnvironment()
         material->bindShader();
         material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
 
-        bool prevValue = lightHandler->getUsePreConvolvedEnvLighting();
-        lightHandler->setUsePreConvolvedEnvLighting(false);
+        bool prevValue = lightHandler->getUsePreConvolvedMap();
+        lightHandler->setUsePreConvolvedMap(false);
         material->getProgram()->prepareUsedResources(
                         MTL(renderCmdEncoder),
                         _viewer->_identityCamera,
                         nullptr,
                         imageHandler,
                         lightHandler);
-        lightHandler->setUsePreConvolvedEnvLighting(prevValue);
+        lightHandler->setUsePreConvolvedMap(prevValue);
 
         _viewer->renderScreenSpaceQuad(material);
 
@@ -406,7 +406,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
     
-    if (lightHandler->getUsePreConvolvedEnvLighting())
+    if (lightHandler->getUsePreConvolvedMap())
     {
         convolveEnvironment();
     }

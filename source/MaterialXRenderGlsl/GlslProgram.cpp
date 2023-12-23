@@ -581,7 +581,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     ImagePtr envRadiance = nullptr;
     if (lightHandler->getIndirectLighting())
     {
-        envRadiance = lightHandler->getUsePreConvolvedEnvLighting() ?
+        envRadiance = lightHandler->getUsePreConvolvedMap() ?
             lightHandler->getEnvPreConvolvedMap() :
             lightHandler->getEnvRadianceMap();
     }

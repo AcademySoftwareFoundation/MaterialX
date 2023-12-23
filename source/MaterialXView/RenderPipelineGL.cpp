@@ -299,7 +299,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
 
-    if (lightHandler->getUsePreConvolvedEnvLighting())
+    if (lightHandler->getUsePreConvolvedMap())
     {
         convolveEnvironment();
     }

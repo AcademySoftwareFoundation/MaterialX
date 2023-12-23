@@ -749,14 +749,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
-    _lightHandler->setUsePreConvolvedEnvLighting(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
+    _lightHandler->setUsePreConvolvedMap(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
-        _lightHandler->setUsePreConvolvedEnvLighting(!enable);
+        _lightHandler->setUsePreConvolvedMap(!enable);
         reloadShaders();
     });
 
