@@ -161,7 +161,7 @@ void MetalRenderPipeline::convolveEnvironment()
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
 
-    if (lightHandler->getEnvRadianceMapPreConvolved())
+    if (lightHandler->getEnvPreConvolvedMap())
     {
         return;
     }
@@ -243,7 +243,7 @@ void MetalRenderPipeline::convolveEnvironment()
 
     MTL_POP_FRAMEBUFFER();
 
-    lightHandler->setEnvRadianceMapPreConvolved(outTex);
+    lightHandler->setEnvPreConvolvedMap(outTex);
 }
 
 mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)

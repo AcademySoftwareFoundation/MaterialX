@@ -116,7 +116,7 @@ void GLRenderPipeline::convolveEnvironment()
     auto& lightHandler  = _viewer->_lightHandler;
     auto& imageHandler  = _viewer->_imageHandler;
 
-    if (lightHandler->getEnvRadianceMapPreConvolved())
+    if (lightHandler->getEnvPreConvolvedMap())
     {
         return;
     }
@@ -186,7 +186,7 @@ void GLRenderPipeline::convolveEnvironment()
     glViewport(0, 0, _viewer->m_fbsize[0], _viewer->m_fbsize[1]);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-    lightHandler->setEnvRadianceMapPreConvolved(outTex);
+    lightHandler->setEnvPreConvolvedMap(outTex);
 }
 
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
