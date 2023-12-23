@@ -587,16 +587,7 @@ vec2 mx_latlong_projection(vec3 dir)
     return vec2(longitude, latitude);
 }
 
-vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
-{
-    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
-    vec2 uv = mx_latlong_projection(envDir);
-    return textureLod(envSampler, uv, lod).rgb;
-}
-
-// Inverse equirectangular projection, which takes as input a UV coordinate, and returns a direction
-// vector.
-vec3 mx_latlong_map_lookup_inverse(vec2 uv)
+vec3 mx_latlong_map_projection_inverse(vec2 uv)
 {
     float latitude = (uv.y - 0.5) * M_PI;
     float longitude = (uv.x - 0.5) * M_PI * 2.0;
@@ -606,4 +597,11 @@ vec3 mx_latlong_map_lookup_inverse(vec2 uv)
     float z = cos(latitude) * cos(longitude);
 
     return vec3(x, y, z);
+}
+
+vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSampler)
+{
+    vec3 envDir = normalize((transform * vec4(dir,0.0)).xyz);
+    vec2 uv = mx_latlong_projection(envDir);
+    return textureLod(envSampler, uv, lod).rgb;
 }

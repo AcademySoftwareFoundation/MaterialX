@@ -84,7 +84,7 @@ vec3 mx_pre_convolve_environment()
     }
 
     // Do an inverse projection, i.e. go from equiangular coordinates to cartesian coordinates
-    vec3 N = mx_latlong_map_lookup_inverse(uv);
+    vec3 N = mx_latlong_map_projection_inverse(uv);
 
     mat3 localToWorld = get_local_frame(N);
     vec3 V = N;
