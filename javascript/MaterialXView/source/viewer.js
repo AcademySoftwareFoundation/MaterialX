@@ -442,16 +442,6 @@ export class Editor
                 element.style.opacity = targetOpacity;
             }
         );
-    
-        // Hide close button
-        if (this._hideCloseControl)
-        {
-            Array.from(document.getElementsByClassName('close-button')).forEach(
-                function (element, index, array) {
-                    element.style.display = "none";
-                }
-            );
-        }
     }
 
     getGUI() 
@@ -460,7 +450,6 @@ export class Editor
     }
 
     _gui = null;
-    _hideCloseControl = false;
 }
 
 class MaterialAssign
@@ -864,14 +853,7 @@ export class Material
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
                                     if (!currentFolder) {
-                                        if (nodeDefInput.hasAttribute('uiadvanced'))
-                                        {
-                                            currentFolder = matUI.addFolder(uifolderName + " (Advanced)");
-                                        }
-                                        else
-                                        {
-                                            currentFolder = matUI.addFolder(uifolderName);
-                                        }
+                                        currentFolder = matUI.addFolder(uifolderName);
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -911,12 +893,12 @@ export class Material
                         }
                     }
 
-                    switch (variable.getType().getName()) {
-
+                    switch (variable.getType().getName())
+                    {
                         case 'float':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-
+                            if (uniformToUpdate && value != null)
+                            {
                                 var minValue = DEFAULT_MIN;
                                 if (value < minValue)
                                 {
@@ -928,11 +910,18 @@ export class Material
                                     maxValue = value;
                                 }
                                 var step = 0;
-                                if (nodeDefInput) {
-                                    if (nodeDefInput.hasAttribute('uimin'))
+                                if (nodeDefInput)
+                                {
+                                    if (nodeDefInput.hasAttribute('uisoftmin'))
+                                        minValue = parseFloat(nodeDefInput.getAttribute('uisoftmin'));
+                                    else if (nodeDefInput.hasAttribute('uimin'))
                                         minValue = parseFloat(nodeDefInput.getAttribute('uimin'));
-                                    if (nodeDefInput.hasAttribute('uimax'))
+
+                                    if (nodeDefInput.hasAttribute('uisoftmax'))
+                                        maxValue = parseFloat(nodeDefInput.getAttribute('uisoftmax'));
+                                    else if (nodeDefInput.hasAttribute('uimax'))
                                         maxValue = parseFloat(nodeDefInput.getAttribute('uimax'));
+
                                     if (nodeDefInput.hasAttribute('uistep'))
                                         step = parseFloat(nodeDefInput.getAttribute('uistep'));
                                 }
@@ -946,8 +935,8 @@ export class Material
 
                         case 'integer':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-
+                            if (uniformToUpdate && value != null)
+                            {
                                 var minValue = DEFAULT_MIN;
                                 if (value < minValue)
                                 {
@@ -960,17 +949,24 @@ export class Material
                                 }
                                 var step = 0;
                                 var enumList = []
-                                if (nodeDefInput) {
+                                if (nodeDefInput)
+                                {
                                     if (nodeDefInput.hasAttribute('enum'))
                                     {
                                         enumList = nodeDefInput.getAttribute('enum').split(',');
                                     }
                                     else
                                     {
-                                        if (nodeDefInput.hasAttribute('uimin'))
+                                        if (nodeDefInput.hasAttribute('uisoftmin'))
+                                            minValue = parseInt(nodeDefInput.getAttribute('uisoftmin'));
+                                        else if (nodeDefInput.hasAttribute('uimin'))
                                             minValue = parseInt(nodeDefInput.getAttribute('uimin'));
-                                        if (nodeDefInput.hasAttribute('uimax'))
+
+                                        if (nodeDefInput.hasAttribute('uisoftmax'))
+                                            maxValue = parseInt(nodeDefInput.getAttribute('uisoftmax'));
+                                        else if (nodeDefInput.hasAttribute('uimax'))
                                             maxValue = parseInt(nodeDefInput.getAttribute('uimax'));
+
                                         if (nodeDefInput.hasAttribute('uistep'))
                                             step = parseInt(nodeDefInput.getAttribute('uistep'));
                                     }
@@ -1001,7 +997,8 @@ export class Material
 
                         case 'boolean':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
+                            if (uniformToUpdate && value != null)
+                            {
                                 currentFolder.add(material.uniforms[name], 'value').name(path);
                             }
                             break;
@@ -1010,22 +1007,31 @@ export class Material
                         case 'vector3':
                         case 'vector4':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
+                            if (uniformToUpdate && value != null)
+                            {
                                 var minValue = [DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN];
                                 var maxValue = [DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX];
                                 var step = [0, 0, 0, 0];
 
                                 if (nodeDefInput) 
                                 {
-                                    if (nodeDefInput.hasAttribute('uimin'))
+                                    if (nodeDefInput.hasAttribute('uisoftmin'))
+                                        minValue = nodeDefInput.getAttribute('uisoftmin').split(',').map(Number);
+                                    else if (nodeDefInput.hasAttribute('uimin'))
                                         minValue = nodeDefInput.getAttribute('uimin').split(',').map(Number);
-                                    if (nodeDefInput.hasAttribute('uimax'))
+
+                                    if (nodeDefInput.hasAttribute('uisoftmax'))
+                                        maxValue = nodeDefInput.getAttribute('uisoftmax').split(',').map(Number);
+                                    else if (nodeDefInput.hasAttribute('uimax'))
                                         maxValue = nodeDefInput.getAttribute('uimax').split(',').map(Number);
+
                                     if (nodeDefInput.hasAttribute('uistep'))
                                             step = nodeDefInput.getAttribute('uistep').split(',').map(Number);
                                 }
-                                for (let i = 0; i < 4; ++i) {
-                                    if (step[i] == 0) {
+                                for (let i = 0; i < 4; ++i)
+                                {
+                                    if (step[i] == 0)
+                                    {
                                         step[i] = 1 / (maxValue[i] - minValue[i]);
                                     }
                                 }
@@ -1042,8 +1048,10 @@ export class Material
                         case 'color3':
                             // Irksome way to mape arrays to colors and back
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                var dummy = {
+                            if (uniformToUpdate && value != null)
+                            {
+                                var dummy =
+                                {
                                     color: 0xFF0000
                                 };
                                 const color3 = new THREE.Color(dummy.color);
@@ -1053,8 +1061,7 @@ export class Material
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
-                                    }
-                                    );
+                                    });
                             }
                             break;
 
