@@ -126,6 +126,7 @@ extern MX_GENSHADER_API const string T_ENV_RADIANCE;
 extern MX_GENSHADER_API const string T_ENV_RADIANCE_MIPS;
 extern MX_GENSHADER_API const string T_ENV_RADIANCE_SAMPLES;
 extern MX_GENSHADER_API const string T_ENV_IRRADIANCE;
+extern MX_GENSHADER_API const string T_ENV_PREFILTER_MIP;
 extern MX_GENSHADER_API const string T_REFRACTION_TWO_SIDED;
 extern MX_GENSHADER_API const string T_ALBEDO_TABLE;
 extern MX_GENSHADER_API const string T_ALBEDO_TABLE_SIZE;
@@ -135,7 +136,6 @@ extern MX_GENSHADER_API const string T_SHADOW_MAP;
 extern MX_GENSHADER_API const string T_SHADOW_MATRIX;
 extern MX_GENSHADER_API const string T_VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string T_LIGHT_DATA_INSTANCE;
-extern MX_GENSHADER_API const string T_CONVOLUTION_MIP_LEVEL;
 
 /// Default names for identifiers.
 /// Replacing above tokens in final code.
@@ -183,6 +183,7 @@ extern MX_GENSHADER_API const string ENV_RADIANCE;
 extern MX_GENSHADER_API const string ENV_RADIANCE_MIPS;
 extern MX_GENSHADER_API const string ENV_RADIANCE_SAMPLES;
 extern MX_GENSHADER_API const string ENV_IRRADIANCE;
+extern MX_GENSHADER_API const string ENV_PREFILTER_MIP;
 extern MX_GENSHADER_API const string REFRACTION_TWO_SIDED;
 extern MX_GENSHADER_API const string ALBEDO_TABLE;
 extern MX_GENSHADER_API const string ALBEDO_TABLE_SIZE;
@@ -193,7 +194,6 @@ extern MX_GENSHADER_API const string SHADOW_MATRIX;
 extern MX_GENSHADER_API const string VERTEX_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_INSTANCE;
 extern MX_GENSHADER_API const string LIGHT_DATA_MAX_LIGHT_SOURCES;
-extern MX_GENSHADER_API const string CONVOLUTION_MIP_LEVEL;
 
 /// Variable blocks names.
 extern MX_GENSHADER_API const string VERTEX_INPUTS;    // Geometric inputs for vertex stage.

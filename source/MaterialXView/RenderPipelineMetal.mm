@@ -219,7 +219,7 @@ void MetalRenderPipeline::updatePrefilteredMap()
 
         _prefilterFramebuffer->bind(desc);
         material->bindShader();
-        material->getProgram()->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
+        material->getProgram()->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
 
         bool prevValue = lightHandler->getUsePrefilteredMap();
         lightHandler->setUsePrefilteredMap(false);

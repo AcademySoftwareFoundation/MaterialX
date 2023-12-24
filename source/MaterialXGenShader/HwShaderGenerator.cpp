@@ -59,6 +59,7 @@ const string T_ENV_RADIANCE                   = "$envRadiance";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
 const string T_ALBEDO_TABLE                   = "$albedoTable";
 const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
@@ -68,7 +69,6 @@ const string T_SHADOW_MAP                     = "$shadowMap";
 const string T_SHADOW_MATRIX                  = "$shadowMatrix";
 const string T_VERTEX_DATA_INSTANCE           = "$vd";
 const string T_LIGHT_DATA_INSTANCE            = "$lightData";
-const string T_CONVOLUTION_MIP_LEVEL          = "$convolutionMipLevel";
 
 const string IN_POSITION                      = "i_position";
 const string IN_NORMAL                        = "i_normal";
@@ -114,6 +114,7 @@ const string ENV_RADIANCE                     = "u_envRadiance";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
+const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
 const string ALBEDO_TABLE                     = "u_albedoTable";
 const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
@@ -124,7 +125,6 @@ const string SHADOW_MATRIX                    = "u_shadowMatrix";
 const string VERTEX_DATA_INSTANCE             = "vd";
 const string LIGHT_DATA_INSTANCE              = "u_lightData";
 const string LIGHT_DATA_MAX_LIGHT_SOURCES     = "MAX_LIGHT_SOURCES";
-const string CONVOLUTION_MIP_LEVEL            = "u_convolutionMipLevel";
 
 const string VERTEX_INPUTS                    = "VertexInputs";
 const string VERTEX_DATA                      = "VertexData";
@@ -224,7 +224,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = HW::AMB_OCC_GAIN;
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
-    _tokenSubstitutions[HW::T_CONVOLUTION_MIP_LEVEL] = HW::CONVOLUTION_MIP_LEVEL;
+    _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
 
     // Setup closure contexts for defining closure functions
     //
@@ -366,7 +366,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (context.getOptions().hwWriteEnvPrefilter)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
-        psPrivateUniforms->add(Type::INTEGER, HW::T_CONVOLUTION_MIP_LEVEL, Value::createValue<int>(1));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));

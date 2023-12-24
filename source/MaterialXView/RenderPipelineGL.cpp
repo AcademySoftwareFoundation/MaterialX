@@ -168,7 +168,7 @@ void GLRenderPipeline::updatePrefilteredMap()
         assert(textureLocation >= 0);
         material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
         // Bind other uniforms
-        program->bindUniform(mx::HW::CONVOLUTION_MIP_LEVEL, mx::Value::createValue(i));
+        program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
         const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
         program->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(yRotationPI));
         program->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));

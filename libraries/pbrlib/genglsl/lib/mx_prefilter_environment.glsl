@@ -73,8 +73,8 @@ void sample_ggx_dir(vec2 u, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
 
 vec3 mx_prefilter_environment()
 {
-    vec2 uv = gl_FragCoord.xy * pow(2.0, $convolutionMipLevel) / vec2(2048.0, 1024.0);
-    if ($convolutionMipLevel == 0)
+    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
+    if ($envPrefilterMip == 0)
     {
         return textureLod($envRadiance, uv, 0).rgb;
     }
@@ -85,7 +85,7 @@ vec3 mx_prefilter_environment()
     mat3 localToWorld = get_local_frame(N);
     vec3 V = N;
     float NdotV = 1; // Because N == V
-    float alpha = mx_lod_to_alpha(float($convolutionMipLevel));
+    float alpha = mx_lod_to_alpha(float($envPrefilterMip));
     // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
     // the variance of the samples by choosing higher mip levels where necessary. We haven't
     // implemented prefiltering yet, so we use a high sample count.
