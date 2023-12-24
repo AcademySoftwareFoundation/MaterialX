@@ -406,10 +406,12 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
     
-    if (lightHandler->getUsePrefilteredMap())
+    // Update prefiltered environment.
+    if (lightHandler->getUsePrefilteredMap() && !_viewer->_materialAssignments.empty())
     {
         updatePrefilteredMap();
     }
+
     // Update lighting state.
     lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * M_PI));
 

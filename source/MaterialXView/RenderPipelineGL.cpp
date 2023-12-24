@@ -299,11 +299,12 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
 
-    if (lightHandler->getUsePrefilteredMap())
+    // Update prefiltered environment.
+    if (lightHandler->getUsePrefilteredMap() && !_viewer->_materialAssignments.empty())
     {
         updatePrefilteredMap();
     }
-    
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
