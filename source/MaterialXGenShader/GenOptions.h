@@ -175,8 +175,8 @@ class MX_GENSHADER_API GenOptions
     /// Defaults to false.
     bool hwWriteAlbedoTable;
 
-    /// Enables the generation of the pre-convolved environment map, commonly called the "LD" term
-    /// in the split sum approximation.
+    /// Enables the generation of a prefiltered environment map, commonly called
+    /// the "LD" term in the split sum approximation.
     /// Defaults to false.
     bool hwWriteEnvPrefilter;
 

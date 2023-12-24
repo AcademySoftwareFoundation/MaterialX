@@ -43,7 +43,7 @@ class GLRenderPipeline : public RenderPipeline
     
   protected:
     mx::ImagePtr getShadowMap(int shadowMapSize) override;
-    void convolveEnvironment();
+    void updatePrefilteredMap();
 };
     
 #endif // RENDER_PIPELINE_GL_H

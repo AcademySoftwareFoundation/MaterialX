@@ -52,7 +52,7 @@ class MetalRenderPipeline : public RenderPipeline
     mx::MetalFramebufferPtr  _shadowMapFramebuffer;
     mx::MetalFramebufferPtr  _prefilterFramebuffer;
     mx::ImagePtr             _shadowMap[SHADOWMAP_TEX_COUNT];
-    void convolveEnvironment();
+    void updatePrefilteredMap();
 };
     
 #endif // RENDER_PIPELINE_METAL_H

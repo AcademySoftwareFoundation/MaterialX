@@ -155,7 +155,7 @@ void MetalRenderPipeline::updateAlbedoTable(int tableSize)
     }
 }
 
-void MetalRenderPipeline::convolveEnvironment()
+void MetalRenderPipeline::updatePrefilteredMap()
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
@@ -408,7 +408,7 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     
     if (lightHandler->getUsePrefilteredMap())
     {
-        convolveEnvironment();
+        updatePrefilteredMap();
     }
     // Update lighting state.
     lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * M_PI));

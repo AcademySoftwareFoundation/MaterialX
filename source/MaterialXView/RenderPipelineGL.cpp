@@ -110,7 +110,7 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
     glDrawBuffer(GL_BACK);
 }
 
-void GLRenderPipeline::convolveEnvironment()
+void GLRenderPipeline::updatePrefilteredMap()
 {
     auto& genContext    = _viewer->_genContext;
     auto& lightHandler  = _viewer->_lightHandler;
@@ -121,7 +121,7 @@ void GLRenderPipeline::convolveEnvironment()
         return;
     }
 
-    // Create the convolution shader.
+    // Create the prefilter shader.
     mx::GlslMaterialPtr material = nullptr;
     try
     {
@@ -131,7 +131,7 @@ void GLRenderPipeline::convolveEnvironment()
     }
     catch (std::exception& e)
     {
-        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate prefilter shader", e.what());
     }
 
     mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
@@ -140,7 +140,7 @@ void GLRenderPipeline::convolveEnvironment()
     int h = srcTex->getHeight();
     int numMips = srcTex->getMaxMipCount();
 
-    // Create texture to hold the convolved environment.
+    // Create texture to hold the prefiltered environment.
     mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
     mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
     glImageHandler->createRenderResources(outTex, true, true);
@@ -301,7 +301,7 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
 
     if (lightHandler->getUsePrefilteredMap())
     {
-        convolveEnvironment();
+        updatePrefilteredMap();
     }
     
     // Initialize OpenGL state

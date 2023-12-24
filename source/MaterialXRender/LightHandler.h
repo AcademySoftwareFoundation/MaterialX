@@ -102,25 +102,25 @@ class MX_RENDER_API LightHandler
         return _envRadianceMap;
     }
 
-    /// Set the environment radiance map for the pre-convolved environment lighting model.
+    /// Set the environment radiance map for the prefiltered environment lighting model.
     void setEnvPrefilteredMap(ImagePtr map)
     {
         _envPrefilteredMap = map;
     }
 
-    /// Return the environment radiance map for the pre-convolved environment lighting model.
+    /// Return the environment radiance map for the prefiltered environment lighting model.
     ImagePtr getEnvPrefilteredMap() const
     {
         return _envPrefilteredMap;
     }
 
-    /// Set whether to use the pre-convolved environment lighting model.
+    /// Set whether to use the prefiltered environment lighting model.
     void setUsePrefilteredMap(bool val)
     {
         _usePrefilteredMap = val;
     }
 
-    /// Return whether to use the pre-convolved environment lighting model.
+    /// Return whether to use the prefiltered environment lighting model.
     bool getUsePrefilteredMap()
     {
         return _usePrefilteredMap;
