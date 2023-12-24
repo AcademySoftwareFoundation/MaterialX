@@ -14,6 +14,18 @@ float mx_lod_to_alpha(float lod)
     }
 }
 
+vec3 mx_latlong_map_projection_inverse(vec2 uv)
+{
+    float latitude = (uv.y - 0.5) * M_PI;
+    float longitude = (uv.x - 0.5) * M_PI * 2.0;
+
+    float x = -cos(latitude) * sin(longitude);
+    float y = -sin(latitude);
+    float z = cos(latitude) * cos(longitude);
+
+    return vec3(x, y, z);
+}
+
 // Generates an orthonormal (row-major) basis from a unit vector.
 // The resulting rotation matrix has the determinant of +1.
 // Ref: 'ortho_basis_pixar_r2' from http://marc-b-reynolds.github.io/quaternions/2016/07/06/Orthonormal.html
@@ -36,23 +48,17 @@ mat3 mx_get_local_frame(vec3 localZ)
     return mat3(localX, localY, localZ);
 }
   
-void mx_sample_ggx_dir(vec2 Xi, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
-                       out float NdotL, out float NdotH, out float VdotH)
+vec3 mx_sample_ggx_dir(vec2 Xi, vec3 V, float alpha)
 {
     vec3 localH = mx_ggx_importance_sample_NDF(Xi, vec2(alpha, alpha));
-    NdotH = localH.z;
-
-    vec3 localV;
+    float NdotH = localH.z;
 
     // localV == localN
-    localV = vec3(0.0, 0.0, 1.0);
-    VdotH  = NdotH;
+    vec3 localV = vec3(0.0, 0.0, 1.0);
+    float VdotH  = NdotH;
 
     // Compute { localL = reflect(-localV, localH) }
-    vec3 localL = -localV + 2.0 * VdotH * localH;
-    NdotL = localL.z;
-
-    L = localToWorld * localL;
+    return -localV + 2.0 * VdotH * localH;
 }
 
 vec3 mx_prefilter_environment()
@@ -82,12 +88,10 @@ vec3 mx_prefilter_environment()
     {
         vec2 Xi = mx_spherical_fibonacci(i, sampleCount);
 
-        vec3 L;
-        float NdotL;
-        float NdotH;
-        float LdotH;
-        mx_sample_ggx_dir(Xi, V, localToWorld, alpha, L, NdotL, NdotH, LdotH);
+        vec3 localL = mx_sample_ggx_dir(Xi, V, alpha);
+        float NdotL = localL.z;
         if (NdotL <= 0) continue; // Note that some samples will have 0 contribution
+        vec3 L = localToWorld * localL;
 
         // If we were to implement pre-filtering, we would do so here.
         float mipLevel = 0;
