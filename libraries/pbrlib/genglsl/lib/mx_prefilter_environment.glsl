@@ -17,7 +17,7 @@ float mx_lod_to_alpha(float lod)
 // Generates an orthonormal (row-major) basis from a unit vector.
 // The resulting rotation matrix has the determinant of +1.
 // Ref: 'ortho_basis_pixar_r2' from http://marc-b-reynolds.github.io/quaternions/2016/07/06/Orthonormal.html
-mat3 get_local_frame(vec3 localZ)
+mat3 mx_get_local_frame(vec3 localZ)
 {
     float x  = localZ.x;
     float y  = localZ.y;
@@ -36,27 +36,11 @@ mat3 get_local_frame(vec3 localZ)
     return mat3(localX, localY, localZ);
 }
   
-vec3 spherical_to_cartesian(float phi, float cosTheta)
+void mx_sample_ggx_dir(vec2 Xi, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
+                       out float NdotL, out float NdotH, out float VdotH)
 {
-    float sinPhi = sin(phi);
-    float cosPhi = cos(phi);
-    float sinTheta = sqrt(clamp(1.0 - cosTheta * cosTheta, 0.0, 1.0));
-    float x = cosPhi * sinTheta;
-    float y = sinPhi * sinTheta;
-    float z = cosTheta;
-    return vec3(x, y, z);
-}
-
-void sample_ggx_dir(vec2 u, vec3 V, mat3 localToWorld, float alpha, out vec3 L,
-                    out float NdotL, out float NdotH, out float VdotH)
-{
-    // GGX NDF sampling
-    float cosTheta = sqrt((1.0 - u.x) / (1.0 + (alpha * alpha - 1.0) * u.x));
-    float phi = M_PI * 2.0 * u.y;
-
-    vec3 localH = spherical_to_cartesian(phi, cosTheta);
-
-    NdotH = cosTheta;
+    vec3 localH = mx_ggx_importance_sample_NDF(Xi, vec2(alpha, alpha));
+    NdotH = localH.z;
 
     vec3 localV;
 
@@ -82,7 +66,7 @@ vec3 mx_prefilter_environment()
     // Do an inverse projection, i.e. go from equiangular coordinates to cartesian coordinates
     vec3 N = mx_latlong_map_projection_inverse(uv);
 
-    mat3 localToWorld = get_local_frame(N);
+    mat3 localToWorld = mx_get_local_frame(N);
     vec3 V = N;
     float NdotV = 1; // Because N == V
     float alpha = mx_lod_to_alpha(float($envPrefilterMip));
@@ -102,7 +86,7 @@ vec3 mx_prefilter_environment()
         float NdotL;
         float NdotH;
         float LdotH;
-        sample_ggx_dir(Xi, V, localToWorld, alpha, L, NdotL, NdotH, LdotH);
+        mx_sample_ggx_dir(Xi, V, localToWorld, alpha, L, NdotL, NdotH, LdotH);
         if (NdotL <= 0) continue; // Note that some samples will have 0 contribution
 
         // If we were to implement pre-filtering, we would do so here.

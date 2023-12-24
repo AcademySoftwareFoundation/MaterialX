@@ -147,39 +147,54 @@ void GLRenderPipeline::updatePrefilteredMap()
 
 	mx::GlslProgramPtr program = material->getProgram();
 
-    int i = 0;
-    while (w > 0 && h > 0)
+    try
     {
-        // Create framebuffer
-        unsigned int framebuffer;
-        glGenFramebuffers(1, &framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTex->getResourceId(), i);
-        glViewport(0, 0, w, h);
-        material->bindShader();
+        int i = 0;
+        while (w > 0 && h > 0)
+        {
+            // Create framebuffer
+            unsigned int framebuffer;
+            glGenFramebuffers(1, &framebuffer);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); 
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTex->getResourceId(), i);
+            glViewport(0, 0, w, h);
+            material->bindShader();
 
-        // Bind the source texture
-        mx::ImageSamplingProperties samplingProperties;
-        samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
-        samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
-        samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
-        imageHandler->bindImage(srcTex, samplingProperties);
-        int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
-        assert(textureLocation >= 0);
-        material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
-        // Bind other uniforms
-        program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
-        const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
-        program->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(yRotationPI));
-        program->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
+            // Bind the source texture
+            mx::ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+            imageHandler->bindImage(srcTex, samplingProperties);
+            int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
+            assert(textureLocation >= 0);
+            material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
+            // Bind other uniforms
+            program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
+            const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
+            program->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(yRotationPI));
+            program->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
 
-        _viewer->renderScreenSpaceQuad(material);
+            _viewer->renderScreenSpaceQuad(material);
 
-        glDeleteFramebuffers(1, &framebuffer); 
+            glDeleteFramebuffers(1, &framebuffer); 
 
-        w /= 2;
-        h /= 2;
-        i++;
+            w /= 2;
+            h /= 2;
+            i++;
+        }
+    }
+    catch (mx::ExceptionRenderError& e)
+    {
+        for (const std::string& error : e.errorLog())
+        {
+            std::cerr << error << std::endl;
+        }
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to render prefiltered environment", e.what());
     }
 
     // Clean up.
