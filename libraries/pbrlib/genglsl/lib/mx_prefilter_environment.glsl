@@ -25,24 +25,17 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
-// An approximate inverse of mx_latlong_compute_lod.
-float mx_latlong_compute_alpha(float mipLevel, float mipCount)
+float mx_latlong_lod_to_alpha(float lod)
 {
-    float lodBias = mipLevel / mipCount;
-    if (lodBias < 0.5)
-    {
-        return lodBias * lodBias;
-    }
-    else
-    {
-        return 2.0 * (lodBias - 0.375);
-    }
+    // Compute alpha from the input mip level.
+    float lodBias = lod / float($envRadianceMips);
+    return (lodBias < 0.5) ? mx_square(lodBias) : 2.0 * (lodBias - 0.375);
 }
 
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
-    float alpha = mx_latlong_compute_alpha(float($envPrefilterMip), float($envRadianceMips));
+    float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));
     if ($envPrefilterMip == 0)
     {
         return textureLod($envRadiance, uv, 0).rgb;
