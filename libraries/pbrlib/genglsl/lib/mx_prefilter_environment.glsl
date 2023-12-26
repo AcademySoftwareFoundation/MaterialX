@@ -51,33 +51,34 @@ mat3 mx_get_local_frame(vec3 localZ)
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
+    float alpha = mx_lod_to_alpha(float($envPrefilterMip));
     if ($envPrefilterMip == 0)
     {
         return textureLod($envRadiance, uv, 0).rgb;
     }
 
-    // Do an inverse projection, i.e. go from equiangular coordinates to cartesian coordinates
-    vec3 N = mx_latlong_map_projection_inverse(uv);
+    // Compute world normal and transform.
+    vec3 worldN = mx_latlong_map_projection_inverse(uv);
+    mat3 localToWorld = mx_get_local_frame(worldN);
 
-    mat3 localToWorld = mx_get_local_frame(N);
-    vec3 V = N;
-    float NdotV = 1; // Because N == V
-    float alpha = mx_lod_to_alpha(float($envPrefilterMip));
+    // Local normal and view vectors are constant and aligned.
+    vec3 V = vec3(0.0, 0.0, 1.0);
+    float NdotV = 1.0;
+
     // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
     // the variance of the samples by choosing higher mip levels where necessary. We haven't
     // implemented prefiltering yet, so we use a high sample count.
-    int sampleCount = 1597; // Must be a Fibonacci number
+    int envRadianceSamples = 1597; // Must be a Fibonacci number
 
     vec3 radiance = vec3(0.0, 0.0, 0.0);
     float weight = 0.0;
-
-    for (int i = 0; i < sampleCount; ++i)
+    for (int i = 0; i < envRadianceSamples; i++)
     {
-        vec2 Xi = mx_spherical_fibonacci(i, sampleCount);
+        vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_VNDF(Xi, vec3(0.0, 0.0, 1.0), vec2(alpha, alpha));
-        vec3 L = vec3(0.0, 0.0, -1.0) + 2.0 * H.z * H;
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(alpha, alpha));
+        vec3 L = -V + 2.0 * H.z * H;
 
         // Compute dot products for this sample.
         float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
