@@ -1,19 +1,18 @@
 #include "mx_microfacet_specular.glsl"
 
-// This is the inverse calculation of `mx_latlong_compute_lod`.
-float mx_lod_to_alpha(float lod)
+// Construct an orthonormal basis from a normal vector.
+// https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+mat3 mx_orthonormal_basis(vec3 N)
 {
-    float lodBias = lod / float($envRadianceMips);
-    if (lodBias < 0.5)
-    {
-        return lodBias * lodBias;
-    }
-    else
-    {
-        return 2.0 * (lodBias - 0.375);
-    }
+    float sign = (N.z < 0.0) ? -1.0 : 1.0;
+    float a = -1.0 / (sign + N.z);
+    float b = N.x * N.y * a;
+    vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);
+    vec3 Y = vec3(b, sign + N.y * N.y * a, -N.y);
+    return mat3(X, Y, N);
 }
 
+// The inverse of mx_latlong_projection.
 vec3 mx_latlong_map_projection_inverse(vec2 uv)
 {
     float latitude = (uv.y - 0.5) * M_PI;
@@ -26,21 +25,24 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
-// https://graphics.pixar.com/library/OrthonormalB/paper.pdf
-mat3 mx_orthonormal_basis(vec3 N)
+// An approximate inverse of mx_latlong_compute_lod.
+float mx_latlong_compute_alpha(float mipLevel, float mipCount)
 {
-    float sign = (N.z < 0.0) ? -1.0 : 1.0;
-    float a = -1.0 / (sign + N.z);
-    float b = N.x * N.y * a;
-    vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);
-    vec3 Y = vec3(b, sign + N.y * N.y * a, -N.y);
-    return mat3(X, Y, N);
+    float lodBias = mipLevel / mipCount;
+    if (lodBias < 0.5)
+    {
+        return lodBias * lodBias;
+    }
+    else
+    {
+        return 2.0 * (lodBias - 0.375);
+    }
 }
 
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
-    float alpha = mx_lod_to_alpha(float($envPrefilterMip));
+    float alpha = mx_latlong_compute_alpha(float($envPrefilterMip), float($envRadianceMips));
     if ($envPrefilterMip == 0)
     {
         return textureLod($envRadiance, uv, 0).rgb;
