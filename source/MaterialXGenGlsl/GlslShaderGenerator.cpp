@@ -591,7 +591,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitLineBreak(stage);
     }
 
-    // Emit environment pre-convolution code
+    // Emit environment prefiltering code
     if (context.getOptions().hwWriteEnvPrefilter)
     {
         emitLibraryInclude("pbrlib/genglsl/lib/mx_prefilter_environment.glsl", context, stage);

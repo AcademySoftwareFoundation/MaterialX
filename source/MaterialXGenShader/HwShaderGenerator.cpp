@@ -362,7 +362,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
     }
 
-    // Add uniforms for the environment pre-convolution
+    // Add uniforms for environment prefiltering.
     if (context.getOptions().hwWriteEnvPrefilter)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);

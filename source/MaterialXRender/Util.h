@@ -47,10 +47,10 @@ MX_RENDER_API ShaderPtr createAlbedoTableShader(GenContext& context,
                                                 DocumentPtr stdLib,
                                                 const string& shaderName);
 
-/// Create a shader that generates a pre-convolution map for environment lighting.
+/// Create a shader that generates a prefiltered environment map.
 MX_RENDER_API ShaderPtr createEnvPrefilterShader(GenContext& context,
-                                  DocumentPtr stdLib,
-                                  const string& shaderName);
+                                                 DocumentPtr stdLib,
+                                                 const string& shaderName);
 
 /// Create a blur shader, using the given standard libraries for code generation.
 MX_RENDER_API ShaderPtr createBlurShader(GenContext& context,
