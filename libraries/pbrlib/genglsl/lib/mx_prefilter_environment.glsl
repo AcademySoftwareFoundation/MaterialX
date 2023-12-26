@@ -26,28 +26,17 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
-// Generates an orthonormal (row-major) basis from a unit vector.
-// The resulting rotation matrix has the determinant of +1.
-// Ref: 'ortho_basis_pixar_r2' from http://marc-b-reynolds.github.io/quaternions/2016/07/06/Orthonormal.html
-mat3 mx_get_local_frame(vec3 localZ)
+// https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+mat3 mx_orthonormal_basis(vec3 N)
 {
-    float x  = localZ.x;
-    float y  = localZ.y;
-    float z  = localZ.z;
-    float sz = (z < 0) ? -1.0 : 1.0;
-    float a  = 1 / (sz + z);
-    float ya = y * a;
-    float b  = x * ya;
-    float c  = x * sz;
-
-    vec3 localX = vec3(c * x * a - 1, sz * b, c);
-    vec3 localY = vec3(b, y * ya - sz, y);
-
-    // Note: due to the quaternion formulation, the generated frame is rotated by 180 degrees,
-    // s.t. if localZ = {0, 0, 1}, then localX = {-1, 0, 0} and localY = {0, -1, 0}.
-    return mat3(localX, localY, localZ);
+    float sign = (N.z < 0.0) ? -1.0 : 1.0;
+    float a = -1.0 / (sign + N.z);
+    float b = N.x * N.y * a;
+    vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);
+    vec3 Y = vec3(b, sign + N.y * N.y * a, -N.y);
+    return mat3(X, Y, N);
 }
-  
+
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
@@ -59,7 +48,7 @@ vec3 mx_prefilter_environment()
 
     // Compute world normal and transform.
     vec3 worldN = mx_latlong_map_projection_inverse(uv);
-    mat3 localToWorld = mx_get_local_frame(worldN);
+    mat3 localToWorld = mx_orthonormal_basis(worldN);
 
     // Local normal and view vectors are constant and aligned.
     vec3 V = vec3(0.0, 0.0, 1.0);
