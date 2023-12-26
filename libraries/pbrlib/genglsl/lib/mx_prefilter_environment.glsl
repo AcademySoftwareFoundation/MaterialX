@@ -57,6 +57,7 @@ vec3 mx_prefilter_environment()
     float NdotV = 1.0;
     float G1V = mx_ggx_smith_G1(NdotV, alpha);
 
+    // Integrate the LD term for the given environment and alpha.
     vec3 radiance = vec3(0.0, 0.0, 0.0);
     float weight = 0.0;
     int envRadianceSamples = 1024;
@@ -65,7 +66,7 @@ vec3 mx_prefilter_environment()
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(alpha, alpha));
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, V, vec2(alpha));
         vec3 L = -V + 2.0 * H.z * H;
 
         // Compute dot products for this sample.
@@ -76,7 +77,7 @@ vec3 mx_prefilter_environment()
 
         // Sample the environment light from the given direction.
         vec3 Lw = tangentToWorld * L;
-        float pdf = mx_ggx_NDF(H, vec2(alpha, alpha)) * G1V / (4.0 * NdotV);
+        float pdf = mx_ggx_NDF(H, vec2(alpha)) * G1V / (4.0 * NdotV);
         float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
         vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
 
