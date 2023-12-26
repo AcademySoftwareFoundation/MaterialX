@@ -61,18 +61,6 @@ float mx_ggx_NDF(vec3 H, vec2 alpha)
     return 1.0 / (M_PI * alpha.x * alpha.y * mx_square(denom));
 }
 
-// https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
-// Appendix B.2 Equation 15
-vec3 mx_ggx_importance_sample_NDF(vec2 Xi, vec2 alpha)
-{
-    float phi = 2.0 * M_PI * Xi.x;
-    float tanTheta = sqrt(Xi.y / (1.0 - Xi.y));
-    vec3 H = vec3(tanTheta * alpha.x * cos(phi),
-                  tanTheta * alpha.y * sin(phi),
-                  1.0);
-    return normalize(H);
-}
-
 // https://ggx-research.github.io/publication/2023/06/09/publication-ggx.html
 vec3 mx_ggx_importance_sample_VNDF(vec2 Xi, vec3 V, vec2 alpha)
 {

@@ -68,15 +68,15 @@ vec3 mx_prefilter_environment()
     // implemented prefiltering yet, so we use a high sample count.
     int sampleCount = 1597; // Must be a Fibonacci number
 
-    vec3 lightInt = vec3(0.0, 0.0, 0.0);
-    float cbsdfInt = 0.0;
+    vec3 radiance = vec3(0.0, 0.0, 0.0);
+    float weight = 0.0;
 
     for (int i = 0; i < sampleCount; ++i)
     {
         vec2 Xi = mx_spherical_fibonacci(i, sampleCount);
 
         // Compute the half vector and incoming light direction.
-        vec3 H = mx_ggx_importance_sample_NDF(Xi, vec2(alpha, alpha));
+        vec3 H = mx_ggx_importance_sample_VNDF(Xi, vec3(0.0, 0.0, 1.0), vec2(alpha, alpha));
         vec3 L = vec3(0.0, 0.0, -1.0) + 2.0 * H.z * H;
 
         // Compute dot products for this sample.
@@ -87,9 +87,9 @@ vec3 mx_prefilter_environment()
 
         // Add the radiance contribution of this sample.
         vec3 sampleColor = mx_latlong_map_lookup(localToWorld * L, $envMatrix, 0, $envRadiance);
-        lightInt += G * sampleColor;
-        cbsdfInt += G;
+        radiance += G * sampleColor;
+        weight += G;
     }
 
-    return lightInt / cbsdfInt;
+    return radiance / weight;
 }
