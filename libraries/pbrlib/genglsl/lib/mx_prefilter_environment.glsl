@@ -25,9 +25,9 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
+// The inverse of mx_latlong_alpha_to_lod.
 float mx_latlong_lod_to_alpha(float lod)
 {
-    // Compute alpha from the input mip level.
     float lodBias = lod / float($envRadianceMips);
     return (lodBias < 0.5) ? mx_square(lodBias) : 2.0 * (lodBias - 0.375);
 }
