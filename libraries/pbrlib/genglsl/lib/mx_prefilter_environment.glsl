@@ -48,19 +48,6 @@ mat3 mx_get_local_frame(vec3 localZ)
     return mat3(localX, localY, localZ);
 }
   
-vec3 mx_sample_ggx_dir(vec2 Xi, vec3 V, float alpha)
-{
-    vec3 localH = mx_ggx_importance_sample_NDF(Xi, vec2(alpha, alpha));
-    float NdotH = localH.z;
-
-    // localV == localN
-    vec3 localV = vec3(0.0, 0.0, 1.0);
-    float VdotH  = NdotH;
-
-    // Compute { localL = reflect(-localV, localH) }
-    return -localV + 2.0 * VdotH * localH;
-}
-
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
@@ -88,18 +75,20 @@ vec3 mx_prefilter_environment()
     {
         vec2 Xi = mx_spherical_fibonacci(i, sampleCount);
 
-        vec3 localL = mx_sample_ggx_dir(Xi, V, alpha);
-        float NdotL = localL.z;
-        if (NdotL <= 0) continue; // Note that some samples will have 0 contribution
-        vec3 L = localToWorld * localL;
+        // Compute the half vector and incoming light direction.
+        vec3 H = mx_ggx_importance_sample_NDF(Xi, vec2(alpha, alpha));
+        vec3 L = vec3(0.0, 0.0, -1.0) + 2.0 * H.z * H;
 
-        // If we were to implement pre-filtering, we would do so here.
-        float mipLevel = 0;
-        vec3 val = mx_latlong_map_lookup(L, $envMatrix, mipLevel, $envRadiance);
-        const float F = 1.0;
+        // Compute dot products for this sample.
+        float NdotL = clamp(L.z, M_FLOAT_EPS, 1.0);
+
+        // Compute the geometric term.
         float G = mx_ggx_smith_G2(NdotL, NdotV, alpha);
-        lightInt += F * G * val;
-        cbsdfInt += F * G;
+
+        // Add the radiance contribution of this sample.
+        vec3 sampleColor = mx_latlong_map_lookup(localToWorld * L, $envMatrix, 0, $envRadiance);
+        lightInt += G * sampleColor;
+        cbsdfInt += G;
     }
 
     return lightInt / cbsdfInt;
