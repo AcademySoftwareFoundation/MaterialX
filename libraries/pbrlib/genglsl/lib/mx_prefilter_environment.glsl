@@ -60,7 +60,7 @@ vec3 mx_prefilter_environment()
     // Integrate the LD term for the given environment and alpha.
     vec3 radiance = vec3(0.0, 0.0, 0.0);
     float weight = 0.0;
-    int envRadianceSamples = 1024;
+    int envRadianceSamples = 256;
     for (int i = 0; i < envRadianceSamples; i++)
     {
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
