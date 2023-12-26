@@ -1,6 +1,6 @@
 #include "mx_microfacet_specular.glsl"
 
-// This is the inverse calculation of `mx_latlong_compute_lod` in `mx_environment_prefilter.glsl`.
+// This is the inverse calculation of `mx_latlong_compute_lod`.
 float mx_lod_to_alpha(float lod)
 {
     float lodBias = lod / float($envRadianceMips);
@@ -48,19 +48,16 @@ vec3 mx_prefilter_environment()
 
     // Compute world normal and transform.
     vec3 worldN = mx_latlong_map_projection_inverse(uv);
-    mat3 localToWorld = mx_orthonormal_basis(worldN);
+    mat3 tangentToWorld = mx_orthonormal_basis(worldN);
 
     // Local normal and view vectors are constant and aligned.
     vec3 V = vec3(0.0, 0.0, 1.0);
     float NdotV = 1.0;
-
-    // If we use prefiltering, we can have a smaller sample count, since pre-filtering will reduce
-    // the variance of the samples by choosing higher mip levels where necessary. We haven't
-    // implemented prefiltering yet, so we use a high sample count.
-    int envRadianceSamples = 1597; // Must be a Fibonacci number
+    float G1V = mx_ggx_smith_G1(NdotV, alpha);
 
     vec3 radiance = vec3(0.0, 0.0, 0.0);
     float weight = 0.0;
+    int envRadianceSamples = 1024;
     for (int i = 0; i < envRadianceSamples; i++)
     {
         vec2 Xi = mx_spherical_fibonacci(i, envRadianceSamples);
@@ -75,8 +72,13 @@ vec3 mx_prefilter_environment()
         // Compute the geometric term.
         float G = mx_ggx_smith_G2(NdotL, NdotV, alpha);
 
+        // Sample the environment light from the given direction.
+        vec3 Lw = tangentToWorld * L;
+        float pdf = mx_ggx_NDF(H, vec2(alpha, alpha)) * G1V / (4.0 * NdotV);
+        float lod = mx_latlong_compute_lod(Lw, pdf, float($envRadianceMips - 1), envRadianceSamples);
+        vec3 sampleColor = mx_latlong_map_lookup(Lw, $envMatrix, lod, $envRadiance);
+
         // Add the radiance contribution of this sample.
-        vec3 sampleColor = mx_latlong_map_lookup(localToWorld * L, $envMatrix, 0, $envRadiance);
         radiance += G * sampleColor;
         weight += G;
     }
