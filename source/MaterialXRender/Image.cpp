@@ -125,7 +125,7 @@ unsigned int Image::getBaseStride() const
 
 unsigned int Image::getMaxMipCount() const
 {
-    return (unsigned int) std::log2(std::min(_width, _height)) + 1;
+    return (unsigned int) std::log2(std::max(_width, _height)) + 1;
 }
 
 void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
