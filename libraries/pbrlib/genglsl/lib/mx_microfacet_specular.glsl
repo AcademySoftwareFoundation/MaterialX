@@ -603,3 +603,17 @@ float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamp
     float distortion = sqrt(1.0 - mx_square(dir.y));
     return max(effectiveMaxMipLevel - 0.5 * log2(float(envSamples) * pdf * distortion), 0.0);
 }
+
+float mx_latlong_alpha_to_lod(float alpha)
+{
+    // Return the mip level associated with the given alpha in a prefiltered environment.
+    float lodBias = (alpha < 0.25) ? sqrt(alpha) : 0.5 * alpha + 0.375;
+    return lodBias * float($envRadianceMips);
+}
+
+float mx_latlong_lod_to_alpha(float lod)
+{
+    // Return the alpha associated with the given mip level in a prefiltered environment.
+    float lodBias = lod / float($envRadianceMips);
+    return (lodBias < 0.5) ? mx_square(lodBias) : 2.0 * (lodBias - 0.375);
+}

@@ -25,13 +25,6 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
-// The inverse of mx_latlong_alpha_to_lod.
-float mx_latlong_lod_to_alpha(float lod)
-{
-    float lodBias = lod / float($envRadianceMips);
-    return (lodBias < 0.5) ? mx_square(lodBias) : 2.0 * (lodBias - 0.375);
-}
-
 vec3 mx_prefilter_environment()
 {
     vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
