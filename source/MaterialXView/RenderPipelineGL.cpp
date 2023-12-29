@@ -190,7 +190,7 @@ void GLRenderPipeline::updatePrefilteredMap()
         {
             std::cerr << error << std::endl;
         }
-        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to render prefiltered environment", e.what());
     }
     catch (std::exception& e)
     {
