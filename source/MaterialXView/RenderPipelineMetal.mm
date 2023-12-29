@@ -175,7 +175,6 @@ void MetalRenderPipeline::updatePrefilteredMap()
     mtlImageHandler->createRenderResources(outTex, true, true);
     id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
 
-
     // Create framebuffer.
     _prefilterFramebuffer = mx::MetalFramebuffer::create(
         MTL(device),
