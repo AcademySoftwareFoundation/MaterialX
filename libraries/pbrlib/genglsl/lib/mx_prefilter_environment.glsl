@@ -1,6 +1,6 @@
 #include "mx_microfacet_specular.glsl"
 
-// Construct an orthonormal basis from a normal vector.
+// Construct an orthonormal basis from a unit vector.
 // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
 mat3 mx_orthonormal_basis(vec3 N)
 {
