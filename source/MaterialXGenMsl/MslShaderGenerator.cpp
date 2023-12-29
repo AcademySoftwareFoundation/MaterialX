@@ -1059,6 +1059,13 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             emitLineBreak(stage);
         }
 
+        // Emit environment prefiltering code
+        if (context.getOptions().hwWriteEnvPrefilter)
+        {
+            emitLibraryInclude("pbrlib/genglsl/lib/mx_prefilter_environment.glsl", context, stage);
+            emitLineBreak(stage);
+        }
+
         // Set the include file to use for uv transformations,
         // depending on the vertical flip flag.
         if (context.getOptions().fileTextureVerticalFlip)
@@ -1103,6 +1110,10 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         else if (context.getOptions().hwWriteAlbedoTable)
         {
             emitLine(outputSocket->getVariable() + " = float4(mx_generate_dir_albedo_table(), 1.0)", stage);
+        }
+        else if (context.getOptions().hwWriteEnvPrefilter)
+        {
+            emitLine(outputSocket->getVariable() + " = float4(mx_prefilter_environment(), 1.0)", stage);
         }
         else
         {

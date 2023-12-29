@@ -593,3 +593,27 @@ vec3 mx_latlong_map_lookup(vec3 dir, mat4 transform, float lod, sampler2D envSam
     vec2 uv = mx_latlong_projection(envDir);
     return textureLod(envSampler, uv, lod).rgb;
 }
+
+// https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
+// Section 20.4 Equation 13
+float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamples)
+{
+    const float MIP_LEVEL_OFFSET = 1.5;
+    float effectiveMaxMipLevel = maxMipLevel - MIP_LEVEL_OFFSET;
+    float distortion = sqrt(1.0 - mx_square(dir.y));
+    return max(effectiveMaxMipLevel - 0.5 * log2(float(envSamples) * pdf * distortion), 0.0);
+}
+
+float mx_latlong_alpha_to_lod(float alpha)
+{
+    // Return the mip level associated with the given alpha in a prefiltered environment.
+    float lodBias = (alpha < 0.25) ? sqrt(alpha) : 0.5 * alpha + 0.375;
+    return lodBias * float($envRadianceMips - 1);
+}
+
+float mx_latlong_lod_to_alpha(float lod)
+{
+    // Return the alpha associated with the given mip level in a prefiltered environment.
+    float lodBias = lod / float($envRadianceMips - 1);
+    return (lodBias < 0.5) ? mx_square(lodBias) : 2.0 * (lodBias - 0.375);
+}

@@ -230,7 +230,7 @@ class MX_RENDER_API ImageHandler
     }
 
     /// Create rendering resources for the given image.
-    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps);
+    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false);
 
     /// Release rendering resources for the given image, or for all cached images
     /// if no image pointer is specified.
