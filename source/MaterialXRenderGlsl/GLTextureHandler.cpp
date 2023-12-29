@@ -37,7 +37,7 @@ bool GLTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& 
     // Create renderer resources if needed.
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true, false))
+        if (!createRenderResources(image, true))
         {
             return false;
         }

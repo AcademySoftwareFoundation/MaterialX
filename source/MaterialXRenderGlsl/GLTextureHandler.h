@@ -37,7 +37,7 @@ class MX_RENDERGLSL_API GLTextureHandler : public ImageHandler
     bool unbindImage(ImagePtr image) override;
 
     /// Create rendering resources for the given image.
-    bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget) override;
+    bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false) override;
 
     /// Release rendering resources for the given image, or for all cached images
     /// if no image pointer is specified.

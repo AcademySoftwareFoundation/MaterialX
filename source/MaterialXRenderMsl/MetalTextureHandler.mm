@@ -24,7 +24,7 @@ bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingPropertie
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true, false))
+        if (!createRenderResources(image, true))
         {
             return false;
         }
@@ -63,7 +63,7 @@ bool MetalTextureHandler::bindImage(id<MTLRenderCommandEncoder> renderCmdEncoder
     // Create renderer resources if needed.
     if (image->getResourceId() == MslProgram::UNDEFINED_METAL_RESOURCE_ID)
     {
-        if (!createRenderResources(image, true, false))
+        if (!createRenderResources(image, true))
         {
             return false;
         }
