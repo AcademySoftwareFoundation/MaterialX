@@ -37,7 +37,6 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
-        _envPrefilteredMap(nullptr),
         _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
         _refractionTwoSided(false)
     {
