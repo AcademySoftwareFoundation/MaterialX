@@ -25,22 +25,17 @@ vec3 mx_latlong_map_projection_inverse(vec2 uv)
     return vec3(x, y, z);
 }
 
-vec3 mx_prefilter_environment()
+vec3 mx_generate_prefilter_env()
 {
-    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(2048.0, 1024.0);
-    float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));
-    if ($envPrefilterMip == 0)
-    {
-        return textureLod($envRadiance, uv, 0).rgb;
-    }
-
-    // Compute world normal and transform.
-    vec3 worldN = mx_latlong_map_projection_inverse(uv);
-    mat3 tangentToWorld = mx_orthonormal_basis(worldN);
-
-    // Local normal and view vectors are constant and aligned.
+    // The tangent view vector is aligned with the normal.
     vec3 V = vec3(0.0, 0.0, 1.0);
     float NdotV = 1.0;
+
+    // Compute derived properties.
+    vec2 uv = gl_FragCoord.xy * pow(2.0, $envPrefilterMip) / vec2(textureSize($envRadiance, 0));
+    vec3 worldN = mx_latlong_map_projection_inverse(uv);
+    mat3 tangentToWorld = mx_orthonormal_basis(worldN);
+    float alpha = mx_latlong_lod_to_alpha(float($envPrefilterMip));
     float G1V = mx_ggx_smith_G1(NdotV, alpha);
 
     // Integrate the LD term for the given environment and alpha.
