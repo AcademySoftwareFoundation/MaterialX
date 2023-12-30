@@ -587,14 +587,14 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Emit directional albedo table code.
     if (context.getOptions().hwWriteAlbedoTable)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_table.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_albedo_table.glsl", context, stage);
         emitLineBreak(stage);
     }
 
     // Emit environment prefiltering code
     if (context.getOptions().hwWriteEnvPrefilter)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_prefilter_environment.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -645,7 +645,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     }
     else if (context.getOptions().hwWriteEnvPrefilter)
     {
-        emitLine(outputSocket->getVariable() + " = vec4(mx_prefilter_environment(), 1.0)", stage);
+        emitLine(outputSocket->getVariable() + " = vec4(mx_generate_prefilter_env(), 1.0)", stage);
     }
     else
     {
