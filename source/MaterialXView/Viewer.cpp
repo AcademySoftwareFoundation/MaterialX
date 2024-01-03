@@ -2343,7 +2343,7 @@ mx::MaterialPtr Viewer::getEnvironmentMaterial()
 {
     if (!_envMaterial)
     {
-        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Materials/TestSuite/nprlib/environment_map.mtlx"));
+        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/environment_map.mtlx"));
         try
         {
             _envMaterial = _renderPipeline->createMaterial();
