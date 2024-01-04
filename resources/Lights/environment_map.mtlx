@@ -1,17 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.38" colorspace="lin_rec709">
 
-  <!-- Custom node: <viewdir>                     -->
-  <!-- Required by environment shader graph below -->
-  <nodedef name="ND_viewdir_vector3" node="viewdir">
-    <output name="out" type="vector3" default="0.0, 0.0, 1.0" />
-  </nodedef>
-  <implementation name="IM_viewdir_vector3_genglsl" nodedef="ND_viewdir_vector3" target="genglsl" />
-  <implementation name="IM_viewdir_vector3_genmsl" nodedef="ND_viewdir_vector3" target="genmsl" />
-  <nodegraph name="environmentDraw">
+  <nodegraph name="envMap">
 
     <!-- Get view direction -->
-    <viewdir name="viewDir" type="vector3" />
+    <viewdirection name="viewDir" type="vector3" />
 
     <!-- Compute longitude coordinate -->
     <atan2 name="angleXZ" type="float">
@@ -46,11 +39,11 @@
       <input name="in2" type="float" nodename="latitude" />
     </combine2>
     <image name="envImage" type="color3">
-      <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" uniform="true" />
+      <input name="file" type="filename" value="resources/Lights/san_giuseppe_bridge.hdr" />
       <input name="texcoord" type="vector2" nodename="mapUvs" />
-      <input name="uaddressmode" type="string" value="periodic" uniform="true" />
-      <input name="vaddressmode" type="string" value="clamp" uniform="true" />
-      <input name="filtertype" type="string" value="linear" uniform="true" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="clamp" />
+      <input name="filtertype" type="string" value="linear" />
     </image>
 
     <!-- Return the resulting color -->

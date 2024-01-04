@@ -14,6 +14,7 @@
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
+#include <MaterialXGenGlsl/Nodes/ViewDirectionNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
@@ -56,17 +57,17 @@ GlslShaderGenerator::GlslShaderGenerator() :
     //
 
     StringVec elementNames;
-    
+
     // <!-- <switch> -->
     elementNames = {
         // <!-- 'which' type : float -->
-        "IM_switch_float_"   + GlslShaderGenerator::TARGET,
-        "IM_switch_color3_"  + GlslShaderGenerator::TARGET,
-        "IM_switch_color4_"  + GlslShaderGenerator::TARGET,
+        "IM_switch_float_" + GlslShaderGenerator::TARGET,
+        "IM_switch_color3_" + GlslShaderGenerator::TARGET,
+        "IM_switch_color4_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector2_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector3_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- 'which' type : integer -->
         "IM_switch_floatI_" + GlslShaderGenerator::TARGET,
         "IM_switch_color3I_" + GlslShaderGenerator::TARGET,
@@ -85,7 +86,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_float_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_float_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_float_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color3 -->
         "IM_swizzle_color3_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_color3_" + GlslShaderGenerator::TARGET,
@@ -93,7 +94,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_color3_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color3_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : color4 -->
         "IM_swizzle_color4_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_color3_" + GlslShaderGenerator::TARGET,
@@ -101,7 +102,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_color4_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_color4_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector2 -->
         "IM_swizzle_vector2_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_color3_" + GlslShaderGenerator::TARGET,
@@ -109,7 +110,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_vector2_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector2_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector3 -->
         "IM_swizzle_vector3_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_color3_" + GlslShaderGenerator::TARGET,
@@ -117,7 +118,7 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_swizzle_vector3_vector2_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector3_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector3_vector4_" + GlslShaderGenerator::TARGET,
-        
+
         // <!-- from type : vector4 -->
         "IM_swizzle_vector4_float_" + GlslShaderGenerator::TARGET,
         "IM_swizzle_vector4_color3_" + GlslShaderGenerator::TARGET,
@@ -196,6 +197,8 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, FrameNodeGlsl::create);
     // <!-- <time> -->
     registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, TimeNodeGlsl::create);
+    // <!-- <viewdirection> -->
+    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, ViewDirectionNodeGlsl::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
@@ -553,7 +556,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     bool lighting = requiresLighting(graph);
 
     // Define directional albedo approach
-    if (lighting || context.getOptions().hwWriteAlbedoTable)
+    if (lighting || context.getOptions().hwWriteAlbedoTable || context.getOptions().hwWriteEnvPrefilter)
     {
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
@@ -587,7 +590,14 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Emit directional albedo table code.
     if (context.getOptions().hwWriteAlbedoTable)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_table.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_albedo_table.glsl", context, stage);
+        emitLineBreak(stage);
+    }
+
+    // Emit environment prefiltering code
+    if (context.getOptions().hwWriteEnvPrefilter)
+    {
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -635,6 +645,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     else if (context.getOptions().hwWriteAlbedoTable)
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_generate_dir_albedo_table(), 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteEnvPrefilter)
+    {
+        emitLine(outputSocket->getVariable() + " = vec4(mx_generate_prefilter_env(), 1.0)", stage);
     }
     else
     {

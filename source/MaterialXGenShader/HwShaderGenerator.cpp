@@ -59,6 +59,7 @@ const string T_ENV_RADIANCE                   = "$envRadiance";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
+const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
 const string T_ALBEDO_TABLE                   = "$albedoTable";
 const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
@@ -113,6 +114,7 @@ const string ENV_RADIANCE                     = "u_envRadiance";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
+const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
 const string ALBEDO_TABLE                     = "u_albedoTable";
 const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
@@ -222,6 +224,7 @@ HwShaderGenerator::HwShaderGenerator(SyntaxPtr syntax) :
     _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = HW::AMB_OCC_GAIN;
     _tokenSubstitutions[HW::T_VERTEX_DATA_INSTANCE] = HW::VERTEX_DATA_INSTANCE;
     _tokenSubstitutions[HW::T_LIGHT_DATA_INSTANCE] = HW::LIGHT_DATA_INSTANCE;
+    _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = HW::ENV_PREFILTER_MIP;
 
     // Setup closure contexts for defining closure functions
     //
@@ -260,9 +263,9 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             if (geomprop)
             {
                 // A default geomprop was assigned to this graph input.
-                // For all internal connections to this input, break the connection 
+                // For all internal connections to this input, break the connection
                 // and assign a geomprop node that generates this data.
-                // Note: If a geomprop node exists already it is reused, 
+                // Note: If a geomprop node exists already it is reused,
                 // so only a single node per geometry type is created.
                 ShaderInputVec connections = socket->getConnections();
                 for (auto connection : connections)
@@ -357,6 +360,16 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ALBEDO_TABLE);
         psPrivateUniforms->add(Type::INTEGER, HW::T_ALBEDO_TABLE_SIZE, Value::createValue<int>(64));
+    }
+
+    // Add uniforms for environment prefiltering.
+    if (context.getOptions().hwWriteEnvPrefilter)
+    {
+        psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
+        const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
+        psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
+        psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
     }
 
     // Create uniforms for the published graph interface

@@ -6,7 +6,7 @@
 #ifndef MATERIALX_TINYOBJLOADER_H
 #define MATERIALX_TINYOBJLOADER_H
 
-/// @file 
+/// @file
 /// OBJ geometry format loader using the TinyObj library
 
 #include <MaterialXRender/GeometryHandler.h>
