@@ -1128,7 +1128,7 @@ export class Material
                             if (uniformToUpdate && value != null) {
                                 item = currentFolder.add(material.uniforms[name], 'value');
                                 item.name(path);
-                                item.readonly(true);
+                                item.disable(true);
                                 item.domElement.classList.add('peditoritem');                                
                             }
                             break;
