@@ -4147,6 +4147,46 @@ export float4 mx_combine4_vector4(
 	return float4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
 }
 
+export float3x3 mx_creatematrix_vector3_matrix33(
+	float3 mxp_in1 = float3(1.0, 0.0, 0.0),
+	float3 mxp_in2 = float3(0.0, 1.0, 0.0),
+	float3 mxp_in3 = float3(0.0, 0.0, 1.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return float3x3(mxp_in1[0],mxp_in1[1],mxp_in1[2],mxp_in2[0],mxp_in2[1],mxp_in2[2],mxp_in3[0],mxp_in3[1],mxp_in3[2]);
+}
+
+
+export float4x4 mx_creatematrix_vector3_matrix44(
+	float3 mxp_in1 = float3(1.0, 0.0, 0.0),
+	float3 mxp_in2 = float3(0.0, 1.0, 0.0),
+	float3 mxp_in3 = float3(0.0, 0.0, 1.0)
+	float3 mxp_in4 = float3(0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return float4x4(mxp_in1[0],mxp_in1[1],mxp_in1[2],0.0, mxp_in2[0],mxp_in2[1],mxp_in2[2],0.0, mxp_in3[0],mxp_in3[1],mxp_in3[2]0.0, mxp_in4[0],mxp_in4[1],mxp_in4[2],1.0);
+}
+
+
+export float4x4 mx_creatematrix_vector4_matrix44(
+	float4 mxp_in1 = float4(1.0, 0.0, 0.0, 0.0),
+	float4 mxp_in2 = float4(0.0, 1.0, 0.0, 0.0),
+	float4 mxp_in3 = float4(0.0, 0.0, 1.0, 0.0)
+	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 1.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return float4x4(mxp_in1[0],mxp_in1[1],mxp_in1[2],mxp_in1[3],mxp_in2[0],mxp_in2[1],mxp_in2[2],mxp_in2[3],mxp_in3[0],mxp_in3[1],mxp_in3[2],mxp_in3[3],mxp_in4[0],mxp_in4[1],mxp_in4[2],mxp_in4[3]);
+}
+
 // Nodedef: ND_extract_color3 is represented by a nodegraph: NG_extract_color3
 // Nodedef: ND_extract_color4 is represented by a nodegraph: NG_extract_color4
 // Nodedef: ND_extract_vector2 is represented by a nodegraph: NG_extract_vector2
