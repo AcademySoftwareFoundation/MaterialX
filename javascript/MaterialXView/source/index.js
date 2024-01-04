@@ -21,6 +21,8 @@ let turntableEnabled = false;
 let turntableSteps = 360;
 let turntableStep = 0;
 
+let snapshot = false;
+
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
 if (!materialFilename) {
@@ -30,6 +32,17 @@ if (!materialFilename) {
 let viewer = Viewer.create();
 init();
 viewer.getEditor().updateProperties(0.9);
+
+function performSnapshot()
+{
+    let canvas = document.getElementById('webglcanvas');
+    var url = canvas.toDataURL();    
+    var link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('target', '_blank');
+    link.setAttribute('download', 'screenshot.png');
+    link.click();
+}
 
 function init() 
 {
@@ -75,9 +88,14 @@ function init()
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
     orbitControls.addEventListener('change', () => {
         viewer.getScene().setUpdateTransforms();
-    })  
+    })      
 
-    // Load model and shaders
+    // Add hotkey S to save the contents of the contents of the thee.sjs renderer to a file
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 's') {
+            snapshot = true;
+        }
+    });
 
     // Initialize editor
     viewer.getEditor().initialize();
@@ -153,6 +171,12 @@ function animate()
 
     composer.render();
     viewer.getScene().updateTransforms();
+
+    if (snapshot)
+    {
+        performSnapshot();
+        snapshot = false;
+    }
 }
 
 function handleKeyEvents(event)
