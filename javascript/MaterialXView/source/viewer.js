@@ -869,6 +869,7 @@ export class Material
                                         {
                                             currentFolder = matUI.addFolder(uifolderName);
                                         }  
+                                        currentFolder.domElement.classList.add('peditorfolder');                                
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -1007,7 +1008,8 @@ export class Material
                                 }
                                 if (enumList.length == 0)
                                 {
-                                    currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    let w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    w.domElement.classList.add('peditoritem');
                                 }    
                                 else
                                 {
@@ -1035,6 +1037,7 @@ export class Material
                                     const defaultOption = enumList[value]; // Set the default selected option
                                     const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
                                     dropdownController.onChange(handleDropdownChange);                                
+                                    dropdownController.domElement.classList.add('peditoritem');
                                 }
                             }
                             break;
@@ -1043,7 +1046,8 @@ export class Material
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null)
                             {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                let w = currentFolder.add(material.uniforms[name], 'value').name(path);
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1085,6 +1089,7 @@ export class Material
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
                                     let w = vecFolder.add(material.uniforms[name].value, 
                                         key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
+                                    w.domElement.classList.add('peditoritem');                                
                                 })
                             }
                             break;
@@ -1101,11 +1106,12 @@ export class Material
                                 const color3 = new THREE.Color(dummy.color);
                                 color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
-                                currentFolder.addColor(dummy, 'color').name(path)
+                                let w = currentFolder.addColor(dummy, 'color').name(path)
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
                                     });
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1123,6 +1129,7 @@ export class Material
                                 item = currentFolder.add(material.uniforms[name], 'value');
                                 item.name(path);
                                 item.readonly(true);
+                                item.domElement.classList.add('peditoritem');                                
                             }
                             break;
                         default:
