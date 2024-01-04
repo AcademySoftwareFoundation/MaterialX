@@ -637,16 +637,18 @@ export class Material
         // Only create the shader once even if assigned more than once.
         var startGenTime = performance.now();
         let shaderMap = new Map();
+        let closeUI = false;
         for (let matassign of this._materials)
         {
             let materialName = matassign.getMaterial().getName();
             let shader = shaderMap[materialName];
             if (!shader)
             {
-                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath, closeUI);
                 shaderMap[materialName] = shader;
             }
             matassign.setShader(shader);
+            closeUI = true;
         }
         console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.", );
 
@@ -694,7 +696,7 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer, searchPath) 
+    generateMaterial(elem, viewer, searchPath, closeUI) 
     {
         var startGenerateMat = performance.now();
 
@@ -767,7 +769,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, viewer);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer, closeUI);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -779,7 +781,7 @@ export class Material
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui)
+    updateEditor(elem, shader, material, gui, viewer, closeUI)
     {
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
@@ -788,6 +790,10 @@ export class Material
 
         const elemPath = elem.getNamePath();
         var matUI = gui.addFolder(elemPath + ' Properties');
+        if (closeUI)
+        {
+            matUI.close();
+        }                                      
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -852,8 +858,17 @@ export class Material
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
-                                    if (!currentFolder) {
-                                        currentFolder = matUI.addFolder(uifolderName);
+                                    if (!currentFolder) 
+                                    {
+                                        if (nodeDefInput.hasAttribute('uiadvanced'))
+                                        {
+                                            currentFolder = matUI.addFolder(uifolderName + " (Advanced)");
+                                            currentFolder.close();
+                                        }
+                                        else
+                                        {
+                                            currentFolder = matUI.addFolder(uifolderName);
+                                        }  
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -929,7 +944,8 @@ export class Material
                                 {
                                     step = (maxValue - minValue) / 1000.0;
                                 }
-                                currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                const w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                w.domElement.classList.add('peditoritem');
                             }
                             break;
 
@@ -1017,7 +1033,7 @@ export class Material
                                         } 
                                     }                                    
                                     const defaultOption = enumList[value]; // Set the default selected option
-                                    const dropdownController = gui.add(enumeration, defaultOption, enumeration).name(path);
+                                    const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
                                     dropdownController.onChange(handleDropdownChange);                                
                                 }
                             }
