@@ -949,11 +949,17 @@ export class Material
                                 }
                                 var step = 0;
                                 var enumList = []
+                                var enumValues = []
                                 if (nodeDefInput)
                                 {
                                     if (nodeDefInput.hasAttribute('enum'))
                                     {
+                                        // Get enum and enum values attributes (if present)
                                         enumList = nodeDefInput.getAttribute('enum').split(',');
+                                        if (nodeDefInput.hasAttribute('enumvalues'))
+                                        {
+                                            enumValues = nodeDefInput.getAttribute('enumvalues').split(',').map(Number);
+                                        }
                                     }
                                     else
                                     {
@@ -989,8 +995,30 @@ export class Material
                                 }    
                                 else
                                 {
-                                    // TODO: Add enum support
-                                    currentFolder.add(material.uniforms[name], 'value' ).name(path);
+                                    // Map enumList strings to values
+                                    // Map to 0..N if no values are specified via enumvalues attribute
+                                    if (enumValues.length == 0)
+                                    {                                
+                                        for (let i = 0; i < enumList.length; ++i)
+                                        {
+                                            enumValues.push(i);
+                                        }
+                                    }
+                                    const enumeration = {};
+                                    enumList.forEach((str, index) => {
+                                        enumeration[str] = enumValues[index];
+                                    });
+                                
+                                    // Function to handle enum drop-down
+                                    function handleDropdownChange(value) {
+                                        if (material.uniforms[name])
+                                        {
+                                            material.uniforms[name].value = value;
+                                        } 
+                                    }                                    
+                                    const defaultOption = enumList[value]; // Set the default selected option
+                                    const dropdownController = gui.add(enumeration, defaultOption, enumeration).name(path);
+                                    dropdownController.onChange(handleDropdownChange);                                
                                 }
                             }
                             break;
@@ -1046,7 +1074,7 @@ export class Material
                             break;
 
                         case 'color3':
-                            // Irksome way to mape arrays to colors and back
+                            // Irksome way to map arrays to colors and back
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null)
                             {
