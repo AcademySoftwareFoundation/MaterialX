@@ -33,6 +33,7 @@ let viewer = Viewer.create();
 init();
 viewer.getEditor().updateProperties(0.9);
 
+// Save the contents of the rendered canvas to a file.
 function performSnapshot()
 {
     let canvas = document.getElementById('webglcanvas');
@@ -90,7 +91,8 @@ function init()
         viewer.getScene().setUpdateTransforms();
     })      
 
-    // Add hotkey S to save the contents of the contents of the thee.sjs renderer to a file
+    // Add hotkey S to save the contents of the rendered canvas to a file.
+    // See check inside the render loop when a snapshot can be performed.
     document.addEventListener('keydown', (event) => {
         if (event.key === 's') {
             snapshot = true;
