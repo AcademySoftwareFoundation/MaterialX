@@ -91,7 +91,7 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/noise,resources/Materials/TestSuite/pbrlib" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/noise,resources/Materials/TestSuite/pbrlib,resources/Materials/TestSuite/nprlib" />
 
     <!-- Enable reference quality rendering. Default is false. -->
     <input name="enableReferenceQuality" type="boolean" value="false" />
