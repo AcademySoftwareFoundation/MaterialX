@@ -594,7 +594,7 @@ void MslProgram::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder,
                 // Bind environment lights.
                 ImageMap envLights =
                 {
-                    { HW::ENV_RADIANCE,   lightHandler->getEnvRadianceMap() },
+                    { HW::ENV_RADIANCE,   lightHandler->getUsePrefilteredMap() ? lightHandler->getEnvPrefilteredMap() : lightHandler->getEnvRadianceMap() },
                     { HW::ENV_IRRADIANCE, lightHandler->getEnvIrradianceMap() }
                 };
                 for (const auto& env : envLights)

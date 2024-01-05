@@ -9,7 +9,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
-import { GUI } from 'dat.gui';
+import GUI from 'lil-gui'; 
 
 const ALL_GEOMETRY_SPECIFIER = "*";
 const NO_GEOMETRY_SPECIFIER = "";
@@ -416,6 +416,21 @@ export class Scene
 */
 export class Editor
 {
+    // Initialize the editor, clearing any elements from previous materials.
+    initialize()
+    {
+        Array.from(document.getElementsByClassName('lil-gui')).forEach(
+            function (element, index, array) {
+                if (element.className) {
+                    element.remove();
+                }
+            }
+        );
+
+        this._gui = new GUI( { title: "Property Editor" } );
+        this._gui.close();
+    }
+
     // Update ui properties
     // - Hide close button
     // - Update transparency so scene shows through if overlapping
@@ -427,67 +442,14 @@ export class Editor
                 element.style.opacity = targetOpacity;
             }
         );
-    
-        // Hide close button
-        if (this._hideCloseControl)
-        {
-            Array.from(document.getElementsByClassName('close-button')).forEach(
-                function (element, index, array) {
-                    element.style.display = "none";
-                }
-            );
-        }
     }
 
-    //
-    // Clear folders with children contain elements for any previous material
-    // and recreate top gui.
-    //
-    clearFolders()
-    {
-        Array.from(document.getElementsByClassName('folder')).forEach(
-            function (element, index, array) {
-                if (element.className) {
-                    let child = element.firstElementChild;
-                    if (child && child.className == 'dg') {
-                        element.remove();
-                    }
-                }
-            }
-        );
-
-        // Create new GUI.
-        this._gui = new GUI();
-    }
-
-    // Create the editor
-    initialize() 
-    {
-        // Search document to find GUI elements and remove them
-        // If not done then multiple GUIs will be created from different
-        // threads.
-        Array.from(document.getElementsByClassName('dg')).forEach(
-            function (element, index, array) {
-                if (element.className) {
-                    element.remove();
-                }
-            }
-        );
-    
-        // Create new GUI.
-        this._gui = new GUI();
-        this._gui.open();
-        
-        return this._gui;
-    }
-    
     getGUI() 
     {
         return this._gui;
     }
 
     _gui = null;
-    _hideCloseControl = false;
 }
 
 class MaterialAssign
@@ -750,8 +712,10 @@ export class Material
         var startTranspCheckTime = performance.now();
         const isTransparent = mx.isTransparentSurface(elem, gen.getTarget());
         genContext.getOptions().hwTransparency = isTransparent;
-        // Always set to reduced as the parsing of uniforms can be very expensive in WebGL
-        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_REDUCED;
+        // Always set to complete. 
+        // Can consider option to set to reduced as the parsing of large numbers of uniforms (e.g. on shading models)
+        // can be quite expensive.
+        genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
 
         if (logDetailedTime)
             console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
@@ -803,7 +767,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -817,6 +781,9 @@ export class Material
     //
     updateEditor(elem, shader, material, gui)
     {
+        const DEFAULT_MIN = 0;
+        const DEFAULT_MAX = 100;
+
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
@@ -852,8 +819,13 @@ export class Material
                         continue;
                     }
 
-                    let currentNode = currentElem ? currentElem.getParent() : null;
-                    let uiname;
+                    let currentNode = null;
+                    if (currentElem.getParent() && currentElem.getParent().getNamePath() != "")
+                    { 
+                        currentNode = currentElem.getParent();
+                    }
+                    let uiname = "";
+                    let nodeDefInput = null;
                     if (currentNode) {
 
                         let currentNodePath = currentNode.getNamePath();
@@ -870,10 +842,13 @@ export class Material
                         // Check for ui attributes
                         var nodeDef = currentNode.getNodeDef();
                         if (nodeDef) {
-                            let input = nodeDef.getActiveInput(name);
-                            if (input) {
-                                uiname = input.getAttribute('uiname');
-                                let uifolderName = input.getAttribute('uifolder');
+                            // Remove node name from shader uniform name for non root nodes
+                            let lookup_name = name.replace(currentNode.getName() + '_', '');
+                            nodeDefInput = nodeDef.getActiveInput(lookup_name);
+                            if (nodeDefInput) 
+                            {
+                                uiname = nodeDefInput.getAttribute('uiname');
+                                let uifolderName = nodeDefInput.getAttribute('uifolder');
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
@@ -918,25 +893,140 @@ export class Material
                         }
                     }
 
-                    switch (variable.getType().getName()) {
-
+                    switch (variable.getType().getName())
+                    {
                         case 'float':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                            if (uniformToUpdate && value != null)
+                            {
+                                var minValue = DEFAULT_MIN;
+                                if (value < minValue)
+                                {
+                                    minValue = value;
+                                }
+                                var maxValue = DEFAULT_MAX;
+                                if (value > maxValue)
+                                {
+                                    maxValue = value;
+                                }
+                                var step = 0;
+                                if (nodeDefInput)
+                                {
+                                    if (nodeDefInput.hasAttribute('uisoftmin'))
+                                        minValue = parseFloat(nodeDefInput.getAttribute('uisoftmin'));
+                                    else if (nodeDefInput.hasAttribute('uimin'))
+                                        minValue = parseFloat(nodeDefInput.getAttribute('uimin'));
+
+                                    if (nodeDefInput.hasAttribute('uisoftmax'))
+                                        maxValue = parseFloat(nodeDefInput.getAttribute('uisoftmax'));
+                                    else if (nodeDefInput.hasAttribute('uimax'))
+                                        maxValue = parseFloat(nodeDefInput.getAttribute('uimax'));
+
+                                    if (nodeDefInput.hasAttribute('uistep'))
+                                        step = parseFloat(nodeDefInput.getAttribute('uistep'));
+                                }
+                                if (step == 0)
+                                {
+                                    step = (maxValue - minValue) / 1000.0;
+                                }
+                                currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
                             }
                             break;
 
                         case 'integer':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                            if (uniformToUpdate && value != null)
+                            {
+                                var minValue = DEFAULT_MIN;
+                                if (value < minValue)
+                                {
+                                    minValue = value;
+                                }
+                                var maxValue = DEFAULT_MAX;
+                                if (value > maxValue)
+                                {
+                                    maxValue = value;
+                                }
+                                var step = 0;
+                                var enumList = []
+                                var enumValues = []
+                                if (nodeDefInput)
+                                {
+                                    if (nodeDefInput.hasAttribute('enum'))
+                                    {
+                                        // Get enum and enum values attributes (if present)
+                                        enumList = nodeDefInput.getAttribute('enum').split(',');
+                                        if (nodeDefInput.hasAttribute('enumvalues'))
+                                        {
+                                            enumValues = nodeDefInput.getAttribute('enumvalues').split(',').map(Number);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (nodeDefInput.hasAttribute('uisoftmin'))
+                                            minValue = parseInt(nodeDefInput.getAttribute('uisoftmin'));
+                                        else if (nodeDefInput.hasAttribute('uimin'))
+                                            minValue = parseInt(nodeDefInput.getAttribute('uimin'));
+
+                                        if (nodeDefInput.hasAttribute('uisoftmax'))
+                                            maxValue = parseInt(nodeDefInput.getAttribute('uisoftmax'));
+                                        else if (nodeDefInput.hasAttribute('uimax'))
+                                            maxValue = parseInt(nodeDefInput.getAttribute('uimax'));
+
+                                        if (nodeDefInput.hasAttribute('uistep'))
+                                            step = parseInt(nodeDefInput.getAttribute('uistep'));
+                                    }
+                                }
+                                if (enumList.length == 0)
+                                {
+                                    if (step == 0)
+                                    {
+                                        step = 1 / (maxValue - minValue);
+                                        step = Math.ceil(step);
+                                        if (step == 0)
+                                        {
+                                            step = 1;
+                                        }
+                                    }
+                                }
+                                if (enumList.length == 0)
+                                {
+                                    currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                }    
+                                else
+                                {
+                                    // Map enumList strings to values
+                                    // Map to 0..N if no values are specified via enumvalues attribute
+                                    if (enumValues.length == 0)
+                                    {                                
+                                        for (let i = 0; i < enumList.length; ++i)
+                                        {
+                                            enumValues.push(i);
+                                        }
+                                    }
+                                    const enumeration = {};
+                                    enumList.forEach((str, index) => {
+                                        enumeration[str] = enumValues[index];
+                                    });
+                                
+                                    // Function to handle enum drop-down
+                                    function handleDropdownChange(value) {
+                                        if (material.uniforms[name])
+                                        {
+                                            material.uniforms[name].value = value;
+                                        } 
+                                    }                                    
+                                    const defaultOption = enumList[value]; // Set the default selected option
+                                    const dropdownController = gui.add(enumeration, defaultOption, enumeration).name(path);
+                                    dropdownController.onChange(handleDropdownChange);                                
+                                }
                             }
                             break;
 
                         case 'boolean':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
+                            if (uniformToUpdate && value != null)
+                            {
                                 currentFolder.add(material.uniforms[name], 'value').name(path);
                             }
                             break;
@@ -945,19 +1035,51 @@ export class Material
                         case 'vector3':
                         case 'vector4':
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
+                            if (uniformToUpdate && value != null)
+                            {
+                                var minValue = [DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN, DEFAULT_MIN];
+                                var maxValue = [DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX];
+                                var step = [0, 0, 0, 0];
+
+                                if (nodeDefInput) 
+                                {
+                                    if (nodeDefInput.hasAttribute('uisoftmin'))
+                                        minValue = nodeDefInput.getAttribute('uisoftmin').split(',').map(Number);
+                                    else if (nodeDefInput.hasAttribute('uimin'))
+                                        minValue = nodeDefInput.getAttribute('uimin').split(',').map(Number);
+
+                                    if (nodeDefInput.hasAttribute('uisoftmax'))
+                                        maxValue = nodeDefInput.getAttribute('uisoftmax').split(',').map(Number);
+                                    else if (nodeDefInput.hasAttribute('uimax'))
+                                        maxValue = nodeDefInput.getAttribute('uimax').split(',').map(Number);
+
+                                    if (nodeDefInput.hasAttribute('uistep'))
+                                            step = nodeDefInput.getAttribute('uistep').split(',').map(Number);
+                                }
+                                for (let i = 0; i < 4; ++i)
+                                {
+                                    if (step[i] == 0)
+                                    {
+                                        step[i] = 1 / (maxValue[i] - minValue[i]);
+                                    }
+                                }
+
+                                const keyString = ["x", "y", "z", "w"];
                                 let vecFolder = currentFolder.addFolder(path);
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
-                                    vecFolder.add(material.uniforms[name].value, key).name(path + "." + key);
+                                    let w = vecFolder.add(material.uniforms[name].value, 
+                                        key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
                                 })
                             }
                             break;
 
                         case 'color3':
-                            // Irksome way to mape arrays to colors and back
+                            // Irksome way to map arrays to colors and back
                             uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                var dummy = {
+                            if (uniformToUpdate && value != null)
+                            {
+                                var dummy =
+                                {
                                     color: 0xFF0000
                                 };
                                 const color3 = new THREE.Color(dummy.color);
@@ -967,8 +1089,7 @@ export class Material
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
-                                    }
-                                    );
+                                    });
                             }
                             break;
 
@@ -1035,7 +1156,7 @@ export class Viewer
     // Create shader generator, generation context and "base" document which
     // contains the standard definition libraries and lighting elements.
     //
-    async initialize(mtlxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    async initialize(mtlxIn, renderer, radianceTexture, irradianceTexture, lightRigXml)
     {
         this.mx = mtlxIn;
 
@@ -1047,30 +1168,30 @@ export class Viewer
         this.stdlib = this.mx.loadStandardLibraries(this.genContext);
         this.document.importLibrary(this.stdlib);
 
-        this.initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+        this.initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml);
 
-        loadedRadianceTexture.mapping = THREE.EquirectangularReflectionMapping;
-        this.getScene().setBackgroundTexture(loadedRadianceTexture);
+        radianceTexture.mapping = THREE.EquirectangularReflectionMapping;
+        this.getScene().setBackgroundTexture(radianceTexture);
     }
 
     //
     // Load in lighting rig document and register lights with generation context
     // Initialize environment lighting (IBLs).
     //
-    async initializeLighting(renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture)
+    async initializeLighting(renderer, radianceTexture, irradianceTexture, lightRigXml)
     {
         // Load lighting setup into document
         const mx = this.getMx();
         this.lightRigDoc = mx.createDocument();
-        await mx.readFromXmlString(this.lightRigDoc, loadedLightSetup);
+        await mx.readFromXmlString(this.lightRigDoc, lightRigXml);
         this.document.importLibrary(this.lightRigDoc);
 
         // Register lights with generation context
         this.lights = findLights(this.document);
         this.lightData = registerLights(mx, this.lights, this.genContext);
 
-        this.radianceTexture = prepareEnvTexture(loadedRadianceTexture, renderer.capabilities);
-        this.irradianceTexture = prepareEnvTexture(loadedIrradianceTexture, renderer.capabilities);
+        this.radianceTexture = prepareEnvTexture(radianceTexture, renderer.capabilities);
+        this.irradianceTexture = prepareEnvTexture(irradianceTexture, renderer.capabilities);
     }
 
     getEditor() {
