@@ -91,10 +91,10 @@ function init()
         viewer.getScene().setUpdateTransforms();
     })      
 
-    // Add hotkey S to save the contents of the rendered canvas to a file.
+    // Add hotkey 'f' to save the contents of the rendered canvas to a file.
     // See check inside the render loop when a snapshot can be performed.
     document.addEventListener('keydown', (event) => {
-        if (event.key === 's') {
+        if (event.key === 'f') {
             snapshot = true;
         }
     });
