@@ -511,14 +511,21 @@ export class Material
     // If no material file is selected, we programmatically create a default material as a fallback
     static createFallbackMaterial(doc) 
     {
-        const ssName = 'SR_default';
-        const ssNode = doc.addChildOfCategory('standard_surface', ssName);
+        let ssNode = doc.getChild('Generated_Default_Shader');
+        if (ssNode)
+        {
+            return ssNode;
+        } 
+        const ssName = 'Generated_Default_Shader';
+        ssNode = doc.addChildOfCategory('standard_surface', ssName);
         ssNode.setType('surfaceshader');
         const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
         smNode.setType('material');
         const shaderElement = smNode.addInput('surfaceshader');
         shaderElement.setType('surfaceshader');
         shaderElement.setNodeName(ssName);
+
+        return ssNode;
     }
 
     async loadMaterialFile(loader, materialFilename)
@@ -565,7 +572,7 @@ export class Material
         // Check if there are any looks defined in the document
         // If so then traverse the looks for all material assignments.
         // Generate code and compile for any associated surface shader
-        // and assign to the associatged geometry. If there are no looks
+        // and assign to the associated geometry. If there are no looks
         // then the first material is found and assignment to all the
         // geometry. 
         this._materials.length = 0;
@@ -623,14 +630,95 @@ export class Material
         }
         else
         {
-            // Search for any surface shader. It
+            // Search for any surface shaders. The first found
             // is assumed to be assigned to the entire scene
             // The identifier used is "*" to mean the entire scene. 
-            let elem = mx.findRenderableElement(doc);
-            if (elem)
+            const materialNodes = doc.getMaterialNodes();
+            let shaderList = [];
+            let foundRenderable = false;            
+            for (let i=0; i<materialNodes.length; ++i)
             {
-                this._materials.push(new MaterialAssign(elem, ALL_GEOMETRY_SPECIFIER));
+                let materialNode = materialNodes[i];
+                if (materialNode)
+                {
+                    console.log('Scan material: ', materialNode.getNamePath());
+                    let shaderNodes = mx.getShaderNodes(materialNode)
+                    if (shaderNodes.length > 0)
+                    {
+                        let shaderNodePath = shaderNodes[0].getNamePath()
+                        if (!shaderList.includes(shaderNodePath))
+                        {
+                            let assignment = NO_GEOMETRY_SPECIFIER;
+                            if (!foundRenderable)
+                            {
+                                assignment = ALL_GEOMETRY_SPECIFIER;
+                                foundRenderable = true;
+                            }                        
+                            console.log('-- add shader: ', shaderNodePath);
+                            shaderList.push(shaderNodePath);
+                            this._materials.push(new MaterialAssign(shaderNodes[0], assignment));
+                        }
+                    }
+                }            
             }
+            const nodeGraphs = doc.getNodeGraphs();
+            for (let i=0; i<nodeGraphs.length; ++i)
+            {
+                let nodeGraph = nodeGraphs[i];
+                if (nodeGraph)
+                {
+                    if (nodeGraph.hasAttribute('nodedef') || nodeGraph.hasSourceUri())
+                    {
+                        continue;
+                    } 
+                    console.log('Scan nodegraph: ', nodeGraph.getNamePath());
+                    let outputs = nodeGraph.getOutputs();
+                    for (let j=0; j<outputs.length; ++j)
+                    {
+                        let output = outputs[j];
+                        //if (output.getDownstreamPorts().length == 0)
+                        {
+                            console.log('-- add output: ', output.getNamePath());
+                            this._materials.push(new MaterialAssign(output, NO_GEOMETRY_SPECIFIER));
+                        }
+                    }
+                }
+            }
+            const outputs = doc.getOutputs();
+            for (let i=0; i<outputs.length; ++i)
+            {
+                let output = outputs[i];
+                if (output)
+                {
+                    console.log('Scan output: ', output.getNamePath());
+                    this._materials.push(new MaterialAssign(output, NO_GEOMETRY_SPECIFIER));
+                }
+            }
+
+            const shaderNodes = []; // mx.getShaderNodes(doc);
+            for (let i=0; i<shaderNodes.length; ++i)
+            {
+                let shaderNode = shaderNodes[i];
+                let shaderNodePath = shaderNode.getNamePath()
+                if (!shaderList.includes(shaderNodePath))
+                {
+                    let assignment = NO_GEOMETRY_SPECIFIER;
+                    if (!foundRenderable)
+                    {
+                        assignment = ALL_GEOMETRY_SPECIFIER;
+                        foundRenderable = true;
+                    }
+                    shaderList.push(shaderNodePath);
+                    this._materials.push(new MaterialAssign(shaderNode, assignment));
+                }
+            }
+        }
+
+        // Assign to default material if none found
+        if (this._materials.length == 0)
+        {
+            const defaultNode = Material.createFallbackMaterial(doc);
+            this._materials.push(new MaterialAssign(defaultNode, ALL_GEOMETRY_SPECIFIER));
         }
         
         // Create a new shader for each material node.
@@ -639,7 +727,8 @@ export class Material
         let shaderMap = new Map();
         for (let matassign of this._materials)
         {
-            let materialName = matassign.getMaterial().getName();
+            // Need to use path vs name to get a unique key.
+            let materialName = matassign.getMaterial().getNamePath();
             let shader = shaderMap[materialName];
             if (!shader)
             {
@@ -1102,11 +1191,15 @@ export class Material
                         case 'filename':
                             break;
                         case 'string':
-                            uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                item = currentFolder.add(material.uniforms[name], 'value');
+                            console.log('String: ', name);
+                            if (value != null) {
+                                var dummy =
+                                {
+                                    thevalue: value
+                                }
+                                let item = currentFolder.add(dummy, 'thevalue');
                                 item.name(path);
-                                item.readonly(true);
+                                item.disable(true);
                             }
                             break;
                         default:
