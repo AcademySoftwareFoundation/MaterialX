@@ -861,10 +861,6 @@ export class Material
                                     if (!currentFolder) 
                                     {
                                         currentFolder = matUI.addFolder(uifolderName);
-                                        if (nodeDefInput.hasAttribute('uiadvanced'))
-                                        {
-                                            currentFolder.close();
-                                        }
                                         currentFolder.domElement.classList.add('peditorfolder');                                
                                         folderList[newFolderName] = currentFolder;
                                     }
