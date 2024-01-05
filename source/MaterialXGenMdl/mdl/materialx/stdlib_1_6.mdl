@@ -1367,7 +1367,7 @@ export float mx_time_float(
 }
 
 export float3 mx_viewdirection_vector3(
-	uniform mx_coordinatespace_type mxp_space = mx_coordinatespace_type(mx_coordinatespace_type_world)	
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type_world
 	[[
 		anno::description("Enumeration {model,object,world}."),
         anno::unused()
