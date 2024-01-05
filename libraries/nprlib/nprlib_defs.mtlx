@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations of standard data types and nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- View-dependent nodes                                                     -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <viewdirection>
+    The current scene view direction, as defined by the shading environment.
+  -->
+  <nodedef name="ND_viewdirection_vector3" node="viewdirection" nodegroup="npr">
+    <input name="space" type="string" value="world" enum="model,object,world" uniform="true" />
+    <output name="out" type="vector3" default="0.0, 0.0, 1.0" />
+  </nodedef>
+
+</materialx>

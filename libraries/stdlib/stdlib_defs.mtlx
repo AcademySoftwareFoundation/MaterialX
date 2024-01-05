@@ -4360,6 +4360,33 @@
   </nodedef>
 
   <!--
+    Node <creatematrix>
+    Combine the the three vectors3 from stream into a matrix 33.
+  -->
+  <nodedef name="ND_creatematrix_vector3_matrix33" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <output name="out" type="matrix33" default="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector3_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector4" value="1.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" />
+    <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" />
+    <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
     Node: <extract> Supplemental Node
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->

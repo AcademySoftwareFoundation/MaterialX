@@ -76,6 +76,26 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
     return shader;
 }
 
+ShaderPtr createEnvPrefilterShader(GenContext& context,
+                                        DocumentPtr stdLib,
+                                        const string& shaderName)
+{
+    // Construct a dummy nodegraph.
+    DocumentPtr doc = createDocument();
+    doc->importLibrary(stdLib);
+    NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    NodePtr constant = nodeGraph->addNode("constant");
+    OutputPtr output = nodeGraph->addOutput();
+    output->setConnectedNode(constant);
+
+    // Generate the shader
+    GenContext tableContext = context;
+    tableContext.getOptions().hwWriteEnvPrefilter = true;
+    ShaderPtr shader = createShader(shaderName, tableContext, output);
+
+    return shader;
+}
+
 ShaderPtr createBlurShader(GenContext& context,
                            DocumentPtr stdLib,
                            const string& shaderName,
