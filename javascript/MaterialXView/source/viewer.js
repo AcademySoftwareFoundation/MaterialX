@@ -303,13 +303,16 @@ export class Scene
                     }
                     else
                     {
-                        const paths = geometry.split(',');
-                        for (let path of paths)
+                        if (geometry != NO_GEOMETRY_SPECIFIER)
                         {
-                            if (dagPath.match(path))
+                            const paths = geometry.split(',');
+                            for (let path of paths)
                             {
-                                matches = true;
-                                break;
+                                if (dagPath.match(path))
+                                {
+                                    matches = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -617,7 +620,7 @@ export class Material
                         }
                         else
                         {
-                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER);
+                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER, null);
                         }
 
                         if (newAssignment)
@@ -649,7 +652,7 @@ export class Material
                         if (!shaderList.includes(shaderNodePath))
                         {
                             let assignment = NO_GEOMETRY_SPECIFIER;
-                            if (!foundRenderable)
+                            if (foundRenderable == false)
                             {
                                 assignment = ALL_GEOMETRY_SPECIFIER;
                                 foundRenderable = true;
@@ -671,15 +674,25 @@ export class Material
                     {
                         continue;
                     } 
-                    console.log('Scan nodegraph: ', nodeGraph.getNamePath());
+                    // Skip any nodegraph that is connected to something downstream
+                    if (nodeGraph.getDownstreamPorts().length > 0)
+                    {
+                        continue
+                    }
                     let outputs = nodeGraph.getOutputs();
                     for (let j=0; j<outputs.length; ++j)
                     {
                         let output = outputs[j];
-                        //if (output.getDownstreamPorts().length == 0)
                         {
-                            console.log('-- add output: ', output.getNamePath());
-                            this._materials.push(new MaterialAssign(output, NO_GEOMETRY_SPECIFIER));
+                            let assignment = NO_GEOMETRY_SPECIFIER;
+                            if (foundRenderable == false)
+                            {
+                                assignment = ALL_GEOMETRY_SPECIFIER;
+                                foundRenderable = true;
+                            }
+                            let newMat = new MaterialAssign(output, assignment, null);
+                            console.log('-- add nodegraph output: ', output.getNamePath());
+                            this._materials.push(newMat);
                         }
                     }
                 }
@@ -690,12 +703,18 @@ export class Material
                 let output = outputs[i];
                 if (output)
                 {
-                    console.log('Scan output: ', output.getNamePath());
-                    this._materials.push(new MaterialAssign(output, NO_GEOMETRY_SPECIFIER));
+                    let assignment = NO_GEOMETRY_SPECIFIER;
+                    if (foundRenderable == false)
+                    {
+                        assignment = ALL_GEOMETRY_SPECIFIER;
+                        foundRenderable = true;
+                    }
+                    console.log('Add top level output: ', output.getNamePath());
+                    this._materials.push(new MaterialAssign(output, assignment));
                 }
             }
 
-            const shaderNodes = []; // mx.getShaderNodes(doc);
+            const shaderNodes = []; 
             for (let i=0; i<shaderNodes.length; ++i)
             {
                 let shaderNode = shaderNodes[i];
@@ -703,7 +722,7 @@ export class Material
                 if (!shaderList.includes(shaderNodePath))
                 {
                     let assignment = NO_GEOMETRY_SPECIFIER;
-                    if (!foundRenderable)
+                    if (foundRenderable == false)
                     {
                         assignment = ALL_GEOMETRY_SPECIFIER;
                         foundRenderable = true;
@@ -732,7 +751,8 @@ export class Material
             let shader = shaderMap[materialName];
             if (!shader)
             {
-                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+                let assignedToGeom = matassign.getGeometry() != NO_GEOMETRY_SPECIFIER;
+                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath, assignedToGeom);
                 shaderMap[materialName] = shader;
             }
             matassign.setShader(shader);
@@ -783,7 +803,7 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer, searchPath) 
+    generateMaterial(elem, viewer, searchPath, assignedToGeom) 
     {
         var startGenerateMat = performance.now();
 
@@ -856,7 +876,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, viewer);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer, assignedToGeom);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -868,7 +888,7 @@ export class Material
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui)
+    updateEditor(elem, shader, material, gui, viewer, assignedToGeom)
     {
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
@@ -876,7 +896,19 @@ export class Material
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
-        var matUI = gui.addFolder(elemPath + ' Properties');
+        var matUI = gui.addFolder(elemPath);
+        let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+        // Color material folder title based on whether it is assigned to geometry
+        if (assignedToGeom)
+        {
+            matTitle.classList.add('peditor_material_assigned');
+        }
+        else
+        {
+            matTitle.classList.add('peditor_material_unassigned');
+            matUI.close();
+        }
+
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -943,6 +975,7 @@ export class Material
                                     currentFolder = folderList[newFolderName];
                                     if (!currentFolder) {
                                         currentFolder = matUI.addFolder(uifolderName);
+                                        currentFolder.domElement.style.backgroundColor = '#333333';
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -1106,7 +1139,7 @@ export class Material
                                         } 
                                     }                                    
                                     const defaultOption = enumList[value]; // Set the default selected option
-                                    const dropdownController = gui.add(enumeration, defaultOption, enumeration).name(path);
+                                    const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
                                     dropdownController.onChange(handleDropdownChange);                                
                                 }
                             }
