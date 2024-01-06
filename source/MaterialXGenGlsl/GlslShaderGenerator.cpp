@@ -913,31 +913,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     return impl;
 }
 
-const string GlslImplementation::SPACE = "space";
-const string GlslImplementation::INDEX = "index";
-const string GlslImplementation::GEOMPROP = "geomprop";
-
-namespace
-{
-
-// List name of inputs that are not to be editable and
-// published as shader uniforms in GLSL.
-const std::set<string> IMMUTABLE_INPUTS =
-{
-    // Geometric node inputs are immutable since a shader needs regeneration if they change.
-    "index", "space", "attrname"
-};
-
-} // anonymous namespace
-
 const string& GlslImplementation::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
-}
-
-bool GlslImplementation::isEditable(const ShaderInput& input) const
-{
-    return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
 MATERIALX_NAMESPACE_END
