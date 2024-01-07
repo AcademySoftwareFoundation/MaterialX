@@ -44,7 +44,7 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genosl" nodedef="ND_normalmap" file="mx_normalmap.osl" function="mx_normalmap_float" target="genosl" />
+  <implementation name="IM_normalmap_float_genosl" nodedef="ND_normalmap" file="mx_normalmap.osl" function="mx_normalmap_float" target="genosl" />
   <implementation name="IM_normalmap_vector2_genosl" nodedef="ND_normalmap_vector2" file="mx_normalmap.osl" function="mx_normalmap_vector2" target="genosl" />
 
   <!-- ======================================================================== -->
