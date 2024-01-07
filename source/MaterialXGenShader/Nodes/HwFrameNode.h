@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_VIEWDIRECTIONNODEGLSL_H
-#define MATERIALX_VIEWDIRECTIONNODEGLSL_H
+#ifndef MATERIALX_HWFRAMENODE_H
+#define MATERIALX_HWFRAMENODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// ViewDirection node implementation for GLSL
-class MX_GENGLSL_API ViewDirectionNodeGlsl : public GlslImplementation
+/// Frame node implementation for hardware languages
+class MX_GENSHADER_API HwFrameNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();
