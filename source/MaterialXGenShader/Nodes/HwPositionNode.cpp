@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/PositionNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwPositionNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr PositionNodeMsl::create()
+ShaderNodeImplPtr HwPositionNode::create()
 {
-    return std::make_shared<PositionNodeMsl>();
+    return std::make_shared<HwPositionNode>();
 }
 
-void PositionNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwPositionNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage vs = shader.getStage(Stage::VERTEX);
     ShaderStage ps = shader.getStage(Stage::PIXEL);
@@ -33,9 +33,9 @@ void PositionNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shade
     }
 }
 
-void PositionNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwPositionNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;

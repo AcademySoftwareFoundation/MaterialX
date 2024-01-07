@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_POSITIONNODEMSL_H
-#define MATERIALX_POSITIONNODEMSL_H
+#ifndef MATERIALX_HWBITANGENTNODE_H
+#define MATERIALX_HWBITANGENTNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Position node implementation for MSL
-class MX_GENMSL_API PositionNodeMsl : public MslImplementation
+/// Bitangent node implementation for hardware languages
+class MX_GENSHADER_API HwBitangentNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();
