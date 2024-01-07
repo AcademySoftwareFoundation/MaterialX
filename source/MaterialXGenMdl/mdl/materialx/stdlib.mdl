@@ -2087,7 +2087,7 @@ export float3 mx_normalmap_vector2(
 	}
 }
 
-export float3 mx_normalmap(
+export float3 mx_normalmap_float(
 	float3 mxp_in = float3(0.5, 0.5, 1.0),
 	uniform string mxp_space = string("tangent")
 	[[

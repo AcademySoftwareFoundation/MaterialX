@@ -16,7 +16,7 @@ void mx_normalmap_vector2(vector value, string map_space, vector2 normal_scale, 
     }
 }
 
-void mx_normalmap(vector value, string map_space, float normal_scale, vector N, vector U, output vector result)
+void mx_normalmap_float(vector value, string map_space, float normal_scale, vector N, vector U, output vector result)
 {
     mx_normalmap_vector2(value, map_space, vector2(normal_scale, normal_scale), N, U, result);
 }

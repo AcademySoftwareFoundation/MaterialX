@@ -15,7 +15,7 @@ void mx_normalmap_vector2(vec3 value, int map_space, vec2 normal_scale, vec3 N, 
     result = normalize(value);
 }
 
-void mx_normalmap(vec3 value, int map_space, float normal_scale, vec3 N, vec3 T,  out vec3 result)
+void mx_normalmap_float(vec3 value, int map_space, float normal_scale, vec3 N, vec3 T,  out vec3 result)
 {
     mx_normalmap_vector2(value, map_space, vec2(normal_scale), N, T, result);
 }
