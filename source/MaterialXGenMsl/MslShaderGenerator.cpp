@@ -6,10 +6,6 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 
 #include <MaterialXGenMsl/MslSyntax.h>
-#include <MaterialXGenMsl/Nodes/PositionNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/NormalNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TangentNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/BitangentNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/FrameNodeMsl.h>
@@ -33,6 +29,10 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
+#include <MaterialXGenShader/Nodes/HwPositionNode.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
+#include <MaterialXGenShader/Nodes/HwTangentNode.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -169,13 +169,13 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, PositionNodeMsl::create);
+    registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, HwPositionNode::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_" + MslShaderGenerator::TARGET, NormalNodeMsl::create);
+    registerImplementation("IM_normal_vector3_" + MslShaderGenerator::TARGET, HwNormalNode::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_" + MslShaderGenerator::TARGET, TangentNodeMsl::create);
+    registerImplementation("IM_tangent_vector3_" + MslShaderGenerator::TARGET, HwTangentNode::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, BitangentNodeMsl::create);
+    registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, HwBitangentNode::create);
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
