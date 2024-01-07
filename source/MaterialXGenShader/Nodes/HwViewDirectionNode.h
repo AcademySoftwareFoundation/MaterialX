@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_TIMENODEMSL_H
-#define MATERIALX_TIMENODEMSL_H
+#ifndef MATERIALX_HWVIEWDIRECTIONNODE_H
+#define MATERIALX_HWVIEWDIRECTIONNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Time node implementation for MSL
-class MX_GENMSL_API TimeNodeMsl : public MslImplementation
+/// ViewDirection node implementation for hardware languages
+class MX_GENSHADER_API HwViewDirectionNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

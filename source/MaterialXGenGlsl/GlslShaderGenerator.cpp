@@ -8,9 +8,6 @@
 #include <MaterialXGenGlsl/GlslSyntax.h>
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ViewDirectionNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
@@ -33,6 +30,9 @@
 #include <MaterialXGenShader/Nodes/HwNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -194,11 +194,11 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, FrameNodeGlsl::create);
+    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, HwFrameNode::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, TimeNodeGlsl::create);
+    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, ViewDirectionNodeGlsl::create);
+    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);

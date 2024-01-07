@@ -8,9 +8,6 @@
 #include <MaterialXGenMsl/MslSyntax.h>
 #include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/FrameNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TimeNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/ViewDirectionNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/UnlitSurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
@@ -33,6 +30,9 @@
 #include <MaterialXGenShader/Nodes/HwNormalNode.h>
 #include <MaterialXGenShader/Nodes/HwTangentNode.h>
 #include <MaterialXGenShader/Nodes/HwBitangentNode.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -198,11 +198,11 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation("IM_geompropvalue_string_" + MslShaderGenerator::TARGET, GeomPropValueNodeMslAsUniform::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, FrameNodeMsl::create);
+    registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, HwFrameNode::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, TimeNodeMsl::create);
+    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, ViewDirectionNodeMsl::create);
+    registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
