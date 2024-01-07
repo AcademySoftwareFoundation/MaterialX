@@ -74,7 +74,7 @@ class MX_RENDER_API ShaderMaterial
     /// Generate a shader from our currently stored element and
     /// the given generator context.
     virtual bool generateShader(GenContext& context) = 0;
-    
+
     /// Copies shader and API specific generated program from ShaderMaterial to this one.
     virtual void copyShader(MaterialPtr ShaderMaterial) = 0;
 
@@ -86,7 +86,7 @@ class MX_RENDER_API ShaderMaterial
                                            const FilePath& filename,
                                            DocumentPtr stdLib,
                                            const FilePath& imagePath);
-    
+
     /// Return the underlying hardware shader.
     ShaderPtr getShader() const;
 

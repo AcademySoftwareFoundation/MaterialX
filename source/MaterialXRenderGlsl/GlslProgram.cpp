@@ -59,7 +59,7 @@ void GlslProgram::setStages(ShaderPtr shader)
 
     // Extract out the shader code per stage
     _shader = shader;
-    for (size_t i =0; i<shader->numStages(); ++i)
+    for (size_t i = 0; i < shader->numStages(); ++i)
     {
         const ShaderStage& stage = shader->getStage(i);
         addStage(stage.getName(), stage.getSourceCode());
@@ -101,7 +101,7 @@ void GlslProgram::build()
 
     // Compile vertex shader, if any
     GLuint vertexShaderId = UNDEFINED_OPENGL_RESOURCE_ID;
-    const string &vertexShaderSource = _stages[Stage::VERTEX];
+    const string& vertexShaderSource = _stages[Stage::VERTEX];
     if (!vertexShaderSource.empty())
     {
         vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -138,7 +138,7 @@ void GlslProgram::build()
         fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 
         // Compile fragment shader
-        const char *fragmentChar = fragmentShaderSource.c_str();
+        const char* fragmentChar = fragmentShaderSource.c_str();
         glShaderSource(fragmentShaderId, 1, &fragmentChar, nullptr);
         glCompileShader(fragmentShaderId);
 
@@ -324,7 +324,7 @@ void GlslProgram::bindPartition(MeshPartitionPtr part)
 
 void GlslProgram::bindMesh(MeshPtr mesh)
 {
-    _enabledStreamLocations.clear(); 
+    _enabledStreamLocations.clear();
 
     if (_programId == UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -547,7 +547,7 @@ void GlslProgram::bindTextures(ImageHandlerPtr imageHandler)
 
             // Always bind a texture unless it is a lighting texture.
             // Lighting textures are handled in the bindLighting() call.
-            // If no texture can be loaded then the default color defined in 
+            // If no texture can be loaded then the default color defined in
             // "samplingProperties" will be used to create a fallback texture.
             if (fileName != HW::ENV_RADIANCE &&
                 fileName != HW::ENV_IRRADIANCE)
@@ -578,9 +578,20 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
+    ImagePtr envRadiance = nullptr;
+    if (lightHandler->getIndirectLighting())
+    {
+        envRadiance = lightHandler->getUsePrefilteredMap() ?
+            lightHandler->getEnvPrefilteredMap() :
+            lightHandler->getEnvRadianceMap();
+    }
+    else
+    {
+        envRadiance = imageHandler->getZeroImage();
+    }
     ImageMap envImages =
     {
-        { HW::ENV_RADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { HW::ENV_RADIANCE, envRadiance },
         { HW::ENV_IRRADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
     for (const auto& env : envImages)
@@ -903,7 +914,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
         // Process constants
         const VariableBlock& constants = ps.getConstantBlock();
-        for (size_t i=0; i< constants.size(); ++i)
+        for (size_t i = 0; i < constants.size(); ++i)
         {
             const ShaderPort* v = constants[i];
             // There is no way to match with an unnamed variable
@@ -1197,9 +1208,9 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
         string colorspace = input.second->colorspace;
         bool isConstant = input.second->isConstant;
         outputStream << "Program Uniform: \"" << input.first
-            << "\". Location:" << location
-            << ". GLtype: " << std::hex << gltype
-            << ". Size: " << std::dec << size;
+                     << "\". Location:" << location
+                     << ". GLtype: " << std::hex << gltype
+                     << ". Size: " << std::dec << size;
         if (!type.empty())
             outputStream << ". TypeString: \"" << type << "\"";
         if (!value.empty())
@@ -1217,7 +1228,6 @@ void GlslProgram::printUniforms(std::ostream& outputStream)
     }
 }
 
-
 void GlslProgram::printAttributes(std::ostream& outputStream)
 {
     updateAttributesList();
@@ -1229,9 +1239,9 @@ void GlslProgram::printAttributes(std::ostream& outputStream)
         string type = input.second->typeString;
         string value = input.second->value ? input.second->value->getValueString() : EMPTY_STRING;
         outputStream << "Program Attribute: \"" << input.first
-            << "\". Location:" << location
-            << ". GLtype: " << std::hex << gltype
-            << ". Size: " << std::dec << size;
+                     << "\". Location:" << location
+                     << ". GLtype: " << std::hex << gltype
+                     << ". Size: " << std::dec << size;
         if (!type.empty())
             outputStream << ". TypeString: \"" << type << "\"";
         if (!value.empty())

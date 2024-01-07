@@ -82,26 +82,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
         }
     }
 
-    // Remap references to unimplemented shader nodedefs.
-    for (mx::NodePtr materialNode : doc->getMaterialNodes())
-    {
-        for (mx::NodePtr shader : getShaderNodes(materialNode))
-        {
-            mx::NodeDefPtr nodeDef = shader->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shader->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
-
     // Remap unsupported texture coordinate indices.
     for (mx::ElementPtr elem : doc->traverseTree())
     {
@@ -319,7 +299,7 @@ void RenderView::loadMesh(const mx::FilePath& filename)
         _cameraTarget = mx::Vector3();
 
         initCamera();
-    
+
         if (_shadowMap)
         {
             _imageHandler->releaseRenderResources(_shadowMap);
@@ -868,7 +848,7 @@ void RenderView::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _viewWidth, (float) _viewHeight));
 
-    if ( _geometryHandler->getMeshes().empty())
+    if (_geometryHandler->getMeshes().empty())
     {
         return;
     }

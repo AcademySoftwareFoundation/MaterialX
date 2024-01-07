@@ -45,7 +45,7 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
     ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const override;
 
     /// Determine the prefix of vertex data variables.
-    virtual string getVertexDataPrefix(const VariableBlock& vertexData) const;
+    string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
   public:
     /// Unique identifier for this generator target
@@ -88,35 +88,13 @@ class MX_GENGLSL_API GlslShaderGenerator : public HwShaderGenerator
 };
 
 /// Base class for common GLSL node implementations
-class MX_GENGLSL_API GlslImplementation : public ShaderNodeImpl
+class MX_GENGLSL_API GlslImplementation : public HwImplementation
 {
   public:
     const string& getTarget() const override;
 
-    bool isEditable(const ShaderInput& input) const override;
-
   protected:
     GlslImplementation() { }
-
-    // Integer identifiers for coordinate spaces.
-    // The order must match the order given for
-    // the space enum string in stdlib.
-    enum Space
-    {
-        MODEL_SPACE = 0,
-        OBJECT_SPACE = 1,
-        WORLD_SPACE = 2
-    };
-
-    /// Internal string constants
-    static const string SPACE;
-    static const string TO_SPACE;
-    static const string FROM_SPACE;
-    static const string WORLD;
-    static const string OBJECT;
-    static const string MODEL;
-    static const string INDEX;
-    static const string GEOMPROP;
 };
 
 MATERIALX_NAMESPACE_END

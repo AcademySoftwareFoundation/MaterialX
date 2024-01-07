@@ -75,6 +75,7 @@ TEST_CASE("Look", "[look]")
     // Create an inherited look.
     mx::LookPtr look2 = doc->addLook();
     look2->setInheritsFrom(look);
+    REQUIRE(look2->getActiveMaterialAssigns().size() == 2);
     REQUIRE(look2->getActivePropertySetAssigns().size() == 1);
     REQUIRE(look2->getActiveVisibilities().size() == 1);
 
@@ -86,6 +87,7 @@ TEST_CASE("Look", "[look]")
 
     // Disconnect the inherited look.
     look2->setInheritsFrom(nullptr);
+    REQUIRE(look2->getActiveMaterialAssigns().empty());
     REQUIRE(look2->getActivePropertySetAssigns().empty());
     REQUIRE(look2->getActiveVisibilities().empty());
 }

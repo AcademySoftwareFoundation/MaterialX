@@ -121,26 +121,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
         }
     }
 
-    // Remap references to unimplemented shader nodedefs.
-    for (mx::NodePtr materialNode : doc->getMaterialNodes())
-    {
-        for (mx::NodePtr shader : getShaderNodes(materialNode))
-        {
-            mx::NodeDefPtr nodeDef = shader->getNodeDef();
-            if (nodeDef && !nodeDef->getImplementation())
-            {
-                std::vector<mx::NodeDefPtr> altNodeDefs = doc->getMatchingNodeDefs(nodeDef->getNodeString());
-                for (mx::NodeDefPtr altNodeDef : altNodeDefs)
-                {
-                    if (altNodeDef->getImplementation())
-                    {
-                        shader->setNodeDefString(altNodeDef->getName());
-                    }
-                }
-            }
-        }
-    }
-
     // Remap unsupported texture coordinate indices.
     for (mx::ElementPtr elem : doc->traverseTree())
     {
@@ -156,55 +136,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
         }
     }
 }
-
-// ViewDir implementation for GLSL
-// as needed for the environment shader.
-template<typename NodeGraphImpl>
-class ViewDir : public NodeGraphImpl
-{
-public:
-    static  mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<ViewDir>();
-    }
-
-    void createVariables(const  mx::ShaderNode&, mx::GenContext&, mx::Shader& shader) const override
-    {
-        mx::ShaderStage& vs = shader.getStage(mx::Stage::VERTEX);
-        mx::ShaderStage& ps = shader.getStage(mx::Stage::PIXEL);
-        addStageInput(mx::HW::VERTEX_INPUTS, mx::Type::VECTOR3, mx::HW::T_IN_POSITION, vs);
-        addStageConnector(mx::HW::VERTEX_DATA, mx::Type::VECTOR3, mx::HW::T_POSITION_WORLD, vs, ps);
-        addStageUniform(mx::HW::PRIVATE_UNIFORMS, mx::Type::VECTOR3, mx::HW::T_VIEW_POSITION, ps);
-    }
-
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
-        {
-            mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            if (!position->isEmitted())
-            {
-                position->setEmitted();
-                shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
-            }
-        }
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
 
 } // anonymous namespace
 
@@ -317,10 +248,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderPipeline = MetalRenderPipeline::create(this);
     _renderPipeline->initialize(ng::metal_device(),
                                 ng::metal_command_queue());
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + _genContext.getShaderGenerator().getTarget(), ViewDir<mx::MslImplementation>::create);
 #else
     _renderPipeline = GLRenderPipeline::create(this);
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + _genContext.getShaderGenerator().getTarget(), ViewDir<mx::GlslImplementation>::create);
     
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -337,7 +266,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
-    // Register the API Spcefic implementation for <viewdir> used by the environment shader.
 }
 
 void Viewer::initialize()
@@ -505,9 +433,12 @@ void Viewer::loadEnvironmentLight()
 
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
+    _imageHandler->releaseRenderResources(_lightHandler->getEnvPrefilteredMap());
     _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
+
     _lightHandler->setEnvRadianceMap(envRadianceMap);
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
+    _lightHandler->setEnvPrefilteredMap(nullptr);
 
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
@@ -766,12 +697,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    _lightHandler->setUsePrefilteredMap(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
+        _lightHandler->setUsePrefilteredMap(!enable);
         reloadShaders();
     });
 
@@ -1395,7 +1328,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
             // with later assignments superseding earlier ones.
             for (mx::LookPtr look : doc->getLooks())
             {
-                for (mx::MaterialAssignPtr matAssign : look->getMaterialAssigns())
+                for (mx::MaterialAssignPtr matAssign : look->getActiveMaterialAssigns())
                 {
                     const std::string& activeGeom = matAssign->getActiveGeom();
                     for (mx::MeshPartitionPtr part : _geometryList)
@@ -2410,7 +2343,7 @@ mx::MaterialPtr Viewer::getEnvironmentMaterial()
 {
     if (!_envMaterial)
     {
-        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/envmap_shader.mtlx"));
+        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/environment_map.mtlx"));
         try
         {
             _envMaterial = _renderPipeline->createMaterial();
