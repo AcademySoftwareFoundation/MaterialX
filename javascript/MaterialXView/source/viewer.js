@@ -485,6 +485,11 @@ class MaterialAssign
         return this._geometry;
     }
 
+    setGeometry(value)
+    {
+        this._geometry = value;
+    }
+
     getCollection()
     {
         return this._collection;
@@ -783,9 +788,10 @@ export class Material
 
         let assigned = 0;
         for (let matassign of this._materials)
-        {
+        {            
             if (matassign.getShader())
             {
+                console.log('Assign shader: ', matassign.getMaterial().getNamePath());
                 assigned += viewer.getScene().updateMaterial(matassign);
             }
         }
@@ -878,7 +884,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, viewer, closeUI, assignedToGeom);
+        this.updateEditor(elem, shader, newMaterial, gui, closeUI, assignedToGeom, this._materials, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -890,7 +896,7 @@ export class Material
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui, viewer, closeUI, assignedToGeom)
+    updateEditor(elem, shader, material, gui, closeUI, assignedToGeom, materials, viewer)
     {
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
@@ -900,6 +906,37 @@ export class Material
         const elemPath = elem.getNamePath();
         var matUI = gui.addFolder(elemPath);
         let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+        // Set HTML for matTile
+        matTitle.innerHTML = "<img id='blah' src='public/favicon.ico' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getName() + "";
+        let img = matTitle.getElementsByTagName('img')[0];
+        if (img)
+        {
+            img.addEventListener('click', function(event) 
+            {
+                event.stopPropagation();
+                if (materials)
+                {
+                    for (let i=0; i<materials.length; ++i)
+                    {
+                        let matassign = materials[i];
+                        // Need to use path vs name to get a unique key.
+                        let materialName = matassign.getMaterial().getNamePath();
+                        if (materialName == elemPath)
+                        {
+                            matassign.setGeometry(ALL_GEOMETRY_SPECIFIER);
+                            console.log('Assign material to geometry: ', elemPath);
+                        }
+                        else
+                        {
+                            matassign.setGeometry(NO_GEOMETRY_SPECIFIER);
+                        }
+                    }
+                    viewer.getMaterial().updateMaterialAssignments(viewer);
+                    viewer.getScene().setUpdateTransforms();
+                }
+            });
+        }
+    
         // Color material folder title based on whether it is assigned to geometry
         if (assignedToGeom)
         {
