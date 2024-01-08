@@ -48,7 +48,7 @@ The current Voting Members of the MaterialX TSC are:
 - Doug Smythe - Industrial Light & Magic
 - Niklas Harrysson - Lumiere Software
 - Orn Gunnarsson - Autodesk
-- David Larsson - Adobe
+- Andréa Machizaud - Adobe
 
 ### Stakeholders
 
@@ -68,8 +68,8 @@ The current Stakeholders of the MaterialX TSC are:
 - Rafal Jaroszkiewicz - SideFX
 - Lee Kerley - Sony Pictures Imageworks
 - Lutz Kettner - NVIDIA
+- Chris Kulla - Epic Games
 - Bernard Kwok - Khronos Group
-- Jonathan Litt - Epic Games
 - André Mazzone - ILM
 - Magnus Pettersson - IKEA
 - Brian Savery - AMD

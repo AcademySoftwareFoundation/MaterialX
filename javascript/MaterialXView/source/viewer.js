@@ -744,6 +744,7 @@ export class Material
         // Only create the shader once even if assigned more than once.
         var startGenTime = performance.now();
         let shaderMap = new Map();
+        let closeUI = false;
         for (let matassign of this._materials)
         {
             // Need to use path vs name to get a unique key.
@@ -752,10 +753,11 @@ export class Material
             if (!shader)
             {
                 let assignedToGeom = matassign.getGeometry() != NO_GEOMETRY_SPECIFIER;
-                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath, assignedToGeom);
+                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath, closeUI, assignedToGeom);
                 shaderMap[materialName] = shader;
             }
             matassign.setShader(shader);
+            closeUI = true;
         }
         console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.", );
 
@@ -803,7 +805,7 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer, searchPath, assignedToGeom) 
+    generateMaterial(elem, viewer, searchPath, closeUI, assignedToGeom) 
     {
         var startGenerateMat = performance.now();
 
@@ -876,7 +878,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, viewer, assignedToGeom);
+        this.updateEditor(elem, shader, newMaterial, gui, viewer, closeUI, assignedToGeom);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -888,7 +890,7 @@ export class Material
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui, viewer, assignedToGeom)
+    updateEditor(elem, shader, material, gui, viewer, closeUI, assignedToGeom)
     {
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
@@ -908,7 +910,10 @@ export class Material
             matTitle.classList.add('peditor_material_unassigned');
             matUI.close();
         }
-
+       if (closeUI)
+        {
+            matUI.close();
+        }  
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -973,9 +978,10 @@ export class Material
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
-                                    if (!currentFolder) {
+                                    if (!currentFolder) 
+                                    {
                                         currentFolder = matUI.addFolder(uifolderName);
-                                        currentFolder.domElement.style.backgroundColor = '#333333';
+                                        currentFolder.domElement.classList.add('peditorfolder');                                
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -1051,7 +1057,8 @@ export class Material
                                 {
                                     step = (maxValue - minValue) / 1000.0;
                                 }
-                                currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                const w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                w.domElement.classList.add('peditoritem');
                             }
                             break;
 
@@ -1113,7 +1120,8 @@ export class Material
                                 }
                                 if (enumList.length == 0)
                                 {
-                                    currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    let w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    w.domElement.classList.add('peditoritem');
                                 }    
                                 else
                                 {
@@ -1141,6 +1149,7 @@ export class Material
                                     const defaultOption = enumList[value]; // Set the default selected option
                                     const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
                                     dropdownController.onChange(handleDropdownChange);                                
+                                    dropdownController.domElement.classList.add('peditoritem');
                                 }
                             }
                             break;
@@ -1149,7 +1158,8 @@ export class Material
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null)
                             {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                let w = currentFolder.add(material.uniforms[name], 'value').name(path);
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1191,6 +1201,7 @@ export class Material
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
                                     let w = vecFolder.add(material.uniforms[name].value, 
                                         key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
+                                    w.domElement.classList.add('peditoritem');                                
                                 })
                             }
                             break;
@@ -1207,11 +1218,12 @@ export class Material
                                 const color3 = new THREE.Color(dummy.color);
                                 color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
-                                currentFolder.addColor(dummy, 'color').name(path)
+                                let w = currentFolder.addColor(dummy, 'color').name(path)
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
                                     });
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1233,6 +1245,7 @@ export class Material
                                 let item = currentFolder.add(dummy, 'thevalue');
                                 item.name(path);
                                 item.disable(true);
+                                item.domElement.classList.add('peditoritem');                                
                             }
                             break;
                         default:

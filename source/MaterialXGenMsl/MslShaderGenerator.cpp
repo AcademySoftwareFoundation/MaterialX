@@ -6,15 +6,8 @@
 #include <MaterialXGenMsl/MslShaderGenerator.h>
 
 #include <MaterialXGenMsl/MslSyntax.h>
-#include <MaterialXGenMsl/Nodes/PositionNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/NormalNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TangentNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/BitangentNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomColorNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/GeomPropValueNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/FrameNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/TimeNodeMsl.h>
-#include <MaterialXGenMsl/Nodes/ViewDirectionNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/SurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/UnlitSurfaceNodeMsl.h>
 #include <MaterialXGenMsl/Nodes/LightNodeMsl.h>
@@ -33,6 +26,13 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
+#include <MaterialXGenShader/Nodes/HwPositionNode.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
+#include <MaterialXGenShader/Nodes/HwTangentNode.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -169,13 +169,13 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, PositionNodeMsl::create);
+    registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, HwPositionNode::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_" + MslShaderGenerator::TARGET, NormalNodeMsl::create);
+    registerImplementation("IM_normal_vector3_" + MslShaderGenerator::TARGET, HwNormalNode::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_" + MslShaderGenerator::TARGET, TangentNodeMsl::create);
+    registerImplementation("IM_tangent_vector3_" + MslShaderGenerator::TARGET, HwTangentNode::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, BitangentNodeMsl::create);
+    registerImplementation("IM_bitangent_vector3_" + MslShaderGenerator::TARGET, HwBitangentNode::create);
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord_vector2_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + MslShaderGenerator::TARGET, HwTexCoordNode::create);
@@ -198,11 +198,11 @@ MslShaderGenerator::MslShaderGenerator() :
     registerImplementation("IM_geompropvalue_string_" + MslShaderGenerator::TARGET, GeomPropValueNodeMslAsUniform::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, FrameNodeMsl::create);
+    registerImplementation("IM_frame_float_" + MslShaderGenerator::TARGET, HwFrameNode::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, TimeNodeMsl::create);
+    registerImplementation("IM_time_float_" + MslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, ViewDirectionNodeMsl::create);
+    registerImplementation("IM_viewdirection_vector3_" + MslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MslShaderGenerator::TARGET, SurfaceNodeMsl::create);
@@ -1415,31 +1415,9 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     return impl;
 }
 
-const string MslImplementation::SPACE = "space";
-const string MslImplementation::INDEX = "index";
-const string MslImplementation::GEOMPROP = "geomprop";
-
-namespace
-{
-
-// List name of inputs that are not to be editable and
-// published as shader uniforms in MSL.
-const std::set<string> IMMUTABLE_INPUTS =
-{
-    // Geometric node inputs are immutable since a shader needs regeneration if they change.
-    "index", "space", "attrname"
-};
-
-} // namespace
-
 const string& MslImplementation::getTarget() const
 {
     return MslShaderGenerator::TARGET;
-}
-
-bool MslImplementation::isEditable(const ShaderInput& input) const
-{
-    return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
 MATERIALX_NAMESPACE_END

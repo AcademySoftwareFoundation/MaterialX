@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/Nodes/BitangentNodeGlsl.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr BitangentNodeGlsl::create()
+ShaderNodeImplPtr HwBitangentNode::create()
 {
-    return std::make_shared<BitangentNodeGlsl>();
+    return std::make_shared<HwBitangentNode>();
 }
 
-void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
+void HwBitangentNode::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     const GenOptions& options = context.getOptions();
 
@@ -51,9 +51,9 @@ void BitangentNodeGlsl::createVariables(const ShaderNode& node, GenContext& cont
     }
 }
 
-void BitangentNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwBitangentNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const GlslShaderGenerator& shadergen = static_cast<const GlslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
     const GenOptions& options = context.getOptions();
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
