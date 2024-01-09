@@ -22,29 +22,30 @@
   <!-- ======================================================================== -->
 
   <!-- <image> -->
-  <implementation name="IM_image_float_genmdl" nodedef="ND_image_float" sourcecode="mx::stdlib::mx_image_float({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_float_genmdl" nodedef="ND_image_float" sourcecode="mx::stdlib::mx_image_float({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="float" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color3_genmdl" nodedef="ND_image_color3" sourcecode="mx::stdlib::mx_image_color3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_color3_genmdl" nodedef="ND_image_color3" sourcecode="mx::stdlib::mx_image_color3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="color3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_color4_genmdl" nodedef="ND_image_color4" sourcecode="mx::stdlib::mx_image_color4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_color4_genmdl" nodedef="ND_image_color4" sourcecode="mx::stdlib::mx_image_color4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="color4" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector2_genmdl" nodedef="ND_image_vector2" sourcecode="mx::stdlib::mx_image_vector2({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector2_genmdl" nodedef="ND_image_vector2" sourcecode="mx::stdlib::mx_image_vector2({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector2" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector3_genmdl" nodedef="ND_image_vector3" sourcecode="mx::stdlib::mx_image_vector3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector3_genmdl" nodedef="ND_image_vector3" sourcecode="mx::stdlib::mx_image_vector3({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector3" implname="default_value" />
   </implementation>
-  <implementation name="IM_image_vector4_genmdl" nodedef="ND_image_vector4" sourcecode="mx::stdlib::mx_image_vector4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}})" target="genmdl">
+  <implementation name="IM_image_vector4_genmdl" nodedef="ND_image_vector4" sourcecode="mx::stdlib::mx_image_vector4({{file}}, {{layer}}, {{default}}, {{texcoord}}, {{uaddressmode}}, {{vaddressmode}}, {{filtertype}}, {{framerange}}, {{frameoffset}}, {{frameendaction}}, mxp_flip_v:{{flip_v}})" target="genmdl">
     <input name="default" type="vector4" implname="default_value" />
   </implementation>
 
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genmdl" nodedef="ND_normalmap" sourcecode="mx::stdlib::mx_normalmap(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap" sourcecode="mx::stdlib::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="mx::stdlib::mx_normalmap_vector2(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -568,11 +569,6 @@
   <implementation name="IM_screen_color3_genmdl" nodedef="ND_screen_color3" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" target="genmdl" />
   <implementation name="IM_screen_color4_genmdl" nodedef="ND_screen_color4" sourcecode="mx::stdlib::mx_screen_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
-  <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genmdl" nodedef="ND_overlay_float" sourcecode="mx::stdlib::mx_overlay_float({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_overlay_color3_genmdl" nodedef="ND_overlay_color3" sourcecode="mx::stdlib::mx_overlay_color3({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-  <implementation name="IM_overlay_color4_genmdl" nodedef="ND_overlay_color4" sourcecode="mx::stdlib::mx_overlay_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
-
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color4_genmdl" nodedef="ND_disjointover_color4" sourcecode="mx::stdlib::mx_disjointover_color4({{fg}}, {{bg}}, {{mix}})" target="genmdl" />
 
@@ -758,6 +754,11 @@
   <!-- <combine4> -->
   <implementation name="IM_combine4_color4_genmdl" nodedef="ND_combine4_color4" target="genmdl" />
   <implementation name="IM_combine4_vector4_genmdl" nodedef="ND_combine4_vector4" target="genmdl" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genmdl" nodedef="ND_creatematrix_vector3_matrix33" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix33({{in1}}, {{in2}}, {{in3}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genmdl" nodedef="ND_creatematrix_vector3_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genmdl" nodedef="ND_creatematrix_vector4_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector4_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

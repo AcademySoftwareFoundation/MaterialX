@@ -124,6 +124,11 @@ void MslRenderer::validateInputs()
     _program->getAttributesList();
 }
 
+void MslRenderer::updateUniform(const string& name, ConstValuePtr value)
+{
+    _program->bindUniform(name, value);
+}
+
 void MslRenderer::createFrameBuffer(bool encodeSrgb)
 {
     _framebuffer = MetalFramebuffer::create(_device,

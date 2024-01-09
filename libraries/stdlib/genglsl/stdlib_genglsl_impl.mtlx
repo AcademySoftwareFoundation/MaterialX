@@ -42,7 +42,9 @@
   </implementation>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genglsl" nodedef="ND_normalmap" file="mx_normalmap.glsl" function="mx_normalmap" target="genglsl" />
+  <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
+  <implementation name="IM_normalmap_vector2_genglsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.glsl" function="mx_normalmap_vector2" target="genglsl" />
+
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -560,11 +562,6 @@
   <implementation name="IM_screen_color3_genglsl" nodedef="ND_screen_color3" target="genglsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
   <implementation name="IM_screen_color4_genglsl" nodedef="ND_screen_color4" target="genglsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
 
-  <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genglsl" nodedef="ND_overlay_float" target="genglsl" sourcecode="({{fg}} < 0.5) ? ({{mix}}*2.0*{{fg}}*{{bg}}) + ((1.0-{{mix}})*{{bg}}) : ({{mix}}*(1.0-(1.0-{{fg}})*(1.0-{{bg}}))) + ((1.0-{{mix}})*{{bg}})" />
-  <implementation name="IM_overlay_color3_genglsl" nodedef="ND_overlay_color3" file="mx_overlay_color3.glsl" function="mx_overlay_color3" target="genglsl" />
-  <implementation name="IM_overlay_color4_genglsl" nodedef="ND_overlay_color4" file="mx_overlay_color4.glsl" function="mx_overlay_color4" target="genglsl" />
-
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color4_genglsl" nodedef="ND_disjointover_color4" file="mx_disjointover_color4.glsl" function="mx_disjointover_color4" target="genglsl" />
 
@@ -752,6 +749,11 @@
   <implementation name="IM_combine3_vector3_genglsl" nodedef="ND_combine3_vector3" target="genglsl" />
   <implementation name="IM_combine4_color4_genglsl" nodedef="ND_combine4_color4" target="genglsl" />
   <implementation name="IM_combine4_vector4_genglsl" nodedef="ND_combine4_vector4" target="genglsl" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genglsl" nodedef="ND_creatematrix_vector3_matrix33" file="mx_creatematrix_vector3_matrix33.glsl" function="mx_creatematrix_vector3_matrix33" target="genglsl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genglsl" nodedef="ND_creatematrix_vector3_matrix44" file="mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" target="genglsl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genglsl" nodedef="ND_creatematrix_vector4_matrix44" file="mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

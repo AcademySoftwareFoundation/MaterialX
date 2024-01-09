@@ -25,19 +25,28 @@ jobs:
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_GCC_11_Python39
-          os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: "11"
-          python: 3.9
-          build_javascript: ON
-
         - name: Linux_GCC_12_Python311
           os: ubuntu-22.04
           compiler: gcc
           compiler_version: "12"
           python: 3.11
-          upload_shaders: ON
+          build_javascript: ON
+
+        - name: Linux_GCC_13_Python312
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "13"
+          python: 3.12
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+        - name: Linux_GCC_CoverageAnalysis
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "None"
+          python: None
+          coverage_analysis: ON
+          cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
         - name: Linux_Clang_10_Python37
           os: ubuntu-20.04
@@ -45,20 +54,19 @@ jobs:
           compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          static_analysis: ON
 
-        - name: Linux_Clang_14_Python311
+        - name: Linux_Clang_15_Python312
           os: ubuntu-22.04
           compiler: clang
-          compiler_version: "14"
-          python: 3.11
+          compiler_version: "15"
+          python: 3.12
           test_render: ON
           clang_format: ON
 
-        - name: Linux_Clang_14_DynamicAnalysis
+        - name: Linux_Clang_DynamicAnalysis
           os: ubuntu-22.04
           compiler: clang
-          compiler_version: "14"
+          compiler_version: "15"
           python: None
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
@@ -70,23 +78,23 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
-        - name: MacOS_Xcode_13_Python39
-          os: macos-12
-          compiler: xcode
-          compiler_version: "13.4"
-          python: 3.9
-
         - name: MacOS_Xcode_14_Python311
           os: macos-13
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
-          test_shaders: ON
 
-        - name: iOS_Xcode_14
+        - name: MacOS_Xcode_15_Python312
           os: macos-13
           compiler: xcode
-          compiler_version: "14.3"
+          compiler_version: "15.0"
+          python: 3.12
+          test_shaders: ON
+
+        - name: iOS_Xcode_15
+          os: macos-13
+          compiler: xcode
+          compiler_version: "15.0"
           python: None
           cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
@@ -96,18 +104,19 @@ jobs:
           python: 3.7
           cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Windows_VS2022_x64_Python39
-          os: windows-2022
-          architecture: x64
-          python: 3.9
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
-
         - name: Windows_VS2022_x64_Python311
           os: windows-2022
           architecture: x64
           python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+
+        - name: Windows_VS2022_x64_Python312
+          os: windows-2022
+          architecture: x64
+          python: 3.12
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          upload_shaders: ON
 
     steps:
     - name: Sync Repository
@@ -120,28 +129,32 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install xorg-dev mesa-utils
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
-          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-        else
-          sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
-          echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+        if [ "${{ matrix.compiler_version }}" != 'None' ]; then
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          else
+            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Install Dependencies (MacOS)
       if: runner.os == 'macOS'
       run: |
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          brew install gcc@${{ matrix.compiler_version }}
-          echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
-        else
-          ls -ls /Applications/
-          sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CXX=clang++" >> $GITHUB_ENV
+        if [ "${{ matrix.compiler_version }}" != 'None' ]; then
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            brew install gcc@${{ matrix.compiler_version }}
+            echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+            echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
+          else
+            ls -ls /Applications/
+            sudo xcode-select -switch /Applications/Xcode_${{ matrix.compiler_version }}.app
+            echo "CC=clang" >> $GITHUB_ENV
+            echo "CXX=clang++" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Install Dependencies (Windows)
@@ -159,6 +172,10 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
+
+    - name: Install Python Dependencies
+      if: matrix.python != 'None'
+      run: pip install setuptools
 
     - name: Install Emscripten
       if: matrix.build_javascript == 'ON'
@@ -178,17 +195,13 @@ jobs:
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
-      run: find source \( -name *.h -o -name *.cpp -o -name *.mm \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+      run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: |
-        mkdir build
-        cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
 
     - name: CMake Build
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: build
+      run: cmake --build build --target install --config Release --parallel 2
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
@@ -221,6 +234,14 @@ jobs:
       if: matrix.test_shaders == 'ON' && runner.os == 'macOS'
       run: |
         python python/Scripts/generateshader.py resources/Materials/Examples/StandardSurface --target msl --validator "xcrun metal --language=metal" --validatorArgs="-w"
+
+    - name: Coverage Analysis Tests
+      if: matrix.coverage_analysis == 'ON'
+      run: |
+        sudo apt-get install gcovr
+        mkdir coverage
+        gcovr --html --html-details --output coverage/index.html --exclude .*\/External\/.* --root .. .
+      working-directory: build
 
     - name: Static Analysis Tests
       if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
@@ -279,17 +300,20 @@ jobs:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      if: matrix.coverage_analysis == 'ON'
+      with:
+        name: MaterialX_Coverage
+        path: build/coverage
+
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
-      run: |
-        mkdir javascript/build
-        cd javascript/build
-        cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ../..
+      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
 
     - name: JavaScript CMake Build
       if: matrix.build_javascript == 'ON'
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: javascript/build
+      run: cmake --build javascript/build --target install --config Release --parallel 2
     
     - name: JavaScript Unit Tests
       if: matrix.build_javascript == 'ON'

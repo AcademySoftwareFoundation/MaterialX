@@ -57,7 +57,7 @@ public:
     id<MTLSamplerState> getMTLSamplerStateForImage(unsigned int index);
     
     /// Create rendering resources for the given image.
-    bool createRenderResources(ImagePtr image, bool generateMipMaps) override;
+    bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false) override;
 
     /// Release rendering resources for the given image, or for all cached images
     /// if no image pointer is specified.

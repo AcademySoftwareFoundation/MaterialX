@@ -35,7 +35,7 @@ using ImageHandlerPtr = std::shared_ptr<ImageHandler>;
 using ImageLoaderPtr = std::shared_ptr<ImageLoader>;
 
 /// Map from strings to vectors of image loaders
-using ImageLoaderMap = std::unordered_map< string, std::vector<ImageLoaderPtr> >;
+using ImageLoaderMap = std::unordered_map<string, std::vector<ImageLoaderPtr>>;
 
 /// @class ImageSamplingProperties
 /// Interface to describe sampling properties for images.
@@ -48,16 +48,16 @@ class MX_RENDER_API ImageSamplingProperties
     /// @param uniformBlock Block containing sampler uniforms
     void setProperties(const string& fileNameUniform,
                        const VariableBlock& uniformBlock);
-    
+
     bool operator==(const ImageSamplingProperties& r) const;
 
     /// Address mode options. Matches enumerations allowed for image address
     /// modes, except UNSPECIFIED which indicates no explicit mode was defined.
     enum class AddressMode : int
-    { 
+    {
         UNSPECIFIED = -1,
         CONSTANT = 0,
-        CLAMP = 1, 
+        CLAMP = 1,
         PERIODIC = 2,
         MIRROR = 3
     };
@@ -186,7 +186,10 @@ class MX_RENDER_API ImageHandler
 
     /// Acquire an image from the cache or file system.  If the image is not
     /// found in the cache, then each image loader will be applied in turn.
+    /// If the image cannot be found by any loader, then a uniform image of the
+    /// given default color will be returned.
     /// @param filePath File path of the image.
+    /// @param defaultColor Default color to use as a fallback for missing images.
     /// @return On success, a shared pointer to the acquired image.
     ImagePtr acquireImage(const FilePath& filePath, const Color4& defaultColor = Color4(0.0f));
 
@@ -227,7 +230,7 @@ class MX_RENDER_API ImageHandler
     }
 
     /// Create rendering resources for the given image.
-    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps);
+    virtual bool createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget = false);
 
     /// Release rendering resources for the given image, or for all cached images
     /// if no image pointer is specified.

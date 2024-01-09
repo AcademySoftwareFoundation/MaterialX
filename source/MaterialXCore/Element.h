@@ -739,7 +739,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     void copyContentFrom(const ConstElementPtr& source);
 
     /// Clear all attributes and descendants from this element.
-    void clearContent();
+    virtual void clearContent();
 
     /// Using the input name as a starting point, modify it to create a valid,
     /// unique name for a child element.

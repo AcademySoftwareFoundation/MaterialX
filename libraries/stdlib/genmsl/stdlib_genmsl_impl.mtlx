@@ -42,7 +42,8 @@
   </implementation>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genmsl" nodedef="ND_normalmap" file="mx_normalmap.metal" function="mx_normalmap" target="genmsl" />
+  <implementation name="IM_normalmap_float_genmsl" nodedef="ND_normalmap" file="mx_normalmap.metal" function="mx_normalmap_float" target="genmsl" />
+  <implementation name="IM_normalmap_vector2_genmsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.metal" function="mx_normalmap_vector2" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -560,11 +561,6 @@
   <implementation name="IM_screen_color3_genmsl" nodedef="ND_screen_color3" target="genmsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
   <implementation name="IM_screen_color4_genmsl" nodedef="ND_screen_color4" target="genmsl" sourcecode="({{mix}}*((1.0 - (1.0 - {{fg}}) * (1.0 - {{bg}})))) + ((1.0-{{mix}})*{{bg}})" />
 
-  <!-- <overlay> -->
-  <implementation name="IM_overlay_float_genmsl" nodedef="ND_overlay_float" target="genmsl" sourcecode="({{fg}} < 0.5) ? ({{mix}}*2.0*{{fg}}*{{bg}}) + ((1.0-{{mix}})*{{bg}}) : ({{mix}}*(1.0-(1.0-{{fg}})*(1.0-{{bg}}))) + ((1.0-{{mix}})*{{bg}})" />
-  <implementation name="IM_overlay_color3_genmsl" nodedef="ND_overlay_color3" file="../genglsl/mx_overlay_color3.glsl" function="mx_overlay_color3" target="genmsl" />
-  <implementation name="IM_overlay_color4_genmsl" nodedef="ND_overlay_color4" file="../genglsl/mx_overlay_color4.glsl" function="mx_overlay_color4" target="genmsl" />
-
   <!-- <disjointover> -->
   <implementation name="IM_disjointover_color4_genmsl" nodedef="ND_disjointover_color4" file="../genglsl/mx_disjointover_color4.glsl" function="mx_disjointover_color4" target="genmsl" />
 
@@ -752,6 +748,11 @@
   <implementation name="IM_combine3_vector3_genmsl" nodedef="ND_combine3_vector3" target="genmsl" />
   <implementation name="IM_combine4_color4_genmsl" nodedef="ND_combine4_color4" target="genmsl" />
   <implementation name="IM_combine4_vector4_genmsl" nodedef="ND_combine4_vector4" target="genmsl" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genmsl" nodedef="ND_creatematrix_vector3_matrix33" file="../genglsl/mx_creatematrix_vector3_matrix33.glsl" function="mx_creatematrix_vector3_matrix33" nodegroup="genmsl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genmsl" nodedef="ND_creatematrix_vector3_matrix44" file="../genglsl/mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" nodegroup="genmsl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genmsl" nodedef="ND_creatematrix_vector4_matrix44" file="../genglsl/mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" nodegroup="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

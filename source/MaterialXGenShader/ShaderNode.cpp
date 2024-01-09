@@ -32,6 +32,11 @@ string ShaderPort::getFullName() const
     return (_node->getName() + "_" + _name);
 }
 
+string ShaderPort::getValueString() const
+{
+    return getValue() ? getValue()->getValueString() : EMPTY_STRING;
+}
+
 //
 // ShaderInput methods
 //
@@ -135,8 +140,6 @@ const ShaderNodePtr ShaderNode::NONE = createEmptyNode();
 const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::DOT = "dot";
 const string ShaderNode::IMAGE = "image";
-const string ShaderNode::COMPARE = "compare";
-const string ShaderNode::SWITCH = "switch";
 const string ShaderNode::SURFACESHADER = "surfaceshader";
 const string ShaderNode::SCATTER_MODE = "scatter_mode";
 const string ShaderNode::BSDF_R = "R";
@@ -287,18 +290,10 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
-    }    
+    }
     else if (nodeDef.getNodeString() == DOT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::DOT;
-    }
-    else if (nodeDef.getNodeString() == COMPARE)
-    {
-        newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::IFELSE;
-    }
-    else if (nodeDef.getNodeString() == SWITCH)
-    {
-        newNode->_classification = Classification::TEXTURE | Classification::CONDITIONAL | Classification::SWITCH;
     }
     // Third, check for file texture classification by group name
     else if (groupName == TEXTURE2D_GROUPNAME || groupName == TEXTURE3D_GROUPNAME)

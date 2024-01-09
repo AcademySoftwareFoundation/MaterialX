@@ -34,7 +34,7 @@ class MX_RENDER_API ShaderRenderer
     enum class MatrixConvention
     {
         OpenGL = 0,
-        Metal  = 1
+        Metal = 1
     };
     /// A map with name and source code for each shader stage.
     using StageMap = StringMap;
@@ -110,6 +110,9 @@ class MX_RENDER_API ShaderRenderer
     /// Validate inputs for the program.
     virtual void validateInputs() { }
 
+    /// Update the program with value of the uniform.
+    virtual void updateUniform(const string& name, ConstValuePtr value);
+
     /// Set the size of the rendered image.
     virtual void setSize(unsigned int width, unsigned int height);
 
@@ -130,7 +133,7 @@ class MX_RENDER_API ShaderRenderer
 
   protected:
     ShaderRenderer(unsigned int width, unsigned int height, Image::BaseType baseType,
-        MatrixConvention matrixConvention = MatrixConvention::OpenGL);
+                   MatrixConvention matrixConvention = MatrixConvention::OpenGL);
 
   protected:
     unsigned int _width;
@@ -164,7 +167,7 @@ class MX_RENDER_API ExceptionRenderError : public Exception
     {
     }
 
-    ExceptionRenderError& operator=(const ExceptionRenderError& e)         
+    ExceptionRenderError& operator=(const ExceptionRenderError& e)
     {
         Exception::operator=(e);
         _errorLog = e._errorLog;

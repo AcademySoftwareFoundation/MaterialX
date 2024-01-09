@@ -8,8 +8,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderMaterial::ShaderMaterial() : _hasTransparency(false) {}
-ShaderMaterial::~ShaderMaterial() {}
+ShaderMaterial::ShaderMaterial() : _hasTransparency(false) { }
+ShaderMaterial::~ShaderMaterial() { }
 
 void ShaderMaterial::setDocument(DocumentPtr doc)
 {
@@ -62,9 +62,9 @@ bool ShaderMaterial::hasTransparency() const
 }
 
 bool ShaderMaterial::generateEnvironmentShader(GenContext& context,
-                                         const FilePath& filename,
-                                         DocumentPtr stdLib,
-                                         const FilePath& imagePath)
+                                               const FilePath& filename,
+                                               DocumentPtr stdLib,
+                                               const FilePath& imagePath)
 {
     // Read in the environment nodegraph.
     DocumentPtr doc = createDocument();
@@ -73,7 +73,7 @@ bool ShaderMaterial::generateEnvironmentShader(GenContext& context,
     readFromXmlFile(envDoc, filename);
     doc->importLibrary(envDoc);
 
-    NodeGraphPtr envGraph = doc->getNodeGraph("environmentDraw");
+    NodeGraphPtr envGraph = doc->getNodeGraph("envMap");
     if (!envGraph)
     {
         return false;
