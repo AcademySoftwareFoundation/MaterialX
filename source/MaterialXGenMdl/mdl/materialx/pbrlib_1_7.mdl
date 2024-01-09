@@ -179,7 +179,7 @@ export material mx_mix_edf(
 } in material(
     surface: material_surface( 
         emission: material_emission(
-            emission: df::clamped_mix(
+            emission: df::unbounded_mix(
             df::edf_component[]( 
                 df::edf_component( mix, mxp_fg.surface.emission.emission), 
                 df::edf_component( 1.0 - mix, mxp_bg.surface.emission.emission))
