@@ -62,6 +62,12 @@ function init()
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    // Turn off checking as suggested here:
+    // https://discourse.threejs.org/t/getprograminfolog-performance-issue/41069/12
+    // The code associated with getting program information can be very slow when 
+    // dealing with shaders with lots of input uniforms (such as standard surface, openpbr shading models).
+    // Adding this in goes from "hanging" the Chrome browser on Windows to about 3 second load.
+    renderer.debug.checkShaderErrors = false;
 
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene.getScene(), scene.getCamera());
