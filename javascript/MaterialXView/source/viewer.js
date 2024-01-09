@@ -946,6 +946,8 @@ export class Material
             {
                 let matTitle = matUI.domElement.getElementsByClassName('title')[0];
                 matTitle.classList.remove('peditor_material_assigned');
+                let img = matTitle.getElementsByTagName('img')[0];    
+                img.src = 'public/shader_ball.svg';
                 //matTitle.classList.remove('peditor_material_unassigned');
             }
         }
@@ -963,16 +965,19 @@ export class Material
             let materialName = matassign.getMaterial().getNamePath();
             var matUI = matassign.getMaterialUI();
             let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+            let img = matTitle.getElementsByTagName('img')[0];    
             if (materialName == elemPath)
-            {
+            {                
                 if (this._soloMaterial == elemPath)
                 {
+                    img.src = 'public/shader_ball.svg';
                     matTitle.classList.remove('peditor_material_assigned');
                     //matTitle.classList.remove('peditor_material_unassigned');
                     this._soloMaterial = "";
                 }
                 else
                 {
+                    img.src = 'public/shader_ball2.svg';
                     matTitle.classList.add('peditor_material_assigned');
                     //matTitle.classList.remove('peditor_material_unassigned');
                     this._soloMaterial = elemPath;
@@ -980,6 +985,7 @@ export class Material
             }
             else
             {
+                img.src = 'public/shader_ball.svg';
                 matTitle.classList.remove('peditor_material_assigned');                   
                 //matTitle.classList.add('peditor_material_unassigned');                   
             }
@@ -1012,7 +1018,7 @@ export class Material
         // Add a icon to the title to allow for assigning the material to geometry
         // Clicking on the icon will "solo" the material to the geometry.
         // Clicking on the title will open/close the material folder.
-        matTitle.innerHTML = "<img id='" + elemPath + "' src='public/favicon.ico' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
+        matTitle.innerHTML = "<img id='" + elemPath + "' src='public/shader_ball.svg' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
         let img = matTitle.getElementsByTagName('img')[0];
         if (img)
         {
