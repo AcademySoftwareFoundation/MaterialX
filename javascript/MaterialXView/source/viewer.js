@@ -111,7 +111,8 @@ export class Scene
 
         console.log("Total geometry load time: ", performance.now() - startTime, " ms.");
 
-        viewer.getMaterial().updateMaterialAssignments(viewer);
+        viewer.getMaterial().clearSoloMaterialUI();
+        viewer.getMaterial().updateMaterialAssignments(viewer, "");
         this.setUpdateTransforms();
     }
 
@@ -463,6 +464,17 @@ class MaterialAssign
         this._geometry = geometry;
         this._collection = collection;
         this._shader = null;
+        this._materialUI = null;
+    }
+
+    setMaterialUI(value)
+    {
+        this._materialUI = value;
+    }
+
+    getMaterialUI()
+    {
+        return this._materialUI;
     }
 
     setShader(shader)
@@ -514,6 +526,24 @@ export class Material
     {
         this._materials = [];
         this._defaultMaterial = null;
+        this._soloMaterial = "";
+    }
+
+    clearMaterials()
+    {
+        this._materials.length = 0;
+        this._defaultMaterial = null;
+        this._soloMaterial = "";
+    }
+
+    setSoloMaterial(value)
+    {
+        this._soloMaterial = value;
+    }
+
+    getSoloMaterial()
+    {
+        return this._soloMaterial;
     }
 
     // If no material file is selected, we programmatically create a default material as a fallback
@@ -582,9 +612,8 @@ export class Material
         // Generate code and compile for any associated surface shader
         // and assign to the associated geometry. If there are no looks
         // then the first material is found and assignment to all the
-        // geometry. 
-        this._materials.length = 0;
-        this._defaultMaterial = null;
+        // geometry.
+        this.clearMaterials(); 
         var looks = doc.getLooks();
         if (looks.length)
         {
@@ -757,8 +786,7 @@ export class Material
             let shader = shaderMap[materialName];
             if (!shader)
             {
-                let assignedToGeom = matassign.getGeometry() != NO_GEOMETRY_SPECIFIER;
-                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath, closeUI, assignedToGeom);
+                shader = viewer.getMaterial().generateMaterial(matassign, viewer, searchPath, closeUI);
                 shaderMap[materialName] = shader;
             }
             matassign.setShader(shader);
@@ -767,7 +795,7 @@ export class Material
         console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.", );
 
         // Update scene shader assignments
-        this.updateMaterialAssignments(viewer);
+        this.updateMaterialAssignments(viewer, "");
 
         // Mark transform update
         viewer.getScene().setUpdateTransforms();
@@ -782,17 +810,31 @@ export class Material
     // in the scene, then the first material assignment shader is assigned
     // to the entire scene.
     //
-    async updateMaterialAssignments(viewer)
+    async updateMaterialAssignments(viewer, soloMaterial)
     {
+        console.log("Update material assignments. Solo=", soloMaterial);
         var startTime = performance.now();
 
         let assigned = 0;
+        let assignedSolo = false;
         for (let matassign of this._materials)
-        {            
+        { 
             if (matassign.getShader())
             {
-                console.log('Assign shader: ', matassign.getMaterial().getNamePath());
-                assigned += viewer.getScene().updateMaterial(matassign);
+                if (soloMaterial.length) {
+                    if (matassign.getMaterial().getNamePath() == soloMaterial) {
+                        let temp = matassign.getGeometry();
+                        matassign.setGeometry(ALL_GEOMETRY_SPECIFIER);
+                        assigned += viewer.getScene().updateMaterial(matassign);
+                        matassign.setGeometry(temp);
+                        assignedSolo = true;
+                        break
+                    }
+                }
+                else 
+                {
+                    assigned += viewer.getScene().updateMaterial(matassign);
+                }
             }
         }
         if (assigned == 0 && this._materials.length)
@@ -811,8 +853,10 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer, searchPath, closeUI, assignedToGeom) 
+    generateMaterial(matassign, viewer, searchPath, closeUI) 
     {
+        var elem = matassign.getMaterial();
+
         var startGenerateMat = performance.now();
 
         const mx = viewer.getMx();
@@ -884,7 +928,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, closeUI, assignedToGeom, this._materials, viewer);
+        this.updateEditor(matassign, shader, newMaterial, gui, closeUI, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -892,62 +936,94 @@ export class Material
         return newMaterial;
     }
 
+    clearSoloMaterialUI()
+    {
+        for (let i=0; i<this._materials.length; ++i)
+        {
+            let matassign = this._materials[i];
+            let matUI = matassign.getMaterialUI();
+            if (matUI)
+            {
+                let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+                matTitle.classList.remove('peditor_material_assigned');
+                //matTitle.classList.remove('peditor_material_unassigned');
+            }
+        }
+    }
+
+    static updateSoloMaterial(viewer, elemPath, materials, event)
+    {
+        // Prevent the event from being passed to parent folder
+        event.stopPropagation();
+
+        for (let i=0; i<materials.length; ++i)
+        {
+            let matassign = materials[i];
+            // Need to use path vs name to get a unique key.
+            let materialName = matassign.getMaterial().getNamePath();
+            var matUI = matassign.getMaterialUI();
+            let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+            if (materialName == elemPath)
+            {
+                if (this._soloMaterial == elemPath)
+                {
+                    matTitle.classList.remove('peditor_material_assigned');
+                    //matTitle.classList.remove('peditor_material_unassigned');
+                    this._soloMaterial = "";
+                }
+                else
+                {
+                    matTitle.classList.add('peditor_material_assigned');
+                    //matTitle.classList.remove('peditor_material_unassigned');
+                    this._soloMaterial = elemPath;
+                }
+            }
+            else
+            {
+                matTitle.classList.remove('peditor_material_assigned');                   
+                //matTitle.classList.add('peditor_material_unassigned');                   
+            }
+        }
+        viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
+        viewer.getScene().setUpdateTransforms();
+    }
+
     //
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui, closeUI, assignedToGeom, materials, viewer)
+    updateEditor(matassign, shader, material, gui, closeUI, viewer)
     {
+        var elem = matassign.getMaterial();
+        var materials = this._materials;
+
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
 
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
-        var matUI = gui.addFolder(elemPath);
+
+        // Create and cache associated UI
+        var matUI = gui.addFolder(elemPath);        
+        matassign.setMaterialUI(matUI);
+
         let matTitle = matUI.domElement.getElementsByClassName('title')[0];
-        // Set HTML for matTile
-        matTitle.innerHTML = "<img id='blah' src='public/favicon.ico' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getName() + "";
+        // Add a icon to the title to allow for assigning the material to geometry
+        // Clicking on the icon will "solo" the material to the geometry.
+        // Clicking on the title will open/close the material folder.
+        matTitle.innerHTML = "<img id='" + elemPath + "' src='public/favicon.ico' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
         let img = matTitle.getElementsByTagName('img')[0];
         if (img)
         {
+            // Add event listener to icon to call updateSoloMaterial function
             img.addEventListener('click', function(event) 
             {
-                event.stopPropagation();
-                if (materials)
-                {
-                    for (let i=0; i<materials.length; ++i)
-                    {
-                        let matassign = materials[i];
-                        // Need to use path vs name to get a unique key.
-                        let materialName = matassign.getMaterial().getNamePath();
-                        if (materialName == elemPath)
-                        {
-                            matassign.setGeometry(ALL_GEOMETRY_SPECIFIER);
-                            console.log('Assign material to geometry: ', elemPath);
-                        }
-                        else
-                        {
-                            matassign.setGeometry(NO_GEOMETRY_SPECIFIER);
-                        }
-                    }
-                    viewer.getMaterial().updateMaterialAssignments(viewer);
-                    viewer.getScene().setUpdateTransforms();
-                }
+                Material.updateSoloMaterial(viewer, elemPath, materials,event);
             });
         }
     
-        // Color material folder title based on whether it is assigned to geometry
-        if (assignedToGeom)
-        {
-            matTitle.classList.add('peditor_material_assigned');
-        }
-        else
-        {
-            matTitle.classList.add('peditor_material_unassigned');
-            matUI.close();
-        }
-       if (closeUI)
+        if (closeUI)
         {
             matUI.close();
         }  
