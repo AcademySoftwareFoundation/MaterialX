@@ -725,7 +725,6 @@ export class Material
                                 foundRenderable = true;
                             }
                             let newMat = new MaterialAssign(output, assignment, null);
-                            console.log('-- add nodegraph output: ', output.getNamePath());
                             this._materials.push(newMat);
                         }
                     }
@@ -743,7 +742,6 @@ export class Material
                         assignment = ALL_GEOMETRY_SPECIFIER;
                         foundRenderable = true;
                     }
-                    console.log('Add top level output: ', output.getNamePath());
                     this._materials.push(new MaterialAssign(output, assignment));
                 }
             }
@@ -972,14 +970,12 @@ export class Material
                 {
                     img.src = 'public/shader_ball.svg';
                     matTitle.classList.remove('peditor_material_assigned');
-                    //matTitle.classList.remove('peditor_material_unassigned');
                     this._soloMaterial = "";
                 }
                 else
                 {
                     img.src = 'public/shader_ball2.svg';
                     matTitle.classList.add('peditor_material_assigned');
-                    //matTitle.classList.remove('peditor_material_unassigned');
                     this._soloMaterial = elemPath;
                 }
             }
@@ -987,7 +983,6 @@ export class Material
             {
                 img.src = 'public/shader_ball.svg';
                 matTitle.classList.remove('peditor_material_assigned');                   
-                //matTitle.classList.add('peditor_material_unassigned');                   
             }
         }
         viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
