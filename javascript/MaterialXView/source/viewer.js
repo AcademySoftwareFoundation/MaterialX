@@ -816,7 +816,7 @@ export class Material
         let assigned = 0;
         let assignedSolo = false;
         for (let matassign of this._materials)
-        { 
+        {
             if (matassign.getShader())
             {
                 if (soloMaterial.length) {
