@@ -1,5 +1,9 @@
+@rem This script builds the MaterialX system on Windows. The final command starts a local server so that you can then 
+@rem run the interactive viewer locally. Here is a typical line to paste into your browser at that point (withouth the @rem):
+@rem   http://localhost:8080/index.html?file=Materials/Examples/UsdPreviewSurface/usd_preview_surface_default.mtlx
 @echo --------------------- Setup Emscripten ---------------------
 @echo on
+@rem You will likely need to change these paths to wherever you store your Github repositories
 set EMSDK_LOCATION=C:/GitHub/emsdk
 set MATERIALX_LOCATION=C:/GitHub/MaterialX
 call %EMSDK_LOCATION%/emsdk.bat install latest
