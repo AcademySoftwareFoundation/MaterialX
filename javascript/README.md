@@ -34,7 +34,7 @@ mkdir ./javascript/build
 cd ./javascript/build
 ```
 
-If you are using the emsdk directly on Windows, note that the emscripten SDK doesn't work with Microsoft's Visual Studio build tools. You need to use an alternative CMake generator like [MinGW](http://mingw-w64.org/doku.php) Makefiles or [Ninja](https://ninja-build.org/). We recommend to use Ninja (unless you already have MinGW installed), since it's pretty lightweight and a pure build system, instead of a full compiler suite.
+If you are using the emsdk directly on Windows, note that the emscripten SDK doesn't work with Microsoft's Visual Studio build tools. You need to use an alternative CMake generator like [MinGW](http://mingw-w64.org/doku.php) Makefiles or [Ninja](https://ninja-build.org/). We recommend to use Ninja (unless you already have MinGW installed), since it's pretty lightweight and a pure build system, instead of a full compiler suite. Download Ninja for Windows and unzip the ninja.exe file to some suitable directory in your path (use the command "echo $PATH" or similar to view your PATH variable).
 
 Generate the build files with CMake. When building the JavaScript bindings, you can optionally specify the emsdk path with the `MATERIALX_EMSDK_PATH` option. This option can be omitted if the `emsdk/emsdk_env.sh` script was run beforehand.
 ```sh
