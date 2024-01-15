@@ -1053,9 +1053,7 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
     else if (type->getName() == Type::MATRIX33->getName())
         return GL_FLOAT_MAT3;
     else if (type->getName() == Type::MATRIX44->getName())
-    {
         return GL_FLOAT_MAT4;
-    }
     else if (type == Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
