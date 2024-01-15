@@ -3,24 +3,24 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/TimeNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr TimeNodeMsl::create()
+ShaderNodeImplPtr HwTimeNode::create()
 {
-    return std::make_shared<TimeNodeMsl>();
+    return std::make_shared<HwTimeNode>();
 }
 
-void TimeNodeMsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void HwTimeNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
     addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, HW::T_FRAME, ps);
 }
 
-void TimeNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwTimeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {

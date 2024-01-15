@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/NormalNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr NormalNodeMsl::create()
+ShaderNodeImplPtr HwNormalNode::create()
 {
-    return std::make_shared<NormalNodeMsl>();
+    return std::make_shared<HwNormalNode>();
 }
 
-void NormalNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwNormalNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -34,9 +34,9 @@ void NormalNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shader&
     }
 }
 
-void NormalNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwNormalNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
@@ -51,7 +51,7 @@ void NormalNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context
             if (!normal->isEmitted())
             {
                 normal->setEmitted();
-                shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * float4(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
+                shadergen.emitLine(prefix + normal->getVariable() + " = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
             }
         }
         else

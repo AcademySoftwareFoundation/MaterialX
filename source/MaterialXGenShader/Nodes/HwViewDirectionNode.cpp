@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenMsl/Nodes/ViewDirectionNodeMsl.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr ViewDirectionNodeMsl::create()
+ShaderNodeImplPtr HwViewDirectionNode::create()
 {
-    return std::make_shared<ViewDirectionNodeMsl>();
+    return std::make_shared<HwViewDirectionNode>();
 }
 
-void ViewDirectionNodeMsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void HwViewDirectionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
@@ -24,9 +24,9 @@ void ViewDirectionNodeMsl::createVariables(const ShaderNode&, GenContext&, Shade
     addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
 }
 
-void ViewDirectionNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
 
     DEFINE_SHADER_STAGE(stage, Stage::VERTEX)
     {

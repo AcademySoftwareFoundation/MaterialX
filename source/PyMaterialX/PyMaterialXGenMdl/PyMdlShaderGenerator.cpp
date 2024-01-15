@@ -8,11 +8,8 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenMdl/MdlShaderGenerator.h>
 
-#include <string>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
-
 
 void bindPyMdlShaderGenerator(py::module& mod)
 {

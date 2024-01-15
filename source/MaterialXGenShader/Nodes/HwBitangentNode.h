@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_VIEWDIRECTIONNODEGLSL_H
-#define MATERIALX_VIEWDIRECTIONNODEGLSL_H
+#ifndef MATERIALX_HWBITANGENTNODE_H
+#define MATERIALX_HWBITANGENTNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// ViewDirection node implementation for GLSL
-class MX_GENGLSL_API ViewDirectionNodeGlsl : public GlslImplementation
+/// Bitangent node implementation for hardware languages
+class MX_GENSHADER_API HwBitangentNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

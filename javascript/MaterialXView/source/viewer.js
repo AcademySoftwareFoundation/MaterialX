@@ -111,7 +111,8 @@ export class Scene
 
         console.log("Total geometry load time: ", performance.now() - startTime, " ms.");
 
-        viewer.getMaterial().updateMaterialAssignments(viewer);
+        viewer.getMaterial().clearSoloMaterialUI();
+        viewer.getMaterial().updateMaterialAssignments(viewer, "");
         this.setUpdateTransforms();
     }
 
@@ -303,13 +304,16 @@ export class Scene
                     }
                     else
                     {
-                        const paths = geometry.split(',');
-                        for (let path of paths)
+                        if (geometry != NO_GEOMETRY_SPECIFIER)
                         {
-                            if (dagPath.match(path))
+                            const paths = geometry.split(',');
+                            for (let path of paths)
                             {
-                                matches = true;
-                                break;
+                                if (dagPath.match(path))
+                                {
+                                    matches = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -460,6 +464,17 @@ class MaterialAssign
         this._geometry = geometry;
         this._collection = collection;
         this._shader = null;
+        this._materialUI = null;
+    }
+
+    setMaterialUI(value)
+    {
+        this._materialUI = value;
+    }
+
+    getMaterialUI()
+    {
+        return this._materialUI;
     }
 
     setShader(shader)
@@ -480,6 +495,11 @@ class MaterialAssign
     getGeometry()
     {
         return this._geometry;
+    }
+
+    setGeometry(value)
+    {
+        this._geometry = value;
     }
 
     getCollection()
@@ -506,19 +526,44 @@ export class Material
     {
         this._materials = [];
         this._defaultMaterial = null;
+        this._soloMaterial = "";
+    }
+
+    clearMaterials()
+    {
+        this._materials.length = 0;
+        this._defaultMaterial = null;
+        this._soloMaterial = "";
+    }
+
+    setSoloMaterial(value)
+    {
+        this._soloMaterial = value;
+    }
+
+    getSoloMaterial()
+    {
+        return this._soloMaterial;
     }
 
     // If no material file is selected, we programmatically create a default material as a fallback
     static createFallbackMaterial(doc) 
     {
-        const ssName = 'SR_default';
-        const ssNode = doc.addChildOfCategory('standard_surface', ssName);
+        let ssNode = doc.getChild('Generated_Default_Shader');
+        if (ssNode)
+        {
+            return ssNode;
+        } 
+        const ssName = 'Generated_Default_Shader';
+        ssNode = doc.addChildOfCategory('standard_surface', ssName);
         ssNode.setType('surfaceshader');
         const smNode = doc.addChildOfCategory('surfacematerial', 'Default');
         smNode.setType('material');
         const shaderElement = smNode.addInput('surfaceshader');
         shaderElement.setType('surfaceshader');
         shaderElement.setNodeName(ssName);
+
+        return ssNode;
     }
 
     async loadMaterialFile(loader, materialFilename)
@@ -565,11 +610,10 @@ export class Material
         // Check if there are any looks defined in the document
         // If so then traverse the looks for all material assignments.
         // Generate code and compile for any associated surface shader
-        // and assign to the associatged geometry. If there are no looks
+        // and assign to the associated geometry. If there are no looks
         // then the first material is found and assignment to all the
-        // geometry. 
-        this._materials.length = 0;
-        this._defaultMaterial = null;
+        // geometry.
+        this.clearMaterials(); 
         var looks = doc.getLooks();
         if (looks.length)
         {
@@ -610,7 +654,7 @@ export class Material
                         }
                         else
                         {
-                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER);
+                            newAssignment = new MaterialAssign(shader, NO_GEOMETRY_SPECIFIER, null);
                         }
 
                         if (newAssignment)
@@ -623,35 +667,133 @@ export class Material
         }
         else
         {
-            // Search for any surface shader. It
+            // Search for any surface shaders. The first found
             // is assumed to be assigned to the entire scene
             // The identifier used is "*" to mean the entire scene. 
-            let elem = mx.findRenderableElement(doc);
-            if (elem)
+            const materialNodes = doc.getMaterialNodes();
+            let shaderList = [];
+            let foundRenderable = false;            
+            for (let i=0; i<materialNodes.length; ++i)
             {
-                this._materials.push(new MaterialAssign(elem, ALL_GEOMETRY_SPECIFIER));
+                let materialNode = materialNodes[i];
+                if (materialNode)
+                {
+                    console.log('Scan material: ', materialNode.getNamePath());
+                    let shaderNodes = mx.getShaderNodes(materialNode)
+                    if (shaderNodes.length > 0)
+                    {
+                        let shaderNodePath = shaderNodes[0].getNamePath()
+                        if (!shaderList.includes(shaderNodePath))
+                        {
+                            let assignment = NO_GEOMETRY_SPECIFIER;
+                            if (foundRenderable == false)
+                            {
+                                assignment = ALL_GEOMETRY_SPECIFIER;
+                                foundRenderable = true;
+                            }                        
+                            console.log('-- add shader: ', shaderNodePath);
+                            shaderList.push(shaderNodePath);
+                            this._materials.push(new MaterialAssign(shaderNodes[0], assignment));
+                        }
+                    }
+                }            
             }
+            const nodeGraphs = doc.getNodeGraphs();
+            for (let i=0; i<nodeGraphs.length; ++i)
+            {
+                let nodeGraph = nodeGraphs[i];
+                if (nodeGraph)
+                {
+                    if (nodeGraph.hasAttribute('nodedef') || nodeGraph.hasSourceUri())
+                    {
+                        continue;
+                    } 
+                    // Skip any nodegraph that is connected to something downstream
+                    if (nodeGraph.getDownstreamPorts().length > 0)
+                    {
+                        continue
+                    }
+                    let outputs = nodeGraph.getOutputs();
+                    for (let j=0; j<outputs.length; ++j)
+                    {
+                        let output = outputs[j];
+                        {
+                            let assignment = NO_GEOMETRY_SPECIFIER;
+                            if (foundRenderable == false)
+                            {
+                                assignment = ALL_GEOMETRY_SPECIFIER;
+                                foundRenderable = true;
+                            }
+                            let newMat = new MaterialAssign(output, assignment, null);
+                            this._materials.push(newMat);
+                        }
+                    }
+                }
+            }
+            const outputs = doc.getOutputs();
+            for (let i=0; i<outputs.length; ++i)
+            {
+                let output = outputs[i];
+                if (output)
+                {
+                    let assignment = NO_GEOMETRY_SPECIFIER;
+                    if (foundRenderable == false)
+                    {
+                        assignment = ALL_GEOMETRY_SPECIFIER;
+                        foundRenderable = true;
+                    }
+                    this._materials.push(new MaterialAssign(output, assignment));
+                }
+            }
+
+            const shaderNodes = []; 
+            for (let i=0; i<shaderNodes.length; ++i)
+            {
+                let shaderNode = shaderNodes[i];
+                let shaderNodePath = shaderNode.getNamePath()
+                if (!shaderList.includes(shaderNodePath))
+                {
+                    let assignment = NO_GEOMETRY_SPECIFIER;
+                    if (foundRenderable == false)
+                    {
+                        assignment = ALL_GEOMETRY_SPECIFIER;
+                        foundRenderable = true;
+                    }
+                    shaderList.push(shaderNodePath);
+                    this._materials.push(new MaterialAssign(shaderNode, assignment));
+                }
+            }
+        }
+
+        // Assign to default material if none found
+        if (this._materials.length == 0)
+        {
+            const defaultNode = Material.createFallbackMaterial(doc);
+            this._materials.push(new MaterialAssign(defaultNode, ALL_GEOMETRY_SPECIFIER));
         }
         
         // Create a new shader for each material node.
         // Only create the shader once even if assigned more than once.
         var startGenTime = performance.now();
         let shaderMap = new Map();
+        let closeUI = false;
         for (let matassign of this._materials)
         {
-            let materialName = matassign.getMaterial().getName();
+            // Need to use path vs name to get a unique key.
+            let materialName = matassign.getMaterial().getNamePath();
             let shader = shaderMap[materialName];
             if (!shader)
             {
-                shader = viewer.getMaterial().generateMaterial(matassign.getMaterial(), viewer, searchPath);
+                shader = viewer.getMaterial().generateMaterial(matassign, viewer, searchPath, closeUI);
                 shaderMap[materialName] = shader;
             }
             matassign.setShader(shader);
+            closeUI = true;
         }
         console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.", );
 
         // Update scene shader assignments
-        this.updateMaterialAssignments(viewer);
+        this.updateMaterialAssignments(viewer, "");
 
         // Mark transform update
         viewer.getScene().setUpdateTransforms();
@@ -666,16 +808,31 @@ export class Material
     // in the scene, then the first material assignment shader is assigned
     // to the entire scene.
     //
-    async updateMaterialAssignments(viewer)
+    async updateMaterialAssignments(viewer, soloMaterial)
     {
+        console.log("Update material assignments. Solo=", soloMaterial);
         var startTime = performance.now();
 
         let assigned = 0;
+        let assignedSolo = false;
         for (let matassign of this._materials)
         {
             if (matassign.getShader())
             {
-                assigned += viewer.getScene().updateMaterial(matassign);
+                if (soloMaterial.length) {
+                    if (matassign.getMaterial().getNamePath() == soloMaterial) {
+                        let temp = matassign.getGeometry();
+                        matassign.setGeometry(ALL_GEOMETRY_SPECIFIER);
+                        assigned += viewer.getScene().updateMaterial(matassign);
+                        matassign.setGeometry(temp);
+                        assignedSolo = true;
+                        break
+                    }
+                }
+                else 
+                {
+                    assigned += viewer.getScene().updateMaterial(matassign);
+                }
             }
         }
         if (assigned == 0 && this._materials.length)
@@ -694,8 +851,10 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(elem, viewer, searchPath) 
+    generateMaterial(matassign, viewer, searchPath, closeUI) 
     {
+        var elem = matassign.getMaterial();
+
         var startGenerateMat = performance.now();
 
         const mx = viewer.getMx();
@@ -767,7 +926,7 @@ export class Material
 
         // Update property editor
         const gui = viewer.getEditor().getGUI();
-        this.updateEditor(elem, shader, newMaterial, gui, viewer);
+        this.updateEditor(matassign, shader, newMaterial, gui, closeUI, viewer);
 
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
@@ -775,19 +934,100 @@ export class Material
         return newMaterial;
     }
 
+    clearSoloMaterialUI()
+    {
+        for (let i=0; i<this._materials.length; ++i)
+        {
+            let matassign = this._materials[i];
+            let matUI = matassign.getMaterialUI();
+            if (matUI)
+            {
+                let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+                matTitle.classList.remove('peditor_material_assigned');
+                let img = matTitle.getElementsByTagName('img')[0];    
+                img.src = 'public/shader_ball.svg';
+                //matTitle.classList.remove('peditor_material_unassigned');
+            }
+        }
+    }
+
+    static updateSoloMaterial(viewer, elemPath, materials, event)
+    {
+        // Prevent the event from being passed to parent folder
+        event.stopPropagation();
+
+        for (let i=0; i<materials.length; ++i)
+        {
+            let matassign = materials[i];
+            // Need to use path vs name to get a unique key.
+            let materialName = matassign.getMaterial().getNamePath();
+            var matUI = matassign.getMaterialUI();
+            let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+            let img = matTitle.getElementsByTagName('img')[0];    
+            if (materialName == elemPath)
+            {                
+                if (this._soloMaterial == elemPath)
+                {
+                    img.src = 'public/shader_ball.svg';
+                    matTitle.classList.remove('peditor_material_assigned');
+                    this._soloMaterial = "";
+                }
+                else
+                {
+                    img.src = 'public/shader_ball2.svg';
+                    matTitle.classList.add('peditor_material_assigned');
+                    this._soloMaterial = elemPath;
+                }
+            }
+            else
+            {
+                img.src = 'public/shader_ball.svg';
+                matTitle.classList.remove('peditor_material_assigned');                   
+            }
+        }
+        viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
+        viewer.getScene().setUpdateTransforms();
+    }
+
     //
     // Update property editor for a given MaterialX element, it's shader, and
     // Three material
     //
-    updateEditor(elem, shader, material, gui)
+    updateEditor(matassign, shader, material, gui, closeUI, viewer)
     {
+        var elem = matassign.getMaterial();
+        var materials = this._materials;
+
         const DEFAULT_MIN = 0;
         const DEFAULT_MAX = 100;
 
         var startTime = performance.now();
 
         const elemPath = elem.getNamePath();
-        var matUI = gui.addFolder(elemPath + ' Properties');
+
+        // Create and cache associated UI
+        var matUI = gui.addFolder(elemPath);        
+        matassign.setMaterialUI(matUI);
+
+        let matTitle = matUI.domElement.getElementsByClassName('title')[0];
+        // Add a icon to the title to allow for assigning the material to geometry
+        // Clicking on the icon will "solo" the material to the geometry.
+        // Clicking on the title will open/close the material folder.
+        matTitle.innerHTML = "<img id='" + elemPath + "' src='public/shader_ball.svg' width='16' height='16' style='vertical-align:middle; margin-right: 5px;'>" + elem.getNamePath();
+        let img = matTitle.getElementsByTagName('img')[0];
+        if (img)
+        {
+            // Add event listener to icon to call updateSoloMaterial function
+            img.addEventListener('click', function(event) 
+            {
+                Material.updateSoloMaterial(viewer, elemPath, materials,event);
+            });
+        }
+    
+        if (closeUI)
+        {
+            matUI.close();
+        }  
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -852,8 +1092,10 @@ export class Material
                                 if (uifolderName && uifolderName.length) {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
-                                    if (!currentFolder) {
+                                    if (!currentFolder) 
+                                    {
                                         currentFolder = matUI.addFolder(uifolderName);
+                                        currentFolder.domElement.classList.add('peditorfolder');                                
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -929,7 +1171,8 @@ export class Material
                                 {
                                     step = (maxValue - minValue) / 1000.0;
                                 }
-                                currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                const w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                w.domElement.classList.add('peditoritem');
                             }
                             break;
 
@@ -991,7 +1234,8 @@ export class Material
                                 }
                                 if (enumList.length == 0)
                                 {
-                                    currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    let w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
+                                    w.domElement.classList.add('peditoritem');
                                 }    
                                 else
                                 {
@@ -1017,8 +1261,9 @@ export class Material
                                         } 
                                     }                                    
                                     const defaultOption = enumList[value]; // Set the default selected option
-                                    const dropdownController = gui.add(enumeration, defaultOption, enumeration).name(path);
+                                    const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
                                     dropdownController.onChange(handleDropdownChange);                                
+                                    dropdownController.domElement.classList.add('peditoritem');
                                 }
                             }
                             break;
@@ -1027,7 +1272,8 @@ export class Material
                             uniformToUpdate = material.uniforms[name];
                             if (uniformToUpdate && value != null)
                             {
-                                currentFolder.add(material.uniforms[name], 'value').name(path);
+                                let w = currentFolder.add(material.uniforms[name], 'value').name(path);
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1069,6 +1315,7 @@ export class Material
                                 Object.keys(material.uniforms[name].value).forEach((key) => {
                                     let w = vecFolder.add(material.uniforms[name].value, 
                                         key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
+                                    w.domElement.classList.add('peditoritem');                                
                                 })
                             }
                             break;
@@ -1085,11 +1332,12 @@ export class Material
                                 const color3 = new THREE.Color(dummy.color);
                                 color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
-                                currentFolder.addColor(dummy, 'color').name(path)
+                                let w = currentFolder.addColor(dummy, 'color').name(path)
                                     .onChange(function (value) {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
                                     });
+                                w.domElement.classList.add('peditoritem');                                
                             }
                             break;
 
@@ -1102,11 +1350,16 @@ export class Material
                         case 'filename':
                             break;
                         case 'string':
-                            uniformToUpdate = material.uniforms[name];
-                            if (uniformToUpdate && value != null) {
-                                item = currentFolder.add(material.uniforms[name], 'value');
+                            console.log('String: ', name);
+                            if (value != null) {
+                                var dummy =
+                                {
+                                    thevalue: value
+                                }
+                                let item = currentFolder.add(dummy, 'thevalue');
                                 item.name(path);
-                                item.readonly(true);
+                                item.disable(true);
+                                item.domElement.classList.add('peditoritem');                                
                             }
                             break;
                         default:
