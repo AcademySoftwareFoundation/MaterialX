@@ -24,7 +24,7 @@ void VkResourceBindingContext::initialize()
 
 void VkResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     // Write shader stage directives for Vulkan compliance
     std::string shaderStage;
@@ -45,7 +45,7 @@ void VkResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& 
 
 void VkResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // First, emit all value uniforms in a block with single layout binding
@@ -95,7 +95,7 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
                                                               ShaderStage& stage, const std::string& structInstanceName,
                                                               const std::string& arraySuffix)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // Glsl structures need to be aligned. We make a best effort to base align struct members and add

@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_BITANGENTNODEGLSL_H
-#define MATERIALX_BITANGENTNODEGLSL_H
+#ifndef MATERIALX_HWNORMALNODE_H
+#define MATERIALX_HWNORMALNODE_H
 
-#include <MaterialXGenGlsl/GlslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Bitangent node implementation for GLSL
-class MX_GENGLSL_API BitangentNodeGlsl : public GlslImplementation
+/// Normal node implementation for hardware languages
+class MX_GENSHADER_API HwNormalNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

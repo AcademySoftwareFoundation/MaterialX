@@ -41,7 +41,7 @@ function init()
     materialsSelect.value = materialFilename;
     materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
-        viewer.getEditor().clearFolders();
+        viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
@@ -62,6 +62,13 @@ function init()
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    // Disable introspection for shader debugging for deployment. 
+    // - The code associated with getting program information can be very slow when 
+    //   dealing with shaders with lots of input uniforms (such as standard surface, openpbr shading models)
+    //   as each call is blocking.
+    // - Adding this avoids the chess set scene from "hanging" the Chrome browser on Windows to a few second load.
+    // - Documentation for this flag: https://threejs.org/docs/index.html#api/en/renderers/WebGLRenderer.debug
+    renderer.debug.checkShaderErrors = false;
 
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene.getScene(), scene.getCamera());
@@ -83,20 +90,20 @@ function init()
     viewer.getEditor().initialize();
 
     const hdrLoader = viewer.getHdrLoader();
-    const fileLooder = viewer.getFileLoader();
+    const fileLoader = viewer.getFileLoader();
     Promise.all([
-        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
-        new Promise(resolve => fileLooder.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
-        new Promise(resolve => hdrLoader.setDataType(THREE.FloatType).load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => hdrLoader.load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => hdrLoader.load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
+        new Promise(resolve => fileLoader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
         new Promise(function (resolve) {
             MaterialX().then((module) => {
                 resolve(module);
             });
         }) 
-    ]).then(async ([loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture, mxIn]) => 
+    ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) => 
     {
         // Initialize viewer + lighting
-        await viewer.initialize(mxIn, renderer, loadedRadianceTexture, loadedLightSetup, loadedIrradianceTexture);
+        await viewer.initialize(mxIn, renderer, radianceTexture, irradianceTexture, lightRigXml);
 
         // Load geometry  
         let scene = viewer.getScene();
@@ -122,7 +129,7 @@ function init()
 
     setLoadingCallback(file => {
         materialFilename = file.fullPath || file.name;
-        viewer.getEditor().clearFolders();
+        viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();

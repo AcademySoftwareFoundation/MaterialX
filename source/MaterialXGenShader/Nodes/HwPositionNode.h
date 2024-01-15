@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_FRAMENODEMSL_H
-#define MATERIALX_FRAMENODEMSL_H
+#ifndef MATERIALX_HWPOSITIONNODE_H
+#define MATERIALX_HWPOSITIONNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Frame node implementation for MSL
-class MX_GENMSL_API FrameNodeMsl : public MslImplementation
+/// Position node implementation for hardware languages
+class MX_GENSHADER_API HwPositionNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

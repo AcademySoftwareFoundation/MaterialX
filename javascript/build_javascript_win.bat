@@ -1,5 +1,8 @@
+@rem This script builds MaterialX JavaScript on Windows. The final command starts a local server, allowing you to
+@rem run the MaterialX Web Viewer locally by entering 'http://localhost:8080' in the search bar of your browser.
 @echo --------------------- Setup Emscripten ---------------------
 @echo on
+@rem Edit the following paths to match your local locations for the Emscripten and MaterialX projects.
 set EMSDK_LOCATION=C:/GitHub/emsdk
 set MATERIALX_LOCATION=C:/GitHub/MaterialX
 call %EMSDK_LOCATION%/emsdk.bat install latest

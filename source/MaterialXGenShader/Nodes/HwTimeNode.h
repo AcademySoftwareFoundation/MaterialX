@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_NORMALNODEMSL_H
-#define MATERIALX_NORMALNODEMSL_H
+#ifndef MATERIALX_HWTIMENODE_H
+#define MATERIALX_HWTIMENODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Normal node implementation for MSL
-class MX_GENMSL_API NormalNodeMsl : public MslImplementation
+/// Time node implementation for hardware languages
+class MX_GENSHADER_API HwTimeNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

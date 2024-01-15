@@ -3,24 +3,24 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
 
 #include <MaterialXGenShader/Shader.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-ShaderNodeImplPtr FrameNodeGlsl::create()
+ShaderNodeImplPtr HwFrameNode::create()
 {
-    return std::make_shared<FrameNodeGlsl>();
+    return std::make_shared<HwFrameNode>();
 }
 
-void FrameNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void HwFrameNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
     addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, HW::T_FRAME, ps);
 }
 
-void FrameNodeGlsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
+void HwFrameNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {

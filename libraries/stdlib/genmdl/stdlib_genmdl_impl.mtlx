@@ -44,7 +44,8 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genmdl" nodedef="ND_normalmap" sourcecode="mx::stdlib::mx_normalmap(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap" sourcecode="mx::stdlib::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="mx::stdlib::mx_normalmap_vector2(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -753,6 +754,11 @@
   <!-- <combine4> -->
   <implementation name="IM_combine4_color4_genmdl" nodedef="ND_combine4_color4" target="genmdl" />
   <implementation name="IM_combine4_vector4_genmdl" nodedef="ND_combine4_vector4" target="genmdl" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genmdl" nodedef="ND_creatematrix_vector3_matrix33" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix33({{in1}}, {{in2}}, {{in3}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genmdl" nodedef="ND_creatematrix_vector3_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector3_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genmdl" nodedef="ND_creatematrix_vector4_matrix44" sourcecode="mx::stdlib::mx_creatematrix_vector4_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

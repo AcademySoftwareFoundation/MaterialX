@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_TANGENTNODEMSL_H
-#define MATERIALX_TANGENTNODEMSL_H
+#ifndef MATERIALX_HWBITANGENTNODE_H
+#define MATERIALX_HWBITANGENTNODE_H
 
-#include <MaterialXGenMsl/MslShaderGenerator.h>
+#include <MaterialXGenShader/HwShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
-/// Tangent node implementation for MSL
-class MX_GENMSL_API TangentNodeMsl : public MslImplementation
+/// Bitangent node implementation for hardware languages
+class MX_GENSHADER_API HwBitangentNode : public HwImplementation
 {
   public:
     static ShaderNodeImplPtr create();

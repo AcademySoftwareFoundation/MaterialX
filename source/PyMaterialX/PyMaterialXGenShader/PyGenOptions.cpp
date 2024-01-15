@@ -38,6 +38,7 @@ void bindPyGenOptions(py::module& mod)
         .def_readwrite("hwNormalizeUdimTexCoords", &mx::GenOptions::hwNormalizeUdimTexCoords)
         .def_readwrite("hwAmbientOcclusion", &mx::GenOptions::hwAmbientOcclusion)        
         .def_readwrite("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
+        .def_readwrite("hwWriteEnvPrefilter", &mx::GenOptions::hwWriteEnvPrefilter)
         .def_readwrite("hwImplicitBitangents", &mx::GenOptions::hwImplicitBitangents)
         .def_readwrite("emitColorTransforms", &mx::GenOptions::emitColorTransforms)
         .def(py::init<>());

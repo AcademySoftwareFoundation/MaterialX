@@ -31,6 +31,7 @@ class GLRenderPipeline : public RenderPipeline
     mx::ImageHandlerPtr createImageHandler() override;
     mx::MaterialPtr     createMaterial() override;
     void updateAlbedoTable(int tableSize) override;
+    void updatePrefilteredMap() override;
     std::shared_ptr<void> createTextureBaker(unsigned int width,
                                              unsigned int height,
                                              mx::Image::BaseType baseType) override;

@@ -6,14 +6,8 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/PositionNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/NormalNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TangentNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BitangentNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
@@ -32,6 +26,13 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
+#include <MaterialXGenShader/Nodes/HwPositionNode.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
+#include <MaterialXGenShader/Nodes/HwTangentNode.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -164,13 +165,13 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, PositionNodeGlsl::create);
+    registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, HwPositionNode::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_" + GlslShaderGenerator::TARGET, NormalNodeGlsl::create);
+    registerImplementation("IM_normal_vector3_" + GlslShaderGenerator::TARGET, HwNormalNode::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_" + GlslShaderGenerator::TARGET, TangentNodeGlsl::create);
+    registerImplementation("IM_tangent_vector3_" + GlslShaderGenerator::TARGET, HwTangentNode::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::TARGET, BitangentNodeGlsl::create);
+    registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::TARGET, HwBitangentNode::create);
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
@@ -193,9 +194,11 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, FrameNodeGlsl::create);
+    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, HwFrameNode::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, TimeNodeGlsl::create);
+    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, HwTimeNode::create);
+    // <!-- <viewdirection> -->
+    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
@@ -553,7 +556,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     bool lighting = requiresLighting(graph);
 
     // Define directional albedo approach
-    if (lighting || context.getOptions().hwWriteAlbedoTable)
+    if (lighting || context.getOptions().hwWriteAlbedoTable || context.getOptions().hwWriteEnvPrefilter)
     {
         emitLine("#define DIRECTIONAL_ALBEDO_METHOD " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage, false);
         emitLineBreak(stage);
@@ -587,7 +590,14 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Emit directional albedo table code.
     if (context.getOptions().hwWriteAlbedoTable)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_table.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_albedo_table.glsl", context, stage);
+        emitLineBreak(stage);
+    }
+
+    // Emit environment prefiltering code
+    if (context.getOptions().hwWriteEnvPrefilter)
+    {
+        emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl", context, stage);
         emitLineBreak(stage);
     }
 
@@ -635,6 +645,10 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     else if (context.getOptions().hwWriteAlbedoTable)
     {
         emitLine(outputSocket->getVariable() + " = vec4(mx_generate_dir_albedo_table(), 1.0)", stage);
+    }
+    else if (context.getOptions().hwWriteEnvPrefilter)
+    {
+        emitLine(outputSocket->getVariable() + " = vec4(mx_generate_prefilter_env(), 1.0)", stage);
     }
     else
     {
@@ -899,31 +913,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     return impl;
 }
 
-const string GlslImplementation::SPACE = "space";
-const string GlslImplementation::INDEX = "index";
-const string GlslImplementation::GEOMPROP = "geomprop";
-
-namespace
-{
-
-// List name of inputs that are not to be editable and
-// published as shader uniforms in GLSL.
-const std::set<string> IMMUTABLE_INPUTS =
-{
-    // Geometric node inputs are immutable since a shader needs regeneration if they change.
-    "index", "space", "attrname"
-};
-
-} // anonymous namespace
-
 const string& GlslImplementation::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
-}
-
-bool GlslImplementation::isEditable(const ShaderInput& input) const
-{
-    return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
 MATERIALX_NAMESPACE_END
