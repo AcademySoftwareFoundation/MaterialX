@@ -99,42 +99,21 @@
 
   <!-- <noise2d> -->
   <implementation name="IM_noise2d_float_genmdl" nodedef="ND_noise2d_float" sourcecode="mx::stdlib::mx_noise2d_float(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_color3_genmdl" nodedef="ND_noise2d_color3" sourcecode="mx::stdlib::mx_noise2d_color3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_color4_genmdl" nodedef="ND_noise2d_color4" sourcecode="mx::stdlib::mx_noise2d_color4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
   <implementation name="IM_noise2d_vector2_genmdl" nodedef="ND_noise2d_vector2" sourcecode="mx::stdlib::mx_noise2d_float2(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
   <implementation name="IM_noise2d_vector3_genmdl" nodedef="ND_noise2d_vector3" sourcecode="mx::stdlib::mx_noise2d_float3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
   <implementation name="IM_noise2d_vector4_genmdl" nodedef="ND_noise2d_vector4" sourcecode="mx::stdlib::mx_noise2d_float4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_color3FA_genmdl" nodedef="ND_noise2d_color3FA" sourcecode="mx::stdlib::mx_noise2d_color3FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_color4FA_genmdl" nodedef="ND_noise2d_color4FA" sourcecode="mx::stdlib::mx_noise2d_color4FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_vector2FA_genmdl" nodedef="ND_noise2d_vector2FA" sourcecode="mx::stdlib::mx_noise2d_float2FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_vector3FA_genmdl" nodedef="ND_noise2d_vector3FA" sourcecode="mx::stdlib::mx_noise2d_float3FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
-  <implementation name="IM_noise2d_vector4FA_genmdl" nodedef="ND_noise2d_vector4FA" sourcecode="mx::stdlib::mx_noise2d_float4FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_texcoord:{{texcoord}})" target="genmdl" />
 
   <!-- <noise3d> -->
   <implementation name="IM_noise3d_float_genmdl" nodedef="ND_noise3d_float" sourcecode="mx::stdlib::mx_noise3d_float(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_color3_genmdl" nodedef="ND_noise3d_color3" sourcecode="mx::stdlib::mx_noise3d_color3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_color4_genmdl" nodedef="ND_noise3d_color4" sourcecode="mx::stdlib::mx_noise3d_color4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector2_genmdl" nodedef="ND_noise3d_vector2" sourcecode="mx::stdlib::mx_noise3d_float2(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector3_genmdl" nodedef="ND_noise3d_vector3" sourcecode="mx::stdlib::mx_noise3d_float3(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_noise3d_vector4_genmdl" nodedef="ND_noise3d_vector4" sourcecode="mx::stdlib::mx_noise3d_float4(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_color3FA_genmdl" nodedef="ND_noise3d_color3FA" sourcecode="mx::stdlib::mx_noise3d_color3FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_color4FA_genmdl" nodedef="ND_noise3d_color4FA" sourcecode="mx::stdlib::mx_noise3d_color4FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_vector2FA_genmdl" nodedef="ND_noise3d_vector2FA" sourcecode="mx::stdlib::mx_noise3d_float2FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_vector3FA_genmdl" nodedef="ND_noise3d_vector3FA" sourcecode="mx::stdlib::mx_noise3d_float3FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_noise3d_vector4FA_genmdl" nodedef="ND_noise3d_vector4FA" sourcecode="mx::stdlib::mx_noise3d_float4FA(mxp_amplitude:{{amplitude}}, mxp_pivot:{{pivot}}, mxp_position:{{position}})" target="genmdl" />
 
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genmdl" nodedef="ND_fractal3d_float" sourcecode="mx::stdlib::mx_fractal3d_float(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_color3_genmdl" nodedef="ND_fractal3d_color3" sourcecode="mx::stdlib::mx_fractal3d_color3(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_color4_genmdl" nodedef="ND_fractal3d_color4" sourcecode="mx::stdlib::mx_fractal3d_color4(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_fractal3d_vector2_genmdl" nodedef="ND_fractal3d_vector2" sourcecode="mx::stdlib::mx_fractal3d_float2(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_fractal3d_vector3_genmdl" nodedef="ND_fractal3d_vector3" sourcecode="mx::stdlib::mx_fractal3d_float3(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
   <implementation name="IM_fractal3d_vector4_genmdl" nodedef="ND_fractal3d_vector4" sourcecode="mx::stdlib::mx_fractal3d_float4(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_color3FA_genmdl" nodedef="ND_fractal3d_color3FA" sourcecode="mx::stdlib::mx_fractal3d_color3FA(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_color4FA_genmdl" nodedef="ND_fractal3d_color4FA" sourcecode="mx::stdlib::mx_fractal3d_color4FA(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_vector2FA_genmdl" nodedef="ND_fractal3d_vector2FA" sourcecode="mx::stdlib::mx_fractal3d_float2FA(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_vector3FA_genmdl" nodedef="ND_fractal3d_vector3FA" sourcecode="mx::stdlib::mx_fractal3d_float3FA(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
-  <implementation name="IM_fractal3d_vector4FA_genmdl" nodedef="ND_fractal3d_vector4FA" sourcecode="mx::stdlib::mx_fractal3d_float4FA(mxp_amplitude:{{amplitude}}, mxp_octaves:{{octaves}}, mxp_lacunarity:{{lacunarity}}, mxp_diminish:{{diminish}}, mxp_position:{{position}})" target="genmdl" />
 
   <!-- <cellnoise2d> -->
   <implementation name="IM_cellnoise2d_float_genmdl" nodedef="ND_cellnoise2d_float" sourcecode="mx::stdlib::mx_cellnoise2d_float(mxp_texcoord:{{texcoord}})" target="genmdl" />
