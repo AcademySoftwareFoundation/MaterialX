@@ -96,7 +96,7 @@ function init()
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
     orbitControls.addEventListener('change', () => {
         viewer.getScene().setUpdateTransforms();
-    })      
+    })
 
     // Add hotkey 'f' to capture the current frame and save an image file.
     // See check inside the render loop when a capture can be performed.
