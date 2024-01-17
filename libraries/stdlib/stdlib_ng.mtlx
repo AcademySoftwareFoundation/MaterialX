@@ -1310,6 +1310,200 @@
   </nodegraph>
 
   <!--
+    <noise2d>
+  -->
+  <nodegraph name="NG_noise2d_color3" nodedef="ND_noise2d_color3">
+    <noise2d name="N_noise2d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color3" nodename="N_noise2d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color4" nodedef="ND_noise2d_color4">
+    <noise2d name="N_noise2d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color4" nodename="N_noise2d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color3FA" nodedef="ND_noise2d_color3FA">
+    <noise2d name="N_noise2d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color3" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color4FA" nodedef="ND_noise2d_color4FA">
+    <noise2d name="N_noise2d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color4" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector2FA" nodedef="ND_noise2d_vector2FA">
+    <noise2d name="N_noise2d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector2" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector3FA" nodedef="ND_noise2d_vector3FA">
+    <noise2d name="N_noise2d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector3" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector4FA" nodedef="ND_noise2d_vector4FA">
+    <noise2d name="N_noise2d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector4" nodename="N_noise2d" />
+  </nodegraph>
+
+  <!--
+    <noise3d>
+  -->
+  <nodegraph name="NG_noise3d_color3" nodedef="ND_noise3d_color3">
+    <noise3d name="N_noise3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color3" nodename="N_noise3d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color4" nodedef="ND_noise3d_color4">
+    <noise3d name="N_noise3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color4" nodename="N_noise3d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color3FA" nodedef="ND_noise3d_color3FA">
+    <noise3d name="N_noise3d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color3" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color4FA" nodedef="ND_noise3d_color4FA">
+    <noise3d name="N_noise3d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color4" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector2FA" nodedef="ND_noise3d_vector2FA">
+    <noise3d name="N_noise3d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector2" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector3FA" nodedef="ND_noise3d_vector3FA">
+    <noise3d name="N_noise3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector3" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector4FA" nodedef="ND_noise3d_vector4FA">
+    <noise3d name="N_noise3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector4" nodename="N_noise3d" />
+  </nodegraph>
+
+  <!--
+    <fractal3d>
+  -->
+  <nodegraph name="NG_fractal3d_color3" nodedef="ND_fractal3d_color3">
+    <fractal3d name="N_fractal3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color3" nodename="N_fractal3d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color4" nodedef="ND_fractal3d_color4">
+    <fractal3d name="N_fractal3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color4" nodename="N_fractal3d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color3FA" nodedef="ND_fractal3d_color3FA">
+    <fractal3d name="N_fractal3d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color3" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color4FA" nodedef="ND_fractal3d_color4FA">
+    <fractal3d name="N_fractal3d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color4" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector2FA" nodedef="ND_fractal3d_vector2FA">
+    <fractal3d name="N_fractal3d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector2" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector3FA" nodedef="ND_fractal3d_vector3FA">
+    <fractal3d name="N_fractal3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector3" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector4FA" nodedef="ND_fractal3d_vector4FA">
+    <fractal3d name="N_fractal3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector4" nodename="N_fractal3d" />
+  </nodegraph>
+
+  <!--
     <unifiednoise2d>
     Combined 2d noises for artists.
   -->
