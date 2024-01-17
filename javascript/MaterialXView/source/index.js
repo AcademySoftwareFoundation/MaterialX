@@ -21,7 +21,7 @@ let turntableEnabled = false;
 let turntableSteps = 360;
 let turntableStep = 0;
 
-let snapshot = false;
+let captureRequested = false;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
@@ -34,7 +34,7 @@ init();
 viewer.getEditor().updateProperties(0.9);
 
 // Save the contents of the rendered canvas to a file.
-function performSnapshot()
+function captureFrame()
 {
     let canvas = document.getElementById('webglcanvas');
     var url = canvas.toDataURL();    
@@ -99,10 +99,10 @@ function init()
     })      
 
     // Add hotkey 'f' to save the contents of the rendered canvas to a file.
-    // See check inside the render loop when a snapshot can be performed.
+    // See check inside the render loop when a frame capture can be performed.
     document.addEventListener('keydown', (event) => {
         if (event.key === 'f') {
-            snapshot = true;
+            captureRequested = true;
         }
     });
 
@@ -181,10 +181,10 @@ function animate()
     composer.render();
     viewer.getScene().updateTransforms();
 
-    if (snapshot)
+    if (captureRequested)
     {
-        performSnapshot();
-        snapshot = false;
+        captureFrame();
+        captureRequested = false;
     }
 }
 
