@@ -62,6 +62,13 @@ function init()
     // Set up renderer
     renderer = new THREE.WebGLRenderer({ canvas, context });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    // Disable introspection for shader debugging for deployment. 
+    // - The code associated with getting program information can be very slow when 
+    //   dealing with shaders with lots of input uniforms (such as standard surface, openpbr shading models)
+    //   as each call is blocking.
+    // - Adding this avoids the chess set scene from "hanging" the Chrome browser on Windows to a few second load.
+    // - Documentation for this flag: https://threejs.org/docs/index.html#api/en/renderers/WebGLRenderer.debug
+    renderer.debug.checkShaderErrors = false;
 
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene.getScene(), scene.getCamera());

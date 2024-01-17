@@ -651,7 +651,7 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
         {
             emitLineEnd(stage, false);
             emitScopeBegin(stage, Syntax::DOUBLE_SQUARE_BRACKETS);
-            for (auto line : metadataLines)
+            for (const auto& line : metadataLines)
             {
                 emitLine(line, stage, false);
             }
