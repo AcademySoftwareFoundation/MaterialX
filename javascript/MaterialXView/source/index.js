@@ -33,7 +33,7 @@ let viewer = Viewer.create();
 init();
 viewer.getEditor().updateProperties(0.9);
 
-// Save the contents of the rendered canvas to a file.
+// Capture the current frame and save an image file.
 function captureFrame()
 {
     let canvas = document.getElementById('webglcanvas');
@@ -98,8 +98,8 @@ function init()
         viewer.getScene().setUpdateTransforms();
     })      
 
-    // Add hotkey 'f' to save the contents of the rendered canvas to a file.
-    // See check inside the render loop when a frame capture can be performed.
+    // Add hotkey 'f' to capture the current frame and save an image file.
+    // See check inside the render loop when a capture can be performed.
     document.addEventListener('keydown', (event) => {
         if (event.key === 'f') {
             captureRequested = true;
