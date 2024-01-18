@@ -1863,7 +1863,7 @@
     </subtract>
     <dotproduct name="dist_square" type="float">
       <input name="in1" type="vector2" nodename="delta" />
-      <input name="in2" type="vector2" nodename="delta"/>
+      <input name="in2" type="vector2" nodename="delta" />
     </dotproduct>
     <multiply name="rad_square" type="float">
       <input name="in1" type="float" interfacename="radius" />
@@ -2555,7 +2555,7 @@
     </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
-  
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
@@ -2673,7 +2673,7 @@
     </magnitude>
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-  
+
   <!--
     Node: <trianglewave>
     Generate a triangle wave from the given scalar input.
