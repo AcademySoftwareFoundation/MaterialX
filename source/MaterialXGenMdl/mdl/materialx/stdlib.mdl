@@ -3592,6 +3592,11 @@ export float mx_switch_float(
 	float mxp_in3 = float(0.0),
 	float mxp_in4 = float(0.0),
 	float mxp_in5 = float(0.0),
+	float mxp_in6 = float(0.0),
+	float mxp_in7 = float(0.0),
+	float mxp_in8 = float(0.0),
+	float mxp_in9 = float(0.0),
+	float mxp_in10 = float(0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3605,6 +3610,11 @@ export float mx_switch_float(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3616,6 +3626,11 @@ export color mx_switch_color3(
 	color mxp_in3 = color(0.0, 0.0, 0.0),
 	color mxp_in4 = color(0.0, 0.0, 0.0),
 	color mxp_in5 = color(0.0, 0.0, 0.0),
+	color mxp_in6 = color(0.0, 0.0, 0.0),
+	color mxp_in7 = color(0.0, 0.0, 0.0),
+	color mxp_in8 = color(0.0, 0.0, 0.0),
+	color mxp_in9 = color(0.0, 0.0, 0.0),
+	color mxp_in10 = color(0.0, 0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3629,6 +3644,11 @@ export color mx_switch_color3(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3640,6 +3660,11 @@ export color4 mx_switch_color4(
 	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in6 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in7 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in8 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in9 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in10 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3653,6 +3678,11 @@ export color4 mx_switch_color4(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3664,6 +3694,11 @@ export float2 mx_switch_vector2(
 	float2 mxp_in3 = float2(0.0, 0.0),
 	float2 mxp_in4 = float2(0.0, 0.0),
 	float2 mxp_in5 = float2(0.0, 0.0),
+	float2 mxp_in6 = float2(0.0, 0.0),
+	float2 mxp_in7 = float2(0.0, 0.0),
+	float2 mxp_in8 = float2(0.0, 0.0),
+	float2 mxp_in9 = float2(0.0, 0.0),
+	float2 mxp_in10 = float2(0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3677,6 +3712,11 @@ export float2 mx_switch_vector2(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3688,6 +3728,11 @@ export float3 mx_switch_vector3(
 	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in6 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in7 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in8 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in9 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in10 = float3(0.0, 0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3701,6 +3746,11 @@ export float3 mx_switch_vector3(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3712,6 +3762,11 @@ export float4 mx_switch_vector4(
 	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in6 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in7 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in8 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in9 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in10 = float4(0.0, 0.0, 0.0, 0.0),
 	float mxp_which = float(0.0)
 )
 	[[
@@ -3725,6 +3780,11 @@ export float4 mx_switch_vector4(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3736,6 +3796,11 @@ export float mx_switch_floatI(
 	float mxp_in3 = float(0.0),
 	float mxp_in4 = float(0.0),
 	float mxp_in5 = float(0.0),
+	float mxp_in6 = float(0.0),
+	float mxp_in7 = float(0.0),
+	float mxp_in8 = float(0.0),
+	float mxp_in9 = float(0.0),
+	float mxp_in10 = float(0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3749,6 +3814,11 @@ export float mx_switch_floatI(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3760,6 +3830,11 @@ export color mx_switch_color3I(
 	color mxp_in3 = color(0.0, 0.0, 0.0),
 	color mxp_in4 = color(0.0, 0.0, 0.0),
 	color mxp_in5 = color(0.0, 0.0, 0.0),
+	color mxp_in6 = color(0.0, 0.0, 0.0),
+	color mxp_in7 = color(0.0, 0.0, 0.0),
+	color mxp_in8 = color(0.0, 0.0, 0.0),
+	color mxp_in9 = color(0.0, 0.0, 0.0),
+	color mxp_in10 = color(0.0, 0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3773,6 +3848,11 @@ export color mx_switch_color3I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3784,6 +3864,11 @@ export color4 mx_switch_color4I(
 	color4 mxp_in3 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in4 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	color4 mxp_in5 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in6 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in7 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in8 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in9 = mk_color4(0.0, 0.0, 0.0, 0.0),
+	color4 mxp_in10 = mk_color4(0.0, 0.0, 0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3797,6 +3882,11 @@ export color4 mx_switch_color4I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3808,6 +3898,11 @@ export float2 mx_switch_vector2I(
 	float2 mxp_in3 = float2(0.0, 0.0),
 	float2 mxp_in4 = float2(0.0, 0.0),
 	float2 mxp_in5 = float2(0.0, 0.0),
+	float2 mxp_in6 = float2(0.0, 0.0),
+	float2 mxp_in7 = float2(0.0, 0.0),
+	float2 mxp_in8 = float2(0.0, 0.0),
+	float2 mxp_in9 = float2(0.0, 0.0),
+	float2 mxp_in10 = float2(0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3821,6 +3916,11 @@ export float2 mx_switch_vector2I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3832,6 +3932,11 @@ export float3 mx_switch_vector3I(
 	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
 	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in6 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in7 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in8 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in9 = float3(0.0, 0.0, 0.0),
+	float3 mxp_in10 = float3(0.0, 0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3845,6 +3950,11 @@ export float3 mx_switch_vector3I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
@@ -3856,6 +3966,11 @@ export float4 mx_switch_vector4I(
 	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in6= float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in7 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in8 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in9 = float4(0.0, 0.0, 0.0, 0.0),
+	float4 mxp_in10 = float4(0.0, 0.0, 0.0, 0.0),
 	int mxp_which = int(0)
 )
 	[[
@@ -3869,6 +3984,11 @@ export float4 mx_switch_vector4I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;
