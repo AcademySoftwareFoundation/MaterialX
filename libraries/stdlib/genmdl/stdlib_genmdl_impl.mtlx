@@ -343,28 +343,28 @@
   <implementation name="IM_tan_float_genmdl" nodedef="ND_tan_float" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_float_genmdl" nodedef="ND_asin_float" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_float_genmdl" nodedef="ND_acos_float" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_float_genmdl" nodedef="ND_atan2_float" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_float_genmdl" nodedef="ND_atan2_float" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector2_genmdl" nodedef="ND_sin_vector2" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector2_genmdl" nodedef="ND_cos_vector2" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector2_genmdl" nodedef="ND_tan_vector2" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector2_genmdl" nodedef="ND_asin_vector2" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector2_genmdl" nodedef="ND_acos_vector2" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector2_genmdl" nodedef="ND_atan2_vector2" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector2_genmdl" nodedef="ND_atan2_vector2" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector3_genmdl" nodedef="ND_sin_vector3" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector3_genmdl" nodedef="ND_cos_vector3" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector3_genmdl" nodedef="ND_tan_vector3" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector3_genmdl" nodedef="ND_asin_vector3" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector3_genmdl" nodedef="ND_acos_vector3" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector3_genmdl" nodedef="ND_atan2_vector3" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector3_genmdl" nodedef="ND_atan2_vector3" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector4_genmdl" nodedef="ND_sin_vector4" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector4_genmdl" nodedef="ND_cos_vector4" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector4_genmdl" nodedef="ND_tan_vector4" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector4_genmdl" nodedef="ND_asin_vector4" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector4_genmdl" nodedef="ND_acos_vector4" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector4_genmdl" nodedef="ND_atan2_vector4" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector4_genmdl" nodedef="ND_atan2_vector4" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genmdl" nodedef="ND_sqrt_float" sourcecode="math::sqrt({{in}})" target="genmdl" />
