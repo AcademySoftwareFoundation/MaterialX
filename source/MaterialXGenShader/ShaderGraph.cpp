@@ -831,6 +831,11 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
         ShaderInput* input = newNode->getInput(nodeDefInput->getName());
         InputPtr nodeInput = node.getInput(nodeDefInput->getName());
 
+        // 'input' is null_ptr if the input is a struct - a fully formed struct implementation likely needs to handle some of these
+        // additional cases more gracefully and completely.
+        if (!input)
+            continue;
+
         const string& connection = nodeInput ? nodeInput->getNodeName() : EMPTY_STRING;
         if (connection.empty() && !input->getConnection())
         {

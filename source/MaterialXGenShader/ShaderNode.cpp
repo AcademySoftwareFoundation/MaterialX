@@ -179,7 +179,8 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Create interface from nodedef
     for (const ValueElementPtr& port : nodeDef.getActiveValueElements())
     {
-        const TypeDesc* portType = TypeDesc::get(port->getType());
+        const std::string& portTypeStr = port->getType();
+        const TypeDesc* portType = TypeDesc::get(portTypeStr);
         if (port->isA<Output>())
         {
             newNode->addOutput(port->getName(), portType);
@@ -197,10 +198,53 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             }
             else
             {
-                input = newNode->addInput(port->getName(), portType);
-                if (!portValue.empty())
+                if (portTypeStr.substr(0,7) == "struct:") {
+                    // if this port is a struct - then instead of setting the value directly, we're just going to set
+                    // the value of each member in the struct
+
+                    // TODO this is hacky - need a better way to get to the document to find the typedef
+                    auto docPtr = nodeDef.getParent()->asA<Document>();
+
+                    std::string structName = portTypeStr.substr(7);
+                    auto typeDef = docPtr->getTypeDef(structName);
+
+                    StringVec subMemberValues = {};
+                    if (!portValue.empty()) {
+                        // slice up the port value for the struct in to individual pieces that can be applied sequentially to each member of the struct
+                        subMemberValues = splitString(port->getResolvedValueString(), ";");
+                    }
+
+                    unsigned int memberIndex = 0;
+                    for (const auto& member : typeDef->getMembers())
+                    {
+                        const std::string& subPortTypeStr = member->getType();
+                        const TypeDesc* subPortType = TypeDesc::get(subPortTypeStr);
+
+                        // create the struct member name by concatenating the original port name with a "unique" separator, and the struct member name
+                        // here i'm just choosing "__I__" as a token that is unlikely to used in a parameter name, but we would want something more robust
+                        // and validatable later.
+                        auto subPortName = port->getName() + "__I__" + member->getName();
+
+                        input = newNode->addInput(subPortName, subPortType);
+
+                        auto valPtr = ValuePtr();
+                        if (memberIndex < subMemberValues.size()) {
+                            valPtr = Value::createValueFromStrings(subMemberValues[memberIndex], subPortTypeStr);
+                        }
+                        // unclear if we should set an "empty" ValuePtr() here, or if can guard the setValue() call inside the 'if' above
+                        input->setValue(valPtr);
+
+                        memberIndex++;
+                    }
+
+                }
+                else
                 {
-                    input->setValue(port->getResolvedValue());
+                    input = newNode->addInput(port->getName(), portType);
+                    if (!portValue.empty())
+                    {
+                        input->setValue(port->getResolvedValue());
+                    }
                 }
             }
             if (port->getIsUniform())
@@ -338,33 +382,82 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
     // Copy input values from the given node
     for (InputPtr nodeInput : node.getActiveInputs())
     {
-        ShaderInput* input = getInput(nodeInput->getName());
         ValueElementPtr nodeDefInput = nodeDef.getActiveValueElement(nodeInput->getName());
-        if (input && nodeDefInput)
+        if (nodeDefInput)
         {
-            ValuePtr portValue = nodeInput->getResolvedValue();
-            if (!portValue)
+            std::string portTypeStr = nodeDefInput->getType();
+            if (portTypeStr.substr(0, 7) == "struct:")
             {
-                InputPtr interfaceInput = nodeInput->getInterfaceInput();
-                if (interfaceInput)
+                std::string portValueStr = nodeInput->getResolvedValueString();
+                if (portValueStr.empty())
                 {
-                    portValue = interfaceInput->getValue();
+                    InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                    if (interfaceInput)
+                    {
+                        portValueStr = interfaceInput->getValueString();
+                    }
+                }
+
+                // TODO this is hacky.
+                auto docPtr = nodeDef.getParent()->asA<Document>();
+
+                std::string structName = portTypeStr.substr(7);
+                auto typeDef = docPtr->getTypeDef(structName);
+
+                StringVec subMemberValues = {};
+                if (!portValueStr.empty()) {
+                    // slice up the port value for the struct in to individual pieces that can be applied sequentially to each member of the struct
+                    subMemberValues = splitString(portValueStr, ";");
+                }
+
+                unsigned int memberIndex = 0;
+                for (const auto& member : typeDef->getMembers())
+                {
+                    const std::string& subPortTypeStr = member->getType();
+
+                    auto subPortName = nodeInput->getName() + "__I__" + member->getName();
+                    ShaderInput* input = getInput(subPortName);
+                    if (input)
+                    {
+                        if (memberIndex < subMemberValues.size())
+                        {
+                            auto valPtr = Value::createValueFromStrings(subMemberValues[memberIndex], subPortTypeStr);
+                            input->setValue(valPtr);
+                        }
+                    }
+                    memberIndex++;
                 }
             }
-            const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-            std::pair<const TypeDesc*, ValuePtr> enumResult;
-            const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
-            if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+            else
             {
-                input->setValue(enumResult.second);
-            }
-            else if (!valueString.empty())
-            {
-                input->setValue(portValue);
-            }
+                ShaderInput* input = getInput(nodeInput->getName());
+                if (input)
+                {
+                    ValuePtr portValue = nodeInput->getResolvedValue();
+                    if (!portValue)
+                    {
+                        InputPtr interfaceInput = nodeInput->getInterfaceInput();
+                        if (interfaceInput)
+                        {
+                            portValue = interfaceInput->getValue();
+                        }
+                    }
+                    const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
+                    std::pair<const TypeDesc*, ValuePtr> enumResult;
+                    const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                    const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
+                    if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
+                    {
+                        input->setValue(enumResult.second);
+                    }
+                    else if (!valueString.empty())
+                    {
+                        input->setValue(portValue);
+                    }
 
-            input->setChannels(nodeInput->getChannels());
+                    input->setChannels(nodeInput->getChannels());
+                }
+            }
         }
     }
 

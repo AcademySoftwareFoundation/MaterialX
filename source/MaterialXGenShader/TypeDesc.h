@@ -146,6 +146,7 @@ extern MX_GENSHADER_API const TypeDesc* COLOR4;
 extern MX_GENSHADER_API const TypeDesc* MATRIX33;
 extern MX_GENSHADER_API const TypeDesc* MATRIX44;
 extern MX_GENSHADER_API const TypeDesc* STRING;
+extern MX_GENSHADER_API const TypeDesc* STRUCT;
 extern MX_GENSHADER_API const TypeDesc* FILENAME;
 extern MX_GENSHADER_API const TypeDesc* BSDF;
 extern MX_GENSHADER_API const TypeDesc* EDF;

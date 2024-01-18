@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Declarations of experimental data types and nodes
+  -->
+
+    <typedef name="texcoord">
+        <member name="ss" type="float"/>
+        <member name="tt" type="float"/>
+    </typedef>
+
+    <nodedef name="ND_extract_s_texcoord" node="extracts" nodegroup="shader" >
+        <input name="in" type="struct:texcoord" value="0.0;0.0" />
+        <output name="out" type="float" value="0.0" />
+    </nodedef>
+
+</materialx>
