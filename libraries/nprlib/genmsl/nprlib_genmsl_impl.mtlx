@@ -12,6 +12,6 @@
   <!-- ======================================================================== -->
 
   <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genmsl" nodedef="ND_viewdirection_vector3" target="genmsl"/>
+  <implementation name="IM_viewdirection_vector3_genmsl" nodedef="ND_viewdirection_vector3" target="genmsl" />
 
 </materialx>

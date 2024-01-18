@@ -21,6 +21,8 @@ let turntableEnabled = false;
 let turntableSteps = 360;
 let turntableStep = 0;
 
+let captureRequested = false;
+
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
 if (!materialFilename) {
@@ -30,6 +32,18 @@ if (!materialFilename) {
 let viewer = Viewer.create();
 init();
 viewer.getEditor().updateProperties(0.9);
+
+// Capture the current frame and save an image file.
+function captureFrame()
+{
+    let canvas = document.getElementById('webglcanvas');
+    var url = canvas.toDataURL();    
+    var link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('target', '_blank');
+    link.setAttribute('download', 'screenshot.png');
+    link.click();
+}
 
 function init() 
 {
@@ -82,9 +96,15 @@ function init()
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
     orbitControls.addEventListener('change', () => {
         viewer.getScene().setUpdateTransforms();
-    })  
+    })
 
-    // Load model and shaders
+    // Add hotkey 'f' to capture the current frame and save an image file.
+    // See check inside the render loop when a capture can be performed.
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'f') {
+            captureRequested = true;
+        }
+    });
 
     // Initialize editor
     viewer.getEditor().initialize();
@@ -160,6 +180,12 @@ function animate()
 
     composer.render();
     viewer.getScene().updateTransforms();
+
+    if (captureRequested)
+    {
+        captureFrame();
+        captureRequested = false;
+    }
 }
 
 function handleKeyEvents(event)

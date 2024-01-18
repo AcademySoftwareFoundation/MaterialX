@@ -22,53 +22,18 @@
     <input name="amplitude" type="vector2" value="4.0, 4.0" />
     <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
   </noise2d>
-  <noise2d name="noise2d_vector2_fa" type="vector2">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
   <noise2d name="noise2d_vector3" type="vector3">
     <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
-  <noise2d name="noise2d_vector3_fa" type="vector3">
-    <input name="amplitude" type="float" value="4.0" />
     <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
   </noise2d>
   <noise2d name="noise2d_vector4" type="vector4">
     <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
     <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
   </noise2d>
-  <noise2d name="noise2d_vector4_fa" type="vector4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
-  <noise2d name="noise2d_color3" type="color3">
-    <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
-  <noise2d name="noise2d_color3_fa" type="color3">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
-  <noise2d name="noise2d_color4" type="color4">
-    <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
-  <noise2d name="noise2d_color4_fa" type="color4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="texcoord" type="vector2" nodename="scaled_texcoord" />
-  </noise2d>
   <output name="out_noise2d_float" type="float" nodename="noise2d_float" />
   <output name="out_noise2d_vector2" type="vector2" nodename="noise2d_vector2" />
-  <output name="out_noise2d_vector2_fa" type="vector2" nodename="noise2d_vector2_fa" />
   <output name="out_noise2d_vector3" type="vector3" nodename="noise2d_vector3" />
-  <output name="out_noise2d_vector3_fa" type="vector3" nodename="noise2d_vector3_fa" />
   <output name="out_noise2d_vector4" type="vector4" nodename="noise2d_vector4" />
-  <output name="out_noise2d_vector4_fa" type="vector4" nodename="noise2d_vector4_fa" />
-  <output name="out_noise2d_color3" type="color3" nodename="noise2d_color3" />
-  <output name="out_noise2d_color3_fa" type="color3" nodename="noise2d_color3_fa" />
-  <output name="out_noise2d_color4" type="color4" nodename="noise2d_color4" />
-  <output name="out_noise2d_color4_fa" type="color4" nodename="noise2d_color4_fa" />
 
   <!-- 3D Perlin noise -->
   <noise3d name="noise3d_float" type="float">
@@ -79,53 +44,18 @@
     <input name="amplitude" type="vector2" value="4.0, 4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </noise3d>
-  <noise3d name="noise3d_vector2_fa" type="vector2">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
   <noise3d name="noise3d_vector3" type="vector3">
     <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
-  <noise3d name="noise3d_vector3_fa" type="vector3">
-    <input name="amplitude" type="float" value="4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </noise3d>
   <noise3d name="noise3d_vector4" type="vector4">
     <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </noise3d>
-  <noise3d name="noise3d_vector4_fa" type="vector4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
-  <noise3d name="noise3d_color3" type="color3">
-    <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
-  <noise3d name="noise3d_color3_fa" type="color3">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
-  <noise3d name="noise3d_color4" type="color4">
-    <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
-  <noise3d name="noise3d_color4_fa" type="color4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </noise3d>
   <output name="out_noise3d_float" type="float" nodename="noise3d_float" />
   <output name="out_noise3d_vector2" type="vector2" nodename="noise3d_vector2" />
-  <output name="out_noise3d_vector2_fa" type="vector2" nodename="noise3d_vector2_fa" />
   <output name="out_noise3d_vector3" type="vector3" nodename="noise3d_vector3" />
-  <output name="out_noise3d_vector3_fa" type="vector3" nodename="noise3d_vector3_fa" />
   <output name="out_noise3d_vector4" type="vector4" nodename="noise3d_vector4" />
-  <output name="out_noise3d_vector4_fa" type="vector4" nodename="noise3d_vector4_fa" />
-  <output name="out_noise3d_color3" type="color3" nodename="noise3d_color3" />
-  <output name="out_noise3d_color3_fa" type="color3" nodename="noise3d_color3_fa" />
-  <output name="out_noise3d_color4" type="color4" nodename="noise3d_color4" />
-  <output name="out_noise3d_color4_fa" type="color4" nodename="noise3d_color4_fa" />
 
   <!-- 3D Fractal noise -->
   <fractal3d name="fractal3d_float" type="float">
@@ -136,53 +66,18 @@
     <input name="amplitude" type="vector2" value="4.0, 4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </fractal3d>
-  <fractal3d name="fractal3d_vector2_fa" type="vector2">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
   <fractal3d name="fractal3d_vector3" type="vector3">
     <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
-  <fractal3d name="fractal3d_vector3_fa" type="vector3">
-    <input name="amplitude" type="float" value="4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </fractal3d>
   <fractal3d name="fractal3d_vector4" type="vector4">
     <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
     <input name="position" type="vector3" nodename="scaled_position" />
   </fractal3d>
-  <fractal3d name="fractal3d_vector4_fa" type="vector4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
-  <fractal3d name="fractal3d_color3" type="color3">
-    <input name="amplitude" type="vector3" value="4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
-  <fractal3d name="fractal3d_color3_fa" type="color3">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
-  <fractal3d name="fractal3d_color4" type="color4">
-    <input name="amplitude" type="vector4" value="4.0, 4.0, 4.0, 4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
-  <fractal3d name="fractal3d_color4_fa" type="color4">
-    <input name="amplitude" type="float" value="4.0" />
-    <input name="position" type="vector3" nodename="scaled_position" />
-  </fractal3d>
   <output name="out_fractal3d_float" type="float" nodename="fractal3d_float" />
   <output name="out_fractal3d_vector2" type="vector2" nodename="fractal3d_vector2" />
-  <output name="out_fractal3d_vector2_fa" type="vector2" nodename="fractal3d_vector2_fa" />
   <output name="out_fractal3d_vector3" type="vector3" nodename="fractal3d_vector3" />
-  <output name="out_fractal3d_vector3_fa" type="vector3" nodename="fractal3d_vector3_fa" />
   <output name="out_fractal3d_vector4" type="vector4" nodename="fractal3d_vector4" />
-  <output name="out_fractal3d_vector4_fa" type="vector4" nodename="fractal3d_vector4_fa" />
-  <output name="out_fractal3d_color3" type="color3" nodename="fractal3d_color3" />
-  <output name="out_fractal3d_color3_fa" type="color3" nodename="fractal3d_color3_fa" />
-  <output name="out_fractal3d_color4" type="color4" nodename="fractal3d_color4" />
-  <output name="out_fractal3d_color4_fa" type="color4" nodename="fractal3d_color4_fa" />
 
   <!-- 2D Cell noise -->
   <cellnoise2d name="cellnoise2d_float" type="float">
