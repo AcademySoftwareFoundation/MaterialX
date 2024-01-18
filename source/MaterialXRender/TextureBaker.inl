@@ -13,7 +13,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-namespace {
+namespace
+{
 
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
@@ -23,7 +24,7 @@ const string DEFAULT_UDIM_PREFIX = "_";
 
 } // anonymous namespace
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 string TextureBaker<Renderer, ShaderGen>::getValueStringFromColor(const Color4& color, const string& type)
 {
     if (type == "color4" || type == "vector4")
@@ -45,7 +46,7 @@ string TextureBaker<Renderer, ShaderGen>::getValueStringFromColor(const Color4& 
     return EMPTY_STRING;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 TextureBaker<Renderer, ShaderGen>::TextureBaker(unsigned int width, unsigned int height, Image::BaseType baseType, bool flipSavedImage) :
     Renderer(width, height, baseType),
     _distanceUnit("meter"),
@@ -97,7 +98,7 @@ TextureBaker<Renderer, ShaderGen>::TextureBaker(unsigned int width, unsigned int
     _frameCaptureImage->createResourceBuffer();
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 size_t TextureBaker<Renderer, ShaderGen>::findVarInTemplate(const string& filename, const string& var, size_t start)
 {
     size_t i = filename.find(var, start);
@@ -112,17 +113,15 @@ size_t TextureBaker<Renderer, ShaderGen>::findVarInTemplate(const string& filena
     return i;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 FilePath TextureBaker<Renderer, ShaderGen>::generateTextureFilename(const StringMap& filenameTemplateMap)
 {
     string bakedImageName = _textureFilenameTemplate;
 
     for (auto& pair : filenameTemplateMap)
     {
-        string replacement = (_texTemplateOverrides.count(pair.first)) ?
-            _texTemplateOverrides[pair.first] : pair.second;
-        replacement = (filenameTemplateMap.at("$UDIM").empty() && pair.first == "$UDIMPREFIX") ?
-            EMPTY_STRING : replacement;
+        string replacement = (_texTemplateOverrides.count(pair.first)) ? _texTemplateOverrides[pair.first] : pair.second;
+        replacement = (filenameTemplateMap.at("$UDIM").empty() && pair.first == "$UDIMPREFIX") ? EMPTY_STRING : replacement;
 
         for (size_t i = 0; (i = findVarInTemplate(bakedImageName, pair.first, i)) != string::npos; i++)
         {
@@ -140,7 +139,7 @@ FilePath TextureBaker<Renderer, ShaderGen>::generateTextureFilename(const String
     return _outputImagePath / bakedImageName;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 StringMap TextureBaker<Renderer, ShaderGen>::initializeFileTemplateMap(InputPtr input, NodePtr shader, const string& udim)
 {
     FilePath assetPath = FilePath(shader->getActiveSourceUri());
@@ -156,7 +155,7 @@ StringMap TextureBaker<Renderer, ShaderGen>::initializeFileTemplateMap(InputPtr 
     return filenameTemplateMap;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 bool TextureBaker<Renderer, ShaderGen>::writeBakedImage(const BakedImage& baked, ImagePtr image)
 {
     if (!Renderer::_imageHandler->saveImage(baked.filename, image, _flipSavedImage))
@@ -176,11 +175,11 @@ bool TextureBaker<Renderer, ShaderGen>::writeBakedImage(const BakedImage& baked,
     return true;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::bakeShaderInputs(NodePtr material, NodePtr shader, GenContext& context, const string& udim)
 {
     _material = material;
-    
+
     if (!shader)
     {
         return;
@@ -216,16 +215,16 @@ void TextureBaker<Renderer, ShaderGen>::bakeShaderInputs(NodePtr material, NodeP
     Renderer::_imageHandler->clearImageCache();
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::bakeGraphOutput(OutputPtr output, GenContext& context, const StringMap& filenameTemplateMap)
 {
     if (!output)
     {
         return;
     }
-    
+
     bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
-        (output->getType() == "color3" || output->getType() == "color4");
+                      (output->getType() == "color3" || output->getType() == "color4");
     Renderer::getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
@@ -258,7 +257,7 @@ void TextureBaker<Renderer, ShaderGen>::bakeGraphOutput(OutputPtr output, GenCon
     }
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::optimizeBakedTextures(NodePtr shader)
 {
     if (!shader)
@@ -320,7 +319,7 @@ void TextureBaker<Renderer, ShaderGen>::optimizeBakedTextures(NodePtr shader)
     }
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(NodePtr shader, const StringVec& udimSet)
 {
     if (!shader)
@@ -359,7 +358,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
-        string materialName = (_texTemplateOverrides.count("$MATERIAL"))? _texTemplateOverrides["$MATERIAL"] : _material->getName();
+        string materialName = (_texTemplateOverrides.count("$MATERIAL")) ? _texTemplateOverrides["$MATERIAL"] : _material->getName();
         NodePtr bakedMaterial = _bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
@@ -483,9 +482,9 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
     return _bakedTextureDoc;
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 DocumentPtr TextureBaker<Renderer, ShaderGen>::bakeMaterialToDoc(DocumentPtr doc, const FileSearchPath& searchPath, const string& materialPath,
-                                            const StringVec& udimSet, string& documentName)
+                                                                 const StringVec& udimSet, string& documentName)
 {
     if (_outputStream)
     {
@@ -551,7 +550,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::bakeMaterialToDoc(DocumentPtr doc
     return generateNewDocumentFromShader(shaderNode, udimSet);
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const FileSearchPath& searchPath, const FilePath& outputFilename)
 {
     if (_outputImagePath.isEmpty())
@@ -593,31 +592,31 @@ void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const 
 
     if (_writeDocumentPerMaterial)
     {
-    // Write documents in memory to disk.
-    size_t bakeCount = bakedDocuments.size();
-    for (size_t i = 0; i < bakeCount; i++)
-    {
-        if (bakedDocuments[i].second)
+        // Write documents in memory to disk.
+        size_t bakeCount = bakedDocuments.size();
+        for (size_t i = 0; i < bakeCount; i++)
         {
-            FilePath writeFilename = outputFilename;
-
-            // Add additional filename decorations if there are multiple documents.
-            if (bakedDocuments.size() > 1)
+            if (bakedDocuments[i].second)
             {
-                const string extension = writeFilename.getExtension();
-                writeFilename.removeExtension();
-                string filenameSeparator = writeFilename.isDirectory()? EMPTY_STRING : "_";
-                writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
-            }
+                FilePath writeFilename = outputFilename;
 
-            writeToXmlFile(bakedDocuments[i].second, writeFilename);
-            if (_outputStream)
-            {
-                *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                // Add additional filename decorations if there are multiple documents.
+                if (bakedDocuments.size() > 1)
+                {
+                    const string extension = writeFilename.getExtension();
+                    writeFilename.removeExtension();
+                    string filenameSeparator = writeFilename.isDirectory() ? EMPTY_STRING : "_";
+                    writeFilename = FilePath(writeFilename.asString() + filenameSeparator + bakedDocuments[i].first + "." + extension);
+                }
+
+                writeToXmlFile(bakedDocuments[i].second, writeFilename);
+                if (_outputStream)
+                {
+                    *_outputStream << "Wrote baked document: " << writeFilename.asString() << std::endl;
+                }
             }
         }
     }
-}
     else if (_bakedTextureDoc)
     {
         writeToXmlFile(_bakedTextureDoc, outputFilename);
@@ -628,7 +627,7 @@ void TextureBaker<Renderer, ShaderGen>::bakeAllMaterials(DocumentPtr doc, const 
     }
 }
 
-template<typename Renderer, typename ShaderGen>
+template <typename Renderer, typename ShaderGen>
 void TextureBaker<Renderer, ShaderGen>::setupUnitSystem(DocumentPtr unitDefinitions)
 {
     UnitTypeDefPtr distanceTypeDef = unitDefinitions ? unitDefinitions->getUnitTypeDef("distance") : nullptr;

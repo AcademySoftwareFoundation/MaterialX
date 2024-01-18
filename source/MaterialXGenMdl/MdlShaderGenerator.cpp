@@ -291,9 +291,9 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
         {
             emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
             emitLine("color finalOutput__ = mk_color3("
-                "r: math::dot(displacement__, state::texture_tangent_u(0)),"
-                "g: math::dot(displacement__, state::texture_tangent_v(0)),"
-                "b: math::dot(displacement__, state::normal()))", stage);
+                     "r: math::dot(displacement__, state::texture_tangent_u(0)),"
+                     "g: math::dot(displacement__, state::texture_tangent_v(0)),"
+                     "b: math::dot(displacement__, state::normal()))", stage);
         }
         else
         {

@@ -42,7 +42,8 @@
   </implementation>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_genmsl" nodedef="ND_normalmap" file="mx_normalmap.metal" function="mx_normalmap" target="genmsl" />
+  <implementation name="IM_normalmap_float_genmsl" nodedef="ND_normalmap" file="mx_normalmap.metal" function="mx_normalmap_float" target="genmsl" />
+  <implementation name="IM_normalmap_vector2_genmsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.metal" function="mx_normalmap_vector2" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -96,42 +97,21 @@
 
   <!-- <noise2d> -->
   <implementation name="IM_noise2d_float_genmsl" nodedef="ND_noise2d_float" file="../genglsl/mx_noise2d_float.glsl" function="mx_noise2d_float" target="genmsl" />
-  <implementation name="IM_noise2d_color3_genmsl" nodedef="ND_noise2d_color3" file="../genglsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genmsl" />
-  <implementation name="IM_noise2d_color4_genmsl" nodedef="ND_noise2d_color4" file="../genglsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genmsl" />
-  <implementation name="IM_noise2d_color3FA_genmsl" nodedef="ND_noise2d_color3FA" file="../genglsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genmsl" />
-  <implementation name="IM_noise2d_color4FA_genmsl" nodedef="ND_noise2d_color4FA" file="../genglsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genmsl" />
   <implementation name="IM_noise2d_vector2_genmsl" nodedef="ND_noise2d_vector2" file="../genglsl/mx_noise2d_vector2.glsl" function="mx_noise2d_vector2" target="genmsl" />
   <implementation name="IM_noise2d_vector3_genmsl" nodedef="ND_noise2d_vector3" file="../genglsl/mx_noise2d_vector3.glsl" function="mx_noise2d_vector3" target="genmsl" />
   <implementation name="IM_noise2d_vector4_genmsl" nodedef="ND_noise2d_vector4" file="../genglsl/mx_noise2d_vector4.glsl" function="mx_noise2d_vector4" target="genmsl" />
-  <implementation name="IM_noise2d_vector2FA_genmsl" nodedef="ND_noise2d_vector2FA" file="../genglsl/mx_noise2d_fa_vector2.glsl" function="mx_noise2d_fa_vector2" target="genmsl" />
-  <implementation name="IM_noise2d_vector3FA_genmsl" nodedef="ND_noise2d_vector3FA" file="../genglsl/mx_noise2d_fa_vector3.glsl" function="mx_noise2d_fa_vector3" target="genmsl" />
-  <implementation name="IM_noise2d_vector4FA_genmsl" nodedef="ND_noise2d_vector4FA" file="../genglsl/mx_noise2d_fa_vector4.glsl" function="mx_noise2d_fa_vector4" target="genmsl" />
 
   <!-- <noise3d> -->
   <implementation name="IM_noise3d_float_genmsl" nodedef="ND_noise3d_float" file="../genglsl/mx_noise3d_float.glsl" function="mx_noise3d_float" target="genmsl" />
-  <implementation name="IM_noise3d_color3_genmsl" nodedef="ND_noise3d_color3" file="../genglsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genmsl" />
-  <implementation name="IM_noise3d_color4_genmsl" nodedef="ND_noise3d_color4" file="../genglsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genmsl" />
-  <implementation name="IM_noise3d_color3FA_genmsl" nodedef="ND_noise3d_color3FA" file="../genglsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genmsl" />
-  <implementation name="IM_noise3d_color4FA_genmsl" nodedef="ND_noise3d_color4FA" file="../genglsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genmsl" />
   <implementation name="IM_noise3d_vector2_genmsl" nodedef="ND_noise3d_vector2" file="../genglsl/mx_noise3d_vector2.glsl" function="mx_noise3d_vector2" target="genmsl" />
   <implementation name="IM_noise3d_vector3_genmsl" nodedef="ND_noise3d_vector3" file="../genglsl/mx_noise3d_vector3.glsl" function="mx_noise3d_vector3" target="genmsl" />
   <implementation name="IM_noise3d_vector4_genmsl" nodedef="ND_noise3d_vector4" file="../genglsl/mx_noise3d_vector4.glsl" function="mx_noise3d_vector4" target="genmsl" />
-  <implementation name="IM_noise3d_vector2FA_genmsl" nodedef="ND_noise3d_vector2FA" file="../genglsl/mx_noise3d_fa_vector2.glsl" function="mx_noise3d_fa_vector2" target="genmsl" />
-  <implementation name="IM_noise3d_vector3FA_genmsl" nodedef="ND_noise3d_vector3FA" file="../genglsl/mx_noise3d_fa_vector3.glsl" function="mx_noise3d_fa_vector3" target="genmsl" />
-  <implementation name="IM_noise3d_vector4FA_genmsl" nodedef="ND_noise3d_vector4FA" file="../genglsl/mx_noise3d_fa_vector4.glsl" function="mx_noise3d_fa_vector4" target="genmsl" />
 
   <!-- <fractal3d> -->
   <implementation name="IM_fractal3d_float_genmsl" nodedef="ND_fractal3d_float" file="../genglsl/mx_fractal3d_float.glsl" function="mx_fractal3d_float" target="genmsl" />
-  <implementation name="IM_fractal3d_color3_genmsl" nodedef="ND_fractal3d_color3" file="../genglsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genmsl" />
-  <implementation name="IM_fractal3d_color4_genmsl" nodedef="ND_fractal3d_color4" file="../genglsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genmsl" />
-  <implementation name="IM_fractal3d_color3FA_genmsl" nodedef="ND_fractal3d_color3FA" file="../genglsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genmsl" />
-  <implementation name="IM_fractal3d_color4FA_genmsl" nodedef="ND_fractal3d_color4FA" file="../genglsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genmsl" />
   <implementation name="IM_fractal3d_vector2_genmsl" nodedef="ND_fractal3d_vector2" file="../genglsl/mx_fractal3d_vector2.glsl" function="mx_fractal3d_vector2" target="genmsl" />
   <implementation name="IM_fractal3d_vector3_genmsl" nodedef="ND_fractal3d_vector3" file="../genglsl/mx_fractal3d_vector3.glsl" function="mx_fractal3d_vector3" target="genmsl" />
   <implementation name="IM_fractal3d_vector4_genmsl" nodedef="ND_fractal3d_vector4" file="../genglsl/mx_fractal3d_vector4.glsl" function="mx_fractal3d_vector4" target="genmsl" />
-  <implementation name="IM_fractal3d_vector2FA_genmsl" nodedef="ND_fractal3d_vector2FA" file="../genglsl/mx_fractal3d_fa_vector2.glsl" function="mx_fractal3d_fa_vector2" target="genmsl" />
-  <implementation name="IM_fractal3d_vector3FA_genmsl" nodedef="ND_fractal3d_vector3FA" file="../genglsl/mx_fractal3d_fa_vector3.glsl" function="mx_fractal3d_fa_vector3" target="genmsl" />
-  <implementation name="IM_fractal3d_vector4FA_genmsl" nodedef="ND_fractal3d_vector4FA" file="../genglsl/mx_fractal3d_fa_vector4.glsl" function="mx_fractal3d_fa_vector4" target="genmsl" />
 
   <!-- <cellnoise2d> -->
   <implementation name="IM_cellnoise2d_float_genmsl" nodedef="ND_cellnoise2d_float" file="../genglsl/mx_cellnoise2d_float.glsl" function="mx_cellnoise2d_float" target="genmsl" />
@@ -747,6 +727,11 @@
   <implementation name="IM_combine3_vector3_genmsl" nodedef="ND_combine3_vector3" target="genmsl" />
   <implementation name="IM_combine4_color4_genmsl" nodedef="ND_combine4_color4" target="genmsl" />
   <implementation name="IM_combine4_vector4_genmsl" nodedef="ND_combine4_vector4" target="genmsl" />
+
+  <!-- <creatematrix> -->
+  <implementation name="IM_creatematrix_vector3_matrix33_genmsl" nodedef="ND_creatematrix_vector3_matrix33" file="../genglsl/mx_creatematrix_vector3_matrix33.glsl" function="mx_creatematrix_vector3_matrix33" target="genmsl" />
+  <implementation name="IM_creatematrix_vector3_matrix44_genmsl" nodedef="ND_creatematrix_vector3_matrix44" file="../genglsl/mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" target="genmsl" />
+  <implementation name="IM_creatematrix_vector4_matrix44_genmsl" nodedef="ND_creatematrix_vector4_matrix44" file="../genglsl/mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->

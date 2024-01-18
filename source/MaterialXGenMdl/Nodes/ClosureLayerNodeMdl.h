@@ -21,18 +21,18 @@ class MX_GENMDL_API StringConstantsMdl
 
   public:
     /// String constants
-    static const string TOP; ///< layer parameter name of the top component
+    static const string TOP;  ///< layer parameter name of the top component
     static const string BASE; ///< layer parameter name of the base component
-    static const string FG; ///< parameter of the mix node
-    static const string BG; ///< parameter of the mix node
-    static const string IN1; ///< parameter of the add and multiply nodes
-    static const string IN2; ///< parameter of the add and multiply nodes
+    static const string FG;   ///< parameter of the mix node
+    static const string BG;   ///< parameter of the mix node
+    static const string IN1;  ///< parameter of the add and multiply nodes
+    static const string IN2;  ///< parameter of the add and multiply nodes
 
     static const string THICKNESS; ///< thickness parameter name of the thin_film_bsdf
-    static const string IOR; ///< ior parameter name of the thin_film_bsdf
+    static const string IOR;       ///< ior parameter name of the thin_film_bsdf
 
     static const string THIN_FILM_THICKNESS; ///< helper parameter name for transporting thickness
-    static const string THIN_FILM_IOR; ///< helper parameter name for transporting ior
+    static const string THIN_FILM_IOR;       ///< helper parameter name for transporting ior
 
     static const string EMPTY; ///< the empty string ""
 };
@@ -41,7 +41,7 @@ class MX_GENMDL_API StringConstantsMdl
 /// thin_film_bsdf through layers and mixers, etc., to the elemental bsdfs that support thin film.
 /// Because thin-film can not be layered on any BSDF in MDL, we try to push down the parameters to
 /// the nodes that support thin-film.
-template<typename TBase> class CarryThinFilmParameters : public TBase
+template <typename TBase> class CarryThinFilmParameters : public TBase
 {
   public:
     /// Add the thin film inputs for transporting the parameter.
