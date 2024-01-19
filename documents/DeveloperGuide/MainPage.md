@@ -58,9 +58,24 @@ Building the `install` target of your project will install the MaterialX C++ and
 
 ### MaterialX Versioning
 
-The MaterialX codebase uses a modified semantic versioning system where the *major* and *minor* versions match that of the corresponding MaterialX [specification](https://www.materialx.org/Specification.html), and the *build* version represents engineering advances within that specification version.  MaterialX documents are similarly marked with the specification version they were authored in, and they are valid to load into any MaterialX codebase with an equal or higher specification version.
+The MaterialX codebase uses a modified semantic versioning system where the *major* and *minor* versions match that of the corresponding MaterialX [specification](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/Specification/MaterialX.Specification.md), and the *build* version represents engineering advances within that specification version.  MaterialX documents are similarly marked with the specification version they were authored in, and they are valid to load into any MaterialX codebase with an equal or higher specification version.
 
-Upgrading of MaterialX documents from earlier versions is handled at import time by the Document::upgradeVersion method, which applies the syntax and node interface upgrades that have occurred in previous specification revisions.  This allows the syntax conventions of MaterialX and the names and interfaces of nodes to evolve over time, without invalidating documents from earlier versions.
+Upgrading of MaterialX documents from earlier versions is handled at import time by the `Document::upgradeVersion` method, which applies the syntax and node interface upgrades that have occurred in previous specification revisions.  This allows the syntax conventions of MaterialX and the names and interfaces of nodes to evolve over time, without invalidating documents from earlier versions.
+
+#### MaterialX API Changes
+
+The following rules describe the categories of changes to the [MaterialX API](https://materialx.org/docs/api/classes.html) that are allowed in version upgrades:
+
+- In *build* version upgrades, only non-breaking changes to the MaterialX API are allowed.  For any API call that is modified in a build version upgrade, backwards compatibility should be maintained using deprecated C++ and Python wrappers for the original API call.
+- In *minor* and *major* version upgrades, breaking changes to the MaterialX API are allowed, though their benefit should be carefully weighed against their cost.  Any breaking changes to API calls should be highlighted in the release notes for the new version.
+
+#### MaterialX Data Library Changes
+
+The following rules describe the categories of changes to the [MaterialX Data Libraries](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/libraries) that are allowed in version upgrades:
+
+- In *build* version upgrades, only additive changes to the MaterialX data libraries are allowed, e.g. adding new nodes or node inputs with backwards-compatible default values.  Because additive changes are backwards-compatible by nature, they do not require corresponding version upgrade logic in the codebase.
+- In *minor* version upgrades, changes to the names and interfaces of MaterialX nodes are allowed, with the requirement that version upgrade logic be used to maintain the validity and visual interpretation of documents from earlier versions.
+- In *major* version upgrades, changes to the syntax rules of MaterialX documents are allowed, with the requirement that version upgrade logic be used to maintain the validity and visual interpretation of documents from earlier versions.  These changes usually require synchronized updates to both the MaterialX API and data libraries.
 
 ### Additional Links
 
