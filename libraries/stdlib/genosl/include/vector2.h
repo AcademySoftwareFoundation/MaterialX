@@ -146,6 +146,11 @@ vector2 abs(vector2 a)
     return vector2 (abs(a.x), abs(a.y));
 }
 
+vector2 round(vector2 a)
+{
+    return vector2 (round(a.x), round(a.y));
+}
+
 vector2 ceil(vector2 a)
 {
     return vector2 (ceil(a.x), ceil(a.y));

@@ -146,6 +146,11 @@ color4 abs(color4 a)
     return color4(abs(a.rgb), abs(a.a));
 }
 
+color4 round(color4 a)
+{
+    return color4(round(a.rgb), round(a.a));
+}
+
 color4 ceil(color4 a)
 {
     return color4(ceil(a.rgb), ceil(a.a));

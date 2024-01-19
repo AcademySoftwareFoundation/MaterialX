@@ -641,6 +641,9 @@ def main():
                 elif nodeCategory == 'absval':
                     _writeOneArgumentFunc(file, outputType, '::math::abs')
                     wroteImplementation = True
+                elif nodeCategory == 'round':
+                    _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)
+                    wroteImplementation = True
                 elif nodeCategory == 'ceil':
                     _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)
                     wroteImplementation = True
