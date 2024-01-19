@@ -2,10 +2,16 @@ import * as THREE from 'three';
 import * as fflate from 'three/examples/jsm/libs/fflate.module.js';
 
 const debugFileHandling = false;
-let loadingCallback;
+let loadingCallback = null;
+let sceneLoadingCallback = null;
 
 export function setLoadingCallback(cb) {
     loadingCallback = cb;
+}
+
+export function setSceneLoadingCallback(cb)
+{
+    sceneLoadingCallback = cb;
 }
 
 export function dropHandler(ev) {
@@ -130,14 +136,22 @@ async function handleFilesystemEntries(entries) {
       'node_modules',
     ]
 
+    let isGLB = false;
+    let haveMtlx = false;
     for (let entry of entries) {
       if (debugFileHandling) console.log("file entry", entry)
       if (entry.isFile) {
-        if (debugFileHandling) console.log("single file", entry);
+        if (debugFileHandling) 
+            console.log("single file", entry);
         if (fileIgnoreList.includes(entry.name)) {
           continue;
         }
         allFiles.push(entry);
+
+        if (entry.name.endsWith('glb')) {
+            isGLB = true;
+            break;
+        }            
       }
       else if (entry.isDirectory) {
         if (dirIgnoreList.includes(entry.name)) {
@@ -198,7 +212,28 @@ async function handleFilesystemEntries(entries) {
         return 0;
     });
 
-    if (debugFileHandling) console.log("all files", allFiles);
+    if (isGLB)
+    {
+        console.log("Load GLB file", allFiles[0]);
+
+        const rootFile = allFiles[0];
+        THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
+
+        if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
+
+        sceneLoadingCallback(rootFile);
+        return;
+    }
+
+    if (!allFiles[0].name.endsWith('mtlx'))
+    {
+        console.log("No MaterialX files dropped. Skipping content.");
+        return;
+    }
+
+    if (debugFileHandling) {
+        console.log("- All files", allFiles);
+    }
 
     // put all files in three' Cache
     for (const fileEntry of allFiles) {
@@ -222,12 +257,19 @@ async function handleFilesystemEntries(entries) {
     // TODO we could also allow dropping of multiple MaterialX files (or folders with them inside) 
     // and seed the dropdown from that.
     // At that point, actually reading files and textures into memory should be deferred until they are actually used.
-    const rootFile = allFiles[0];
-    THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
+    if (allFiles.length > 0)
+    {
+        const rootFile = allFiles[0];
+        THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
 
-    if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
+        if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
 
-    loadingCallback(rootFile);
+        loadingCallback(rootFile);
+    }
+    else
+    {
+        console.log('No files to add cache.')
+    }
 }
 
 async function readDirectory(directory) {
