@@ -604,7 +604,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                     bool hasUniforms = false;
                     for (const ShaderPort* uniform : uniforms.getVariableOrder())
                     {
-                        if (uniform->getType() == Type::FILENAME)
+                        if (*uniform->getType() == *Type::FILENAME)
                         {
                             emitString(separator, stage);
                             emitString("texture2d<float> " + TEXTURE_NAME(uniform->getVariable()), stage);
@@ -1282,11 +1282,11 @@ void MslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     {
         variable = "float4(" + variable + ", 0.0, 1.0)";
     }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (*type == *Type::FLOAT || *type == *Type::INTEGER)
     {
         variable = "float4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
-    else if (type == Type::BSDF || type == Type::EDF)
+    else if (*type == *Type::BSDF || *type == *Type::EDF)
     {
         variable = "float4(" + variable + ", 1.0)";
     }
@@ -1302,7 +1302,7 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
                                                  bool assignValue) const
 {
     // A file texture input needs special handling on MSL
-    if (variable->getType() == Type::FILENAME)
+    if (*variable->getType() == *Type::FILENAME)
     {
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -1327,7 +1327,7 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
 
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        if (qualifier.empty() && *variable->getType() == *Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
         {
             str += "[[ " + MslSyntax::FLAT_QUALIFIER + " ]]";
         }
@@ -1372,7 +1372,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
+        if (*outputType == *Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeMsl::create();
         }

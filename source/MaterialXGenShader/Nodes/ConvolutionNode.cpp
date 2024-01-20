@@ -94,12 +94,12 @@ const ShaderInput* ConvolutionNode::getSamplingInput(const ShaderNode& node) con
     if (node.hasClassification(ShaderNode::Classification::SAMPLE2D))
     {
         const ShaderInput* input = node.getInput(SAMPLE2D_INPUT);
-        return input->getType() == Type::VECTOR2 ? input : nullptr;
+        return *input->getType() == *Type::VECTOR2 ? input : nullptr;
     }
     else if (node.hasClassification(ShaderNode::Classification::SAMPLE3D))
     {
         const ShaderInput* input = node.getInput(SAMPLE3D_INPUT);
-        return input->getType() == Type::VECTOR3 ? input : nullptr;
+        return *input->getType() == *Type::VECTOR3 ? input : nullptr;
     }
     return nullptr;
 }

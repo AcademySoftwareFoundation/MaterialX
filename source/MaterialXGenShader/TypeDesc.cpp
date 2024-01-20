@@ -39,6 +39,16 @@ TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char sem
 {
 }
 
+bool TypeDesc::operator==(const TypeDesc& other) const
+{
+    return (this->_name == other._name);
+}
+
+bool TypeDesc::operator!=(const TypeDesc& other) const
+{
+    return !(*this == other);
+}
+
 const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
                                        bool editable, const std::unordered_map<char, int>& channelMapping)
 {
