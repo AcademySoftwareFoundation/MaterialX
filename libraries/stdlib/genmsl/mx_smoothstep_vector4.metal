@@ -1,6 +1,6 @@
 #include "mx_smoothstep_float.metal"
 
-void mx_smoothstep_vec4(vec4 val, vec4 low, vec4 high, out vec4 result)
+void mx_smoothstep_vector4(vec4 val, vec4 low, vec4 high, out vec4 result)
 {
     float f;
     mx_smoothstep_float(val.x, low.x, high.x, f); result.x = f;
