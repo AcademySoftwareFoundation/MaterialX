@@ -1038,11 +1038,11 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
 int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 {
-    if (type == Type::INTEGER)
+    if (*type == *Type::INTEGER)
         return GL_INT;
-    else if (type == Type::BOOLEAN)
+    else if (*type == *Type::BOOLEAN)
         return GL_BOOL;
-    else if (type == Type::FLOAT)
+    else if (*type == *Type::FLOAT)
         return GL_FLOAT;
     else if (type->isFloat2())
         return GL_FLOAT_VEC2;
@@ -1050,11 +1050,11 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
         return GL_FLOAT_VEC3;
     else if (type->isFloat4())
         return GL_FLOAT_VEC4;
-    else if (type == Type::MATRIX33)
+    else if (*type == *Type::MATRIX33)
         return GL_FLOAT_MAT3;
-    else if (type == Type::MATRIX44)
+    else if (*type == *Type::MATRIX44)
         return GL_FLOAT_MAT4;
-    else if (type == Type::FILENAME)
+    else if (*type == *Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return GL_SAMPLER_2D;
