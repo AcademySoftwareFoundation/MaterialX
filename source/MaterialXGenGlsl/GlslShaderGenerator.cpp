@@ -782,11 +782,11 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (*type == *Type::FLOAT || *type == *Type::INTEGER)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
-    else if (type == Type::BSDF || type == Type::EDF)
+    else if (*type == *Type::BSDF || *type == *Type::EDF)
     {
         variable = "vec4(" + variable + ", 1.0)";
     }
@@ -802,7 +802,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
                                                   bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
-    if (variable->getType() == Type::FILENAME)
+    if (*variable->getType() == *Type::FILENAME)
     {
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -813,7 +813,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        if (qualifier.empty() && *variable->getType() == *Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
         {
             str += GlslSyntax::FLAT_QUALIFIER + " ";
         }
@@ -870,7 +870,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
+        if (*outputType == *Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeGlsl::create();
         }

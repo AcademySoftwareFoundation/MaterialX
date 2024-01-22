@@ -483,16 +483,9 @@
 
   <!-- <smoothstep> -->
   <implementation name="IM_smoothstep_float_genmdl" nodedef="ND_smoothstep_float" sourcecode="mx::stdlib::mx_smoothstep_float({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_color3_genmdl" nodedef="ND_smoothstep_color3" sourcecode="mx::stdlib::mx_smoothstep_color3({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_color4_genmdl" nodedef="ND_smoothstep_color4" sourcecode="mx::stdlib::mx_smoothstep_color4({{in}}, {{low}}, {{high}})" target="genmdl" />
   <implementation name="IM_smoothstep_vector2_genmdl" nodedef="ND_smoothstep_vector2" sourcecode="mx::stdlib::mx_smoothstep_vector2({{in}}, {{low}}, {{high}})" target="genmdl" />
   <implementation name="IM_smoothstep_vector3_genmdl" nodedef="ND_smoothstep_vector3" sourcecode="mx::stdlib::mx_smoothstep_vector3({{in}}, {{low}}, {{high}})" target="genmdl" />
   <implementation name="IM_smoothstep_vector4_genmdl" nodedef="ND_smoothstep_vector4" sourcecode="mx::stdlib::mx_smoothstep_vector4({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_color3FA_genmdl" nodedef="ND_smoothstep_color3FA" sourcecode="mx::stdlib::mx_smoothstep_color3FA({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_color4FA_genmdl" nodedef="ND_smoothstep_color4FA" sourcecode="mx::stdlib::mx_smoothstep_color4FA({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_vector2FA_genmdl" nodedef="ND_smoothstep_vector2FA" sourcecode="mx::stdlib::mx_smoothstep_vector2FA({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_vector3FA_genmdl" nodedef="ND_smoothstep_vector3FA" sourcecode="mx::stdlib::mx_smoothstep_vector3FA({{in}}, {{low}}, {{high}})" target="genmdl" />
-  <implementation name="IM_smoothstep_vector4FA_genmdl" nodedef="ND_smoothstep_vector4FA" sourcecode="mx::stdlib::mx_smoothstep_vector4FA({{in}}, {{low}}, {{high}})" target="genmdl" />
 
   <!-- <saturate> implemented by nodegraph -->
 

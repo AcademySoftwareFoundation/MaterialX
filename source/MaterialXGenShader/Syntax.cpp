@@ -220,42 +220,42 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
             {
                 throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
             }
-            if (srcType == Type::FLOAT)
+            if (*srcType == *Type::FLOAT)
             {
                 float v = value->asA<float>();
                 ss << std::to_string(v);
             }
-            else if (srcType == Type::INTEGER)
+            else if (*srcType == *Type::INTEGER)
             {
                 int v = value->asA<int>();
                 ss << std::to_string(v);
             }
-            else if (srcType == Type::BOOLEAN)
+            else if (*srcType == *Type::BOOLEAN)
             {
                 bool v = value->asA<bool>();
                 ss << std::to_string(v);
             }
-            else if (srcType == Type::COLOR3)
+            else if (*srcType == *Type::COLOR3)
             {
                 Color3 v = value->asA<Color3>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (srcType == Type::COLOR4)
+            else if (*srcType == *Type::COLOR4)
             {
                 Color4 v = value->asA<Color4>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (srcType == Type::VECTOR2)
+            else if (*srcType == *Type::VECTOR2)
             {
                 Vector2 v = value->asA<Vector2>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (srcType == Type::VECTOR3)
+            else if (*srcType == *Type::VECTOR3)
             {
                 Vector3 v = value->asA<Vector3>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (srcType == Type::VECTOR4)
+            else if (*srcType == *Type::VECTOR4)
             {
                 Vector4 v = value->asA<Vector4>();
                 ss << std::to_string(v[channelIndex]);

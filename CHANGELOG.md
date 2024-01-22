@@ -2,6 +2,42 @@
 
 ## [1.38.9] - Development
 
+### Added
+
+- Added a [non-photorealistic rendering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1631) data library to MaterialX, initially consisting of a single 'viewdirection' node.
+- Added support for the generation of [pre-filtered environment maps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1420) in MaterialX GLSL and MSL.
+- Added support for the [creatematrix node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1553) in shader generation.
+- Added [floating popups](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1565) for hovered pins in the MaterialX Graph Editor.
+- Added support for [UI attributes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1623) and [enumerated values](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1632) in the MaterialX Web Viewer.
+- Added [UI ranges](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1646) to the 'useSpecularWorkflow' and 'normal' inputs of the UsdPreviewSurface shading model.
+- Added [versioning rules](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1664) for the MaterialX API and data libraries to the developer guide.
+- Added initial C++ [fuzz tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1605) and [coverage tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1548) to GitHub Actions CI.
+- Added [GCC 13, Clang 15](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1602), and [Python 3.12](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1588) builds to GitHub Actions CI.
+
+### Changed
+
+- Improved the logic for [connecting pins](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1569) in the MaterialX Graph Editor.
+- Improved the robustness of [type pointer comparisons](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1665) in shader generation.
+- Improved the handling of [filename inputs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1547) in OSL shader generation.
+- Reduced the size of the MaterialX data libraries, improving the use of [graph definitions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1653) and merging [duplicate implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1642).
+- Updated the MaterialX Web Viewer to [three.js r152](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1615).
+- Switched to a more efficient representation of [HDR images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1616) in the MaterialX Web Viewer.
+- Raised the minimum CMake version to [CMake 3.16](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1607).
+- Updated the C++ unit test library to [Catch 2.13.10](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1566).
+
+### Fixed
+
+- Fixed the attenuation of [coated emission](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1534) in the Standard Surface shading model.
+- Fixed the implementation of the [overlay node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1539) in shader generation.
+- Fixed an edge case for [transform nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1560) in GLSL and MSL shader generation.
+- Fixed the implementation of [mx_hsvtorgb](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1584) in MDL shader generation.
+- Fixed [scroll wheel interactions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1578) across windows of the MaterialX Graph Editor.
+- Fixed the generation of unused [imgui.ini files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1570) in the MaterialX Graph Editor.
+- Fixed a dependency on [module import order](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1595) in MaterialX Python.
+- Fixed an [off-by-one index check](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1582) in Element::setChildIndex.
+- Fixed a [missing null check](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1601) in Graph::propertyEditor.
+- Fixed cases where [absolute paths](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1603) were stored in MaterialXConfig.cmake.
+
 ## [1.38.8] - 2023-09-08
 
 ### Added
