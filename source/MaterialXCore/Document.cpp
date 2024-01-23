@@ -1458,7 +1458,8 @@ void Document::upgradeVersion()
                     if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
                     {
                         which->setValue(0);
-                    } else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
+                    }
+                    else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
                     {
                         which->setValue(0.0);
                     }
