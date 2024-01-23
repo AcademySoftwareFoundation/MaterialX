@@ -44,16 +44,17 @@ class RenderPipeline
     virtual ~RenderPipeline() { }
 
     virtual void initialize(void* device, void* command_queue) = 0;
-    
+
     virtual mx::ImageHandlerPtr createImageHandler() = 0;
-    virtual mx::MaterialPtr     createMaterial() = 0;
+    virtual mx::MaterialPtr createMaterial() = 0;
     virtual void bakeTextures() = 0;
-    
+
     virtual void updateAlbedoTable(int tableSize) = 0;
+    virtual void updatePrefilteredMap() = 0;
     virtual std::shared_ptr<void> createTextureBaker(unsigned int width,
                                                      unsigned int height,
                                                      mx::Image::BaseType baseType) = 0;
-    
+
     virtual void renderFrame(void* color_texture, int shadowMapSize, const char* dirLightNodeCat) = 0;
 
     virtual void initFramebuffer(int width, int height,
@@ -62,9 +63,9 @@ class RenderPipeline
                                    void* color_texture) = 0;
 
     virtual mx::ImagePtr getShadowMap(int shadowMapSize) = 0;
-    
+
     virtual mx::ImagePtr getFrameImage() = 0;
-    
+
   public:
     Viewer* _viewer;
 };

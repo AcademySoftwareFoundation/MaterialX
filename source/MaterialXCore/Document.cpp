@@ -1426,7 +1426,24 @@ void Document::upgradeVersion()
                 continue;
             }
             const string& nodeCategory = node->getCategory();
-            if (nodeCategory == "switch")
+            if (nodeCategory == "atan2")
+            {
+                // rename input ports
+                // "in1" -> "iny"
+                // "in2" -> "inx"
+
+                auto input1 = node->getInput("in1");
+                if (input1)
+                {
+                    input1->setName("iny");
+                }
+                auto input2 = node->getInput("in2");
+                if (input2)
+                {
+                    input2->setName("inx");
+                }
+            }
+            else if (nodeCategory == "switch")
             {
                 // previously we only had 5 inputs, and any value of "which" outside of the valid range of inputs would default to the
                 // first input.  To retain backwards image compatibility we need to revert any value of "which" that is now a valid value

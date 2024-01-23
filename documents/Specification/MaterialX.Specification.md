@@ -1148,7 +1148,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-atan2"> </a>
 
-* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `in1` and `in2` are provided, they must be the same type.
+* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `iny` and `inx` are provided, they must be the same type.
     * `iny` (float or vector<em>N</em>): the value or nodename for the "y" input; default is 0.0.
     * `inx` (float or vector<em>N</em>): the value or nodename for the "x" input; default is 1.0.
 
@@ -1496,7 +1496,7 @@ Blend nodes take two 1-4 channel inputs and apply the same operator to all chann
 | **`burn`** | 1-(1-B)/F | float, color<em>N</em> |
 | **`dodge`** | B/(1-F) | float, color<em>N</em> |
 | **`screen`** | 1-(1-F)(1-B) | float, color<em>N</em> |
-| **`overlay`** | 2FB if F&lt;0.5;<br> 1-(1-F)(1-B) if F>=0.5 | float, color<em>N</em> |
+| **`overlay`** | 2FB if B&lt;0.5;<br> 1-2(1-F)(1-B) if B>=0.5 | float, color<em>N</em> |
 
 
 #### Merge Nodes

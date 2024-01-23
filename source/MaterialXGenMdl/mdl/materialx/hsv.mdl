@@ -25,16 +25,16 @@ import ::limits::*;
 export float3 mx_hsvtorgb(float3 hsv) {
     // from "Color Imaging, Fundamentals and Applications", Reinhard et al., p. 442
 
-    // A hue of 1.0 is questionably valid, and needs to be interpreted as 0.0f
-    float h_prime = (hsv.x < 1.0f) ? hsv.x * 6.0f : 0.0f; // H * 360.0/60.0
-    float h_floor = math::floor(h_prime);
-    float f = h_prime - h_floor;
+    float h = 6.0 * (hsv.x - math::floor(hsv.x));
+    int hi = int(h); // truncate
+    float f = h - float(hi);
+
     float zy = hsv.z*hsv.y;
     float a = hsv.z - zy;
     float b = hsv.z - zy*f;
     float c = a + zy*f;
 
-    switch(int(h_floor)) {
+    switch(hi) {
         default:
             // hue out of [0,1] range...
             // fall through...

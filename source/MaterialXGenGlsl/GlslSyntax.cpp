@@ -364,7 +364,7 @@ bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, con
     // Don't convert already supported types
     // or filenames and arrays.
     if (typeSupported(type) ||
-        type == Type::FILENAME || (type && type->isArray()))
+        *type == *Type::FILENAME || (type && type->isArray()))
     {
         return false;
     }

@@ -1999,8 +1999,8 @@
     <output name="out" type="float" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_float" node="atan2" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="1.0" />
+    <input name="iny" type="float" value="0.0" />
+    <input name="inx" type="float" value="1.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector2" node="sin" nodegroup="math">
@@ -2024,8 +2024,8 @@
     <output name="out" type="vector2" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector2" node="atan2" nodegroup="math">
-    <input name="in1" type="vector2" value="1.0, 1.0" />
-    <input name="in2" type="vector2" value="0.0, 0.0" />
+    <input name="iny" type="vector2" value="1.0, 1.0" />
+    <input name="inx" type="vector2" value="0.0, 0.0" />
     <output name="out" type="vector2" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector3" node="sin" nodegroup="math">
@@ -2049,8 +2049,8 @@
     <output name="out" type="vector3" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector3" node="atan2" nodegroup="math">
-    <input name="in1" type="vector3" value="1.0, 1.0, 1.0" />
-    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="iny" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="inx" type="vector3" value="0.0, 0.0, 0.0" />
     <output name="out" type="vector3" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector4" node="sin" nodegroup="math">
@@ -2074,8 +2074,8 @@
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector4" node="atan2" nodegroup="math">
-    <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="iny" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="inx" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
 
@@ -2501,6 +2501,14 @@
     <input name="in" type="vector3" value="0.5, 0.5, 1.0" />
     <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" />
     <input name="scale" type="float" value="1.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <output name="out" type="vector3" defaultinput="normal" />
+  </nodedef>
+  <nodedef name="ND_normalmap_vector2" node="normalmap" nodegroup="math">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0" />
+    <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" />
+    <input name="scale" type="vector2" value="1.0, 1.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <output name="out" type="vector3" defaultinput="normal" />
@@ -3343,8 +3351,8 @@
   <!--
     Node: <overlay>
     Take two 1-4 channel inputs and apply the same operator to all channels:
-      2FB if F<0.5;
-      1-(1-F)(1-B) if F>=0.5
+      2FB if B<0.5;
+      1-2(1-F)(1-B) if B>=0.5
   -->
   <nodedef name="ND_overlay_float" node="overlay" nodegroup="compositing">
     <input name="fg" type="float" value="0.0" />
@@ -4417,6 +4425,33 @@
     <input name="in3" type="float" value="0.0" />
     <input name="in4" type="float" value="0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
+    Node <creatematrix>
+    Combine the the three vectors3 from stream into a matrix 33.
+  -->
+  <nodedef name="ND_creatematrix_vector3_matrix33" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <output name="out" type="matrix33" default="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector3_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector4" value="1.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" />
+    <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" />
+    <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
   </nodedef>
 
   <!--

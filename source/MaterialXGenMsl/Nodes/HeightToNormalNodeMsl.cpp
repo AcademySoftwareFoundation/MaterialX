@@ -33,6 +33,11 @@ ShaderNodeImplPtr HeightToNormalNodeMsl::create()
     return std::make_shared<HeightToNormalNodeMsl>();
 }
 
+void HeightToNormalNodeMsl::createVariables(const ShaderNode&, GenContext&, Shader&) const
+{
+    // Default filter kernels from ConvolutionNode are not used by this derived class.
+}
+
 void HeightToNormalNodeMsl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                                        unsigned int, StringVec& offsetStrings) const
 {
@@ -49,7 +54,7 @@ void HeightToNormalNodeMsl::computeSampleOffsetStrings(const string& sampleSizeN
 bool HeightToNormalNodeMsl::acceptsInputType(const TypeDesc* type) const
 {
     // Only support inputs which are float scalar
-    return (type == Type::FLOAT && type->isScalar());
+    return (*type == *Type::FLOAT && type->isScalar());
 }
 
 void HeightToNormalNodeMsl::emitFunctionDefinition(const ShaderNode&, GenContext& context, ShaderStage& stage) const

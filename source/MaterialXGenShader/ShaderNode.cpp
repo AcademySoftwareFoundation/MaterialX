@@ -32,6 +32,11 @@ string ShaderPort::getFullName() const
     return (_node->getName() + "_" + _name);
 }
 
+string ShaderPort::getValueString() const
+{
+    return getValue() ? getValue()->getValueString() : EMPTY_STRING;
+}
+
 //
 // ShaderInput methods
 //
@@ -224,11 +229,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 
     // First, check for specific output types
     const ShaderOutput* primaryOutput = newNode->getOutput();
-    if (primaryOutput->getType() == Type::MATERIAL)
+    if (*primaryOutput->getType() == *Type::MATERIAL)
     {
         newNode->_classification = Classification::MATERIAL;
     }
-    else if (primaryOutput->getType() == Type::SURFACESHADER)
+    else if (*primaryOutput->getType() == *Type::SURFACESHADER)
     {
         if (nodeDefName == "ND_surface_unlit")
         {
@@ -239,11 +244,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::CLOSURE;
         }
     }
-    else if (primaryOutput->getType() == Type::LIGHTSHADER)
+    else if (*primaryOutput->getType() == *Type::LIGHTSHADER)
     {
         newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
-    else if (primaryOutput->getType() == Type::BSDF)
+    else if (*primaryOutput->getType() == *Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
@@ -273,11 +278,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             newNode->_classification |= Classification::THINFILM;
         }
     }
-    else if (primaryOutput->getType() == Type::EDF)
+    else if (*primaryOutput->getType() == *Type::EDF)
     {
         newNode->_classification = Classification::EDF | Classification::CLOSURE;
     }
-    else if (primaryOutput->getType() == Type::VDF)
+    else if (*primaryOutput->getType() == *Type::VDF)
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
@@ -285,7 +290,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     else if (nodeDef.getNodeString() == CONSTANT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::CONSTANT;
-    }    
+    }
     else if (nodeDef.getNodeString() == DOT)
     {
         newNode->_classification = Classification::TEXTURE | Classification::DOT;

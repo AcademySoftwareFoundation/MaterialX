@@ -3,7 +3,9 @@
 Verify that the given file is a valid MaterialX document.
 '''
 
-import sys, os, argparse
+import argparse
+import sys
+
 import MaterialX as mx
 
 def main():
@@ -25,7 +27,7 @@ def main():
         stdlib = mx.createDocument()
         try:
             mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
-        except err:
+        except Exception as err:
             print(err)
             sys.exit(0)
         doc.importLibrary(stdlib)
