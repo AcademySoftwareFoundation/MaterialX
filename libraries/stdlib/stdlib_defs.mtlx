@@ -1999,8 +1999,8 @@
     <output name="out" type="float" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_float" node="atan2" nodegroup="math">
-    <input name="in1" type="float" value="0.0" />
-    <input name="in2" type="float" value="1.0" />
+    <input name="iny" type="float" value="0.0" />
+    <input name="inx" type="float" value="1.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector2" node="sin" nodegroup="math">
@@ -2024,8 +2024,8 @@
     <output name="out" type="vector2" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector2" node="atan2" nodegroup="math">
-    <input name="in1" type="vector2" value="1.0, 1.0" />
-    <input name="in2" type="vector2" value="0.0, 0.0" />
+    <input name="iny" type="vector2" value="1.0, 1.0" />
+    <input name="inx" type="vector2" value="0.0, 0.0" />
     <output name="out" type="vector2" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector3" node="sin" nodegroup="math">
@@ -2049,8 +2049,8 @@
     <output name="out" type="vector3" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector3" node="atan2" nodegroup="math">
-    <input name="in1" type="vector3" value="1.0, 1.0, 1.0" />
-    <input name="in2" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="iny" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="inx" type="vector3" value="0.0, 0.0, 0.0" />
     <output name="out" type="vector3" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_sin_vector4" node="sin" nodegroup="math">
@@ -2074,8 +2074,8 @@
     <output name="out" type="vector4" defaultinput="in" />
   </nodedef>
   <nodedef name="ND_atan2_vector4" node="atan2" nodegroup="math">
-    <input name="in1" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
-    <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="iny" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <input name="inx" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
 

@@ -1419,6 +1419,30 @@ void Document::upgradeVersion()
                     removeNode(top->getName());
                 }
             }
+
+            NodePtr node = elem->asA<Node>();
+            if (!node)
+            {
+                continue;
+            }
+            const string& nodeCategory = node->getCategory();
+            if (nodeCategory == "atan2")
+            {
+                // rename input ports
+                // "in1" -> "iny"
+                // "in2" -> "inx"
+
+                auto input1 = node->getInput("in1");
+                if (input1)
+                {
+                    input1->setName("iny");
+                }
+                auto input2 = node->getInput("in2");
+                if (input2)
+                {
+                    input2->setName("inx");
+                }
+            }
         }
 
         removeNodeDef("ND_thin_film_bsdf");

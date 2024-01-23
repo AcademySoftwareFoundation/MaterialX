@@ -1513,14 +1513,14 @@ export float mx_acos_float(
 }
 
 export float mx_atan2_float(
-	float mxp_in1 = float(1.0),
-	float mxp_in2 = float(0.0)
+	float mxp_iny = float(1.0),
+	float mxp_inx = float(0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return ::math::atan2(mxp_in1, mxp_in2);
+	return ::math::atan2(mxp_iny, mxp_inx);
 }
 
 export float2 mx_sin_vector2(
@@ -1574,14 +1574,14 @@ export float2 mx_acos_vector2(
 }
 
 export float2 mx_atan2_vector2(
-	float2 mxp_in1 = float2(1.0, 1.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
+	float2 mxp_iny = float2(1.0, 1.0),
+	float2 mxp_inx = float2(0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return ::math::atan2(mxp_in1, mxp_in2);
+	return ::math::atan2(mxp_iny, mxp_inx);
 }
 
 export float3 mx_sin_vector3(
@@ -1635,14 +1635,14 @@ export float3 mx_acos_vector3(
 }
 
 export float3 mx_atan2_vector3(
-	float3 mxp_in1 = float3(1.0, 1.0, 1.0),
-	float3 mxp_in2 = float3(0.0, 0.0, 0.0)
+	float3 mxp_iny = float3(1.0, 1.0, 1.0),
+	float3 mxp_inx = float3(0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return ::math::atan2(mxp_in1, mxp_in2);
+	return ::math::atan2(mxp_iny, mxp_inx);
 }
 
 export float4 mx_sin_vector4(
@@ -1696,14 +1696,14 @@ export float4 mx_acos_vector4(
 }
 
 export float4 mx_atan2_vector4(
-	float4 mxp_in1 = float4(1.0, 1.0, 1.0, 1.0),
-	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0)
+	float4 mxp_iny = float4(1.0, 1.0, 1.0, 1.0),
+	float4 mxp_inx = float4(0.0, 0.0, 0.0, 0.0)
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return ::math::atan2(mxp_in1, mxp_in2);
+	return ::math::atan2(mxp_iny, mxp_inx);
 }
 
 export float mx_sqrt_float(
