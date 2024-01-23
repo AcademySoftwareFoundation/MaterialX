@@ -21,7 +21,7 @@ class MX_GENMDL_API StringConstantsMdl
 
   public:
     /// String constants
-    static const string TOP; ///< layer parameter name of the top component
+    static const string TOP;  ///< layer parameter name of the top component
     static const string BASE; ///< layer parameter name of the base component
 };
 

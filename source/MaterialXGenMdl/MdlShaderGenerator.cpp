@@ -17,6 +17,7 @@
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/SwizzleNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
@@ -176,6 +177,14 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <image> -->
+    registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_color3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_color4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector2_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
+    registerImplementation("IM_image_vector4_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
 }
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
@@ -267,13 +276,13 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const TypeDesc* outputType = outputSocket->getType();
     if (graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
-        if (outputType == Type::DISPLACEMENTSHADER)
+        if (*outputType == *Type::DISPLACEMENTSHADER)
         {
             emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
             emitLine("color finalOutput__ = mk_color3("
-                "r: math::dot(displacement__, state::texture_tangent_u(0)),"
-                "g: math::dot(displacement__, state::texture_tangent_v(0)),"
-                "b: math::dot(displacement__, state::normal()))", stage);
+                     "r: math::dot(displacement__, state::texture_tangent_u(0)),"
+                     "g: math::dot(displacement__, state::texture_tangent_v(0)),"
+                     "b: math::dot(displacement__, state::normal()))", stage);
         }
         else
         {
@@ -647,7 +656,7 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     {
         const ShaderPort* input = inputs[i];
 
-        const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
+        const string& qualifier = input->isUniform() || *input->getType() == *Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = _syntax->getTypeName(input->getType());
 
         string value = input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;

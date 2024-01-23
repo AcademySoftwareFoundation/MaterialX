@@ -58,7 +58,7 @@
     </multiply>
     <generalized_schlick_brdf name="dielectric_bsdf" type="BSDF">
       <input name="weight" type="float" value="1" />
-      <input name="color0" type="color3" nodename="F0" channels="rrr"/>
+      <input name="color0" type="color3" nodename="F0" channels="rrr" />
       <input name="color90" type="color3" value="1, 1, 1" />
       <input name="roughness" type="vector2" nodename="specular_roughness" />
       <input name="base" type="BSDF" nodename="transmission_mix" />

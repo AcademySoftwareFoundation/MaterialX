@@ -14,6 +14,30 @@
 
 #include <stack>
 
+class MenuItem
+{
+  public:
+    MenuItem(const std::string& name, const std::string& type, const std::string& category, const std::string& group) :
+        name(name), type(type), category(category), group(group) { }
+
+    // getters
+    std::string getName() const { return name; }
+    std::string getType() const { return type; }
+    std::string getCategory() const { return category; }
+    std::string getGroup() const { return group; }
+
+    // setters
+    void setName(const std::string& newName) { this->name = newName; }
+    void setType(const std::string& newType) { this->type = newType; }
+    void setCategory(const std::string& newCategory) { this->category = newCategory; }
+    void setGroup(const std::string& newGroup) { this->group = newGroup; }
+
+  private:
+    std::string name;
+    std::string type;
+    std::string category;
+    std::string group;
+};
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -42,7 +66,7 @@ class Graph
           int viewWidth,
           int viewHeight);
 
-    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
@@ -82,15 +106,14 @@ class Graph
     // Find link position in current links vector from link id
     int findLinkPosition(int id);
 
-    // Find link from attribute id
-    std::vector<int> findLinkId(int attrId);
-
     // Check if link exists in the current link vector
     bool linkExists(Link newLink);
 
     // Add link to nodegraph and set up connections between UiNodes and
     // MaterialX Nodes to update shader
-    void addLink(ed::PinId inputPinId, ed::PinId outputPinId);
+    // startPinId - where the link was initiated
+    // endPinId - where the link was ended
+    void addLink(ed::PinId startPinId, ed::PinId endPinId);
 
     // Delete link from current link vector and remove any connections in
     // UiNode or MaterialX Nodes to update shader
@@ -113,7 +136,7 @@ class Graph
     void setPinColor();
 
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
-    void drawPinIcon(std::string type, bool connected, int alpha);
+    void drawPinIcon(const std::string& type, bool connected, int alpha);
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -163,7 +186,6 @@ class Graph
     // Add input pointer to node based on input pin
     void addNodeInput(UiNodePtr node, mx::InputPtr& input);
 
-    mx::InputPtr findInput(mx::InputPtr input, const std::string& name);
     void upNodeGraph();
 
     // Set the value of the selected node constants in the node property editor
@@ -187,6 +209,8 @@ class Graph
 
     void addNodePopup(bool cursor);
     void searchNodePopup(bool cursor);
+    bool isPinHovered();
+    void addPinPopup();
     bool readOnly();
     void readOnlyPopup();
 
@@ -194,10 +218,9 @@ class Graph
     void shaderPopup();
 
     void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
-    void selectMaterial(UiNodePtr node);
 
     // Allow for camera manipulation of render view window
-    void handleRenderViewInputs(ImVec2 minValue, float width, float height);
+    void handleRenderViewInputs();
 
     // Set the node to display in render view based on selected node or nodegraph
     void setRenderMaterial(UiNodePtr node);
@@ -246,8 +269,7 @@ class Graph
     std::vector<std::string> _currGraphName;
 
     // for adding new nodes
-    std::unordered_map<std::string, std::vector<mx::NodeDefPtr>> _nodesToAdd;
-    std::unordered_map<std::string, std::vector<std::vector<std::string>>> _extraNodes;
+    std::vector<MenuItem> _nodesToAdd;
 
     // stacks to dive into and out of node graphs
     std::stack<std::vector<UiNodePtr>> _graphStack;
