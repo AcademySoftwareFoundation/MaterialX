@@ -196,11 +196,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Emit shader type, determined from the first
     // output if there are multiple outputs.
     const ShaderGraphOutputSocket* outputSocket0 = graph.getOutputSocket(0);
-    if (outputSocket0->getType() == Type::SURFACESHADER)
+    if (*outputSocket0->getType() == *Type::SURFACESHADER)
     {
         emitString("surface ", stage);
     }
-    else if (outputSocket0->getType() == Type::VOLUMESHADER)
+    else if (*outputSocket0->getType() == *Type::VOLUMESHADER)
     {
         emitString("volume ", stage);
     }
@@ -250,10 +250,10 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
     const ShaderPort* singleOutput = outputs.size() == 1 ? outputs[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = singleOutput && *singleOutput->getType() == *Type::SURFACESHADER;
 
 #ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    const bool isBsdfOutput = singleOutput && singleOutput->getType() == Type::BSDF;
+    const bool isBsdfOutput = singleOutput && *singleOutput->getType() == *Type::BSDF;
 #endif
 
     if (isSurfaceShaderOutput)
@@ -301,7 +301,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         ShaderPort* input = inputs[i];
-        if (input->getType() == Type::FILENAME)
+        if (*input->getType() == *Type::FILENAME)
         {
             // Construct the textureresource variable.
             const string newVariableName = input->getVariable() + "_";
@@ -529,7 +529,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
         const string& type = _syntax->getTypeName(input->getType());
 
-        if (input->getType() == Type::FILENAME)
+        if (*input->getType() == *Type::FILENAME)
         {
             // Shader inputs of type 'filename' (textures) need special handling.
             // In OSL codegen a 'filename' is translated to the custom type 'textureresource',

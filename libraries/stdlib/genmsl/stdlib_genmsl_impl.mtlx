@@ -478,16 +478,9 @@
 
   <!-- <smoothstep> -->
   <implementation name="IM_smoothstep_float_genmsl" nodedef="ND_smoothstep_float" file="mx_smoothstep_float.metal" function="mx_smoothstep_float" target="genmsl" />
-  <implementation name="IM_smoothstep_color3_genmsl" nodedef="ND_smoothstep_color3" file="mx_smoothstep_vec3.metal" function="mx_smoothstep_vec3" target="genmsl" />
-  <implementation name="IM_smoothstep_color3FA_genmsl" nodedef="ND_smoothstep_color3FA" file="mx_smoothstep_vec3FA.metal" function="mx_smoothstep_vec3FA" target="genmsl" />
-  <implementation name="IM_smoothstep_color4_genmsl" nodedef="ND_smoothstep_color4" file="mx_smoothstep_vec4.metal" function="mx_smoothstep_vec4" target="genmsl" />
-  <implementation name="IM_smoothstep_color4FA_genmsl" nodedef="ND_smoothstep_color4FA" file="mx_smoothstep_vec4FA.metal" function="mx_smoothstep_vec4FA" target="genmsl" />
-  <implementation name="IM_smoothstep_vector2_genmsl" nodedef="ND_smoothstep_vector2" file="mx_smoothstep_vec2.metal" function="mx_smoothstep_vec2" target="genmsl" />
-  <implementation name="IM_smoothstep_vector2FA_genmsl" nodedef="ND_smoothstep_vector2FA" file="mx_smoothstep_vec2FA.metal" function="mx_smoothstep_vec2FA" target="genmsl" />
-  <implementation name="IM_smoothstep_vector3_genmsl" nodedef="ND_smoothstep_vector3" file="mx_smoothstep_vec3.metal" function="mx_smoothstep_vec3" target="genmsl" />
-  <implementation name="IM_smoothstep_vector3FA_genmsl" nodedef="ND_smoothstep_vector3FA" file="mx_smoothstep_vec3FA.metal" function="mx_smoothstep_vec3FA" target="genmsl" />
-  <implementation name="IM_smoothstep_vector4_genmsl" nodedef="ND_smoothstep_vector4" file="mx_smoothstep_vec4.metal" function="mx_smoothstep_vec4" target="genmsl" />
-  <implementation name="IM_smoothstep_vector4FA_genmsl" nodedef="ND_smoothstep_vector4FA" file="mx_smoothstep_vec4FA.metal" function="mx_smoothstep_vec4FA" target="genmsl" />
+  <implementation name="IM_smoothstep_vector2_genmsl" nodedef="ND_smoothstep_vector2" file="mx_smoothstep_vector2.metal" function="mx_smoothstep_vector2" target="genmsl" />
+  <implementation name="IM_smoothstep_vector3_genmsl" nodedef="ND_smoothstep_vector3" file="mx_smoothstep_vector3.metal" function="mx_smoothstep_vector3" target="genmsl" />
+  <implementation name="IM_smoothstep_vector4_genmsl" nodedef="ND_smoothstep_vector4" file="mx_smoothstep_vector4.metal" function="mx_smoothstep_vector4" target="genmsl" />
 
   <!-- <luminance> -->
   <implementation name="IM_luminance_color3_genmsl" nodedef="ND_luminance_color3" file="../genglsl/mx_luminance_color3.glsl" function="mx_luminance_color3" target="genmsl" />

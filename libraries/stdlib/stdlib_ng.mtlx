@@ -4,15 +4,15 @@
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
 
-    Nodegraph implementations for Supplemental Nodes included in the MaterialX specification.
+    Graph definitions of standard nodes included in the MaterialX specification.
   -->
 
   <!-- ======================================================================== -->
-  <!-- Supplemental Texture nodes                                               -->
+  <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
   <!--
-    <tiledimage>
+    Node: <tiledimage>
   -->
   <nodegraph name="NG_tiledimage_float" nodedef="ND_tiledimage_float">
     <multiply name="N_mult_float" type="vector2">
@@ -196,7 +196,7 @@
   </nodegraph>
 
   <!--
-    <triplanarprojection>
+    Node: <triplanarprojection>
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
     a weighted blend of the three samples using the geometric normal.
@@ -1131,7 +1131,7 @@
   <!-- ======================================================================== -->
 
   <!--
-    <ramp4>
+    Node: <ramp4>
     A 4-corner bilinear value ramp.
   -->
   <nodegraph name="NG_ramp4_float" nodedef="ND_ramp4_float">
@@ -1310,7 +1310,7 @@
   </nodegraph>
 
   <!--
-    <noise2d>
+    Node: <noise2d>
   -->
   <nodegraph name="NG_noise2d_color3" nodedef="ND_noise2d_color3">
     <noise2d name="N_noise2d" type="vector3">
@@ -1370,7 +1370,7 @@
   </nodegraph>
 
   <!--
-    <noise3d>
+    Node: <noise3d>
   -->
   <nodegraph name="NG_noise3d_color3" nodedef="ND_noise3d_color3">
     <noise3d name="N_noise3d" type="vector3">
@@ -1430,7 +1430,7 @@
   </nodegraph>
 
   <!--
-    <fractal3d>
+    Node: <fractal3d>
   -->
   <nodegraph name="NG_fractal3d_color3" nodedef="ND_fractal3d_color3">
     <fractal3d name="N_fractal3d" type="vector3">
@@ -1574,7 +1574,7 @@
   </nodegraph>
 
   <!--
-    <unifiednoise3d>
+    Node: <unifiednoise3d>
     Combined 3d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
@@ -1770,7 +1770,7 @@
   </nodegraph>
 
   <!--
-    <checkerboard>
+    Node: <checkerboard>
     A 2D checkerboard pattern.
   -->
   <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
@@ -2560,6 +2560,9 @@
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
 
+  <!--
+    Node: <bump>
+  -->
   <nodegraph name="NG_bump_vector3" nodedef="ND_bump_vector3">
     <heighttonormal name="N_heighttonormal" type="vector3">
       <input name="in" type="float" interfacename="height" />
@@ -2703,6 +2706,68 @@
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
+
+  <!--
+    Node: <smoothstep>
+    Outputs a smooth (hermite-interpolated) remapping of input values from low-high
+    to output 0-1.
+  -->
+  <nodegraph name="NG_smoothstep_color3" nodedef="ND_smoothstep_color3">
+    <smoothstep name="N_smoothstep" type="vector3">
+      <input name="in" type="vector3" interfacename="in" channels="rgb" />
+      <input name="low" type="vector3" interfacename="low" channels="rgb" />
+      <input name="high" type="vector3" interfacename="high" channels="rgb" />
+    </smoothstep>
+    <output name="out" type="color3" nodename="N_smoothstep" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color4" nodedef="ND_smoothstep_color4">
+    <smoothstep name="N_smoothstep" type="vector4">
+      <input name="in" type="vector4" interfacename="in" channels="rgba" />
+      <input name="low" type="vector4" interfacename="low" channels="rgba" />
+      <input name="high" type="vector4" interfacename="high" channels="rgba" />
+    </smoothstep>
+    <output name="out" type="color4" nodename="N_smoothstep" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color3FA" nodedef="ND_smoothstep_color3FA">
+    <smoothstep name="N_smoothstep" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="low" type="color3" interfacename="low" channels="xxx" />
+      <input name="high" type="color3" interfacename="high" channels="xxx" />
+    </smoothstep>
+    <output name="out" type="color3" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color4FA" nodedef="ND_smoothstep_color4FA">
+    <smoothstep name="N_smoothstep" type="color4">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="low" type="color4" interfacename="low" channels="xxxx" />
+      <input name="high" type="color4" interfacename="high" channels="xxxx" />
+    </smoothstep>
+    <output name="out" type="color4" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector2FA" nodedef="ND_smoothstep_vector2FA">
+    <smoothstep name="N_smoothstep" type="vector2">
+      <input name="in" type="vector2" interfacename="in" />
+      <input name="low" type="vector2" interfacename="low" channels="xx" />
+      <input name="high" type="vector2" interfacename="high" channels="xx" />
+    </smoothstep>
+    <output name="out" type="vector2" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector3FA" nodedef="ND_smoothstep_vector3FA">
+    <smoothstep name="N_smoothstep" type="vector3">
+      <input name="in" type="vector3" interfacename="in" />
+      <input name="low" type="vector3" interfacename="low" channels="xxx" />
+      <input name="high" type="vector3" interfacename="high" channels="xxx" />
+    </smoothstep>
+    <output name="out" type="vector3" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector4FA" nodedef="ND_smoothstep_vector4FA">
+    <smoothstep name="N_smoothstep" type="vector4">
+      <input name="in" type="vector4" interfacename="in" />
+      <input name="low" type="vector4" interfacename="low" channels="xxxx" />
+      <input name="high" type="vector4" interfacename="high" channels="xxxx" />
+    </smoothstep>
+    <output name="out" type="vector4" nodename="N_smoothstep" />
+  </nodegraph>
 
   <!--
     Node: <contrast>
@@ -3492,7 +3557,7 @@
   </nodegraph>
 
   <!--
-    Node: <colorcorrect> Supplemental Node
+    Node: <colorcorrect>
     Combines various adjustment nodes into one, artist-friendly color correction node.
   -->
   <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">

@@ -2854,10 +2854,10 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
-    if (node->outputPins.size() > 0)
+    for (UiPinPtr outputPin : node->outputPins)
     {
         // Update downNode info
-        for (UiPinPtr pin : node->outputPins.front()->getConnections())
+        for (UiPinPtr pin : outputPin.get()->getConnections())
         {
             mx::ValuePtr val;
             if (pin->_pinNode->getNode())
@@ -2871,6 +2871,13 @@ void Graph::deleteNode(UiNodePtr node)
                 else
                 {
                     pin->_input->setConnectedNode(nullptr);
+                }
+                if (node->getInput())
+                {
+                    // Remove interface value in order to set the default of the input
+                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(pin->_input);
+                    setDefaults(node->getInput());
                 }
             }
             else if (pin->_pinNode->getNodeGraph())
