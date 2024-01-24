@@ -652,7 +652,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         bool isDefaultVersion = false;
         const std::string NODENAME = graph->getName();
 
-        // 1. Create a new functional graph and definitiion from a compound graph
+        // Create a new functional graph and definition from a compound graph
         std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
         std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
         mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
