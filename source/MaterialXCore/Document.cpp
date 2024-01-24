@@ -212,7 +212,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     }        
     graph->setNodeDefString(nodeDefName);
 
-    // Create a new nodedef and set it's category
+    // Create a new nodedef and set its category
     NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
     nodeDef->setNodeString(category);
 
