@@ -764,7 +764,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
 TEST_CASE("Functional Graph Interface Change", "[nodedef]")
 {
-    // 4. Arbitrarily add all unconnected inputs in the functional graph as interfaces
+    // Arbitrarily add all unconnected inputs in the functional graph as interfaces
     mx::DocumentPtr doc = mx::createDocument();
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_defs.mtlx"), doc);
     mx::loadLibrary(mx::FilePath::getCurrentPath() / mx::FilePath("libraries/stdlib/stdlib_ng.mtlx"), doc);
