@@ -244,6 +244,10 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::CLOSURE;
         }
     }
+    else if (*primaryOutput->getType() == *Type::VOLUMESHADER)
+    {
+        newNode->_classification = Classification::SHADER | Classification::VOLUME | Classification::CLOSURE;
+    }
     else if (*primaryOutput->getType() == *Type::LIGHTSHADER)
     {
         newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
