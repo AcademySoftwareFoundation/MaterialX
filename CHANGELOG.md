@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added a [non-photorealistic rendering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1631) data library to MaterialX, initially consisting of a single 'viewdirection' node.
+- Added a [non-photorealistic rendering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1631) data library to MaterialX, initially supporting the 'viewdirection' and 'facingratio' nodes.
 - Added support for the generation of [pre-filtered environment maps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1420) in MaterialX GLSL and MSL.
 - Added support for the [creatematrix node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1553) in shader generation.
 - Added [floating popups](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1565) for hovered pins in the MaterialX Graph Editor.
