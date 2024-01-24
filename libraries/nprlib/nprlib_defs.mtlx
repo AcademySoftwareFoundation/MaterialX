@@ -39,4 +39,18 @@
     <output name="out" type="float" default="0.0" />
   </nodedef>
 
+  <!--
+    Node: <gooch>
+    Compute Gooch shading.
+  -->
+  <nodedef name="ND_gooch" node="gooch" doc="Compute Gooch shading">
+    <input name="Warm" type="color3" value="0.6, 0, 0" uiname="Warm Color" doc="Warm diffuse color"/>
+    <input name="Cool" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
+    <input name="Shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
+    <input name="SpecularColor" type="color3" value="0.6, 0.6, 0.6" uiname="Specular Color" doc="Specular color"/>
+    <input name="LightDirection" type="vector3" value="1, 0.5, 0.5" uiname="Light Direction" doc="Light vector"/>
+    <output name="out" type="color3" />
+  </nodedef>
+
+
 </materialx>

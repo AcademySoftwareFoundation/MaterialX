@@ -45,4 +45,80 @@
     <output name="out" type="float" nodename="N_result" />
   </nodegraph>
 
+  <!--
+    Node: <gooch>
+  -->
+  <nodegraph name="NG_gooch" type="color3" nodedef="ND_gooch">
+    <normal name="N" type="vector3">
+      <input name="space" type="string" value="world" />
+    </normal>
+    <normalize name="normalize" type="vector3">
+      <input name="in" type="vector3" interfacename="LightDirection" />
+    </normalize>
+    <dotproduct name="NdotL" type="float">
+      <input name="in1" type="vector3" nodename="N" />
+      <input name="in2" type="vector3" nodename="normalize" />
+    </dotproduct>
+    <mix name="diffuse" type="color3">
+      <input name="fg" type="color3" interfacename="Cool" />
+      <input name="bg" type="color3" interfacename="Warm" />
+      <input name="mix" type="float" nodename="max_float" />
+    </mix>
+    <power name="specular" type="float">
+      <input name="in1" type="float" nodename="max1" />
+      <input name="in2" type="float" interfacename="Shininess" />
+    </power>
+    <max name="max1" type="float">
+      <input name="in1" type="float" nodename="VdotR" />
+      <input name="in2" type="float" value="0" />
+    </max>
+    <max name="max_float" type="float">
+      <input name="in1" type="float" nodename="NdotL" />
+    </max>
+    <viewdirection name="view" type="vector3" />
+    <multiply name="viewDirection" type="vector3">
+      <input name="in1" type="vector3" nodename="view" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <dotproduct name="NdotI" type="float">
+      <input name="in1" type="vector3" nodename="normalize_vector4" />
+      <input name="in2" type="vector3" nodename="multiply_vector3FA" />
+    </dotproduct>
+    <multiply name="NdotI_2" type="float">
+      <input name="in1" type="float" nodename="NdotI" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <dotproduct name="VdotR" type="float">
+      <input name="in1" type="vector3" nodename="viewDirection" />
+      <input name="in2" type="vector3" nodename="I_NdotI_N_2" />
+    </dotproduct>
+    <multiply name="multiply_vector3FA" type="vector3">
+      <input name="in1" type="vector3" nodename="normalize_vector3" />
+      <input name="in2" type="float" value="1" />
+    </multiply>
+    <normalize name="normalize_vector3" type="vector3">
+      <input name="in" type="vector3" nodename="view" />
+    </normalize>
+    <normalize name="normalize_vector4" type="vector3">
+      <input name="in" type="vector3" nodename="N" />
+    </normalize>
+    <multiply name="NdotI_N_2" type="vector3">
+      <input name="in1" type="vector3" nodename="normalize_vector4" />
+      <input name="in2" type="float" nodename="NdotI_2" />
+    </multiply>
+    <subtract name="I_NdotI_N_2" type="vector3">
+      <input name="in1" type="vector3" nodename="normalize_vector3" />
+      <input name="in2" type="vector3" nodename="NdotI_N_2" />
+    </subtract>
+    <multiply name="multiply_color3FA" type="color3">
+      <input name="in2" type="float" nodename="specular" />
+      <input name="in1" type="color3" interfacename="SpecularColor" />
+    </multiply>
+    <add name="final_color" type="color3">
+      <input name="in1" type="color3" nodename="diffuse" />
+      <input name="in2" type="color3" nodename="multiply_color3FA" />
+    </add>
+    <output name="out" type="color3" nodename="final_color" />
+  </nodegraph>
+  
 </materialx>
