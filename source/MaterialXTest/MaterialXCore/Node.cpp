@@ -712,7 +712,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         }
         REQUIRE(doc->validate());
 
-        // 2. Try and fail to create the same definition
+        // Try and fail to create the same definition
         mx::NodeDefPtr temp;
         try
         {
@@ -724,7 +724,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             REQUIRE(temp == nullptr);
         }
 
-        // 3. Add new version 
+        // Add new version 
         const std::string VERSION2 = "2.0";
         newGraphName = mx::EMPTY_STRING;
         newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_2");
