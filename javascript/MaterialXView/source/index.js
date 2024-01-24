@@ -12,7 +12,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 import { Viewer } from './viewer.js'
-import { dropHandler, dragOverHandler, setLoadingCallback } from './dropHandling.js';
+import { dropHandler, dragOverHandler, setLoadingCallback, setSceneLoadingCallback } from './dropHandling.js';
 
 let renderer, composer, orbitControls;
 
@@ -66,6 +66,7 @@ function init()
     let geometrySelect = document.getElementById('geometry');
     geometrySelect.value = scene.getGeometryURL();
     geometrySelect.addEventListener('change', (e) => {
+        console.log('Change geometry to:', e.target.value);
         scene.setGeometryURL(e.target.value);
         scene.loadGeometry(viewer, orbitControls);
     });
@@ -153,6 +154,13 @@ function init()
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
+    });
+
+    setSceneLoadingCallback(file => {
+        let glbFileName = file.fullPath || file.name;
+        console.log('Drop geometry to:', glbFileName);
+        scene.setGeometryURL(glbFileName);
+        scene.loadGeometry(viewer, orbitControls);        
     });
 
     // enable three.js Cache so that dropped files can reference each other
