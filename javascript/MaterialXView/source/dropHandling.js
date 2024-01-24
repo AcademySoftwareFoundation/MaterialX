@@ -5,7 +5,8 @@ const debugFileHandling = false;
 let loadingCallback = null;
 let sceneLoadingCallback = null;
 
-export function setLoadingCallback(cb) {
+export function setLoadingCallback(cb)
+{
     loadingCallback = cb;
 }
 
@@ -14,7 +15,8 @@ export function setSceneLoadingCallback(cb)
     sceneLoadingCallback = cb;
 }
 
-export function dropHandler(ev) {
+export function dropHandler(ev)
+{
     if (debugFileHandling) console.log('File(s) dropped', ev.dataTransfer.items, ev.dataTransfer.files);
 
     // Prevent default behavior (Prevent file from being opened)
@@ -26,14 +28,15 @@ export function dropHandler(ev) {
 
         let haveGetAsEntry = false;
         if (ev.dataTransfer.items.length > 0)
-        haveGetAsEntry = 
-            ("getAsEntry" in ev.dataTransfer.items[0]) || 
-            ("webkitGetAsEntry" in ev.dataTransfer.items[0]);
+            haveGetAsEntry =
+                ("getAsEntry" in ev.dataTransfer.items[0]) ||
+                ("webkitGetAsEntry" in ev.dataTransfer.items[0]);
 
         // Useful for debugging file handling on platforms that don't support newer file system APIs
         // haveGetAsEntry = false;
 
-        if (haveGetAsEntry) {
+        if (haveGetAsEntry)
+        {
             for (var i = 0; i < ev.dataTransfer.items.length; i++)
             {
                 let item = ev.dataTransfer.items[i];
@@ -47,7 +50,7 @@ export function dropHandler(ev) {
         for (var i = 0; i < ev.dataTransfer.items.length; i++)
         {
             let item = ev.dataTransfer.items[i];
-            
+
             // API when there's no "getAsEntry" support
             console.log(item.kind, item);
             if (item.kind === 'file')
@@ -59,32 +62,40 @@ export function dropHandler(ev) {
             else if (item.kind === 'directory')
             {
                 var dirReader = item.createReader();
-                dirReader.readEntries(function(entries) {
-                for (var i = 0; i < entries.length; i++) {
-                    console.log(entries[i].name);
-                    var entry = entries[i];
-                    if (entry.isFile) {
-                    entry.file(function(file) {
-                        testAndLoadFile(file);
-                    });
+                dirReader.readEntries(function (entries)
+                {
+                    for (var i = 0; i < entries.length; i++)
+                    {
+                        console.log(entries[i].name);
+                        var entry = entries[i];
+                        if (entry.isFile)
+                        {
+                            entry.file(function (file)
+                            {
+                                testAndLoadFile(file);
+                            });
+                        }
                     }
-                }
                 });
             }
         }
-    } else {
-        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+    } else
+    {
+        for (var i = 0; i < ev.dataTransfer.files.length; i++)
+        {
             let file = ev.dataTransfer.files[i];
             testAndLoadFile(file);
         }
     }
 }
 
-export function dragOverHandler(ev) {
+export function dragOverHandler(ev)
+{
     ev.preventDefault();
 }
 
-async function getBufferFromFile(fileEntry) {
+async function getBufferFromFile(fileEntry)
+{
 
     if (fileEntry instanceof ArrayBuffer) return fileEntry;
     if (fileEntry instanceof String) return fileEntry;
@@ -96,98 +107,120 @@ async function getBufferFromFile(fileEntry) {
     if (debugFileHandling) console.log("reading ", fileEntry, "as text?", readAsText);
 
     if (debugFileHandling) console.log("getBufferFromFile", fileEntry);
-    const buffer = await new Promise((resolve, reject) => {
-        function readFile(file) {
+    const buffer = await new Promise((resolve, reject) =>
+    {
+        function readFile(file)
+        {
             var reader = new FileReader();
-            reader.onloadend = function(e) {
+            reader.onloadend = function (e)
+            {
                 if (debugFileHandling) console.log("loaded", "should be text?", readAsText, this.result);
                 resolve(this.result);
             };
-            
+
             if (readAsText)
                 reader.readAsText(file);
             else
                 reader.readAsArrayBuffer(file);
         }
 
-        if ("file" in fileEntry) {
-            fileEntry.file(function(file) {
+        if ("file" in fileEntry)
+        {
+            fileEntry.file(function (file)
+            {
                 readFile(file);
-            }, (e) => {
+            }, (e) =>
+            {
                 console.error("Error reading file ", e);
             });
         }
-        else {
+        else
+        {
             readFile(fileEntry);
         }
     });
     return buffer;
 }
 
-async function handleFilesystemEntries(entries) {
+async function handleFilesystemEntries(entries)
+{
     const allFiles = [];
     const fileIgnoreList = [
-      '.gitignore',
-      'README.md',
-      '.DS_Store',
+        '.gitignore',
+        'README.md',
+        '.DS_Store',
     ]
     const dirIgnoreList = [
-      '.git',
-      'node_modules',
+        '.git',
+        'node_modules',
     ]
 
     let isGLB = false;
     let haveMtlx = false;
-    for (let entry of entries) {
-      if (debugFileHandling) console.log("file entry", entry)
-      if (entry.isFile) {
-        if (debugFileHandling) 
-            console.log("single file", entry);
-        if (fileIgnoreList.includes(entry.name)) {
-          continue;
-        }
-        allFiles.push(entry);
+    for (let entry of entries)
+    {
+        if (debugFileHandling) console.log("file entry", entry)
+        if (entry.isFile)
+        {
+            if (debugFileHandling)
+                console.log("single file", entry);
+            if (fileIgnoreList.includes(entry.name))
+            {
+                continue;
+            }
+            allFiles.push(entry);
 
-        if (entry.name.endsWith('glb')) {
-            isGLB = true;
-            break;
-        }            
-      }
-      else if (entry.isDirectory) {
-        if (dirIgnoreList.includes(entry.name)) {
-          continue;
+            if (entry.name.endsWith('glb'))
+            {
+                isGLB = true;
+                break;
+            }
         }
-        const files = await readDirectory(entry);
-        if (debugFileHandling) console.log("all files", files);
-        for (const file of files) {
-          if (fileIgnoreList.includes(file.name)) {
-            continue;
-          }
-          allFiles.push(file);
+        else if (entry.isDirectory)
+        {
+            if (dirIgnoreList.includes(entry.name))
+            {
+                continue;
+            }
+            const files = await readDirectory(entry);
+            if (debugFileHandling) console.log("all files", files);
+            for (const file of files)
+            {
+                if (fileIgnoreList.includes(file.name))
+                {
+                    continue;
+                }
+                allFiles.push(file);
+            }
         }
-      }
     }
 
     const imageLoader = new THREE.ImageLoader();
 
     // unpack zip files first
-    for (const fileEntry of allFiles) {
+    for (const fileEntry of allFiles)
+    {
         // special case: zip archives
-        if (fileEntry.fullPath.toLowerCase().endsWith('.zip')) {
-            await new Promise(async (resolve, reject) => {
+        if (fileEntry.fullPath.toLowerCase().endsWith('.zip'))
+        {
+            await new Promise(async (resolve, reject) =>
+            {
                 const arrayBuffer = await getBufferFromFile(fileEntry);
 
                 // use fflate to unpack them and add the files to the cache
-                fflate.unzip(new Uint8Array(arrayBuffer), (error, unzipped) => {
+                fflate.unzip(new Uint8Array(arrayBuffer), (error, unzipped) =>
+                {
                     // push these files into allFiles
-                    for (const [filePath, buffer] of Object.entries(unzipped)) {
+                    for (const [filePath, buffer] of Object.entries(unzipped))
+                    {
 
                         // mock FileEntry for easier usage downstream
                         const blob = new Blob([buffer]);
                         const newFileEntry = {
                             fullPath: "/" + filePath,
                             name: filePath.split('/').pop(),
-                            file: (callback) => {
+                            file: (callback) =>
+                            {
                                 callback(blob);
                             },
                             isFile: true,
@@ -202,11 +235,14 @@ async function handleFilesystemEntries(entries) {
     }
 
     // sort so mtlx files come first
-    allFiles.sort((a, b) => {
-        if (a.name.endsWith('.mtlx') && !b.name.endsWith('.mtlx')) {
+    allFiles.sort((a, b) =>
+    {
+        if (a.name.endsWith('.mtlx') && !b.name.endsWith('.mtlx'))
+        {
             return -1;
         }
-        if (!a.name.endsWith('.mtlx') && b.name.endsWith('.mtlx')) {
+        if (!a.name.endsWith('.mtlx') && b.name.endsWith('.mtlx'))
+        {
             return 1;
         }
         return 0;
@@ -231,19 +267,22 @@ async function handleFilesystemEntries(entries) {
         return;
     }
 
-    if (debugFileHandling) {
+    if (debugFileHandling)
+    {
         console.log("- All files", allFiles);
     }
 
     // put all files in three' Cache
-    for (const fileEntry of allFiles) {
+    for (const fileEntry of allFiles)
+    {
 
         const allowedFileTypes = [
             'png', 'jpg', 'jpeg'
         ];
 
         const ext = fileEntry.fullPath.split('.').pop();
-        if (!allowedFileTypes.includes(ext)) {
+        if (!allowedFileTypes.includes(ext))
+        {
             // console.log("skipping file", fileEntry.fullPath);
             continue;
         }
@@ -272,37 +311,49 @@ async function handleFilesystemEntries(entries) {
     }
 }
 
-async function readDirectory(directory) {
+async function readDirectory(directory)
+{
     let entries = [];
-    let getEntries = async (directory) => {
+    let getEntries = async (directory) =>
+    {
         let dirReader = directory.createReader();
-        await new Promise((resolve, reject) => {
-        dirReader.readEntries(
-            async (results) => {
-            if (results.length) {
-                // entries = entries.concat(results);
-                for (let entry of results) {
-                if (entry.isDirectory) {
-                    await getEntries(entry);
-                }
-                else {
-                    entries.push(entry);
-                }
-                }
-            }
-            resolve();
-            },
-            (error) => {
-                /* handle error — error is a FileError object */
-            },
-        )}
-    )};
+        await new Promise((resolve, reject) =>
+        {
+            dirReader.readEntries(
+                async (results) =>
+                {
+                    if (results.length)
+                    {
+                        // entries = entries.concat(results);
+                        for (let entry of results)
+                        {
+                            if (entry.isDirectory)
+                            {
+                                await getEntries(entry);
+                            }
+                            else
+                            {
+                                entries.push(entry);
+                            }
+                        }
+                    }
+                    resolve();
+                },
+                (error) =>
+                {
+                    /* handle error — error is a FileError object */
+                },
+            )
+        }
+        )
+    };
 
     await getEntries(directory);
     return entries;
 }
 
-async function testAndLoadFile(file) {
+async function testAndLoadFile(file)
+{
     let ext = file.name.split('.').pop();
     if (debugFileHandling) console.log(file.name + ", " + file.size + ", " + ext);
 
@@ -314,7 +365,8 @@ async function testAndLoadFile(file) {
         fullPath: "/" + file.name,
         name: file.name.split('/').pop(),
         isFile: true,
-        file: (callback) => {
+        file: (callback) =>
+        {
             callback(file);
         }
     };
