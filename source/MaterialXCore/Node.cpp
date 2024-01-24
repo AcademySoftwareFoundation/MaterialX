@@ -656,7 +656,7 @@ InputPtr NodeGraph::addInterfaceName(const string& inputPath, const string& inte
         throw Exception("Interface: " + interfaceName + " has already been declared on the interface: " + interfaceElement->getNamePath());
     }
 
-    InputPtr interfaceInput = nullptr;
+    InputPtr interfaceInput;
     ElementPtr elem = getDescendant(inputPath);
     InputPtr input = elem ? elem->asA<Input>() : nullptr;
     if (input && !input->getConnectedNode())
