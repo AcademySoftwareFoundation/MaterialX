@@ -8,6 +8,12 @@
   -->
 
   <!-- ======================================================================== -->
+  <!-- View-dependent properties                                                -->
+  <!-- ======================================================================== -->
+
+  <geompropdef name="Vworld" type="vector3" geomprop="viewdirection" space="world" />
+
+  <!-- ======================================================================== -->
   <!-- View-dependent nodes                                                     -->
   <!-- ======================================================================== -->
 
@@ -18,6 +24,19 @@
   <nodedef name="ND_viewdirection_vector3" node="viewdirection" nodegroup="npr">
     <input name="space" type="string" value="world" enum="model,object,world" uniform="true" />
     <output name="out" type="vector3" default="0.0, 0.0, 1.0" />
+  </nodedef>
+
+  <!--
+    Node: <facingratio>
+    Return the geometric facing ratio, computed as the dot product between the
+    view direction and geometric normal.
+  -->
+  <nodedef name="ND_facingratio_float" node="facingratio" nodegroup="npr">
+    <input name="viewdirection" type="vector3" defaultgeomprop="Vworld" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="faceforward" type="boolean" default="true" />
+    <input name="invert" type="boolean" default="false" />
+    <output name="out" type="float" default="0.0" />
   </nodedef>
 
 </materialx>
