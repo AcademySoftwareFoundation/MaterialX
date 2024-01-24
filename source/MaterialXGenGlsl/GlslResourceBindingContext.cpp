@@ -58,7 +58,7 @@ void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage
 
 void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // First, emit all value uniforms in a block with single layout binding
@@ -93,7 +93,7 @@ void GlslResourceBindingContext::emitResourceBindings(GenContext& context, const
     // Second, emit all sampler uniforms as separate uniforms with separate layout bindings
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (uniform->getType() == Type::FILENAME)
+        if (*uniform->getType() == *Type::FILENAME)
         {
             generator.emitString("layout (binding=" + std::to_string(_separateBindingLocation ? _hwUniformBindLocation++ : _hwSamplerBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);
@@ -108,7 +108,7 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
                                                                 ShaderStage& stage, const std::string& structInstanceName,
                                                                 const std::string& arraySuffix)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // Glsl structures need to be aligned. We make a best effort to base align struct members and add

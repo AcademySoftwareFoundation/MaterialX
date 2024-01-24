@@ -578,9 +578,20 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
+    ImagePtr envRadiance = nullptr;
+    if (lightHandler->getIndirectLighting())
+    {
+        envRadiance = lightHandler->getUsePrefilteredMap() ?
+            lightHandler->getEnvPrefilteredMap() :
+            lightHandler->getEnvRadianceMap();
+    }
+    else
+    {
+        envRadiance = imageHandler->getZeroImage();
+    }
     ImageMap envImages =
     {
-        { HW::ENV_RADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvRadianceMap() : imageHandler->getZeroImage() },
+        { HW::ENV_RADIANCE, envRadiance },
         { HW::ENV_IRRADIANCE, lightHandler->getIndirectLighting() ? lightHandler->getEnvIrradianceMap() : imageHandler->getZeroImage() }
     };
     for (const auto& env : envImages)
@@ -1027,11 +1038,11 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
 int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
 {
-    if (type == Type::INTEGER)
+    if (*type == *Type::INTEGER)
         return GL_INT;
-    else if (type == Type::BOOLEAN)
+    else if (*type == *Type::BOOLEAN)
         return GL_BOOL;
-    else if (type == Type::FLOAT)
+    else if (*type == *Type::FLOAT)
         return GL_FLOAT;
     else if (type->isFloat2())
         return GL_FLOAT_VEC2;
@@ -1039,11 +1050,11 @@ int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
         return GL_FLOAT_VEC3;
     else if (type->isFloat4())
         return GL_FLOAT_VEC4;
-    else if (type == Type::MATRIX33)
+    else if (*type == *Type::MATRIX33)
         return GL_FLOAT_MAT3;
-    else if (type == Type::MATRIX44)
+    else if (*type == *Type::MATRIX44)
         return GL_FLOAT_MAT4;
-    else if (type == Type::FILENAME)
+    else if (*type == *Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return GL_SAMPLER_2D;

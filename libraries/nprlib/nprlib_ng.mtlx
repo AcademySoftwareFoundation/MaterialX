@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+    Copyright Contributors to the MaterialX Project
+    SPDX-License-Identifier: Apache-2.0
+
+    Graph definitions of standard nodes included in the MaterialX specification.
+  -->
+
+  <!-- ======================================================================== -->
+  <!-- View-dependent nodes                                                     -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <facingratio>
+  -->
+  <nodegraph name="NG_facingratio_float" nodedef="ND_facingratio_float">
+    <dotproduct name="N_dotproduct" type="float">
+      <input name="in1" type="vector3" interfacename="viewdirection" />
+      <input name="in2" type="vector3" interfacename="normal" />
+    </dotproduct>
+    <multiply name="N_scale" type="float">
+      <input name="in1" type="float" nodename="N_dotproduct" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <absval name="N_absval" type="float">
+      <input name="in" type="float" nodename="N_dotproduct" />
+    </absval>
+    <ifequal name="N_facing" type="float">
+      <input name="value1" type="boolean" interfacename="faceforward" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="N_absval" />
+      <input name="in2" type="float" nodename="N_scale" />
+    </ifequal>
+    <subtract name="N_invert" type="float">
+      <input name="in1" type="float" value="1" />
+      <input name="in2" type="float" nodename="N_facing" />
+    </subtract>
+    <ifequal name="N_result" type="float">
+      <input name="value1" type="boolean" interfacename="invert" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="float" nodename="N_invert" />
+      <input name="in2" type="float" nodename="N_facing" />
+    </ifequal>
+    <output name="out" type="float" nodename="N_result" />
+  </nodegraph>
+
+</materialx>
