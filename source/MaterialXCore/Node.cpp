@@ -650,7 +650,7 @@ void Node::addInputsFromNodeDef()
 InputPtr NodeGraph::addInterfaceName(const string& inputPath, const string& interfaceName)
 {
     NodeDefPtr nodeDef = getNodeDef();
-    InterfaceElementPtr interfaceElement = ( nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>() );
+    InterfaceElementPtr interfaceElement = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
     if (interfaceElement->getChild(interfaceName))
     {
         throw Exception("Interface: " + interfaceName + " has already been declared on the interface: " + interfaceElement->getNamePath());
