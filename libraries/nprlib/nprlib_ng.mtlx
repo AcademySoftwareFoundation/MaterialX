@@ -46,18 +46,18 @@
   </nodegraph>
 
   <!--
-    Node: <gooch>
+    Node: <gooch_shade>
   -->
   <nodegraph name="NG_gooch_shade" type="color3" nodedef="ND_gooch_shade">
     <normal name="N" type="vector3">
       <input name="space" type="string" value="world" />
     </normal>
-    <normalize name="normalize" type="vector3">
+    <normalize name="normalized_light_dir" type="vector3">
       <input name="in" type="vector3" interfacename="light_direction" />
     </normalize>
     <dotproduct name="NdotL" type="float">
       <input name="in1" type="vector3" nodename="N" />
-      <input name="in2" type="vector3" nodename="normalize" />
+      <input name="in2" type="vector3" nodename="normalized_light_dir" />
     </dotproduct>
     <mix name="diffuse" type="color3">
       <input name="fg" type="color3" interfacename="cool_color" />
@@ -89,7 +89,7 @@
       <input name="in2" type="float" value="2" />
     </multiply>
     <dotproduct name="VdotR" type="float">
-      <input name="in1" type="vector3" nodename="viewDirection" />
+      <input name="in1" type="vector3" nodename="normalized_light_dir" />
       <input name="in2" type="vector3" nodename="I_NdotI_N_2" />
     </dotproduct>
     <multiply name="multiply_vector3FA" type="vector3">
