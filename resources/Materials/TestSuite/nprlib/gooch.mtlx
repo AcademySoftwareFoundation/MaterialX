@@ -11,14 +11,14 @@
   <!-- ======================================================================== -->
 
   <!--
-    Node: <gooch>
+    Node: <gooch_shade>
   -->
-  <gooch name="gooch1" type="color3">
-    <input name="Warm" type="color3" value="0.701712, 0.37992, 0.111519" />
-    <input name="Cool" type="color3" value="0.073756, 0, 0.486553" />
-    <input name="Shininess" type="float" value="10" />
-    <input name="SpecularColor" type="color3" value="0.929095, 0.603842, 0.0817786" />
-  </gooch>
+  <gooch_shade name="gooch1" type="color3">
+    <input name="warm_color" type="color3" value="0.701712, 0.37992, 0.111519" />
+    <input name="cool_color" type="color3" value="0.073756, 0, 0.486553" />
+    <input name="shininess" type="float" value="10" />
+    <input name="specular_color" type="color3" value="0.929095, 0.603842, 0.0817786" />
+  </gooch_shade>
   <surface_unlit name="unlit_surface" type="surfaceshader">
     <input name="emission_color" type="color3" nodename="gooch1" />
     <input name="opacity" type="float" value="1.0" />

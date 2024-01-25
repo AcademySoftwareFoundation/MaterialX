@@ -40,15 +40,15 @@
   </nodedef>
 
   <!--
-    Node: <gooch>
-    Compute Gooch shading.
+    Node: <gooch_shade>
+    Compute Gooch Shading.
   -->
-  <nodedef name="ND_gooch" node="gooch" doc="Compute Gooch shading">
-    <input name="Warm" type="color3" value="0.6, 0, 0" uiname="Warm Color" doc="Warm diffuse color"/>
-    <input name="Cool" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
-    <input name="Shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
-    <input name="SpecularColor" type="color3" value="0.6, 0.6, 0.6" uiname="Specular Color" doc="Specular color"/>
-    <input name="LightDirection" type="vector3" value="1, 0.5, 0.5" uiname="Light Direction" doc="Light vector"/>
+  <nodedef name="ND_gooch_shade" node="gooch_shade" doc="Compute Gooch shading">
+    <input name="warm_color" type="color3" value="0.6, 0, 0" uiname="Warm Color" doc="Warm diffuse color"/>
+    <input name="cool_color" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
+    <input name="shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
+    <input name="specular_color" type="color3" value="0.6, 0.6, 0.6" uiname="Specular Color" doc="Specular color"/>
+    <input name="light_direction" type="vector3" value="1, 0.5, 0.5" uiname="Light Direction" doc="Light vector"/>
     <output name="out" type="color3" />
   </nodedef>
 

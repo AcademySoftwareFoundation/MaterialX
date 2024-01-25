@@ -48,25 +48,25 @@
   <!--
     Node: <gooch>
   -->
-  <nodegraph name="NG_gooch" type="color3" nodedef="ND_gooch">
+  <nodegraph name="NG_gooch_shade" type="color3" nodedef="ND_gooch_shade">
     <normal name="N" type="vector3">
       <input name="space" type="string" value="world" />
     </normal>
     <normalize name="normalize" type="vector3">
-      <input name="in" type="vector3" interfacename="LightDirection" />
+      <input name="in" type="vector3" interfacename="light_direction" />
     </normalize>
     <dotproduct name="NdotL" type="float">
       <input name="in1" type="vector3" nodename="N" />
       <input name="in2" type="vector3" nodename="normalize" />
     </dotproduct>
     <mix name="diffuse" type="color3">
-      <input name="fg" type="color3" interfacename="Cool" />
-      <input name="bg" type="color3" interfacename="Warm" />
+      <input name="fg" type="color3" interfacename="cool_color" />
+      <input name="bg" type="color3" interfacename="warm_color" />
       <input name="mix" type="float" nodename="max_float" />
     </mix>
     <power name="specular" type="float">
       <input name="in1" type="float" nodename="max1" />
-      <input name="in2" type="float" interfacename="Shininess" />
+      <input name="in2" type="float" interfacename="shininess" />
     </power>
     <max name="max1" type="float">
       <input name="in1" type="float" nodename="VdotR" />
@@ -112,7 +112,7 @@
     </subtract>
     <multiply name="multiply_color3FA" type="color3">
       <input name="in2" type="float" nodename="specular" />
-      <input name="in1" type="color3" interfacename="SpecularColor" />
+      <input name="in1" type="color3" interfacename="specular_color" />
     </multiply>
     <add name="final_color" type="color3">
       <input name="in1" type="color3" nodename="diffuse" />

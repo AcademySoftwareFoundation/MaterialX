@@ -10,12 +10,12 @@
       <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     </tiledimage>
 
-    <gooch name="gooch1" type="color3">
-     <input name="Warm" type="color3" value="0.6, 0, 0"/>
-     <input name="Cool" type="color3"  value="0, 0, 0.6"/>
-     <input name="LightDirection" type="vector3" value="0, 1, 1"/>
-     <input name="SpecularColor" type="color3" value="0.8, 0.8, 0.8"/>
-   </gooch>
+    <gooch_shade name="gooch1" type="color3">
+     <input name="warm_color" type="color3" value="0.6, 0, 0"/>
+     <input name="cool_color" type="color3"  value="0, 0, 0.6"/>
+     <input name="light_direction" type="vector3" value="0, 1, 1"/>
+     <input name="specular_color" type="color3" value="0.8, 0.8, 0.8"/>
+   </gooch_shade>
 
     <output name="out_basecolor" type="color3" nodename="gooch1" />
     <output name="out_color" type="color3" nodename="image_color" />
@@ -36,12 +36,12 @@
     <input name="surfaceshader" type="surfaceshader" nodename="SR_brass1" />
   </surfacematerial>
 
-  <gooch name="gooch_color" type="color3">
-    <input name="Warm" type="color3" value="0.6, 0, 0" />
-    <input name="Cool" type="color3" value="0, 0, 0.6" />
-    <input name="LightDirection" type="vector3" value="0, 1, 1"/>
-    <input name="SpecularColor" type="color3" value="0.8, 0.8, 0.8"/>
-  </gooch>
+  <gooch_shade name="gooch_color" type="color3">
+    <input name="warm_color" type="color3" value="0.6, 0, 0" />
+    <input name="cool_color" type="color3" value="0, 0, 0.6" />
+    <input name="light_direction" type="vector3" value="0, 1, 1"/>
+    <input name="specular_color" type="color3" value="0.8, 0.8, 0.8"/>
+  </gooch_shade>
   <surface_unlit name="unlit_surface" type="surfaceshader">
     <input name="emission_color" type="color3" nodename="gooch_color" />
     <input name="opacity" type="float" value="1.0" />
