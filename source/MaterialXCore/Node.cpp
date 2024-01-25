@@ -686,7 +686,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
         if (!interfaceName.empty())
         {
             NodeDefPtr nodeDef = getNodeDef();
-            InterfaceElementPtr interface = ( nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>() );
+            InterfaceElementPtr interface = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
             ElementPtr interfaceElement = interface->getChild(interfaceName);
             if (interfaceElement)
             {
@@ -705,7 +705,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
 void NodeGraph::modifyInterfaceName(const string& inputPath, const string& interfaceName)
 {
     NodeDefPtr nodeDef = getNodeDef();
-    InterfaceElementPtr interfaceElement = ( nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>() );
+    InterfaceElementPtr interfaceElement = nodeDef ? nodeDef->asA<InterfaceElement>() : getSelf()->asA<InterfaceElement>();
 
     ElementPtr desc = getDescendant(inputPath);
     InputPtr input = desc ? desc->asA<Input>() : nullptr;
