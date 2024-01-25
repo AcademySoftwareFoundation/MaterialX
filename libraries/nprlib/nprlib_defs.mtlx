@@ -43,7 +43,7 @@
     Node: <gooch_shade>
     Compute Gooch Shading.
   -->
-  <nodedef name="ND_gooch_shade" node="gooch_shade" doc="Compute Gooch shading">
+  <nodedef name="ND_gooch_shade" node="gooch_shade" nodegroup="npr" doc="Compute Gooch shading">
     <input name="warm_color" type="color3" value="0.6, 0, 0" uiname="Warm Color" doc="Warm diffuse color"/>
     <input name="cool_color" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
     <input name="shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
