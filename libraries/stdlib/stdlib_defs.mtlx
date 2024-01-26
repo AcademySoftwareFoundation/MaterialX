@@ -1915,6 +1915,39 @@
   </nodedef>
 
   <!--
+    Node: <round>
+    Round incoming float/color/vector values.
+  -->
+  <nodedef name="ND_round_float" node="round" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="float" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_color3" node="round" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_color4" node="round" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector2" node="round" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector3" node="round" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector4" node="round" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_integer" node="round" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
+  </nodedef>
+
+  <!--
     Node: <power>
     Raise incoming float/color/vector values to the "in2" power.
   -->
