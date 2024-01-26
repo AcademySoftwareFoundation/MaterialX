@@ -76,10 +76,6 @@
       <input name="in1" type="float" nodename="NdotL" />
     </max>
     <viewdirection name="view" type="vector3" />
-    <multiply name="viewDirection" type="vector3">
-      <input name="in1" type="vector3" nodename="view" />
-      <input name="in2" type="float" value="-1" />
-    </multiply>
     <dotproduct name="NdotI" type="float">
       <input name="in1" type="vector3" nodename="normalize_vector4" />
       <input name="in2" type="vector3" nodename="multiply_vector3FA" />
