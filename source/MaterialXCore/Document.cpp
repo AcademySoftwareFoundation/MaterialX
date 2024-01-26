@@ -1443,7 +1443,8 @@ void Document::upgradeVersion()
                 {
                     input2->setName("inx");
                 }
-            } else if (nodeDef == "ND_normalmap")
+            }
+            else if (nodeDef == "ND_normalmap")
             {
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
