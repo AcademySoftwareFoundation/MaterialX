@@ -44,11 +44,14 @@
     Compute Gooch Shading.
   -->
   <nodedef name="ND_gooch_shade" node="gooch_shade" nodegroup="npr" doc="Compute Gooch shading">
-    <input name="warm_color" type="color3" value="0.6, 0, 0" uiname="Warm Color" doc="Warm diffuse color"/>
-    <input name="cool_color" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
-    <input name="shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
-    <input name="specular_color" type="color3" value="0.6, 0.6, 0.6" uiname="Specular Color" doc="Specular color"/>
-    <input name="light_direction" type="vector3" value="1, -0.5, -0.5" uiname="Light Direction" doc="Light vector in world space"/>
+    <input name="diffuse_color" type="color3" value="0.8, 0.8, 0.8" doc="Diffuse Color" uiname="Diffuse Color" />
+    <input name="blue_tone" type="float" value="0.55" uimin="0" uimax="1" doc="Blue tone" uiname="Blue Tone" />
+    <input name="yellow_tone" type="float" value="0.3" uimin="0" uimax="1" doc="Yellow Tone" uiname="Yellow Tone" />
+    <input name="diffuse_strength" type="float" value="0.25" uimin="0" uimax="1" doc="Diffuse Strength" uiname="Diffuse Strength" />
+    <input name="luminance_shift" type="float" value="0.5" uimin="0" uimax="1" doc="Luminance Shift" uiname="Luminance Shift" />
+    <input name="shininess" type="float" value="32" uimin="1" uimax="64" uiname="Shininess" doc="Specular shininess" />
+    <input name="specular_color" type="color3" value="1, 1, 1" uiname="Specular Color" doc="Specular color" />
+    <input name="light_direction" type="vector3" value="1, -0.5, -0.5" uiname="Light Direction" doc="Light vector" />
     <output name="out" type="color3" />
   </nodedef>
 

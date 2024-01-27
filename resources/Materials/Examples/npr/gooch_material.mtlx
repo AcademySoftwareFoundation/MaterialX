@@ -9,19 +9,16 @@
       <input name="file" type="filename" value="brass_roughness.jpg" />
       <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     </tiledimage>
-
     <gooch_shade name="gooch1" type="color3">
-     <input name="warm_color" type="color3" value="0.6, 0, 0"/>
-     <input name="cool_color" type="color3"  value="0, 0, 0.6"/>
-     <input name="light_direction" type="vector3" value="0, 1, 1"/>
-     <input name="specular_color" type="color3" value="0.8, 0.8, 0.8"/>
-   </gooch_shade>
-
+      <input name="warm_color" type="color3" value="0.6, 0, 0" />
+      <input name="cool_color" type="color3" value="0, 0, 0.6" />
+      <input name="light_direction" type="vector3" value="0, 1, 1" />
+      <input name="specular_color" type="color3" value="0.8, 0.8, 0.8" />
+    </gooch_shade>
     <output name="out_basecolor" type="color3" nodename="gooch1" />
     <output name="out_color" type="color3" nodename="image_color" />
     <output name="out_roughness" type="float" nodename="image_roughness" />
   </nodegraph>
-  
   <standard_surface name="SR_brass1" type="surfaceshader">
     <input name="base" type="float" value="1" />
     <input name="base_color" type="color3" nodegraph="NG_brass1" output="out_basecolor" />
@@ -35,12 +32,13 @@
   <surfacematerial name="Tiled_Brass" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="SR_brass1" />
   </surfacematerial>
-
   <gooch_shade name="gooch_color" type="color3">
-    <input name="warm_color" type="color3" value="0.6, 0, 0" />
-    <input name="cool_color" type="color3" value="0, 0, 0.6" />
-    <input name="light_direction" type="vector3" value="0, 1, 1"/>
-    <input name="specular_color" type="color3" value="0.8, 0.8, 0.8"/>
+    <input name="diffuse_color" type="color3" value="1, 0, 0" />
+    <input name="yellow_tone" type="float" value="0" />
+    <input name="blue_tone" type="float" value="1" />
+    <input name="diffuse_strength" type="float" value="0" />
+    <input name="luminance_shift" type="float" value="0.522" />
+    <input name="shininess" type="float" value="16" />
   </gooch_shade>
   <surface_unlit name="unlit_surface" type="surfaceshader">
     <input name="emission_color" type="color3" nodename="gooch_color" />

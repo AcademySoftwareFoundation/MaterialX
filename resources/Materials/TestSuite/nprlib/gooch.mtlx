@@ -1,23 +1,13 @@
+<?xml version="1.0"?>
 <materialx version="1.38">
-  <!--
-    Copyright Contributors to the MaterialX Project
-    SPDX-License-Identifier: Apache-2.0
-
-    Graph definitions of standard nodes included in the MaterialX specification.
-  -->
-
-  <!-- ======================================================================== -->
-  <!-- Gooch Shading Example                                                    -->
-  <!-- ======================================================================== -->
-
-  <!--
-    Node: <gooch_shade>
-  -->
   <gooch_shade name="gooch1" type="color3">
-    <input name="warm_color" type="color3" value="0.701712, 0.37992, 0.111519" />
-    <input name="cool_color" type="color3" value="0.073756, 0, 0.486553" />
-    <input name="shininess" type="float" value="10" />
-    <input name="specular_color" type="color3" value="0.929095, 0.603842, 0.0817786" />
+    <input name="diffuse_strength" type="float" value="0.269" />
+    <input name="diffuse_color" type="color3" value="0, 0.535452, 0.068077" />
+    <input name="luminance_shift" type="float" value="0.374" />
+    <input name="yellow_tone" type="float" value="0.325" />
+    <input name="blue_tone" type="float" value="0.491" />
+    <input name="light_direction" type="vector3" value="-1, -0.5, -0.5" />
+    <input name="shininess" type="float" value="5" />
   </gooch_shade>
   <surface_unlit name="unlit_surface" type="surfaceshader">
     <input name="emission_color" type="color3" nodename="gooch1" />
