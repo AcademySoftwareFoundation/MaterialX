@@ -48,7 +48,7 @@
     <input name="cool_color" type="color3" value="0, 0, 0.6" uiname="Cool Color" doc="Cool diffuse color"/>
     <input name="shininess" type="float" value="8" uimin="1" uimax="64" doc="Specular shininess"/>
     <input name="specular_color" type="color3" value="0.6, 0.6, 0.6" uiname="Specular Color" doc="Specular color"/>
-    <input name="light_direction" type="vector3" value="1, 0.5, 0.5" uiname="Light Direction" doc="Light vector"/>
+    <input name="light_direction" type="vector3" value="1, -0.5, -0.5" uiname="Light Direction" doc="Light vector in world space"/>
     <output name="out" type="color3" />
   </nodedef>
 

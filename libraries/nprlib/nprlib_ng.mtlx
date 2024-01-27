@@ -53,15 +53,15 @@
       <input name="space" type="string" value="world" />
     </normal>
     <normalize name="normalized_light_dir" type="vector3">
-      <input name="in" type="vector3" interfacename="light_direction" />
+      <input name="in" type="vector3" nodename="invert_light_dir" />
     </normalize>
     <dotproduct name="NdotL" type="float">
       <input name="in1" type="vector3" nodename="N" />
       <input name="in2" type="vector3" nodename="normalized_light_dir" />
     </dotproduct>
     <mix name="diffuse" type="color3">
-      <input name="fg" type="color3" interfacename="cool_color" />
-      <input name="bg" type="color3" interfacename="warm_color" />
+      <input name="fg" type="color3" interfacename="warm_color" />
+      <input name="bg" type="color3" interfacename="cool_color" />
       <input name="mix" type="float" nodename="max_float" />
     </mix>
     <power name="specular" type="float">
@@ -114,6 +114,10 @@
       <input name="in1" type="color3" nodename="diffuse" />
       <input name="in2" type="color3" nodename="multiply_color3FA" />
     </add>
+    <multiply name="invert_light_dir" type="vector3">
+      <input name="in1" type="vector3" interfacename="light_direction" />
+      <input name="in2" type="vector3" value="-1, -1, -1" />
+    </multiply>
     <output name="out" type="color3" nodename="final_color" />
   </nodegraph>
   
