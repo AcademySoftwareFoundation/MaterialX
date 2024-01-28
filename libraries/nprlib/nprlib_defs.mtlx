@@ -34,8 +34,8 @@
   <nodedef name="ND_facingratio_float" node="facingratio" nodegroup="npr">
     <input name="viewdirection" type="vector3" defaultgeomprop="Vworld" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
-    <input name="faceforward" type="boolean" default="true" />
-    <input name="invert" type="boolean" default="false" />
+    <input name="faceforward" type="boolean" value="true" />
+    <input name="invert" type="boolean" value="false" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
 
