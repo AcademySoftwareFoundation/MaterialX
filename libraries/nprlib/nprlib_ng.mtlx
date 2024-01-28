@@ -133,12 +133,9 @@
       <input name="in1" type="float" nodename="one_minus_NdotL" />
       <input name="in2" type="float" value="2" />
     </divide>
-    <convert name="convert_float_color3" type="color3">
-      <input name="in" type="float" interfacename="diffuse_strength" />
-    </convert>
     <multiply name="multiply_color3" type="color3">
       <input name="in1" type="color3" interfacename="diffuse_color" />
-      <input name="in2" type="color3" nodename="convert_float_color3" />
+      <input name="in2" type="float" interfacename="diffuse_strength" />
     </multiply>
     <add name="k_cool" type="color3">
       <input name="in1" type="color3" nodename="multiply_color3" />
@@ -148,26 +145,17 @@
       <input name="in2" type="color3" nodename="swizzle_float_color4" />
       <input name="in1" type="color3" nodename="multiply_color4" />
     </add>
-    <convert name="convert_float_color4" type="color3">
-      <input name="in" type="float" interfacename="luminance_shift" />
-    </convert>
     <multiply name="multiply_color4" type="color3">
       <input name="in1" type="color3" interfacename="diffuse_color" />
-      <input name="in2" type="color3" nodename="convert_float_color4" />
+      <input name="in2" type="float" interfacename="luminance_shift" />
     </multiply>
-    <convert name="convert_float_color5" type="color3">
-      <input name="in" type="float" nodename="one_plus_NdotL_div_2" />
-    </convert>
     <multiply name="cool" type="color3">
-      <input name="in2" type="color3" nodename="convert_float_color5" />
       <input name="in1" type="color3" nodename="k_cool" />
+      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
     </multiply>
-    <convert name="convert_float_color6" type="color3">
-      <input name="in" type="float" nodename="one_minus_NdotL_div_2" />
-    </convert>
     <multiply name="warm" type="color3">
       <input name="in1" type="color3" nodename="k_warm" />
-      <input name="in2" type="color3" nodename="convert_float_color6" />
+      <input name="in2" type="float" nodename="one_minus_NdotL_div_2" />
     </multiply>
     <add name="diffuse" type="color3">
       <input name="in1" type="color3" nodename="cool" />
