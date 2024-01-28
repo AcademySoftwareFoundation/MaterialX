@@ -1443,6 +1443,28 @@ void Document::upgradeVersion()
                     input2->setName("inx");
                 }
             }
+            else if (nodeCategory == "switch")
+            {
+                // previously we only had 5 inputs, and any value of "which" outside of the valid range of inputs would default to the
+                // first input.  To retain backwards image compatibility we need to revert any value of "which" that is now a valid value
+                // ie 6,7,8,9,10, to the value of the default, ie. 1.
+                // NOTE : this won't catch the case if there is something connected upstream in to the 'which' port.  Open to suggestions
+                // on how to handle this.
+
+                auto which = node->getInput("which");
+                if (which && which->hasValue())
+                {
+                    auto whichValue = which->getValue();
+                    if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
+                    {
+                        which->setValue(0);
+                    }
+                    else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
+                    {
+                        which->setValue(0.0);
+                    }
+                }
+            }
         }
 
         removeNodeDef("ND_thin_film_bsdf");
