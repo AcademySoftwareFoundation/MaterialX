@@ -1,20 +1,27 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <gooch_shade name="gooch1" type="color3">
-    <input name="diffuse_strength" type="float" value="0.269" />
-    <input name="diffuse_color" type="color3" value="0, 0.535452, 0.068077" />
-    <input name="luminance_shift" type="float" value="0.374" />
-    <input name="yellow_tone" type="float" value="0.325" />
-    <input name="blue_tone" type="float" value="0.491" />
-    <input name="light_direction" type="vector3" value="-1, -0.5, -0.5" />
-    <input name="shininess" type="float" value="5" />
-  </gooch_shade>
+  <gooch_shade name="default_gooch" type="color3" />
   <surface_unlit name="unlit_surface" type="surfaceshader">
-    <input name="emission_color" type="color3" nodename="gooch1" />
+    <input name="emission_color" type="color3" nodename="default_gooch" />
     <input name="opacity" type="float" value="1.0" />
   </surface_unlit>
-  <surfacematerial name="surfacematerial" type="material">
+  <surfacematerial name="default_gooch_material" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <gooch_shade name="red_blue_gooch" type="color3">
+    <input name="warm_color" type="color3" value="1, 0, 0" />
+    <input name="cool_color" type="color3" value="0, 2.38419e-07, 1" />
+    <input name="specular_intensity" type="float" value="0.5" />
+    <input name="shininess" type="float" value="32" />
+    <input name="light_direction" type="vector3" value="-1, -0.5, -0.5" />
+  </gooch_shade>
+  <surface_unlit name="unlit_surface2" type="surfaceshader">
+    <input name="emission_color" type="color3" nodename="red_blue_gooch" />
+    <input name="opacity" type="float" value="1.0" />
+  </surface_unlit>
+  <surfacematerial name="redblue_gooch_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="unlit_surface2" />
     <input name="displacementshader" type="displacementshader" value="" />
   </surfacematerial>
 </materialx>

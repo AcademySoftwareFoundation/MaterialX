@@ -55,10 +55,10 @@
       <input name="in" type="vector3" interfacename="light_direction" />
     </normalize>
     <dotproduct name="NdotL" type="float">
-      <input name="in1" type="vector3" nodename="N" />
+      <input name="in1" type="vector3" nodename="normalize_vector4" />
       <input name="in2" type="vector3" nodename="normalized_light_dir" />
     </dotproduct>
-    <power name="specular" type="float">
+    <power name="specular_power" type="float">
       <input name="in1" type="float" nodename="max1" />
       <input name="in2" type="float" interfacename="shininess" />
     </power>
@@ -97,26 +97,10 @@
       <input name="in1" type="vector3" nodename="normalize_vector3" />
       <input name="in2" type="vector3" nodename="NdotI_N_2" />
     </subtract>
-    <multiply name="multiply_color3FA" type="color3">
-      <input name="in2" type="float" nodename="specular" />
-      <input name="in1" type="color3" interfacename="specular_color" />
-    </multiply>
-    <add name="final_color" type="color3">
-      <input name="in1" type="color3" nodename="diffuse" />
-      <input name="in2" type="color3" nodename="multiply_color3FA" />
-    </add>
     <multiply name="invert_light_dir" type="vector3">
       <input name="in1" type="vector3" nodename="normalized_light_dir" />
       <input name="in2" type="vector3" value="-1, -1, -1" />
     </multiply>
-    <swizzle name="swizzle_float_color3" type="color3">
-      <input name="in" type="float" interfacename="blue_tone" />
-      <input name="channels" type="string" value="00b" />
-    </swizzle>
-    <swizzle name="swizzle_float_color4" type="color3">
-      <input name="in" type="float" interfacename="yellow_tone" />
-      <input name="channels" type="string" value="rg0" />
-    </swizzle>
     <add name="one_plus_NdotL" type="float">
       <input name="in2" type="float" nodename="NdotL" />
       <input name="in1" type="float" value="1" />
@@ -125,42 +109,30 @@
       <input name="in1" type="float" nodename="one_plus_NdotL" />
       <input name="in2" type="float" value="2" />
     </divide>
-    <subtract name="one_minus_NdotL" type="float">
-      <input name="in2" type="float" nodename="NdotL" />
-      <input name="in1" type="float" value="1" />
-    </subtract>
-    <divide name="one_minus_NdotL_div_2" type="float">
-      <input name="in1" type="float" nodename="one_minus_NdotL" />
-      <input name="in2" type="float" value="2" />
-    </divide>
-    <multiply name="multiply_color3" type="color3">
-      <input name="in1" type="color3" interfacename="diffuse_color" />
-      <input name="in2" type="float" interfacename="diffuse_strength" />
-    </multiply>
-    <add name="k_cool" type="color3">
-      <input name="in1" type="color3" nodename="multiply_color3" />
-      <input name="in2" type="color3" nodename="swizzle_float_color3" />
-    </add>
-    <add name="k_warm" type="color3">
-      <input name="in2" type="color3" nodename="swizzle_float_color4" />
-      <input name="in1" type="color3" nodename="multiply_color4" />
-    </add>
-    <multiply name="multiply_color4" type="color3">
-      <input name="in1" type="color3" interfacename="diffuse_color" />
-      <input name="in2" type="float" interfacename="luminance_shift" />
-    </multiply>
-    <multiply name="cool" type="color3">
-      <input name="in1" type="color3" nodename="k_cool" />
-      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
-    </multiply>
-    <multiply name="warm" type="color3">
-      <input name="in1" type="color3" nodename="k_warm" />
-      <input name="in2" type="float" nodename="one_minus_NdotL_div_2" />
-    </multiply>
     <add name="diffuse" type="color3">
       <input name="in1" type="color3" nodename="cool" />
       <input name="in2" type="color3" nodename="warm" />
     </add>
+    <subtract name="subtract_float" type="float">
+      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
+      <input name="in1" type="float" value="1" />
+    </subtract>
+    <multiply name="warm" type="color3">
+      <input name="in1" type="color3" interfacename="warm_color" />
+      <input name="in2" type="float" nodename="subtract_float" />
+    </multiply>
+    <multiply name="cool" type="color3">
+      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
+      <input name="in1" type="color3" interfacename="cool_color" />
+    </multiply>
+    <add name="final_color" type="color3">
+      <input name="in2" type="float" nodename="specular" />
+      <input name="in1" type="color3" nodename="diffuse" />
+    </add>
+    <multiply name="specular" type="float">
+      <input name="in1" type="float" interfacename="specular_intensity" />
+      <input name="in2" type="float" nodename="specular_power" />
+    </multiply>
     <output name="out" type="color3" nodename="final_color" />
   </nodegraph>
   
