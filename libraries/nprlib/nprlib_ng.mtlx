@@ -69,7 +69,7 @@
     <viewdirection name="view" type="vector3" />
     <dotproduct name="NdotI" type="float">
       <input name="in1" type="vector3" nodename="normalize_vector4" />
-      <input name="in2" type="vector3" nodename="multiply_vector3FA" />
+      <input name="in2" type="vector3" nodename="normalize_vector3" />
     </dotproduct>
     <multiply name="NdotI_2" type="float">
       <input name="in1" type="float" nodename="NdotI" />
@@ -79,10 +79,6 @@
       <input name="in1" type="vector3" nodename="invert_light_dir" />
       <input name="in2" type="vector3" nodename="I_NdotI_N_2" />
     </dotproduct>
-    <multiply name="multiply_vector3FA" type="vector3">
-      <input name="in1" type="vector3" nodename="normalize_vector3" />
-      <input name="in2" type="float" value="1" />
-    </multiply>
     <normalize name="normalize_vector3" type="vector3">
       <input name="in" type="vector3" nodename="view" />
     </normalize>
