@@ -94,7 +94,7 @@ target_link_libraries(
     MaterialXGraphEditor
     PRIVATE
     ${MATERIALX_LIBRARIES}
- 	glfw_minimal)
+ 	glfw)
 
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
