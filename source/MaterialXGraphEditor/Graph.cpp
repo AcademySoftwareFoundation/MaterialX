@@ -106,6 +106,22 @@ std::string getUserNodeDefName(const std::string& val)
 
 } // anonymous namespace
 
+//
+// Link methods
+//
+
+Link::Link() :
+    _startAttr(-1),
+    _endAttr(-1)
+{
+    static int nextId = 1;
+    _id = nextId++;
+}
+
+//
+// Graph methods
+//
+
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
@@ -410,7 +426,7 @@ void Graph::connectLinks()
 {
     for (Link const& link : _currLinks)
     {
-        ed::Link(link.id, link._startAttr, link._endAttr);
+        ed::Link(link._id, link._startAttr, link._endAttr);
     }
 }
 
@@ -419,7 +435,7 @@ int Graph::findLinkPosition(int id)
     int count = 0;
     for (size_t i = 0; i < _currLinks.size(); i++)
     {
-        if (_currLinks[i].id == id)
+        if (_currLinks[i]._id == id)
         {
             return count;
         }

@@ -14,6 +14,9 @@
 
 #include <stack>
 
+namespace ed = ax::NodeEditor;
+namespace mx = MaterialX;
+
 class MenuItem
 {
   public:
@@ -38,22 +41,15 @@ class MenuItem
     std::string category;
     std::string group;
 };
-namespace ed = ax::NodeEditor;
-namespace mx = MaterialX;
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
-// Based off Link struct from ImGui Node Editor blueprints-examples.cpp
+// Based on the Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
-    int id;
+    Link();
+
     int _startAttr, _endAttr;
-    Link() :
-        _startAttr(-1),
-        _endAttr(-1)
-    {
-        static int _id = 0;
-        id = ++_id;
-    }
+    int _id;
 };
 
 class Graph
