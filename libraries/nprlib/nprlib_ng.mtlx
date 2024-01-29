@@ -48,87 +48,84 @@
     Node: <gooch_shade>
   -->
   <nodegraph name="NG_gooch_shade" type="color3" nodedef="ND_gooch_shade">
-    <normal name="N" type="vector3">
-      <input name="space" type="string" value="world" />
-    </normal>
-    <normalize name="normalized_light_dir" type="vector3">
+    <normal name="normal" type="vector3" />
+    <viewdirection name="viewdir" type="vector3" />
+    <normalize name="unit_normal" type="vector3">
+      <input name="in" type="vector3" nodename="normal" />
+    </normalize>
+    <normalize name="unit_viewdir" type="vector3">
+      <input name="in" type="vector3" nodename="viewdir" />
+    </normalize>
+    <normalize name="unit_lightdir" type="vector3">
       <input name="in" type="vector3" interfacename="light_direction" />
     </normalize>
     <dotproduct name="NdotL" type="float">
-      <input name="in1" type="vector3" nodename="normalize_vector4" />
-      <input name="in2" type="vector3" nodename="normalized_light_dir" />
+      <input name="in1" type="vector3" nodename="unit_normal" />
+      <input name="in2" type="vector3" nodename="unit_lightdir" />
     </dotproduct>
-    <power name="specular_power" type="float">
-      <input name="in1" type="float" nodename="max1" />
-      <input name="in2" type="float" interfacename="shininess" />
-    </power>
-    <max name="max1" type="float">
-      <input name="in1" type="float" nodename="VdotR" />
-      <input name="in2" type="float" value="0" />
-    </max>
-    <viewdirection name="view" type="vector3" />
-    <dotproduct name="NdotI" type="float">
-      <input name="in1" type="vector3" nodename="normalize_vector4" />
-      <input name="in2" type="vector3" nodename="normalize_vector3" />
-    </dotproduct>
-    <multiply name="NdotI_2" type="float">
-      <input name="in1" type="float" nodename="NdotI" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <dotproduct name="VdotR" type="float">
-      <input name="in1" type="vector3" nodename="invert_light_dir" />
-      <input name="in2" type="vector3" nodename="I_NdotI_N_2" />
-    </dotproduct>
-    <normalize name="normalize_vector3" type="vector3">
-      <input name="in" type="vector3" nodename="view" />
-    </normalize>
-    <normalize name="normalize_vector4" type="vector3">
-      <input name="in" type="vector3" nodename="N" />
-    </normalize>
-    <multiply name="NdotI_N_2" type="vector3">
-      <input name="in1" type="vector3" nodename="normalize_vector4" />
-      <input name="in2" type="float" nodename="NdotI_2" />
-    </multiply>
-    <subtract name="I_NdotI_N_2" type="vector3">
-      <input name="in1" type="vector3" nodename="normalize_vector3" />
-      <input name="in2" type="vector3" nodename="NdotI_N_2" />
-    </subtract>
-    <multiply name="invert_light_dir" type="vector3">
-      <input name="in1" type="vector3" nodename="normalized_light_dir" />
-      <input name="in2" type="vector3" value="-1, -1, -1" />
-    </multiply>
     <add name="one_plus_NdotL" type="float">
       <input name="in2" type="float" nodename="NdotL" />
       <input name="in1" type="float" value="1" />
     </add>
-    <divide name="one_plus_NdotL_div_2" type="float">
+    <divide name="cool_intensity" type="float">
       <input name="in1" type="float" nodename="one_plus_NdotL" />
       <input name="in2" type="float" value="2" />
     </divide>
+    <invert name="warm_intensity" type="float">
+      <input name="in" type="float" nodename="cool_intensity" />
+    </invert>
+    <multiply name="cool" type="color3">
+      <input name="in1" type="color3" interfacename="cool_color" />
+      <input name="in2" type="float" nodename="cool_intensity" />
+    </multiply>
+    <multiply name="warm" type="color3">
+      <input name="in1" type="color3" interfacename="warm_color" />
+      <input name="in2" type="float" nodename="warm_intensity" />
+    </multiply>
     <add name="diffuse" type="color3">
       <input name="in1" type="color3" nodename="cool" />
       <input name="in2" type="color3" nodename="warm" />
     </add>
-    <subtract name="subtract_float" type="float">
-      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
-      <input name="in1" type="float" value="1" />
+    <dotproduct name="NdotV" type="float">
+      <input name="in1" type="vector3" nodename="unit_normal" />
+      <input name="in2" type="vector3" nodename="unit_viewdir" />
+    </dotproduct>
+    <multiply name="NdotV_2" type="float">
+      <input name="in1" type="float" nodename="NdotV" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="NdotV_N_2" type="vector3">
+      <input name="in1" type="vector3" nodename="unit_normal" />
+      <input name="in2" type="float" nodename="NdotV_2" />
+    </multiply>
+    <subtract name="view_reflect" type="vector3">
+      <input name="in1" type="vector3" nodename="unit_viewdir" />
+      <input name="in2" type="vector3" nodename="NdotV_N_2" />
     </subtract>
-    <multiply name="warm" type="color3">
-      <input name="in1" type="color3" interfacename="warm_color" />
-      <input name="in2" type="float" nodename="subtract_float" />
+    <multiply name="invert_lightdir" type="vector3">
+      <input name="in1" type="vector3" nodename="unit_lightdir" />
+      <input name="in2" type="float" value="-1" />
     </multiply>
-    <multiply name="cool" type="color3">
-      <input name="in2" type="float" nodename="one_plus_NdotL_div_2" />
-      <input name="in1" type="color3" interfacename="cool_color" />
-    </multiply>
-    <add name="final_color" type="color3">
-      <input name="in2" type="float" nodename="specular" />
-      <input name="in1" type="color3" nodename="diffuse" />
-    </add>
+    <dotproduct name="VdotR" type="float">
+      <input name="in1" type="vector3" nodename="invert_lightdir" />
+      <input name="in2" type="vector3" nodename="view_reflect" />
+    </dotproduct>
+    <max name="VdotR_nonnegative" type="float">
+      <input name="in1" type="float" nodename="VdotR" />
+      <input name="in2" type="float" value="0" />
+    </max>
+    <power name="specular_power" type="float">
+      <input name="in1" type="float" nodename="VdotR_nonnegative" />
+      <input name="in2" type="float" interfacename="shininess" />
+    </power>
     <multiply name="specular" type="float">
       <input name="in1" type="float" interfacename="specular_intensity" />
       <input name="in2" type="float" nodename="specular_power" />
     </multiply>
+    <add name="final_color" type="color3">
+      <input name="in1" type="color3" nodename="diffuse" />
+      <input name="in2" type="float" nodename="specular" />
+    </add>
     <output name="out" type="color3" nodename="final_color" />
   </nodegraph>
   
