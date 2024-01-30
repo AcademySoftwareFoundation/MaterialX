@@ -713,7 +713,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(doc->validate());
 
         // Try to create the new node
-        mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, "multioutput");
+        mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
         REQUIRE(newInstance);
 
         // Try and fail to create the same definition
@@ -749,7 +749,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION2);
         nodeDef->setDocString("This is version 2 of the definition for the graph: " + newGraphName);
         // Check that we create the version by default
-        mx::NodePtr newDefault = doc->addNode("test_colorcorrect", mx::EMPTY_STRING, "multioutput");
+        mx::NodePtr newDefault = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
         if (newDefault)
         {
             nodeDef = newDefault->getNodeDef();
