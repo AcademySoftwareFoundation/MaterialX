@@ -712,6 +712,10 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         }
         REQUIRE(doc->validate());
 
+        // Try to create the new node
+        mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, "multioutput");
+        REQUIRE(newInstance);
+
         // Try and fail to create the same definition
         mx::NodeDefPtr temp;
         try
@@ -724,19 +728,34 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             REQUIRE(temp == nullptr);
         }
 
+
+        // Remove default version attribute from previous definitions
+        for (mx::NodeDefPtr prevNodeDef : doc->getMatchingNodeDefs(NODENAME))
+        {
+            prevNodeDef->setDefaultVersion(false);
+        }
+
         // Add new version 
         const std::string VERSION2 = "2.0";
         newGraphName = mx::EMPTY_STRING;
         newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_2");
         newGraphName = doc->createValidChildName("NG_" + graph->getName() + "_2");
+        // Create new default version
         nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName + "2", NODENAME, newGraphName);
         nodeDef->setVersionString(VERSION2);
-        //nodeDef->setDefaultVersion(isDefaultVersion);
         nodeDef->setNodeGroup(GROUP);
         nodeDef->setDefaultVersion(true);
         REQUIRE(nodeDef != nullptr);
         nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION2);
         nodeDef->setDocString("This is version 2 of the definition for the graph: " + newGraphName);
+        // Check that we create the version by default
+        mx::NodePtr newDefault = doc->addNode("test_colorcorrect", mx::EMPTY_STRING, "multioutput");
+        if (newDefault)
+        {
+            nodeDef = newDefault->getNodeDef();
+            if (nodeDef)
+                REQUIRE(nodeDef->getVersionString() == VERSION2);
+        }
 
         std::vector<mx::NodeDefPtr> matchingNodeDefs;
         for (auto docNodeDef : doc->getNodeDefs())
@@ -760,5 +779,11 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
         doc->removeChild(graph->getName());
     }
-    REQUIRE(doc->validate());
+    std::string errors;
+    bool valid = doc->validate(&errors);
+    if (!valid)
+    {
+        INFO("Validation errors: " + errors);
+        REQUIRE(valid);
+    }
 }
