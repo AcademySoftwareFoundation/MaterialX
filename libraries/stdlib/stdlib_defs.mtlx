@@ -3902,6 +3902,11 @@
     <input name="in3" type="float" value="0.0" />
     <input name="in4" type="float" value="0.0" />
     <input name="in5" type="float" value="0.0" />
+    <input name="in6" type="float" value="0.0" />
+    <input name="in7" type="float" value="0.0" />
+    <input name="in8" type="float" value="0.0" />
+    <input name="in9" type="float" value="0.0" />
+    <input name="in10" type="float" value="0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
@@ -3911,6 +3916,11 @@
     <input name="in3" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in4" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in5" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in6" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in7" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in8" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in9" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in10" type="color3" value="0.0, 0.0, 0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="color3" defaultinput="in1" />
   </nodedef>
@@ -3920,6 +3930,11 @@
     <input name="in3" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in4" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in5" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="color4" defaultinput="in1" />
   </nodedef>
@@ -3929,6 +3944,11 @@
     <input name="in3" type="vector2" value="0.0, 0.0" />
     <input name="in4" type="vector2" value="0.0, 0.0" />
     <input name="in5" type="vector2" value="0.0, 0.0" />
+    <input name="in6" type="vector2" value="0.0, 0.0" />
+    <input name="in7" type="vector2" value="0.0, 0.0" />
+    <input name="in8" type="vector2" value="0.0, 0.0" />
+    <input name="in9" type="vector2" value="0.0, 0.0" />
+    <input name="in10" type="vector2" value="0.0, 0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="vector2" defaultinput="in1" />
   </nodedef>
@@ -3938,6 +3958,11 @@
     <input name="in3" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="in5" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in6" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in7" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in8" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in9" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in10" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="vector3" defaultinput="in1" />
   </nodedef>
@@ -3947,6 +3972,11 @@
     <input name="in3" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in5" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="float" value="0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
@@ -3956,6 +3986,11 @@
     <input name="in3" type="float" value="0.0" />
     <input name="in4" type="float" value="0.0" />
     <input name="in5" type="float" value="0.0" />
+    <input name="in6" type="float" value="0.0" />
+    <input name="in7" type="float" value="0.0" />
+    <input name="in8" type="float" value="0.0" />
+    <input name="in9" type="float" value="0.0" />
+    <input name="in10" type="float" value="0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
@@ -3965,6 +4000,11 @@
     <input name="in3" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in4" type="color3" value="0.0, 0.0, 0.0" />
     <input name="in5" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in6" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in7" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in8" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in9" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in10" type="color3" value="0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="color3" defaultinput="in1" />
   </nodedef>
@@ -3974,6 +4014,11 @@
     <input name="in3" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in4" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in5" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="color4" defaultinput="in1" />
   </nodedef>
@@ -3983,6 +4028,11 @@
     <input name="in3" type="vector2" value="0.0, 0.0" />
     <input name="in4" type="vector2" value="0.0, 0.0" />
     <input name="in5" type="vector2" value="0.0, 0.0" />
+    <input name="in6" type="vector2" value="0.0, 0.0" />
+    <input name="in7" type="vector2" value="0.0, 0.0" />
+    <input name="in8" type="vector2" value="0.0, 0.0" />
+    <input name="in9" type="vector2" value="0.0, 0.0" />
+    <input name="in10" type="vector2" value="0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="vector2" defaultinput="in1" />
   </nodedef>
@@ -3992,6 +4042,11 @@
     <input name="in3" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="in5" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in6" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in7" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in8" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in9" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in10" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="vector3" defaultinput="in1" />
   </nodedef>
@@ -4001,6 +4056,11 @@
     <input name="in3" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in5" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
