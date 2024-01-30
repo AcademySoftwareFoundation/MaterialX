@@ -104,13 +104,13 @@
       <input name="in1" type="float" nodename="VdotR" />
       <input name="in2" type="float" value="0" />
     </max>
-    <power name="specular_power" type="float">
+    <power name="specular_highlight" type="float">
       <input name="in1" type="float" nodename="VdotR_nonnegative" />
       <input name="in2" type="float" interfacename="shininess" />
     </power>
     <multiply name="specular" type="float">
-      <input name="in1" type="float" interfacename="specular_intensity" />
-      <input name="in2" type="float" nodename="specular_power" />
+      <input name="in1" type="float" nodename="specular_highlight" />
+      <input name="in2" type="float" interfacename="specular_intensity" />
     </multiply>
     <add name="final_color" type="color3">
       <input name="in1" type="color3" nodename="diffuse" />
