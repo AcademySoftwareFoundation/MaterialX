@@ -60,10 +60,7 @@ set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
 
-# we explicitly force glfw to build static libraries, as we don't install them.
-# we don't need to restore the state after we call add_subdirectory here because
-# we're not adding any new targets after this, and the state is unmodified at a higher
-# cmake level.
+# Explicitly build GLFW with static libraries, independent of the broader build settings.
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(External/Glfw)
