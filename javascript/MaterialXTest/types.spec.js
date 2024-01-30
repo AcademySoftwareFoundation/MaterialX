@@ -1,13 +1,16 @@
 import { expect } from 'chai';;
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Types', () => {
+describe('Types', () =>
+{
     let mx;
-    before(async () => {
+    before(async () =>
+    {
         mx = await Module();
     });
 
-    it('Vectors', () => {
+    it('Vectors', () =>
+    {
         const v1 = new mx.Vector3(1, 2, 3);
         let v2 = new mx.Vector3(2, 4, 6);
 
@@ -59,10 +62,13 @@ describe('Types', () => {
         expect(v4.notEquals(v2)).to.be.true;
     });
 
-    function multiplyMatrix(matrix, val) {
+    function multiplyMatrix(matrix, val)
+    {
         const clonedMatrix = matrix.copy();
-        for (let i = 0; i < clonedMatrix.numRows(); ++i) {
-            for (let k = 0; k < clonedMatrix.numColumns(); ++k) {
+        for (let i = 0; i < clonedMatrix.numRows(); ++i)
+        {
+            for (let k = 0; k < clonedMatrix.numColumns(); ++k)
+            {
                 const v = clonedMatrix.getItem(i, k);
                 clonedMatrix.setItem(i, k, v * val);
             }
@@ -70,10 +76,13 @@ describe('Types', () => {
         return clonedMatrix;
     }
 
-    function divideMatrix(matrix, val) {
+    function divideMatrix(matrix, val)
+    {
         const clonedMatrix = matrix.copy();
-        for (let i = 0; i < clonedMatrix.numRows(); ++i) {
-            for (let k = 0; k < clonedMatrix.numColumns(); ++k) {
+        for (let i = 0; i < clonedMatrix.numRows(); ++i)
+        {
+            for (let k = 0; k < clonedMatrix.numColumns(); ++k)
+            {
                 const v = clonedMatrix.getItem(i, k);
                 clonedMatrix.setItem(i, k, v / val);
             }
@@ -81,18 +90,19 @@ describe('Types', () => {
         return clonedMatrix;
     }
 
-    it('Matrices', () => {
+    it('Matrices', () =>
+    {
         // Translation and scale
         const trans = mx.Matrix44.createTranslation(new mx.Vector3(1, 2, 3));
         const scale = mx.Matrix44.createScale(new mx.Vector3(2, 2, 2));
         expect(trans.equals(new mx.Matrix44(1, 0, 0, 0,
-                                            0, 1, 0, 0,
-                                            0, 0, 1, 0,
-                                            1, 2, 3, 1)));
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            1, 2, 3, 1)));
         expect(scale.equals(new mx.Matrix44(2, 0, 0, 0,
-                                            0, 2, 0, 0,
-                                            0, 0, 2, 0,
-                                            0, 0, 0, 1)));
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            0, 0, 0, 1)));
 
         // Indexing operators
         expect(trans.getItem(3, 2)).to.equal(3);
@@ -103,9 +113,9 @@ describe('Types', () => {
         // Matrix methods
         expect(trans.getTranspose().equals(
             new mx.Matrix44(1, 0, 0, 1,
-                            0, 1, 0, 2,
-                            0, 0, 1, 3,
-                            0, 0, 0, 1)
+                0, 1, 0, 2,
+                0, 0, 1, 3,
+                0, 0, 0, 1)
         )).to.be.true;
         expect(scale.getTranspose().equals(scale)).to.be.true;
         expect(trans.getDeterminant()).to.equal(1);
@@ -120,17 +130,17 @@ describe('Types', () => {
         let prod4 = trans;
         prod4 = prod4.multiply(scale);
         expect(prod1.equals(new mx.Matrix44(2, 0, 0, 0,
-                                            0, 2, 0, 0,
-                                            0, 0, 2, 0,
-                                            2, 4, 6, 1)));
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            2, 4, 6, 1)));
         expect(prod2.equals(new mx.Matrix44(2, 0, 0, 0,
-                                            0, 2, 0, 0,
-                                            0, 0, 2, 0,
-                                            1, 2, 3, 1)));
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            1, 2, 3, 1)));
         expect(prod3.equals(new mx.Matrix44(2, 0, 0, 0,
-                                            0, 2, 0, 0,
-                                            0, 0, 2, 0,
-                                            2, 4, 6, 2)));
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            2, 4, 6, 2)));
         expect(prod4.equals(prod1));
 
         // Matrix division

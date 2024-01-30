@@ -45,8 +45,8 @@ void SurfaceNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Sh
 {
     // TODO:
     // The surface shader needs position, normal, view position and light sources. We should solve this by adding some
-    // dependency mechanism so this implementation can be set to depend on the PositionNodeGlsl, NormalNodeGlsl
-    // ViewDirectionNodeGlsl and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops"
+    // dependency mechanism so this implementation can be set to depend on the HwPositionNode, HwNormalNode
+    // HwViewDirectionNode and LightNodeGlsl nodes instead? This is where the MaterialX attribute "internalgeomprops"
     // is needed.
     //
     ShaderStage& vs = shader.getStage(Stage::VERTEX);

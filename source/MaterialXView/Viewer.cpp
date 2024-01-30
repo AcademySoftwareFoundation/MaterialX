@@ -387,7 +387,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap = _imageHandler->getZeroImage();
+    mx::ImagePtr envIrradianceMap;
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
@@ -395,7 +395,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getZeroImage())
+    if (!envIrradianceMap || envIrradianceMap->getWidth() == 1)
     {
         if (_generateReferenceIrradiance)
         {

@@ -95,7 +95,7 @@ void ClosureLayerNode::emitFunctionCall(const ShaderNode& _node, GenContext& con
 
             // Calculate the layering result.
             emitOutputVariables(node, context, stage);
-            if (base->getOutput()->getType() == Type::VDF)
+            if (*(base->getOutput()->getType()) == *Type::VDF)
             {
                 shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response * " + baseResult + ".throughput", stage);
                 shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);

@@ -6,15 +6,8 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
-#include <MaterialXGenGlsl/Nodes/PositionNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/NormalNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TangentNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/BitangentNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomColorNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/GeomPropValueNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/FrameNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/TimeNodeGlsl.h>
-#include <MaterialXGenGlsl/Nodes/ViewDirectionNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/SurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/UnlitSurfaceNodeGlsl.h>
 #include <MaterialXGenGlsl/Nodes/LightNodeGlsl.h>
@@ -33,6 +26,13 @@
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
+#include <MaterialXGenShader/Nodes/HwPositionNode.h>
+#include <MaterialXGenShader/Nodes/HwNormalNode.h>
+#include <MaterialXGenShader/Nodes/HwTangentNode.h>
+#include <MaterialXGenShader/Nodes/HwBitangentNode.h>
+#include <MaterialXGenShader/Nodes/HwFrameNode.h>
+#include <MaterialXGenShader/Nodes/HwTimeNode.h>
+#include <MaterialXGenShader/Nodes/HwViewDirectionNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureLayerNode.h>
@@ -165,13 +165,13 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
-    registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, PositionNodeGlsl::create);
+    registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, HwPositionNode::create);
     // <!-- <normal> -->
-    registerImplementation("IM_normal_vector3_" + GlslShaderGenerator::TARGET, NormalNodeGlsl::create);
+    registerImplementation("IM_normal_vector3_" + GlslShaderGenerator::TARGET, HwNormalNode::create);
     // <!-- <tangent> -->
-    registerImplementation("IM_tangent_vector3_" + GlslShaderGenerator::TARGET, TangentNodeGlsl::create);
+    registerImplementation("IM_tangent_vector3_" + GlslShaderGenerator::TARGET, HwTangentNode::create);
     // <!-- <bitangent> -->
-    registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::TARGET, BitangentNodeGlsl::create);
+    registerImplementation("IM_bitangent_vector3_" + GlslShaderGenerator::TARGET, HwBitangentNode::create);
     // <!-- <texcoord> -->
     registerImplementation("IM_texcoord_vector2_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
     registerImplementation("IM_texcoord_vector3_" + GlslShaderGenerator::TARGET, HwTexCoordNode::create);
@@ -194,11 +194,11 @@ GlslShaderGenerator::GlslShaderGenerator() :
     registerImplementation("IM_geompropvalue_string_" + GlslShaderGenerator::TARGET, GeomPropValueNodeGlslAsUniform::create);
 
     // <!-- <frame> -->
-    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, FrameNodeGlsl::create);
+    registerImplementation("IM_frame_float_" + GlslShaderGenerator::TARGET, HwFrameNode::create);
     // <!-- <time> -->
-    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, TimeNodeGlsl::create);
+    registerImplementation("IM_time_float_" + GlslShaderGenerator::TARGET, HwTimeNode::create);
     // <!-- <viewdirection> -->
-    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, ViewDirectionNodeGlsl::create);
+    registerImplementation("IM_viewdirection_vector3_" + GlslShaderGenerator::TARGET, HwViewDirectionNode::create);
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + GlslShaderGenerator::TARGET, SurfaceNodeGlsl::create);
@@ -782,11 +782,11 @@ void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (*type == *Type::FLOAT || *type == *Type::INTEGER)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
-    else if (type == Type::BSDF || type == Type::EDF)
+    else if (*type == *Type::BSDF || *type == *Type::EDF)
     {
         variable = "vec4(" + variable + ", 1.0)";
     }
@@ -802,7 +802,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
                                                   bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
-    if (variable->getType() == Type::FILENAME)
+    if (*variable->getType() == *Type::FILENAME)
     {
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -813,7 +813,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        if (qualifier.empty() && *variable->getType() == *Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
         {
             str += GlslSyntax::FLAT_QUALIFIER + " ";
         }
@@ -870,7 +870,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType == Type::LIGHTSHADER)
+        if (*outputType == *Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeGlsl::create();
         }
@@ -913,31 +913,9 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
     return impl;
 }
 
-const string GlslImplementation::SPACE = "space";
-const string GlslImplementation::INDEX = "index";
-const string GlslImplementation::GEOMPROP = "geomprop";
-
-namespace
-{
-
-// List name of inputs that are not to be editable and
-// published as shader uniforms in GLSL.
-const std::set<string> IMMUTABLE_INPUTS =
-{
-    // Geometric node inputs are immutable since a shader needs regeneration if they change.
-    "index", "space", "attrname"
-};
-
-} // anonymous namespace
-
 const string& GlslImplementation::getTarget() const
 {
     return GlslShaderGenerator::TARGET;
-}
-
-bool GlslImplementation::isEditable(const ShaderInput& input) const
-{
-    return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
 MATERIALX_NAMESPACE_END
