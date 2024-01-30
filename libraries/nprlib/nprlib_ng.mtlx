@@ -71,21 +71,11 @@
       <input name="in1" type="float" nodename="one_plus_NdotL" />
       <input name="in2" type="float" value="2" />
     </divide>
-    <invert name="warm_intensity" type="float">
-      <input name="in" type="float" nodename="cool_intensity" />
-    </invert>
-    <multiply name="cool" type="color3">
-      <input name="in1" type="color3" interfacename="cool_color" />
-      <input name="in2" type="float" nodename="cool_intensity" />
-    </multiply>
-    <multiply name="warm" type="color3">
-      <input name="in1" type="color3" interfacename="warm_color" />
-      <input name="in2" type="float" nodename="warm_intensity" />
-    </multiply>
-    <add name="diffuse" type="color3">
-      <input name="in1" type="color3" nodename="cool" />
-      <input name="in2" type="color3" nodename="warm" />
-    </add>
+    <mix name="diffuse" type="color3">
+      <input name="bg" type="color3" interfacename="warm_color" />
+      <input name="fg" type="color3" interfacename="cool_color" />
+      <input name="mix" type="float" nodename="cool_intensity" />
+    </mix>
     <dotproduct name="NdotV" type="float">
       <input name="in1" type="vector3" nodename="unit_normal" />
       <input name="in2" type="vector3" nodename="unit_viewdir" />
