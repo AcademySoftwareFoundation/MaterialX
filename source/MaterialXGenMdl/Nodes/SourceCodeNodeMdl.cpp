@@ -76,16 +76,13 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
 
             const ShaderGenerator& shadergen = context.getShaderGenerator();
             const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
+            const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
             StringVec code = replaceSourceCodeMarkers(getName(), functionName,
-                [&shadergenMdl, &context](const string& marker)
+                [&shadergenMdl, &context, &versionSuffix](const string& marker)
                 {
-                    if (marker == MARKER_MDL_VERSION_SUFFIX)
-                    {
-                        return shadergenMdl.getMdlVersionFilenameSuffix(context);
-                    }
-                    return string("");
+                    return marker == MARKER_MDL_VERSION_SUFFIX ? versionSuffix : EMPTY_STRING;
                 });
-            functionName = std::accumulate(code.begin(), code.end(), std::string(""));
+            functionName = std::accumulate(code.begin(), code.end(), EMPTY_STRING);
             _returnStruct = functionName + "__result";
         }
         else
