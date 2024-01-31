@@ -90,7 +90,7 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     // Emit a block of shader inputs.
-    void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
+    void emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const;
 };
 
 namespace MDL
