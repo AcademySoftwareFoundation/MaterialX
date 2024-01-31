@@ -1426,6 +1426,7 @@ void Document::upgradeVersion()
                 continue;
             }
             const string& nodeCategory = node->getCategory();
+            const string& nodeDef = node->getNodeDefString();
             if (nodeCategory == "atan2")
             {
                 // rename input ports
@@ -1464,6 +1465,11 @@ void Document::upgradeVersion()
                         which->setValue(0.0);
                     }
                 }
+            }
+            else if (nodeDef == "ND_normalmap")
+            {
+                // ND_normalmap was renamed to ND_normalmap_float
+                node->setNodeDefString("ND_normalmap_float");
             }
         }
 
