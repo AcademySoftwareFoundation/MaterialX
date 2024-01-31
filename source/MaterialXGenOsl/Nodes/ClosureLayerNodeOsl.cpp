@@ -92,7 +92,7 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
         // Calculate the layering result.
         emitOutputVariables(node, context, stage);
-        if (base->getOutput()->getType() == Type::VDF)
+        if (*base->getOutput()->getType() == *Type::VDF)
         {
             // Combining a surface closure with a volumetric closure is simply done with the add operator in OSL.
             shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult, stage);

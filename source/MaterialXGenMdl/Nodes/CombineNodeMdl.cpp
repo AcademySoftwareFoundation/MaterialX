@@ -33,10 +33,10 @@ void CombineNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
             throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid convert node");
         }
 
-        if (in1->getType() == Type::COLOR3)
+        if (*in1->getType() == *Type::COLOR3)
         {
             const ShaderInput* in2 = node.getInput(1);
-            if (!in2 || in2->getType() != Type::FLOAT)
+            if (!in2 || *in2->getType() != *Type::FLOAT)
             {
                 throw ExceptionShaderGenError("Node '" + node.getName() + "' is not a valid convert node");
             }

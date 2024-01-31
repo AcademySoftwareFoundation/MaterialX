@@ -12,6 +12,6 @@
   <!-- ======================================================================== -->
 
   <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genglsl" nodedef="ND_viewdirection_vector3" target="genglsl"/>
+  <implementation name="IM_viewdirection_vector3_genglsl" nodedef="ND_viewdirection_vector3" target="genglsl" />
 
 </materialx>

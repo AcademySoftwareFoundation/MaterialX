@@ -12,6 +12,24 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+const string HwImplementation::SPACE = "space";
+const string HwImplementation::INDEX = "index";
+const string HwImplementation::GEOMPROP = "geomprop";
+
+namespace
+{
+
+// When node inputs with these names are modified, we assume the
+// associated HW shader must be recompiled.
+const StringSet IMMUTABLE_INPUTS =
+{
+    "index",
+    "space",
+    "attrname"
+};
+
+} // anonymous namespace
+
 namespace HW
 {
 
@@ -439,7 +457,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             {
                 for (ShaderInput* input : node->getInputs())
                 {
-                    if (!input->getConnection() && input->getType() == Type::FILENAME)
+                    if (!input->getConnection() && *input->getType() == *Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
                         ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());
@@ -617,6 +635,11 @@ void HwShaderGenerator::addStageLightingUniforms(GenContext& context, ShaderStag
         ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, stage);
         numActiveLights->setValue(Value::createValue<int>(0));
     }
+}
+
+bool HwImplementation::isEditable(const ShaderInput& input) const
+{
+    return IMMUTABLE_INPUTS.count(input.getName()) == 0;
 }
 
 MATERIALX_NAMESPACE_END

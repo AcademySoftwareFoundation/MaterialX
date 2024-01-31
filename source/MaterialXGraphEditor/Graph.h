@@ -14,6 +14,9 @@
 
 #include <stack>
 
+namespace ed = ax::NodeEditor;
+namespace mx = MaterialX;
+
 class MenuItem
 {
   public:
@@ -38,22 +41,15 @@ class MenuItem
     std::string category;
     std::string group;
 };
-namespace ed = ax::NodeEditor;
-namespace mx = MaterialX;
 
 // A link connects two pins and includes a unique id and the ids of the two pins it connects
-// Based off Link struct from ImGui Node Editor blueprints-examples.cpp
+// Based on the Link struct from ImGui Node Editor blueprints-examples.cpp
 struct Link
 {
-    int id;
+    Link();
+
     int _startAttr, _endAttr;
-    Link() :
-        _startAttr(-1),
-        _endAttr(-1)
-    {
-        static int _id = 0;
-        id = ++_id;
-    }
+    int _id;
 };
 
 class Graph
@@ -66,7 +62,7 @@ class Graph
           int viewWidth,
           int viewHeight);
 
-    mx::DocumentPtr loadDocument(mx::FilePath filename);
+    mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
     RenderViewPtr getRenderer()
@@ -106,9 +102,6 @@ class Graph
     // Find link position in current links vector from link id
     int findLinkPosition(int id);
 
-    // Find link from attribute id
-    std::vector<int> findLinkId(int attrId);
-
     // Check if link exists in the current link vector
     bool linkExists(Link newLink);
 
@@ -139,7 +132,7 @@ class Graph
     void setPinColor();
 
     // Based on the pin icon function in the ImGui Node Editor blueprints-example.cpp
-    void drawPinIcon(std::string type, bool connected, int alpha);
+    void drawPinIcon(const std::string& type, bool connected, int alpha);
 
     UiPinPtr getPin(ed::PinId id);
     void drawInputPin(UiPinPtr pin);
@@ -189,7 +182,6 @@ class Graph
     // Add input pointer to node based on input pin
     void addNodeInput(UiNodePtr node, mx::InputPtr& input);
 
-    mx::InputPtr findInput(mx::InputPtr input, const std::string& name);
     void upNodeGraph();
 
     // Set the value of the selected node constants in the node property editor
@@ -222,7 +214,6 @@ class Graph
     void shaderPopup();
 
     void updateMaterials(mx::InputPtr input = nullptr, mx::ValuePtr value = nullptr);
-    void selectMaterial(UiNodePtr node);
 
     // Allow for camera manipulation of render view window
     void handleRenderViewInputs();

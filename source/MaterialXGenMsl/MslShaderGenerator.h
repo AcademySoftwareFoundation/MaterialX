@@ -115,30 +115,13 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
 };
 
 /// Base class for common MSL node implementations
-class MX_GENMSL_API MslImplementation : public ShaderNodeImpl
+class MX_GENMSL_API MslImplementation : public HwImplementation
 {
   public:
     const string& getTarget() const override;
 
-    bool isEditable(const ShaderInput& input) const override;
-
   protected:
     MslImplementation() { }
-
-    // Integer identifiers for coordinate spaces.
-    // The order must match the order given for
-    // the space enum string in stdlib.
-    enum Space
-    {
-        MODEL_SPACE = 0,
-        OBJECT_SPACE = 1,
-        WORLD_SPACE = 2
-    };
-
-    /// Internal string constants
-    static const string SPACE;
-    static const string INDEX;
-    static const string GEOMPROP;
 };
 
 MATERIALX_NAMESPACE_END

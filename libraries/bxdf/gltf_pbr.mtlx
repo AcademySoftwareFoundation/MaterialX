@@ -359,7 +359,7 @@
   <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
-    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uifolder="Image"/>
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" uifolder="Image" />
     <input name="pivot" type="vector2" value="0, 1" uifolder="Image" />
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />

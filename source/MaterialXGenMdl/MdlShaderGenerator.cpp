@@ -287,7 +287,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const TypeDesc* outputType = outputSocket->getType();
     if (graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
-        if (outputType == Type::DISPLACEMENTSHADER)
+        if (*outputType == *Type::DISPLACEMENTSHADER)
         {
             emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
             emitLine("color finalOutput__ = mk_color3("
@@ -667,7 +667,7 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
     {
         const ShaderPort* input = inputs[i];
 
-        const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
+        const string& qualifier = input->isUniform() || *input->getType() == *Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = _syntax->getTypeName(input->getType());
 
         string value = input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;

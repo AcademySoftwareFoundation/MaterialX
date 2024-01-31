@@ -34,7 +34,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         // components to use for constructing the new value.
         //
         StringVec valueComponents;
-        if (in1->getType() == Type::FLOAT)
+        if (*in1->getType() == *Type::FLOAT)
         {
             // Get the components of the input values.
             const size_t numInputs = node.numInputs();
@@ -45,7 +45,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
                 valueComponents[i] = shadergen.getUpstreamResult(input, context);
             }
         }
-        else if (in1->getType() == Type::COLOR3 || in1->getType() == Type::VECTOR3)
+        else if (*in1->getType() == *Type::COLOR3 || *in1->getType() == *Type::VECTOR3)
         {
             const ShaderInput* in2 = node.getInput(1);
             if (!in2 || in2->getType() != Type::FLOAT)
@@ -84,7 +84,7 @@ void CombineNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             // Get component from in2
             valueComponents[memberSize] = shadergen.getUpstreamResult(in2, context);
         }
-        else if (in1->getType() == Type::VECTOR2)
+        else if (*in1->getType() == *Type::VECTOR2)
         {
             const ShaderInput* in2 = node.getInput(1);
             if (!in2 || (in2->getType() != Type::VECTOR2))

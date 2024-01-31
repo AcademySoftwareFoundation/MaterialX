@@ -340,6 +340,31 @@ class MX_GENSHADER_API HwShaderGenerator : public ShaderGenerator
     mutable ClosureContext _defEmission;
 };
 
+/// @class HwShaderGenerator
+/// Base class for HW node implementations.
+class MX_GENSHADER_API HwImplementation : public ShaderNodeImpl
+{
+  public:
+    bool isEditable(const ShaderInput& input) const override;
+
+  protected:
+    HwImplementation() { }
+
+    // Integer identifiers for coordinate spaces.
+    // The order must match the order given for the space enum string in stdlib.
+    enum Space
+    {
+        MODEL_SPACE = 0,
+        OBJECT_SPACE = 1,
+        WORLD_SPACE = 2
+    };
+
+    /// Internal string constants
+    static const string SPACE;
+    static const string INDEX;
+    static const string GEOMPROP;
+};
+
 /// @class HwResourceBindingContext
 /// Class representing a context for resource binding for hardware resources.
 class MX_GENSHADER_API HwResourceBindingContext : public GenUserData

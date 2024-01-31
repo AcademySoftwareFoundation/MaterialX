@@ -106,6 +106,22 @@ std::string getUserNodeDefName(const std::string& val)
 
 } // anonymous namespace
 
+//
+// Link methods
+//
+
+Link::Link() :
+    _startAttr(-1),
+    _endAttr(-1)
+{
+    static int nextId = 1;
+    _id = nextId++;
+}
+
+//
+// Graph methods
+//
+
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
@@ -200,7 +216,7 @@ void Graph::loadStandardLibraries()
     }
 }
 
-mx::DocumentPtr Graph::loadDocument(mx::FilePath filename)
+mx::DocumentPtr Graph::loadDocument(const mx::FilePath& filename)
 {
     mx::FilePathVec libraryFolders = { "libraries" };
     _libraryFolders = libraryFolders;
@@ -410,7 +426,7 @@ void Graph::connectLinks()
 {
     for (Link const& link : _currLinks)
     {
-        ed::Link(link.id, link._startAttr, link._endAttr);
+        ed::Link(link._id, link._startAttr, link._endAttr);
     }
 }
 
@@ -419,7 +435,7 @@ int Graph::findLinkPosition(int id)
     int count = 0;
     for (size_t i = 0; i < _currLinks.size(); i++)
     {
-        if (_currLinks[i].id == id)
+        if (_currLinks[i]._id == id)
         {
             return count;
         }
@@ -430,14 +446,8 @@ int Graph::findLinkPosition(int id)
 
 bool Graph::checkPosition(UiNodePtr node)
 {
-    if (node->getMxElement() != nullptr)
-    {
-        if (node->getMxElement()->getAttribute("xpos") != "")
-        {
-            return true;
-        }
-    }
-    return false;
+    return node->getMxElement() &&
+           !node->getMxElement()->getAttribute("xpos").empty();
 }
 
 // Calculate the total vertical space the node level takes up
@@ -708,23 +718,6 @@ void Graph::setPinColor()
     _pinColor.insert(std::make_pair("vector4array", ImColor(100, 200, 100)));
     _pinColor.insert(std::make_pair("geomnamearray", ImColor(150, 200, 100)));
     _pinColor.insert(std::make_pair("stringarray", ImColor(120, 180, 100)));
-}
-
-void Graph::selectMaterial(UiNodePtr uiNode)
-{
-    // Find renderable element that corresponds with material UiNode
-    std::vector<mx::TypedElementPtr> elems = mx::findRenderableElements(_graphDoc);
-    mx::TypedElementPtr typedElem = nullptr;
-    for (mx::TypedElementPtr elem : elems)
-    {
-        mx::TypedElementPtr renderableElem = elem;
-        mx::NodePtr node = elem->asA<mx::Node>();
-        if (node == uiNode->getNode())
-        {
-            typedElem = elem;
-        }
-    }
-    _renderer->setMaterial(typedElem);
 }
 
 void Graph::setRenderMaterial(UiNodePtr node)
@@ -2028,7 +2021,7 @@ UiPinPtr Graph::getPin(ed::PinId pinId)
     return nullPin;
 }
 
-void Graph::drawPinIcon(std::string type, bool connected, int alpha)
+void Graph::drawPinIcon(const std::string& type, bool connected, int alpha)
 {
     ax::Drawing::IconType iconType = ax::Drawing::IconType::Flow;
     ImColor color = ImColor(0, 0, 0, 255);
@@ -2103,50 +2096,6 @@ bool Graph::readOnly()
 {
     // If the sources are not the same then the current graph cannot be modified
     return _currGraphElem->getActiveSourceUri() != _graphDoc->getActiveSourceUri();
-}
-
-mx::InputPtr Graph::findInput(mx::InputPtr nodeInput, const std::string& name)
-{
-    if (_isNodeGraph)
-    {
-        for (UiNodePtr uiNode : _graphNodes)
-        {
-            if (uiNode->getNode())
-            {
-                for (mx::InputPtr input : uiNode->getNode()->getActiveInputs())
-                {
-                    if (input->getInterfaceInput())
-                    {
-                        if (input->getInterfaceInput() == nodeInput)
-                        {
-                            return input;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (_currUiNode->getNodeGraph())
-        {
-            for (mx::NodePtr node : _currUiNode->getNodeGraph()->getNodes())
-            {
-                for (mx::InputPtr input : node->getActiveInputs())
-                {
-                    if (input->getInterfaceInput())
-                    {
-
-                        if (input->getInterfaceName() == name)
-                        {
-                            return input;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return nullptr;
 }
 
 void Graph::drawOutputPins(UiNodePtr node, const std::string& longestInputLabel)
@@ -2921,10 +2870,10 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
-    if (node->outputPins.size() > 0)
+    for (UiPinPtr outputPin : node->outputPins)
     {
         // Update downNode info
-        for (UiPinPtr pin : node->outputPins.front()->getConnections())
+        for (UiPinPtr pin : outputPin.get()->getConnections())
         {
             mx::ValuePtr val;
             if (pin->_pinNode->getNode())
@@ -2938,6 +2887,13 @@ void Graph::deleteNode(UiNodePtr node)
                 else
                 {
                     pin->_input->setConnectedNode(nullptr);
+                }
+                if (node->getInput())
+                {
+                    // Remove interface value in order to set the default of the input
+                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(pin->_input);
+                    setDefaults(node->getInput());
                 }
             }
             else if (pin->_pinNode->getNodeGraph())
@@ -3736,7 +3692,6 @@ void Graph::addNodePopup(bool cursor)
                 }
             }
         }
-        cursor = false;
         ImGui::EndPopup();
         open_AddPopup = false;
     }
@@ -3778,7 +3733,6 @@ void Graph::searchNodePopup(bool cursor)
                 }
             }
         }
-        cursor = false;
         ImGui::EndPopup();
     }
 }
@@ -4350,19 +4304,6 @@ int Graph::findNode(int nodeId)
         count++;
     }
     return -1;
-}
-
-std::vector<int> Graph::findLinkId(int id)
-{
-    std::vector<int> ids;
-    for (const Link& link : _currLinks)
-    {
-        if (link._startAttr == id || link._endAttr == id)
-        {
-            ids.push_back(link.id);
-        }
-    }
-    return ids;
 }
 
 bool Graph::edgeExists(UiEdge newEdge)

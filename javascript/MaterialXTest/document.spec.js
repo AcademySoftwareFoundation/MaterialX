@@ -1,30 +1,37 @@
 import { expect } from 'chai';
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Document', () => {
+describe('Document', () =>
+{
     let mx, doc;
-    before(async () => {
+    before(async () =>
+    {
         mx = await Module();
         // Create a document.
         doc = mx.createDocument();
     });
 
-    function expectError(type, cb) {
-        try {
+    function expectError(type, cb)
+    {
+        try
+        {
             cb();
             throw new Error('Expected function to throw!');
-        } catch (exceptionPtr) {
+        } catch (exceptionPtr)
+        {
             const message = mx.getExceptionMessage(exceptionPtr);
             expect(message.indexOf(type) !== -1).to.be.true;
         }
     }
 
     let nodeGraph;
-    it('Build document', () => {
+    it('Build document', () =>
+    {
         // Create a node graph with constant and image sources.
         nodeGraph = doc.addNodeGraph();
         expect(nodeGraph).to.exist;
-        expectError('Child name is not unique: nodegraph1', () => {
+        expectError('Child name is not unique: nodegraph1', () =>
+        {
             doc.addNodeGraph(nodeGraph.getName());
         });
         const constant = nodeGraph.addNode('constant');

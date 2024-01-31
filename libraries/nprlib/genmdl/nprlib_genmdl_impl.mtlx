@@ -12,6 +12,6 @@
   <!-- ======================================================================== -->
 
   <!-- <viewdirection> -->
-  <implementation name="IM_viewdirection_vector3_genmdl" nodedef="ND_viewdirection_vector3" sourcecode="mx::stdlib::mx_viewdirection_vector3()" target="genmdl"/>
+  <implementation name="IM_viewdirection_vector3_genmdl" nodedef="ND_viewdirection_vector3" sourcecode="mx::stdlib::mx_viewdirection_vector3()" target="genmdl" />
 
 </materialx>

@@ -1,13 +1,16 @@
 import { expect } from 'chai';;
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Value', () => {
+describe('Value', () =>
+{
     let mx;
-    before(async () => {
+    before(async () =>
+    {
         mx = await Module();
     });
 
-    it('Create values of different types', () => {
+    it('Create values of different types', () =>
+    {
         const testValues = {
             integer: '1',
             boolean: 'true',
@@ -26,7 +29,8 @@ describe('Value', () => {
             stringarray: "'one', 'two', 'three'",
         };
 
-        for (let type in testValues) {
+        for (let type in testValues)
+        {
             const value = testValues[String(type)];
             const newValue = mx.Value.createValueFromStrings(value, type);
             const typeString = newValue.getTypeString();
