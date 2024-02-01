@@ -106,6 +106,22 @@ std::string getUserNodeDefName(const std::string& val)
 
 } // anonymous namespace
 
+//
+// Link methods
+//
+
+Link::Link() :
+    _startAttr(-1),
+    _endAttr(-1)
+{
+    static int nextId = 1;
+    _id = nextId++;
+}
+
+//
+// Graph methods
+//
+
 Graph::Graph(const std::string& materialFilename,
              const std::string& meshFilename,
              const mx::FileSearchPath& searchPath,
@@ -410,7 +426,7 @@ void Graph::connectLinks()
 {
     for (Link const& link : _currLinks)
     {
-        ed::Link(link.id, link._startAttr, link._endAttr);
+        ed::Link(link._id, link._startAttr, link._endAttr);
     }
 }
 
@@ -419,7 +435,7 @@ int Graph::findLinkPosition(int id)
     int count = 0;
     for (size_t i = 0; i < _currLinks.size(); i++)
     {
-        if (_currLinks[i].id == id)
+        if (_currLinks[i]._id == id)
         {
             return count;
         }
@@ -2854,10 +2870,10 @@ void Graph::deleteNode(UiNodePtr node)
         }
     }
 
-    if (node->outputPins.size() > 0)
+    for (UiPinPtr outputPin : node->outputPins)
     {
         // Update downNode info
-        for (UiPinPtr pin : node->outputPins.front()->getConnections())
+        for (UiPinPtr pin : outputPin.get()->getConnections())
         {
             mx::ValuePtr val;
             if (pin->_pinNode->getNode())
@@ -2871,6 +2887,13 @@ void Graph::deleteNode(UiNodePtr node)
                 else
                 {
                     pin->_input->setConnectedNode(nullptr);
+                }
+                if (node->getInput())
+                {
+                    // Remove interface value in order to set the default of the input
+                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    setDefaults(pin->_input);
+                    setDefaults(node->getInput());
                 }
             }
             else if (pin->_pinNode->getNodeGraph())

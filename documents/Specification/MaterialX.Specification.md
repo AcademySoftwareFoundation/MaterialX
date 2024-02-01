@@ -1084,6 +1084,12 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the modulo value or nodename to divide by, cannot be 0 in any channel; default is 1.0 in all channels, which effectively returns the fractional part of a float value
 
+<a id="node-invert"> </a>
+
+* **`invert`**: subtract the incoming float/color/vector from "amount" in all channels, outputting: `amount - in`.
+    * `in` (float or color<em>N</em> or vector<em>N</em>): the value or nodename for the primary input
+    * `amount` (same type as `in` or float): the value or nodename to subtract from; default is 1.0 in all channels
+
 <a id="node-absval"> </a>
 
 * **`absval`**: the per-channel absolute value of the incoming float/color/vector.
