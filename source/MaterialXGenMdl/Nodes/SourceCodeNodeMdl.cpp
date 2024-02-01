@@ -77,8 +77,7 @@ void SourceCodeNodeMdl::initialize(const InterfaceElement& element, GenContext& 
             const ShaderGenerator& shadergen = context.getShaderGenerator();
             const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
             const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
-            StringVec code = replaceSourceCodeMarkers(getName(), functionName,
-                [&shadergenMdl, &context, &versionSuffix](const string& marker)
+            StringVec code = replaceSourceCodeMarkers(getName(), functionName, [&versionSuffix](const string& marker)
                 {
                     return marker == MARKER_MDL_VERSION_SUFFIX ? versionSuffix : EMPTY_STRING;
                 });
@@ -104,13 +103,14 @@ void SourceCodeNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& con
         const MdlShaderGenerator& shadergenMdl = static_cast<const MdlShaderGenerator&>(shadergen);
         if (_inlined)
         {
+            const string versionSuffix = shadergenMdl.getMdlVersionFilenameSuffix(context);
             StringVec code = replaceSourceCodeMarkers(node.getName(), _functionSource,
-                [&shadergenMdl, &context, &node](const string& marker)
+                [&shadergenMdl, &context, &node, &versionSuffix](const string& marker)
                 {
                     // Special handling for the version suffix of MDL source code modules.
                     if (marker == MARKER_MDL_VERSION_SUFFIX)
                     {
-                        return shadergenMdl.getMdlVersionFilenameSuffix(context);
+                        return versionSuffix;
                     }
                     // Insert inputs based on parameter names.
                     else
