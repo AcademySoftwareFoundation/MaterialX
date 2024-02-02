@@ -431,8 +431,7 @@ MeshStreamPtr Mesh::getStream(const string& name, bool allowFallback)
 MeshStreamPtr Mesh::getStream(const string& type, unsigned int index, bool allowFallback)
 {
     const string streamName = "i_" + type + "_" + std::to_string(index);
-    MeshStreamPtr foundStream = getStream(streamName, allowFallback);
-    return foundStream;
+    return getStream(streamName, allowFallback);
 }
 
 MATERIALX_NAMESPACE_END
