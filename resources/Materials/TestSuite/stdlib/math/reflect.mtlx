@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <reflect name="reflect" type="vector3" />
+  <surfacematerial name="reflect_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="reflect_shader" />
+  </surfacematerial>
+  <convert name="reflect_shader" type="surfaceshader">
+    <input name="in" type="vector3" nodename="reflect" />
+  </convert>
+</materialx>

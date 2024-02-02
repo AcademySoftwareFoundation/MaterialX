@@ -2688,6 +2688,17 @@
     <input name="in" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
+  
+  <!--
+    Node: <reflect>
+    Compute the reflection of a vector relative to the normal of a plane.
+    The default is to compute the view direction relative to the geometric normal in world space.
+  -->
+  <nodedef name="ND_reflect" node="reflect" nodegroup="math" doc="Compute the reflection of a vector relative to a plane normal">
+    <input name="in1" type="vector3" value="1, 0, 0" defaultgeomprop="Nworld" uiname="Normal Vector" doc="Normal of plane for reflection"/>
+    <input name="in2" type="vector3" value="1, 0, 0" defaultgeomprop="Vworld" uiname="Reflection Vector" doc="Vector to reflect"/>
+    <output name="out" type="vector3" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->

@@ -2703,6 +2703,37 @@
     <output name="out" type="float" nodename="subtract2" />
   </nodegraph>
 
+  <!--
+    Node: <reflect>
+    Compute the reflection of a vector relative to the normal of a plane.
+    The default is to compute the view direction relative to the geometric normal in world space.
+  -->
+  <nodegraph name="NG_reflect" type="vector3" nodedef="ND_reflect">
+    <normalize name="unit_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1" />
+    </normalize>
+    <normalize name="unit_in2" type="vector3">
+      <input name="in" type="vector3" interfacename="in2" />
+    </normalize>
+    <multiply name="V1dotV2_2" type="float">
+      <input name="in1" type="float" nodename="V1dotV2" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="V1dotV2_N_2" type="vector3">
+      <input name="in1" type="vector3" nodename="unit_in1" />
+      <input name="in2" type="float" nodename="V1dotV2_2" />
+    </multiply>
+    <dotproduct name="V1dotV2" type="float">
+      <input name="in1" type="vector3" nodename="unit_in1" />
+      <input name="in2" type="vector3" nodename="unit_in2" />
+    </dotproduct>
+    <subtract name="reflection_vector" type="vector3">
+      <input name="in1" type="vector3" nodename="unit_in2" />
+      <input name="in2" type="vector3" nodename="V1dotV2_N_2" />
+    </subtract>
+    <output name="out" type="vector3" nodename="reflection_vector" />
+  </nodegraph>
+  
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
