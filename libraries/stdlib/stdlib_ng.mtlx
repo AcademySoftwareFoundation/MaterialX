@@ -2770,6 +2770,199 @@
   </nodegraph>
 
   <!--
+    Node: <safepower>
+    Raise incoming half/float/color/vector values to the "in2" power.
+      Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+  -->
+  <nodegraph name="NG_safepower_float" nodedef="ND_safepower_float">
+    <sign name="sign_in1" type="float">
+      <input name="in" type="float" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="float">
+      <input name="in" type="float" interfacename="in1"/>
+    </absval>
+    <power name="power" type="float">
+      <input name="in1" type="float" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="float">
+      <input name="in1" type="float" nodename="sign_in1"/>
+      <input name="in2" type="float" nodename="power"/>
+    </multiply>
+    <output name="out" type="float" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_color3" nodedef="ND_safepower_color3">
+    <sign name="sign_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1"/>
+    </absval>
+    <power name="power" type="color3">
+      <input name="in1" type="color3" nodename="abs_in1"/>
+      <input name="in2" type="color3" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="color3">
+      <input name="in1" type="color3" nodename="sign_in1"/>
+      <input name="in2" type="color3" nodename="power"/>
+    </multiply>
+    <output name="out" type="color3" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_color4" nodedef="ND_safepower_color4">
+    <sign name="sign_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1"/>
+    </absval>
+    <power name="power" type="color4">
+      <input name="in1" type="color4" nodename="abs_in1"/>
+      <input name="in2" type="color4" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="color4">
+      <input name="in1" type="color4" nodename="sign_in1"/>
+      <input name="in2" type="color4" nodename="power"/>
+    </multiply>
+    <output name="out" type="color4" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector2" nodedef="ND_safepower_vector2">
+    <sign name="sign_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector2">
+      <input name="in1" type="vector2" nodename="abs_in1"/>
+      <input name="in2" type="vector2" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector2">
+      <input name="in1" type="vector2" nodename="sign_in1"/>
+      <input name="in2" type="vector2" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector2" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector3" nodedef="ND_safepower_vector3">
+    <sign name="sign_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector3">
+      <input name="in1" type="vector3" nodename="abs_in1"/>
+      <input name="in2" type="vector3" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector3">
+      <input name="in1" type="vector3" nodename="sign_in1"/>
+      <input name="in2" type="vector3" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector3" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector4" nodedef="ND_safepower_vector4">
+    <sign name="sign_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector4">
+      <input name="in1" type="vector4" nodename="abs_in1"/>
+      <input name="in2" type="vector4" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector4">
+      <input name="in1" type="vector4" nodename="sign_in1"/>
+      <input name="in2" type="vector4" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector4" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_color3FA" nodedef="ND_safepower_color3FA">
+    <sign name="sign_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1"/>
+    </absval>
+    <power name="power" type="color3">
+      <input name="in1" type="color3" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="color3">
+      <input name="in1" type="color3" nodename="sign_in1"/>
+      <input name="in2" type="color3" nodename="power"/>
+    </multiply>
+    <output name="out" type="color3" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_color4FA" nodedef="ND_safepower_color4FA">
+    <sign name="sign_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1"/>
+    </absval>
+    <power name="power" type="color4">
+      <input name="in1" type="color4" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="color4">
+      <input name="in1" type="color4" nodename="sign_in1"/>
+      <input name="in2" type="color4" nodename="power"/>
+    </multiply>
+    <output name="out" type="color4" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector2FA" nodedef="ND_safepower_vector2FA">
+    <sign name="sign_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector2">
+      <input name="in1" type="vector2" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector2">
+      <input name="in1" type="vector2" nodename="sign_in1"/>
+      <input name="in2" type="vector2" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector2" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector3FA" nodedef="ND_safepower_vector3FA">
+    <sign name="sign_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector3">
+      <input name="in1" type="vector3" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector3">
+      <input name="in1" type="vector3" nodename="sign_in1"/>
+      <input name="in2" type="vector3" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector3" nodename="safepower"/>
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector4FA" nodedef="ND_safepower_vector4FA">
+    <sign name="sign_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1"/>
+    </sign>
+    <absval name="abs_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1"/>
+    </absval>
+    <power name="power" type="vector4">
+      <input name="in1" type="vector4" nodename="abs_in1"/>
+      <input name="in2" type="float" interfacename="in2"/>
+    </power>
+    <multiply name="safepower" type="vector4">
+      <input name="in1" type="vector4" nodename="sign_in1"/>
+      <input name="in2" type="vector4" nodename="power"/>
+    </multiply>
+    <output name="out" type="vector4" nodename="safepower"/>
+  </nodegraph>
+
+  <!--
     Node: <contrast>
     Increase or decrease contrast of a float/color value using a linear slope multiplier.
   -->
