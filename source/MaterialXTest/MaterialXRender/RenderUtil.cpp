@@ -478,7 +478,7 @@ void ShaderRenderTester::addAdditionalTestStreams(mx::MeshPtr mesh)
 
     const std::string GEOM_VECTOR2_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_vector2");
     mx::MeshFloatBuffer* geomVector2Data = nullptr;
-    if (!mesh->getStream(GEOM_VECTOR2_STREAM_NAME, false))
+    if (!mesh->getStream(GEOM_VECTOR2_STREAM_NAME))
     {
         mx::MeshStreamPtr geomVector2Stream = mx::MeshStream::create(GEOM_VECTOR2_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
         geomVector2Data = &(geomVector2Stream->getData());
@@ -533,7 +533,7 @@ void ShaderRenderTester::addAdditionalTestStreams(mx::MeshPtr mesh)
 
     const std::string GEOM_COLOR4_STREAM_NAME("i_" + mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE + "_geompropvalue_color4");
     mx::MeshFloatBuffer* geomColor4Data = nullptr;
-    if (!mesh->getStream(GEOM_COLOR4_STREAM_NAME, false))
+    if (!mesh->getStream(GEOM_COLOR4_STREAM_NAME))
     {
         mx::MeshStreamPtr geomColor4Stream = mx::MeshStream::create(GEOM_COLOR4_STREAM_NAME, mx::MeshStream::GEOMETRY_PROPERTY_ATTRIBUTE, 1);
         geomColor4Data = &(geomColor4Stream->getData());
