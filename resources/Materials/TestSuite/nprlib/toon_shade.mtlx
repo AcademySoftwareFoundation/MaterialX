@@ -17,14 +17,13 @@
     <output name="output_color3" type="color3" />
   </nodedef>
   <npr_test:toon_shade name="toon_shade1" type="color3">
-    <input name="base_color" type="color3" value="0, 0.408313, 0.357399" uiname="Base Color" />
-    <input name="ambient_color" type="color3" value="0.166259, 0.166259, 0.166259" uiname="Ambient Color" />
-    <input name="specular_color" type="color3" value="0.726161, 0.658694, 0.658694" uiname="Specular Color" />
-    <input name="glossiness" type="float" value="13.75" uiname="Glossiness" uimin="1" uimax="256" />
-    <input name="rimColor" type="color3" value="0.745721, 0.745721, 0.745721" uiname="Rim Color" />
-    <input name="light_direction" type="vector3" value="1, -0.5, -0.5" uiname="Light Direction" uimin="-1,-1,-1" uimax="1,1,1" />
-    <input name="light_color" type="color3" value="0.968215, 0.968215, 0.968215" uiname="Light Color" />
-    <output name="output_color3" type="color3" />
+    <input name="base_color" type="color3" value="0.4, 0.4, 0.4" />
+    <input name="ambient_color" type="color3" value="0.1, 0.1, 0.1" />
+    <input name="specular_color" type="color3" value="0.769337, 0.872861, 0.599692" />
+    <input name="glossiness" type="float" value="16" />
+    <input name="rimColor" type="color3" value="0.5, 0.5, 0.5" />
+    <input name="light_direction" type="vector3" value="1, -0.5, -0.5" />
+    <input name="light_color" type="color3" value="0.968215, 0.968215, 0.968215" />
   </npr_test:toon_shade>
   <nodegraph name="NG_toon_sample" namespace="npr_test" nodedef="ND_toon_sample">
     <output name="output_color3" type="color3" nodename="multiply_color3" />
