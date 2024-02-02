@@ -402,7 +402,6 @@ MeshStreamPtr Mesh::getStream(const string& name, bool allowFallback)
             returnStream = tangentStream;
         }
 
-
         if (needBiTangents)
         {
             MeshStreamPtr bitangentStream = getStream("i_" + MeshStream::BITANGENT_ATTRIBUTE);
