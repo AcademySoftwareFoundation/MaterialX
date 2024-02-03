@@ -307,8 +307,8 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
-        mx::OutputPtr output = nullptr;
+        // For nodegraph need to get the correct ouput pin according to the names of the output nodes
+        mx::OutputPtr output;
         if (input->_pinNode->getNode())
         {
             output = input->_pinNode->getNode()->getConnectedOutput(input->_name);
