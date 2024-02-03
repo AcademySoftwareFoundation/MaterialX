@@ -5,9 +5,8 @@ Documentation:
 
 import os
 import re
-import json
 import logging
-from typing import Dict
+from typing import List
 
 import MaterialX
 
@@ -17,223 +16,108 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-logger = logging.getLogger('creatematerial')
+logger = logging.getLogger('createMaterial')
 
 
 class Constant:
-    UDIM_TOKEN = '.<UDIM>.'
-    UDIM_REGEX = r'\.\d+\.'
+    UdimToken = '.<UDIM>.'
+    UdimRegex = r'\.\d+\.'
+    TextureExtensions = [
+        "exr",
+        "png",
+        "jpg",
+        "jpeg",
+        "tif",
+        "hdr"
+    ]
 
-    TEXTURE_PATTERNS_SEARCH_PATH = 'MATERIALX_TEXTURE_PATTERNS_PATH'
 
-    METHOD_KEY = 'method'
-    METHOD_APPEND = 'append'
-    METHOD_PREPEND = 'prepend'
-    METHOD_OVERRIDE = 'override'
+class UdimFile(MaterialX.FilePath):
 
-class UDIMFile(MaterialX.FilePath):
+    def __init__(self, pathString):
+        super().__init__(pathString)
 
-    def __init__(self, pathstring):
-        super().__init__(pathstring)
-
-        self._isudim = False
-        self._udim_files = []
-        self.regex = re.compile(Constant.UDIM_REGEX)
+        self._isUdim = False
+        self._udimFiles = []
+        self._udimRegex = re.compile(Constant.UdimRegex)
 
         self.udimFiles()
 
     def udimFiles(self):
-        texture_dir = self.getParentPath()
-        texture_name = self.getBaseName()
-        texture_extension = self.getExtension()
+        textureDir = self.getParentPath()
+        textureName = self.getBaseName()
+        textureExtension = self.getExtension()
 
-        if not self.regex.search(texture_name):
+        if not self._udimRegex.search(textureName):
             # non udims files
-            self._udim_files = [self]
+            self._udimFiles = [self]
 
-        self._isudim = True
-        fullname_pattern = self.regex.sub(self.regex.pattern.replace('\\', '\\\\'),
-                                          texture_name)
+        self._isUdim = True
+        fullNamePattern = self._udimRegex.sub(self._udimRegex.pattern.replace('\\', '\\\\'),
+                                              textureName)
 
-        udim_files = filter(
-            lambda f: re.search(fullname_pattern, f.asString()),
-            texture_dir.getFilesInDirectory(texture_extension)
+        udimFiles = filter(
+            lambda f: re.search(fullNamePattern, f.asString()),
+            textureDir.getFilesInDirectory(textureExtension)
         )
-        self._udim_files = [texture_dir / f for f in udim_files]
+        self._udimFiles = [textureDir / f for f in udimFiles]
 
-    def asPattern(self):
+    def asPattern(self, format=MaterialX.FormatPosix):
 
-        if not self._isudim:
+        if not self._isUdim:
             return self.asPattern()
 
-        texture_dir = self.getParentPath()
-        texture_name = self.getBaseName()
+        textureDir = self.getParentPath()
+        textureName = self.getBaseName()
 
-        pattern = texture_dir / MaterialX.FilePath(self.regex.sub(Constant.UDIM_TOKEN, texture_name))
-        return pattern.asString()
+        pattern = textureDir / MaterialX.FilePath(
+            self._udimRegex.sub(Constant.UdimToken, textureName))
+        return pattern.asString(format=format)
 
-    def isUDIM(self):
-        return self._isudim
+    def isUdim(self):
+        return self._isUdim
 
-    def getNumberOfUDIMs(self):
-        return len(self._udim_files)
+    def getNumberOfUdims(self):
+        return len(self._udimFiles)
 
     def getUdimFiles(self):
-        return self._udim_files
+        return self._udimFiles
 
     def getUdimNumbers(self):
-        def _extract_udim_number(_file):
-            pattern = self.regex.search(_file.getBaseName())
+        def _extractUdimNumber(_file):
+            pattern = self._udimRegex.search(_file.getBaseName())
             if pattern:
                 return re.search(r"\d+", pattern.group()).group()
 
-        return list(map(_extract_udim_number, self._udim_files))
+        return list(map(_extractUdimNumber, self._udimFiles))
 
     def getNameWithoutExtension(self):
-        if self._isudim:
-            name = self.regex.split(self.getBaseName())[0]
+        if self._isUdim:
+            name = self._udimRegex.split(self.getBaseName())[0]
         else:
             name = self.getBaseName().rsplit('.', 1)[0]
 
         return re.sub(r'[^\w\s]+', '_', name)
 
 
-def get_texture_files(texture_dir: MaterialX.FilePath, extension='png'):
-    textures = [texture_dir / f for f in texture_dir.getFilesInDirectory(extension)]
-
-    textures_files = []
-    while textures:
-        texture_file = UDIMFile(textures[0].asString())
-        textures_files.append(texture_file)
-        for udim_file in texture_file.getUdimFiles():
-            textures.remove(udim_file)
-
-    return textures_files
-
-
-def read_json(json_path: str) -> Dict:
+def listTextures(textureDir: MaterialX.FilePath) -> List[UdimFile]:
     """
-    Read a JSON file and return its content as a dictionary.
-    If there is a JSON decoding error, return an empty dictionary.
+    List all textures that matched extensions in cfg file
+    @param textureDir: the directory where the textures exist
+    return List(udimutils.UDIMFile)
     """
-    try:
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError:
-        logger.debug("Configuration JSON file decoder error: `{}`".format(json_path))
-        data = {}
-    return data
 
+    allTextures = []
+    for ext in Constant.TextureExtensions:
+        textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)]
 
-def apply_method(base_item: Dict, item: Dict, method: str) -> None:
-    """
-    Apply the method (append, prepend, or override) to the given item.
+        while textures:
+            textureFile = UdimFile(textures[0].asString())
+            allTextures.append(textureFile)
+            for udimFile in textureFile.getUdimFiles():
+                textures.remove(udimFile)
 
-    @param base_item: The base dictionary item to apply the changes in.
-    @param item: The dictionary item to get the data from.
-    @param method: The methode of combining ["append", "prepend", "override"]
-
-    return: (None) Apply the changes inplace in base_item
-
-    """
-    if method == Constant.METHOD_APPEND:
-
-        for key in item:
-            sub_item = item[key]
-            if isinstance(sub_item, dict):
-                sub_method = sub_item.get(Constant.METHOD_KEY, Constant.METHOD_APPEND)
-
-                if not base_item.get(key):
-                    base_item[key] = {}
-
-                apply_method(base_item[key], sub_item, sub_method)
-
-            elif isinstance(sub_item, list):
-                base_item[key] = list(set(base_item.get(key, []) + sub_item))
-
-            else:
-                pass
-
-    if method == Constant.METHOD_PREPEND:
-
-        for key in item:
-            sub_item = item[key]
-            if isinstance(sub_item, dict):
-                sub_method = sub_item.get(Constant.METHOD_KEY, Constant.METHOD_APPEND)
-
-                if not base_item.get(key):
-                    base_item[key] = {}
-
-                apply_method(base_item[key], sub_item, sub_method)
-
-            elif isinstance(sub_item, list):
-                base_item[key] = list(set(sub_item + base_item.get(key, [])))
-
-            else:
-                base_item[key] = sub_item
-
-    if method == Constant.METHOD_OVERRIDE:
-
-        for key in item:
-            sub_item = item[key]
-            if isinstance(sub_item, dict):
-                base_item[key] = sub_item
-
-            elif isinstance(sub_item, list):
-                base_item[key] = sub_item
-
-            else:
-                base_item[key] = sub_item
-
-
-def combine_configration(base_config: Dict, added_config: Dict) -> Dict:
-    """
-    Combine two configurations from two JSON files.
-
-    @param base_config: The base dictionary configration to apply the changes in.
-    @param added_config: The dictionary configration to get the data from.
-
-    return: (Dict) the final cooked dictionary
-    """
-    for key in added_config:
-        item = added_config[key]
-
-        if key == Constant.METHOD_KEY:
-            continue
-        if key not in base_config:
-            base_config[key] = item
-            continue
-
-        method = item.get(Constant.METHOD_KEY, Constant.METHOD_APPEND)
-        apply_method(base_config[key], item, method)
-
-    return base_config
-
-
-def get_configration() -> Dict:
-    """
-    Get the configuration from a JSON file combined with all user-specified JSON files.
-    """
-    base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'texture_patterns.json')
-
-    if not os.path.exists(base_path):
-        raise RuntimeError("Can not find the base configration JSON file")
-
-    base_config = read_json(base_path)
-
-    # search_paths = MaterialX.getEnvironmentPath('MATERIALX_TEXTURE_PATTERN_PATH')
-    config_paths = os.getenv(Constant.TEXTURE_PATTERNS_SEARCH_PATH, "")
-    logger.debug("Using `{}`=`{}`".format(Constant.TEXTURE_PATTERNS_SEARCH_PATH, config_paths))
-
-    for config_path in config_paths.split(MaterialX.PATH_LIST_SEPARATOR):
-        if not os.path.exists(config_path):
-            logger.debug("Cannot find the configration file: `{}`".format(config_path))
-            continue
-
-        logger.debug("Read Configration from: `{}`".format(config_path))
-        combine_configration(base_config, read_json(config_path))
-
-    return base_config
+    return allTextures
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-__doc__ = 'Create materialX file conatin standard surface uber shader with input texture for given directory'
+__doc__ = ('Create materialX file conatin standard surface uber shader with input texture for '
+           'given directory')
 
 
 import logging
@@ -7,7 +8,7 @@ import argparse
 
 import MaterialX
 
-from create_material import create_mtlx_doc, SETTINGS
+from creatematerial import createMtlxDoc
 
 
 logger = logging.getLogger('creatematerial')
@@ -27,33 +28,29 @@ def main():
 
     options = parser.parse_args()
 
-    texture_path = MaterialX.FilePath.getCurrentPath()
+    texturePath = MaterialX.FilePath.getCurrentPath()
 
     if options.inputDirectory:
-        texture_path = MaterialX.FilePath(options.inputDirectory)
+        texturePath = MaterialX.FilePath(options.inputDirectory)
 
-        if not texture_path.isDirectory():
-            logger.error("The texture directory does not exist `{}`".format(texture_path))
+        if not texturePath.isDirectory():
+            logger.error("The texture directory does not exist `{}`".format(texturePath))
             return
 
     default_doc_name = MaterialX.FilePath('standard_surface.mtlx')
-    mtlx_file = texture_path / default_doc_name
+    mtlxFile = texturePath / default_doc_name
     if options.outputFilename:
         filepath = MaterialX.FilePath(options.outputFilename)
 
         if filepath.isAbsolute():
-            mtlx_file = filepath
+            mtlxFile = filepath
         else:
-            mtlx_file = texture_path / filepath
+            mtlxFile = texturePath / filepath
 
     # Get shader model
-    shader_model = 'standard_surface'
+    shaderModel = 'standard_surface'
     if options.shaderModel:
-        shader_model = options.shaderModel
-
-    if shader_model not in SETTINGS.get('shader_model', {}):
-        logger.error(f"Cannot find the shader model `{shader_model}` in the configuration")
-        return
+        shaderModel = options.shaderModel
 
     # Colorspace
     colorspace = 'srgb_texture'
@@ -64,13 +61,13 @@ def main():
     if options.verbose:
         logger.setLevel(logging.DEBUG)
 
-    create_mtlx_doc(
-        texture_path,
-        mtlx_file,
-        shader_model,
-        relative_paths=not options.absolutePaths,
+    createMtlxDoc(
+        texturePath,
+        mtlxFile,
+        shaderModel,
+        relativePaths=not options.absolutePaths,
         colorspace=colorspace,
-        use_tile_image=options.tileimage
+        useTileImage=options.tileimage
     )
 
 
