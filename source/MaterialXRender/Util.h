@@ -31,28 +31,33 @@ MX_RENDER_API ShaderPtr createShader(const string& shaderName, GenContext& conte
 /// Create a shader with a constant color output, using the given standard libraries
 /// for code generation.
 MX_RENDER_API ShaderPtr createConstantShader(GenContext& context,
-                               DocumentPtr stdLib,
-                               const string& shaderName,
-                               const Color3& color);
+                                             DocumentPtr stdLib,
+                                             const string& shaderName,
+                                             const Color3& color);
 
 /// Create a shader with depth value output, using the given standard libraries
 /// for code generation.
 MX_RENDER_API ShaderPtr createDepthShader(GenContext& context,
-                            DocumentPtr stdLib,
-                            const string& shaderName);
+                                          DocumentPtr stdLib,
+                                          const string& shaderName);
 
 /// Create a shader that generates a look-up table for directional albedo, using
 /// the given standard libraries for code generation.
 MX_RENDER_API ShaderPtr createAlbedoTableShader(GenContext& context,
-                                  DocumentPtr stdLib,
-                                  const string& shaderName);
+                                                DocumentPtr stdLib,
+                                                const string& shaderName);
+
+/// Create a shader that generates a prefiltered environment map.
+MX_RENDER_API ShaderPtr createEnvPrefilterShader(GenContext& context,
+                                                 DocumentPtr stdLib,
+                                                 const string& shaderName);
 
 /// Create a blur shader, using the given standard libraries for code generation.
 MX_RENDER_API ShaderPtr createBlurShader(GenContext& context,
-                           DocumentPtr stdLib,
-                           const string& shaderName,
-                           const string& filterType,
-                           float filterSize);
+                                         DocumentPtr stdLib,
+                                         const string& shaderName,
+                                         const string& filterType,
+                                         float filterSize);
 
 /// @}
 /// @name User Interface Utilities

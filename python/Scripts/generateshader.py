@@ -5,12 +5,13 @@ for each material / shader found. The currently supported target languages are G
 '''
 
 import sys, os, argparse, subprocess
+
 import MaterialX as mx
-import MaterialX.PyMaterialXGenShader as mx_gen_shader
 import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
-import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenMdl as mx_gen_mdl
 import MaterialX.PyMaterialXGenMsl as mx_gen_msl
+import MaterialX.PyMaterialXGenOsl as mx_gen_osl
+import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
@@ -24,7 +25,7 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
         print(cmd_flatten)
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            result = output.decode(encoding='utf-8')
+            return output.decode(encoding='utf-8')
         except subprocess.CalledProcessError as out:                                                                                                   
             return (out.output.decode(encoding='utf-8'))
     return ""
@@ -82,7 +83,7 @@ def main():
         try:
             mx.loadLibraries(libraryFolders, searchPath, stdlib)
             doc.importLibrary(stdlib)
-        except err:
+        except Exception as err:
             print('Generation failed: "', err, '"')
             sys.exit(-1)
 

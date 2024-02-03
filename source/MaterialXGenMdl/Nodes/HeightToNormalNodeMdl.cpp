@@ -50,7 +50,7 @@ void HeightToNormalNodeMdl::computeSampleOffsetStrings(const string& sampleSizeN
 bool HeightToNormalNodeMdl::acceptsInputType(const TypeDesc* type) const
 {
     // Only support inputs which are float scalar
-    return (type == Type::FLOAT && type->isScalar());
+    return (*type == *Type::FLOAT && type->isScalar());
 }
 
 void HeightToNormalNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

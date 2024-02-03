@@ -25,19 +25,20 @@ jobs:
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_GCC_11_Python39
-          os: ubuntu-20.04
-          compiler: gcc
-          compiler_version: "11"
-          python: 3.9
-          build_javascript: ON
-
         - name: Linux_GCC_12_Python311
           os: ubuntu-22.04
           compiler: gcc
           compiler_version: "12"
           python: 3.11
-          upload_shaders: ON
+          build_javascript: ON
+
+        - name: Linux_GCC_13_Python312
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "13"
+          python: 3.12
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-22.04
@@ -53,20 +54,19 @@ jobs:
           compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
-          static_analysis: ON
 
-        - name: Linux_Clang_14_Python311
+        - name: Linux_Clang_15_Python312
           os: ubuntu-22.04
           compiler: clang
-          compiler_version: "14"
-          python: 3.11
+          compiler_version: "15"
+          python: 3.12
           test_render: ON
           clang_format: ON
 
-        - name: Linux_Clang_14_DynamicAnalysis
+        - name: Linux_Clang_DynamicAnalysis
           os: ubuntu-22.04
           compiler: clang
-          compiler_version: "14"
+          compiler_version: "15"
           python: None
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
@@ -78,17 +78,17 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
-        - name: MacOS_Xcode_13_Python39
-          os: macos-12
-          compiler: xcode
-          compiler_version: "13.4"
-          python: 3.9
-
         - name: MacOS_Xcode_14_Python311
           os: macos-13
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
+
+        - name: MacOS_Xcode_15_Python312
+          os: macos-13
+          compiler: xcode
+          compiler_version: "15.0"
+          python: 3.12
           test_shaders: ON
 
         - name: iOS_Xcode_15
@@ -104,18 +104,19 @@ jobs:
           python: 3.7
           cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Windows_VS2022_x64_Python39
-          os: windows-2022
-          architecture: x64
-          python: 3.9
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
-
         - name: Windows_VS2022_x64_Python311
           os: windows-2022
           architecture: x64
           python: 3.11
           cmake_config: -G "Visual Studio 17 2022" -A "x64"
           test_shaders: ON
+
+        - name: Windows_VS2022_x64_Python312
+          os: windows-2022
+          architecture: x64
+          python: 3.12
+          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          upload_shaders: ON
 
     steps:
     - name: Sync Repository
@@ -172,6 +173,10 @@ jobs:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
 
+    - name: Install Python Dependencies
+      if: matrix.python != 'None'
+      run: pip install setuptools
+
     - name: Install Emscripten
       if: matrix.build_javascript == 'ON'
       run: |
@@ -190,17 +195,13 @@ jobs:
 
     - name: Run Clang Format
       if: matrix.clang_format == 'ON'
-      run: find source \( -name *.h -o -name *.cpp -o -name *.mm \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
+      run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: |
-        mkdir build
-        cd build
-        cmake -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${{matrix.cmake_config}} ..
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
 
     - name: CMake Build
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: build
+      run: cmake --build build --target install --config Release --parallel 2
 
     - name: CMake Unit Tests
       run: ctest -VV --output-on-failure --build-config Release
@@ -308,15 +309,11 @@ jobs:
 
     - name: JavaScript CMake Generate
       if: matrix.build_javascript == 'ON'
-      run: |
-        mkdir javascript/build
-        cd javascript/build
-        cmake -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }} -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_TESTS=OFF -DMATERIALX_BUILD_GEN_OSL=OFF -DMATERIALX_BUILD_GEN_MDL=OFF ../..
+      run: cmake -S . -B javascript/build -DMATERIALX_BUILD_JS=ON -DMATERIALX_EMSDK_PATH=${{ env.EMSDK }}
 
     - name: JavaScript CMake Build
       if: matrix.build_javascript == 'ON'
-      run: cmake --build . --target install --config Release --parallel 2
-      working-directory: javascript/build
+      run: cmake --build javascript/build --target install --config Release --parallel 2
     
     - name: JavaScript Unit Tests
       if: matrix.build_javascript == 'ON'
@@ -405,7 +402,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.13.1
+      uses: pypa/cibuildwheel@v2.16.5
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:

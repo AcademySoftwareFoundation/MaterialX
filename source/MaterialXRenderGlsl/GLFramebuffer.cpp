@@ -75,33 +75,33 @@ GLFramebuffer::GLFramebuffer(unsigned int width, unsigned int height, unsigned i
         string errorMessage;
         switch (status)
         {
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-            errorMessage = "GL_FRAMEBUFFER_UNSUPPORTED";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-            break;
-        case GL_FRAMEBUFFER_UNDEFINED:
-            errorMessage = "GL_FRAMEBUFFER_UNDEFINED";
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-            errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-            break;
-        default:
-            errorMessage = std::to_string(status);
-            break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+                break;
+            case GL_FRAMEBUFFER_UNSUPPORTED:
+                errorMessage = "GL_FRAMEBUFFER_UNSUPPORTED";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+                break;
+            case GL_FRAMEBUFFER_UNDEFINED:
+                errorMessage = "GL_FRAMEBUFFER_UNDEFINED";
+                break;
+            case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                errorMessage = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+                break;
+            default:
+                errorMessage = std::to_string(status);
+                break;
         }
 
         throw ExceptionRenderError("Frame buffer object setup failed: " + errorMessage);

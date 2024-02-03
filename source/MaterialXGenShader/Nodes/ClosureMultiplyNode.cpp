@@ -50,7 +50,7 @@ void ClosureMultiplyNode::emitFunctionCall(const ShaderNode& _node, GenContext& 
         const string in2Result = shadergen.getUpstreamResult(in2, context);
 
         ShaderOutput* output = node.getOutput();
-        if (output->getType() == Type::BSDF)
+        if (*output->getType() == *Type::BSDF)
         {
             const string in2clamped = output->getVariable() + "_in2_clamped";
             shadergen.emitLine(syntax.getTypeName(in2->getType()) + " " + in2clamped + " = clamp(" + in2Result + ", 0.0, 1.0)", stage);
@@ -59,7 +59,7 @@ void ClosureMultiplyNode::emitFunctionCall(const ShaderNode& _node, GenContext& 
             shadergen.emitLine(output->getVariable() + ".response = " + in1Result + ".response * " + in2clamped, stage);
             shadergen.emitLine(output->getVariable() + ".throughput = " + in1Result + ".throughput * " + in2clamped, stage);
         }
-        else if (output->getType() == Type::EDF)
+        else if (*output->getType() == *Type::EDF)
         {
             shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = " + in1Result + " * " + in2Result, stage);
         }

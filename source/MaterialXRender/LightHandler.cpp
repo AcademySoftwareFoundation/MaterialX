@@ -42,7 +42,7 @@ void LightHandler::findLights(DocumentPtr doc, vector<NodePtr>& lights)
     for (NodePtr node : doc->getNodes())
     {
         const TypeDesc* type = TypeDesc::get(node->getType());
-        if (type == Type::LIGHTSHADER)
+        if (*type == *Type::LIGHTSHADER)
         {
             lights.push_back(node);
         }
@@ -51,7 +51,7 @@ void LightHandler::findLights(DocumentPtr doc, vector<NodePtr>& lights)
 
 void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights, GenContext& context)
 {
-    // Clear context light user data which is set when bindLightShader() 
+    // Clear context light user data which is set when bindLightShader()
     // is called. This is necessary in case the light types have already been
     // registered.
     HwShaderGenerator::unbindLightShaders(context);
@@ -71,7 +71,7 @@ void LightHandler::registerLights(DocumentPtr doc, const vector<NodePtr>& lights
     }
 
     // Make sure max light count is large enough
-    const unsigned int lightCount = (unsigned int)lights.size();
+    const unsigned int lightCount = (unsigned int) lights.size();
     if (lightCount > context.getOptions().hwMaxActiveLightSources)
     {
         context.getOptions().hwMaxActiveLightSources = lightCount;
