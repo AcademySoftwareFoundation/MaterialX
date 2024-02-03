@@ -2,8 +2,10 @@ import { expect } from 'chai';
 import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
-describe('Code Examples', () => {
-    it('Building a MaterialX Document', async () => {
+describe('Code Examples', () =>
+{
+    it('Building a MaterialX Document', async () =>
+    {
         const mx = await Module();
         // Create a document.
         const doc = mx.createDocument();
@@ -76,7 +78,8 @@ describe('Code Examples', () => {
         // expect(roughness.getBoundValue(material).getValueString()).to.equal('0.5');
     });
 
-    it('Traversing a Document Tree', async () => {
+    it('Traversing a Document Tree', async () =>
+    {
         const xmlStr = getMtlxStrings(
             ['standard_surface_greysphere_calibration.mtlx'],
             '../../resources/Materials/Examples/StandardSurface'
@@ -92,13 +95,16 @@ describe('Code Examples', () => {
         let elementCount = 0;
         let nodeCount = 0;
         let fileCount = 0;
-        for(let elem of elements) {
+        for (let elem of elements)
+        {
             elementCount++;
             // Display the filename of each image node.
-            if (elem.isANode('image')) {
+            if (elem.isANode('image'))
+            {
                 nodeCount++;
                 const input = elem.getInput('file');
-                if (input) {
+                if (input)
+                {
                     fileCount++;
                     const filename = input.getValueString();
                     expect(elem.getName()).to.equal('image1');
@@ -111,7 +117,8 @@ describe('Code Examples', () => {
         expect(fileCount).to.equal(1);
     });
 
-    it('Building a MaterialX Document', async () => {
+    it('Building a MaterialX Document', async () =>
+    {
         const xmlStr = getMtlxStrings(['standard_surface_marble_solid.mtlx'], '../../resources/Materials/Examples/StandardSurface')[0];
         const mx = await Module();
 

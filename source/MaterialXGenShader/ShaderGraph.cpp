@@ -1029,7 +1029,7 @@ void ShaderGraph::optimize(GenContext& context)
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty() && in->getType() == Type::FILENAME)
+            if (in->getChannels().empty() && *in->getType() == *Type::FILENAME)
             {
                 bypass(context, node, 0);
                 ++numEdits;
@@ -1240,7 +1240,7 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
     const string& sourceColorSpace = input->getActiveColorSpace();
     if (shaderPort && !sourceColorSpace.empty())
     {
-        if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
+        if (*(shaderPort->getType()) == *Type::COLOR3 || *(shaderPort->getType()) == *Type::COLOR4)
         {
             // If we're converting between two identical color spaces than we have no work to do.
             if (sourceColorSpace != targetColorSpace)
@@ -1309,10 +1309,10 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
 
     // Only support convertion for float and vectors. arrays, matrices are not supported.
     // TODO: This should be provided by the UnitSystem.
-    bool supportedType = (shaderPort->getType() == Type::FLOAT ||
-                          shaderPort->getType() == Type::VECTOR2 ||
-                          shaderPort->getType() == Type::VECTOR3 ||
-                          shaderPort->getType() == Type::VECTOR4);
+    bool supportedType = (*shaderPort->getType() == *Type::FLOAT ||
+                          *shaderPort->getType() == *Type::VECTOR2 ||
+                          *shaderPort->getType() == *Type::VECTOR3 ||
+                          *shaderPort->getType() == *Type::VECTOR4);
     if (supportedType)
     {
         UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);

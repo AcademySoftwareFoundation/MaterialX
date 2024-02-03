@@ -50,7 +50,7 @@ class MX_RENDERGLSL_API GlslRenderer : public ShaderRenderer
     {
         return GLTextureHandler::create(imageLoader);
     }
-    
+
     /// Destructor
     virtual ~GlslRenderer() { }
 

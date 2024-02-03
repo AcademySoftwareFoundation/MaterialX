@@ -370,9 +370,8 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     REQUIRE(loadedDocuments.size() == documentsPaths.size());
 
     // Shuffle the order of documents and perform document library import validatation and shadergen
-    std::random_device random_dev;
-    std::mt19937 generator(random_dev());
-    std::shuffle(loadedDocuments.begin(), loadedDocuments.end(), generator);
+    std::mt19937 rng(0);
+    std::shuffle(loadedDocuments.begin(), loadedDocuments.end(), rng);
     for (const auto& doc : loadedDocuments)
     {
         doc->importLibrary(nodeLibrary);

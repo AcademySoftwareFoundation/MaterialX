@@ -165,7 +165,7 @@ void ImageHandler::unbindImages()
     }
 }
 
-bool ImageHandler::createRenderResources(ImagePtr, bool)
+bool ImageHandler::createRenderResources(ImagePtr, bool, bool)
 {
     return false;
 }
@@ -184,11 +184,10 @@ ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
             continue;
         }
 
-        NodePtr node = elem->asA<Node>();
-        InputPtr file = node ? node->getInput("file") : nullptr;
-        if (file)
+        InputPtr input = elem->asA<Input>();
+        if (input && input->getType() == FILENAME_TYPE_STRING)
         {
-            ImagePtr image = acquireImage(file->getResolvedValueString());
+            ImagePtr image = acquireImage(input->getResolvedValueString());
             if (image)
             {
                 imageVec.push_back(image);
@@ -306,12 +305,11 @@ void ImageSamplingProperties::setProperties(const string& fileNameUniform,
 
 bool ImageSamplingProperties::operator==(const ImageSamplingProperties& r) const
 {
-    return
-      (enableMipmaps == r.enableMipmaps &&
-       uaddressMode  == r.uaddressMode  &&
-       vaddressMode  == r.vaddressMode  &&
-       filterType    == r.filterType    &&
-       defaultColor  == r.defaultColor)  ;
+    return (enableMipmaps == r.enableMipmaps &&
+            uaddressMode == r.uaddressMode &&
+            vaddressMode == r.vaddressMode &&
+            filterType == r.filterType &&
+            defaultColor == r.defaultColor);
 }
 
 MATERIALX_NAMESPACE_END
