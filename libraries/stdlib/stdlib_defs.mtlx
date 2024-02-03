@@ -2693,9 +2693,9 @@
     Node: <reflect>
     Compute the reflection of a vector relative to the normal of a plane.
   -->
-  <nodedef name="ND_reflect" node="reflect" nodegroup="math" doc="Compute the reflection of a vector relative to a plane normal">
-    <input name="in1" type="vector3" value="1, 0, 0" uiname="Normal Vector" doc="Normal of plane for reflection"/>
-    <input name="in2" type="vector3" value="1, 0, 0" uiname="Reflection Vector" doc="Vector to reflect"/>
+  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection of a vector relative to a plane normal">
+    <input name="in" type="vector3" value="1, 0, 0" uiname="Reflection Vector" doc="Vector to reflect"/>
+    <input name="normal" type="vector3" defaultgeomprop="Nobject" uiname="Normal Vector" doc="Normal of plane for reflection"/>
     <output name="out" type="vector3" />
   </nodedef>
 
