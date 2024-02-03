@@ -2772,7 +2772,7 @@
   <!--
     Node: <safepower>
     Raise incoming half/float/color/vector values to the "in2" power.
-      Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
   -->
   <nodegraph name="NG_safepower_float" nodedef="ND_safepower_float">
     <sign name="sign_in1" type="float">
