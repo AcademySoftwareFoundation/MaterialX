@@ -16,7 +16,7 @@ logger = logging.getLogger('creatematerial')
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
-    parser.add_argument('-s', '--shaderModel', dest='shaderModel', default="standard_surface", help='The shader model to use (standard_surface).')
+    parser.add_argument('-s', '--shaderModel', dest='shaderModel', default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
     parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
     parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
     parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Use tileimage node instead of image node.')
@@ -37,7 +37,7 @@ def main():
             logger.error("The texture directory does not exist `{}`".format(texturePath))
             return
 
-    default_doc_name = MaterialX.FilePath('standard_surface.mtlx')
+    default_doc_name = MaterialX.FilePath('material.mtlx')
     mtlxFile = texturePath / default_doc_name
     if options.outputFilename:
         filepath = MaterialX.FilePath(options.outputFilename)
