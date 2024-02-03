@@ -2705,8 +2705,7 @@
 
   <!--
     Node: <reflect>
-    Compute the reflection of a vector relative to the normal of a plane.
-    The default is to compute the view direction relative to the geometric normal in world space.
+    Compute the reflection of an input vector against a normal vector.
   -->
   <nodegraph name="NG_reflect_vector3" type="vector3" nodedef="ND_reflect_vector3">
     <normalize name="unit_normal" type="vector3">
