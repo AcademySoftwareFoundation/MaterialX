@@ -1977,7 +1977,7 @@
   <!--
     Node: <safepower>
     Raise incoming float/color/vector values to the "in2" power.
-      Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
   -->
   <nodedef name="ND_safepower_float" node="safepower" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
