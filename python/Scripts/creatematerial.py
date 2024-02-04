@@ -1,17 +1,130 @@
+# -*- coding: utf-8 -*-
+__doc__ = ('Create materialX file conatin standard surface uber shader with input texture for given directory')
+
 import os
 import re
 import logging
+import argparse
 from difflib import SequenceMatcher
 
-from typing import Dict
+from typing import Dict, List
 
 import MaterialX
-from utils import UdimFile, listTextures
+
+
+
+# Configure the logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 logger = logging.getLogger('createMaterial')
 
+class Constant:
+    UdimToken = '.<UDIM>.'
+    UdimRegex = r'\.\d+\.'
+    TextureExtensions = [
+        "exr",
+        "png",
+        "jpg",
+        "jpeg",
+        "tif",
+        "hdr"
+    ]
+
+class UdimFile(MaterialX.FilePath):
+
+    def __init__(self, pathString):
+        super().__init__(pathString)
+
+        self._isUdim = False
+        self._udimFiles = []
+        self._udimRegex = re.compile(Constant.UdimRegex)
+
+        self.udimFiles()
+
+    def udimFiles(self):
+        textureDir = self.getParentPath()
+        textureName = self.getBaseName()
+        textureExtension = self.getExtension()
+
+        if not self._udimRegex.search(textureName):
+            # non udims files
+            self._udimFiles = [self]
+
+        self._isUdim = True
+        fullNamePattern = self._udimRegex.sub(self._udimRegex.pattern.replace('\\', '\\\\'),
+                                              textureName)
+
+        udimFiles = filter(
+            lambda f: re.search(fullNamePattern, f.asString()),
+            textureDir.getFilesInDirectory(textureExtension)
+        )
+        self._udimFiles = [textureDir / f for f in udimFiles]
+
+    def asPattern(self, format=MaterialX.FormatPosix):
+
+        if not self._isUdim:
+            return self.asPattern()
+
+        textureDir = self.getParentPath()
+        textureName = self.getBaseName()
+
+        pattern = textureDir / MaterialX.FilePath(
+            self._udimRegex.sub(Constant.UdimToken, textureName))
+        return pattern.asString(format=format)
+
+    def isUdim(self):
+        return self._isUdim
+
+    def getNumberOfUdims(self):
+        return len(self._udimFiles)
+
+    def getUdimFiles(self):
+        return self._udimFiles
+
+    def getUdimNumbers(self):
+        def _extractUdimNumber(_file):
+            pattern = self._udimRegex.search(_file.getBaseName())
+            if pattern:
+                return re.search(r"\d+", pattern.group()).group()
+
+        return list(map(_extractUdimNumber, self._udimFiles))
+
+    def getNameWithoutExtension(self):
+        if self._isUdim:
+            name = self._udimRegex.split(self.getBaseName())[0]
+        else:
+            name = self.getBaseName().rsplit('.', 1)[0]
+
+        return re.sub(r'[^\w\s]+', '_', name)
+
+
+def listTextures(textureDir: MaterialX.FilePath) -> List[UdimFile]:
+    """
+    List all textures that matched extensions in cfg file
+    @param textureDir: the directory where the textures exist
+    return List(UdimFile)
+    """
+
+    allTextures = []
+    for ext in Constant.TextureExtensions:
+        textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)]
+
+        while textures:
+            textureFile = UdimFile(textures[0].asString())
+            allTextures.append(textureFile)
+            for udimFile in textureFile.getUdimFiles():
+                textures.remove(udimFile)
+
+    return allTextures
 
 def getShaderModels() -> Dict[str, MaterialX.NodeDef]:
+    """
+    To get all shader models nodeDefs that registers in materialx
+    return (dict[str, MaterialX.NodeDef]):  dictionary with nodedef name as a key and value of nodedef itself
+    """
     stdlib = MaterialX.createDocument()
     searchPath = MaterialX.getDefaultDataSearchPath()
     libraryFolders = MaterialX.getDefaultDataLibraryFolders()
@@ -182,3 +295,65 @@ def createMtlxDoc(textureDir: MaterialX.FilePath,
 
     MaterialX.writeToXmlFile(doc, mtlxFile.asString())
     logger.info("MaterialX file created `{}`".format(mtlxFile.asString()))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
+    parser.add_argument('-s', '--shaderModel', dest='shaderModel', default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
+    parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
+    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
+    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Use tileimage node instead of image node.')
+    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='Turn on verbose mode to create loggings.')
+    parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
+    # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
+    # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
+    # TODO : Flag for forcing texture extension if there are multiple extensions in directory.
+
+    options = parser.parse_args()
+
+    texturePath = MaterialX.FilePath.getCurrentPath()
+
+    if options.inputDirectory:
+        texturePath = MaterialX.FilePath(options.inputDirectory)
+
+        if not texturePath.isDirectory():
+            logger.error("The texture directory does not exist `{}`".format(texturePath))
+            return
+
+    default_doc_name = MaterialX.FilePath('material.mtlx')
+    mtlxFile = texturePath / default_doc_name
+    if options.outputFilename:
+        filepath = MaterialX.FilePath(options.outputFilename)
+
+        if filepath.isAbsolute():
+            mtlxFile = filepath
+        else:
+            mtlxFile = texturePath / filepath
+
+    # Get shader model
+    shaderModel = 'standard_surface'
+    if options.shaderModel:
+        shaderModel = options.shaderModel
+
+    # Colorspace
+    colorspace = 'srgb_texture'
+    if options.colorSpace:
+        colorspace = options.colorSpace
+
+    # Verbose
+    if options.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    createMtlxDoc(
+        texturePath,
+        mtlxFile,
+        shaderModel,
+        relativePaths=not options.absolutePaths,
+        colorspace=colorspace,
+        useTileImage=options.tileimage
+    )
+
+
+if __name__ == '__main__':
+    main()
