@@ -126,7 +126,7 @@
       <input name="in" type="vector3" nodename="normal" />
     </normalize>
     <multiply name="rim" type="color3">
-      <input name="in1" type="color3" nodename="rim_color" />
+      <input name="in1" type="color3" interfacename="rim_color" />
       <input name="in2" type="float" nodename="rim_gradient" />
     </multiply>
     <multiply name="gradient_light" type="color3">
