@@ -139,8 +139,8 @@
       <input name="in1" type="color3" interfacename="light_color" />
     </multiply>
     <reflect name="reflect" type="vector3">
-      <input name="in" type="vector3" nodename="viewdirection_vector3" />
-      <input name="normal" type="vector3" nodename="normal" />
+      <input name="in" type="vector3" nodename="unit_viewdirection" />
+      <input name="normal" type="vector3" nodename="unit_normal" />
     </reflect>
     <dotproduct name="LdotV" type="float">
       <input name="in2" type="vector3" nodename="reflect" />

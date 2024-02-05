@@ -2708,26 +2708,20 @@
     Compute the reflection of an input vector against a normal vector.
   -->
   <nodegraph name="NG_reflect_vector3" type="vector3" nodedef="ND_reflect_vector3">
-    <normalize name="unit_normal" type="vector3">
-      <input name="in" type="vector3" interfacename="normal" />
-    </normalize>
-    <normalize name="unit_V" type="vector3">
-      <input name="in" type="vector3" interfacename="in" />
-    </normalize>
     <dotproduct name="NdotV" type="float">
-      <input name="in1" type="vector3" nodename="unit_normal" />
-      <input name="in2" type="vector3" nodename="unit_V" />
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="vector3" interfacename="in" />
     </dotproduct>
     <multiply name="NdotV_2" type="float">
       <input name="in1" type="float" nodename="NdotV" />
       <input name="in2" type="float" value="2" />
     </multiply>
     <multiply name="NdotV_N_2" type="vector3">
-      <input name="in1" type="vector3" nodename="unit_normal" />
+      <input name="in1" type="vector3" interfacename="normal" />
       <input name="in2" type="float" nodename="NdotV_2" />
     </multiply>
     <subtract name="reflection_vector" type="vector3">
-      <input name="in1" type="vector3" nodename="unit_V" />
+      <input name="in1" type="vector3" interfacename="in" />
       <input name="in2" type="vector3" nodename="NdotV_N_2" />
     </subtract>
     <output name="out" type="vector3" nodename="reflection_vector" />

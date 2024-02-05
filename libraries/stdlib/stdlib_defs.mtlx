@@ -2692,10 +2692,11 @@
   <!--
     Node: <reflect>
     Compute the reflection of an input vector against a normal vector.
+    The normal vector is assumed to be normalized.
   -->
-  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection of an input vector against a normal vector">
+  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection of an input vector against a normal vector. The normal vector is assumed to be normallized.">
     <input name="in" type="vector3" value="1, 0, 0" doc="Input vector to be reflected" />
-    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Normal vector" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Normal vector." />
     <output name="out" type="vector3" />
   </nodedef>
 
