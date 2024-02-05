@@ -52,6 +52,7 @@ class UdimFile(MaterialX.FilePath):
         if not self._udimRegex.search(textureName):
             # non udims files
             self._udimFiles = [self]
+            return
 
         self._isUdim = True
         fullNamePattern = self._udimRegex.sub(self._udimRegex.pattern.replace('\\', '\\\\'),
@@ -141,16 +142,20 @@ def getShaderModels() -> Dict[str, MaterialX.NodeDef]:
     return shaderModels
 
 
-def findBestMatch(textureFile: UdimFile,
+def findBestMatch(textureName: str,
                   shaderModel: MaterialX.NodeDef) -> None | MaterialX.PyMaterialXCore.Input:
     """
     Get the texture matched pattern and return the materialx plug name and the plug type
-    @param textureFile: The texture filename
+    @param textureName: The base texture name
     @param shaderModel: The shader model
     return: list(materialInputName, materialInputType)
     """
 
-    baseTexName = textureFile.getNameWithoutExtension().rsplit("_", 1)[-1]
+    parts = textureName.rsplit("_")
+
+    baseTexName = parts[-1]
+    if baseTexName.lower() == 'color':
+        baseTexName = ''.join(parts[-2:])
 
     shaderInputs = shaderModel.getInputs()
     ratios = []
@@ -218,8 +223,8 @@ def createMtlxDoc(textureDir: MaterialX.FilePath,
     doc.addMaterialNode('M_' + mtlxFilename, shaderNode)
 
     for textureFile in textureFiles:
-
-        shaderInput = findBestMatch(textureFile, shaderModelNodeDef)
+        textureName = textureFile.getNameWithoutExtension()
+        shaderInput = findBestMatch(textureName, shaderModelNodeDef)
 
         if not shaderInput:
             logger.debug(
@@ -231,9 +236,7 @@ def createMtlxDoc(textureDir: MaterialX.FilePath,
         inputType = shaderInput.getType()
 
         # Create textures
-
         # Skip if the plug already created (in the case of UDIMs)
-        textureName = textureFile.getNameWithoutExtension()
         if shaderNode.getInput(inputName) or nodeGraph.getChild(textureName):
             continue
 
