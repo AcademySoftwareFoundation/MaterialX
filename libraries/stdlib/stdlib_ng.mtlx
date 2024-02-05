@@ -2705,7 +2705,8 @@
 
   <!--
     Node: <reflect>
-    Compute the reflection of an input vector against a normal vector.
+    Compute the reflection of an incident vector against a surface normal.
+    For efficiency, the surface normal is expected to already be normalized.
   -->
   <nodegraph name="NG_reflect_vector3" type="vector3" nodedef="ND_reflect_vector3">
     <dotproduct name="NdotI" type="float">
