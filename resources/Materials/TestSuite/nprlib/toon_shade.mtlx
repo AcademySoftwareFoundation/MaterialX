@@ -12,7 +12,7 @@
     <input name="specular_color" type="color3" value="0.726161, 0.726161, 0.726161" uiname="Specular Color" />
     <input name="glossiness" type="float" value="16" uiname="Glossiness" uimin="1" uimax="256" />
     <input name="rim_color" type="color3" value="0.775061, 0.775061, 0.775061" uiname="Rim Color" />
-    <input name="light_direction" type="vector3" value="1.0, -0.5, -0.5" uiname="Light Direction" uimin="-1,-1,-1" uimax="1,1,1" />
+    <input name="light_direction" type="vector3" value="1.0, -0.5, -0.5" uiname="Light Direction" uimin="-1, -1, -1" uimax="1, 1, 1" />
     <input name="light_color" type="color3" value="0.885086, 0.885086, 0.885086" uiname="Light Color" />
     <output name="output_color3" type="color3" />
   </nodedef>
