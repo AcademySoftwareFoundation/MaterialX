@@ -12,7 +12,7 @@
 //     Document version 1.7.2, January 17, 2022
 //     www.nvidia.com/mdl
 
-mdl 1.8;
+mdl 1.7;
 
-// forward the latest version
-export using .::stdlib_1_8 import *;
+// forward all unchanged definitions from the previous version
+export using .::stdlib_1_6 import *;

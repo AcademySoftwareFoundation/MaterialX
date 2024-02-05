@@ -70,7 +70,9 @@ void SurfaceNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& contex
 
         // Emit the output and funtion name.
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        shadergen.emitString(" = mx::pbrlib::mx_surface(", stage);
+        shadergen.emitString(" = materialx::pbrlib_", stage);
+        shadergen.emitMdlVersionFilenameSuffix(context, stage);
+        shadergen.emitString("::mx_surface(", stage);
 
         // Emit all inputs on the node.
         string delim = "";

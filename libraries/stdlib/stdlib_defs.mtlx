@@ -1975,6 +1975,67 @@
   </nodedef>
 
   <!--
+    Node: <safepower>
+    Raise incoming float/color/vector values to the "in2" power.
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+  -->
+  <nodedef name="ND_safepower_float" node="safepower" nodegroup="math">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color3" node="safepower" nodegroup="math">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color4" node="safepower" nodegroup="math">
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+    <output name="out" type="color4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector2" node="safepower" nodegroup="math">
+    <input name="in1" type="vector2" value="0.0, 0.0" />
+    <input name="in2" type="vector2" value="1.0, 1.0" />
+    <output name="out" type="vector2" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector3" node="safepower" nodegroup="math">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="vector3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector4" node="safepower" nodegroup="math">
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color3FA" node="safepower" nodegroup="math">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color4FA" node="safepower" nodegroup="math">
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="color4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector2FA" node="safepower" nodegroup="math">
+    <input name="in1" type="vector2" value="0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector2" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector3FA" node="safepower" nodegroup="math">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector4FA" node="safepower" nodegroup="math">
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+
+  <!--
     Nodes: <sin>, <cos>, <tan>, <asin>, <acos>, <atan2>
     Standard trigonometric functions; angles are given in radians.
   -->
