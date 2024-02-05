@@ -83,10 +83,9 @@
       <input name="in1" type="vector3" nodename="unit_normal" />
       <input name="in2" type="vector3" nodename="multiply_vector3" />
     </dotproduct>
-    <subtract name="rimDot" type="float">
-      <input name="in2" type="float" nodename="NdotV" />
-      <input name="in1" type="float" value="1" />
-    </subtract>
+    <invert name="NdotV_invert" type="float">
+      <input name="in" type="float" nodename="NdotV" />
+    </invert>
     <add name="add_color5" type="color3">
       <input name="in1" type="color3" nodename="add_color4" />
       <input name="in2" type="color3" nodename="rim" />
@@ -108,7 +107,7 @@
       <input name="in2" type="float" value="0.01" />
     </subtract>
     <multiply name="rmi_intensity" type="float">
-      <input name="in1" type="float" nodename="rimDot" />
+      <input name="in1" type="float" nodename="NdotV_invert" />
       <input name="in2" type="float" nodename="rim_power" />
     </multiply>
     <constant name="rim_threshold" type="float">
