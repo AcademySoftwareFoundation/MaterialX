@@ -2703,6 +2703,31 @@
     <output name="out" type="float" nodename="subtract2" />
   </nodegraph>
 
+  <!--
+    Node: <reflect>
+    Compute the reflection of an incident vector against a surface normal.
+    For efficiency, the surface normal is expected to already be normalized.
+  -->
+  <nodegraph name="NG_reflect_vector3" type="vector3" nodedef="ND_reflect_vector3">
+    <dotproduct name="NdotI" type="float">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="vector3" interfacename="in" />
+    </dotproduct>
+    <multiply name="NdotI_2" type="float">
+      <input name="in1" type="float" nodename="NdotI" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="NdotI_N_2" type="vector3">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="float" nodename="NdotI_2" />
+    </multiply>
+    <subtract name="reflection_vector" type="vector3">
+      <input name="in1" type="vector3" interfacename="in" />
+      <input name="in2" type="vector3" nodename="NdotI_N_2" />
+    </subtract>
+    <output name="out" type="vector3" nodename="reflection_vector" />
+  </nodegraph>
+  
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->

@@ -75,23 +75,11 @@
       <input name="bg" type="color3" interfacename="warm_color" />
       <input name="fg" type="color3" interfacename="cool_color" />
       <input name="mix" type="float" nodename="cool_intensity" />
-    </mix>
-    <dotproduct name="NdotV" type="float">
-      <input name="in1" type="vector3" nodename="unit_normal" />
-      <input name="in2" type="vector3" nodename="unit_viewdir" />
-    </dotproduct>
-    <multiply name="NdotV_2" type="float">
-      <input name="in1" type="float" nodename="NdotV" />
-      <input name="in2" type="float" value="2" />
-    </multiply>
-    <multiply name="NdotV_N_2" type="vector3">
-      <input name="in1" type="vector3" nodename="unit_normal" />
-      <input name="in2" type="float" nodename="NdotV_2" />
-    </multiply>
-    <subtract name="view_reflect" type="vector3">
-      <input name="in1" type="vector3" nodename="unit_viewdir" />
-      <input name="in2" type="vector3" nodename="NdotV_N_2" />
-    </subtract>
+    </mix>        
+    <reflect name="view_reflect" type="vector3">
+      <input name="in" type="vector3" nodename="unit_viewdir" />
+      <input name="normal" type="vector3" nodename="unit_normal" />
+    </reflect>
     <multiply name="invert_lightdir" type="vector3">
       <input name="in1" type="vector3" nodename="unit_lightdir" />
       <input name="in2" type="float" value="-1" />

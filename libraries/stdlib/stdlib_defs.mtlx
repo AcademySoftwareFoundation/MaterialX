@@ -2749,6 +2749,17 @@
     <input name="in" type="float" value="0" />
     <output name="out" type="float" />
   </nodedef>
+  
+  <!--
+    Node: <reflect>
+    Compute the reflection of an incident vector against a surface normal.
+    For efficiency, the surface normal is expected to already be normalized.
+  -->
+  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection of an incident vector against a surface normal.">
+    <input name="in" type="vector3" value="1, 0, 0" doc="Incident vector" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" />
+    <output name="out" type="vector3" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
