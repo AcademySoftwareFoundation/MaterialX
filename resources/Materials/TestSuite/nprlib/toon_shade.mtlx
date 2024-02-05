@@ -27,9 +27,7 @@
   </npr_test:toon_shade>
   <nodegraph name="NG_toon_sample" namespace="npr_test" nodedef="ND_toon_sample">
     <output name="output_color3" type="color3" nodename="multiply_color3" />
-    <normal name="normal" type="vector3">
-      <input name="space" type="string" value="world" />
-    </normal>
+    <normal name="normal" type="vector3" />
     <dotproduct name="NdotL" type="float">
       <input name="in1" type="vector3" nodename="unit_normal" />
       <input name="in2" type="vector3" nodename="multiply_vector4" />
