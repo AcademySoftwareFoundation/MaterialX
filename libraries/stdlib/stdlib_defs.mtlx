@@ -2767,7 +2767,7 @@
     The normal vector is assumed to be normalized.
   -->
   <nodedef name="ND_refract_vector3" node="refract" nodegroup="math" doc="Compute the refraction direction of an input vector.">
-    <input name="in" type="vector3" value="1.0,0.0,0.0" doc="Input vector to be reflected."  />
+    <input name="in" type="vector3" value="1.0,0.0,0.0" doc="Input vector to be refracted."  />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Normal vector." />
     <input name="eta" type="float" value="1.0" doc="Ratio of the indices of refraction."/>
     <output name="out" type="vector3" />
