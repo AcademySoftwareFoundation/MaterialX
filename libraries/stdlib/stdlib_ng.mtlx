@@ -2741,40 +2741,40 @@
       <input name="in1" type="float" nodename="IdotN"/>
       <input name="in2" type="float" nodename="IdotN"/>
     </multiply>
-    <multiply name="etasq" type="float">
-      <input name="in1" type="float" interfacename="eta"/>
-      <input name="in2" type="float" interfacename="eta"/>
+    <multiply name="iorsq" type="float">
+      <input name="in1" type="float" interfacename="ior"/>
+      <input name="in2" type="float" interfacename="ior"/>
     </multiply>
     <subtract name="one_IdotNsq" type="float">
       <input name="in1" type="float" value="1.0"/>
       <input name="in2" type="float" nodename="IdotNsq"/>
     </subtract>
-    <multiply name="etasq_one_IdotNsq" type="float">
-      <input name="in1" type="float" nodename="etasq"/>
+    <multiply name="iorsq_one_IdotNsq" type="float">
+      <input name="in1" type="float" nodename="iorsq"/>
       <input name="in2" type="float" nodename="one_IdotNsq"/>
     </multiply>
     <subtract name="k" type="float">
       <input name="in1" type="float" value="1.0"/>
-      <input name="in2" type="float" nodename="etasq_one_IdotNsq"/>
+      <input name="in2" type="float" nodename="iorsq_one_IdotNsq"/>
     </subtract>
     <multiply name="I_scaled" type="vector3">
       <input name="in1" type="vector3" interfacename="in"/>
-      <input name="in2" type="float" interfacename="eta"/>
+      <input name="in2" type="float" interfacename="ior"/>
     </multiply>
     <sqrt name="sqrt_k" type="float">
       <input name="in" type="float" nodename="k"/>
     </sqrt>
-    <multiply name="eta_NdotI" type="float">
-      <input name="in1" type="float" interfacename="eta"/>
+    <multiply name="ior_NdotI" type="float">
+      <input name="in1" type="float" interfacename="ior"/>
       <input name="in2" type="float" nodename="IdotN"/>
     </multiply>
-    <add name="eta_NdotI_sqrt_k" type="float">
-      <input name="in1" type="float" nodename="eta_NdotI"/>
+    <add name="ior_NdotI_sqrt_k" type="float">
+      <input name="in1" type="float" nodename="ior_NdotI"/>
       <input name="in2" type="float" nodename="sqrt_k"/>
     </add>
     <multiply name="N_scaled" type="vector3">
       <input name="in1" type="vector3" interfacename="normal"/>
-      <input name="in2" type="float" nodename="eta_NdotI_sqrt_k"/>
+      <input name="in2" type="float" nodename="ior_NdotI_sqrt_k"/>
     </multiply>
     <subtract name="refract_dir" type="vector3">
       <input name="in1" type="vector3" nodename="I_scaled"/>

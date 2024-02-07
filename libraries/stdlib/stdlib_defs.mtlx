@@ -2768,7 +2768,7 @@
   <nodedef name="ND_refract_vector3" node="refract" nodegroup="math" doc="Compute the refraction vector">
     <input name="in" type="vector3" value="1.0, 0.0, 0.0" doc="Incident vector"  />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" />
-    <input name="eta" type="float" value="1.0" doc="Index of refraction" />
+    <input name="ior" type="float" value="1.0" doc="Index of refraction" />
     <output name="out" type="vector3" />
   </nodedef>
 
