@@ -11,6 +11,7 @@ import MaterialX
 sys.path.append('Scripts')
 import creatematerial
 
+MaterialxDir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 class TestCreateMaterial(unittest.TestCase):
 
@@ -76,21 +77,21 @@ class TestCreateMaterial(unittest.TestCase):
 
     def test_listTextures(self):
 
-        textureDir1 = MaterialX.FilePath(os.path.abspath("../../resources/Materials/Examples/StandardSurface/chess_set"))
+        textureDir1 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface/chess_set"))
         result1 = creatematerial.listTextures(textureDir1)
         self.assertIsInstance(result1, list)
         self.assertGreater(len(result1), 0)
         self.assertIsInstance(result1[0], creatematerial.UdimFile)
         self.assertFalse(result1[0].isUdim())
 
-        textureDir2 = MaterialX.FilePath(os.path.abspath("../../resources/Materials/Examples/StandardSurface"))
+        textureDir2 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface"))
         result2 = creatematerial.listTextures(textureDir2)
         self.assertIsInstance(result2, list)
         self.assertEqual(len(result2), 0)
 
     def test_create_mtlx_doc(self):
 
-        texturesRoot = "../../resources/Materials/Examples/StandardSurface/chess_set"
+        texturesRoot = os.path.join(MaterialxDir,"resources/Materials/Examples/StandardSurface/chess_set")
 
         materialName = 'queen_black.mtlx'
         mtlxFile = MaterialX.FilePath(materialName)
