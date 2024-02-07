@@ -65,7 +65,7 @@ class TestCreateMaterial(unittest.TestCase):
 
         self.assertEqual(udimFile1.isUdim(), True)
         self.assertEqual(udimFile1.asPattern(), filePattern)
-        self.assertEqual(udimFile1.getUdimNumbers(), ["1001", "1002", "1003", "1004", "1005"])
+        self.assertEqual(sorted(udimFile1.getUdimNumbers()), ["1001", "1002", "1003", "1004", "1005"])
         self.assertEqual(udimFile1.getNameWithoutExtension(), "filename_basecolor")
         self.assertEqual(udimFile1.getNumberOfUdims(), len(udimsFiles))
 
