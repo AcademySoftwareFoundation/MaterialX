@@ -44,6 +44,9 @@ class UdimFile(MaterialX.FilePath):
 
         self.udimFiles()
 
+    def __str__(self):
+        return self.asPattern()
+
     def udimFiles(self):
         textureDir = self.getParentPath()
         textureName = self.getBaseName()
@@ -67,7 +70,7 @@ class UdimFile(MaterialX.FilePath):
     def asPattern(self, format=MaterialX.FormatPosix):
 
         if not self._isUdim:
-            return self.asPattern()
+            return self.asString(format=format)
 
         textureDir = self.getParentPath()
         textureName = self.getBaseName()
@@ -175,16 +178,16 @@ def findBestMatch(textureName: str,
     return shaderInputs[idx]
 
 
-def createMtlxDoc(textureDir: MaterialX.FilePath,
+def createMtlxDoc(textureFiles: List[MaterialX.FilePath],
                   mtlxFile: MaterialX.FilePath,
                   shaderModel: str,
                   relativePaths: bool = True,
                   colorspace: str = 'srgb_texture',
                   useTileImage: bool = False
-                  ) -> None:
+                  ) -> MaterialX.FilePath:
     """
     Create a metrical document with uber shader
-    @param textureDir: The texture path directory
+    @param textureFiles: List of all textures
     @param mtlxFile: The output path of document
     @param relativePaths: Will create relative texture path or not inside document
     @param colorspace: The given color space
@@ -192,12 +195,6 @@ def createMtlxDoc(textureDir: MaterialX.FilePath,
     """
 
     udimNumbers = set()
-    textureFiles = listTextures(textureDir)
-
-    if not textureFiles:
-        logger.warning(
-            "The directory does not contain any matched texture with given cfg file.. Skipping")
-        return
 
     allShadersModels = getShaderModels()
     shaderModelNodeDef = allShadersModels.get(shaderModel)
@@ -298,6 +295,7 @@ def createMtlxDoc(textureDir: MaterialX.FilePath,
 
     MaterialX.writeToXmlFile(doc, mtlxFile.asString())
     logger.info("MaterialX file created `{}`".format(mtlxFile.asString()))
+    return mtlxFile
 
 
 def main():
@@ -334,6 +332,13 @@ def main():
         else:
             mtlxFile = texturePath / filepath
 
+
+    textureFiles = listTextures(texturePath)
+    if not textureFiles:
+        logger.warning(
+            "The directory does not contain any matched texture with given cfg file.. Skipping")
+        return
+
     # Get shader model
     shaderModel = 'standard_surface'
     if options.shaderModel:
@@ -349,7 +354,7 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     createMtlxDoc(
-        texturePath,
+        textureFiles,
         mtlxFile,
         shaderModel,
         relativePaths=not options.absolutePaths,
