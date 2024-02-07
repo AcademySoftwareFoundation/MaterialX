@@ -419,3 +419,29 @@ export float4 mx_geompropvalue_vector4(
 {
     return scene::data_lookup_float4(mxp_geomprop, mxp_default);
 }
+
+export float3 mx_viewdirection_vector3(
+	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type_world
+	[[
+		anno::description("Enumeration {model,object,world}."),
+		anno::unused()
+	]]
+)
+	[[
+		anno::description("Node Group: nprlib")
+	]]
+{
+	float3 internal_space_direction =
+		state::position() - scene::data_lookup_float3("CAMERA_POSITION", float3(0.0, 0.0, 0.0));
+
+	if (mxp_space == core::mx_coordinatespace_type_world)
+		return math::normalize(state::transform_vector(
+			::state::coordinate_internal,
+			::state::coordinate_world,
+			internal_space_direction));
+	else
+		return math::normalize(state::transform_vector(
+			::state::coordinate_internal,
+			::state::coordinate_object,
+			internal_space_direction));
+}
