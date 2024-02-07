@@ -6,7 +6,7 @@ import os
 import unittest
 
 import MaterialX
-import creatematerial
+from Scripts import creatematerial
 
 
 class TestCreateMaterial(unittest.TestCase):
