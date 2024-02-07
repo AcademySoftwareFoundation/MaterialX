@@ -145,13 +145,12 @@ def getShaderModels() -> Dict[str, MaterialX.NodeDef]:
     return shaderModels
 
 
-def findBestMatch(textureName: str,
-                  shaderModel: MaterialX.NodeDef) -> None | MaterialX.PyMaterialXCore.Input:
+def findBestMatch(textureName: str, shaderModel: MaterialX.NodeDef):
     """
     Get the texture matched pattern and return the materialx plug name and the plug type
     @param textureName: The base texture name
     @param shaderModel: The shader model
-    return: list(materialInputName, materialInputType)
+    return: list(materialInputName, materialInputType) | None
     """
 
     parts = textureName.rsplit("_")
