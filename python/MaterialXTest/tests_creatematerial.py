@@ -3,10 +3,13 @@
 Documentation: Unit tests for create material from texture directory in MaterialX Python.
 """
 import os
+import sys
 import unittest
 
 import MaterialX
-from Scripts import creatematerial
+
+sys.path.append('Scripts')
+import creatematerial
 
 
 class TestCreateMaterial(unittest.TestCase):
