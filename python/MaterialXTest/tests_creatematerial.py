@@ -79,6 +79,7 @@ class TestCreateMaterial(unittest.TestCase):
 
         textureDir1 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface/chess_set"))
         result1 = creatematerial.listTextures(textureDir1)
+        creatematerial.logger.info("Listing texture form folder: {}".format(textureDir1))
         self.assertIsInstance(result1, list)
         self.assertGreater(len(result1), 0)
         self.assertIsInstance(result1[0], creatematerial.UdimFile)
