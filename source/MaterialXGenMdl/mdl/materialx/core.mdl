@@ -193,4 +193,7 @@ export enum mx_distribution_type {
     mx_distribution_type_ggx
 };
 
-
+// Custom annotation for MDL function parameters to map between MDL and the original MaterialX graph.
+// *  When added to a paramater, the "name" will contain the path in the MaterialX graph starting
+//    from the root up to the input using `/` as separator.
+export annotation origin(string name);

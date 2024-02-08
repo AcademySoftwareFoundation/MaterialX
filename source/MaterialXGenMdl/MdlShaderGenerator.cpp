@@ -26,6 +26,7 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -261,7 +262,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
     // Emit shader inputs
-    emitShaderInputs(stage.getInputBlock(MDL::INPUTS), stage);
+    emitShaderInputs(element->getDocument(), stage.getInputBlock(MDL::INPUTS), stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -677,7 +678,25 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
+namespace
+{
+
+void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
+{
+    // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
+    const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
+
+    _this.emitLineEnd(stage, false);
+    _this.emitLine("[[", stage, false);
+    _this.emitLine("\t" + mtlxParameterPathAnno, stage, false);
+    _this.emitLineBegin(stage);
+    _this.emitString("]]", stage); // line ending follows by caller
+}
+
+} // anonymous namespace
+
+
+void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
@@ -704,6 +723,7 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         emitLineBegin(stage);
         emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
+        emitInputAnnotations(*this, doc, input, stage);
 
         if (i < inputs.size() - 1)
         {
