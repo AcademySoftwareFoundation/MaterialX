@@ -77,6 +77,11 @@ class TestCreateMaterial(unittest.TestCase):
 
     def test_listTextures(self):
 
+        CWD = MaterialX.FilePath.getCurrentPath()
+        creatematerial.logger.info("CWD: {}".format(CWD.asString()))
+        creatematerial.logger.info("MaterialxDir: {}".format(MaterialxDir.asString()))
+        creatematerial.logger.info("__file__: {}".format(os.path.abspath(__file__)))
+
         textureDir1 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface/chess_set"))
         result1 = creatematerial.listTextures(textureDir1)
         creatematerial.logger.info("Listing texture form folder: {}".format(textureDir1.asString()))
