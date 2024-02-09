@@ -11,7 +11,7 @@ import MaterialX
 sys.path.append('Scripts')
 import creatematerial
 
-MaterialxDir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+MaterialxDir = MaterialX.FilePath.getCurrentPath().getParentPath()
 
 class TestCreateMaterial(unittest.TestCase):
 
@@ -77,12 +77,9 @@ class TestCreateMaterial(unittest.TestCase):
 
     def test_listTextures(self):
 
-        CWD = MaterialX.FilePath.getCurrentPath()
-        creatematerial.logger.info("CWD: {}".format(CWD.asString()))
         creatematerial.logger.info("MaterialxDir: {}".format(MaterialxDir.asString()))
-        creatematerial.logger.info("__file__: {}".format(os.path.abspath(__file__)))
 
-        textureDir1 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface/chess_set"))
+        textureDir1 = MaterialxDir / MaterialX.FilePath("resources/Materials/Examples/StandardSurface/chess_set")
         result1 = creatematerial.listTextures(textureDir1)
         creatematerial.logger.info("Listing texture form folder: {}".format(textureDir1.asString()))
         self.assertIsInstance(result1, list)
@@ -90,14 +87,14 @@ class TestCreateMaterial(unittest.TestCase):
         self.assertIsInstance(result1[0], creatematerial.UdimFile)
         self.assertFalse(result1[0].isUdim())
 
-        textureDir2 = MaterialX.FilePath(os.path.join(MaterialxDir, "resources/Materials/Examples/StandardSurface"))
+        textureDir2 = MaterialxDir / MaterialX.FilePath("resources/Materials/Examples/StandardSurface")
         result2 = creatematerial.listTextures(textureDir2)
         self.assertIsInstance(result2, list)
         self.assertEqual(len(result2), 0)
 
     def test_create_mtlx_doc(self):
 
-        texturesRoot = os.path.join(MaterialxDir,"resources/Materials/Examples/StandardSurface/chess_set")
+        texturesRoot = MaterialxDir / MaterialX.FilePath("resources/Materials/Examples/StandardSurface/chess_set")
 
         materialName = 'queen_black.mtlx'
         mtlxFile = MaterialX.FilePath(materialName)
@@ -107,7 +104,7 @@ class TestCreateMaterial(unittest.TestCase):
                         "queen_shared_scattering.jpg"]
 
         textureFiles = [
-            creatematerial.UdimFile(os.path.abspath(os.path.join(texturesRoot, x)))
+            creatematerial.UdimFile(os.path.abspath(os.path.join(texturesRoot.asString(), x)))
             for x in textureFiles
         ]
 
