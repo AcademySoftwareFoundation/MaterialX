@@ -28,14 +28,12 @@ TypeDescMap& typeMap()
 // TypeDesc methods
 //
 
-TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
-                   bool editable, const std::unordered_map<char, int>& channelMapping) :
+TypeDesc::TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,bool editable) :
     _name(name),
     _basetype(basetype),
     _semantic(semantic),
     _size(size),
-    _editable(editable),
-    _channelMapping(channelMapping)
+    _editable(editable)
 {
 }
 
@@ -49,8 +47,7 @@ bool TypeDesc::operator!=(const TypeDesc& rhs) const
     return !(*this == rhs);
 }
 
-const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
-                                       bool editable, const std::unordered_map<char, int>& channelMapping)
+const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetype, unsigned char semantic, size_t size, bool editable)
 {
     TypeDescMap& map = typeMap();
     auto it = map.find(name);
@@ -59,15 +56,9 @@ const TypeDesc* TypeDesc::registerType(const string& name, unsigned char basetyp
         throw Exception("A type with name '" + name + "' is already registered");
     }
 
-    TypeDesc* typeDesc = new TypeDesc(name, basetype, semantic, size, editable, channelMapping);
+    TypeDesc* typeDesc = new TypeDesc(name, basetype, semantic, size, editable);
     map[name] = std::unique_ptr<TypeDesc>(typeDesc);
     return typeDesc;
-}
-
-int TypeDesc::getChannelIndex(char channel) const
-{
-    auto it = _channelMapping.find(channel);
-    return it != _channelMapping.end() ? it->second : -1;
 }
 
 const TypeDesc* TypeDesc::get(const string& name)
@@ -89,11 +80,11 @@ const TypeDesc* INTEGER             = TypeDesc::registerType("integer", TypeDesc
 const TypeDesc* INTEGERARRAY        = TypeDesc::registerType("integerarray", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMANTIC_NONE, 0);
 const TypeDesc* FLOAT               = TypeDesc::registerType("float", TypeDesc::BASETYPE_FLOAT);
 const TypeDesc* FLOATARRAY          = TypeDesc::registerType("floatarray", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_NONE, 0);
-const TypeDesc* VECTOR2             = TypeDesc::registerType("vector2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 2, true, {{'x', 0}, {'y', 1}});
-const TypeDesc* VECTOR3             = TypeDesc::registerType("vector3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 3, true, {{'x', 0}, {'y', 1}, {'z', 2}});
-const TypeDesc* VECTOR4             = TypeDesc::registerType("vector4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 4, true, {{'x', 0}, {'y', 1}, {'z', 2}, {'w', 3}});
-const TypeDesc* COLOR3              = TypeDesc::registerType("color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 3, true, {{'r', 0}, {'g', 1}, {'b', 2}});
-const TypeDesc* COLOR4              = TypeDesc::registerType("color4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 4, true, {{'r', 0}, {'g', 1}, {'b', 2}, {'a', 3}});
+const TypeDesc* VECTOR2             = TypeDesc::registerType("vector2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 2, true);
+const TypeDesc* VECTOR3             = TypeDesc::registerType("vector3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 3, true);
+const TypeDesc* VECTOR4             = TypeDesc::registerType("vector4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 4, true);
+const TypeDesc* COLOR3              = TypeDesc::registerType("color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 3, true);
+const TypeDesc* COLOR4              = TypeDesc::registerType("color4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 4, true);
 const TypeDesc* MATRIX33            = TypeDesc::registerType("matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 9);
 const TypeDesc* MATRIX44            = TypeDesc::registerType("matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 16);
 const TypeDesc* STRING              = TypeDesc::registerType("string", TypeDesc::BASETYPE_STRING);

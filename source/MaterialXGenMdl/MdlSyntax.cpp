@@ -482,14 +482,6 @@ const TypeDesc* MdlSyntax::getEnumeratedType(const string& value) const
     return nullptr;
 }
 
-const std::unordered_map<char, char> CHANNELS_TO_XYZW =
-{
-    { 'r', 'x' }, { 'x', 'x' },
-    { 'g', 'y' }, { 'y', 'y' },
-    { 'b', 'z' }, { 'z', 'z' },
-    { 'a', 'w' }, { 'w', 'w' }
-};
-
 string MdlSyntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
 {
     if (*srcType == *Type::COLOR3 || *srcType == *Type::COLOR4)
@@ -516,8 +508,8 @@ string MdlSyntax::getSwizzledVariable(const string& srcName, const TypeDesc* src
                 throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
             }
 
-            int channelIndex = srcType->getChannelIndex(ch);
-            if (channelIndex < 0 || channelIndex >= static_cast<int>(srcMembers.size()))
+            const size_t channelIndex = it->second;
+            if (channelIndex < 0 || channelIndex >= srcMembers.size())
             {
                 throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
             }

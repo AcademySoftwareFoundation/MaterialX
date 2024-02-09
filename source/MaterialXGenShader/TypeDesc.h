@@ -13,8 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-using ChannelMap = std::unordered_map<char, int>;
-
 /// @class TypeDesc
 /// A type descriptor for MaterialX data types.
 /// All types need to have a type descriptor registered in order for shader generators
@@ -55,7 +53,7 @@ class MX_GENSHADER_API TypeDesc
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
     static const TypeDesc* registerType(const string& name, unsigned char basetype, unsigned char semantic = SEMANTIC_NONE,
-                                        size_t size = 1, bool editable = true, const ChannelMap& channelMapping = ChannelMap());
+                                        size_t size = 1, bool editable = true);
 
     /// Equality operator overload
     bool operator==(const TypeDesc& rhs) const;
@@ -72,10 +70,6 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return the basetype for the type.
     unsigned char getBaseType() const { return _basetype; }
-
-    /// Returns the channel index for the supplied channel name.
-    /// Will return -1 on failure to find a matching index.
-    int getChannelIndex(char channel) const;
 
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
@@ -113,15 +107,13 @@ class MX_GENSHADER_API TypeDesc
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
 
   private:
-    TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size,
-             bool editable, const ChannelMap& channelMapping);
+    TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size, bool editable);
 
     const string _name;
     const unsigned char _basetype;
     const unsigned char _semantic;
     const size_t _size;
     const bool _editable;
-    const ChannelMap _channelMapping;
 };
 
 namespace Type
