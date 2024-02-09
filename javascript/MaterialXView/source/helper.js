@@ -127,10 +127,8 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
             break;
         case 'samplerCube':
         case 'string':
-            break;
         default:
-            // struct
-            outValue = toThreeUniform(value);
+            break;
     }
 
     return outValue;
