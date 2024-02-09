@@ -327,11 +327,11 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
         mx::FilePath outputImageName = moduleToTestPath / (imageFilename + extension);
 
         renderCommand += " -o " + outputImageName.asString();
-        mx::FilePath logFile = moduleToTestPath / (moduleToTest + ".mdl_render_errors.txt");
-        renderCommand += " > " + logFile.asString() + " 2>&1";
-
+        mx::FilePath logFile = moduleToTestPath / (moduleToTest + ".mdl_render_log.txt");
+        renderCommand += " --log_file " + logFile.asString();
+        mx::FilePath errorLogFile = moduleToTestPath / (moduleToTest + ".mdl_render_errors.txt");
         int returnValue = std::system(renderCommand.c_str());
-        std::ifstream logStream(logFile);
+        std::ifstream logStream(errorLogFile);
         mx::StringVec result;
         std::string line;
         bool writeLogCode = false;
@@ -382,5 +382,11 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     genOptions.fileTextureVerticalFlip = true;
 
     mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
+
+    // Specify the MDL target version to be the latest which is also the default.
+    mx::GenMdlOptionsPtr genMdlOptions = std::make_shared<mx::GenMdlOptions>();
+    genMdlOptions->targetVersion = mx::GenMdlOptions::MdlVersion::MDL_LATEST;
+    tester.addUserData(mx::GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY, genMdlOptions);
+
     tester.validate(genOptions, optionsFilePath);
 }
