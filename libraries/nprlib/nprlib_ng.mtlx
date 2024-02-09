@@ -75,7 +75,7 @@
       <input name="bg" type="color3" interfacename="warm_color" />
       <input name="fg" type="color3" interfacename="cool_color" />
       <input name="mix" type="float" nodename="cool_intensity" />
-    </mix>        
+    </mix>
     <reflect name="view_reflect" type="vector3">
       <input name="in" type="vector3" nodename="unit_viewdir" />
       <input name="normal" type="vector3" nodename="unit_normal" />
@@ -106,5 +106,5 @@
     </add>
     <output name="out" type="color3" nodename="final_color" />
   </nodegraph>
-  
+
 </materialx>
