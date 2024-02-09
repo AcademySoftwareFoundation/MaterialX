@@ -95,6 +95,8 @@ export using .::stdlib_1_7 import mx_floor_color3;
 export using .::stdlib_1_7 import mx_floor_color4;
 export using .::stdlib_1_7 import mx_ceil_color3;
 export using .::stdlib_1_7 import mx_ceil_color4;
+export using .::stdlib_1_7 import mx_round_color3;
+export using .::stdlib_1_7 import mx_round_color4;
 export using .::stdlib_1_7 import mx_power_color4;
 export using .::stdlib_1_7 import mx_power_color4FA;
 export using .::stdlib_1_7 import mx_sin_float;

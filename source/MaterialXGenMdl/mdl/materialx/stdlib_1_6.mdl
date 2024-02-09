@@ -1498,6 +1498,26 @@ export core::color4 mx_ceil_color4(
 	return core::mk_color4(::math::ceil(core::mk_float4(mxp_in)));
 }
 
+export color mx_round_color3(
+	color mxp_in = color(0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return color(::math::round(float3(mxp_in)));
+}
+
+export core::color4 mx_round_color4(
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: math")
+	]]
+{
+	return core::mk_color4(::math::round(core::mk_float4(mxp_in)));
+}
+
 export core::color4 mx_power_color4(
 	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
 	core::color4 mxp_in2 = core::mk_color4(1.0, 1.0, 1.0, 1.0)
