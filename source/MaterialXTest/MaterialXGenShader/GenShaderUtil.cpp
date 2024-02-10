@@ -582,7 +582,7 @@ void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::Node
     lights.clear();
     for (mx::NodePtr node : doc->getNodes())
     {
-        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
+        const mx::TypeDesc type = mx::TypeDesc::get(node->getType());
         if (type == mx::Type::LIGHTSHADER)
         {
             lights.push_back(node);

@@ -38,17 +38,17 @@ Syntax::Syntax()
 {
 }
 
-void Syntax::registerTypeSyntax(const TypeDesc* type, TypeSyntaxPtr syntax)
+void Syntax::registerTypeSyntax(TypeDesc type, TypeSyntaxPtr syntax)
 {
-    auto it = _typeSyntaxByType.find(type);
-    if (it != _typeSyntaxByType.end())
+    auto it = _typeSyntaxIndexByType.find(type);
+    if (it != _typeSyntaxIndexByType.end())
     {
         _typeSyntaxes[it->second] = syntax;
     }
     else
     {
         _typeSyntaxes.push_back(syntax);
-        _typeSyntaxByType[type] = _typeSyntaxes.size() - 1;
+        _typeSyntaxIndexByType[type] = _typeSyntaxes.size() - 1;
     }
 
     // Make this type a restricted name
@@ -67,33 +67,14 @@ void Syntax::registerInvalidTokens(const StringMap& tokens)
 
 /// Returns the type syntax object for a named type.
 /// Throws an exception if a type syntax is not defined for the given type.
-const TypeSyntax& Syntax::getTypeSyntax(const TypeDesc* type) const
+const TypeSyntax& Syntax::getTypeSyntax(TypeDesc type) const
 {
-    auto it = _typeSyntaxByType.find(type);
-    if (it == _typeSyntaxByType.end())
+    auto it = _typeSyntaxIndexByType.find(type);
+    if (it == _typeSyntaxIndexByType.end())
     {
-        string typeName = type ? type->getName() : "nullptr";
-        throw ExceptionShaderGenError("No syntax is defined for the given type '" + typeName + "'.");
+        throw ExceptionShaderGenError("No syntax is defined for the given type '" + type.getName() + "'.");
     }
     return *_typeSyntaxes[it->second];
-}
-
-const TypeDesc* Syntax::getTypeDescription(const TypeSyntaxPtr& typeSyntax) const
-{
-    auto pos = std::find(_typeSyntaxes.begin(), _typeSyntaxes.end(), typeSyntax);
-    if (pos == _typeSyntaxes.end())
-    {
-        throw ExceptionShaderGenError("The syntax'" + typeSyntax->getName() + "' is not registered.");
-    }
-    const size_t index = static_cast<size_t>(std::distance(_typeSyntaxes.begin(), pos));
-    for (auto item : _typeSyntaxByType)
-    {
-        if (item.second == index)
-        {
-            return item.first;
-        }
-    }
-    return nullptr;
 }
 
 string Syntax::getValue(const ShaderPort* port, bool uniform) const
@@ -102,44 +83,44 @@ string Syntax::getValue(const ShaderPort* port, bool uniform) const
     return syntax.getValue(port, uniform);
 }
 
-string Syntax::getValue(const TypeDesc* type, const Value& value, bool uniform) const
+string Syntax::getValue(TypeDesc type, const Value& value, bool uniform) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return syntax.getValue(value, uniform);
 }
 
-const string& Syntax::getDefaultValue(const TypeDesc* type, bool uniform) const
+const string& Syntax::getDefaultValue(TypeDesc type, bool uniform) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return syntax.getDefaultValue(uniform);
 }
 
-const string& Syntax::getTypeName(const TypeDesc* type) const
+const string& Syntax::getTypeName(TypeDesc type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return syntax.getName();
 }
 
-string Syntax::getOutputTypeName(const TypeDesc* type) const
+string Syntax::getOutputTypeName(TypeDesc type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     const string& outputModifier = getOutputQualifier();
     return outputModifier.size() ? outputModifier + " " + syntax.getName() : syntax.getName();
 }
 
-const string& Syntax::getTypeAlias(const TypeDesc* type) const
+const string& Syntax::getTypeAlias(TypeDesc type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return syntax.getTypeAlias();
 }
 
-const string& Syntax::getTypeDefinition(const TypeDesc* type) const
+const string& Syntax::getTypeDefinition(TypeDesc type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return syntax.getTypeDefinition();
 }
 
-string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
+string Syntax::getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const
 {
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
@@ -172,7 +153,7 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
             const size_t channelIndex = it->second;
             if (channelIndex < 0 || channelIndex >= srcMembers.size())
             {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
             }
             membersSwizzled.push_back(srcName + srcMembers[channelIndex]);
         }
@@ -181,7 +162,7 @@ string Syntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcTyp
     return dstSyntax.getValue(membersSwizzled, false);
 }
 
-ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
+ValuePtr Syntax::getSwizzledValue(ValuePtr value, TypeDesc srcType, const string& channels, TypeDesc dstType) const
 {
     const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
     const vector<string>& srcMembers = srcSyntax.getMembers();
@@ -218,44 +199,44 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
             const size_t channelIndex = it->second;
             if (channelIndex < 0 || channelIndex >= srcMembers.size())
             {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
+                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
             }
-            if (*srcType == *Type::FLOAT)
+            if (srcType == Type::FLOAT)
             {
                 float v = value->asA<float>();
                 ss << std::to_string(v);
             }
-            else if (*srcType == *Type::INTEGER)
+            else if (srcType == Type::INTEGER)
             {
                 int v = value->asA<int>();
                 ss << std::to_string(v);
             }
-            else if (*srcType == *Type::BOOLEAN)
+            else if (srcType == Type::BOOLEAN)
             {
                 bool v = value->asA<bool>();
                 ss << std::to_string(v);
             }
-            else if (*srcType == *Type::COLOR3)
+            else if (srcType == Type::COLOR3)
             {
                 Color3 v = value->asA<Color3>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (*srcType == *Type::COLOR4)
+            else if (srcType == Type::COLOR4)
             {
                 Color4 v = value->asA<Color4>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (*srcType == *Type::VECTOR2)
+            else if (srcType == Type::VECTOR2)
             {
                 Vector2 v = value->asA<Vector2>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (*srcType == *Type::VECTOR3)
+            else if (srcType == Type::VECTOR3)
             {
                 Vector3 v = value->asA<Vector3>();
                 ss << std::to_string(v[channelIndex]);
             }
-            else if (*srcType == *Type::VECTOR4)
+            else if (srcType == Type::VECTOR4)
             {
                 Vector4 v = value->asA<Vector4>();
                 ss << std::to_string(v[channelIndex]);
@@ -264,7 +245,7 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const
         ss << delimiter;
     }
 
-    return Value::createValueFromStrings(ss.str(), dstType->getName());
+    return Value::createValueFromStrings(ss.str(), dstType.getName());
 }
 
 bool Syntax::typeSupported(const TypeDesc*) const
@@ -272,9 +253,9 @@ bool Syntax::typeSupported(const TypeDesc*) const
     return true;
 }
 
-string Syntax::getArrayVariableSuffix(const TypeDesc* type, const Value& value) const
+string Syntax::getArrayVariableSuffix(TypeDesc type, const Value& value) const
 {
-    if (type->isArray())
+    if (type.isArray())
     {
         if (value.isA<vector<float>>())
         {
@@ -323,7 +304,7 @@ void Syntax::makeIdentifier(string& name, IdentifierMap& identifiers) const
     identifiers[name] = 1;
 }
 
-string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, IdentifierMap& identifiers) const
+string Syntax::getVariableName(const string& name, TypeDesc /*type*/, IdentifierMap& identifiers) const
 {
     // Default implementation just makes an identifier, but derived
     // classes can override this for custom variable naming.
@@ -332,10 +313,11 @@ string Syntax::getVariableName(const string& name, const TypeDesc* /*type*/, Ide
     return variable;
 }
 
-bool Syntax::remapEnumeration(const string&, const TypeDesc*, const string&, std::pair<const TypeDesc*, ValuePtr>&) const
+bool Syntax::remapEnumeration(const string&, TypeDesc, const string&, std::pair<TypeDesc, ValuePtr>&) const
 {
     return false;
 }
+
 
 const StringVec TypeSyntax::EMPTY_MEMBERS;
 

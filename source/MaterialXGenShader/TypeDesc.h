@@ -11,20 +11,30 @@
 
 #include <MaterialXGenShader/Export.h>
 
+#include <string_view>
+
 MATERIALX_NAMESPACE_BEGIN
 
 /// @class TypeDesc
 /// A type descriptor for MaterialX data types.
+/// 
 /// All types need to have a type descriptor registered in order for shader generators
-/// to know about the type. A unique type descriptor pointer is the identifier used for
-/// types, and can be used for type comparisons as well as getting more information
-/// about the type. All standard library data types are registered by default and their
-/// type descriptors can be accessed from the Type namespace, e.g. MaterialX::Type::FLOAT.
-/// If custom types are used they must be registered by calling TypeDesc::registerType().
-/// Descriptors for registered types can be retreived using TypeDesc::get(), see below.
+/// to know about the type. It can be used for type comparisons as well as getting more
+/// information about the type. Type descriptors for all standard library data types are
+/// registered by default and can be accessed from the Type namespace, e.g. Type::FLOAT.
+///
+/// To register custom types use the macro TYPEDESC_DEFINE_TYPE to define it in a header
+/// and the macro TYPEDESC_REGISTER_TYPE to register it in the type registry. Registration 
+/// must be done in order to access the type's name later using getName() and to find the
+/// type by name using TypeDesc::get().
+/// 
+/// The class is a POD type of 64-bits and can efficiently be passed by value. All type compare
+/// operations and hash operations are done using a precomputed hash value. Calling getName()
+/// is the single one more expensive operation as this requires a lookup in the type registry.
+///
 class MX_GENSHADER_API TypeDesc
 {
-  public:
+public:
     enum BaseType
     {
         BASETYPE_NONE,
@@ -50,23 +60,22 @@ class MX_GENSHADER_API TypeDesc
         SEMANTIC_LAST
     };
 
-    /// Register a type descriptor for a MaterialX data type.
-    /// Throws an exception if a type with the same name is already registered.
-    static const TypeDesc* registerType(const string& name, unsigned char basetype, unsigned char semantic = SEMANTIC_NONE,
-                                        size_t size = 1, bool editable = true);
+    /// Empty constructor.
+    constexpr TypeDesc() noexcept : _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0) {}
 
-    /// Equality operator overload
-    bool operator==(const TypeDesc& rhs) const;
+    /// Constructor.
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1) noexcept :
+        _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
+        _basetype(basetype),
+        _semantic(semantic),
+        _size(size)
+    {}
 
-    /// Inequality operator overload
-    bool operator!=(const TypeDesc& rhs) const;
-
-    /// Get a type descriptor for given name.
-    /// Returns an empty shared pointer if no type with the given name is found.
-    static const TypeDesc* get(const string& name);
+    /// Return the unique id assigned to this type.
+    uint32_t typeId() const { return _id; }
 
     /// Return the name of the type.
-    const string& getName() const { return _name; }
+    const string& getName() const;
 
     /// Return the basetype for the type.
     unsigned char getBaseType() const { return _basetype; }
@@ -79,11 +88,6 @@ class MX_GENSHADER_API TypeDesc
     /// For array types 0 is returned since the number of elements is undefined
     /// until an array is instantiated.
     size_t getSize() const { return _size; }
-
-    /// Returns true if the type is editable by users.
-    /// Editable types are allowed to be published as shader uniforms
-    /// and hence must be presentable in a user interface.
-    bool isEditable() const { return _editable; }
 
     /// Return true if the type is a scalar type.
     bool isScalar() const { return _size == 1; }
@@ -106,47 +110,96 @@ class MX_GENSHADER_API TypeDesc
     /// Return true if the type represents a closure.
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
 
-  private:
-    TypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size, bool editable);
+    /// Equality operator
+    bool operator==(const TypeDesc& rhs) const
+    {
+        return _id == rhs._id;
+    }
 
-    const string _name;
-    const unsigned char _basetype;
-    const unsigned char _semantic;
-    const size_t _size;
-    const bool _editable;
+    /// Inequality operator
+    bool operator!=(const TypeDesc& rhs) const
+    {
+        return _id != rhs._id;
+    }
+
+    /// Less-than operator
+    bool operator<(const TypeDesc& rhs) const
+    {
+        return _id < rhs._id;
+    }
+
+    /// Hash operator
+    struct Hasher
+    {
+        size_t operator()(const TypeDesc& t) const
+        {
+            return t._id;
+        }
+    };
+
+    /// Return a type description by name.
+    /// If no type is found Type::NONE is returned.
+    static TypeDesc get(const string& name);
+
+    static const string NONE_TYPE_NAME;
+
+private:
+    /// Simple constexpr hash function, good enough for the small set of short strings that
+    /// are used for our data type names.
+    constexpr uint32_t constexpr_hash(std::string_view str, int n = 0, uint32_t h = 2166136261)
+    {
+        return n == str.size() ? h : constexpr_hash(str, n + 1, (h * 16777619) ^ (str[n]));
+    }
+
+    uint32_t _id;
+    uint8_t _basetype;
+    uint8_t _semantic;
+    uint16_t _size;
 };
+
+/// @class TypeDescRegistry
+/// Helper class for type registration.
+class TypeDescRegistry
+{
+public:
+    TypeDescRegistry(TypeDesc type, const string& name);
+};
+
+#define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
+    static constexpr TypeDesc T(name, basetype, semantic, size);
+
+#define TYPEDESC_REGISTER_TYPE(T, name) \
+    TypeDescRegistry register_##T(T, name);
 
 namespace Type
 {
 
-/// Type descriptors for all standard types.
-/// These are always registered by default.
-///
-/// TODO: Add support for the standard array types.
-///
-extern MX_GENSHADER_API const TypeDesc* NONE;
-extern MX_GENSHADER_API const TypeDesc* BOOLEAN;
-extern MX_GENSHADER_API const TypeDesc* INTEGER;
-extern MX_GENSHADER_API const TypeDesc* INTEGERARRAY;
-extern MX_GENSHADER_API const TypeDesc* FLOAT;
-extern MX_GENSHADER_API const TypeDesc* FLOATARRAY;
-extern MX_GENSHADER_API const TypeDesc* VECTOR2;
-extern MX_GENSHADER_API const TypeDesc* VECTOR3;
-extern MX_GENSHADER_API const TypeDesc* VECTOR4;
-extern MX_GENSHADER_API const TypeDesc* COLOR3;
-extern MX_GENSHADER_API const TypeDesc* COLOR4;
-extern MX_GENSHADER_API const TypeDesc* MATRIX33;
-extern MX_GENSHADER_API const TypeDesc* MATRIX44;
-extern MX_GENSHADER_API const TypeDesc* STRING;
-extern MX_GENSHADER_API const TypeDesc* FILENAME;
-extern MX_GENSHADER_API const TypeDesc* BSDF;
-extern MX_GENSHADER_API const TypeDesc* EDF;
-extern MX_GENSHADER_API const TypeDesc* VDF;
-extern MX_GENSHADER_API const TypeDesc* SURFACESHADER;
-extern MX_GENSHADER_API const TypeDesc* VOLUMESHADER;
-extern MX_GENSHADER_API const TypeDesc* DISPLACEMENTSHADER;
-extern MX_GENSHADER_API const TypeDesc* LIGHTSHADER;
-extern MX_GENSHADER_API const TypeDesc* MATERIAL;
+//
+/// Define type descriptors for standard types.
+//
+TYPEDESC_DEFINE_TYPE(NONE, "none", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_NONE, 1)
+TYPEDESC_DEFINE_TYPE(BOOLEAN, "boolean", TypeDesc::BASETYPE_BOOLEAN, TypeDesc::SEMANTIC_NONE, 1)
+TYPEDESC_DEFINE_TYPE(INTEGER, "integer", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMANTIC_NONE, 1)
+TYPEDESC_DEFINE_TYPE(FLOAT, "float", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_NONE, 1)
+TYPEDESC_DEFINE_TYPE(INTEGERARRAY, "integerarray", TypeDesc::BASETYPE_INTEGER, TypeDesc::SEMANTIC_NONE, 0)
+TYPEDESC_DEFINE_TYPE(FLOATARRAY, "floatarray", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_NONE, 0)
+TYPEDESC_DEFINE_TYPE(VECTOR2, "vector2", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 2)
+TYPEDESC_DEFINE_TYPE(VECTOR3, "vector3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 3)
+TYPEDESC_DEFINE_TYPE(VECTOR4, "vector4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_VECTOR, 4)
+TYPEDESC_DEFINE_TYPE(COLOR3, "color3", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 3)
+TYPEDESC_DEFINE_TYPE(COLOR4, "color4", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_COLOR, 4)
+TYPEDESC_DEFINE_TYPE(MATRIX33, "matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 9)
+TYPEDESC_DEFINE_TYPE(MATRIX44, "matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 16)
+TYPEDESC_DEFINE_TYPE(STRING, "string", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_NONE, 1)
+TYPEDESC_DEFINE_TYPE(FILENAME, "filename", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_FILENAME, 1)
+TYPEDESC_DEFINE_TYPE(BSDF, "BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
+TYPEDESC_DEFINE_TYPE(EDF, "EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
+TYPEDESC_DEFINE_TYPE(VDF, "VDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1)
+TYPEDESC_DEFINE_TYPE(SURFACESHADER, "surfaceshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1)
+TYPEDESC_DEFINE_TYPE(VOLUMESHADER, "volumeshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1)
+TYPEDESC_DEFINE_TYPE(DISPLACEMENTSHADER, "displacementshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1)
+TYPEDESC_DEFINE_TYPE(LIGHTSHADER, "lightshader", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_SHADER, 1)
+TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1)
 
 } // namespace Type
 

@@ -36,9 +36,9 @@ void ShaderGraph::addInputSockets(const InterfaceElement& elem, GenContext& cont
         ShaderGraphInputSocket* inputSocket = nullptr;
         ValuePtr portValue = input->getResolvedValue();
         const string& portValueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-        std::pair<const TypeDesc*, ValuePtr> enumResult;
+        std::pair<TypeDesc, ValuePtr> enumResult;
         const string& enumNames = input->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-        const TypeDesc* portType = TypeDesc::get(input->getType());
+        const TypeDesc portType = TypeDesc::get(input->getType());
         if (context.getShaderGenerator().getSyntax().remapEnumeration(portValueString, portType, enumNames, enumResult))
         {
             inputSocket = addInputSocket(input->getName(), enumResult.first);
@@ -201,7 +201,7 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
     {
         // Find the nodedef for the geometric node referenced by the geomprop. Use the type of the
         // input here and ignore the type of the geomprop. They are required to have the same type.
-        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType()->getName();
+        string geomNodeDefName = "ND_" + geomprop.getGeomProp() + "_" + input->getType().getName();
         NodeDefPtr geomNodeDef = _document->getNodeDef(geomNodeDefName);
         if (!geomNodeDef)
         {
@@ -221,9 +221,9 @@ void ShaderGraph::addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geom
             ValueElementPtr nodeDefSpaceInput = geomNodeDef->getActiveValueElement(GeomPropDef::SPACE_ATTRIBUTE);
             if (spaceInput && nodeDefSpaceInput)
             {
-                std::pair<const TypeDesc*, ValuePtr> enumResult;
+                std::pair<TypeDesc, ValuePtr> enumResult;
                 const string& enumNames = nodeDefSpaceInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-                const TypeDesc* portType = TypeDesc::get(nodeDefSpaceInput->getType());
+                const TypeDesc portType = TypeDesc::get(nodeDefSpaceInput->getType());
                 if (context.getShaderGenerator().getSyntax().remapEnumeration(space, portType, enumNames, enumResult))
                 {
                     spaceInput->setValue(enumResult.second);
@@ -729,8 +729,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                     if (value)
                     {
                         const string& valueString = value->getValueString();
-                        std::pair<const TypeDesc*, ValuePtr> enumResult;
-                        const TypeDesc* type = TypeDesc::get(nodedefInput->getType());
+                        std::pair<TypeDesc, ValuePtr> enumResult;
+                        const TypeDesc type = TypeDesc::get(nodedefInput->getType());
                         const string& enumNames = nodedefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
                         if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
                         {
@@ -878,12 +878,12 @@ ShaderNode* ShaderGraph::createNode(const Node& node, GenContext& context)
     return newNode.get();
 }
 
-ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, const TypeDesc* type)
+ShaderGraphInputSocket* ShaderGraph::addInputSocket(const string& name, TypeDesc type)
 {
     return ShaderNode::addOutput(name, type);
 }
 
-ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, const TypeDesc* type)
+ShaderGraphOutputSocket* ShaderGraph::addOutputSocket(const string& name, TypeDesc type)
 {
     return ShaderNode::addInput(name, type);
 }
@@ -970,7 +970,7 @@ void ShaderGraph::finalize(GenContext& context)
                 {
                     // Check if the type is editable otherwise we can't
                     // publish the input as an editable uniform.
-                    if (input->getType()->isEditable() && node->isEditable(*input))
+                    if (!input->getType().isClosure() && node->isEditable(*input))
                     {
                         // Use a consistent naming convention: <nodename>_<inputname>
                         // so application side can figure out what uniforms to set
@@ -1029,7 +1029,7 @@ void ShaderGraph::optimize(GenContext& context)
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty() && *in->getType() == *Type::FILENAME)
+            if (in->getChannels().empty() && in->getType() == Type::FILENAME)
             {
                 bypass(context, node, 0);
                 ++numEdits;
@@ -1240,7 +1240,7 @@ string ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorMana
     const string& sourceColorSpace = input->getActiveColorSpace();
     if (shaderPort && !sourceColorSpace.empty())
     {
-        if (*(shaderPort->getType()) == *Type::COLOR3 || *(shaderPort->getType()) == *Type::COLOR4)
+        if (shaderPort->getType() == Type::COLOR3 || shaderPort->getType() == Type::COLOR4)
         {
             // If we're converting between two identical color spaces than we have no work to do.
             if (sourceColorSpace != targetColorSpace)
@@ -1309,10 +1309,10 @@ void ShaderGraph::populateUnitTransformMap(UnitSystemPtr unitSystem, ShaderPort*
 
     // Only support convertion for float and vectors. arrays, matrices are not supported.
     // TODO: This should be provided by the UnitSystem.
-    bool supportedType = (*shaderPort->getType() == *Type::FLOAT ||
-                          *shaderPort->getType() == *Type::VECTOR2 ||
-                          *shaderPort->getType() == *Type::VECTOR3 ||
-                          *shaderPort->getType() == *Type::VECTOR4);
+    bool supportedType = (shaderPort->getType() == Type::FLOAT ||
+                          shaderPort->getType() == Type::VECTOR2 ||
+                          shaderPort->getType() == Type::VECTOR3 ||
+                          shaderPort->getType() == Type::VECTOR4);
     if (supportedType)
     {
         UnitTransform transform(sourceUnitSpace, targetUnitSpace, shaderPort->getType(), unitType);
