@@ -146,9 +146,9 @@ public:
 private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
     /// are used for our data type names.
-    constexpr uint32_t constexpr_hash(std::string_view str, int n = 0, uint32_t h = 2166136261)
+    constexpr uint32_t constexpr_hash(std::string_view str, uint32_t n = 0, uint32_t h = 2166136261)
     {
-        return n == str.size() ? h : constexpr_hash(str, n + 1, (h * 16777619) ^ (str[n]));
+        return n == uint32_t(str.size()) ? h : constexpr_hash(str, n + 1, (h * 16777619) ^ (str[n]));
     }
 
     uint32_t _id;

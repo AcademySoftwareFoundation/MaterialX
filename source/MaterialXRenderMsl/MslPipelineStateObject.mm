@@ -1398,7 +1398,7 @@ void MslProgram::reset()
     clearInputLists();
 }
 
-MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
+MTLDataType MslProgram::mapTypeToMetalType(TypeDesc type)
 {
     if (type == Type::INTEGER)
         return MTLDataTypeInt;
@@ -1406,11 +1406,11 @@ MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
         return MTLDataTypeBool;
     else if (type == Type::FLOAT)
         return MTLDataTypeFloat;
-    else if (type->isFloat2())
+    else if (type.isFloat2())
         return MTLDataTypeFloat2;
-    else if (type->isFloat3())
+    else if (type.isFloat3())
         return MTLDataTypeFloat3;
-    else if (type->isFloat4())
+    else if (type.isFloat4())
         return MTLDataTypeFloat4;
     else if (type == Type::MATRIX33)
         return MTLDataTypeFloat3x3;
