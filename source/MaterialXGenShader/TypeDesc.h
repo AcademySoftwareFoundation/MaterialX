@@ -159,7 +159,7 @@ private:
 
 /// @class TypeDescRegistry
 /// Helper class for type registration.
-class TypeDescRegistry
+class MX_GENSHADER_API TypeDescRegistry
 {
 public:
     TypeDescRegistry(TypeDesc type, const string& name);
