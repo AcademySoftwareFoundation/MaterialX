@@ -106,7 +106,7 @@ class UdimFile(MaterialX.FilePath):
         return re.sub(r'[^\w\s]+', '_', name)
 
 
-def listTextures(textureDir: MaterialX.FilePath, texturePrefix: str) -> List[UdimFile]:
+def listTextures(textureDir: MaterialX.FilePath, texturePrefix=None) -> List[UdimFile]:
     """
     List all textures that matched extensions in cfg file
     @param textureDir: the directory where the textures exist
