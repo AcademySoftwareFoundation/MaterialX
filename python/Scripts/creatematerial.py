@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
-
-__doc__ = """Create materialX file conatin standard surface uber shader with input texture for given directory"""
+#!/usr/bin/env python
+'''
+Construct a MaterialX file from the textures in the given folder, using the standard data libraries
+to determine the shading model and inputs they are most likely to reference.
+'''
 
 import os
 import re
