@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-__doc__ = ('Create materialX file conatin standard surface uber shader with input texture for given directory')
+
+__doc__ = """Create materialX file conatin standard surface uber shader with input texture for given directory"""
 
 import os
 import re
@@ -105,16 +106,18 @@ class UdimFile(MaterialX.FilePath):
         return re.sub(r'[^\w\s]+', '_', name)
 
 
-def listTextures(textureDir: MaterialX.FilePath) -> List[UdimFile]:
+def listTextures(textureDir: MaterialX.FilePath, texturePrefix: str) -> List[UdimFile]:
     """
     List all textures that matched extensions in cfg file
     @param textureDir: the directory where the textures exist
+    @param texturePrefix: Get only textures that have prefix, if None, will return all textures
     return List(UdimFile)
     """
-
+    texturePrefix = texturePrefix or ""
     allTextures = []
     for ext in Constant.TextureExtensions:
-        textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)]
+        textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)
+                    if f.asString().lower().startswith(texturePrefix.lower())]
 
         while textures:
             textureFile = UdimFile(textures[0].asString())
@@ -299,9 +302,10 @@ def createMtlxDoc(textureFiles: List[MaterialX.FilePath],
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--outputFilename', dest='outputFilename', help='Filename of the output materialX document (default material.mtlx).')
-    parser.add_argument('-s', '--shaderModel', dest='shaderModel', default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
-    parser.add_argument('-c', '--colorSpace', dest='colorSpace', help='Colorsapce to set (default to `srgb_texture`).')
+    parser.add_argument('-o', '--outputFilename', dest='outputFilename', type=str, help='Filename of the output materialX document (default material.mtlx).')
+    parser.add_argument('-s', '--shaderModel', dest='shaderModel', type=str, default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
+    parser.add_argument('-c', '--colorSpace', dest='colorSpace', type=str, help='Colorsapce to set (default to `srgb_texture`).')
+    parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Use textures that have the prefix.')
     parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
     parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Use tileimage node instead of image node.')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='Turn on verbose mode to create loggings.')
@@ -332,7 +336,7 @@ def main():
             mtlxFile = texturePath / filepath
 
 
-    textureFiles = listTextures(texturePath)
+    textureFiles = listTextures(texturePath, texturePrefix=options.texturePrefix)
     if not textureFiles:
         logger.warning(
             "The directory does not contain any matched texture with given cfg file.. Skipping")
