@@ -91,7 +91,6 @@ void checkImplementations(mx::GenContext& context,
     mx::StringSet skipNodeTypes =
     {
         "ambientocclusion",
-        "arrayappend",
         "displacement",
         "volume",
         "curveadjust",
