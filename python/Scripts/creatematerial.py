@@ -12,9 +12,7 @@ from difflib import SequenceMatcher
 
 from typing import Dict, List
 
-import MaterialX
-
-
+import MaterialX as mx
 
 # Configure the logger
 logging.basicConfig(
@@ -36,7 +34,7 @@ class Constant:
         "hdr"
     ]
 
-class UdimFile(MaterialX.FilePath):
+class UdimFile(mx.FilePath):
 
     def __init__(self, pathString):
         super().__init__(pathString)
@@ -70,7 +68,7 @@ class UdimFile(MaterialX.FilePath):
         )
         self._udimFiles = [textureDir / f for f in udimFiles]
 
-    def asPattern(self, format=MaterialX.FormatPosix):
+    def asPattern(self, format=mx.FormatPosix):
 
         if not self._isUdim:
             return self.asString(format=format)
@@ -78,7 +76,7 @@ class UdimFile(MaterialX.FilePath):
         textureDir = self.getParentPath()
         textureName = self.getBaseName()
 
-        pattern = textureDir / MaterialX.FilePath(
+        pattern = textureDir / mx.FilePath(
             self._udimRegex.sub(Constant.UdimToken, textureName))
         return pattern.asString(format=format)
 
@@ -108,7 +106,7 @@ class UdimFile(MaterialX.FilePath):
         return re.sub(r'[^\w\s]+', '_', name)
 
 
-def listTextures(textureDir: MaterialX.FilePath, texturePrefix=None) -> List[UdimFile]:
+def listTextures(textureDir: mx.FilePath, texturePrefix=None) -> List[UdimFile]:
     """
     List all textures that matched extensions in cfg file
     @param textureDir: the directory where the textures exist
@@ -129,16 +127,16 @@ def listTextures(textureDir: MaterialX.FilePath, texturePrefix=None) -> List[Udi
 
     return allTextures
 
-def getShaderModels() -> Dict[str, MaterialX.NodeDef]:
+def getShaderModels() -> Dict[str, mx.NodeDef]:
     """
     To get all shader models nodeDefs that registers in materialx
-    return (dict[str, MaterialX.NodeDef]):  dictionary with nodedef name as a key and value of nodedef itself
+    return (dict[str, mx.NodeDef]):  dictionary with nodedef name as a key and value of nodedef itself
     """
-    stdlib = MaterialX.createDocument()
-    searchPath = MaterialX.getDefaultDataSearchPath()
-    libraryFolders = MaterialX.getDefaultDataLibraryFolders()
+    stdlib = mx.createDocument()
+    searchPath = mx.getDefaultDataSearchPath()
+    libraryFolders = mx.getDefaultDataLibraryFolders()
 
-    shaderModelFiles = MaterialX.loadLibraries(libraryFolders, searchPath, stdlib)
+    shaderModelFiles = mx.loadLibraries(libraryFolders, searchPath, stdlib)
 
     shaderModels = {}
     for nodeDef in stdlib.getNodeDefs():
@@ -150,7 +148,7 @@ def getShaderModels() -> Dict[str, MaterialX.NodeDef]:
     return shaderModels
 
 
-def findBestMatch(textureName: str, shaderModel: MaterialX.NodeDef):
+def findBestMatch(textureName: str, shaderModel: mx.NodeDef):
     """
     Get the texture matched pattern and return the materialx plug name and the plug type
     @param textureName: The base texture name
@@ -182,13 +180,13 @@ def findBestMatch(textureName: str, shaderModel: MaterialX.NodeDef):
     return shaderInputs[idx]
 
 
-def createMtlxDoc(textureFiles: List[MaterialX.FilePath],
-                  mtlxFile: MaterialX.FilePath,
+def createMtlxDoc(textureFiles: List[mx.FilePath],
+                  mtlxFile: mx.FilePath,
                   shaderModel: str,
                   relativePaths: bool = True,
                   colorspace: str = 'srgb_texture',
                   useTileImage: bool = False
-                  ) -> MaterialX.FilePath:
+                  ) -> mx.FilePath:
     """
     Create a metrical document with uber shader
     @param textureFiles: List of all textures
@@ -209,7 +207,7 @@ def createMtlxDoc(textureFiles: List[MaterialX.FilePath],
         return
 
     # Create Document
-    doc = MaterialX.createDocument()
+    doc = mx.createDocument()
 
     mtlxFilename = mtlxFile.getBaseName().rsplit('.', 1)[0]
     mtlxFilename = doc.createValidChildName(mtlxFilename)
@@ -297,7 +295,7 @@ def createMtlxDoc(textureFiles: List[MaterialX.FilePath],
     if not mtlxFile.getParentPath().exists():
         mtlxFile.getParentPath().createDirectory()
 
-    MaterialX.writeToXmlFile(doc, mtlxFile.asString())
+    mx.writeToXmlFile(doc, mtlxFile.asString())
     logger.info("MaterialX file created `{}`".format(mtlxFile.asString()))
     return mtlxFile
 
@@ -318,19 +316,19 @@ def main():
 
     options = parser.parse_args()
 
-    texturePath = MaterialX.FilePath.getCurrentPath()
+    texturePath = mx.FilePath.getCurrentPath()
 
     if options.inputDirectory:
-        texturePath = MaterialX.FilePath(options.inputDirectory)
+        texturePath = mx.FilePath(options.inputDirectory)
 
         if not texturePath.isDirectory():
             logger.error("The texture directory does not exist `{}`".format(texturePath))
             return
 
-    default_doc_name = MaterialX.FilePath('material.mtlx')
+    default_doc_name = mx.FilePath('material.mtlx')
     mtlxFile = texturePath / default_doc_name
     if options.outputFilename:
-        mtlxFile = MaterialX.FilePath(options.outputFilename)
+        mtlxFile = mx.FilePath(options.outputFilename)
 
     textureFiles = listTextures(texturePath, texturePrefix=options.texturePrefix)
     if not textureFiles:
