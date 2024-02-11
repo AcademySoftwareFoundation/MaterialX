@@ -213,6 +213,8 @@ jobs:
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
         python MaterialXTest/tests_creatematerial.py
+        python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard -o ../resources/Materials/Examples/StandardSurface/standard_surface_chess_board.mtlx
+        python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_chess_board.mtlx --stdlib --verbose
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
