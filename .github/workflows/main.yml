@@ -396,7 +396,7 @@ jobs:
         python-version: 3.${{ matrix.python-minor }}
 
     - name: Download Sdist
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: MaterialX_Python_SDist
         path: sdist
