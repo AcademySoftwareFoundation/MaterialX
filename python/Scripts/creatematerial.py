@@ -328,13 +328,7 @@ def main():
     default_doc_name = MaterialX.FilePath('material.mtlx')
     mtlxFile = texturePath / default_doc_name
     if options.outputFilename:
-        filepath = MaterialX.FilePath(options.outputFilename)
-
-        if filepath.isAbsolute():
-            mtlxFile = filepath
-        else:
-            mtlxFile = texturePath / filepath
-
+        mtlxFile = MaterialX.FilePath(options.outputFilename)
 
     textureFiles = listTextures(texturePath, texturePrefix=options.texturePrefix)
     if not textureFiles:
