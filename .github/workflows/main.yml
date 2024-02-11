@@ -431,5 +431,5 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@v4
       with:
-        name: MaterialX_Python_Wheels
+        name: MaterialX_Python_Wheel_${{ runner.os }}_3.${{ matrix.python-minor }}
         path: wheelhouse/*.whl
