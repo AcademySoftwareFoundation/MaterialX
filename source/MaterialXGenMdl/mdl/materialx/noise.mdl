@@ -46,11 +46,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 mdl 1.6;
 
-using core import *;
-import swizzle::*;
+import ::anno::*;
 import ::math::*;
 import ::state::*;
-import ::anno::*;
+
+import .::core::*;
+import .::swizzle::*;
 
 float mx_bilerp_float(float v0, float v1, float v2, float v3, float s, float t)
 {

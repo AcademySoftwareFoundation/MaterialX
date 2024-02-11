@@ -16,10 +16,10 @@
 
 // Support functions for HSV <--> RGB color conversions
 
-mdl 1.0;
+mdl 1.6;
 
-import ::math::*;
 import ::limits::*;
+import ::math::*;
 
 // Convert from the HSV color model to the RGB color model
 export float3 mx_hsvtorgb(float3 hsv) {

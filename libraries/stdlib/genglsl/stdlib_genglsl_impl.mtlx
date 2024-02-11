@@ -302,6 +302,15 @@
   <implementation name="IM_ceil_vector4_genglsl" nodedef="ND_ceil_vector4" target="genglsl" sourcecode="ceil({{in}})" />
   <implementation name="IM_ceil_integer_genglsl" nodedef="ND_ceil_integer" target="genglsl" sourcecode="int(ceil({{in}}))" />
 
+  <!-- <round> -->
+  <implementation name="IM_round_float_genglsl" nodedef="ND_round_float" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color3_genglsl" nodedef="ND_round_color3" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color4_genglsl" nodedef="ND_round_color4" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector2_genglsl" nodedef="ND_round_vector2" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector3_genglsl" nodedef="ND_round_vector3" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector4_genglsl" nodedef="ND_round_vector4" target="genglsl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_integer_genglsl" nodedef="ND_round_integer" target="genglsl" sourcecode="int(round({{in}}))" />
+
   <!-- <power> -->
   <implementation name="IM_power_float_genglsl" nodedef="ND_power_float" target="genglsl" sourcecode="pow({{in1}}, {{in2}})" />
   <implementation name="IM_power_color3_genglsl" nodedef="ND_power_color3" target="genglsl" sourcecode="pow({{in1}}, {{in2}})" />

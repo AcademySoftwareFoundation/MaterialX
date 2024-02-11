@@ -47,10 +47,12 @@ class MX_RENDER_API Image
   public:
     enum class BaseType
     {
-        UINT8 = 0,
-        UINT16 = 1,
-        HALF = 2,
-        FLOAT = 3
+        UINT8,
+        INT8,
+        UINT16,
+        INT16,
+        HALF,
+        FLOAT
     };
 
   public:

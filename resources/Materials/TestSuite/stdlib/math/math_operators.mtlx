@@ -462,6 +462,83 @@
     </power>
     <output name="out" type="vector4" nodename="power1" />
   </nodegraph>
+  <nodegraph name="safepower_float">
+    <safepower name="safepower1" type="float">
+      <input name="in1" type="float" value="0.5000" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="float" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_color3">
+    <safepower name="safepower1" type="color3">
+      <input name="in1" type="color3" value="0.5000, 1.0000, -1.0000" />
+      <input name="in2" type="color3" value="2.0000, 1.0000, 0.0" />
+    </safepower>
+    <output name="out" type="color3" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_color3FA">
+    <safepower name="safepower1" type="color3">
+      <input name="in1" type="color3" value="-0.5000, 1.0000, 0.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="color3" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_color4">
+    <safepower name="safepower1" type="color4">
+      <input name="in1" type="color4" value="0.5000, 1.0000, -1.0000, 1.0000" />
+      <input name="in2" type="color4" value="2.0000, 1.0000, 0.0000, 3.0000" />
+    </safepower>
+    <output name="out" type="color4" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_color4FA">
+    <safepower name="safepower1" type="color4">
+      <input name="in1" type="color4" value="0.5000, 1.0000, 0.0, 1.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="color4" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector2">
+    <safepower name="safepower1" type="vector2">
+      <input name="in1" type="vector2" value="-0.5000, 1.0000" />
+      <input name="in2" type="vector2" value="2.0000, 1.0000" />
+    </safepower>
+    <output name="out" type="vector2" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector2FA">
+    <safepower name="safepower1" type="vector2">
+      <input name="in1" type="vector2" value="0.5000, 1.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="vector2" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector3">
+    <safepower name="safepower1" type="vector3">
+      <input name="in1" type="vector3" value="0.5000, 1.0000, -1.0000" />
+      <input name="in2" type="vector3" value="2.0000, 1.0000, 0.0" />
+    </safepower>
+    <output name="out" type="vector3" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector3FA">
+    <safepower name="safepower1" type="vector3">
+      <input name="in1" type="vector3" value="0.5000, 1.0000, 0.0" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="vector3" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector4">
+    <safepower name="safepower1" type="vector4">
+      <input name="in1" type="vector4" value="0.5000, -1.0000, 1.0000, 1.0" />
+      <input name="in2" type="vector4" value="2.0000, 1.0000, 0.0, 3.0000" />
+    </safepower>
+    <output name="out" type="vector4" nodename="safepower1" />
+  </nodegraph>
+  <nodegraph name="safepower_vector4FA">
+    <safepower name="safepower1" type="vector4">
+      <input name="in1" type="vector4" value="0.5000, 1.0000, 0.0, 1.0000" />
+      <input name="in2" type="float" value="2.0000" />
+    </safepower>
+    <output name="out" type="vector4" nodename="safepower1" />
+  </nodegraph>
   <nodegraph name="add_matrix33">
     <add name="add1" type="matrix33">
       <input name="in1" type="matrix33" value="0.5, 0.0, 0.0,  0.0, 0.5, 0.0,  0.0, 0.0, 0.5" />

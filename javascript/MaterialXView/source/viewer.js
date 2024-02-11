@@ -1082,6 +1082,12 @@ export class Material
                     {
                         continue;
                     }
+                    
+                    // Skip non-input types and anything > 2 levels deep 
+                    if (!currentElem.asAInput() || currentElem.getNamePath().split('/').length > 2)
+                    {
+                        continue;
+                    }
 
                     let currentNode = null;
                     if (currentElem.getParent() && currentElem.getParent().getNamePath() != "")
@@ -1169,6 +1175,21 @@ export class Material
                         {
                             path = uiname;
                         }
+                    }
+
+                    // Skip if already added to current folder 
+                    let found = false;
+                    for (let i = 0; i < currentFolder.children.length; ++i)
+                    {
+                        if (currentFolder.children[i]._name == path)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }                        
+                    if (found)
+                    {
+                        continue;
                     }
 
                     switch (variable.getType().getName())
@@ -1390,7 +1411,6 @@ export class Material
                         case 'filename':
                             break;
                         case 'string':
-                            console.log('String: ', name);
                             if (value != null)
                             {
                                 var dummy =

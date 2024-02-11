@@ -184,11 +184,10 @@ ImageVec ImageHandler::getReferencedImages(ConstDocumentPtr doc)
             continue;
         }
 
-        NodePtr node = elem->asA<Node>();
-        InputPtr file = node ? node->getInput("file") : nullptr;
-        if (file)
+        InputPtr input = elem->asA<Input>();
+        if (input && input->getType() == FILENAME_TYPE_STRING)
         {
-            ImagePtr image = acquireImage(file->getResolvedValueString());
+            ImagePtr image = acquireImage(input->getResolvedValueString());
             if (image)
             {
                 imageVec.push_back(image);

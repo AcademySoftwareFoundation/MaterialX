@@ -307,8 +307,17 @@ ed::PinId Graph::getOutputPin(UiNodePtr node, UiNodePtr upNode, UiPinPtr input)
 {
     if (upNode->getNodeGraph() != nullptr)
     {
-        // For nodegraph need to get the correct ouput pin accorinding to the names of the output nodes
-        mx::OutputPtr output = input->_pinNode->getNode() ? input->_pinNode->getNode()->getConnectedOutput(input->_name) : nullptr;
+        // For nodegraph need to get the correct ouput pin according to the names of the output nodes
+        mx::OutputPtr output;
+        if (input->_pinNode->getNode())
+        {
+            output = input->_pinNode->getNode()->getConnectedOutput(input->_name);
+        }
+        else if (input->_pinNode->getNodeGraph())
+        {
+            output = input->_pinNode->getNodeGraph()->getConnectedOutput(input->_name);
+        }
+
         if (output)
         {
             std::string outName = output->getName();
@@ -1342,21 +1351,28 @@ void Graph::buildUiBaseGraph(mx::DocumentPtr doc)
         {
             int downNum = -1;
             int upNum = -1;
+            mx::string nodeGraphName = input->getNodeGraphString();
             mx::NodePtr connectedNode = input->getConnectedNode();
-            if (connectedNode)
+            if (!nodeGraphName.empty())
+            {
+                downNum = findNode(graph->getName(), "nodegraph");
+                upNum = findNode(nodeGraphName, "nodegraph");
+            }
+            else if (connectedNode)
             {
                 downNum = findNode(graph->getName(), "nodegraph");
                 upNum = findNode(connectedNode->getName(), "node");
-                if (upNum > -1)
+            }
+
+            if (upNum > -1)
+            {
+                UiEdge newEdge = UiEdge(_graphNodes[upNum], _graphNodes[downNum], input);
+                if (!edgeExists(newEdge))
                 {
-                    UiEdge newEdge = UiEdge(_graphNodes[upNum], _graphNodes[downNum], input);
-                    if (!edgeExists(newEdge))
-                    {
-                        _graphNodes[downNum]->edges.push_back(newEdge);
-                        _graphNodes[downNum]->setInputNodeNum(1);
-                        _graphNodes[upNum]->setOutputConnection(_graphNodes[downNum]);
-                        _currEdge.push_back(newEdge);
-                    }
+                    _graphNodes[downNum]->edges.push_back(newEdge);
+                    _graphNodes[downNum]->setInputNodeNum(1);
+                    _graphNodes[upNum]->setOutputConnection(_graphNodes[downNum]);
+                    _currEdge.push_back(newEdge);
                 }
             }
         }

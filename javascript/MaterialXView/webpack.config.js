@@ -71,6 +71,8 @@ module.exports = {
                 { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
                 { from: usdSurfaceMaterials, to: usdSurfaceMaterialsBaseURL },
                 { from: gltfSurfaceMaterials, to: gltfSurfaceMaterialsBaseURL },
+                { from: "../build/bin/JsMaterialXCore.wasm" },
+                { from: "../build/bin/JsMaterialXCore.js" },
                 { from: "../build/bin/JsMaterialXGenShader.wasm" },
                 { from: "../build/bin/JsMaterialXGenShader.js" },
                 { from: "../build/bin/JsMaterialXGenShader.data" },
