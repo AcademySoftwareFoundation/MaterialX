@@ -159,7 +159,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
 
     if not shadingModelNodeDef:
         print('Shading model', shadingModel, 'not found in the MaterialX data libraries')
-        return
+        return None
 
     # Create Document
     doc = mx.createDocument()
@@ -244,13 +244,8 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         geomInfo = doc.addGeomInfo(geomInfoName)
         geomInfo.setGeomPropValue('udimset', list(udimNumbers), "stringarray")
 
-    # Write mtlx file
-    if not mtlxFile.getParentPath().exists():
-        mtlxFile.getParentPath().createDirectory()
-
-    mx.writeToXmlFile(doc, mtlxFile.asString())
-    print('Created MaterialX file:', mtlxFile.asString())
-    return mtlxFile
+    # Return the new document
+    return doc
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -295,13 +290,17 @@ def main():
     if options.colorSpace:
         colorspace = options.colorSpace
 
-    createMtlxDoc(
-        textureFiles,
-        mtlxFile,
-        shadingModel,
-        relativePaths=not options.absolutePaths,
-        colorspace=colorspace,
-        useTileImage=options.tileimage)
+    # Create the MaterialX document.
+    doc = createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths=not options.absolutePaths,
+                        colorspace=colorspace, useTileImage=options.tileimage)
+    if not doc:
+        return
+
+    # Write the document to disk.
+    if not mtlxFile.getParentPath().exists():
+        mtlxFile.getParentPath().createDirectory()
+    mx.writeToXmlFile(doc, mtlxFile.asString())
+    print('Wrote MaterialX file to disk:', mtlxFile.asString())
 
 if __name__ == '__main__':
     main()
