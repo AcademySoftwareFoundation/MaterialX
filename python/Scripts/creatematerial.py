@@ -13,17 +13,9 @@ from typing import Dict, List
 
 import MaterialX as mx
 
-class Constant:
-    UdimToken = '.<UDIM>.'
-    UdimRegex = r'\.\d+\.'
-    TextureExtensions = [
-        "exr",
-        "png",
-        "jpg",
-        "jpeg",
-        "tif",
-        "hdr"
-    ]
+UDIM_TOKEN = '.<UDIM>.'
+UDIM_REGEX = r'\.\d+\.'
+TEXTURE_EXTENSIONS = [ "exr", "png", "jpg", "jpeg", "tif", "hdr" ]
 
 class UdimFile(mx.FilePath):
 
@@ -32,7 +24,7 @@ class UdimFile(mx.FilePath):
 
         self._isUdim = False
         self._udimFiles = []
-        self._udimRegex = re.compile(Constant.UdimRegex)
+        self._udimRegex = re.compile(UDIM_REGEX)
 
         self.udimFiles()
 
@@ -68,7 +60,7 @@ class UdimFile(mx.FilePath):
         textureName = self.getBaseName()
 
         pattern = textureDir / mx.FilePath(
-            self._udimRegex.sub(Constant.UdimToken, textureName))
+            self._udimRegex.sub(UDIM_TOKEN, textureName))
         return pattern.asString(format=format)
 
     def isUdim(self):
@@ -96,7 +88,6 @@ class UdimFile(mx.FilePath):
 
         return re.sub(r'[^\w\s]+', '_', name)
 
-
 def listTextures(textureDir: mx.FilePath, texturePrefix=None) -> List[UdimFile]:
     """
     List all textures that matched extensions in cfg file
@@ -106,7 +97,7 @@ def listTextures(textureDir: mx.FilePath, texturePrefix=None) -> List[UdimFile]:
     """
     texturePrefix = texturePrefix or ""
     allTextures = []
-    for ext in Constant.TextureExtensions:
+    for ext in TEXTURE_EXTENSIONS:
         textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)
                     if f.asString().lower().startswith(texturePrefix.lower())]
 
