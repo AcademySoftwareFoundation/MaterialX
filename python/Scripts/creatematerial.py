@@ -118,32 +118,30 @@ def listTextures(textureDir: mx.FilePath, texturePrefix=None) -> List[UdimFile]:
 
     return allTextures
 
-def getShaderModels() -> Dict[str, mx.NodeDef]:
+def getShadingModels() -> Dict[str, mx.NodeDef]:
     """
-    To get all shader models nodeDefs that registers in materialx
+    To get all shading models nodeDefs that registers in materialx
     return (dict[str, mx.NodeDef]):  dictionary with nodedef name as a key and value of nodedef itself
     """
     stdlib = mx.createDocument()
     searchPath = mx.getDefaultDataSearchPath()
     libraryFolders = mx.getDefaultDataLibraryFolders()
 
-    shaderModelFiles = mx.loadLibraries(libraryFolders, searchPath, stdlib)
+    shadingModelFiles = mx.loadLibraries(libraryFolders, searchPath, stdlib)
 
-    shaderModels = {}
+    shadingModels = {}
     for nodeDef in stdlib.getNodeDefs():
         if nodeDef.getInheritsFrom():
             nodeDef = nodeDef.getInheritsFrom()
+        shadingModels[nodeDef.getNodeString()] = nodeDef
 
-        shaderModels[nodeDef.getNodeString()] = nodeDef
+    return shadingModels
 
-    return shaderModels
-
-
-def findBestMatch(textureName: str, shaderModel: mx.NodeDef):
+def findBestMatch(textureName: str, shadingModel: mx.NodeDef):
     """
     Get the texture matched pattern and return the materialx plug name and the plug type
     @param textureName: The base texture name
-    @param shaderModel: The shader model
+    @param shadingModel: The shading model
     return: list(materialInputName, materialInputType) | None
     """
 
@@ -153,7 +151,7 @@ def findBestMatch(textureName: str, shaderModel: mx.NodeDef):
     if baseTexName.lower() == 'color':
         baseTexName = ''.join(parts[-2:])
 
-    shaderInputs = shaderModel.getInputs()
+    shaderInputs = shadingModel.getInputs()
     ratios = []
     for shaderInput in shaderInputs:
         inputName = shaderInput.getName()
@@ -170,16 +168,15 @@ def findBestMatch(textureName: str, shaderModel: mx.NodeDef):
     idx = ratios.index(highscore)
     return shaderInputs[idx]
 
-
 def createMtlxDoc(textureFiles: List[mx.FilePath],
                   mtlxFile: mx.FilePath,
-                  shaderModel: str,
+                  shadingModel: str,
                   relativePaths: bool = True,
                   colorspace: str = 'srgb_texture',
                   useTileImage: bool = False
                   ) -> mx.FilePath:
     """
-    Create a metrical document with uber shader
+    Create a MaterialX document with uber shader
     @param textureFiles: List of all textures
     @param mtlxFile: The output path of document
     @param relativePaths: Will create relative texture path or not inside document
@@ -189,11 +186,11 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
 
     udimNumbers = set()
 
-    allShadersModels = getShaderModels()
-    shaderModelNodeDef = allShadersModels.get(shaderModel)
+    allShadingModels = getShadingModels()
+    shadingModelNodeDef = allShadingModels.get(shadingModel)
 
-    if not shaderModelNodeDef:
-        print('Shading model', shaderModel, 'not found in the MaterialX data libraries')
+    if not shadingModelNodeDef:
+        print('Shading model', shadingModel, 'not found in the MaterialX data libraries')
         return
 
     # Create Document
@@ -208,15 +205,15 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
     if not nodeGraph:
         nodeGraph = doc.addNodeGraph(graphName)
 
-    shaderNode = doc.addNode(shaderModel, 'SR_' + mtlxFilename, 'surfaceshader')
+    shaderNode = doc.addNode(shadingModel, 'SR_' + mtlxFilename, 'surfaceshader')
     doc.addMaterialNode('M_' + mtlxFilename, shaderNode)
 
     for textureFile in textureFiles:
         textureName = textureFile.getNameWithoutExtension()
-        shaderInput = findBestMatch(textureName, shaderModelNodeDef)
+        shaderInput = findBestMatch(textureName, shadingModelNodeDef)
 
         if not shaderInput:
-            print('Skipping', textureFile.getBaseName(), 'which does not match any', shaderModel, 'input')
+            print('Skipping', textureFile.getBaseName(), 'which does not match any', shadingModel, 'input')
             continue
 
         inputName = shaderInput.getName()
@@ -290,7 +287,7 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-o', '--outputFilename', dest='outputFilename', type=str, help='Filename of the output materialX document (default material.mtlx).')
-    parser.add_argument('-s', '--shaderModel', dest='shaderModel', type=str, default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
+    parser.add_argument('-s', '--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
     parser.add_argument('-c', '--colorSpace', dest='colorSpace', type=str, help='Colorsapce to set (default to `srgb_texture`).')
     parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Use textures that have the prefix.')
     parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
@@ -321,9 +318,9 @@ def main():
         return
 
     # Get shader model
-    shaderModel = 'standard_surface'
-    if options.shaderModel:
-        shaderModel = options.shaderModel
+    shadingModel = 'standard_surface'
+    if options.shadingModel:
+        shadingModel = options.shadingModel
 
     # Colorspace
     colorspace = 'srgb_texture'
@@ -333,7 +330,7 @@ def main():
     createMtlxDoc(
         textureFiles,
         mtlxFile,
-        shaderModel,
+        shadingModel,
         relativePaths=not options.absolutePaths,
         colorspace=colorspace,
         useTileImage=options.tileimage)
