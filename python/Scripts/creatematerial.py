@@ -249,16 +249,13 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--outputFilename', dest='outputFilename', type=str, help='Filename of the output materialX document (default material.mtlx).')
-    parser.add_argument('-s', '--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shader model to use like standard_surface, UsdPreviewSurface, gltf_pbr, and open_pbr_surface (standard_surface).')
-    parser.add_argument('-c', '--colorSpace', dest='colorSpace', type=str, help='Colorsapce to set (default to `srgb_texture`).')
-    parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Use textures that have the prefix.')
-    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
-    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Use tileimage node instead of image node.')
-    parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
-    # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
-    # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
-    # TODO : Flag for forcing texture extension if there are multiple extensions in directory.
+    parser.add_argument('-o', '--outputFilename', dest='outputFilename', type=str, help='Filename of the output MaterialX document.')
+    parser.add_argument('-s', '--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shading model used in analyzing input textures.')
+    parser.add_argument('-c', '--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_texture.')
+    parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Filter input textures by the given prefix.')
+    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the MaterialX file.')
+    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Request tiledimage nodes instead of image nodes.')
+    parser.add_argument(dest='inputDirectory', nargs='?', help='Input folder that will be scanned for textures, defaulting to the current working directory.')
 
     options = parser.parse_args()
 
@@ -270,8 +267,7 @@ def main():
             print('Input folder not found:', texturePath)
             return
 
-    default_doc_name = mx.FilePath('material.mtlx')
-    mtlxFile = texturePath / default_doc_name
+    mtlxFile = texturePath / mx.FilePath('material.mtlx')
     if options.outputFilename:
         mtlxFile = mx.FilePath(options.outputFilename)
 
@@ -280,13 +276,11 @@ def main():
         print('No matching textures found in input folder.')
         return
 
-    # Get shader model
+    # Get shading model and color space.
     shadingModel = 'standard_surface'
+    colorspace = 'srgb_texture'
     if options.shadingModel:
         shadingModel = options.shadingModel
-
-    # Colorspace
-    colorspace = 'srgb_texture'
     if options.colorSpace:
         colorspace = options.colorSpace
 
@@ -296,11 +290,16 @@ def main():
     if not doc:
         return
 
-    # Write the document to disk.
-    if not mtlxFile.getParentPath().exists():
-        mtlxFile.getParentPath().createDirectory()
-    mx.writeToXmlFile(doc, mtlxFile.asString())
-    print('Wrote MaterialX file to disk:', mtlxFile.asString())
+    if options.outputFilename:
+        # Write the document to disk.
+        if not mtlxFile.getParentPath().exists():
+            mtlxFile.getParentPath().createDirectory()
+        mx.writeToXmlFile(doc, mtlxFile.asString())
+        print('Wrote MaterialX document to disk:', mtlxFile.asString())
+    else:
+        # Print the document to the standard output.
+        print('Generated MaterialX document:')
+        print(mx.writeToXmlString(doc))
 
 if __name__ == '__main__':
     main()
