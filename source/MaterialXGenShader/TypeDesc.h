@@ -28,9 +28,8 @@ MATERIALX_NAMESPACE_BEGIN
 /// must be done in order to access the type's name later using getName() and to find the
 /// type by name using TypeDesc::get().
 /// 
-/// The class is a POD type of 64-bits and can efficiently be passed by value. All type compare
-/// operations and hash operations are done using a precomputed hash value. Calling getName()
-/// is the single one more expensive operation as this requires a lookup in the type registry.
+/// The class is a POD type of 64-bits and can efficiently be stored and passed by value.
+/// Type compare operations and hash operations are done using a precomputed hash value.
 ///
 class MX_GENSHADER_API TypeDesc
 {
@@ -72,6 +71,7 @@ public:
     {}
 
     /// Return the unique id assigned to this type.
+    /// The id is a hash of the given type name.
     uint32_t typeId() const { return _id; }
 
     /// Return the name of the type.
@@ -111,19 +111,19 @@ public:
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
 
     /// Equality operator
-    bool operator==(const TypeDesc& rhs) const
+    bool operator==(TypeDesc rhs) const
     {
         return _id == rhs._id;
     }
 
     /// Inequality operator
-    bool operator!=(const TypeDesc& rhs) const
+    bool operator!=(TypeDesc rhs) const
     {
         return _id != rhs._id;
     }
 
     /// Less-than operator
-    bool operator<(const TypeDesc& rhs) const
+    bool operator<(TypeDesc rhs) const
     {
         return _id < rhs._id;
     }
@@ -131,7 +131,7 @@ public:
     /// Hash operator
     struct Hasher
     {
-        size_t operator()(const TypeDesc& t) const
+        size_t operator()(TypeDesc t) const
         {
             return t._id;
         }
@@ -165,9 +165,12 @@ public:
     TypeDescRegistry(TypeDesc type, const string& name);
 };
 
+/// Macro to define global type descriptions for commonly used types.
 #define TYPEDESC_DEFINE_TYPE(T, name, basetype, semantic, size) \
     static constexpr TypeDesc T(name, basetype, semantic, size);
 
+/// Macro to register a previously defined type in the type registry.
+/// Registration must be done in order for the type to be searchable by name.
 #define TYPEDESC_REGISTER_TYPE(T, name) \
     TypeDescRegistry register_##T(T, name);
 
