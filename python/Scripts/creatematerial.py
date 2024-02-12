@@ -66,9 +66,6 @@ class UdimFile(mx.FilePath):
     def isUdim(self):
         return self._isUdim
 
-    def getNumberOfUdims(self):
-        return len(self._udimFiles)
-
     def getUdimFiles(self):
         return self._udimFiles
 
