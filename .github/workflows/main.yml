@@ -216,7 +216,7 @@ jobs:
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
         python Scripts/mxdoc.py --docType html ../libraries/bxdf/standard_surface.mtlx
-        python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard -o ../resources/Materials/Examples/StandardSurface/standard_surface_chess_board.mtlx
+        python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target glsl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target osl
         python Scripts/generateshader.py ../resources/Materials/Examples/StandardSurface --target mdl
