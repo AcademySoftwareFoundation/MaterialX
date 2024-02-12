@@ -83,7 +83,7 @@ class UdimFile(mx.FilePath):
 
         return re.sub(r'[^\w\s]+', '_', name)
 
-def listTextures(textureDir: mx.FilePath, texturePrefix=None):
+def listTextures(textureDir, texturePrefix=None):
     '''
     Return a list of texture filenames matching known extensions.
     '''
@@ -119,7 +119,7 @@ def getShadingModels():
 
     return shadingModels
 
-def findBestMatch(textureName: str, shadingModel: mx.NodeDef):
+def findBestMatch(textureName, shadingModel):
     '''
     Given a texture name and shading model, return the shader input that is the closest match.
     '''
@@ -147,7 +147,7 @@ def findBestMatch(textureName: str, shadingModel: mx.NodeDef):
     idx = ratios.index(highscore)
     return shaderInputs[idx]
 
-def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTileImage = False)
+def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTileImage = False):
     '''
     Create a MaterialX document from the given textures and shading model.
     '''
