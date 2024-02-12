@@ -6,21 +6,12 @@ to determine the shading model and inputs they are most likely to reference.
 
 import os
 import re
-import logging
 import argparse
 from difflib import SequenceMatcher
 
 from typing import Dict, List
 
 import MaterialX as mx
-
-# Configure the logger
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-
-logger = logging.getLogger('createMaterial')
 
 class Constant:
     UdimToken = '.<UDIM>.'
@@ -202,8 +193,7 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
     shaderModelNodeDef = allShadersModels.get(shaderModel)
 
     if not shaderModelNodeDef:
-        logger.warning(
-            f"Shader model {shaderModel} doesn't exist in materialx libraries.. Skipping")
+        print('Shading model', shaderModel, 'not found in the MaterialX data libraries')
         return
 
     # Create Document
@@ -226,9 +216,7 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
         shaderInput = findBestMatch(textureName, shaderModelNodeDef)
 
         if not shaderInput:
-            logger.debug(
-                "Skipping `{}` not matched any {} inputs".format(textureFile.getBaseName(),
-                                                                 shaderModel))
+            print('Skipping', textureFile.getBaseName(), 'which doesn't match any', shaderModel, 'input')
             continue
 
         inputName = shaderInput.getName()
@@ -296,9 +284,8 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
         mtlxFile.getParentPath().createDirectory()
 
     mx.writeToXmlFile(doc, mtlxFile.asString())
-    logger.info("MaterialX file created `{}`".format(mtlxFile.asString()))
+    print('Created MaterialX file:', mtlxFile.asString())
     return mtlxFile
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -308,7 +295,6 @@ def main():
     parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Use textures that have the prefix.')
     parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the materialX file.')
     parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Use tileimage node instead of image node.')
-    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", help='Turn on verbose mode to create loggings.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Directory that contain textures (default to current working directory).')
     # TODO : Flag for SG names to be created in mtlx file. default, djed SG pattern or first match.
     # TODO : Flag to seperate each SG for mtlx with the name of each shading group, default combined in one mtlx file name by output file name.
@@ -320,9 +306,8 @@ def main():
 
     if options.inputDirectory:
         texturePath = mx.FilePath(options.inputDirectory)
-
         if not texturePath.isDirectory():
-            logger.error("The texture directory does not exist `{}`".format(texturePath))
+            print('Input folder not found:', texturePath)
             return
 
     default_doc_name = mx.FilePath('material.mtlx')
@@ -332,8 +317,7 @@ def main():
 
     textureFiles = listTextures(texturePath, texturePrefix=options.texturePrefix)
     if not textureFiles:
-        logger.warning(
-            "The directory does not contain any matched texture with given cfg file.. Skipping")
+        print('No matching textures found in input folder.')
         return
 
     # Get shader model
@@ -346,19 +330,13 @@ def main():
     if options.colorSpace:
         colorspace = options.colorSpace
 
-    # Verbose
-    if options.verbose:
-        logger.setLevel(logging.DEBUG)
-
     createMtlxDoc(
         textureFiles,
         mtlxFile,
         shaderModel,
         relativePaths=not options.absolutePaths,
         colorspace=colorspace,
-        useTileImage=options.tileimage
-    )
-
+        useTileImage=options.tileimage)
 
 if __name__ == '__main__':
     main()
