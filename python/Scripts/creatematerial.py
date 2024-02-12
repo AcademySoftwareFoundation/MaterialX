@@ -9,8 +9,6 @@ import re
 import argparse
 from difflib import SequenceMatcher
 
-from typing import Dict, List
-
 import MaterialX as mx
 
 UDIM_TOKEN = '.<UDIM>.'
@@ -85,32 +83,28 @@ class UdimFile(mx.FilePath):
 
         return re.sub(r'[^\w\s]+', '_', name)
 
-def listTextures(textureDir: mx.FilePath, texturePrefix=None) -> List[UdimFile]:
-    """
-    List all textures that matched extensions in cfg file
-    @param textureDir: the directory where the textures exist
-    @param texturePrefix: Get only textures that have prefix, if None, will return all textures
-    return List(UdimFile)
-    """
+def listTextures(textureDir: mx.FilePath, texturePrefix=None):
+    '''
+    Return a list of texture filenames matching known extensions.
+    '''
+    
     texturePrefix = texturePrefix or ""
     allTextures = []
     for ext in TEXTURE_EXTENSIONS:
         textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)
                     if f.asString().lower().startswith(texturePrefix.lower())]
-
         while textures:
             textureFile = UdimFile(textures[0].asString())
             allTextures.append(textureFile)
             for udimFile in textureFile.getUdimFiles():
                 textures.remove(udimFile)
-
     return allTextures
 
-def getShadingModels() -> Dict[str, mx.NodeDef]:
-    """
-    To get all shading models nodeDefs that registers in materialx
-    return (dict[str, mx.NodeDef]):  dictionary with nodedef name as a key and value of nodedef itself
-    """
+def getShadingModels():
+    '''
+    Return all shading model nodedefs registered in the data libraries.
+    '''
+    
     stdlib = mx.createDocument()
     searchPath = mx.getDefaultDataSearchPath()
     libraryFolders = mx.getDefaultDataLibraryFolders()
@@ -126,13 +120,10 @@ def getShadingModels() -> Dict[str, mx.NodeDef]:
     return shadingModels
 
 def findBestMatch(textureName: str, shadingModel: mx.NodeDef):
-    """
-    Get the texture matched pattern and return the materialx plug name and the plug type
-    @param textureName: The base texture name
-    @param shadingModel: The shading model
-    return: list(materialInputName, materialInputType) | None
-    """
-
+    '''
+    Given a texture name and shading model, return the shader input that is the closest match.
+    '''
+    
     parts = textureName.rsplit("_")
 
     baseTexName = parts[-1]
@@ -156,21 +147,10 @@ def findBestMatch(textureName: str, shadingModel: mx.NodeDef):
     idx = ratios.index(highscore)
     return shaderInputs[idx]
 
-def createMtlxDoc(textureFiles: List[mx.FilePath],
-                  mtlxFile: mx.FilePath,
-                  shadingModel: str,
-                  relativePaths: bool = True,
-                  colorspace: str = 'srgb_texture',
-                  useTileImage: bool = False
-                  ) -> mx.FilePath:
-    """
-    Create a MaterialX document with uber shader
-    @param textureFiles: List of all textures
-    @param mtlxFile: The output path of document
-    @param relativePaths: Will create relative texture path or not inside document
-    @param colorspace: The given color space
-    @param useTileImage: use tileImage node or image node
-    """
+def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTileImage = False)
+    '''
+    Create a MaterialX document from the given textures and shading model.
+    '''
 
     udimNumbers = set()
 
