@@ -216,7 +216,7 @@ def createMtlxDoc(textureFiles: List[mx.FilePath],
         shaderInput = findBestMatch(textureName, shaderModelNodeDef)
 
         if not shaderInput:
-            print('Skipping', textureFile.getBaseName(), 'which doesn't match any', shaderModel, 'input')
+            print('Skipping', textureFile.getBaseName(), 'which does not match any', shaderModel, 'input')
             continue
 
         inputName = shaderInput.getName()
