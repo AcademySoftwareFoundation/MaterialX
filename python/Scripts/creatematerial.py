@@ -128,7 +128,7 @@ def findBestMatch(textureName, shadingModel):
     idx = ratios.index(highscore)
     return shaderInputs[idx]
 
-def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTileImage = False):
+def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTiledImage = False):
     '''
     Create a MaterialX document from the given textures and shading model.
     '''
@@ -153,7 +153,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
     doc.addMaterialNode('M_' + materialName, shaderNode)
 
     # Iterate over texture files.
-    imageNodeCategory = 'tileimage' if useTileImage else 'image'
+    imageNodeCategory = 'tiledimage' if useTiledImage else 'image'
     udimNumbers = set()
     for textureFile in textureFiles:
         textureName = textureFile.getNameWithoutExtension()
@@ -216,12 +216,12 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--outputFilename', dest='outputFilename', type=str, help='Filename of the output MaterialX document.')
-    parser.add_argument('-s', '--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shading model used in analyzing input textures.')
-    parser.add_argument('-c', '--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_texture.')
-    parser.add_argument('-p', '--texturePrefix', dest='texturePrefix', type=str, help='Filter input textures by the given prefix.')
-    parser.add_argument('-a', '--absolutePaths', dest='absolutePaths', action="store_true", help='Make the texture paths absolute inside the MaterialX file.')
-    parser.add_argument('-t', '--tileimage', dest='tileimage', action="store_true", help='Request tiledimage nodes instead of image nodes.')
+    parser.add_argument('--outputFilename', dest='outputFilename', type=str, help='Filename of the output MaterialX document.')
+    parser.add_argument('--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shading model used in analyzing input textures.')
+    parser.add_argument('--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_texture.')
+    parser.add_argument('--texturePrefix', dest='texturePrefix', type=str, help='Filter input textures by the given prefix.')
+    parser.add_argument('--absolutePaths', dest='absolutePaths', action="store_true", help='Store absolute texture paths in the MaterialX file.')
+    parser.add_argument('--tiledImage', dest='tiledImage', action="store_true", help='Request tiledimage nodes instead of image nodes.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Input folder that will be scanned for textures, defaulting to the current working directory.')
 
     options = parser.parse_args()
@@ -253,7 +253,7 @@ def main():
 
     # Create the MaterialX document.
     doc = createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths=not options.absolutePaths,
-                        colorspace=colorspace, useTileImage=options.tileimage)
+                        colorspace=colorspace, useTiledImage=options.tiledImage)
     if not doc:
         return
 
