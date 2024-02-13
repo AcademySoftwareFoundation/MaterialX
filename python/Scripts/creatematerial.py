@@ -136,14 +136,17 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
     Create a MaterialX document from the given textures and shading model.
     '''
 
-    # Find the library nodedef, if any, for the requested shading model.
+    # Find the default library nodedef, if any, for the requested shading model.
     stdlib = mx.createDocument()
     mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
-    nodeDefs = stdlib.getMatchingNodeDefs(shadingModel)
-    shadingModelNodeDef = nodeDefs[0] if nodeDefs else None
-    if not shadingModelNodeDef:
+    matchingNodeDefs = stdlib.getMatchingNodeDefs(shadingModel)
+    if not matchingNodeDefs:
         print('Shading model', shadingModel, 'not found in the MaterialX data libraries')
         return None
+    shadingModelNodeDef = matchingNodeDefs[0]
+    for nodeDef in matchingNodeDefs:
+        if nodeDef.getAttribute('isdefaultversion') == 'true':
+            shadingModelNodeDef = nodeDef
 
     # Create content document.
     doc = mx.createDocument()
