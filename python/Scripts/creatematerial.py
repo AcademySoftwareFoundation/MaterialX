@@ -114,7 +114,7 @@ def findBestMatch(textureName, shadingModel):
     if baseTexName.lower() == 'color':
         baseTexName = ''.join(parts[-2:])
 
-    shaderInputs = shadingModel.getInputs()
+    shaderInputs = shadingModel.getActiveInputs()
     ratios = []
     for shaderInput in shaderInputs:
         inputName = shaderInput.getName()
@@ -139,7 +139,8 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
     # Find the library nodedef, if any, for the requested shading model.
     stdlib = mx.createDocument()
     mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
-    shadingModelNodeDef = stdlib.getNodeDef(shadingModel)
+    nodeDefs = stdlib.getMatchingNodeDefs(shadingModel)
+    shadingModelNodeDef = nodeDefs[0] if nodeDefs else None
     if not shadingModelNodeDef:
         print('Shading model', shadingModel, 'not found in the MaterialX data libraries')
         return None
