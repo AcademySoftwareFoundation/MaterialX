@@ -18,7 +18,7 @@ UDIM_TOKEN = '.<UDIM>.'
 UDIM_REGEX = r'\.\d+\.'
 TEXTURE_EXTENSIONS = [ "exr", "png", "jpg", "jpeg", "tif", "hdr" ]
 
-class UdimFile(mx.FilePath):
+class UdimFilePath(mx.FilePath):
 
     def __init__(self, pathString):
         super().__init__(pathString)
@@ -27,12 +27,6 @@ class UdimFile(mx.FilePath):
         self._udimFiles = []
         self._udimRegex = re.compile(UDIM_REGEX)
 
-        self.udimFiles()
-
-    def __str__(self):
-        return self.asPattern()
-
-    def udimFiles(self):
         textureDir = self.getParentPath()
         textureName = self.getBaseName()
         textureExtension = self.getExtension()
@@ -51,6 +45,9 @@ class UdimFile(mx.FilePath):
             textureDir.getFilesInDirectory(textureExtension)
         )
         self._udimFiles = [textureDir / f for f in udimFiles]
+        
+    def __str__(self):
+        return self.asPattern()
 
     def asPattern(self, format=mx.FormatPosix):
 
@@ -97,7 +94,7 @@ def listTextures(textureDir, texturePrefix=None):
         textures = [textureDir / f for f in textureDir.getFilesInDirectory(ext)
                     if f.asString().lower().startswith(texturePrefix.lower())]
         while textures:
-            textureFile = UdimFile(textures[0].asString())
+            textureFile = UdimFilePath(textures[0].asString())
             allTextures.append(textureFile)
             for udimFile in textureFile.getUdimFiles():
                 textures.remove(udimFile)
