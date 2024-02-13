@@ -192,8 +192,6 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         if shaderNode.getInput(inputName) or nodeGraph.getChild(textureName):
             continue
 
-        # TODO :: create displacement shader
-
         plugName = shaderNode.createValidChildName(inputName)
         mtlInput = shaderNode.addInput(plugName)
         textureName = nodeGraph.createValidChildName(textureName)
@@ -201,36 +199,29 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         imageType = 'tileimage' if useTileImage else 'image'
         imageNode = nodeGraph.addNode(imageType, textureName, inputType)
 
-        # set color space
+        # Set color space.
         if 'color' in inputType.lower():
             imageNode.setColorSpace(colorspace)
 
-        # set file path
+        # Set file path.
         filePathString = textureFile.asPattern()
-
-        # set relative path
         if relativePaths:
             filePathString = os.path.relpath(filePathString, mtlxFile.getParentPath().asString())
-
         imageNode.setInputValue('file', filePathString, 'filename')
 
-        # in-between nodes
+        # Apply special cases for normal maps.
         inputNode = imageNode
         connNode = imageNode
-
         inBetweenNodes = []
-        if re.search(r'(?i)normal', inputName):
+        if inputName.endswith('normal') and shadingModel == 'standard_surface':
             inBetweenNodes = ["normalmap"]
-
         for inNodeName in inBetweenNodes:
-            connNode = nodeGraph.addNode(inNodeName, textureName + '_' + inNodeName,
-                                         inputType)
+            connNode = nodeGraph.addNode(inNodeName, textureName + '_' + inNodeName, inputType)
             connNode.setConnectedNode('in', inputNode)
             inputNode = connNode
 
-        # outputs
+        # Create output.
         outputNode = nodeGraph.addOutput(textureName + '_output', inputType)
-
         outputNode.setConnectedNode(connNode)
         mtlInput.setConnectedOutput(outputNode)
         mtlInput.setType(inputType)
