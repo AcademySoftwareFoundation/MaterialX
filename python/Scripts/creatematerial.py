@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 '''
 Construct a MaterialX file from the textures in the given folder, using the standard data libraries
-to determine the shading model and inputs they are most likely to reference.
+to build a mapping from texture filenames to shader inputs.
+
+By default the standard_surface shading model is assumed, with the --shadingModel option used to
+select any other shading model in the data libraries.
 '''
 
 import os
@@ -100,25 +103,6 @@ def listTextures(textureDir, texturePrefix=None):
                 textures.remove(udimFile)
     return allTextures
 
-def getShadingModels():
-    '''
-    Return all shading model nodedefs registered in the data libraries.
-    '''
-    
-    stdlib = mx.createDocument()
-    searchPath = mx.getDefaultDataSearchPath()
-    libraryFolders = mx.getDefaultDataLibraryFolders()
-
-    shadingModelFiles = mx.loadLibraries(libraryFolders, searchPath, stdlib)
-
-    shadingModels = {}
-    for nodeDef in stdlib.getNodeDefs():
-        if nodeDef.getInheritsFrom():
-            nodeDef = nodeDef.getInheritsFrom()
-        shadingModels[nodeDef.getNodeString()] = nodeDef
-
-    return shadingModels
-
 def findBestMatch(textureName, shadingModel):
     '''
     Given a texture name and shading model, return the shader input that is the closest match.
@@ -152,29 +136,30 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
     Create a MaterialX document from the given textures and shading model.
     '''
 
-    udimNumbers = set()
-
-    allShadingModels = getShadingModels()
-    shadingModelNodeDef = allShadingModels.get(shadingModel)
-
+    # Find the library nodedef, if any, for the requested shading model.
+    stdlib = mx.createDocument()
+    mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)
+    shadingModelNodeDef = stdlib.getNodeDef(shadingModel)
     if not shadingModelNodeDef:
         print('Shading model', shadingModel, 'not found in the MaterialX data libraries')
         return None
 
-    # Create Document
+    # Create content document.
     doc = mx.createDocument()
 
-    mtlxFilename = mtlxFile.getBaseName().rsplit('.', 1)[0]
-    mtlxFilename = doc.createValidChildName(mtlxFilename)
+    # Initialize material name and UDIM set.
+    materialName = mtlxFile.getBaseName().rsplit('.', 1)[0]
+    materialName = doc.createValidChildName(materialName)
+    udimNumbers = set()
 
     # Create node graph and material
-    graphName = doc.createValidChildName('NG_' + mtlxFilename)
+    graphName = doc.createValidChildName('NG_' + materialName)
     nodeGraph = doc.getNodeGraph(graphName)
     if not nodeGraph:
         nodeGraph = doc.addNodeGraph(graphName)
 
-    shaderNode = doc.addNode(shadingModel, 'SR_' + mtlxFilename, 'surfaceshader')
-    doc.addMaterialNode('M_' + mtlxFilename, shaderNode)
+    shaderNode = doc.addNode(shadingModel, 'SR_' + materialName, 'surfaceshader')
+    doc.addMaterialNode('M_' + materialName, shaderNode)
 
     for textureFile in textureFiles:
         textureName = textureFile.getNameWithoutExtension()
@@ -231,7 +216,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
 
     # Create udim set
     if udimNumbers:
-        geomInfoName = doc.createValidChildName('GI_' + mtlxFilename)
+        geomInfoName = doc.createValidChildName('GI_' + materialName)
         geomInfo = doc.addGeomInfo(geomInfoName)
         geomInfo.setGeomPropValue('udimset', list(udimNumbers), "stringarray")
 
