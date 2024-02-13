@@ -260,7 +260,6 @@ def main():
     options = parser.parse_args()
 
     texturePath = mx.FilePath.getCurrentPath()
-
     if options.inputDirectory:
         texturePath = mx.FilePath(options.inputDirectory)
         if not texturePath.isDirectory():
@@ -283,6 +282,7 @@ def main():
         shadingModel = options.shadingModel
     if options.colorSpace:
         colorspace = options.colorSpace
+    print('Analyzing textures in the', texturePath.asString(), 'folder for the', shadingModel, 'shading model.')
 
     # Create the MaterialX document.
     doc = createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths=not options.absolutePaths,
