@@ -155,6 +155,8 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
     shaderNode = doc.addNode(shadingModel, 'SR_' + materialName, 'surfaceshader')
     doc.addMaterialNode('M_' + materialName, shaderNode)
 
+    # Iterate over texture files.
+    imageNodeCategory = 'tileimage' if useTileImage else 'image'
     udimNumbers = set()
     for textureFile in textureFiles:
         textureName = textureFile.getNameWithoutExtension()
@@ -175,9 +177,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         plugName = shaderNode.createValidChildName(inputName)
         mtlInput = shaderNode.addInput(plugName)
         textureName = nodeGraph.createValidChildName(textureName)
-
-        imageType = 'tileimage' if useTileImage else 'image'
-        imageNode = nodeGraph.addNode(imageType, textureName, inputType)
+        imageNode = nodeGraph.addNode(imageNodeCategory, textureName, inputType)
 
         # Set color space.
         if 'color' in inputType.lower():
