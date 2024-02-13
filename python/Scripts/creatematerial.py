@@ -171,8 +171,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         if shaderNode.getInput(inputName) or nodeGraph.getChild(textureName):
             continue
 
-        plugName = shaderNode.createValidChildName(inputName)
-        mtlInput = shaderNode.addInput(plugName)
+        mtlInput = shaderNode.addInput(inputName)
         textureName = nodeGraph.createValidChildName(textureName)
         imageNode = nodeGraph.addNode(imageNodeCategory, textureName, inputType)
 
