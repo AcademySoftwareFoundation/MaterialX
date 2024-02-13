@@ -150,21 +150,12 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
 
     # Create content document.
     doc = mx.createDocument()
-
-    # Initialize material name and UDIM set.
-    materialName = mtlxFile.getBaseName().rsplit('.', 1)[0]
-    materialName = doc.createValidChildName(materialName)
-    udimNumbers = set()
-
-    # Create node graph and material
-    graphName = doc.createValidChildName('NG_' + materialName)
-    nodeGraph = doc.getNodeGraph(graphName)
-    if not nodeGraph:
-        nodeGraph = doc.addNodeGraph(graphName)
-
+    materialName = mx.createValidName(mtlxFile.getBaseName().rsplit('.', 1)[0])
+    nodeGraph = doc.addNodeGraph('NG_' + materialName)
     shaderNode = doc.addNode(shadingModel, 'SR_' + materialName, 'surfaceshader')
     doc.addMaterialNode('M_' + materialName, shaderNode)
 
+    udimNumbers = set()
     for textureFile in textureFiles:
         textureName = textureFile.getNameWithoutExtension()
         shaderInput = findBestMatch(textureName, shadingModelNodeDef)
