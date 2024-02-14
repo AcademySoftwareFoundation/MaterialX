@@ -26,5 +26,11 @@
 
 mdl 1.8;
 
-// forward the latest version
-export using .::pbrlib_1_8 import *;
+// Changes since MDL 1.7
+// - Support thin-film on custom curve layer to improve generalized_schlick_bsdf,
+//   no new implementation required
+
+// forward all unchanged definitions from the previous version
+export using .::pbrlib_1_7 import *;
+
+// without changing any source code

@@ -5,10 +5,9 @@
 
 mdl 1.6;
 
-import::math::*;
+import ::math::*;
 
-using mx = materialx;
-using ::mx::core import *;
+import .::core::*;
 
 // Restrict to 7x7 kernel size for performance reasons
 export const int MX_MAX_SAMPLE_COUNT = 49;
@@ -171,12 +170,12 @@ export color mx_convolution_color(color[MX_MAX_SAMPLE_COUNT] S, float[MX_WEIGHT_
     return result;
 }
 
-export color4 mx_convolution_color4(color4[MX_MAX_SAMPLE_COUNT] S, float[MX_WEIGHT_ARRAY_SIZE] W, int offset, int sampleCount)
+export core::color4 mx_convolution_color4(core::color4[MX_MAX_SAMPLE_COUNT] S, float[MX_WEIGHT_ARRAY_SIZE] W, int offset, int sampleCount)
 {
-    color4 result = mk_color4(0.0, 0.0, 0.0, 0.0);
+    core::color4 result = core::mk_color4(0.0, 0.0, 0.0, 0.0);
     for (int i=0;  i<sampleCount; i++)
     {
-        mx_add(result, mx_multiply(S[i], W[i+offset]));
+        core::mx_add(result, core::mx_multiply(S[i], W[i+offset]));
     }
     return result;
 }
