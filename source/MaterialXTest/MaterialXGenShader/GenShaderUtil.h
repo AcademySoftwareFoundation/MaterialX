@@ -131,16 +131,6 @@ class TestSuiteOptions
     // Enable reference quality rendering. Default is false.
     bool enableReferenceQuality;
 
-    // Wedge parameters
-    struct WedgeSetting
-    {
-        std::string wedgeFile;
-        std::string parameter;
-        mx::Vector2 range;
-        int steps;
-    };
-    std::vector <WedgeSetting> wedgeSettings;
-    
     // Bake parameters
     struct BakeSetting
     {
