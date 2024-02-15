@@ -234,6 +234,69 @@
     </constant>
     <output name="out" type="integer" nodename="ceil1" />
   </nodegraph>
+  <nodegraph name="round_float_nodegraph">
+    <round name="round1" type="float">
+      <input name="in" type="float" nodename="constant1" />
+    </round>
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <output name="out" type="float" nodename="round1" />
+  </nodegraph>
+  <nodegraph name="round_vector2_nodegraph">
+    <round name="round1" type="vector2">
+      <input name="in" type="vector2" nodename="constant1" />
+    </round>
+    <constant name="constant1" type="vector2">
+      <input name="value" type="vector2" value="-0.5000, 0.5000" />
+    </constant>
+    <output name="out" type="vector2" nodename="round1" />
+  </nodegraph>
+  <nodegraph name="round_vector3_nodegraph">
+    <constant name="constant1" type="vector3">
+      <input name="value" type="vector3" value="-0.5000, 0.5000, 0.0000" />
+    </constant>
+    <output name="out" type="vector3" nodename="round1" />
+    <round name="round1" type="vector3">
+      <input name="in" type="vector3" nodename="constant1" />
+    </round>
+  </nodegraph>
+  <nodegraph name="round_vector4_nodegraph">
+    <round name="round1" type="vector4">
+      <input name="in" type="vector4" nodename="constant1" />
+    </round>
+    <constant name="constant1" type="vector4">
+      <input name="value" type="vector4" value="-0.5000, 0.5000, 0.0, 1.0" />
+    </constant>
+    <output name="out" type="vector4" nodename="round1" />
+  </nodegraph>
+  <nodegraph name="round_color3_nodegraph">
+    <constant name="constant1" type="color3">
+      <input name="value" type="color3" value="-0.5000, 0.5000, 0.0" />
+    </constant>
+    <round name="round1" type="color3">
+      <input name="in" type="color3" nodename="constant1" />
+    </round>
+    <output name="out" type="color3" nodename="round1" />
+  </nodegraph>
+  <nodegraph name="round_color4_nodegraph">
+    <constant name="constant1" type="color4">
+      <input name="value" type="color4" value="-0.5000, 0.5000, 0.0, 1.0" />
+    </constant>
+    <round name="round1" type="color4">
+      <input name="in" type="color4" nodename="constant1" />
+    </round>
+    <output name="out" type="color4" nodename="round1" />
+  </nodegraph>
+  <nodegraph name="round_integer_nodegraph">
+    <round name="round1" type="integer">
+      <input name="in" type="float" nodename="constant1" />
+    </round>
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="0.5000" />
+    </constant>
+    <output name="out" type="integer" nodename="round1" />
+  </nodegraph>
   <nodegraph name="sign_float">
     <constant name="constant1" type="float">
       <input name="value" type="float" value="1.0000" />

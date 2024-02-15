@@ -31,8 +31,14 @@ bool OiioImageLoader::saveImage(const FilePath& filePath,
         case Image::BaseType::UINT8:
             format = OIIO::TypeDesc::UINT8;
             break;
+        case Image::BaseType::INT8:
+            format = OIIO::TypeDesc::INT8;
+            break;
         case Image::BaseType::UINT16:
             format = OIIO::TypeDesc::UINT16;
+            break;
+        case Image::BaseType::INT16:
+            format = OIIO::TypeDesc::INT16;
             break;
         case Image::BaseType::HALF:
             format = OIIO::TypeDesc::HALF;
@@ -90,8 +96,14 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
         case OIIO::TypeDesc::UINT8:
             baseType = Image::BaseType::UINT8;
             break;
+        case OIIO::TypeDesc::INT8:
+            baseType = Image::BaseType::INT8;
+            break;
         case OIIO::TypeDesc::UINT16:
             baseType = Image::BaseType::UINT16;
+            break;
+        case OIIO::TypeDesc::INT16:
+            baseType = Image::BaseType::INT16;
             break;
         case OIIO::TypeDesc::HALF:
             baseType = Image::BaseType::HALF;

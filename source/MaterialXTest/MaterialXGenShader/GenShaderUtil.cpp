@@ -91,7 +91,6 @@ void checkImplementations(mx::GenContext& context,
     mx::StringSet skipNodeTypes =
     {
         "ambientocclusion",
-        "arrayappend",
         "displacement",
         "volume",
         "curveadjust",
@@ -705,6 +704,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     {
         // Apply optional preprocessing.
         preprocessDocument(doc);
+        _shaderGenerator->registerShaderMetadata(doc, context);
 
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
