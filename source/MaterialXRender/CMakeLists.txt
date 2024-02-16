@@ -41,7 +41,7 @@ if(MATERIALX_BUILD_OIIO)
     find_package(OpenImageIO CONFIG REQUIRED)
     if(OpenImageIO_FOUND)
         target_link_libraries(${MATERIALX_MODULE_NAME} OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
-        # Also needed by MaterialXTest and MaterialXView:
+        # Also needed by MaterialXView:
         set(OPENIMAGEIO_ROOT_DIR "${OpenImageIO_INCLUDE_DIR}/../" PARENT_SCOPE)
     endif()
 endif()
