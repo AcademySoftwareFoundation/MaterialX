@@ -964,8 +964,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
     const std::string EXTRA_LIBRARY_PATHS("extraLibraryPaths");
     const std::string RENDER_TEST_PATHS("renderTestPaths");
     const std::string ENABLE_REFERENCE_QUALITY("enableReferenceQuality");
-    const std::string WEDGE_SETTING("wedgerender");
-    const std::string BAKER_SETTINGS("baker");
 
     overrideFiles.clear();
     dumpGeneratedCode = false;
@@ -982,70 +980,6 @@ bool TestSuiteOptions::readOptions(const std::string& optionFile)
         mx::NodeDefPtr optionDefs = doc->getNodeDef(RENDER_TEST_OPTIONS_STRING);
         if (optionDefs)
         {
-            // Read Wedge Render Settings
-            for (mx::ElementPtr p : optionDefs->getChildrenOfType<mx::Element>(WEDGE_SETTING))
-            {
-                WedgeSetting setting;
-                for (auto child : p->getChildren())
-                {
-                    mx::InputPtr input = child->asA<mx::Input>();
-                    const std::string& name = input->getName();
-                    mx::ValuePtr val = input->getValue();
-
-                    if (name == "file")
-                    {
-                        setting.wedgeFile = val->asA<std::string>();
-                    }
-                    else if (name == "parameter")
-                    {
-                        setting.parameter = val->asA<std::string>();
-                    }
-                    else if (name == "range")
-                    {
-                        setting.range = val->asA<mx::Vector2>();
-                    }
-                    else if (name == "steps")
-                    {
-                        setting.steps = val->asA<int>();
-                    }
-                }
-                wedgeSettings.push_back(setting);
-            }
-
-            // Read Baker Settings
-            for (mx::ElementPtr p : optionDefs->getChildrenOfType<mx::Element>(BAKER_SETTINGS))
-            {
-                BakeSetting setting;
-                for (auto child : p->getChildren())
-                {
-                    mx::InputPtr input = child->asA<mx::Input>();
-                    const std::string& name = input->getName();
-                    mx::ValuePtr val = input->getValue();
-
-                    if (name == "file")
-                    {
-                        setting.bakeFile = val->asA<std::string>();
-                    }
-                    else if (name == "resolution")
-                    {
-                        setting.resolution = val->asA<int>();
-                    }
-                    else if (name == "hdr")
-                    {
-                        setting.hdr = val->asA<bool>();
-                    }
-                    else if (name == "uvmin")
-                    {
-                        setting.uvmin = val->asA<mx::Vector2>();
-                    }
-                    else if (name == "uvmax")
-                    {
-                        setting.uvmax = val->asA<mx::Vector2>();
-                    }
-                }
-                bakeSettings.push_back(setting);
-            }
-
             for (auto p : optionDefs->getInputs())
             {
                 const std::string& name = p->getName();
