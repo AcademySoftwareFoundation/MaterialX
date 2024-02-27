@@ -124,6 +124,7 @@ void bindPyElement(py::module& mod)
         .def("setType", &mx::TypedElement::setType)
         .def("hasType", &mx::TypedElement::hasType)
         .def("getType", &mx::TypedElement::getType)
+        .def("isColorType", &mx::TypedElement::isColorType)
         .def("isMultiOutputType", &mx::TypedElement::isMultiOutputType)
         .def("getTypeDef", &mx::TypedElement::getTypeDef)
         .def_readonly_static("TYPE_ATTRIBUTE", &mx::TypedElement::TYPE_ATTRIBUTE);

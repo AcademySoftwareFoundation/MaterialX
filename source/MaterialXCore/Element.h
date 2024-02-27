@@ -869,6 +869,12 @@ class MX_CORE_API TypedElement : public Element
         return getAttribute(TYPE_ATTRIBUTE);
     }
 
+    /// Return true if the element is of color type.
+    bool isColorType() const
+    {
+        return getType() == "color3" || getType() == "color4";
+    }
+
     /// Return true if the element is of multi-output type.
     bool isMultiOutputType() const
     {
