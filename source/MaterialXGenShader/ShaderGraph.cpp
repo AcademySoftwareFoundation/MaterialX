@@ -555,38 +555,11 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
                 ValuePtr value = nodeInput->getResolvedValue();
                 if (value)
                 {
-                    throw ExceptionShaderGenError("Node input '" + nodedefInput->getName() + "' doesn't match an existing input on graph '" + graph->getName() + "'");
-                }
-
-                // Copy data from node element to shadergen representation
-                InputPtr nodeInput = node->getInput(nodedefInput->getName());
-                if (nodeInput)
-                {
-                    ValuePtr value = nodeInput->getResolvedValue();
-                    if (value)
-                    {
-                        const string& valueString = value->getValueString();
-                        std::pair<TypeDesc, ValuePtr> enumResult;
-                        const TypeDesc type = TypeDesc::get(nodedefInput->getType());
-                        const string& enumNames = nodedefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-                        if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
-                        {
-                            inputSocket->setValue(enumResult.second);
-                        }
-                        else
-                        {
-                            inputSocket->setValue(value);
-                        }
-                    }
-
-                    const string path = nodeInput->getNamePath();
-                    if (!path.empty())
-                    {
-                        inputSocket->setPath(path);
-                        input->setPath(path);
-                    }
-                    const string& unit = nodeInput->getUnit();
-                    if (!unit.empty())
+                    const string& valueString = value->getValueString();
+                    std::pair<TypeDesc, ValuePtr> enumResult;
+                    const TypeDesc type = TypeDesc::get(nodedefInput->getType());
+                    const string& enumNames = nodedefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
+                    if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
                     {
                         inputSocket->setValue(enumResult.second);
                     }
