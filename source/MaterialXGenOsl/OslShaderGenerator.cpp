@@ -8,6 +8,7 @@
 
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
+#include <MaterialXGenShader/TypeDesc.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
@@ -510,10 +511,10 @@ void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage
 {
     static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING.getName())) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING.getName())) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("number")) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("filename")) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING,  Type::STRING.createValueFromStrings("checkBox")) }
     };
 
     static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =

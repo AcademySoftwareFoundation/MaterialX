@@ -630,6 +630,9 @@ void RenderView::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(_unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Register struct type defintions
+    context.getShaderGenerator().loadStructTypeDefs(_document);
 }
 
 void RenderView::drawContents()

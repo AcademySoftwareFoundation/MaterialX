@@ -15,6 +15,8 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+class GlslStructTypeSyntax;
+
 /// Syntax class for GLSL (OpenGL Shading Language)
 class MX_GENGLSL_API GlslSyntax : public Syntax
 {
@@ -45,6 +47,24 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
     static const StringVec VEC2_MEMBERS;
     static const StringVec VEC3_MEMBERS;
     static const StringVec VEC4_MEMBERS;
+
+  protected:
+    StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                                       const string& uniformDefaultValue, const string& typeAlias,
+                                                       const string& typeDefinition) const override;
+
+};
+
+/// Specialization of TypeSyntax for aggregate types.
+class MX_GENSHADER_API GlslStructTypeSyntax : public StructTypeSyntax
+{
+  public:
+    using StructTypeSyntax::StructTypeSyntax;
+
+    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const StringVec& values, bool uniform) const override;
+
+
 };
 
 MATERIALX_NAMESPACE_END

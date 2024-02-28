@@ -28,6 +28,18 @@ TypeDescNameMap& typeNameMap()
     return map;
 }
 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    using StructTypeDescStorage = std::vector<StructTypeDesc>;
+    StructTypeDescStorage& structTypeStorage()
+    {
+        static StructTypeDescStorage  storage;
+        return storage;
+    }
+
+
 } // anonymous namespace
 
 const string TypeDesc::NONE_TYPE_NAME = "none";
@@ -44,6 +56,56 @@ TypeDesc TypeDesc::get(const string& name)
     TypeDescMap& types = typeMap();
     auto it = types.find(name);
     return it != types.end() ? it->second : Type::NONE;
+}
+
+void TypeDesc::remove(const string& name)
+{
+    TypeDescNameMap& typenames = typeNameMap();
+
+    TypeDescMap& types = typeMap();
+
+    auto it = types.find(name);
+    if (it == types.end())
+        return;
+
+    typenames.erase(it->second.typeId());
+    types.erase(it);
+}
+
+ValuePtr TypeDesc::createValueFromStrings(const string& value) const
+{
+    ValuePtr newValue = Value::createValueFromStrings(value, getName());
+
+    // Value::createValueFromStrings() will return a value (including potentially a nullptr) if the
+    // type has been registered, otherwise
+
+    if (!isStruct())
+        return newValue;
+
+//
+//    if (newValue == nullptr || newValue->getTypeString() != "string" || getName() == "string" ) {
+//        // if newValue isn't the fallback to a string, or is really string type, then we
+//        // are done and we can use this value
+//        return newValue;
+//    }
+
+    // otherwise we are a struct type - and need to create a new aggregate value
+    StringVec subValues = splitListInitializer(value);
+
+    AggregateValuePtr  result = AggregateValue::createAggregateValue(getName());
+    auto structTypeDesc = StructTypeDesc::get(getStructIndex());
+    const auto& members = structTypeDesc.getMembers();
+
+    if (subValues.size() != members.size()) {
+        printf("ERROR wrong number of initializers - expect %zu\n", members.size());
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < members.size(); ++i) {
+        result->appendValue( members[i]._typeDesc.createValueFromStrings(subValues[i]));
+    }
+
+    return result;
 }
 
 TypeDescRegistry::TypeDescRegistry(TypeDesc type, const std::string& name)
@@ -85,5 +147,71 @@ TYPEDESC_REGISTER_TYPE(LIGHTSHADER, "lightshader")
 TYPEDESC_REGISTER_TYPE(MATERIAL, "material")
 
 } // namespace Type
+
+
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+void StructTypeDesc::addMember(const std::string& name, TypeDesc type, std::string defaultValueStr)
+{
+    _members.emplace_back( StructTypeDesc::StructMemberTypeDesc(name, type, defaultValueStr) );
+}
+
+std::vector<std::string> StructTypeDesc::getStructTypeNames()
+{
+    StructTypeDescStorage& structs = structTypeStorage();
+    std::vector<std::string> structNames;
+    for (const auto& x : structs) {
+        structNames.emplace_back( x.typeDesc().getName() );
+    }
+    return structNames;
+}
+
+StructTypeDesc& StructTypeDesc::get(unsigned int index)
+{
+    StructTypeDescStorage& structs = structTypeStorage();
+    return structs[index];
+}
+
+unsigned int StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
+{
+    StructTypeDescStorage& structs = structTypeStorage();
+    structs.emplace_back(structTypeDesc);
+    return structs.size()-1;
+}
+
+void StructTypeDesc::clear()
+{
+    StructTypeDescStorage& structs = structTypeStorage();
+    for (const auto& structType: structs)
+    {
+        // need to add typeID to structTypeDesc - and use it here to reference back to typeDesc obj and remove it.
+        TypeDesc::remove(structType.typeDesc().getName());
+    }
+    structs.clear();
+}
+
+const string& StructTypeDesc::getName() const
+{
+    return _typedesc.getName();
+}
+
+const std::vector<StructTypeDesc::StructMemberTypeDesc>& StructTypeDesc::getMembers() const
+{
+    return _members;
+}
+
+TypeDesc createStructTypeDesc(std::string_view name)
+{
+    return {name, TypeDesc::BASETYPE_STRUCT};
+}
+
+void registerStructTypeDesc(std::string_view name)
+{
+    auto structTypeDesc = createStructTypeDesc(name);
+    TypeDescRegistry register_struct(structTypeDesc, std::string(name));
+}
 
 MATERIALX_NAMESPACE_END

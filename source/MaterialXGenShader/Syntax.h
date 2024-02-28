@@ -20,6 +20,7 @@ MATERIALX_NAMESPACE_BEGIN
 
 class Syntax;
 class TypeSyntax;
+class StructTypeSyntax;
 class TypeDesc;
 class ShaderPort;
 
@@ -29,6 +30,8 @@ using SyntaxPtr = shared_ptr<Syntax>;
 using ConstSyntaxPtr = shared_ptr<const Syntax>;
 /// Shared pointer to a TypeSyntax
 using TypeSyntaxPtr = shared_ptr<TypeSyntax>;
+/// Shared pointer to a StructTypeSyntax
+using StructTypeSyntaxPtr = shared_ptr<StructTypeSyntax>;
 
 /// Map holding identifier names and a counter for
 /// creating unique names from them.
@@ -66,6 +69,8 @@ class MX_GENSHADER_API Syntax
     /// for a code generator when naming variables and functions.
     /// Multiple calls will add to the internal set of tokens.
     void registerInvalidTokens(const StringMap& tokens);
+
+    virtual void registerStructTypeDescSyntax();
 
     /// Returns a set of names that are reserved words for this language syntax.
     const StringSet& getReservedWords() const { return _reservedWords; }
@@ -199,6 +204,19 @@ class MX_GENSHADER_API Syntax
     /// Protected constructor
     Syntax();
 
+    virtual StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                           const string& uniformDefaultValue, const string& typeAlias,
+                                           const string& typeDefinition) const
+    {
+        return std::make_shared<StructTypeSyntax>(
+            this,
+            structTypeName,
+            defaultValue,
+            uniformDefaultValue,
+            typeAlias,
+            typeDefinition);
+    }
+
     vector<TypeSyntaxPtr> _typeSyntaxes;
     std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> _typeSyntaxIndexByType;
 
@@ -290,6 +308,22 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
                         const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
+};
+
+/// Specialization of TypeSyntax for aggregate types.
+class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
+{
+  public:
+    StructTypeSyntax(const Syntax* parentSyntax, const string& name, const string& defaultValue, const string& uniformDefaultValue,
+                     const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
+                     const StringVec& members = EMPTY_MEMBERS);
+
+    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const StringVec& values, bool uniform) const override;
+
+  protected:
+
+    const Syntax* _parentSyntax;
 };
 
 MATERIALX_NAMESPACE_END

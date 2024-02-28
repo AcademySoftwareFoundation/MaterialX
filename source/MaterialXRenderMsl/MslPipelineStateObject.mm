@@ -235,12 +235,12 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
 
         if (_shader->hasAttribute(HW::ATTR_TRANSPARENT))
         {
-            psoDesc.colorAttachments[0].blendingEnabled = YES;
-            psoDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-            psoDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-            psoDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-            psoDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-            psoDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+            psoDesc.colorAttachments[0].blendingEnabled             = YES;
+            psoDesc.colorAttachments[0].rgbBlendOperation           = MTLBlendOperationAdd;
+            psoDesc.colorAttachments[0].alphaBlendOperation         = MTLBlendOperationAdd;
+            psoDesc.colorAttachments[0].sourceRGBBlendFactor        = MTLBlendFactorSourceAlpha;
+            psoDesc.colorAttachments[0].sourceAlphaBlendFactor      = MTLBlendFactorSourceAlpha;
+            psoDesc.colorAttachments[0].destinationRGBBlendFactor   = MTLBlendFactorOneMinusSourceAlpha;
             psoDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 
             _alphaBlendingEnabled = true;
@@ -265,12 +265,12 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
             if (string::npos != sattributeName.find(colorSet))
             {
                 string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
-                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
+                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
             }
             else if (string::npos != sattributeName.find(uvSet))
             {
                 string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
-                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
+                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
             }
 
             _attributeList[sattributeName] = inputPtr;
@@ -566,8 +566,8 @@ ImagePtr MslProgram::bindTexture(id<MTLRenderCommandEncoder> renderCmdEncoder,
     return nullptr;
 }
 
-MaterialX::ValuePtr MslProgram::findUniformValue(const string& uniformName,
-                                                 const MslProgram::InputMap& uniformList)
+MaterialX::ConstValuePtr MslProgram::findUniformValue(const string& uniformName,
+                                                      const MslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -925,31 +925,56 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
-            for (MTLStructMember* member in arg.bufferStructType.members)
+            const std::string uboObjectName = std::string(arg.name.UTF8String);
+
+            const auto addUniformToList =
+                [this, uboObjectName]
+                (MTLStructMember* member, int index, int size, const string& memberNamePrefix) -> void
             {
-                std::string uboObjectName = std::string(arg.name.UTF8String);
-                std::string memberName = member.name.UTF8String;
-                std::string uboDotMemberName = uboObjectName + "." + memberName;
-
-                InputPtr inputPtr = std::make_shared<Input>(arg.index, member.dataType, arg.bufferDataSize, EMPTY_STRING);
-                _uniformList[uboDotMemberName] = inputPtr;
-                _globalUniformNameList[memberName] = uboDotMemberName;
-
-                if (MTLArrayType* arrayMember = member.arrayType)
+                auto addUniformToList_impl =
+                    [this, uboObjectName]
+                    (MTLStructMember* member, int index, int size, const string& memberNamePrefix, auto& addUniformToList_ref) -> void
                 {
-                    for (int i = 0; i < arrayMember.arrayLength; ++i)
-                    {
-                        for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
-                        {
-                            std::string memberNameDotSubmember = memberName + "[" + std::to_string(i) + "]." + ArrayOfStructMember.name.UTF8String;
-                            std::string uboDotMemberNameDotSubmemberName = uboObjectName + "." + memberNameDotSubmember;
+                    // TODO - validate if 'size' is correct here - first pass we use arg.bufferDataSize - substructs we use submember.offset
 
-                            InputPtr inputPtr = std::make_shared<Input>(ArrayOfStructMember.argumentIndex, ArrayOfStructMember.dataType, ArrayOfStructMember.offset, EMPTY_STRING);
-                            _uniformList[uboDotMemberNameDotSubmemberName] = inputPtr;
-                            _globalUniformNameList[memberNameDotSubmember] = uboDotMemberNameDotSubmemberName;
+                    std::string memberName = memberNamePrefix + member.name.UTF8String;
+
+                    if (MTLStructType* structMember = member.structType)
+                    {
+                        for (MTLStructMember* subMember in structMember.members)
+                        {
+                            string namePrefix = memberName + ".";
+                            addUniformToList_ref(subMember, subMember.argumentIndex, subMember.offset, namePrefix, addUniformToList_ref);
                         }
                     }
-                }
+                    else
+                    {
+                        std::string uboDotMemberName = uboObjectName + "." + memberName;
+
+                        InputPtr inputPtr = std::make_shared<Input>(index, member.dataType, size, EMPTY_STRING);
+                        this->_uniformList[uboDotMemberName] = inputPtr;
+                        this->_globalUniformNameList[memberName] = uboDotMemberName;
+
+                        if (MTLArrayType* arrayMember = member.arrayType)
+                        {
+                            for (int i = 0; i < arrayMember.arrayLength; ++i)
+                            {
+                                for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
+                                {
+                                    string namePrefix = memberName + "[" + std::to_string(i) + "].";
+                                    addUniformToList_ref(ArrayOfStructMember, ArrayOfStructMember.argumentIndex, ArrayOfStructMember.offset, namePrefix, addUniformToList_ref);
+                                }
+                            }
+                        }
+                    }
+                };
+
+                return addUniformToList_impl(member, index, size, memberNamePrefix, addUniformToList_impl);
+            };
+
+            for (MTLStructMember* member in arg.bufferStructType.members)
+            {
+                addUniformToList(member, arg.index, arg.bufferDataSize, "");
             }
         }
 
@@ -1006,55 +1031,93 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
-                MTLDataType resourceType = mapTypeToMetalType(v->getType());
 
-                // There is no way to match with an unnamed variable
-                if (v->getVariable().empty())
-                {
-                    continue;
-                }
+                // TODO - im pretty sure the variablePath stuff is wrong here - but it appears to only be used for debug/testing - perhaps we remove it?
+                // or else someone needs to help guide as to the intention... - this implementation is somewhat placeholder
+                // similarly the semantic is only used for debug output print
+                const string variablePath = v->getPath();
+                const string variableSemantic = v->getSemantic();
 
-                // Ignore types which are unsupported in MSL.
-                if (resourceType == MTLDataTypeNone)
+                const auto populateUniformInput =
+                    [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
+                    (TypeDesc variableTypeDesc, const string& variableName, ConstValuePtr variableValue) -> void
                 {
-                    continue;
-                }
+                    auto populateUniformInput_impl =
+                        [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
+                        (TypeDesc variableTypeDesc, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                    {
+                        // There is no way to match with an unnamed variable
+                        if (variableName.empty())
+                        {
+                            return;
+                        }
 
-                auto inputIt = _uniformList.find(v->getVariable());
-                if (inputIt == _uniformList.end())
-                {
-                    if (v->getType() == Type::FILENAME)
-                    {
-                        inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
-                    }
-                    else
-                    {
-                        inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
-                    }
-                }
+                        MTLDataType resourceType = mapTypeToMetalType(variableTypeDesc);
+                        // Ignore types which are unsupported in MSL.
+                        if (resourceType == MTLDataTypeNone)
+                        {
+                            return;
+                        }
 
-                if (inputIt != _uniformList.end())
-                {
-                    Input* input = inputIt->second.get();
-                    input->path = v->getPath();
-                    input->value = v->getValue();
-                    if (input->resourceType == resourceType)
-                    {
-                        input->typeString = v->getType().getName();
-                    }
-                    else
-                    {
-                        errors.push_back(
-                            "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
-                            + "\". Semantic: \"" + v->getSemantic()
-                            + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
-                            + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
-                        );
-                        uniformTypeMismatchFound = true;
-                    }
-                }
+                        if (!variableTypeDesc.isStruct())
+                        {
+                            auto inputIt = _uniformList.find(variableName);
+
+                            if (inputIt == _uniformList.end()) {
+                                if(variableTypeDesc == Type::FILENAME)
+                                {
+                                    inputIt = _uniformList.find(TEXTURE_NAME(variableName));
+                                }
+                                else
+                                {
+                                    inputIt = _uniformList.find(uniforms.getInstance() + "." + variableName);
+                                }
+                            }
+
+                            if (inputIt != _uniformList.end())
+                            {
+                                Input* input = inputIt->second.get();
+                                input->path = variablePath;
+                                input->value = variableValue;
+                                if (input->resourceType == resourceType)
+                                {
+                                    input->typeString = variableTypeDesc.getName();
+                                }
+                                else
+                                {
+                                    errors.push_back(
+                                        "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
+                                        + "Name: \"" + variableName
+                                        + "\". Type: \"" + variableTypeDesc.getName()
+                                        + "\". Semantic: \"" + variableSemantic
+                                        + "\". Value: \"" + (variableValue ? variableValue->getValueString() : "<none>")
+                                        + "\". resourceType: " + std::to_string(mapTypeToMetalType(variableTypeDesc))
+                                    );
+                                    uniformTypeMismatchFound = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            auto structTypeDesc = StructTypeDesc::get(variableTypeDesc.getStructIndex());
+                            auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
+
+                            const auto& members = structTypeDesc.getMembers();
+                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            {
+                                const auto& structMember = members[i];
+                                auto memberVariableName = variableName+"."+structMember._name;
+                                auto memberVariableValue = aggregateValue->getMemberValue(i);
+
+                                populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                            }
+                        }
+                    };
+
+                    return populateUniformInput_impl(variableTypeDesc, variableName, variableValue, populateUniformInput_impl);
+                };
+
+                populateUniformInput(v->getType(), v->getVariable(), v->getValue());
             }
         }
 
@@ -1231,7 +1294,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
         return false;
     };
 
-    auto setValue = [](MaterialX::ValuePtr value, std::vector<unsigned char>& data, size_t offset)
+    auto setValue = [](MaterialX::ConstValuePtr value, std::vector<unsigned char>& data, size_t offset)
     {
         if (value->getTypeString() == "float")
         {
@@ -1307,7 +1370,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
             {
                 if (!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
                 {
-                    MaterialX::ValuePtr value = _uniformList[string(arg.name.UTF8String) + "." + member.name.UTF8String]->value;
+                    auto value = _uniformList[string(arg.name.UTF8String) + "." + member.name.UTF8String]->value;
                     if (value)
                     {
                         setValue(value, uniformBufferData, member.offset);
@@ -1332,39 +1395,60 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
 
                 if (!setCommonUniform(lightHandler, cam, member.name.UTF8String, uniformBufferData, member.offset))
                 {
-                    auto uniformInfo = _uniformList.find(uniformName);
-                    if (uniformInfo != _uniformList.end())
+                    const auto setUniformValue =
+                        [this, setValue]
+                        (MTLStructMember* member, const string& uniformName, std::vector<unsigned char>& uniformBufferData, int offset ) -> void
                     {
-                        MaterialX::ValuePtr value = uniformInfo->second->value;
-                        if (value)
+                        auto setUniformValue_impl =
+                            [this, setValue]
+                            (MTLStructMember* member, const string& uniformName, std::vector<unsigned char>& uniformBufferData, int offset, auto &setUniformValue_ref ) -> void
                         {
-                            setValue(value, uniformBufferData, member.offset);
-                        }
-                    }
-                    else
-                    {
-                    }
-                }
-
-                if (MTLArrayType* arrayMember = member.arrayType)
-                {
-                    for (int i = 0; i < arrayMember.arrayLength; ++i)
-                    {
-                        for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
-                        {
-                            string uniformNameSubArray = uniformName + "[" + std::to_string(i) + "]." + ArrayOfStructMember.name.UTF8String;
-
-                            auto uniformInfo = _uniformList.find(uniformNameSubArray);
-                            if (uniformInfo != _uniformList.end())
+                            if(MTLArrayType* arrayMember = member.arrayType)
                             {
-                                MaterialX::ValuePtr value = uniformInfo->second->value;
-                                if (value)
+                                for(int i = 0; i < arrayMember.arrayLength; ++i)
                                 {
-                                    setValue(value, uniformBufferData, member.offset + i * arrayMember.stride + ArrayOfStructMember.offset);
+                                    for (MTLStructMember* ArrayOfStructMember in arrayMember.elementStructType.members)
+                                    {
+                                        string uniformNameSubArray = uniformName + "[" + std::to_string(i) + "]." + ArrayOfStructMember.name.UTF8String;
+                                        auto uniformInfo = _uniformList.find(uniformNameSubArray);
+                                        if (uniformInfo != _uniformList.end())
+                                        {
+                                            auto value = uniformInfo->second->value;
+                                            if(value)
+                                            {
+                                                setValue(value, uniformBufferData, offset + i * arrayMember.stride + ArrayOfStructMember.offset);
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
+                            else if (MTLStructType* structMember = member.structType)
+                            {
+                                // this code does not support struct recursion yet....
+                                for (MTLStructMember* subMember in structMember.members)
+                                {
+                                    string subUniformName = uniformName+"."+subMember.name.UTF8String;
+                                    setUniformValue_ref(subMember, subUniformName, uniformBufferData, offset+subMember.offset, setUniformValue_ref);
+                                }
+                            }
+                            else
+                            {
+                                auto uniformInfo = _uniformList.find(uniformName);
+                                if (uniformInfo != _uniformList.end())
+                                {
+                                    auto value = uniformInfo->second->value;
+                                    if(value)
+                                    {
+                                        setValue(value, uniformBufferData, offset);
+                                    }
+                                }
+                            }
+                        };
+
+                        return setUniformValue_impl(member, uniformName, uniformBufferData, offset, setUniformValue_impl);
+                    };
+
+                    setUniformValue(member, uniformName, uniformBufferData, member.offset);
                 }
             }
 
@@ -1415,14 +1499,15 @@ MTLDataType MslProgram::mapTypeToMetalType(TypeDesc type)
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return MTLDataTypeTexture;
     }
-    else if (type == Type::BSDF ||
-             type == Type::MATERIAL ||
+    else if (type == Type::BSDF               ||
+             type == Type::MATERIAL           ||
              type == Type::DISPLACEMENTSHADER ||
-             type == Type::EDF ||
-             type == Type::VDF ||
-             type == Type::SURFACESHADER ||
-             type == Type::LIGHTSHADER ||
-             type == Type::VOLUMESHADER)
+             type == Type::EDF                ||
+             type == Type::VDF                ||
+             type == Type::SURFACESHADER      ||
+             type == Type::LIGHTSHADER        ||
+             type == Type::VOLUMESHADER       ||
+             type.isStruct())
         return MTLDataTypeStruct;
 
     return MTLDataTypeNone;

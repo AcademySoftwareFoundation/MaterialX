@@ -638,6 +638,22 @@ string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
     return resolver->resolve(getValueString(), getType());
 }
 
+ValuePtr ValueElement::getValue() const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getValueString(), getType(), getDocument()->getTypeDef(getType()));
+}
+
+ValuePtr ValueElement::getResolvedValue(StringResolverPtr resolver) const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getResolvedValueString(resolver), getType(), getDocument()->getTypeDef(getType()));
+}
+
 ValuePtr ValueElement::getDefaultValue() const
 {
     ConstElementPtr parent = getParent();
