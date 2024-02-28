@@ -375,4 +375,60 @@ bool GlslSyntax::remapEnumeration(const string& value, TypeDesc type, const stri
     return true;
 }
 
+StructTypeSyntaxPtr GlslSyntax::createStructSyntax(const string& structTypeName, const string& defaultValue,
+                                       const string& uniformDefaultValue, const string& typeAlias,
+                                       const string& typeDefinition) const
+{
+    return std::make_shared<GlslStructTypeSyntax>(
+        this,
+        structTypeName,
+        defaultValue,
+        uniformDefaultValue,
+        typeAlias,
+        typeDefinition);
+}
+
+string GlslStructTypeSyntax::getValue(const Value& value, bool uniform) const
+{
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+
+    string result = aggValue.getTypeString() + "(";
+
+    string separator = "";
+    for (const auto& memberValue : aggValue.getMembers()) {
+        result += separator;
+        separator = ",";
+
+        auto memberTypeName = memberValue->getTypeString();
+        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+
+        // recursively use the syntax to generate the output, so we can supported nested structs.
+        result += _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+    }
+
+    result += ")";
+
+    return result;
+}
+
+string GlslStructTypeSyntax::getValue(const StringVec& values, bool /*uniform*/) const
+{
+    if (values.empty())
+    {
+        throw ExceptionShaderGenError("No values given to construct a value");
+    }
+
+    // Write the value using a stream to maintain any float formatting set
+    // using Value::setFloatFormat() and Value::setFloatPrecision()
+    StringStream ss;
+    ss << getTypeDefinition() << "(" << values[0];
+    for (size_t i = 1; i < values.size(); ++i)
+    {
+        ss << ";" << values[i];
+    }
+    ss << "}";
+
+    return ss.str();
+}
+
 MATERIALX_NAMESPACE_END
