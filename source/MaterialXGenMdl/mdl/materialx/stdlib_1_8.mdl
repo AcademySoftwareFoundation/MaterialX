@@ -441,3 +441,23 @@ export float3 mx_viewdirection_vector3(
 			::state::coordinate_object,
 			internal_space_direction));
 }
+
+
+export float3 mx_extractGroup(
+	uniform texcoordGroup_struct in = {{0.1,0.1},{0.2,0.2},{0.3,0.3}},
+	uniform int index = 0
+)
+	[[
+		anno::description("Node Group: experimental")
+	]]
+{
+    result = in.st_0.ss;
+
+    if (index == 1)
+        result = in.st_1.ss;
+    else if (index == 2)
+        result = in.st_2.ss;
+
+    return result;
+}
+

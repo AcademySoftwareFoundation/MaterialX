@@ -508,7 +508,7 @@ ImagePtr GlslProgram::bindTexture(unsigned int uniformType, int uniformLocation,
     return nullptr;
 }
 
-MaterialX::ValuePtr GlslProgram::findUniformValue(const string& uniformName, const GlslProgram::InputMap& uniformList)
+MaterialX::ConstValuePtr GlslProgram::findUniformValue(const string& uniformName, const GlslProgram::InputMap& uniformList)
 {
     auto uniform = uniformList.find(uniformName);
     if (uniform != uniformList.end())
@@ -946,47 +946,93 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
-                int glType = mapTypeToOpenGLType(v->getType());
+                auto typedesc = v->getType();
 
-                // There is no way to match with an unnamed variable
-                if (v->getVariable().empty())
-                {
-                    continue;
-                }
+                auto variableName = v->getVariable();
 
-                // Ignore types which are unsupported in GLSL.
-                if (glType == Input::INVALID_OPENGL_TYPE)
-                {
-                    continue;
-                }
+                auto variablePath = v->getPath();
+                auto variableUnit = v->getUnit();
+                auto variableColorspace = v->getColorSpace();
+                auto variableSemantic = v->getSemantic();
 
-                auto inputIt = _uniformList.find(v->getVariable());
-                if (inputIt != _uniformList.end())
+                auto variableValue = v->getValue();
+
+
+                const auto populateUniformInput =
+                    [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
+                    (TypeDesc typedesc, const string& variableName, ConstValuePtr variableValue) -> void
                 {
-                    Input* input = inputIt->second.get();
-                    input->path = v->getPath();
-                    input->unit = v->getUnit();
-                    input->colorspace = v->getColorSpace();
-                    input->value = v->getValue();
-                    if (input->gltype == glType)
+                    auto populateUniformInput_impl =
+                        [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
+                        (TypeDesc typedesc, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
-                        input->typeString = v->getType().getName();
-                    }
-                    else
-                    {
-                        errors.push_back(
-                            "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
-                            + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType().getName()
-                            + "\". Semantic: \"" + v->getSemantic()
-                            + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
-                            + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
-                            + "\". Colorspace: \"" + (!v->getColorSpace().empty() ? v->getColorSpace() : "<none>")
-                            + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))
-                        );
-                        uniformTypeMismatchFound = true;
-                    }
-                }
+                        if (!typedesc.isStruct())
+                        {
+                            // handle non-struct types
+                            int glType = mapTypeToOpenGLType(typedesc);
+
+                            // There is no way to match with an unnamed variable
+                            if (variableName.empty())
+                            {
+                                return;
+                            }
+
+                            // Ignore types which are unsupported in GLSL.
+                            if (glType == Input::INVALID_OPENGL_TYPE)
+                            {
+                                return;
+                            }
+
+                            auto inputIt = _uniformList.find(variableName);
+                            if (inputIt != _uniformList.end())
+                            {
+                                Input* input = inputIt->second.get();
+                                input->path = variablePath;
+                                input->unit = variableUnit;
+                                input->colorspace = variableColorspace;
+                                input->value = variableValue;
+                                if (input->gltype == glType)
+                                {
+                                    input->typeString = typedesc.getName();
+                                }
+                                else
+                                {
+                                    errors.push_back(
+                                        "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
+                                        + "Name: \"" + variableName
+                                        + "\". Type: \"" + typedesc.getName()
+                                        + "\". Semantic: \"" + variableSemantic
+                                        + "\". Value: \"" + (variableValue ? variableValue->getValueString() : "<none>")
+                                        + "\". Unit: \"" + (!variableUnit.empty() ? variableUnit : "<none>")
+                                        + "\". Colorspace: \"" + (!variableColorspace.empty() ? variableColorspace : "<none>")
+                                        + "\". GLType: " + std::to_string(glType));
+                                    uniformTypeMismatchFound = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // if we're a struct - we need to loop over each member
+                            auto structTypeDesc = StructTypeDesc::get(typedesc.getStructIndex());
+                            auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
+
+                            const auto& members = structTypeDesc.getMembers();
+                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            {
+                                const auto& member = members[i];
+                                auto memberTypeDesc = member._typeDesc;
+                                auto memberVariableName = variableName + "." + member._name;
+                                auto memberVariableValue = aggregateValue->getMemberValue(i);
+
+                                populateUniformInput_ref(memberTypeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                            }
+                        }
+                    };
+
+                    return populateUniformInput_impl(typedesc, variableName, variableValue, populateUniformInput_impl);
+                };
+
+                populateUniformInput(typedesc, variableName, variableValue);
             }
         }
 
@@ -1100,12 +1146,12 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
             if (string::npos != sattributeName.find(colorSet))
             {
                 string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
-                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
+                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
             }
             else if (string::npos != sattributeName.find(uvSet))
             {
                 string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
-                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
+                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
             }
 
             _attributeList[sattributeName] = inputPtr;

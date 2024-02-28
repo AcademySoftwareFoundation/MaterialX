@@ -4,6 +4,8 @@
 //
 
 #include <MaterialXCore/Value.h>
+#include <MaterialXCore/Definition.h>
+#include <MaterialXCore/Document.h>
 
 #include <iomanip>
 #include <sstream>
@@ -267,11 +269,17 @@ template <class T> ValuePtr TypedValue<T>::createFromString(const string& value)
 // Value methods
 //
 
-ValuePtr Value::createValueFromStrings(const string& value, const string& type)
+ValuePtr Value::createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDefPtr)
 {
     CreatorMap::iterator it = _creatorMap.find(type);
     if (it != _creatorMap.end())
         return it->second(value);
+
+    if (typeDefPtr && !typeDefPtr->getMembers().empty())
+    {
+        // if we're given a typeDef pointer that has child members- then we can create a new AggregateValue
+        return AggregateValue::createAggregateValueFromString(value, type, typeDefPtr);
+    }
 
     return TypedValue<string>::createFromString(value);
 }
@@ -289,6 +297,52 @@ template <class T> const T& Value::asA() const
         throw ExceptionTypeError("Incorrect type specified for value");
     }
     return typedVal->getData();
+}
+
+/// Return value string.
+string AggregateValue::getValueString() const
+{
+    if (_data.empty())
+        return "";
+
+    std::string result = "{";
+    std::string separator = "";
+    for (const auto& val : _data)
+    {
+        result += separator + val->getValueString();
+        separator = ";";
+    }
+    result += "}";
+
+    return result;
+}
+
+AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDefPtr)
+{
+    StringVec subValues = splitListInitializer(value);
+
+    AggregateValuePtr result = AggregateValue::createAggregateValue(type);
+    const auto& members = typeDefPtr->getMembers();
+
+    if (subValues.size() != members.size())
+    {
+        printf("ERROR wrong number of initializers - expect %zu\n", members.size());
+        return nullptr;
+    }
+
+    auto doc = typeDefPtr->getDocument();
+    for (size_t i = 0; i < members.size(); ++i)
+    {
+        const auto& member = members[i];
+
+        // this will return nullptr if the type is not a listed typedef.
+        ConstTypeDefPtr subTypeDef = doc->getTypeDef(members[i]->getType());
+
+        // calling Value::createValueFromStrings() here allows support for recursively nested structs.
+        result->appendValue(Value::createValueFromStrings(subValues[i], member->getType(), subTypeDef));
+    }
+
+    return result;
 }
 
 ScopedFloatFormatting::ScopedFloatFormatting(Value::FloatFormat format, int precision) :

@@ -649,6 +649,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
+    // TODO - is this the best place for this - or does it need to be abstracted as the others are above?
+    _shaderGenerator->loadStructTypeDefs(_dependLib);
+
     // Test suite setup
     addSkipFiles();
 

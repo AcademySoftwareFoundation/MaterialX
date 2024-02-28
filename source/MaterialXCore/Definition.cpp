@@ -196,4 +196,12 @@ vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
     return unitDefs;
 }
 
+ValuePtr AttributeDef::getValue() const
+{
+    if (!hasValue())
+        return ValuePtr();
+
+    return Value::createValueFromStrings(getValueString(), getType(), getDocument()->getTypeDef(getType()));
+}
+
 MATERIALX_NAMESPACE_END

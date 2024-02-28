@@ -10,6 +10,7 @@
 /// Type descriptor for a MaterialX data type.
 
 #include <MaterialXGenShader/Export.h>
+#include <MaterialXCore/Value.h>
 
 #include <string_view>
 
@@ -61,14 +62,15 @@ class MX_GENSHADER_API TypeDesc
 
     /// Empty constructor.
     constexpr TypeDesc() noexcept :
-        _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0) { }
+        _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0), _structIndex(-1) { }
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, int8_t structIndex = -1) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
-        _size(size)
+        _size(size),
+        _structIndex(structIndex)
     {
     }
 
@@ -84,6 +86,9 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
+
+    /// Return the index for the struct member information in StructTypeDesc, -1 if this is not a struct type
+    int getStructIndex() const { return isStruct()?_structIndex:-1; }
 
     /// Return the number of elements the type is composed of.
     /// Will return 1 for scalar types and a size greater than 1 for aggregate type.
@@ -111,6 +116,9 @@ class MX_GENSHADER_API TypeDesc
 
     /// Return true if the type represents a closure.
     bool isClosure() const { return (_semantic == SEMANTIC_CLOSURE || _semantic == SEMANTIC_SHADER || _semantic == SEMANTIC_MATERIAL); }
+
+    /// Return true if the type represents a struct.
+    bool isStruct() const { return _basetype == BASETYPE_STRUCT; }
 
     /// Equality operator
     bool operator==(TypeDesc rhs) const
@@ -143,9 +151,16 @@ class MX_GENSHADER_API TypeDesc
     /// If no type is found Type::NONE is returned.
     static TypeDesc get(const string& name);
 
+    /// Remove a type description by name, if it exists.
+    static void remove(const string& name);
+
     static const string NONE_TYPE_NAME;
 
-  private:
+    /// Create a Value from a string for a given typeDesc
+    ValuePtr createValueFromStrings(const string& value) const;
+
+
+private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
     /// are used for our data type names.
     constexpr uint32_t constexpr_hash(std::string_view str, uint32_t n = 0, uint32_t h = 2166136261)
@@ -156,14 +171,15 @@ class MX_GENSHADER_API TypeDesc
     uint32_t _id;
     uint8_t _basetype;
     uint8_t _semantic;
-    uint16_t _size;
+    uint8_t _size;
+    int8_t _structIndex;
 };
 
 /// @class TypeDescRegistry
 /// Helper class for type registration.
 class MX_GENSHADER_API TypeDescRegistry
 {
-  public:
+public:
     TypeDescRegistry(TypeDesc type, const string& name);
 };
 
@@ -207,6 +223,70 @@ TYPEDESC_DEFINE_TYPE(LIGHTSHADER, "lightshader", TypeDesc::BASETYPE_NONE, TypeDe
 TYPEDESC_DEFINE_TYPE(MATERIAL, "material", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_MATERIAL, 1)
 
 } // namespace Type
+
+
+
+
+
+
+// TODO - complete documentation
+
+/// @class StructTypeDesc
+/// A type descriptor for MaterialX struct types.
+///
+/// All types need to have a type descriptor registered in order for shader generators
+/// to know about the type. It can be used for type comparisons as well as getting more
+/// information about the type. Type descriptors for all standard library data types are
+/// registered by default and can be accessed from the Type namespace, e.g. Type::FLOAT.
+///
+/// To register custom types use the macro TYPEDESC_DEFINE_TYPE to define it in a header
+/// and the macro TYPEDESC_REGISTER_TYPE to register it in the type registry. Registration
+/// must be done in order to access the type's name later using getName() and to find the
+/// type by name using TypeDesc::get().
+///
+/// The class is a POD type of 64-bits and can efficiently be stored and passed by value.
+/// Type compare operations and hash operations are done using a precomputed hash value.
+///
+class MX_GENSHADER_API StructTypeDesc
+{
+  public:
+    struct StructMemberTypeDesc {
+        StructMemberTypeDesc(std::string name, TypeDesc typeDesc, std::string defaultValueStr) :
+            _name(name), _typeDesc(typeDesc), _defaultValueStr(defaultValueStr)
+        {}
+        std::string _name;
+        TypeDesc _typeDesc;
+        std::string _defaultValueStr;
+    };
+
+    /// Empty constructor.
+    StructTypeDesc() noexcept{}
+
+    void addMember(const std::string& name, TypeDesc type, std::string defaultValueStr);
+    void setTypeDesc(TypeDesc typedesc) { _typedesc = typedesc; }
+
+    /// Return a type description by index.
+    static StructTypeDesc& get(unsigned int index);
+    static std::vector<std::string> getStructTypeNames();
+    static unsigned int emplace_back(StructTypeDesc structTypeDesc);
+    static void clear();
+
+    TypeDesc typeDesc() const { return _typedesc; }
+
+    const string& getName() const;
+
+    const std::vector<StructMemberTypeDesc>& getMembers() const;
+
+  private:
+    TypeDesc _typedesc;
+    std::vector<StructMemberTypeDesc> _members;
+};
+
+class MX_GENSHADER_API StructTypeDescRegistry
+{
+  public:
+    StructTypeDescRegistry();
+};
 
 MATERIALX_NAMESPACE_END
 
