@@ -73,7 +73,11 @@ int TypeDesc::getChannelIndex(char channel) const
 const TypeDesc* TypeDesc::get(const string& name)
 {
     const TypeDescMap& map = typeMap();
-    auto it = map.find(name);
+    std::string localName = name;
+    if (localName.substr(0, 7) == "struct:") {
+        localName = "struct";
+    }
+    auto it = map.find(localName);
     return it != map.end() ? it->second.get() : nullptr;
 }
 
@@ -97,6 +101,7 @@ const TypeDesc* COLOR4              = TypeDesc::registerType("color4", TypeDesc:
 const TypeDesc* MATRIX33            = TypeDesc::registerType("matrix33", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 9);
 const TypeDesc* MATRIX44            = TypeDesc::registerType("matrix44", TypeDesc::BASETYPE_FLOAT, TypeDesc::SEMANTIC_MATRIX, 16);
 const TypeDesc* STRING              = TypeDesc::registerType("string", TypeDesc::BASETYPE_STRING);
+const TypeDesc* STRUCT              = TypeDesc::registerType("struct", TypeDesc::BASETYPE_STRUCT);
 const TypeDesc* FILENAME            = TypeDesc::registerType("filename", TypeDesc::BASETYPE_STRING, TypeDesc::SEMANTIC_FILENAME);
 const TypeDesc* BSDF                = TypeDesc::registerType("BSDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1, false);
 const TypeDesc* EDF                 = TypeDesc::registerType("EDF", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_CLOSURE, 1, false);

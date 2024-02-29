@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+    <!--
+      Copyright Contributors to the MaterialX Project
+      SPDX-License-Identifier: Apache-2.0
+
+      GLSL Implementations of experimental nodes
+    -->
+
+    <implementation name="IM_extract_s_texcoord" nodedef="ND_extract_s_texcoord" target="genglsl" sourcecode="{{in__I__ss}}" />
+
+</materialx>

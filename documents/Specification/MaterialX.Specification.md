@@ -255,7 +255,7 @@ While color<em>N</em> and vector<em>N</em> types both describe vectors of floati
 
 ## Custom Data Types
 
-In addition to the standard data types, MaterialX supports the specification of custom data types for the inputs and outputs of shaders and custom nodes.  This allows documents to describe data streams of any complex type an application may require; examples might include spectral color samples or compound geometric data.
+In addition to the standard data types, MaterialX supports the specification of custom data types for the inputs and outputs of shaders and custom nodes.  This allows documents to describe data streams of any complex type an application may require; examples might include spectral color samples or compound geometric data.  The structure of a custom type's contents is described using a number of &lt;member> elements.
 
 Types can be declared to have a specific semantic, which can be used to determine how values of that type should be interpreted, and how nodes outputting that type can be connected.  Currently, MaterialX defines three semantics:
 
@@ -268,8 +268,12 @@ Types not defined with a specific semantic are assumed to have semantic="default
 Custom types are defined using the &lt;typedef> element:
 
 ```xml
-  <typedef name="spectrum" semantic="color"/>
-  <typedef name="manifold"/>
+  <typedef name="manifold">
+    <member name="P" type="vector3"/>
+    <member name="N" type="vector3"/>
+    <member name="du" type="vector3"/>
+    <member name="dv" type="vector3"/>
+  </typedef>
 ```
 
 Attributes for &lt;typedef> elements:
@@ -282,10 +286,35 @@ Attributes for &lt;typedef> elements:
     * "halfprecision": the values within this type are half-precision
     * "doubleprecision: the values within this type are double-precision
 
-Once a custom type is defined by a &lt;typedef>, it can then be used in any MaterialX element that allows "any MaterialX type"; the list of MaterialX types is effectively expanded to include the new custom type.  It should be noted however that the &lt;typedef> is only declaring the existence of the type and perhaps some hints about its intended definition, but it is up to each application and code generator to provide its own precise definition for any type.
+Attributes for &lt;member> elements:
+
+* `name` (string, required): the name of the member variable.
+* `type` (string, required): the type of the member variable; can be any built-in MaterialX type; using custom types for &lt;member> types is not supported. 
+* `defaultvalue` (string, optional): the value the member variable will be initialized to if not explicitly set on a node.
+
+**(Discussion point : We might be able to support custom types as members as well?  Given the initializers are now wrapped in braces, its possible to accurately define nested initializers, and potentially also allow for some members to not be initialized)**
+
+If a number of &lt;member> elements are provided, then a MaterialX file can specify a value for that type any place it is used, using an aggregated initializer, a semicolon-separated list of numbers and strings surrounded by braced.  The expectation is that the numbers and strings between semicolons exactly line up with the expected &lt;member> types in order. For example, if the following &lt;typedef> was declared:
+
+```xml
+  <typedef name="exampletype">
+    <member name="id" type="integer"/>
+    <member name="compclr" type="color3"/> 
+    <member name="objects" type="stringarray"/> 
+    <member name="minvec" type="vector2"/> 
+    <member name="maxvec" type="vector2"/>
+  </typedef>
+```
+
+Then a permissible input declaration in a custom node using that type could be:
+
+```xml
+  <input name="in2" type="exampletype" value="{3; 0.18,0.2,0.11; foo,bar; 0.0,1.0; 3.4,5.1}"/>
+```
+
+Once a custom type is defined by a &lt;typedef>, it can then be used in any MaterialX element that allows "any MaterialX type"; the list of MaterialX types is effectively expanded to include the new custom type.
 
 The standard MaterialX distribution includes definitions for four "shader"-semantic data types: **surfaceshader**, **displacementshader**, **volumeshader**, and **lightshader**.  These types are discussed in more detail in the [Shader Nodes](#shader-nodes) section below.
-
 
 
 ## MTLX File Format Definition
