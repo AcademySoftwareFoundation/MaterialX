@@ -27,11 +27,11 @@
 //     Document version 1.7.2, January 17, 2022
 //     www.nvidia.com/mdl
 
-mdl 1.7;
+mdl 1.6;
 
 import ::math::*;
-import ::tex::*;
 import ::state::*;
+import ::tex::*;
 
 // Epsilon value used in float calculations.
 export const float FLOAT_EPS = 0.000001;
@@ -193,4 +193,7 @@ export enum mx_distribution_type {
     mx_distribution_type_ggx
 };
 
-
+// Custom annotation for MDL function parameters to map between MDL and the original MaterialX graph.
+// *  When added to a paramater, the "name" will contain the path in the MaterialX graph starting
+//    from the root up to the input using `/` as separator.
+export annotation origin(string name);
