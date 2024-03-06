@@ -9,7 +9,6 @@
 #include <MaterialXGenGlsl/GlslShaderGenerator.h>
 #include <MaterialXRenderGlsl/GlslRenderer.h>
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
-#include <MaterialXRenderGlsl/TextureBaker.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/StbImageLoader.h>
@@ -53,14 +52,6 @@ class GlslShaderRenderTester : public RenderUtil::ShaderRenderTester
                      mx::ImageVec* imageVec = nullptr) override;
 
     bool saveImage(const mx::FilePath& filePath, mx::ConstImagePtr image, bool verticalFlip) const override;
-
-    bool canBake() const override
-    {
-        return true;
-    }
-
-    void runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFilename,
-                 const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log) override;
 
     mx::GlslRendererPtr _renderer;
     mx::LightHandlerPtr _lightHandler;
@@ -419,35 +410,6 @@ bool GlslShaderRenderTester::runRenderer(const std::string& shaderName,
         }
     }
     return true;
-}
-
-void GlslShaderRenderTester::runBake(mx::DocumentPtr doc, const mx::FileSearchPath& imageSearchPath, const mx::FilePath& outputFileName,
-                                     const GenShaderUtil::TestSuiteOptions::BakeSetting& bakeOptions, std::ostream& log)
-{
-    mx::ImageVec imageVec = _renderer->getImageHandler()->getReferencedImages(doc);
-    auto maxImageSize = mx::getMaxDimensions(imageVec);
-    const unsigned bakeWidth = std::max(bakeOptions.resolution, maxImageSize.first);
-    const unsigned bakeHeight = std::max(bakeOptions.resolution, maxImageSize.second);
-
-    mx::Image::BaseType baseType = bakeOptions.hdr ? mx::Image::BaseType::FLOAT : mx::Image::BaseType::UINT8;
-    mx::TextureBakerPtr baker = mx::TextureBakerGlsl::create(bakeWidth, bakeHeight, baseType);
-    baker->setupUnitSystem(doc);
-    baker->setImageHandler(_renderer->getImageHandler());
-    baker->setOptimizeConstants(true);
-    baker->setHashImageNames(true);
-    baker->setTextureSpaceMin(bakeOptions.uvmin);
-    baker->setTextureSpaceMax(bakeOptions.uvmax);
-
-    try
-    {
-        baker->setOutputStream(&log);
-        baker->bakeAllMaterials(doc, imageSearchPath, outputFileName);
-    }
-    catch (mx::Exception& e)
-    {
-        const mx::FilePath& sourceUri = doc->getSourceUri();
-        log << sourceUri.asString() + " failed baking process: " + e.what() << std::endl;
-    }
 }
 
 TEST_CASE("Render: GLSL TestSuite", "[renderglsl]")
