@@ -91,7 +91,7 @@ bool GLTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
+bool GLTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool)
 {
     if (image->getResourceId() == GlslProgram::UNDEFINED_OPENGL_RESOURCE_ID)
     {
@@ -230,9 +230,9 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
         default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
     }
 
-    if (baseType == Image::BaseType::UINT8)
+    if (baseType == Image::BaseType::UINT8 || baseType == Image::BaseType::INT8)
     {
-        glType = GL_UNSIGNED_BYTE;
+        glType = baseType == Image::BaseType::UINT8 ? GL_UNSIGNED_BYTE : GL_BYTE;
         switch (channelCount)
         {
             case 4: glInternalFormat = srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8; break;
@@ -242,9 +242,9 @@ void GLTextureHandler::mapTextureFormatToGL(Image::BaseType baseType, unsigned i
             default: throw Exception("Unsupported channel count in mapTextureFormatToGL");
         }
     }
-    else if (baseType == Image::BaseType::UINT16)
+    else if (baseType == Image::BaseType::UINT16 || baseType == Image::BaseType::INT16)
     {
-        glType = GL_UNSIGNED_SHORT;
+        glType = baseType == Image::BaseType::UINT16 ? GL_UNSIGNED_SHORT : GL_SHORT;
         switch (channelCount)
         {
             case 4: glInternalFormat = GL_RGBA16; break;

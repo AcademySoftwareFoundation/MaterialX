@@ -353,7 +353,7 @@ void readFromXmlFile(DocumentPtr doc, FilePath filename, FileSearchPath searchPa
     documentFromXml(doc, xmlDoc, searchPath, readOptions);
 }
 
-void readFromXmlString(DocumentPtr doc, const string& str, FileSearchPath searchPath, const XmlReadOptions* readOptions)
+void readFromXmlString(DocumentPtr doc, const string& str, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
 {
     std::istringstream stream(str);
     readFromXmlStream(doc, stream, searchPath, readOptions);

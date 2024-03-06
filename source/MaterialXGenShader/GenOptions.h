@@ -90,6 +90,7 @@ class MX_GENSHADER_API GenOptions
         hwMaxActiveLightSources(3),
         hwNormalizeUdimTexCoords(false),
         hwWriteAlbedoTable(false),
+        hwWriteEnvPrefilter(false),
         hwImplicitBitangents(true),
         emitColorTransforms(true)
     {
@@ -173,6 +174,10 @@ class MX_GENSHADER_API GenOptions
     /// Enables the writing of a directional albedo table.
     /// Defaults to false.
     bool hwWriteAlbedoTable;
+
+    /// Enables the generation of a prefiltered environment map.
+    /// Defaults to false.
+    bool hwWriteEnvPrefilter;
 
     /// Calculate fallback bitangents from existing normals and tangents
     /// inside the bitangent node.

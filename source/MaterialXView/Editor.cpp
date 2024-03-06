@@ -18,14 +18,13 @@ namespace
 class EditorColorPicker : public ng::ColorPicker
 {
   public:
-    EditorColorPicker(ng::Widget *parent, const ng::Color& color) :
+    EditorColorPicker(ng::Widget* parent, const ng::Color& color) :
         ng::ColorPicker(parent, color)
     {
-        ng::Popup *popup = this->popup();
-        ng::Widget *floatGroup = new ng::Widget(popup);
-        auto layout =
-            new ng::GridLayout(ng::Orientation::Horizontal, 2,
-                ng::Alignment::Middle, 2, 2);
+        ng::Popup* popup = this->popup();
+        ng::Widget* floatGroup = new ng::Widget(popup);
+        auto layout = new ng::GridLayout(ng::Orientation::Horizontal, 2,
+                                         ng::Alignment::Middle, 2, 2);
         layout->set_col_alignment({ ng::Alignment::Fill, ng::Alignment::Fill });
         layout->set_spacing(1, 1);
         floatGroup->set_layout(layout);
@@ -51,7 +50,8 @@ class EditorColorPicker : public ng::ColorPicker
 
         // The color wheel does not handle alpha properly, so only
         // overwrite RGB in the callback.
-        m_callback = [this](const ng::Color &value) {
+        m_callback = [this](const ng::Color& value)
+        {
             _colorWidgets[0]->set_value(value[0]);
             _colorWidgets[1]->set_value(value[1]);
             _colorWidgets[2]->set_value(value[2]);
@@ -110,7 +110,7 @@ void PropertyEditor::create(Viewer& parent)
     _window->set_position(previousPosition);
     _window->set_visible(_visible);
 
-    ng::VScrollPanel *scroll_panel = new ng::VScrollPanel(_window);
+    ng::VScrollPanel* scroll_panel = new ng::VScrollPanel(_window);
     scroll_panel->set_fixed_height(300);
     _container = new ng::Widget(scroll_panel);
     _container->set_layout(new ng::GroupLayout(1, 1, 1, 1));
@@ -122,7 +122,7 @@ void PropertyEditor::create(Viewer& parent)
 
     // 3 cell layout for label plus widget value pair.
     _gridLayout3 = new ng::GridLayout(ng::Orientation::Horizontal, 3,
-        ng::Alignment::Minimum, 2, 2);
+                                      ng::Alignment::Minimum, 2, 2);
     _gridLayout3->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum, ng::Alignment::Maximum });
 }
 
@@ -150,7 +150,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
     {
         ng::Widget* twoColumns = new ng::Widget(container);
         twoColumns->set_layout(_gridLayout2);
-        ng::Label* groupLabel =  new ng::Label(twoColumns, group);
+        ng::Label* groupLabel = new ng::Label(twoColumns, group);
         groupLabel->set_font_size(20);
         groupLabel->set_font("sans-bold");
         new ng::Label(twoColumns, "");
@@ -163,7 +163,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         auto indexInEnumeration = [&value, &enumValues, &enumeration]()
         {
             size_t index = 0;
-            for (auto& enumValue: enumValues)
+            for (auto& enumValue : enumValues)
             {
                 if (value->getValueString() == enumValue->getValueString())
                 {
@@ -172,7 +172,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
                 index++;
             }
             index = 0;
-            for (auto& enumName: enumeration)
+            for (auto& enumName : enumeration)
             {
                 if (value->getValueString() == enumName)
                 {
@@ -191,7 +191,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             twoColumns->set_layout(_gridLayout2);
 
             new ng::Label(twoColumns, label);
-            ng::ComboBox* comboBox = new ng::ComboBox(twoColumns, {""});
+            ng::ComboBox* comboBox = new ng::ComboBox(twoColumns, { "" });
             comboBox->set_enabled(editable);
             comboBox->set_items(enumeration);
             comboBox->set_selected_index(static_cast<int>(valueIndex));
@@ -259,7 +259,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             mx::MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
             {
-                material->modifyUniform(path, mx::Value::createValue(value));            
+                material->modifyUniform(path, mx::Value::createValue(value));
             }
         });
         floatBox->set_fixed_size(ng::Vector2i(100, 20));
@@ -333,12 +333,12 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         {
             mx::Color3 v = value->asA<mx::Color3>();
             ng::Color c(v[0], v[1], v[2], 1.0);
-            
+
             new ng::Label(twoColumns, label);
             auto colorVar = new EditorColorPicker(twoColumns, c);
             colorVar->set_fixed_size({ 100, 20 });
             colorVar->set_font_size(15);
-            colorVar->set_final_callback([path, viewer](const ng::Color &c)
+            colorVar->set_final_callback([path, viewer](const ng::Color& c)
             {
                 mx::MaterialPtr material = viewer->getSelectedMaterial();
                 if (material)
@@ -362,7 +362,7 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
         auto colorVar = new EditorColorPicker(twoColumns, c);
         colorVar->set_fixed_size({ 100, 20 });
         colorVar->set_font_size(15);
-        colorVar->set_final_callback([path, viewer](const ng::Color &c)
+        colorVar->set_final_callback([path, viewer](const ng::Color& c)
         {
             mx::MaterialPtr material = viewer->getSelectedMaterial();
             if (material)
@@ -583,10 +583,10 @@ void PropertyEditor::addItemToForm(const mx::UIPropertyItem& item, const std::st
             else
             {
                 new ng::Label(twoColumns, label);
-                ng::TextBox* stringVar =  new ng::TextBox(twoColumns, v);
+                ng::TextBox* stringVar = new ng::TextBox(twoColumns, v);
                 stringVar->set_fixed_size({ 100, 20 });
                 stringVar->set_font_size(15);
-                stringVar->set_callback([path, viewer](const std::string &v)
+                stringVar->set_callback([path, viewer](const std::string& v)
                 {
                     mx::MaterialPtr material = viewer->getSelectedMaterial();
                     mx::ShaderPort* uniform = material ? material->findUniform(path) : nullptr;
@@ -646,7 +646,7 @@ void PropertyEditor::updateContents(Viewer* viewer)
         mx::UIPropertyGroup groups;
         mx::UIPropertyGroup unnamedGroups;
         const std::string pathSeparator(":");
-        mx::createUIPropertyGroups(elem->getDocument(), *publicUniforms, groups, unnamedGroups, pathSeparator); 
+        mx::createUIPropertyGroups(elem->getDocument(), *publicUniforms, groups, unnamedGroups, pathSeparator);
 
         // First add items with named groups.
         std::string previousFolder;
@@ -691,7 +691,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
 {
     new ng::Label(parent, label);
 
-    ng::Slider *slider = new ng::Slider(parent);
+    ng::Slider* slider = new ng::Slider(parent);
     slider->set_value(value);
 
     ng::FloatBox<float>* box = new ng::FloatBox<float>(parent, value);
@@ -732,7 +732,7 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
         }
     }
 
-    slider->set_callback([box, callback](float value) 
+    slider->set_callback([box, callback](float value)
     {
         box->set_value(value);
         callback(value);
@@ -747,12 +747,12 @@ ng::FloatBox<float>* createFloatWidget(ng::Widget* parent, const std::string& la
 }
 
 ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, int value,
-    const mx::UIProperties* ui, std::function<void(int)> callback)
+                                 const mx::UIProperties* ui, std::function<void(int)> callback)
 {
     new ng::Label(parent, label);
 
-    ng::Slider *slider = new ng::Slider(parent);
-    slider->set_value((float)value);
+    ng::Slider* slider = new ng::Slider(parent);
+    slider->set_value((float) value);
 
     ng::IntBox<int>* box = new ng::IntBox<int>(parent, value);
     box->set_fixed_width(60);
@@ -781,7 +781,7 @@ ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, i
         }
         if (range.first != range.second)
         {
-            std::pair<float, float> float_range((float)range.first, (float)range.second);
+            std::pair<float, float> float_range((float) range.first, (float) range.second);
             slider->set_range(float_range);
         }
         if (ui->uiStep)
@@ -794,12 +794,12 @@ ng::IntBox<int>* createIntWidget(ng::Widget* parent, const std::string& label, i
 
     slider->set_callback([box, callback](float value)
     {
-        box->set_value((int)value);
-        callback((int)value);
+        box->set_value((int) value);
+        callback((int) value);
     });
     box->set_callback([slider, callback](int value)
     {
-        slider->set_value((float)value);
+        slider->set_value((float) value);
         callback(value);
     });
 

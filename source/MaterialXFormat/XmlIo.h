@@ -146,7 +146,7 @@ MX_FORMAT_API void readFromXmlFile(DocumentPtr doc,
 ///    If provided, then the given options will affect the behavior of the
 ///    read function.  Defaults to a null pointer.
 /// @throws ExceptionParseError if the document cannot be parsed.
-MX_FORMAT_API void readFromXmlString(DocumentPtr doc, const string& str, FileSearchPath searchPath = FileSearchPath(), const XmlReadOptions* readOptions = nullptr);
+MX_FORMAT_API void readFromXmlString(DocumentPtr doc, const string& str, const FileSearchPath& searchPath = FileSearchPath(), const XmlReadOptions* readOptions = nullptr);
 
 /// @}
 /// @name Write Functions

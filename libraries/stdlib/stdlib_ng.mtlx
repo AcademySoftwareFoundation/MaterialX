@@ -4,15 +4,15 @@
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
 
-    Nodegraph implementations for Supplemental Nodes included in the MaterialX specification.
+    Graph definitions of standard nodes included in the MaterialX specification.
   -->
 
   <!-- ======================================================================== -->
-  <!-- Supplemental Texture nodes                                               -->
+  <!-- Texture nodes                                                            -->
   <!-- ======================================================================== -->
 
   <!--
-    <tiledimage>
+    Node: <tiledimage>
   -->
   <nodegraph name="NG_tiledimage_float" nodedef="ND_tiledimage_float">
     <multiply name="N_mult_float" type="vector2">
@@ -196,7 +196,7 @@
   </nodegraph>
 
   <!--
-    <triplanarprojection>
+    Node: <triplanarprojection>
     Samples data from three images, or layers within multi-layer images, and projects a tiled
     representation of the images along each of the three respective coordinate axes, computing
     a weighted blend of the three samples using the geometric normal.
@@ -1131,7 +1131,7 @@
   <!-- ======================================================================== -->
 
   <!--
-    <ramp4>
+    Node: <ramp4>
     A 4-corner bilinear value ramp.
   -->
   <nodegraph name="NG_ramp4_float" nodedef="ND_ramp4_float">
@@ -1310,6 +1310,200 @@
   </nodegraph>
 
   <!--
+    Node: <noise2d>
+  -->
+  <nodegraph name="NG_noise2d_color3" nodedef="ND_noise2d_color3">
+    <noise2d name="N_noise2d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color3" nodename="N_noise2d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color4" nodedef="ND_noise2d_color4">
+    <noise2d name="N_noise2d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color4" nodename="N_noise2d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color3FA" nodedef="ND_noise2d_color3FA">
+    <noise2d name="N_noise2d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color3" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_color4FA" nodedef="ND_noise2d_color4FA">
+    <noise2d name="N_noise2d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="color4" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector2FA" nodedef="ND_noise2d_vector2FA">
+    <noise2d name="N_noise2d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector2" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector3FA" nodedef="ND_noise2d_vector3FA">
+    <noise2d name="N_noise2d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector3" nodename="N_noise2d" />
+  </nodegraph>
+  <nodegraph name="NG_noise2d_vector4FA" nodedef="ND_noise2d_vector4FA">
+    <noise2d name="N_noise2d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="texcoord" type="vector2" interfacename="texcoord" />
+    </noise2d>
+    <output name="out" type="vector4" nodename="N_noise2d" />
+  </nodegraph>
+
+  <!--
+    Node: <noise3d>
+  -->
+  <nodegraph name="NG_noise3d_color3" nodedef="ND_noise3d_color3">
+    <noise3d name="N_noise3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color3" nodename="N_noise3d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color4" nodedef="ND_noise3d_color4">
+    <noise3d name="N_noise3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color4" nodename="N_noise3d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color3FA" nodedef="ND_noise3d_color3FA">
+    <noise3d name="N_noise3d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color3" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_color4FA" nodedef="ND_noise3d_color4FA">
+    <noise3d name="N_noise3d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="color4" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector2FA" nodedef="ND_noise3d_vector2FA">
+    <noise3d name="N_noise3d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector2" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector3FA" nodedef="ND_noise3d_vector3FA">
+    <noise3d name="N_noise3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector3" nodename="N_noise3d" />
+  </nodegraph>
+  <nodegraph name="NG_noise3d_vector4FA" nodedef="ND_noise3d_vector4FA">
+    <noise3d name="N_noise3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="pivot" type="float" interfacename="pivot" />
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <output name="out" type="vector4" nodename="N_noise3d" />
+  </nodegraph>
+
+  <!--
+    Node: <fractal3d>
+  -->
+  <nodegraph name="NG_fractal3d_color3" nodedef="ND_fractal3d_color3">
+    <fractal3d name="N_fractal3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color3" nodename="N_fractal3d" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color4" nodedef="ND_fractal3d_color4">
+    <fractal3d name="N_fractal3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color4" nodename="N_fractal3d" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color3FA" nodedef="ND_fractal3d_color3FA">
+    <fractal3d name="N_fractal3d" type="color3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color3" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_color4FA" nodedef="ND_fractal3d_color4FA">
+    <fractal3d name="N_fractal3d" type="color4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="color4" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector2FA" nodedef="ND_fractal3d_vector2FA">
+    <fractal3d name="N_fractal3d" type="vector2">
+      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector2" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector3FA" nodedef="ND_fractal3d_vector3FA">
+    <fractal3d name="N_fractal3d" type="vector3">
+      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector3" nodename="N_fractal3d" />
+  </nodegraph>
+  <nodegraph name="NG_fractal3d_vector4FA" nodedef="ND_fractal3d_vector4FA">
+    <fractal3d name="N_fractal3d" type="vector4">
+      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="octaves" type="integer" interfacename="octaves" />
+      <input name="lacunarity" type="float" interfacename="lacunarity" />
+      <input name="diminish" type="float" interfacename="diminish" />
+      <input name="position" type="vector3" interfacename="position" />
+    </fractal3d>
+    <output name="out" type="vector4" nodename="N_fractal3d" />
+  </nodegraph>
+
+  <!--
     <unifiednoise2d>
     Combined 2d noises for artists.
   -->
@@ -1380,7 +1574,7 @@
   </nodegraph>
 
   <!--
-    <unifiednoise3d>
+    Node: <unifiednoise3d>
     Combined 3d noises for artists.
   -->
   <nodegraph name="NG_unifiednoise3d_float" nodedef="ND_unifiednoise3d_float">
@@ -1576,7 +1770,7 @@
   </nodegraph>
 
   <!--
-    <checkerboard>
+    Node: <checkerboard>
     A 2D checkerboard pattern.
   -->
   <nodegraph name="NG_checkerboard_color3" nodedef="ND_checkerboard_color3">
@@ -1669,7 +1863,7 @@
     </subtract>
     <dotproduct name="dist_square" type="float">
       <input name="in1" type="vector2" nodename="delta" />
-      <input name="in2" type="vector2" nodename="delta"/>
+      <input name="in2" type="vector2" nodename="delta" />
     </dotproduct>
     <multiply name="rad_square" type="float">
       <input name="in1" type="float" interfacename="radius" />
@@ -2361,11 +2555,14 @@
     </convert>
     <output name="out" type="color3" nodename="to_rgb" />
   </nodegraph>
-  
+
   <!-- ======================================================================== -->
   <!-- Geometric nodes                                                          -->
   <!-- ======================================================================== -->
 
+  <!--
+    Node: <bump>
+  -->
   <nodegraph name="NG_bump_vector3" nodedef="ND_bump_vector3">
     <heighttonormal name="N_heighttonormal" type="vector3">
       <input name="in" type="float" interfacename="height" />
@@ -2479,7 +2676,7 @@
     </magnitude>
     <output name="out" type="float" nodename="N_mtlxmagnitude" />
   </nodegraph>
-  
+
   <!--
     Node: <trianglewave>
     Generate a triangle wave from the given scalar input.
@@ -2506,9 +2703,350 @@
     <output name="out" type="float" nodename="subtract2" />
   </nodegraph>
 
+  <!--
+    Node: <reflect>
+    Compute the reflection vector given an incident vector and unit surface normal.
+  -->
+  <nodegraph name="NG_reflect_vector3" type="vector3" nodedef="ND_reflect_vector3">
+    <dotproduct name="NdotI" type="float">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="vector3" interfacename="in" />
+    </dotproduct>
+    <multiply name="NdotI_2" type="float">
+      <input name="in1" type="float" nodename="NdotI" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="NdotI_N_2" type="vector3">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="float" nodename="NdotI_2" />
+    </multiply>
+    <subtract name="reflection_vector" type="vector3">
+      <input name="in1" type="vector3" interfacename="in" />
+      <input name="in2" type="vector3" nodename="NdotI_N_2" />
+    </subtract>
+    <output name="out" type="vector3" nodename="reflection_vector" />
+  </nodegraph>
+
+  <!--
+    Node: <refract>
+    Compute the refraction vector given an incident vector, unit surface normal,
+    and index of refraction.
+  -->
+  <nodegraph name="NG_refract_vector3" nodedef="ND_refract_vector3">
+    <dotproduct name="IdotN" type="float">
+      <input name="in1" type="vector3" interfacename="in" />
+      <input name="in2" type="vector3" interfacename="normal" />
+    </dotproduct>
+    <multiply name="IdotNsq" type="float">
+      <input name="in1" type="float" nodename="IdotN" />
+      <input name="in2" type="float" nodename="IdotN" />
+    </multiply>
+    <multiply name="iorsq" type="float">
+      <input name="in1" type="float" interfacename="ior" />
+      <input name="in2" type="float" interfacename="ior" />
+    </multiply>
+    <subtract name="one_IdotNsq" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="IdotNsq" />
+    </subtract>
+    <multiply name="iorsq_one_IdotNsq" type="float">
+      <input name="in1" type="float" nodename="iorsq" />
+      <input name="in2" type="float" nodename="one_IdotNsq" />
+    </multiply>
+    <subtract name="k" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="iorsq_one_IdotNsq" />
+    </subtract>
+    <multiply name="I_scaled" type="vector3">
+      <input name="in1" type="vector3" interfacename="in" />
+      <input name="in2" type="float" interfacename="ior" />
+    </multiply>
+    <sqrt name="sqrt_k" type="float">
+      <input name="in" type="float" nodename="k" />
+    </sqrt>
+    <multiply name="ior_NdotI" type="float">
+      <input name="in1" type="float" interfacename="ior" />
+      <input name="in2" type="float" nodename="IdotN" />
+    </multiply>
+    <add name="ior_NdotI_sqrt_k" type="float">
+      <input name="in1" type="float" nodename="ior_NdotI" />
+      <input name="in2" type="float" nodename="sqrt_k" />
+    </add>
+    <multiply name="N_scaled" type="vector3">
+      <input name="in1" type="vector3" interfacename="normal" />
+      <input name="in2" type="float" nodename="ior_NdotI_sqrt_k" />
+    </multiply>
+    <subtract name="refract_dir" type="vector3">
+      <input name="in1" type="vector3" nodename="I_scaled" />
+      <input name="in2" type="vector3" nodename="N_scaled" />
+    </subtract>
+    <ifgreater name="result" type="vector3">
+      <input name="value1" type="float" value="0.0" />
+      <input name="value2" type="float" nodename="k" />
+      <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="in2" type="vector3" nodename="refract_dir" />
+    </ifgreater>
+    <output name="out" type="vector3" nodename="result" />
+  </nodegraph>
+
   <!-- ======================================================================== -->
   <!-- Adjustment nodes                                                         -->
   <!-- ======================================================================== -->
+
+  <!--
+    Node: <smoothstep>
+    Outputs a smooth (hermite-interpolated) remapping of input values from low-high
+    to output 0-1.
+  -->
+  <nodegraph name="NG_smoothstep_color3" nodedef="ND_smoothstep_color3">
+    <smoothstep name="N_smoothstep" type="vector3">
+      <input name="in" type="vector3" interfacename="in" channels="rgb" />
+      <input name="low" type="vector3" interfacename="low" channels="rgb" />
+      <input name="high" type="vector3" interfacename="high" channels="rgb" />
+    </smoothstep>
+    <output name="out" type="color3" nodename="N_smoothstep" channels="xyz" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color4" nodedef="ND_smoothstep_color4">
+    <smoothstep name="N_smoothstep" type="vector4">
+      <input name="in" type="vector4" interfacename="in" channels="rgba" />
+      <input name="low" type="vector4" interfacename="low" channels="rgba" />
+      <input name="high" type="vector4" interfacename="high" channels="rgba" />
+    </smoothstep>
+    <output name="out" type="color4" nodename="N_smoothstep" channels="xyzw" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color3FA" nodedef="ND_smoothstep_color3FA">
+    <smoothstep name="N_smoothstep" type="color3">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="low" type="color3" interfacename="low" channels="xxx" />
+      <input name="high" type="color3" interfacename="high" channels="xxx" />
+    </smoothstep>
+    <output name="out" type="color3" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_color4FA" nodedef="ND_smoothstep_color4FA">
+    <smoothstep name="N_smoothstep" type="color4">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="low" type="color4" interfacename="low" channels="xxxx" />
+      <input name="high" type="color4" interfacename="high" channels="xxxx" />
+    </smoothstep>
+    <output name="out" type="color4" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector2FA" nodedef="ND_smoothstep_vector2FA">
+    <smoothstep name="N_smoothstep" type="vector2">
+      <input name="in" type="vector2" interfacename="in" />
+      <input name="low" type="vector2" interfacename="low" channels="xx" />
+      <input name="high" type="vector2" interfacename="high" channels="xx" />
+    </smoothstep>
+    <output name="out" type="vector2" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector3FA" nodedef="ND_smoothstep_vector3FA">
+    <smoothstep name="N_smoothstep" type="vector3">
+      <input name="in" type="vector3" interfacename="in" />
+      <input name="low" type="vector3" interfacename="low" channels="xxx" />
+      <input name="high" type="vector3" interfacename="high" channels="xxx" />
+    </smoothstep>
+    <output name="out" type="vector3" nodename="N_smoothstep" />
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector4FA" nodedef="ND_smoothstep_vector4FA">
+    <smoothstep name="N_smoothstep" type="vector4">
+      <input name="in" type="vector4" interfacename="in" />
+      <input name="low" type="vector4" interfacename="low" channels="xxxx" />
+      <input name="high" type="vector4" interfacename="high" channels="xxxx" />
+    </smoothstep>
+    <output name="out" type="vector4" nodename="N_smoothstep" />
+  </nodegraph>
+
+  <!--
+    Node: <safepower>
+    Raise incoming half/float/color/vector values to the "in2" power.
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+  -->
+  <nodegraph name="NG_safepower_float" nodedef="ND_safepower_float">
+    <sign name="sign_in1" type="float">
+      <input name="in" type="float" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="float">
+      <input name="in" type="float" interfacename="in1" />
+    </absval>
+    <power name="power" type="float">
+      <input name="in1" type="float" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="float">
+      <input name="in1" type="float" nodename="sign_in1" />
+      <input name="in2" type="float" nodename="power" />
+    </multiply>
+    <output name="out" type="float" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_color3" nodedef="ND_safepower_color3">
+    <sign name="sign_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1" />
+    </absval>
+    <power name="power" type="color3">
+      <input name="in1" type="color3" nodename="abs_in1" />
+      <input name="in2" type="color3" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="color3">
+      <input name="in1" type="color3" nodename="sign_in1" />
+      <input name="in2" type="color3" nodename="power" />
+    </multiply>
+    <output name="out" type="color3" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_color4" nodedef="ND_safepower_color4">
+    <sign name="sign_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1" />
+    </absval>
+    <power name="power" type="color4">
+      <input name="in1" type="color4" nodename="abs_in1" />
+      <input name="in2" type="color4" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="color4">
+      <input name="in1" type="color4" nodename="sign_in1" />
+      <input name="in2" type="color4" nodename="power" />
+    </multiply>
+    <output name="out" type="color4" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector2" nodedef="ND_safepower_vector2">
+    <sign name="sign_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector2">
+      <input name="in1" type="vector2" nodename="abs_in1" />
+      <input name="in2" type="vector2" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector2">
+      <input name="in1" type="vector2" nodename="sign_in1" />
+      <input name="in2" type="vector2" nodename="power" />
+    </multiply>
+    <output name="out" type="vector2" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector3" nodedef="ND_safepower_vector3">
+    <sign name="sign_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector3">
+      <input name="in1" type="vector3" nodename="abs_in1" />
+      <input name="in2" type="vector3" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector3">
+      <input name="in1" type="vector3" nodename="sign_in1" />
+      <input name="in2" type="vector3" nodename="power" />
+    </multiply>
+    <output name="out" type="vector3" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector4" nodedef="ND_safepower_vector4">
+    <sign name="sign_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector4">
+      <input name="in1" type="vector4" nodename="abs_in1" />
+      <input name="in2" type="vector4" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector4">
+      <input name="in1" type="vector4" nodename="sign_in1" />
+      <input name="in2" type="vector4" nodename="power" />
+    </multiply>
+    <output name="out" type="vector4" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_color3FA" nodedef="ND_safepower_color3FA">
+    <sign name="sign_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="color3">
+      <input name="in" type="color3" interfacename="in1" />
+    </absval>
+    <power name="power" type="color3">
+      <input name="in1" type="color3" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="color3">
+      <input name="in1" type="color3" nodename="sign_in1" />
+      <input name="in2" type="color3" nodename="power" />
+    </multiply>
+    <output name="out" type="color3" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_color4FA" nodedef="ND_safepower_color4FA">
+    <sign name="sign_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="color4">
+      <input name="in" type="color4" interfacename="in1" />
+    </absval>
+    <power name="power" type="color4">
+      <input name="in1" type="color4" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="color4">
+      <input name="in1" type="color4" nodename="sign_in1" />
+      <input name="in2" type="color4" nodename="power" />
+    </multiply>
+    <output name="out" type="color4" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector2FA" nodedef="ND_safepower_vector2FA">
+    <sign name="sign_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector2">
+      <input name="in" type="vector2" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector2">
+      <input name="in1" type="vector2" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector2">
+      <input name="in1" type="vector2" nodename="sign_in1" />
+      <input name="in2" type="vector2" nodename="power" />
+    </multiply>
+    <output name="out" type="vector2" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector3FA" nodedef="ND_safepower_vector3FA">
+    <sign name="sign_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector3">
+      <input name="in" type="vector3" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector3">
+      <input name="in1" type="vector3" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector3">
+      <input name="in1" type="vector3" nodename="sign_in1" />
+      <input name="in2" type="vector3" nodename="power" />
+    </multiply>
+    <output name="out" type="vector3" nodename="safepower" />
+  </nodegraph>
+  <nodegraph name="NG_safepower_vector4FA" nodedef="ND_safepower_vector4FA">
+    <sign name="sign_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1" />
+    </sign>
+    <absval name="abs_in1" type="vector4">
+      <input name="in" type="vector4" interfacename="in1" />
+    </absval>
+    <power name="power" type="vector4">
+      <input name="in1" type="vector4" nodename="abs_in1" />
+      <input name="in2" type="float" interfacename="in2" />
+    </power>
+    <multiply name="safepower" type="vector4">
+      <input name="in1" type="vector4" nodename="sign_in1" />
+      <input name="in2" type="vector4" nodename="power" />
+    </multiply>
+    <output name="out" type="vector4" nodename="safepower" />
+  </nodegraph>
 
   <!--
     Node: <contrast>
@@ -3298,7 +3836,7 @@
   </nodegraph>
 
   <!--
-    Node: <colorcorrect> Supplemental Node
+    Node: <colorcorrect>
     Combines various adjustment nodes into one, artist-friendly color correction node.
   -->
   <nodegraph name="NG_colorcorrect_color3" nodedef="ND_colorcorrect_color3">

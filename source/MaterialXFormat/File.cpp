@@ -51,7 +51,7 @@ const string MATERIALX_SEARCH_PATH_ENV_VAR = "MATERIALX_SEARCH_PATH";
 
 inline bool hasWindowsDriveSpecifier(const string& val)
 {
-    return (val.length() > 1 && std::isalpha(val[0]) && (val[1] == ':'));
+    return (val.length() > 1 && std::isalpha((unsigned char) val[0]) && (val[1] == ':'));
 }
 
 //

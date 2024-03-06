@@ -3,7 +3,9 @@
 Print markdown documentation for each nodedef in the given document.
 '''
 
-import sys, os, argparse
+import argparse
+import sys
+
 import MaterialX as mx
 
 HEADERS = ('Name', 'Type', 'Default Value',

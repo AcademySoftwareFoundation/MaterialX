@@ -11,23 +11,6 @@
      can also be performed depending on the options enabled.
   -->
 
-  <!-- nodedefs for custom test settings -->
-  <nodedef name="ND_BakingSettings" node="baker">
-    <input name="file" type="filename" />
-    <input name="uvmin" type="vector2" />
-    <input name="uvmax" type="vector2" />
-    <input name="hdr" type="boolean" value="false" />
-    <input name="resolution" type="integer" value="1024" />
-  </nodedef>
-
-  <nodedef name="ND_WedgeRenderSettings" node="wedgerender">
-    <input name="file" type="filename" />
-    <input name="parameter" type="string" />
-    <input name="range" type="vector2" value="0.0, 1.0" />
-    <input name="steps" type="integer" value="1.0" />
-  </nodedef>
-
-
   <!-- Render test Suite Options -->
   <nodedef name="TestSuiteOptions">
     <!-- List of comma separated file names acts as a filter to only test documents with these names -->
@@ -91,41 +74,9 @@
     <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
-    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/noise,resources/Materials/TestSuite/pbrlib" />
+    <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib,resources/Materials/TestSuite/nprlib" />
 
     <!-- Enable reference quality rendering. Default is false. -->
     <input name="enableReferenceQuality" type="boolean" value="false" />
-
-    <!-- Wedge rendering options -->
-    <wedgerender name="wedge_conductor">
-      <input name="file" type="filename" value="wedge_conductor.mtlx" />
-      <input name="parameter" type="string" value="test_conductor/roughness1/roughness" />
-      <input name="range" type="vector2" value="0.0, 1.0" />
-      <input name="steps" type="integer" value="4" />
-    </wedgerender>
-
-    <wedgerender name="wedge_conductor_2">
-      <input name="file" type="filename" value="wedge_conductor.mtlx" />
-      <input name="parameter" type="string" value="test_conductor/roughness1/anisotropy" />
-      <input name="range" type="vector2" value="0.3, 0.9" />
-      <input name="steps" type="integer" value="3" />
-    </wedgerender>
-
-    <!-- Bake rendering options: Currently only supports the genglsl_glsl400 shader generator -->
-    <baker name="mapped_surfaceshader">
-      <input name="file" type="filename" value="mapped_surfaceshader.mtlx" />
-      <input name="uvmin" type="vector2" value="0,0" />
-      <input name="uvmax" type="vector2" value="1,1" />
-      <input name="hdr" type="boolean" value="false" />
-      <input name="resolution" type="integer" value="1024" />
-    </baker>
-
-    <baker name="normalmapped_surfaceshader">
-      <input name="file" type="filename" value="normalmapped_surfaceshader.mtlx" />
-      <input name="uvmin" type="vector2" value="0,0" />
-      <input name="uvmax" type="vector2" value="1,1" />
-      <input name="hdr" type="boolean" value="false" />
-      <input name="resolution" type="integer" value="1024" />
-    </baker>
   </nodedef>
 </materialx>

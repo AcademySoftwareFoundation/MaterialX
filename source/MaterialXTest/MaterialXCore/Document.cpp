@@ -23,6 +23,7 @@ TEST_CASE("Document", "[document]")
     constant->setInputValue("value", mx::Color3(0.5f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
+    REQUIRE(output->isColorType());
     REQUIRE(doc->validate());
 
     // Create and test a type mismatch in a connection.

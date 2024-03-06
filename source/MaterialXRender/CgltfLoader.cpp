@@ -59,7 +59,7 @@ void computeMeshMatrices(GLTFMeshMatrixList& meshMatrices, cgltf_node* cnode)
     }
 
     // Iterate over all children. Note that the existence of a mesh
-    // does not imply that this is a leaf node so traversal should 
+    // does not imply that this is a leaf node so traversal should
     // continue even when a mesh is encountered.
     for (cgltf_size i = 0; i < cnode->children_count; i++)
     {
@@ -76,7 +76,7 @@ using GLTFMeshPathList = std::unordered_map<cgltf_mesh*, StringVec>;
 void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath path, size_t nodeCount, size_t meshCount)
 {
     string cnodeName = cnode->name ? string(cnode->name) : DEFAULT_NODE_PREFIX + std::to_string(nodeCount++);
-    path = path / ( createValidName(cnodeName) + "/" );
+    path = path / (createValidName(cnodeName) + "/");
 
     cgltf_mesh* cmesh = cnode->mesh;
     if (cmesh)
@@ -92,7 +92,7 @@ void computeMeshPaths(GLTFMeshPathList& meshPaths, cgltf_node* cnode, FilePath p
     }
 
     // Iterate over all children. Note that the existence of a mesh
-    // does not imply that this is a leaf node so traversal should 
+    // does not imply that this is a leaf node so traversal should
     // continue even when a mesh is encountered.
     for (cgltf_size i = 0; i < cnode->children_count; i++)
     {
@@ -220,11 +220,11 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
         }
 
         // Iterate through all parent transform
-        for (size_t mtx=0; mtx < positionMatrices.size(); mtx++)
+        for (size_t mtx = 0; mtx < positionMatrices.size(); mtx++)
         {
             const Matrix44& positionMatrix = positionMatrices[mtx];
             const Matrix44 normalMatrix = positionMatrix.getInverse().getTranspose();
-            
+
             for (cgltf_size primitiveIndex = 0; primitiveIndex < cmesh->primitives_count; ++primitiveIndex)
             {
                 cgltf_primitive* primitive = &cmesh->primitives[primitiveIndex];
@@ -347,8 +347,7 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                     else
                     {
                         if (_debugLevel > 0)
-                            std::cout << "Unknown stream type: " << std::to_string(attribute->type)
-                            << std::endl;
+                            std::cout << "Unknown stream type: " << std::to_string(attribute->type) << std::endl;
                     }
 
                     // Fill in stream

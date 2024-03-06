@@ -48,7 +48,7 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
         // assuming it ends with a slash ...
         if (outputValue.back() == '/')
         {
-             return getDefaultValue(true);
+            return getDefaultValue(true);
         }
         // ... or the last segment does not have an extension suffix
         size_t idx_s = outputValue.find_last_of('/');
@@ -492,7 +492,7 @@ const std::unordered_map<char, char> CHANNELS_TO_XYZW =
 
 string MdlSyntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
 {
-    if (srcType == Type::COLOR3 || srcType == Type::COLOR4)
+    if (*srcType == *Type::COLOR3 || *srcType == *Type::COLOR4)
     {
         const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
         const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
@@ -523,7 +523,7 @@ string MdlSyntax::getSwizzledVariable(const string& srcName, const TypeDesc* src
             }
 
             string variable = srcName;
-            if (srcType == Type::COLOR3)
+            if (*srcType == *Type::COLOR3)
             {
                 variable = "float3(" + srcName + ")";
             }
@@ -567,7 +567,7 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     }
 
     // Don't convert filenames or arrays.
-    if (type == Type::FILENAME || (type && type->isArray()))
+    if (*type == *Type::FILENAME || (type && type->isArray()))
     {
         return false;
     }

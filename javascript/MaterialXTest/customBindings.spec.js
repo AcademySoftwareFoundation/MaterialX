@@ -2,15 +2,18 @@ import { expect } from 'chai';
 import Module from './_build/JsMaterialXCore.js';
 import { getMtlxStrings } from './testHelpers';
 
-describe('Custom Bindings', () => {
+describe('Custom Bindings', () =>
+{
     const examplesPath = '../../resources/Materials/Examples/StandardSurface';
 
-    let mx; 
-    before(async () => {
+    let mx;
+    before(async () =>
+    {
         mx = await Module();
     });
 
-    it('Optional parameters work as expected', () => {
+    it('Optional parameters work as expected', () =>
+    {
         const doc = mx.createDocument();
         // Call a method without optional argument
         const nodeGraph = doc.addNodeGraph();
@@ -29,7 +32,8 @@ describe('Custom Bindings', () => {
         expect(() => { nodeGraph.addNode(); }).to.throw;
     });
 
-    it('Vector <-> Array conversion', () => {
+    it('Vector <-> Array conversion', () =>
+    {
         // Functions that return vectors in C++ should return an array in JS
         const doc = mx.createDocument();
         const nodeGraph = doc.addNodeGraph();
@@ -66,7 +70,8 @@ describe('Custom Bindings', () => {
         expect(nodes[2].getName()).to.equal('anotherNode'); // Name set explicitly at creation time
     });
 
-    it('C++ exception handling', () => {
+    it('C++ exception handling', () =>
+    {
         // Exceptions that are thrown and caught in C++ shouldn't bubble up to JS
         const doc = mx.createDocument();
         const nodeGraph1 = doc.addNodeGraph();
@@ -79,15 +84,18 @@ describe('Custom Bindings', () => {
         // Exceptions that are not caught in C++ should throw with an exception pointer
         nodeGraph1.addNode('node', 'node1');
         expect(() => { nodeGraph1.addNode('node', 'node1'); }).to.throw;
-        try {
+        try
+        {
             nodeGraph1.addNode('node', 'node1');
-        } catch (errPtr) {
+        } catch (errPtr)
+        {
             expect(errPtr).to.be.a('number');
             expect(mx.getExceptionMessage(errPtr)).to.be.a('string');
         }
     });
 
-    it('getReferencedSourceUris', async () => {
+    it('getReferencedSourceUris', async () =>
+    {
         const doc = mx.createDocument();
         const filename = 'standard_surface_look_brass_tiled.mtlx';
         await mx.readFromXmlFile(doc, filename, examplesPath);
@@ -98,7 +106,8 @@ describe('Custom Bindings', () => {
         expect(sourceUris.includes('standard_surface_brass_tiled.mtlx')).to.be.true;
     });
 
-    it('Should invoke correct instance of \'validate\'', () => {
+    it('Should invoke correct instance of \'validate\'', () =>
+    {
         // We check whether the correct function is called by provoking an error message that is specific to the
         // function that we expect to be called.
         const message = {};
@@ -126,7 +135,8 @@ describe('Custom Bindings', () => {
         expect(message.message).to.include('Unit type definition does not exist in document')
     });
 
-    it('StringResolver name substitution getters', () => {
+    it('StringResolver name substitution getters', () =>
+    {
         const fnTestData = {
             fnKey: 'fnValue',
             fnKey1: 'fnValue1'
@@ -156,7 +166,8 @@ describe('Custom Bindings', () => {
         expect(gnSubs).to.deep.equal(gnTestData);
     });
 
-    it('getShaderNodes', async () => {
+    it('getShaderNodes', async () =>
+    {
         const doc = mx.createDocument();
         const fileNames = ['standard_surface_marble_solid.mtlx'];
         const mtlxStrs = getMtlxStrings(fileNames, examplesPath);
@@ -175,14 +186,16 @@ describe('Custom Bindings', () => {
         expect(shaderNodes.length).to.equal(0);
     });
 
-    it('createValidName', () => {
+    it('createValidName', () =>
+    {
         const testString = '_Note_:Please,turn.this+-into*1#valid\nname for_me';
         const replaceRegex = /[^a-zA-Z0-9_:]/g
         expect(mx.createValidName(testString)).to.equal(testString.replace(replaceRegex, '_'));
         expect(mx.createValidName(testString, '-')).to.equal(testString.replace(replaceRegex, '-'));
     });
 
-    it('getVersionIntegers', () => {
+    it('getVersionIntegers', () =>
+    {
         const versionStringArr = mx.getVersionString().split('.').map((value) => parseInt(value, 10));
 
         // Global getVersionIntegers

@@ -1,13 +1,16 @@
 import { expect } from 'chai';;
 import Module from './_build/JsMaterialXCore.js';
 
-describe('Environ', () => {
+describe('Environ', () =>
+{
     let mx;
-    before(async () => {
+    before(async () =>
+    {
         mx = await Module();
     });
 
-    it('Environment variables', () => {
+    it('Environment variables', () =>
+    {
         expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('');
         mx.setEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR, 'test');
         expect(mx.getEnviron(mx.MATERIALX_SEARCH_PATH_ENV_VAR)).to.equal('test');

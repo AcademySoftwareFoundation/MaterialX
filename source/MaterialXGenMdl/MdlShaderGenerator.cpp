@@ -26,13 +26,12 @@
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
+#include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-
-const string MDL_VERSION = "1.6";
 
 const vector<string> DEFAULT_IMPORTS =
 {
@@ -42,16 +41,30 @@ const vector<string> DEFAULT_IMPORTS =
     "import ::state::*",
     "import ::anno::*",
     "import ::tex::*",
-    "import ::mx::swizzle::*",
-    "using ::mx::core import *",
-    "using ::mx::stdlib import *",
-    "using ::mx::pbrlib import *",
-    "using ::mx::sampling import *",
+    "import ::materialx::swizzle::*",
+    "using ::materialx::core import *",
+    "using ::materialx::sampling import *",
 };
+
+const vector<string> DEFAULT_VERSIONED_IMPORTS = {
+    "using ::materialx::stdlib_",
+    "using ::materialx::pbrlib_",
+};
+
+const string IMPORT_ALL = " import *";
+
+
+const string MDL_VERSION_1_6 = "1.6";
+const string MDL_VERSION_1_7 = "1.7";
+const string MDL_VERSION_1_8 = "1.8";
+const string MDL_VERSION_SUFFIX_1_6 = "1_6";
+const string MDL_VERSION_SUFFIX_1_7 = "1_7";
+const string MDL_VERSION_SUFFIX_1_8 = "1_8";
 
 } // anonymous namespace
 
 const string MdlShaderGenerator::TARGET = "genmdl";
+const string GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY = "genmdloptions";
 
 const std::unordered_map<string, string> MdlShaderGenerator::GEOMPROP_DEFINITIONS =
 {
@@ -214,15 +227,20 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     ShaderStage& stage = shader->getStage(Stage::PIXEL);
 
     // Emit version
-    emitLine("mdl " + MDL_VERSION, stage);
+    emitMdlVersionNumber(context, stage);
     emitLineBreak(stage);
-
-    emitLine("using mx = materialx", stage);
 
     // Emit module imports
     for (const string& module : DEFAULT_IMPORTS)
     {
         emitLine(module, stage);
+    }
+    for (const string& module : DEFAULT_VERSIONED_IMPORTS)
+    {
+        emitString(module, stage);
+        emitMdlVersionFilenameSuffix(context, stage);
+        emitString(IMPORT_ALL, stage);
+        emitLineEnd(stage, true);
     }
 
     // Add global constants and type definitions
@@ -244,7 +262,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     emitScopeBegin(stage, Syntax::PARENTHESES);
 
     // Emit shader inputs
-    emitShaderInputs(stage.getInputBlock(MDL::INPUTS), stage);
+    emitShaderInputs(element->getDocument(), stage.getInputBlock(MDL::INPUTS), stage);
 
     // End shader signature
     emitScopeEnd(stage);
@@ -287,13 +305,13 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const TypeDesc* outputType = outputSocket->getType();
     if (graph.hasClassification(ShaderNode::Classification::TEXTURE))
     {
-        if (outputType == Type::DISPLACEMENTSHADER)
+        if (*outputType == *Type::DISPLACEMENTSHADER)
         {
             emitLine("float3 displacement__ = " + result + ".geometry.displacement", stage);
             emitLine("color finalOutput__ = mk_color3("
-                "r: math::dot(displacement__, state::texture_tangent_u(0)),"
-                "g: math::dot(displacement__, state::texture_tangent_v(0)),"
-                "b: math::dot(displacement__, state::normal()))", stage);
+                     "r: math::dot(displacement__, state::texture_tangent_u(0)),"
+                     "g: math::dot(displacement__, state::texture_tangent_v(0)),"
+                     "b: math::dot(displacement__, state::normal()))", stage);
         }
         else
         {
@@ -660,14 +678,32 @@ ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr elemen
     return shader;
 }
 
-void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const
+namespace
+{
+
+void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc, const ShaderPort* variable, ShaderStage& stage)
+{
+    // allows to relate between MaterialX and MDL parameters when looking at the MDL code.
+    const std::string mtlxParameterPathAnno = "materialx::core::origin(\"" + variable->getPath() + "\")";
+
+    _this.emitLineEnd(stage, false);
+    _this.emitLine("[[", stage, false);
+    _this.emitLine("\t" + mtlxParameterPathAnno, stage, false);
+    _this.emitLineBegin(stage);
+    _this.emitString("]]", stage); // line ending follows by caller
+}
+
+} // anonymous namespace
+
+
+void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         const ShaderPort* input = inputs[i];
 
-        const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
+        const string& qualifier = input->isUniform() || *input->getType() == *Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = _syntax->getTypeName(input->getType());
 
         string value = input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;
@@ -687,6 +723,7 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         emitLineBegin(stage);
         emitString(qualifier + type + " " + input->getVariable() + " = " + value, stage);
+        emitInputAnnotations(*this, doc, input, stage);
 
         if (i < inputs.size() - 1)
         {
@@ -695,6 +732,55 @@ void MdlShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
 
         emitLineEnd(stage, false);
     }
+}
+
+
+void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const
+{
+    GenMdlOptionsPtr options = context.getUserData<GenMdlOptions>(GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY);
+    GenMdlOptions::MdlVersion version = options ? options->targetVersion : GenMdlOptions::MdlVersion::MDL_LATEST;
+
+    emitLineBegin(stage);
+    emitString("mdl ", stage);
+    switch (version)
+    {
+        case GenMdlOptions::MdlVersion::MDL_1_6:
+            emitString(MDL_VERSION_1_6, stage);
+            break;
+        case GenMdlOptions::MdlVersion::MDL_1_7:
+            emitString(MDL_VERSION_1_7, stage);
+            break;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_8
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            emitString(MDL_VERSION_1_8, stage);
+            break;
+    }
+    emitLineEnd(stage, true);
+}
+
+const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& context) const
+{
+    GenMdlOptionsPtr options = context.getUserData<GenMdlOptions>(GenMdlOptions::GEN_CONTEXT_USER_DATA_KEY);
+    GenMdlOptions::MdlVersion version = options ? options->targetVersion : GenMdlOptions::MdlVersion::MDL_LATEST;
+
+    switch (version)
+    {
+        case GenMdlOptions::MdlVersion::MDL_1_6:
+            return MDL_VERSION_SUFFIX_1_6;
+        case GenMdlOptions::MdlVersion::MDL_1_7:
+            return MDL_VERSION_SUFFIX_1_7;
+        default:
+            // GenMdlOptions::MdlVersion::MDL_1_8
+            // GenMdlOptions::MdlVersion::MDL_LATEST
+            return MDL_VERSION_SUFFIX_1_8;
+    }
+}
+
+
+void MdlShaderGenerator::emitMdlVersionFilenameSuffix(GenContext& context, ShaderStage& stage) const
+{
+    emitString(getMdlVersionFilenameSuffix(context), stage);
 }
 
 namespace MDL

@@ -32,7 +32,7 @@ void MslResourceBindingContext::emitDirectives(GenContext&, ShaderStage&)
 
 void MslResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     // First, emit all value uniforms in a block with single layout binding
     bool hasValueUniforms = false;
@@ -69,7 +69,7 @@ void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& conte
                                                                ShaderStage& stage, const std::string& structInstanceName,
                                                                const std::string& arraySuffix)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     const size_t baseAlignment = 16;
     // Values are adjusted based on

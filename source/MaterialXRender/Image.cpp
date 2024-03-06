@@ -112,11 +112,13 @@ unsigned int Image::getBaseStride() const
         return 4;
     }
     if (_baseType == BaseType::HALF ||
-        _baseType == BaseType::UINT16)
+        _baseType == BaseType::UINT16 ||
+        _baseType == BaseType::INT16)
     {
         return 2;
     }
-    if (_baseType == BaseType::UINT8)
+    if (_baseType == BaseType::UINT8 ||
+        _baseType == BaseType::INT8)
     {
         return 1;
     }
@@ -164,12 +166,28 @@ void Image::setTexelColor(unsigned int x, unsigned int y, const Color4& color)
             data[c] = (uint16_t) std::round(color[c] * (float) std::numeric_limits<uint16_t>::max());
         }
     }
+    else if (_baseType == BaseType::INT16)
+    {
+        int16_t* data = static_cast<int16_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = (int16_t) std::round(color[c] * (float) std::numeric_limits<int16_t>::max());
+        }
+    }
     else if (_baseType == BaseType::UINT8)
     {
         uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
         for (unsigned int c = 0; c < writeChannels; c++)
         {
             data[c] = (uint8_t) std::round(color[c] * (float) std::numeric_limits<uint8_t>::max());
+        }
+    }
+    else if (_baseType == BaseType::INT8)
+    {
+        int8_t* data = static_cast<int8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        for (unsigned int c = 0; c < writeChannels; c++)
+        {
+            data[c] = (int8_t) std::round(color[c] * (float) std::numeric_limits<int8_t>::max());
         }
     }
     else
@@ -263,10 +281,62 @@ Color4 Image::getTexelColor(unsigned int x, unsigned int y) const
             throw Exception("Unsupported channel count in getTexelColor");
         }
     }
+    else if (_baseType == BaseType::INT16)
+    {
+        int16_t* data = static_cast<int16_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        const float MAX_VALUE = (float) std::numeric_limits<int16_t>::max();
+        if (_channelCount == 4)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, data[3] / MAX_VALUE);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, 1.0f);
+        }
+        else if (_channelCount == 2)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, 0.0f, 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            float scalar = data[0] / MAX_VALUE;
+            return Color4(scalar, scalar, scalar, 1.0f);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in getTexelColor");
+        }
+    }
     else if (_baseType == BaseType::UINT8)
     {
         uint8_t* data = static_cast<uint8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
         const float MAX_VALUE = (float) std::numeric_limits<uint8_t>::max();
+        if (_channelCount == 4)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, data[3] / MAX_VALUE);
+        }
+        else if (_channelCount == 3)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, 1.0f);
+        }
+        else if (_channelCount == 2)
+        {
+            return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, 0.0f, 1.0f);
+        }
+        else if (_channelCount == 1)
+        {
+            float scalar = data[0] / MAX_VALUE;
+            return Color4(scalar, scalar, scalar, 1.0f);
+        }
+        else
+        {
+            throw Exception("Unsupported channel count in getTexelColor");
+        }
+    }
+    else if (_baseType == BaseType::INT8)
+    {
+        int8_t* data = static_cast<int8_t*>(_resourceBuffer) + (y * _width + x) * _channelCount;
+        const float MAX_VALUE = (float) std::numeric_limits<int8_t>::max();
         if (_channelCount == 4)
         {
             return Color4(data[0] / MAX_VALUE, data[1] / MAX_VALUE, data[2] / MAX_VALUE, data[3] / MAX_VALUE);

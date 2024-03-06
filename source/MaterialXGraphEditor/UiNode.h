@@ -101,7 +101,7 @@ class UiPin
         {
             if (_connections[i]->_pinId == pin->_pinId)
             {
-                _connections.erase(_connections.begin()+i);
+                _connections.erase(_connections.begin() + i);
             }
         }
         for (size_t i = 0; i < pin->_connections.size(); i++)

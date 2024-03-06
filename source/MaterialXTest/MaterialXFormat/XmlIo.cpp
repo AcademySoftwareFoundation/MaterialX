@@ -6,7 +6,6 @@
 #include <MaterialXTest/External/Catch/catch.hpp>
 
 #include <MaterialXFormat/Environ.h>
-#include <MaterialXFormat/File.h>
 #include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
@@ -260,6 +259,51 @@ TEST_CASE("Comments and newlines", "[xmlio]")
 
     // Verify that the XML string buffers are identical.
     REQUIRE(origXml == newXml);
+}
+
+TEST_CASE("Fuzz testing", "[xmlio]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::FilePath examplesPath = searchPath.find("resources/Materials/Examples/StandardSurface");
+
+    std::mt19937 rng(0);
+    std::uniform_int_distribution<size_t> randChar(0, 255);
+
+    for (const mx::FilePath& filename : examplesPath.getFilesInDirectory(mx::MTLX_EXTENSION))
+    {
+        // Read the example file into an XML string buffer.
+        const std::string origString = mx::readFile(examplesPath / filename);
+        REQUIRE(origString.size() > 0);
+        std::uniform_int_distribution<size_t> randPos(0, origString.size() - 1);
+
+        // Iterate over test runs.
+        for (size_t testRun = 0; testRun < 256; testRun++)
+        {
+            std::string editString = origString;
+
+            // Iterate over string edits.
+            for (size_t editIndex = 0; editIndex < 32; editIndex++)
+            {
+                // Randomly alter one character in the document.
+                size_t charIndex = randPos(rng);
+                size_t newChar = randChar(rng);
+                editString[charIndex] = (char) newChar;
+
+                // Attempt to interpret the edited string as a document, allowing only MaterialX exceptions.
+                mx::DocumentPtr doc = mx::createDocument();
+                try
+                {
+                    mx::readFromXmlString(doc, editString, searchPath);
+                    doc->validate();
+                }
+                catch (const mx::Exception&)
+                {
+                    // On a MaterialX exception, proceed to the next test run.
+                    break;
+                }
+            }
+        }
+    }
 }
 
 TEST_CASE("Locale region testing", "[xmlio]")

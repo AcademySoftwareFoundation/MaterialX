@@ -59,13 +59,13 @@ void ClosureAddNode::emitFunctionCall(const ShaderNode& _node, GenContext& conte
         const string in2Result = shadergen.getUpstreamResult(in2, context);
 
         ShaderOutput* output = node.getOutput();
-        if (output->getType() == Type::BSDF)
+        if (*output->getType() == *Type::BSDF)
         {
             emitOutputVariables(node, context, stage);
             shadergen.emitLine(output->getVariable() + ".response = " + in1Result + ".response + " + in2Result + ".response", stage);
             shadergen.emitLine(output->getVariable() + ".throughput = " + in1Result + ".throughput * " + in2Result + ".throughput", stage);
         }
-        else if (output->getType() == Type::EDF)
+        else if (*output->getType() == *Type::EDF)
         {
             shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = " + in1Result + " + " + in2Result, stage);
         }

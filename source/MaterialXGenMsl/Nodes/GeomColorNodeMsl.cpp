@@ -49,11 +49,11 @@ void GeomColorNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& cont
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
     {
         string suffix = "";
-        if (output->getType() == Type::FLOAT)
+        if (*output->getType() == *Type::FLOAT)
         {
             suffix = ".r";
         }
-        else if (output->getType() == Type::COLOR3)
+        else if (*output->getType() == *Type::COLOR3)
         {
             suffix = ".rgb";
         }

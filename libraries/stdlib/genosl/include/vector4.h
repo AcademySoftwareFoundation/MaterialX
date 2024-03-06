@@ -160,6 +160,14 @@ vector4 ceil(vector4 in)
                     ceil(in.w));
 }
 
+vector4 round(vector4 in)
+{
+    return vector4 (round(in.x),
+                    round(in.y),
+                    round(in.z),
+                    round(in.w));
+}
+
 vector4 floor(vector4 in)
 {
     return vector4 (floor(in.x),

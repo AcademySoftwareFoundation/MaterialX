@@ -24,7 +24,7 @@
     <input name="surfaceshader" type="surfaceshader" nodename="SR_test_tiledcloverleafs" />
   </surfacematerial>
 
- <tiledhexagons name="tiledhexagons_color3" type="color3">
+  <tiledhexagons name="tiledhexagons_color3" type="color3">
     <input name="uvtiling" type="vector2" value="29, 29" />
     <input name="size" type="float" value="0.7" />
   </tiledhexagons>

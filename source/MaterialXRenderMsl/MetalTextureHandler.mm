@@ -128,7 +128,7 @@ bool MetalTextureHandler::unbindImage(ImagePtr image)
     return false;
 }
 
-bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps)
+bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMipMaps, bool useAsRenderTarget)
 {
     id<MTLTexture> texture = nil;
     
@@ -149,9 +149,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.height = image->getHeight();
         texDesc.mipmapLevelCount = generateMipMaps ? image->getMaxMipCount() : 1;
         texDesc.usage = MTLTextureUsageShaderRead |
-            // For now, we set generate mip maps flag off,
-            // when we want to use the texture as render target
-            (!generateMipMaps ? MTLTextureUsageRenderTarget : 0);
+                    (useAsRenderTarget ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
         texDesc.pixelFormat = pixelFormat;
         if(generateMipMaps)

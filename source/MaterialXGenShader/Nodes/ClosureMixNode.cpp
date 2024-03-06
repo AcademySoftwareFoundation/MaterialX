@@ -61,13 +61,13 @@ void ClosureMixNode::emitFunctionCall(const ShaderNode& _node, GenContext& conte
         const string mixResult = shadergen.getUpstreamResult(mix, context);
 
         ShaderOutput* output = node.getOutput();
-        if (output->getType() == Type::BSDF)
+        if (*output->getType() == *Type::BSDF)
         {
             emitOutputVariables(node, context, stage);
             shadergen.emitLine(output->getVariable() + ".response = mix(" + bgResult + ".response, " + fgResult + ".response, " + mixResult + ")", stage);
             shadergen.emitLine(output->getVariable() + ".throughput = mix(" + bgResult + ".throughput, " + fgResult + ".throughput, " + mixResult + ")", stage);
         }
-        else if (output->getType() == Type::EDF)
+        else if (*output->getType() == *Type::EDF)
         {
             shadergen.emitLine(shadergen.getSyntax().getTypeName(Type::EDF) + " " + output->getVariable() + " = mix(" + bgResult + ", " + fgResult + ", " + mixResult + ")", stage);
         }

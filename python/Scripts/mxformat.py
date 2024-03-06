@@ -4,7 +4,9 @@ Reformat a folder of MaterialX documents in place, optionally upgrading
 the documents to the latest version of the standard.
 '''
 
-import sys, os, argparse
+import argparse
+import os
+
 import MaterialX as mx
 
 def main():

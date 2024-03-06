@@ -121,7 +121,7 @@ class MX_RENDER_API GeometryHandler
     static MeshPtr createQuadMesh(const Vector2& uvMin = Vector2(0.0f, 0.0f),
                                   const Vector2& uvMax = Vector2(1.0f, 1.0f),
                                   bool flipTexCoordsHorizontally = false);
-    
+
   protected:
     // Recompute bounds for all stored geometry
     void computeBounds();

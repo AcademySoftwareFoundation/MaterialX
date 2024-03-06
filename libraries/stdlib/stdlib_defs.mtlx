@@ -1915,6 +1915,39 @@
   </nodedef>
 
   <!--
+    Node: <round>
+    Round incoming float/color/vector values.
+  -->
+  <nodedef name="ND_round_float" node="round" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="float" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_color3" node="round" nodegroup="math">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_color4" node="round" nodegroup="math">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector2" node="round" nodegroup="math">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector2" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector3" node="round" nodegroup="math">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_vector4" node="round" nodegroup="math">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" defaultinput="in" />
+  </nodedef>
+  <nodedef name="ND_round_integer" node="round" nodegroup="math">
+    <input name="in" type="float" value="0.0" />
+    <output name="out" type="integer" defaultinput="in" />
+  </nodedef>
+
+  <!--
     Node: <power>
     Raise incoming float/color/vector values to the "in2" power.
   -->
@@ -1969,6 +2002,67 @@
     <output name="out" type="vector3" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_power_vector4FA" node="power" nodegroup="math">
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <safepower>
+    Raise incoming float/color/vector values to the "in2" power.
+    Negative "in1" values will result in negative output values. ie. out = sign(in1)*pow(abs(in1),in2)
+  -->
+  <nodedef name="ND_safepower_float" node="safepower" nodegroup="math">
+    <input name="in1" type="float" value="0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color3" node="safepower" nodegroup="math">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="color3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color4" node="safepower" nodegroup="math">
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+    <output name="out" type="color4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector2" node="safepower" nodegroup="math">
+    <input name="in1" type="vector2" value="0.0, 0.0" />
+    <input name="in2" type="vector2" value="1.0, 1.0" />
+    <output name="out" type="vector2" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector3" node="safepower" nodegroup="math">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
+    <output name="out" type="vector3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector4" node="safepower" nodegroup="math">
+    <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
+    <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color3FA" node="safepower" nodegroup="math">
+    <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="color3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_color4FA" node="safepower" nodegroup="math">
+    <input name="in1" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="color4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector2FA" node="safepower" nodegroup="math">
+    <input name="in1" type="vector2" value="0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector2" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector3FA" node="safepower" nodegroup="math">
+    <input name="in1" type="vector3" value="0.0, 0.0, 0.0" />
+    <input name="in2" type="float" value="1.0" />
+    <output name="out" type="vector3" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_safepower_vector4FA" node="safepower" nodegroup="math">
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="float" value="1.0" />
     <output name="out" type="vector4" defaultinput="in1" />
@@ -2505,6 +2599,14 @@
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
     <output name="out" type="vector3" defaultinput="normal" />
   </nodedef>
+  <nodedef name="ND_normalmap_vector2" node="normalmap" nodegroup="math">
+    <input name="in" type="vector3" value="0.5, 0.5, 1.0" />
+    <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" />
+    <input name="scale" type="vector2" value="1.0, 1.0" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <output name="out" type="vector3" defaultinput="normal" />
+  </nodedef>
 
   <!--
     Node: <transpose>
@@ -2679,6 +2781,28 @@
   <nodedef name="ND_trianglewave_float" node="trianglewave" nodegroup="math">
     <input name="in" type="float" value="0" />
     <output name="out" type="float" />
+  </nodedef>
+
+  <!--
+    Node: <reflect>
+    Compute the reflection vector given an incident vector and unit surface normal.
+  -->
+  <nodedef name="ND_reflect_vector3" node="reflect" nodegroup="math" doc="Compute the reflection vector">
+    <input name="in" type="vector3" value="1.0, 0.0, 0.0" doc="Incident vector" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" />
+    <output name="out" type="vector3" />
+  </nodedef>
+
+  <!--
+    Node: <refract>
+    Compute the refraction vector given an incident vector, unit surface normal,
+    and index of refraction.
+  -->
+  <nodedef name="ND_refract_vector3" node="refract" nodegroup="math" doc="Compute the refraction vector">
+    <input name="in" type="vector3" value="1.0, 0.0, 0.0" doc="Incident vector" />
+    <input name="normal" type="vector3" defaultgeomprop="Nworld" doc="Surface normal" />
+    <input name="ior" type="float" value="1.0" doc="Index of refraction" />
+    <output name="out" type="vector3" />
   </nodedef>
 
   <!-- ======================================================================== -->
@@ -4357,6 +4481,33 @@
     <input name="in3" type="float" value="0.0" />
     <input name="in4" type="float" value="0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <!--
+    Node <creatematrix>
+    Combine the the three vectors3 from stream into a matrix 33.
+  -->
+  <nodedef name="ND_creatematrix_vector3_matrix33" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <output name="out" type="matrix33" default="1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector3_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector3" value="1.0, 0.0, 0.0" />
+    <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
+    <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
+    <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
+    <input name="in1" type="vector4" value="1.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" />
+    <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" />
+    <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
   </nodedef>
 
   <!--

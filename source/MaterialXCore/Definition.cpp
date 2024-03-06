@@ -84,7 +84,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
             }
         }
     }
-    
+
     // Then search for a generic match.
     for (InterfaceElementPtr interface : interfaces)
     {

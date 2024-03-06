@@ -3,9 +3,11 @@
 Generate MDL implementation directory based on MaterialX nodedefs
 '''
 
-import sys
 import os
-import string; os.environ['PYTHONIOENCODING'] = 'utf-8'
+import sys
+
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 import MaterialX as mx
 
 def usage():
@@ -345,7 +347,7 @@ def main():
 
     doc = mx.createDocument()
     searchPath = os.path.join(_startPath, 'libraries')
-    libraryPath = os.path.join(searchPath, 'stdlib')
+    libraryPath = os.path.join(searchPath, LIBRARY)
     _loadLibraries(doc, searchPath, libraryPath)
 
     DEFINITION_PREFIX = 'ND_'
@@ -522,7 +524,7 @@ def main():
             if isinstance(elem, mx.Output):
                 outputValue = elem.getAttribute('default')
                 if outputValue == '[]':
-                    outputvalue = ''
+                    outputValue = ''
                 if not outputValue:
                     outputValue = elem.getAttribute('defaultinput')
                     if outputValue:
@@ -640,6 +642,9 @@ def main():
                     _writeOneArgumentFunc(file, outputType, '::math::abs')
                     wroteImplementation = True
                 elif nodeCategory == 'ceil':
+                    _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)
+                    wroteImplementation = True
+                elif nodeCategory == 'round':
                     _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)
                     wroteImplementation = True
                 elif nodeCategory == 'floor':

@@ -151,6 +151,11 @@ vector2 ceil(vector2 a)
     return vector2 (ceil(a.x), ceil(a.y));
 }
 
+vector2 round(vector2 a)
+{
+    return vector2 (round(a.x), round(a.y));
+}
+
 vector2 floor(vector2 a)
 {
     return vector2 (floor(a.x), floor(a.y));

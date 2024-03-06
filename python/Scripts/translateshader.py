@@ -5,15 +5,13 @@ and the TextureBaker class in the MaterialXRenderGlsl library.
 '''
 
 import sys, os, argparse
-import MaterialX as mx
-
 from sys import platform
+
+import MaterialX as mx
 from MaterialX import PyMaterialXGenShader as mx_gen_shader
-from MaterialX import PyMaterialXGenGlsl as ms_gen_glsl
 from MaterialX import PyMaterialXRender as mx_render
 from MaterialX import PyMaterialXRenderGlsl as mx_render_glsl
 if platform == "darwin":
-    from MaterialX import PyMaterialXGenMsl as ms_gen_msl
     from MaterialX import PyMaterialXRenderMsl as mx_render_msl
 
 def main():

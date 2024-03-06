@@ -24,7 +24,7 @@ const std::tuple<int, int, int> LIBRARY_VERSION_TUPLE(MATERIALX_MAJOR_VERSION,
 
 bool invalidNameChar(char c)
 {
-    return !isalnum(c) && c != '_' && c != ':';
+    return !isalnum((unsigned char) c) && c != '_' && c != ':';
 }
 
 } // anonymous namespace

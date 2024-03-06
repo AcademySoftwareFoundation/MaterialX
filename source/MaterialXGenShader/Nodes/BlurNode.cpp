@@ -49,7 +49,7 @@ void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const st
 bool BlurNode::acceptsInputType(const TypeDesc* type) const
 {
     // Float 1-4 is acceptable as input
-    return ((type == Type::FLOAT && type->isScalar()) ||
+    return ((*type == *Type::FLOAT && type->isScalar()) ||
             type->isFloat2() || type->isFloat3() || type->isFloat4());
 }
 

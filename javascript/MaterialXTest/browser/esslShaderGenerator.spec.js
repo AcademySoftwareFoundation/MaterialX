@@ -1,6 +1,6 @@
 // MaterialX is served through a script tag in the test setup.
 
-function createStandardSurfaceMaterial(mx) 
+function createStandardSurfaceMaterial(mx)
 {
     const doc = mx.createDocument();
     const ssName = 'SR_default';
@@ -15,19 +15,21 @@ function createStandardSurfaceMaterial(mx)
     return doc;
 }
 
-describe('Generate ESSL Shaders', function () 
+describe('Generate ESSL Shaders', function ()
 {
     let mx;
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2');
-    
+
     this.timeout(60000);
 
-    before(async function () {
+    before(async function ()
+    {
         mx = await MaterialX();
     });
 
-    it('Compile Shaders', () => {
+    it('Compile Shaders', () =>
+    {
         const doc = createStandardSurfaceMaterial(mx);
 
         const gen = new mx.EsslShaderGenerator();
@@ -37,7 +39,7 @@ describe('Generate ESSL Shaders', function ()
         doc.importLibrary(stdlib);
 
         const elem = mx.findRenderableElement(doc);
-        try 
+        try
         {
             const mxShader = gen.generate(elem.getNamePath(), elem, genContext);
 
@@ -47,7 +49,7 @@ describe('Generate ESSL Shaders', function ()
             const glVertexShader = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(glVertexShader, vShader);
             gl.compileShader(glVertexShader);
-            if (!gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS)) 
+            if (!gl.getShaderParameter(glVertexShader, gl.COMPILE_STATUS))
             {
                 console.error("-------- VERTEX SHADER FAILED TO COMPILE: ----------------");
                 console.error("--- VERTEX SHADER LOG ---");
@@ -61,7 +63,7 @@ describe('Generate ESSL Shaders', function ()
             const glPixelShader = gl.createShader(gl.FRAGMENT_SHADER);
             gl.shaderSource(glPixelShader, fShader);
             gl.compileShader(glPixelShader);
-            if (!gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS)) 
+            if (!gl.getShaderParameter(glPixelShader, gl.COMPILE_STATUS))
             {
                 console.error("-------- PIXEL SHADER FAILED TO COMPILE: ----------------");
                 console.error("--- PIXEL SHADER LOG ---");
@@ -75,7 +77,7 @@ describe('Generate ESSL Shaders', function ()
         catch (errPtr)
         {
             console.error("-------- Failed code generation: ----------------");
-            console.error(mx.getExceptionMessage(errPtr));   
+            console.error(mx.getExceptionMessage(errPtr));
         }
     });
 });
