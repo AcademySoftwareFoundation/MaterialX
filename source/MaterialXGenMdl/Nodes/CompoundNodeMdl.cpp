@@ -34,7 +34,7 @@ void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& co
     // Materials can not be members of structs. Identify this case in order to handle it.
     for (const ShaderGraphOutputSocket* output : _rootGraph->getOutputSockets())
     {
-        if (output->getType()->getSemantic() == TypeDesc::SEMANTIC_SHADER)
+        if (output->getType().getSemantic() == TypeDesc::SEMANTIC_SHADER)
         {
             _unrollReturnStructMembers = true;
         }
@@ -233,7 +233,7 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
     int count = int(_rootGraph->numInputSockets());
     for (ShaderGraphInputSocket* input : _rootGraph->getInputSockets())
     {
-        const string& qualifier = input->isUniform() || *input->getType() == *Type::FILENAME ? uniformPrefix : EMPTY_STRING;
+        const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = syntax.getTypeName(input->getType());
 
         string value = input->getValue() ? syntax.getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;

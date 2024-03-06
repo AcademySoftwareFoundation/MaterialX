@@ -17,7 +17,7 @@ ShaderNodeImplPtr BlurNodeMdl::create()
     return std::make_shared<BlurNodeMdl>();
 }
 
-void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
+void BlurNodeMdl::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, TypeDesc inputType,
                                     const string& sampleName, const StringVec& sampleStrings) const
 {
     const Syntax& syntax = shadergen.getSyntax();
@@ -149,7 +149,7 @@ void BlurNodeMdl::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             shadergen.emitString(" = ", stage);
             shadergen.emitInput(filterTypeInput, context, stage);
             // Remap enumeration for comparison as needed
-            std::pair<const TypeDesc*, ValuePtr> result;
+            std::pair<TypeDesc, ValuePtr> result;
             string emitValue = "\"" + GAUSSIAN_FILTER + "\"";
             if (syntax.remapEnumeration(GAUSSIAN_FILTER, Type::STRING, FILTER_LIST, result))
             {

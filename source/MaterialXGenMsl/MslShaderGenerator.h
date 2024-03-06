@@ -108,7 +108,8 @@ class MX_GENMSL_API MslShaderGenerator : public HwShaderGenerator
     /// Emit function definitions for lighting code
     virtual void emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const;
 
-    static void toVec4(const TypeDesc* type, string& variable);
+    static void toVec4(TypeDesc type, string& variable);
+    [[deprecated]] static void toVec4(const TypeDesc* type, string& variable) { toVec4(*type, variable); }
 
     /// Nodes used internally for light sampling.
     vector<ShaderNodePtr> _lightSamplingNodes;

@@ -40,9 +40,9 @@ using ShaderInputVec = vector<ShaderInput*>;
 struct MX_GENSHADER_API ShaderMetadata
 {
     string name;
-    const TypeDesc* type;
+    TypeDesc type;
     ValuePtr value;
-    ShaderMetadata(const string& n, const TypeDesc* t, ValuePtr v = nullptr) :
+    ShaderMetadata(const string& n, TypeDesc t, ValuePtr v = nullptr) :
         name(n),
         type(t),
         value(v)
@@ -63,7 +63,7 @@ class MX_GENSHADER_API ShaderMetadataRegistry : public GenUserData
     /// Add a new metadata entry to the registry.
     /// The entry contains the name and data type
     /// for the metadata.
-    void addMetadata(const string& name, const TypeDesc* type, ValuePtr value = nullptr)
+    void addMetadata(const string& name, TypeDesc type, ValuePtr value = nullptr)
     {
         if (_entryIndex.count(name) == 0)
         {
@@ -123,7 +123,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 {
   public:
     /// Constructor.
-    ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value = nullptr);
+    ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value = nullptr);
 
     /// Return a shared pointer instance of this object.
     ShaderPortPtr getSelf()
@@ -138,10 +138,10 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
     const ShaderNode* getNode() const { return _node; }
 
     /// Set the data type for this port.
-    void setType(const TypeDesc* type) { _type = type; }
+    void setType(TypeDesc type) { _type = type; }
 
     /// Return the data type for this port.
-    const TypeDesc* getType() const { return _type; }
+    TypeDesc getType() const { return _type; }
 
     /// Set the name of this port.
     void setName(const string& name) { _name = name; }
@@ -245,7 +245,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 
   protected:
     ShaderNode* _node;
-    const TypeDesc* _type;
+    TypeDesc _type;
     string _name;
     string _path;
     string _semantic;
@@ -263,7 +263,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 class MX_GENSHADER_API ShaderInput : public ShaderPort
 {
   public:
-    ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name);
+    ShaderInput(ShaderNode* node, TypeDesc type, const string& name);
 
     /// Return a connection to an upstream node output,
     /// or nullptr if not connected.
@@ -300,7 +300,7 @@ class MX_GENSHADER_API ShaderInput : public ShaderPort
 class MX_GENSHADER_API ShaderOutput : public ShaderPort
 {
   public:
-    ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name);
+    ShaderOutput(ShaderNode* node, TypeDesc type, const string& name);
 
     /// Return a set of connections to downstream node inputs,
     /// empty if not connected.
@@ -443,8 +443,8 @@ class MX_GENSHADER_API ShaderNode
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
 
     /// Add inputs/outputs
-    ShaderInput* addInput(const string& name, const TypeDesc* type);
-    ShaderOutput* addOutput(const string& name, const TypeDesc* type);
+    ShaderInput* addInput(const string& name, TypeDesc type);
+    ShaderOutput* addOutput(const string& name, TypeDesc type);
 
     /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }

@@ -35,7 +35,7 @@ void ClosureLayerNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& 
     //
     // 1. Handle the BSDF-over-VDF case
     //
-    if (*baseInput->getType() == *Type::VDF)
+    if (baseInput->getType() == Type::VDF)
     {
         // Make sure we have a top BSDF connected.
         if (!topInput->getConnection())

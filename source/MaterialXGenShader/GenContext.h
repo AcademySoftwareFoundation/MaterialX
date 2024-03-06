@@ -250,7 +250,7 @@ class MX_GENSHADER_API ClosureContext
     /// An extra argument for closure functions.
     /// An argument is a pair of strings holding the
     /// 'type' and 'name' of the argument.
-    using Argument = std::pair<const TypeDesc*, string>;
+    using Argument = std::pair<TypeDesc, string>;
     /// An array of arguments
     using Arguments = vector<Argument>;
 
@@ -265,30 +265,34 @@ class MX_GENSHADER_API ClosureContext
     int getType() const { return _type; }
 
     /// For the given node type add an extra argument to be used for the function in this context.
-    void addArgument(const TypeDesc* nodeType, const Argument& arg)
+    void addArgument(TypeDesc nodeType, const Argument& arg)
     {
         _arguments[nodeType].push_back(arg);
     }
+    [[deprecated]] void addArgument(const TypeDesc* nodeType, const Argument& arg) { addArgument(*nodeType, arg); }
 
     /// Return a list of extra argument to be used for the given node in this context.
-    const Arguments& getArguments(const TypeDesc* nodeType) const
+    const Arguments& getArguments(TypeDesc nodeType) const
     {
         auto it = _arguments.find(nodeType);
         return it != _arguments.end() ? it->second : EMPTY_ARGUMENTS;
     }
+    [[deprecated]] const Arguments& getArguments(const TypeDesc* nodeType) const { return getArguments(*nodeType); }
 
     /// For the given node type set a function name suffix to be used for the function in this context.
-    void setSuffix(const TypeDesc* nodeType, const string& suffix)
+    void setSuffix(TypeDesc nodeType, const string& suffix)
     {
         _suffix[nodeType] = suffix;
     }
+    [[deprecated]] void setSuffix(const TypeDesc* nodeType, const string& suffix) { setSuffix(*nodeType, suffix); }
 
     /// Return the function name suffix to be used for the given node in this context.
-    const string& getSuffix(const TypeDesc* nodeType) const
+    const string& getSuffix(TypeDesc nodeType) const
     {
         auto it = _suffix.find(nodeType);
         return it != _suffix.end() ? it->second : EMPTY_STRING;
     }
+    [[deprecated]] const string& getSuffix(const TypeDesc* nodeType) const { return getSuffix(*nodeType);  }
 
     /// Set extra parameters to use for evaluating a closure.
     void setClosureParams(const ShaderNode* closure, const ClosureParams* params)
@@ -313,8 +317,8 @@ class MX_GENSHADER_API ClosureContext
 
   protected:
     const int _type;
-    std::unordered_map<const TypeDesc*, Arguments> _arguments;
-    std::unordered_map<const TypeDesc*, string> _suffix;
+    std::unordered_map<TypeDesc, Arguments, TypeDesc::Hasher> _arguments;
+    std::unordered_map<TypeDesc, string, TypeDesc::Hasher> _suffix;
     std::unordered_map<const ShaderNode*, const ClosureParams*> _params;
 
     static const Arguments EMPTY_ARGUMENTS;
