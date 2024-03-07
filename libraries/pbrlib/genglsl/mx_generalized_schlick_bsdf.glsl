@@ -1,6 +1,6 @@
 #include "lib/mx_microfacet_specular.glsl"
 
-void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -23,14 +23,15 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
 
     FresnelData fd;
     vec3 safeColor0 = max(color0, 0.0);
+    vec3 safeColor82 = max(color82, 0.0);
     vec3 safeColor90 = max(color90, 0.0);
     if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor90, exponent, thinfilm_thickness, thinfilm_ior);
+        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor82, safeColor90, exponent, thinfilm_thickness, thinfilm_ior);
     }
     else
     {
-        fd = mx_init_fresnel_schlick(safeColor0, safeColor90, exponent);
+        fd = mx_init_fresnel_schlick(safeColor0, safeColor82, safeColor90, exponent);
     }
     vec3  F = mx_compute_fresnel(VdotH, fd);
     float D = mx_ggx_NDF(Ht, safeAlpha);
@@ -45,7 +46,7 @@ void mx_generalized_schlick_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlus
     bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
 }
 
-void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -57,14 +58,15 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
 
     FresnelData fd;
     vec3 safeColor0 = max(color0, 0.0);
+    vec3 safeColor82 = max(color82, 0.0);
     vec3 safeColor90 = max(color90, 0.0);
     if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor90, exponent, thinfilm_thickness, thinfilm_thickness);
+        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor82, safeColor90, exponent, thinfilm_thickness, thinfilm_thickness);
     }
     else
     {
-        fd = mx_init_fresnel_schlick(safeColor0, safeColor90, exponent);
+        fd = mx_init_fresnel_schlick(safeColor0, safeColor82, safeColor90, exponent);
     }
     vec3 F = mx_compute_fresnel(NdotV, fd);
 
@@ -84,7 +86,7 @@ void mx_generalized_schlick_bsdf_transmission(vec3 V, float weight, vec3 color0,
     }
 }
 
-void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
+void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec3 color82, vec3 color90, float exponent, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, int scatter_mode, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
     {
@@ -96,14 +98,15 @@ void mx_generalized_schlick_bsdf_indirect(vec3 V, float weight, vec3 color0, vec
 
     FresnelData fd;
     vec3 safeColor0 = max(color0, 0.0);
+    vec3 safeColor82 = max(color82, 0.0);
     vec3 safeColor90 = max(color90, 0.0);
     if (thinfilm_thickness > 0.0)
     { 
-        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor90, exponent, thinfilm_thickness, thinfilm_ior);
+        fd = mx_init_fresnel_schlick_airy(safeColor0, safeColor82, safeColor90, exponent, thinfilm_thickness, thinfilm_ior);
     }
     else
     {
-        fd = mx_init_fresnel_schlick(safeColor0, safeColor90, exponent);
+        fd = mx_init_fresnel_schlick(safeColor0, safeColor82, safeColor90, exponent);
     }
     vec3 F = mx_compute_fresnel(NdotV, fd);
 

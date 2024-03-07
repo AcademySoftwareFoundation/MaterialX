@@ -21,6 +21,7 @@ struct FresnelData
 
     // Generalized Schlick Fresnel
     vec3 F0;
+    vec3 F82;
     vec3 F90;
     float exponent;
 
@@ -36,6 +37,7 @@ FresnelData(int   _model        = 0,
             vec3  _ior          = vec3(0.0f),
             vec3  _extinction   = vec3(0.0f),
             vec3  _F0           = vec3(0.0f),
+            vec3  _F82          = vec3(0.0f),
             vec3  _F90          = vec3(0.0f),
             float _exponent     = 0.0f,
             float _tf_thickness = 0.0f,
@@ -247,6 +249,17 @@ float mx_fresnel_dielectric(float cosTheta, float ior)
     return 0.5 * x * x * (1.0 + y * y);
 }
 
+// https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf
+vec3 mx_fresnel_hoffman_schlick(float cosTheta, vec3 F0, vec3 F82, vec3 F90, float exponent)
+{
+    const float COS_THETA_MAX = 1.0 / 7.0;
+    const float COS_THETA_FACTOR = 1.0 / (COS_THETA_MAX * pow(1.0 - COS_THETA_MAX, 6.0));
+
+    float x = clamp(cosTheta, 0.0, 1.0);
+    vec3 a = mix(F0, F90, pow(1.0 - COS_THETA_MAX, exponent)) * (vec3(1.0) - F82) * COS_THETA_FACTOR;
+    return mix(F0, F90, pow(1.0 - x, exponent)) - a * x * mx_pow6(1.0 - x);
+}
+
 void mx_fresnel_dielectric_polarized(float cosTheta, float n, out float Rp, out float Rs)
 {
     if (cosTheta < 0.0) {
@@ -363,7 +376,7 @@ vec3 mx_eval_sensitivity(float opd, vec3 shift)
 // A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
 // https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
 vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickness, float tf_ior,
-                                     vec3 f0, vec3 f90, float exponent, bool use_schlick)
+                                     vec3 F0, vec3 F82, vec3 F90, float exponent, bool use_schlick)
 {
     // Convert nm -> m
     float d = tf_thickness * 1.0e-9;
@@ -371,7 +384,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     // Assume vacuum on the outside
     float eta1 = 1.0;
     float eta2 = max(tf_ior, eta1);
-    vec3 eta3   = use_schlick ? mx_f0_to_ior_colored(f0) : ior;
+    vec3 eta3   = use_schlick ? mx_f0_to_ior_colored(F0) : ior;
     vec3 kappa3 = use_schlick ? vec3(0.0)                : extinction;
 
     // Compute the Spectral versions of the Fresnel reflectance and
@@ -388,7 +401,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     float cosTheta2 = sqrt(cosThetaTSqr);
     if (use_schlick)
     {
-        vec3 f = mx_fresnel_schlick(cosTheta2, f0, f90, exponent);
+        vec3 f = mx_fresnel_hoffman_schlick(cosTheta2, F0, F82, F90, exponent);
         R23p = 0.5 * f;
         R23s = 0.5 * f;
     }
@@ -484,7 +497,7 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
 FresnelData mx_init_fresnel_data(int model)
 {
-    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, false);
+    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, false);
 }
 
 FresnelData mx_init_fresnel_dielectric(float ior)
@@ -511,19 +524,21 @@ FresnelData mx_init_fresnel_schlick(vec3 F0)
     return fd;
 }
 
-FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
+FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F82, vec3 F90, float exponent)
 {
     FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
     fd.F0 = F0;
+    fd.F82 = F82;
     fd.F90 = F90;
     fd.exponent = exponent;
     return fd;
 }
 
-FresnelData mx_init_fresnel_schlick_airy(vec3 F0, vec3 F90, float exponent, float tf_thickness, float tf_ior)
+FresnelData mx_init_fresnel_schlick_airy(vec3 F0, vec3 F82, vec3 F90, float exponent, float tf_thickness, float tf_ior)
 {
     FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK_AIRY);
     fd.F0 = F0;
+    fd.F82 = F82;
     fd.F90 = F90;
     fd.exponent = exponent;
     fd.tf_thickness = tf_thickness;
@@ -562,12 +577,12 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     }
     else if (fd.model == FRESNEL_MODEL_SCHLICK)
     {
-        return mx_fresnel_schlick(cosTheta, fd.F0, fd.F90, fd.exponent);
+        return mx_fresnel_hoffman_schlick(cosTheta, fd.F0, fd.F82, fd.F90, fd.exponent);
     }
     else
     {
         return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior,
-                                         fd.F0, fd.F90, fd.exponent,
+                                         fd.F0, fd.F82, fd.F90, fd.exponent,
                                          fd.model == FRESNEL_MODEL_SCHLICK_AIRY);
     }
 }
