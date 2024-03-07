@@ -266,7 +266,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     return nodeDef;
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library)
+void Document::importLibrary(const ConstDocumentPtr& library, bool errorOnDuplicates)
 {
     if (!library)
     {
@@ -286,6 +286,8 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         ConstElementPtr previous = getChild(childName);
         if (previous)
         {
+            if (errorOnDuplicates)
+                throw Exception("Trying to import a child that already exists " + child->getName());
             continue;
         }
 

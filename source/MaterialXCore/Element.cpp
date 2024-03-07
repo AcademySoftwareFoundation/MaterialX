@@ -476,6 +476,31 @@ TypeDefPtr TypedElement::getTypeDef() const
     return resolveNameReference<TypeDef>(getType());
 }
 
+bool TypedElement::validate(string* message) const
+{
+    bool res = true;
+
+    if (hasType())
+    {
+        // check that the type specified is declared as a type in the document
+        const auto& typeStr = getType();
+        bool isValidType = getDocument()->getTypeDef(typeStr) != nullptr;
+
+        if (!isValidType) {
+            // there is one special type "multioutput" that can be used on node
+            // elements when they have more than one output port.
+            if (typeStr == "multioutput" && isA<Node>())
+            {
+                isValidType = true;
+            }
+        }
+
+        validateRequire(isValidType, res, message, "Element type is not defined '"+getType()+"'");
+    }
+
+    return Element::validate(message) && res;
+}
+
 //
 // ValueElement methods
 //

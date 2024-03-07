@@ -890,6 +890,14 @@ class MX_CORE_API TypedElement : public Element
     TypeDefPtr getTypeDef() const;
 
     /// @}
+    /// @name Validation
+    /// @{
+
+    /// Validate that the given element is
+    /// consistent with the MaterialX specification.
+    bool validate(string* message = nullptr) const override;
+
+    /// @}
 
   public:
     static const string TYPE_ATTRIBUTE;

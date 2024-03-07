@@ -57,7 +57,8 @@ class MX_CORE_API Document : public GraphElement
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
+    /// @param errorOnDuplicates If true then an Exception will be raised if elements have duplicate names
+    void importLibrary(const ConstDocumentPtr& library, bool errorOnDuplicates=false);
 
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
