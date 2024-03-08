@@ -449,8 +449,7 @@ export float4 mx_geompropvalue_vector4(
 export float3 mx_viewdirection_vector3(
 	uniform core::mx_coordinatespace_type mxp_space = core::mx_coordinatespace_type_world
 	[[
-		anno::description("Enumeration {model,object,world}."),
-		anno::unused()
+		anno::description("Enumeration {model,object,world}.")
 	]]
 )
 	[[
