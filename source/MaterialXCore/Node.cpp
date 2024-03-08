@@ -211,7 +211,7 @@ vector<PortElementPtr> Node::getDownstreamPorts() const
     return downstreamPorts;
 }
 
-bool Node::validate(string* message) const
+bool Node::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(!getCategory().empty(), res, message, "Node element is missing a category");
@@ -230,7 +230,7 @@ bool Node::validate(string* message) const
         validateRequire(!categoryDeclared, res, message, "Node interface doesn't support this output type");
     }
 
-    return InterfaceElement::validate(message) && res;
+    return InterfaceElement::validate(message, validationOptions) && res;
 }
 
 //
@@ -747,7 +747,7 @@ vector<PortElementPtr> NodeGraph::getDownstreamPorts() const
     return downstreamPorts;
 }
 
-bool NodeGraph::validate(string* message) const
+bool NodeGraph::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
 
@@ -768,7 +768,7 @@ bool NodeGraph::validate(string* message) const
         }
     }
 
-    return GraphElement::validate(message) && res;
+    return GraphElement::validate(message, validationOptions) && res;
 }
 
 ConstInterfaceElementPtr NodeGraph::getDeclaration(const string&) const
@@ -824,7 +824,7 @@ vector<TypedElementPtr> Backdrop::getContainsElements() const
     return vec;
 }
 
-bool Backdrop::validate(string* message) const
+bool Backdrop::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     if (hasContainsString())
@@ -833,7 +833,7 @@ bool Backdrop::validate(string* message) const
         vector<TypedElementPtr> elemVec = getContainsElements();
         validateRequire(stringVec.size() == elemVec.size(), res, message, "Invalid element in contains string");
     }
-    return Element::validate(message) && res;
+    return Element::validate(message, validationOptions) && res;
 }
 
 MATERIALX_NAMESPACE_END

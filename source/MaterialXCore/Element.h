@@ -728,7 +728,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    virtual bool validate(string* message = nullptr) const;
+    virtual bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const;
 
     /// @}
     /// @name Utility
@@ -895,7 +895,7 @@ class MX_CORE_API TypedElement : public Element
 
     /// Validate that the given element is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 
@@ -1111,7 +1111,7 @@ class MX_CORE_API ValueElement : public TypedElement
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 

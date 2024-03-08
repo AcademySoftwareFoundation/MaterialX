@@ -658,8 +658,10 @@ class MX_CORE_API Document : public GraphElement
     /// specification.
     /// @param message An optional output string, to which a description of
     ///    each error will be appended.
+    /// @param validationOptions An optional pointer to a object that holds
+    ///    options to configure the validation process
     /// @return True if the document passes all tests, false otherwise.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* validationOptions = nullptr) const override;
 
     /// @}
     /// @name Utility

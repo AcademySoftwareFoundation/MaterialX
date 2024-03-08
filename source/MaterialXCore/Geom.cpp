@@ -66,14 +66,14 @@ CollectionPtr GeomElement::getCollection() const
     return resolveNameReference<Collection>(getCollectionString());
 }
 
-bool GeomElement::validate(string* message) const
+bool GeomElement::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     if (hasCollectionString())
     {
         validateRequire(getCollection() != nullptr, res, message, "Invalid collection string");
     }
-    return Element::validate(message) && res;
+    return Element::validate(message, validationOptions) && res;
 }
 
 //
@@ -171,11 +171,11 @@ bool Collection::matchesGeomString(const string& geom) const
     return false;
 }
 
-bool Collection::validate(string* message) const
+bool Collection::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(!hasIncludeCycle(), res, message, "Cycle in collection include chain");
-    return Element::validate(message) && res;
+    return Element::validate(message, validationOptions) && res;
 }
 
 MATERIALX_NAMESPACE_END

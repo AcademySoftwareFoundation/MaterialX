@@ -393,7 +393,7 @@ void Element::clearContent()
     _childOrder.clear();
 }
 
-bool Element::validate(string* message) const
+bool Element::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(isValidName(getName()), res, message, "Invalid element name");
@@ -404,7 +404,7 @@ bool Element::validate(string* message) const
     }
     for (auto child : getChildren())
     {
-        res = child->validate(message) && res;
+        res = child->validate(message, validationOptions) && res;
     }
     validateRequire(!hasInheritanceCycle(), res, message, "Cycle in element inheritance chain");
     return res;
@@ -476,29 +476,33 @@ TypeDefPtr TypedElement::getTypeDef() const
     return resolveNameReference<TypeDef>(getType());
 }
 
-bool TypedElement::validate(string* message) const
+bool TypedElement::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
 
-    if (hasType())
+    if (validationOptions && validationOptions->typesDefined)
     {
-        // check that the type specified is declared as a type in the document
-        const auto& typeStr = getType();
-        bool isValidType = getDocument()->getTypeDef(typeStr) != nullptr;
+        if (hasType())
+        {
+            // check that the type specified is declared as a type in the document
+            const auto& typeStr = getType();
+            bool isValidType = getDocument()->getTypeDef(typeStr) != nullptr;
 
-        if (!isValidType) {
-            // there is one special type "multioutput" that can be used on node
-            // elements when they have more than one output port.
-            if (typeStr == "multioutput" && isA<Node>())
+            if (!isValidType)
             {
-                isValidType = true;
+                // there is one special type "multioutput" that can be used on node
+                // elements when they have more than one output port.
+                if (typeStr == "multioutput" && isA<Node>())
+                {
+                    isValidType = true;
+                }
             }
-        }
 
-        validateRequire(isValidType, res, message, "Element type is not defined '"+getType()+"'");
+            validateRequire(isValidType, res, message, "Element type is not defined '" + getType() + "'");
+        }
     }
 
-    return Element::validate(message) && res;
+    return Element::validate(message, validationOptions) && res;
 }
 
 //
@@ -557,7 +561,7 @@ const string& ValueElement::getActiveUnit() const
     return EMPTY_STRING;
 }
 
-bool ValueElement::validate(string* message) const
+bool ValueElement::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     if (hasType() && hasValueString())
@@ -617,7 +621,7 @@ bool ValueElement::validate(string* message) const
         }
         validateRequire(foundUnit, res, message, "Unit definition does not exist in document");
     }
-    return TypedElement::validate(message) && res;
+    return TypedElement::validate(message, validationOptions) && res;
 }
 
 //

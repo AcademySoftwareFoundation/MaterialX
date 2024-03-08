@@ -215,7 +215,7 @@ class MX_CORE_API GeomElement : public Element
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 
@@ -554,7 +554,7 @@ class MX_CORE_API Collection : public Element
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 

@@ -169,7 +169,7 @@ class MX_CORE_API Node : public InterfaceElement
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 
@@ -393,7 +393,7 @@ class MX_CORE_API NodeGraph : public GraphElement
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 
@@ -493,7 +493,7 @@ class MX_CORE_API Backdrop : public Element
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
 

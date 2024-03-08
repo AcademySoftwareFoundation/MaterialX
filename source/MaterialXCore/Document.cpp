@@ -431,13 +431,13 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     return implementations;
 }
 
-bool Document::validate(string* message) const
+bool Document::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
     validateRequire(getVersionIntegers() >= expectedVersion, res, message, "Unsupported document version");
     validateRequire(getVersionIntegers() <= expectedVersion, res, message, "Future document version");
-    return GraphElement::validate(message) && res;
+    return GraphElement::validate(message, validationOptions) && res;
 }
 
 void Document::upgradeVersion()

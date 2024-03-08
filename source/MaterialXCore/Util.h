@@ -69,6 +69,22 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
 
+
+
+/// @class XmlReadOptions
+/// A set of options for controlling the behavior of XML read functions.
+class MX_CORE_API ValidationOptions
+{
+  public:
+    ValidationOptions() {}
+    ~ValidationOptions() {}
+
+    /// If true, types used for TypedValue elements will be checked to
+    /// ensure the document contains the type definition.
+    bool typesDefined{false};
+
+};
+
 MATERIALX_NAMESPACE_END
 
 #endif

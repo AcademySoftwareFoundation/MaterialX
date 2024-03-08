@@ -152,7 +152,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
     /// @name Utility
@@ -279,7 +279,7 @@ class MX_CORE_API Implementation : public InterfaceElement
 
     /// Validate that the given element tree, including all descendants, is
     /// consistent with the MaterialX specification.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* readOptions = nullptr) const override;
 
     /// @}
     /// @name Utility
