@@ -38,16 +38,11 @@ target_link_libraries(
 if(MATERIALX_BUILD_OIIO)
     set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
-    find_package(OpenImageIO REQUIRED)
-    if(OPENIMAGEIO_FOUND)
-        include_directories(${OPENIMAGEIO_INCLUDE_DIR})
-        target_link_libraries(${MATERIALX_MODULE_NAME} ${OPENIMAGEIO_LIBRARIES})
-        # Also needed by MaterialXTest:
-        set(OPENIMAGEIO_FOUND "${OPENIMAGEIO_FOUND}" PARENT_SCOPE)
-        set(OPENIMAGEIO_INCLUDE_DIR "${OPENIMAGEIO_INCLUDE_DIR}" PARENT_SCOPE)
-        set(OPENIMAGEIO_LIBRARIES "${OPENIMAGEIO_LIBRARIES}" PARENT_SCOPE)
-        set(OPENIMAGEIO_LIBRARY_DIRS "${OPENIMAGEIO_LIBRARY_DIRS}" PARENT_SCOPE)
-        set(OPENIMAGEIO_ROOT_DIR "${OPENIMAGEIO_ROOT_DIR}" PARENT_SCOPE)
+    find_package(OpenImageIO CONFIG REQUIRED)
+    if(OpenImageIO_FOUND)
+        target_link_libraries(${MATERIALX_MODULE_NAME} OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
+        # Also needed by MaterialXView:
+        set(OPENIMAGEIO_ROOT_DIR "${OpenImageIO_INCLUDE_DIR}/../" PARENT_SCOPE)
     endif()
 endif()
 
