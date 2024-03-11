@@ -73,7 +73,7 @@ void bindPyDefinition(py::module& mod)
         .def_readonly_static("CATEGORY", &mx::Unit::CATEGORY);
 
     py::class_<mx::UnitDef, mx::UnitDefPtr, mx::Element>(mod, "UnitDef")
-        .def("setUnitType", &mx::UnitDef::hasUnitType)
+        .def("setUnitType", &mx::UnitDef::setUnitType)
         .def("hasUnitType", &mx::UnitDef::hasUnitType)
         .def("getUnitType", &mx::UnitDef::getUnitType)
         .def("addUnit", &mx::UnitDef::addUnit)

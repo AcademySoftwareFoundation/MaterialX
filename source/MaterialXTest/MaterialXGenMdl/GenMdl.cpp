@@ -30,8 +30,8 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "float3");
     REQUIRE(syntax->getTypeName(mx::Type::FLOATARRAY) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::INTEGERARRAY) == "int");
-    REQUIRE(mx::Type::FLOATARRAY->isArray());
-    REQUIRE(mx::Type::INTEGERARRAY->isArray());
+    REQUIRE(mx::Type::FLOATARRAY.isArray());
+    REQUIRE(mx::Type::INTEGERARRAY.isArray());
 
     REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "material");
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "material");

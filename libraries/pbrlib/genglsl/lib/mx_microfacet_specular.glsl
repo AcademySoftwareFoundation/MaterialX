@@ -1,19 +1,15 @@
 #include "mx_microfacet.glsl"
 
-// Fresnel model options.
 const int FRESNEL_MODEL_DIELECTRIC = 0;
 const int FRESNEL_MODEL_CONDUCTOR = 1;
 const int FRESNEL_MODEL_SCHLICK = 2;
-const int FRESNEL_MODEL_AIRY = 3;
-const int FRESNEL_MODEL_SCHLICK_AIRY = 4;
 
-// XYZ to CIE 1931 RGB color space (using neutral E illuminant)
-const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
-
-// Parameters for Fresnel calculations.
+// Parameters for Fresnel calculations
 struct FresnelData
 {
+    // Fresnel model
     int model;
+    bool airy;
 
     // Physical Fresnel
     vec3 ior;
@@ -21,6 +17,7 @@ struct FresnelData
 
     // Generalized Schlick Fresnel
     vec3 F0;
+    vec3 F82;
     vec3 F90;
     float exponent;
 
@@ -30,26 +27,6 @@ struct FresnelData
 
     // Refraction
     bool refraction;
-
-#ifdef __METAL__ 
-FresnelData(int   _model        = 0, 
-            vec3  _ior          = vec3(0.0f),
-            vec3  _extinction   = vec3(0.0f),
-            vec3  _F0           = vec3(0.0f),
-            vec3  _F90          = vec3(0.0f),
-            float _exponent     = 0.0f,
-            float _tf_thickness = 0.0f,
-            float _tf_ior       = 0.0f,
-            bool  _refraction   = false) : 
-                model(_model),
-                ior(_ior),
-                extinction(_extinction),
-                F0(_F0), F90(_F90), exponent(_exponent),
-                tf_thickness(_tf_thickness),
-                tf_ior(_tf_ior),
-                refraction(_refraction) {}
-#endif
-
 };
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
@@ -221,23 +198,38 @@ float mx_f0_to_ior(float F0)
     float sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
     return (1.0 + sqrtF0) / (1.0 - sqrtF0);
 }
-
-vec3 mx_f0_to_ior_colored(vec3 F0)
+vec3 mx_f0_to_ior(vec3 F0)
 {
     vec3 sqrtF0 = sqrt(clamp(F0, 0.01, 0.99));
     return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
+}
+
+// https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf
+vec3 mx_fresnel_hoffman_schlick(float cosTheta, FresnelData fd)
+{
+    const float COS_THETA_MAX = 1.0 / 7.0;
+    const float COS_THETA_FACTOR = 1.0 / (COS_THETA_MAX * pow(1.0 - COS_THETA_MAX, 6.0));
+
+    float x = clamp(cosTheta, 0.0, 1.0);
+    vec3 a = mix(fd.F0, fd.F90, pow(1.0 - COS_THETA_MAX, fd.exponent)) * (vec3(1.0) - fd.F82) * COS_THETA_FACTOR;
+    return mix(fd.F0, fd.F90, pow(1.0 - x, fd.exponent)) - a * x * mx_pow6(1.0 - x);
 }
 
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 float mx_fresnel_dielectric(float cosTheta, float ior)
 {
     if (cosTheta < 0.0)
+    {
         return 1.0;
+    }
 
-    float g =  ior*ior + cosTheta*cosTheta - 1.0;
+    float g = ior*ior + cosTheta*cosTheta - 1.0;
+
     // Check for total internal reflection
     if (g < 0.0)
+    {
         return 1.0;
+    }
 
     g = sqrt(g);
     float gmc = g - cosTheta;
@@ -247,40 +239,24 @@ float mx_fresnel_dielectric(float cosTheta, float ior)
     return 0.5 * x * x * (1.0 + y * y);
 }
 
-void mx_fresnel_dielectric_polarized(float cosTheta, float n, out float Rp, out float Rs)
+void mx_fresnel_dielectric_polarized(float cosTheta, float ior, out float Rp, out float Rs)
 {
-    if (cosTheta < 0.0) {
-        Rp = 1.0;
-        Rs = 1.0;
-        return;
-    }
-
-    float cosTheta2 = cosTheta * cosTheta;
+    float cosTheta2 = mx_square(clamp(cosTheta, 0.0, 1.0));
     float sinTheta2 = 1.0 - cosTheta2;
-    float n2 = n * n;
 
-    float t0 = n2 - sinTheta2;
-    float a2plusb2 = sqrt(t0 * t0);
-    float t1 = a2plusb2 + cosTheta2;
-    float a = sqrt(max(0.5 * (a2plusb2 + t0), 0.0));
-    float t2 = 2.0 * a * cosTheta;
+    float t0 = max(ior * ior - sinTheta2, 0.0);
+    float t1 = t0 + cosTheta2;
+    float t2 = 2.0 * sqrt(t0) * cosTheta;
     Rs = (t1 - t2) / (t1 + t2);
 
-    float t3 = cosTheta2 * a2plusb2 + sinTheta2 * sinTheta2;
+    float t3 = cosTheta2 * t0 + sinTheta2 * sinTheta2;
     float t4 = t2 * sinTheta2;
     Rp = Rs * (t3 - t4) / (t3 + t4);
 }
 
-void mx_fresnel_dielectric_polarized(float cosTheta, float eta1, float eta2, out float Rp, out float Rs)
-{
-    float n = eta2 / eta1;
-    mx_fresnel_dielectric_polarized(cosTheta, n, Rp, Rs);
-}
-
 void mx_fresnel_conductor_polarized(float cosTheta, vec3 n, vec3 k, out vec3 Rp, out vec3 Rs)
 {
-    cosTheta = clamp(cosTheta, 0.0, 1.0);
-    float cosTheta2 = cosTheta * cosTheta;
+    float cosTheta2 = mx_square(clamp(cosTheta, 0.0, 1.0));
     float sinTheta2 = 1.0 - cosTheta2;
     vec3 n2 = n * n;
     vec3 k2 = k * k;
@@ -297,13 +273,6 @@ void mx_fresnel_conductor_polarized(float cosTheta, vec3 n, vec3 k, out vec3 Rp,
     Rp = Rs * (t3 - t4) / (t3 + t4);
 }
 
-void mx_fresnel_conductor_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 Rp, out vec3 Rs)
-{
-    vec3 n = eta2 / eta1;
-    vec3 k = kappa2 / eta1;
-    mx_fresnel_conductor_polarized(cosTheta, n, k, Rp, Rs);
-}
-
 vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 {
     vec3 Rp, Rs;
@@ -314,11 +283,14 @@ vec3 mx_fresnel_conductor(float cosTheta, vec3 n, vec3 k)
 // Phase shift due to a dielectric material
 void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta2, out float phiP, out float phiS)
 {
-    float cosB = cos(atan(eta2 / eta1));    // Brewster's angle
-    if (eta2 > eta1) {
+    float cosB = cos(atan(eta2 / eta1)); // Brewster's angle
+    if (eta2 > eta1)
+    {
         phiP = cosTheta < cosB ? M_PI : 0.0f;
         phiS = 0.0f;
-    } else {
+    }
+    else
+    {
         phiP = cosTheta < cosB ? 0.0f : M_PI;
         phiS = M_PI;
     }
@@ -327,7 +299,8 @@ void mx_fresnel_dielectric_phase_polarized(float cosTheta, float eta1, float eta
 // Phase shift due to a conducting material
 void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2, vec3 kappa2, out vec3 phiP, out vec3 phiS)
 {
-    if (dot(kappa2, kappa2) == 0.0 && eta2.x == eta2.y && eta2.y == eta2.z) {
+    if (dot(kappa2, kappa2) == 0.0 && eta2.x == eta2.y && eta2.y == eta2.z)
+    {
         // Use dielectric formula to increase performance
         float phiPx, phiSx;
         mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2.x, phiPx, phiSx);
@@ -362,17 +335,19 @@ vec3 mx_eval_sensitivity(float opd, vec3 shift)
 
 // A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
 // https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
-vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickness, float tf_ior,
-                                     vec3 f0, vec3 f90, float exponent, bool use_schlick)
+vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
 {
+    // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
+    const mat3 XYZ_TO_RGB = mat3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
+
     // Convert nm -> m
-    float d = tf_thickness * 1.0e-9;
+    float d = fd.tf_thickness * 1.0e-9;
 
     // Assume vacuum on the outside
     float eta1 = 1.0;
-    float eta2 = max(tf_ior, eta1);
-    vec3 eta3   = use_schlick ? mx_f0_to_ior_colored(f0) : ior;
-    vec3 kappa3 = use_schlick ? vec3(0.0)                : extinction;
+    float eta2 = max(fd.tf_ior, eta1);
+    vec3 eta3 = (fd.model == FRESNEL_MODEL_SCHLICK) ? mx_f0_to_ior(fd.F0) : fd.ior;
+    vec3 kappa3 = (fd.model == FRESNEL_MODEL_SCHLICK) ? vec3(0.0) : fd.extinction;
 
     // Compute the Spectral versions of the Fresnel reflectance and
     // transmitance for each interface.
@@ -380,28 +355,28 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     vec3 R23p, R23s;
     
     // Reflected and transmitted parts in the thin film
-    mx_fresnel_dielectric_polarized(cosTheta, eta1, eta2, R12p, R12s);
+    mx_fresnel_dielectric_polarized(cosTheta, eta2 / eta1, R12p, R12s);
 
     // Reflected part by the base
     float scale = eta1 / eta2;
     float cosThetaTSqr = 1.0 - (1.0-cosTheta*cosTheta) * scale*scale;
     float cosTheta2 = sqrt(cosThetaTSqr);
-    if (use_schlick)
+    if (fd.model == FRESNEL_MODEL_SCHLICK)
     {
-        vec3 f = mx_fresnel_schlick(cosTheta2, f0, f90, exponent);
+        vec3 f = mx_fresnel_hoffman_schlick(cosTheta2, fd);
         R23p = 0.5 * f;
         R23s = 0.5 * f;
     }
     else
     {
-        mx_fresnel_conductor_polarized(cosTheta2, eta2, eta3, kappa3, R23p, R23s);
+        mx_fresnel_conductor_polarized(cosTheta2, eta3 / eta2, kappa3 / eta2, R23p, R23s);
     }
 
     // Check for total internal reflection
     if (cosThetaTSqr <= 0.0f)
     {
-        R12s = 1.0;
         R12p = 1.0;
+        R12s = 1.0;
     }
 
     // Compute the transmission coefficients
@@ -416,12 +391,11 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Evaluate the phase shift
     mx_fresnel_dielectric_phase_polarized(cosTheta, eta1, eta2, phi21p, phi21s);
-    if (use_schlick)
+    if (fd.model == FRESNEL_MODEL_SCHLICK)
     {
-        phi23p = vec3(
-            (eta3[0] < eta2) ? M_PI : 0.0,
-            (eta3[1] < eta2) ? M_PI : 0.0,
-            (eta3[2] < eta2) ? M_PI : 0.0);
+        phi23p = vec3((eta3[0] < eta2) ? M_PI : 0.0,
+                      (eta3[1] < eta2) ? M_PI : 0.0,
+                      (eta3[2] < eta2) ? M_PI : 0.0);
         phi23s = phi23p;
     }
     else
@@ -437,20 +411,17 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Evaluate iridescence term
     vec3 I = vec3(0.0);
-    vec3 C0, Cm, Sm;
+    vec3 Cm, Sm;
 
     // Iridescence term using spectral antialiasing for Parallel polarization
 
-    vec3 S0 = vec3(1.0);
-
     // Reflectance term for m=0 (DC term amplitude)
     vec3 Rs = (T121p*T121p*R23p) / (vec3(1.0) - R12p*R23p);
-    C0 = R12p + Rs;
-    I += C0 * S0;
+    I += R12p + Rs;
 
     // Reflectance term for m>0 (pairs of diracs)
     Cm = Rs - T121p;
-    for (int m=1; m<=2; ++m)
+    for (int m=1; m<=2; m++)
     {
         Cm *= r123p;
         Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23p+vec3(phi21p)));
@@ -461,12 +432,11 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
 
     // Reflectance term for m=0 (DC term amplitude)
     vec3 Rp = (T121s*T121s*R23s) / (vec3(1.0) - R12s*R23s);
-    C0 = R12s + Rp;
-    I += C0 * S0;
+    I += R12s + Rp;
 
     // Reflectance term for m>0 (pairs of diracs)
-    Cm = Rp - T121s ;
-    for (int m=1; m<=2; ++m)
+    Cm = Rp - T121s;
+    for (int m=1; m<=2; m++)
     {
         Cm *= r123s;
         Sm  = 2.0 * mx_eval_sensitivity(float(m)*D, float(m)*(phi23s+vec3(phi21s)));
@@ -482,77 +452,64 @@ vec3 mx_fresnel_airy(float cosTheta, vec3 ior, vec3 extinction, float tf_thickne
     return I;
 }
 
-FresnelData mx_init_fresnel_data(int model)
+FresnelData mx_init_fresnel_dielectric(float ior, float tf_thickness, float tf_ior)
 {
-    return FresnelData(model, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), 0.0, 0.0, 0.0, false);
-}
-
-FresnelData mx_init_fresnel_dielectric(float ior)
-{
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_DIELECTRIC);
+    FresnelData fd;
+    fd.model = FRESNEL_MODEL_DIELECTRIC;
+    fd.airy = tf_thickness > 0.0;
     fd.ior = vec3(ior);
+    fd.extinction = vec3(0.0);
+    fd.F0 = vec3(0.0);
+    fd.F82 = vec3(0.0);
+    fd.F90 = vec3(0.0);
+    fd.exponent = 0.0;
+    fd.tf_thickness = tf_thickness;
+    fd.tf_ior = tf_ior;
+    fd.refraction = false;
     return fd;
 }
 
-FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction)
+FresnelData mx_init_fresnel_conductor(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_CONDUCTOR);
+    FresnelData fd;
+    fd.model = FRESNEL_MODEL_CONDUCTOR;
+    fd.airy = tf_thickness > 0.0;
     fd.ior = ior;
     fd.extinction = extinction;
+    fd.F0 = vec3(0.0);
+    fd.F82 = vec3(0.0);
+    fd.F90 = vec3(0.0);
+    fd.exponent = 0.0;
+    fd.tf_thickness = tf_thickness;
+    fd.tf_ior = tf_ior;
+    fd.refraction = false;
     return fd;
 }
 
-FresnelData mx_init_fresnel_schlick(vec3 F0)
+FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F82, vec3 F90, float exponent, float tf_thickness, float tf_ior)
 {
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
+    FresnelData fd;
+    fd.model = FRESNEL_MODEL_SCHLICK;
+    fd.airy = tf_thickness > 0.0;
+    fd.ior = vec3(0.0);
+    fd.extinction = vec3(0.0);
     fd.F0 = F0;
-    fd.F90 = vec3(1.0);
-    fd.exponent = 5.0f;
-    return fd;
-}
-
-FresnelData mx_init_fresnel_schlick(vec3 F0, vec3 F90, float exponent)
-{
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK);
-    fd.F0 = F0;
-    fd.F90 = F90;
-    fd.exponent = exponent;
-    return fd;
-}
-
-FresnelData mx_init_fresnel_schlick_airy(vec3 F0, vec3 F90, float exponent, float tf_thickness, float tf_ior)
-{
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_SCHLICK_AIRY);
-    fd.F0 = F0;
+    fd.F82 = F82;
     fd.F90 = F90;
     fd.exponent = exponent;
     fd.tf_thickness = tf_thickness;
     fd.tf_ior = tf_ior;
-    return fd;
-}
-
-FresnelData mx_init_fresnel_dielectric_airy(float ior, float tf_thickness, float tf_ior)
-{
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_AIRY);
-    fd.ior = vec3(ior);
-    fd.tf_thickness = tf_thickness;
-    fd.tf_ior = tf_ior;
-    return fd;
-}
-
-FresnelData mx_init_fresnel_conductor_airy(vec3 ior, vec3 extinction, float tf_thickness, float tf_ior)
-{
-    FresnelData fd = mx_init_fresnel_data(FRESNEL_MODEL_AIRY);
-    fd.ior = ior;
-    fd.extinction = extinction;
-    fd.tf_thickness = tf_thickness;
-    fd.tf_ior = tf_ior;
+    fd.refraction = false;
     return fd;
 }
 
 vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
 {
-    if (fd.model == FRESNEL_MODEL_DIELECTRIC)
+    if (fd.airy)
+    {
+         return mx_fresnel_airy(cosTheta, fd);
+    }
+    else if (fd.model == FRESNEL_MODEL_DIELECTRIC)
     {
         return vec3(mx_fresnel_dielectric(cosTheta, fd.ior.x));
     }
@@ -560,15 +517,9 @@ vec3 mx_compute_fresnel(float cosTheta, FresnelData fd)
     {
         return mx_fresnel_conductor(cosTheta, fd.ior, fd.extinction);
     }
-    else if (fd.model == FRESNEL_MODEL_SCHLICK)
-    {
-        return mx_fresnel_schlick(cosTheta, fd.F0, fd.F90, fd.exponent);
-    }
     else
     {
-        return mx_fresnel_airy(cosTheta, fd.ior, fd.extinction, fd.tf_thickness, fd.tf_ior,
-                                         fd.F0, fd.F90, fd.exponent,
-                                         fd.model == FRESNEL_MODEL_SCHLICK_AIRY);
+        return mx_fresnel_hoffman_schlick(cosTheta, fd);
     }
 }
 
