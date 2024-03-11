@@ -23,12 +23,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     float avgAlpha = mx_average_alpha(safeAlpha);
     vec3 Ht = vec3(dot(H, X), dot(H, Y), dot(H, N));
 
-    FresnelData fd;
-    if (thinfilm_thickness > 0.0)
-        fd = mx_init_fresnel_conductor_airy(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
-    else
-        fd = mx_init_fresnel_conductor(ior_n, ior_k);
-
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
     vec3 F = mx_compute_fresnel(VdotH, fd);
     float D = mx_ggx_NDF(Ht, safeAlpha);
     float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
@@ -52,12 +47,7 @@ void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, ve
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
-    FresnelData fd;
-    if (thinfilm_thickness > 0.0)
-        fd = mx_init_fresnel_conductor_airy(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
-    else
-        fd = mx_init_fresnel_conductor(ior_n, ior_k);
-
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
     vec3 F = mx_compute_fresnel(NdotV, fd);
 
     vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
