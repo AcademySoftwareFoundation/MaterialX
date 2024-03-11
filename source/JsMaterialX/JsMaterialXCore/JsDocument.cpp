@@ -23,7 +23,8 @@ EMSCRIPTEN_BINDINGS(document)
         .class_function("createDocument", &mx::Document::createDocument<mx::Document>)
         .function("initialize", &mx::Document::initialize)
         .function("copy", &mx::Document::copy)
-        .function("importLibrary", &mx::Document::importLibrary)
+//        .function("importLibrary", &mx::Document::importLibrary)
+        BIND_MEMBER_FUNC("inportLibrary", mx::Document, importLibrary, 1, 2, bool)
         .function("getReferencedSourceUris", ems::optional_override([](mx::Document &self) {
             mx::StringSet set = self.getReferencedSourceUris();
             return ems::val::array(set.begin(), set.end());
