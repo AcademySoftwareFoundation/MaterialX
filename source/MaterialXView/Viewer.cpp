@@ -172,6 +172,7 @@ Viewer::Viewer(const std::string& materialFilename,
     _userCameraEnabled(true),
     _userTranslationActive(false),
     _lightRotation(0.0f),
+    _intensityMultiplier(1.0f),
     _normalizeEnvironment(false),
     _splitDirectLight(false),
     _generateReferenceIrradiance(false),
@@ -796,6 +797,22 @@ void Viewer::createAdvancedSettings(Widget* parent)
         invalidateShadowMap();
     });
     lightRotationBox->set_editable(true);
+
+    Widget* envLightIntensityRow = new Widget(advancedPopup);
+    envLightIntensityRow->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal));
+    mx::UIProperties intensityUI;
+    intensityUI.uiSoftMin = mx::Value::createValue(0.0f);
+    intensityUI.uiSoftMax = mx::Value::createValue(10.0f);
+    intensityUI.uiStep = mx::Value::createValue(0.1f);
+
+    ng::FloatBox<float>* envIntensity = createFloatWidget(envLightIntensityRow, "Light Intensity:",
+        _intensityMultiplier, &intensityUI, [this](float value)
+    {
+        _intensityMultiplier = value;
+        _lightHandler->setEnvLightIntensity(_intensityMultiplier);
+    });
+    envIntensity->set_value(1.0);
+    envIntensity->set_editable(true);
 
     ng::Label* shadowingLabel = new ng::Label(advancedPopup, "Shadowing Options");
     shadowingLabel->set_font_size(20);

@@ -339,6 +339,7 @@ class Viewer : public ng::Screen
     mx::FilePath _lightRigFilename;
     mx::DocumentPtr _lightRigDoc;
     float _lightRotation;
+    float _intensityMultiplier;
 
     // Light processing options
     bool _normalizeEnvironment;
