@@ -47,6 +47,7 @@ option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF
 option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
+option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
@@ -68,6 +69,7 @@ if (MATERIALX_BUILD_IOS)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
     set(MATERIALX_BUILD_TESTS OFF)
+    set(MATERIALX_BUILD_MONOLITHIC ON)
 endif()
 
 if (MATERIALX_BUILD_JS)
@@ -274,6 +276,12 @@ else()
     set(BUILD_SHARED_LIBS "OFF")
 endif()
 
+# Optionally add monolithic build target - needs to be added before the other build targets that may be included.
+if (MATERIALX_BUILD_MONOLITHIC)
+    set(MATERIALX_MONOLITHIC_TARGET MaterialX)
+    add_subdirectory(source)
+endif()
+
 # Add core subdirectories
 add_subdirectory(source/MaterialXCore)
 add_subdirectory(source/MaterialXFormat)
@@ -359,6 +367,14 @@ if(NOT SKBUILD)
     set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
     include(CMakePackageConfigHelpers)
+
+    if (MATERIALX_BUILD_MONOLITHIC)
+        set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
+        foreach (MODULE ${MATERIALX_MODULES})
+            string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
+        endforeach ()
+    endif()
+
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
                                 ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"
