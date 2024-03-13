@@ -38,7 +38,7 @@ const ShaderInput* findTransmissionIOR(const ShaderNode& node)
     }
     for (const ShaderInput* input : node.getInputs())
     {
-        if (*input->getType() == *Type::BSDF && input->getConnection())
+        if (input->getType() == Type::BSDF && input->getConnection())
         {
             const ShaderInput* ior = findTransmissionIOR(*input->getConnection()->getNode());
             if (ior)
