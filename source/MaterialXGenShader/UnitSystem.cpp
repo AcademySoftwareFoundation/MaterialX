@@ -104,7 +104,7 @@ void ScalarUnitNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
 // Unit transform methods
 //
 
-UnitTransform::UnitTransform(const string& ss, const string& ts, const TypeDesc* t, const string& unittype) :
+UnitTransform::UnitTransform(const string& ss, const string& ts, TypeDesc t, const string& unittype) :
     sourceUnit(ss),
     targetUnit(ts),
     type(t),
@@ -157,7 +157,7 @@ NodeDefPtr UnitSystem::getNodeDef(const UnitTransform& transform) const
         {
             vector<InputPtr> nodeInputs = nodeDef->getInputs();
             if (nodeInputs.size() == 2 &&
-                nodeInputs[0]->getType() == transform.type->getName() &&
+                nodeInputs[0]->getType() == transform.type.getName() &&
                 nodeInputs[1]->getType() == "float")
             {
                 return nodeDef;

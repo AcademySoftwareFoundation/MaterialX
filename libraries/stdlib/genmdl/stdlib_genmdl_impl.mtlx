@@ -44,7 +44,7 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
   <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
 
   <!-- ======================================================================== -->
@@ -306,8 +306,8 @@
 
   <!-- <round> -->
   <implementation name="IM_round_float_genmdl" nodedef="ND_round_float" sourcecode="math::round({{in}})" target="genmdl" />
-  <implementation name="IM_round_color3_genmdl" nodedef="ND_round_color3" sourcecode="mx::stdlib::mx_round_color3({{in}})" target="genmdl" />
-  <implementation name="IM_round_color4_genmdl" nodedef="ND_round_color4" sourcecode="mx::stdlib::mx_round_color4({{in}})" target="genmdl" />
+  <implementation name="IM_round_color3_genmdl" nodedef="ND_round_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_round_color3({{in}})" target="genmdl" />
+  <implementation name="IM_round_color4_genmdl" nodedef="ND_round_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_round_color4({{in}})" target="genmdl" />
   <implementation name="IM_round_vector2_genmdl" nodedef="ND_round_vector2" sourcecode="math::round({{in}})" target="genmdl" />
   <implementation name="IM_round_vector3_genmdl" nodedef="ND_round_vector3" sourcecode="math::round({{in}})" target="genmdl" />
   <implementation name="IM_round_vector4_genmdl" nodedef="ND_round_vector4" sourcecode="math::round({{in}})" target="genmdl" />
@@ -332,28 +332,28 @@
   <implementation name="IM_tan_float_genmdl" nodedef="ND_tan_float" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_float_genmdl" nodedef="ND_asin_float" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_float_genmdl" nodedef="ND_acos_float" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_float_genmdl" nodedef="ND_atan2_float" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_float_genmdl" nodedef="ND_atan2_float" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector2_genmdl" nodedef="ND_sin_vector2" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector2_genmdl" nodedef="ND_cos_vector2" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector2_genmdl" nodedef="ND_tan_vector2" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector2_genmdl" nodedef="ND_asin_vector2" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector2_genmdl" nodedef="ND_acos_vector2" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector2_genmdl" nodedef="ND_atan2_vector2" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector2_genmdl" nodedef="ND_atan2_vector2" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector3_genmdl" nodedef="ND_sin_vector3" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector3_genmdl" nodedef="ND_cos_vector3" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector3_genmdl" nodedef="ND_tan_vector3" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector3_genmdl" nodedef="ND_asin_vector3" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector3_genmdl" nodedef="ND_acos_vector3" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector3_genmdl" nodedef="ND_atan2_vector3" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector3_genmdl" nodedef="ND_atan2_vector3" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <implementation name="IM_sin_vector4_genmdl" nodedef="ND_sin_vector4" sourcecode="math::sin({{in}})" target="genmdl" />
   <implementation name="IM_cos_vector4_genmdl" nodedef="ND_cos_vector4" sourcecode="math::cos({{in}})" target="genmdl" />
   <implementation name="IM_tan_vector4_genmdl" nodedef="ND_tan_vector4" sourcecode="math::tan({{in}})" target="genmdl" />
   <implementation name="IM_asin_vector4_genmdl" nodedef="ND_asin_vector4" sourcecode="math::asin({{in}})" target="genmdl" />
   <implementation name="IM_acos_vector4_genmdl" nodedef="ND_acos_vector4" sourcecode="math::acos({{in}})" target="genmdl" />
-  <implementation name="IM_atan2_vector4_genmdl" nodedef="ND_atan2_vector4" sourcecode="math::atan2({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_atan2_vector4_genmdl" nodedef="ND_atan2_vector4" sourcecode="math::atan2({{iny}}, {{inx}})" target="genmdl" />
 
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genmdl" nodedef="ND_sqrt_float" sourcecode="math::sqrt({{in}})" target="genmdl" />
@@ -648,19 +648,19 @@
 
   <!-- <switch> -->
   <!-- 'which' type : float -->
-  <implementation name="IM_switch_float_genmdl" nodedef="ND_switch_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_float({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_color3_genmdl" nodedef="ND_switch_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_color4_genmdl" nodedef="ND_switch_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_float_genmdl" nodedef="ND_switch_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_float({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_color3_genmdl" nodedef="ND_switch_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_color4_genmdl" nodedef="ND_switch_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <!-- 'which' type : integer -->
-  <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_floatI({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_color4I_genmdl" nodedef="ND_switch_color4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
-  <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_floatI({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_color4I_genmdl" nodedef="ND_switch_color4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
