@@ -77,8 +77,8 @@ const string T_ENV_RADIANCE                   = "$envRadiance";
 const string T_ENV_RADIANCE_MIPS              = "$envRadianceMips";
 const string T_ENV_RADIANCE_SAMPLES           = "$envRadianceSamples";
 const string T_ENV_IRRADIANCE                 = "$envIrradiance";
-const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_ENV_LIGHT_INTENSITY            = "$envLightIntensity";
+const string T_ENV_PREFILTER_MIP              = "$envPrefilterMip";
 const string T_REFRACTION_TWO_SIDED           = "$refractionTwoSided";
 const string T_ALBEDO_TABLE                   = "$albedoTable";
 const string T_ALBEDO_TABLE_SIZE              = "$albedoTableSize";
@@ -133,8 +133,8 @@ const string ENV_RADIANCE                     = "u_envRadiance";
 const string ENV_RADIANCE_MIPS                = "u_envRadianceMips";
 const string ENV_RADIANCE_SAMPLES             = "u_envRadianceSamples";
 const string ENV_IRRADIANCE                   = "u_envIrradiance";
-const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string ENV_LIGHT_INTENSITY              = "u_envLightIntensity";
+const string ENV_PREFILTER_MIP                = "u_envPrefilterMip";
 const string REFRACTION_TWO_SIDED             = "u_refractionTwoSided";
 const string ALBEDO_TABLE                     = "u_albedoTable";
 const string ALBEDO_TABLE_SIZE                = "u_albedoTableSize";
@@ -369,9 +369,9 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_SAMPLES, Value::createValue<int>(16));
-        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_IRRADIANCE);
         psPrivateUniforms->add(Type::BOOLEAN, HW::T_REFRACTION_TWO_SIDED);
     }
@@ -388,11 +388,11 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
     if (context.getOptions().hwWriteEnvPrefilter)
     {
         psPrivateUniforms->add(Type::FILENAME, HW::T_ENV_RADIANCE);
+        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_PREFILTER_MIP, Value::createValue<int>(1));
         const Matrix44 yRotationPI = Matrix44::createScale(Vector3(-1, 1, -1));
         psPrivateUniforms->add(Type::MATRIX44, HW::T_ENV_MATRIX, Value::createValue(yRotationPI));
         psPrivateUniforms->add(Type::INTEGER, HW::T_ENV_RADIANCE_MIPS, Value::createValue<int>(1));
-        psPrivateUniforms->add(Type::FLOAT, HW::T_ENV_LIGHT_INTENSITY, Value::createValue(1.0f));
     }
 
     // Create uniforms for the published graph interface
