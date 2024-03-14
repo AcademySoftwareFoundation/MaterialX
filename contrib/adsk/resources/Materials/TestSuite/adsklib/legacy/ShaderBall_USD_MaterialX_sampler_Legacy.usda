@@ -1,0 +1,131 @@
+#usda 1.0
+(
+    defaultPrim = "ShaderBall"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+over "ShaderBall" (
+    references = @one_ball.usda@
+    variants = {
+        string shadingVariant = "Mirror"
+    }
+    prepend variantSets = "shadingVariant"
+)
+{
+    over "one_ball_MeshShape" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+	)
+	{
+	}
+	
+    variantSet "shadingVariant" = {
+        "Generic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_generic>
+
+            }
+        }
+        "Mirror" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_mirror>
+
+            }
+        }
+        "Hardwood" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_hardwood>
+
+            }
+        }
+        "Metal" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_metal>
+
+            }
+        }
+        "Ceramic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_ceramic>
+
+            }
+        }
+        "Concrete" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_concrete>
+
+            }
+        }
+        "Glazing" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_glazing>
+
+            }
+        }
+        "Masonry" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_masonry>
+
+            }
+        }
+        "MetallicPaint" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_metallicpaint>
+
+            }
+        }
+        "Glass" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_glass>
+
+            }
+        }
+        "Stone" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_stone>
+
+            }
+        }
+        "WallPaint" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_wallpaint>
+
+            }
+        }
+        "Water" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_water>
+
+            }
+        }
+        "Plastic" {
+            over "one_ball_MeshShape"
+            {
+				rel material:binding = </MaterialX/Materials/M_legacy_plastic>
+
+            }
+        }
+    }
+}
+
+over "MaterialX"
+(
+    references = [
+		@legacy_materials_test.mtlx@</MaterialX>,
+	]
+)
+{
+}

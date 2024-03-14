@@ -1,0 +1,4 @@
+void mx_turbulence2d_float(float amplitude, float octaves, vector2 texcoord, output float result)
+{
+    result = 0.5;
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  Basic tests for legacy nodes untested in main file <legacy_material_test.mtlx>:
+  - turbulence2d
+  - turbulence3d <added for consistency, but was tested in main file>
+  -->
+   <nodegraph name="turbulence2d_object">
+    <turbulence2d name="turbulence2d1" type="float">
+      <input name="amplitude" type="float" value="10.0000" />
+      <input name="octaves" type="float" value="2" />
+      <input name="texcoord" type="vector2" nodename="multiply1" />
+    </turbulence2d>
+    <output name="out" type="float" nodename="turbulence2d1" />
+    <texcoord name="texcoord1" type="vector2" />
+    <multiply name="multiply1" type="vector2">
+      <input name="in1" type="vector2" nodename="texcoord1" />
+      <input name="in2" type="vector2" value="20.0000, 20.0000" />
+    </multiply>
+  </nodegraph>
+  <nodegraph name="turbulence3d_object">
+    <turbulence3d name="turbulence3d1" type="float">
+      <input name="amplitude" type="float" value="10.0000" />
+      <input name="octaves" type="float" value="2" />
+      <input name="position" type="vector3" nodename="multiply1" />
+    </turbulence3d>
+    <output name="out" type="float" nodename="turbulence3d1" />
+    <position name="position1" type="vector3">
+      <input name="space" type="string" value="world" />
+    </position>
+    <multiply name="multiply1" type="vector3">
+      <input name="in1" type="vector3" nodename="position1" />
+      <input name="in2" type="vector3" value="20.0000, 20.0000, 20.0000" />
+    </multiply>
+  </nodegraph>
+</materialx>

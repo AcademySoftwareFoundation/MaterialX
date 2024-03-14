@@ -1,0 +1,333 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <!--
+  DESCRIPTION: Node Definitions for Autodesk Legacy Material Classes
+  VERSION: 0.9.0
+  SHA: $Id: ... $
+  
+  -->
+
+  <!-- 
+      ==============================================
+      Nodedefs for Autodesk Legacy Utilities Classes
+      ==============================================
+  -->
+
+  <!-- <Color Stain> -->
+  <nodedef name="ND_legacy_stain_color3" node="legacy_stain" version="1.0" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.5, 0.5, 0.5" uivisible="true" uiname="Color"/>
+    <input name="stain_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Stain Color"/>
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <!-- <Conversion of Tangent Normal to Phi and Theta Spherical Coordinates> -->
+  <nodedef name="ND_norm2spherical" node="norm2spherical" version="1.0" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="normal" type="vector3" value="0,0,1"/>
+    <output name="phi" type="float" />
+    <output name="theta" type="float" />
+  </nodedef>
+
+  <!-- <Converts world normals to tangent in color range RGB 0-1> -->
+  <nodedef name="ND_transformnormal_w2t_vector3" node="transformnormal_w2t_vector3" version="1.0" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="world_normal" type="vector3" defaultgeomprop="Nworld" />
+    <output name="tangent_normal" type="vector3" />
+  </nodedef>
+
+  <!-- <Combines Two Tangent Normals into a new Tangent Normal> -->
+  <nodedef name="ND_combinenormals_vector3" node="combinenormals_vector3" version="1.0" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="normal1" type="vector3" value="0,0,1" />
+    <input name="normal2" type="vector3" value="0,0,1" />
+    <input name="weight" type="float" value="1" uimin="0" uimax="1" />
+    <output name="out" type="vector3" />
+  </nodedef>
+  
+  <!-- 
+      ===============================================
+      Nodedefs for Autodesk Legacy Procedural Classes
+      ===============================================
+  -->
+
+  <nodedef name="ND_legacy_checker" node="legacy_checker" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color1" type="color3" value="1, 1, 1" xpos="2.094203" ypos="-4.965517" uivisible="true" uiname="Color 1" />
+    <input name="color2" type="color3" value="0, 0, 0" xpos="2.050725" ypos="-3.862069" uivisible="true" uiname="Color 2" />
+    <input name="width" type="float" value="0.4" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance"/>
+    <input name="height" type="float" value="0.2" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance"/>
+    <input name="offsetX" type="float" value="0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance"/>
+    <input name="offsetY" type="float" value="0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance"/>
+    <input name="soften" type="float" value="0" xpos="2.050725" ypos="-2.482759" uivisible="true" uiname="Soften" />
+    <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" uisoftmin="0" uisoftmax="360" />
+    <input name="tile_X" type="boolean" value="true" xpos="1.934783" ypos="6.629310" uivisible="true" uiname="Tile X" />
+    <input name="tile_Y" type="boolean" value="true" xpos="1.934783" ypos="8.000000" uivisible="true" uiname="Tile Y" />
+    <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" />
+    <output name="output_alpha" type="float" xpos="28.485508" ypos="8.284483" />
+    <output name="output_color4" type="color4" xpos="33.471016" ypos="4.681035" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_noise" node="legacy_noise" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color1" type="color3" value="1, 1, 1" xpos="-2.652174" ypos="-3.724138" uivisible="true" uiname="Color 1" />
+    <input name="color2" type="color3" value="0, 0, 0" xpos="-2.652174" ypos="-2.500000" uivisible="true" uiname="Color 2" />
+    <input name="noise_type" type="integer" value="0" xpos="-2.615942" ypos="-4.982759" uivisible="true" uiname="Noise Type" uimin="0" uimax="2"/>
+    <input name="threshold_low" type="float" value="0.49" xpos="-2.688406" ypos="-0.681035" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
+    <input name="threshold_high" type="float" value="0.51" xpos="-2.688406" ypos="0.698276" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
+    <input name="levels" type="float" value="3" xpos="-2.572464" ypos="-6.344828" uivisible="true" uiname="Levels" uimin="0" uisoftmax="10" />
+    <input name="phase" type="float" value="0" xpos="-2.572464" ypos="3.706897" uivisible="true"  uiname="Phase" uimin="0" uisoftmax="10" />
+    <input name="size" type="float" value="1" xpos="-2.572464" ypos="6.336207" uivisible="true" uiname="Size" unittype="distance" uimin="0" uisoftmax="10" />
+    <input name="offset_x" type="float" value="0" xpos="-2.688406" ypos="8.284483" uivisible="true" uiname="Offset X" unittype="distance"/>
+    <input name="offset_y" type="float" value="0" xpos="-2.688406" ypos="9.387931" uivisible="true" uiname="Offset Y" unittype="distance"/>
+    <input name="offset_z" type="float" value="0" xpos="-2.652174" ypos="10.491380" uivisible="true" uiname="Offset Z" unittype="distance"/>
+    <input name="rotate_x" type="float" value="0" xpos="-2.652174" ypos="12.258620" uivisible="true" uiname="Rotate X" unittype="angle" uisoftmin="0" uisoftmax="360" />
+    <input name="rotate_y" type="float" value="0" xpos="-2.652174" ypos="13.370689" uivisible="true" uiname="Rotate Y" unittype="angle" uisoftmin="0" uisoftmax="360"/>
+    <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" uisoftmin="0" uisoftmax="360"/>
+    <output name="output_color3" type="color3" xpos="12.717391" ypos="-2.206897" />
+  </nodedef>
+  
+  <nodedef name="ND_turbulence2d_float" node="turbulence2d" nodegroup="procedural2d">
+    <input name="amplitude" type="float" value="1.0" uimin="0" uisoftmax="1" />
+    <input name="octaves" type="float" value="3.0" uimin="0" uisoftmax="10" />
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <nodedef name="ND_turbulence3d_float" node="turbulence3d" nodegroup="procedural3d">
+    <input name="amplitude" type="float" value="1.0" uimin="0" uisoftmax="1" />
+    <input name="octaves" type="float" value="3.0" uimin="0" uisoftmax="10" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <!-- 
+      =============================================
+      Nodedefs for Autodesk Legacy Material Classes
+      =============================================
+  -->
+
+  <!-- <Legacy Mirror> -->
+  <nodedef name="ND_legacy_mirror" node="legacy_mirror" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.94, 0.97, 0.98" uivisible="true" uiname="Color" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Plastic/Vinyl> -->
+  <nodedef name="ND_legacy_plastic" node="legacy_plastic" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="type" type="float" value="0" uivisible="true" uiname="Type" enum="Plastic (Solid),Plastic (Transparent),Vinyl" enumvalues="0,1,2" uimin="0" uimax="2" />
+    <input name="color" type="color3" value="0.8, 0.8, 0.8" uivisible="true" uiname="Color" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Polished,Glossy,Semi-Gloss,Matte" enumvalues="0,1,2,3" uimin="0" uimax="3" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="finish_bump_enable" type="boolean" value="false" uivisible="true" uiname="Finish Bump" />
+    <input name="finish_bump" type="vector3" value="0, 0, 1" uivisible="true" uiname="Custom Finish Bump" />
+    <input name="relief_pattern_enable" type="boolean" value="false" uivisible="true" uiname="Relief Pattern" />
+    <input name="relief_pattern" type="vector3" value="0, 0, 1" uivisible="true" uiname="Custom Relief Pattern" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Hardwood> -->
+  <nodedef name="ND_legacy_hardwood" node="legacy_hardwood" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.8144, 0.8144, 0.8144" uivisible="true" uiname="Color" />
+    <input name="stain_enable" type="boolean" value="true" uivisible="true" uiname="Stain" />
+    <input name="stain_color" type="color3" value="0.6907, 0.3464, 0.0783" uivisible="true" uiname="Stain Color" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Glossy Varnish,Semi-gloss Varnish,Satin Varnish,Unfinished" enumvalues="0,1,2,3" uimin="0" uimax="3" />
+    <input name="used_for" type="float" value="0" uivisible="true" uiname="Used For" enum="Flooring,Furniture" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="0.1075, 0.6597, 0.0136" uivisible="true" uiname="Tint Color" />
+    <input name="relief_pattern_enable" type="boolean" value="false" uivisible="true" uiname="Relief Pattern" />
+    <input name="relief_pattern_type" type="float" value="0" uivisible="true" uiname="Relief Pattern Type" enum="Based on Wood Grain,Custom" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="relief_pattern_custom" type="vector3" value="0,0,1" uivisible="true" uiname="Custom Relief Pattern" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Glazing> -->
+  <nodedef name="ND_legacy_glazing" node="legacy_glazing" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="float" value="0" uivisible="true" uiname="Color" enum="Clear,Green,Gray,Blue,Blue-Green,Bronze,Custom" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax="6" />
+    <input name="custom_color" type="color3" value="0.30, 0.89, 0.08" uivisible="true" uiname="Custom Color" />
+    <input name="test_sRGB" type="boolean" value="false" uivisible="true" uiname="Test sRGB" />
+    <input name="reflectance" type="float" value="0.09" uivisible="true" uiname="Reflectance" uimin="0" uimax="1" />
+    <input name="reflection_color" type="float" value="0.0" uivisible="true" uiname="Reflection Color" />
+    <input name="sheets_of_glass" type="integer" value="1" uivisible="true" uiname="Sheets of Glass" uimin="1" uimax="6" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Metal> -->
+  <nodedef name="ND_legacy_metal" node="legacy_metal" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="type" type="float" value="0" uivisible="true" uiname="Type" enum="Aluminum,Anodized Aluminum,Chrome,Copper,Brass,Bronze,Stainless Steel,Zinc" enumvalues="0,1,2,3,4,5,6,7" uimin="0" uimax="7" />
+    <input name="custom_color" type="color3" value="0.2209, 0.7493, 0.1938" uivisible="true" uiname="Custom Color" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Polished,Semi-polished,Satin,Custom" enumvalues="0,1,2,3" uimin="0" uimax="3" />
+    <input name="custom_finish" type="float" value="0.05" uivisible="true" uiname="Custom Finish" />
+    <input name="patina" type="float" value="0" uivisible="true" uiname="Patina" />
+    <input name="relief_enable" type="boolean" value="false" uivisible="true" uiname="Relief" />
+    <input name="relief" type="float" value="0" uivisible="true" uiname="Relief Type" enum="Knurl,Diamond Plate,Checker Plate,Custom" enumvalues="0,1,2,3" uimin="0" uimax="3" />
+    <input name="custom_relief" type="vector3" value="0, 0, 0" uivisible="true" uiname="Custom Relief" />
+    <input name="cutout_enable" type="boolean" value="false" uivisible="true" uiname="Cutout" />
+    <input name="cutout" type="float" value="0" uivisible="true" uiname="Cutout Type" enum="Circles,Staggered Circles,Squares,Staggered Squares,Hexagons,Grecian,Cloverleaf,Custom" enumvalues="0,1,2,3,4,5,6,7" uimin="0" uimax="7" />
+    <input name="cutout_size" type="float" value="0.1" uivisible="true" uiname="Cutout Size" />
+    <input name="cutout_spacing" type="float" value="0.5" uivisible="true" uiname="Cutout Spacing" uimin="0" uimax="1" />
+    <input name="custom_cutout" type="color3" value="1, 1, 1" uivisible="true" uiname="Custom Cutout" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="normal_knurl" type="vector3" uivisible="false" />
+    <input name="normal_diamondplate" type="vector3" uivisible="false" />
+    <input name="normal_checkerplate" type="vector3" uivisible="false" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy MetallicPaint> -->
+  <nodedef name="ND_legacy_metallicpaint" node="legacy_metallicpaint" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.9, 0.1, 0" uivisible="true" uiname="Color" />
+    <input name="highlight_spread" type="float" value="0.66" uivisible="true" uiname="Highlight Spread" />
+    <input name="coat_type" type="float" value="0" uivisible="true" uiname="Coat Type" enum="Car Paint,Chrome,Matte,Custom" enumvalues="0,1,2,3" uimin="0" uimax="3" />
+    <input name="coat_finish" type="float" value="0" uivisible="true" uiname="Coat Finish" enum="Smooth,Orange Peel" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="custom_coat_ior" type="float" value="1.5" uivisible="true" uiname="Custom Coat IOR" uimin="1" uimax="10" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Concrete> -->
+  <nodedef name="ND_legacy_concrete" node="legacy_concrete" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.5257, 0.5257, 0.5257" uivisible="true" uiname="Color" />
+    <input name="sealant" type="float" value="0" uivisible="true" uiname="Sealant" enum="None,Epoxy,Acrylic" enumvalues="0,1,2" uimin="0" uimax="2" />
+    <input name="finish_bump" type="float" value="0" uivisible="true" uiname="Finish Bump" enum="Broom Straight,Broom Curved,Smooth,Polished,Stamped/Custom" enumvalues="0,1,2,3,4" uimin="0" uimax="4" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="bump_broomstraight" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_broomcurved" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_smooth" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_polished" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_custom" type="vector3" value="0, 0, 0" uivisible="true" uiname="Custom Bump" />
+    <input name="weathering_enable" type="boolean" value="false" uivisible="true" uiname="Weathering" />
+    <input name="weathering_type" type="float" value="0" uivisible="true" uiname="Weathering Type" enum="Automatic,Custom" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="weathering_custom" type="color3" value="1, 1, 1" uivisible="true" uiname="Custom Weathering" />
+    <input name="weathering_bump" type="color3" value="1, 1, 1" uivisible="false" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Wall Paint> -->
+  <nodedef name="ND_legacy_wallpaint" node="legacy_wallpaint" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.9, 0.9, 0.9" uivisible="true" uiname="Color" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Flat-Matte,Eggshell,Platinum,Pearl,Semi-gloss,Gloss" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax="6" />
+    <input name="application" type="float" value="0" uivisible="true" uiname="Application" enum="Roller,Brush,Spray" enumvalues="0,1,2" uimin="0" uimax="2" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="normal_roller" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="normal_brush" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="normal_spray" type="vector3" value="0, 0, 0" uivisible="false" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Ceramic> -->
+  <nodedef name="ND_legacy_ceramic" node="legacy_ceramic" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.9, 0.9, 0.9" uivisible="true" uiname="Color" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="type" type="float" value="0" uivisible="true" uiname="Type" enum="Ceramic/Porcelain" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="High Gloss-Glazed,Satin,Matte" enumvalues="0,1,2" uimin="0" uimax="2" />
+    <input name="finish_bump_enable" type="boolean" value="false" uivisible="true" uiname="Finish Bump" />
+    <input name="finish_bump" type="float" value="0" uivisible="true" uiname="Finish Bump Type" enum="Wavy,Custom" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="custom_finish_normal" type="vector3" value="0,0,0" uivisible="true" uiname="Custom Finish Bump" />
+    <input name="relief_pattern_enable" type="boolean" value="false" uivisible="true" uiname="Relief Pattern" />
+    <input name="relief_pattern_normal" type="vector3" value="0,0,0" uivisible="true" uiname="Custom Relief Pattern" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Solid Glass> -->
+  <nodedef name="ND_legacy_glass" node="legacy_glass" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="float" value="0" uivisible="true" uiname="Color" enum="Clear,Green,Gray,Blue,Blue-Green,Bronze,Custom" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax="6" />
+    <input name="custom_color" type="color3" value="0.5, 0.5, 0.5" uivisible="true" uiname="Custom Color" />
+    <input name="test_sRGB" type="boolean" value="false" uivisible="true" uiname="Test sRGB" />
+    <input name="reflectance" type="float" value="0.05" uivisible="true" uiname="Reflectance" />
+    <input name="refraction_ior" type="float" value="0" uivisible="true" uiname="Refraction IOR" enum="Air,Water,Alcohol,Quartz,Glass,Diamond,Custom" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax= "6"/>
+    <input name="custom_ior" type="float" value="1.8" uivisible="true" uiname="Custom IOR" uimin="1" uimax="3"/>
+    <input name="roughness" type="float" value="0" uivisible="true" uiname="Roughness" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="relief_enable" type="boolean" value="false" uivisible="true" uiname="Relief" />
+    <input name="relief_type" type="float" value="0" uivisible="true" uiname="Relief Type" enum="Rippled,Wavy,Custom" enumvalues="0,1,2" uimin="0" uimax="2"/>
+    <input name="normal_rippled" type="vector3" value="0.5,0.5,1.0" uivisible="false" />
+    <input name="normal_wavy" type="vector3" value="0.5,0.5,1.0" uivisible="false" />
+    <input name="custom_relief" type="vector3" value="0.5,0.5,1.0" uivisible="true" uiname="Custom Relief" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Water> -->
+  <nodedef name="ND_legacy_water" node="legacy_water" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="type" type="float" value="0" uivisible="true" uiname="Type" enum="Swimming Pool,Generic Reflective Pool,Generic Stream-River,Generic Pond-Lake,Generic Sea-Ocean" enumvalues="0,1,2,3,4" uimin="0" uimax="4"/>
+    <input name="test_sRGB" type="boolean" value="false" uivisible="true" uiname="Test sRGB" />
+    <input name="secondary_color" type="float" value="0" uivisible="true" uiname="Secondary Color" enum="Tropical,Algae-Green,Murky-Brown,Generic-Reflective-Pool,Generic-Stream-River,Generic-Pond-Lake,Generic-Sea-Ocean,Custom" enumvalues="0,1,2,3,4,5,6,7" uimin="0" uimax="7"/>
+    <input name="custom_color" type="color3" value="0.8, 0.8, 0.8" uivisible="true" uiname="Custom Color" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="bump_swimming_pool" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_generic_refl_pool" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_generic_stream" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_generic_pond" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="bump_generic_sea" type="vector3" value="0, 0, 0" uivisible="false" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Stone> -->
+  <nodedef name="ND_legacy_stone" node="legacy_stone" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="color" type="color3" value="0.8, 0.8, 0.8" uivisible="true" uiname="Color" />
+    <input name="finish" type="float" value="1" uivisible="true" uiname="Finish" enum="Polished,Glossy,Satin,Matte,Unfinished" enumvalues="0,1,2,3,4" uimin="0" uimax="4"/>
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="finish_bump_enable" type="boolean" value="false" uivisible="true" uiname="Finish Bump" />
+    <input name="finish_bump" type="float" value="2" uivisible="true" uiname="Finish Bump Type" enum="Polished Granite,Stone Wall,Glossy Marble,Custom" enumvalues="0,1,2,3" uimin="0" uimax="3"/>
+    <input name="finish_granite" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="finish_marble" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="finish_wall" type="vector3" value="0, 0, 0" uivisible="false" />
+    <input name="custom_finish" type="vector3" value="0, 0, 0" uivisible="true" uiname="Custom Finish Bump" />
+    <input name="relief_pattern_enable" type="boolean" value="false" uivisible="true" uiname="Relief Pattern" />
+    <input name="relief_pattern" type="vector3" value="0, 0, 0" uivisible="true" uiname="Custom Relief Pattern" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Masonry> -->
+  <nodedef name="ND_legacy_masonry" node="legacy_masonry" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="type" type="float" value="0" uivisible="true" uiname="Type" enum="Masonry,CMU" enumvalues="0,1" uimin="0" uimax="1" />
+    <input name="color" type="color3" value="0.8, 0.8, 0.8" uivisible="true" uiname="Color" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Glossy,Matte,Unfinished" enumvalues="0,1,2" uimin="0" uimax="2" />
+    <input name="relief_enable" type="boolean" value="false" uivisible="true" uiname="Relief" />
+    <input name="relief_image" type="vector3" value="0, 0, 1" uivisible="true" uiname="Custom Relief" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <!-- <Legacy Generic> -->
+  <nodedef name="ND_legacy_generic" node="legacy_generic" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
+    <input name="diffuse_color" type="color3" value="0.8, 0.8, 0.8" uivisible="true" uiname="Color" />
+    <input name="diffuse_image_enable" type="boolean" value="false" uivisible="true" uiname="Image" />
+    <input name="diffuse_image" type="color3" value="1, 1, 1" uivisible="true" uiname="Custom Image" />
+    <input name="diffuse_image_fade" type="float" value="1" uivisible="true" uiname="Image Fade" uimin="0" uimax="1" />
+    <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
+    <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
+    <input name="glossiness" type="float" value="0.8" uivisible="true" uiname="Glossiness" uimin="0" uimax="1" />
+    <input name="metallic_highlights" type="boolean" value="false" uivisible="true" uiname="Metallic Highlights" />
+    <input name="reflectivity_enable" type="boolean" value="true" uivisible="true" uiname="Reflectivity" />
+    <input name="reflectivity" type="float" value="0.05" uivisible="true" uiname="Reflectivity Amount" />
+    <input name="transparency_enable" type="boolean" value="false" uivisible="true" uiname="Transparency" />
+    <input name="transparency_amount" type="float" value="1" uivisible="true" uiname="Transparency Amount" uimin="0" uimax="1" />
+    <input name="transparency_image_enable" type="boolean" value="false" uivisible="true" uiname="Transparency Image" />
+    <input name="transparency_image" type="float" value="0" uivisible="true" uiname="Custom Transparency Image" />
+    <input name="transparency_image_fade" type="float" value="1" uivisible="true" uiname="Transparency Image Fade" uimin="0" uimax="1" />
+    <input name="refraction" type="float" value="4" uivisible="true" uiname="Refraction IOR" enum="Air,Water,Alcohol,Quartz,Glass,Diamond,Custom" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax="6" />
+    <input name="custom_refraction" type="float" value="1.5" uivisible="true" uiname="Custom Refraction IOR" uimin="1" uimax="10" />
+    <input name="translucency" type="float" value="0" uivisible="true" uiname="Translucency" />
+    <input name="bump_enable" type="boolean" value="false" uivisible="true" uiname="Bump" />
+    <input name="bump" type="vector3" value="0, 0, 1" uivisible="true" uiname="Custom Bump" />
+    <input name="cutout_enable" type="boolean" value="false" uivisible="true" uiname="Cutout" />
+    <input name="cutout_image" type="color3" value="1, 1, 1" uivisible="true" uiname="Custom Cutout" />
+    <input name="emission_enable" type="boolean" value="false" uivisible="true" uiname="Emission" />
+    <input name="emission_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Emission Color" />
+    <input name="luminance" type="float" value="0" uivisible="true" uiname="Luminance" enum="Dim Glow,LED Panel,LED Screen,Cell Phone Screen,CRT Television,Lamp Shade Exterior,Lamp Shade Interior,Desk Lamp Lens,Halogen Lamp Lens,Frosted Bulb,Custom" enumvalues="0,1,2,3,4,5,6,7,8,9,10" uimin="0" uimax="10" />
+    <input name="custom_luminance" type="float" value="250" uivisible="true" uiname="Custom Luminance" uimin="0" uisoftmax="1500" />
+    <input name="color_temperature" type="float" value="5" uivisible="true" uiname="Color Temperature" enum="Candle,Incandescent Bulb,Floodlight,Moonlight,Daylight Warm,Daylight Cool,Xenon Arc lamp,TV Screen,Custom" enumvalues="0,1,2,3,4,5,6,7,8" uimin="0" uimax="8" />
+    <input name="custom_color_temperature" type="float" value="6500" uivisible="true" uiname="Custom Color Temperature" uimin="1667" uimax="25000" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+</materialx>
