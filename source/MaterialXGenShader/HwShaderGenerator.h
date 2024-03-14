@@ -71,9 +71,9 @@ Uniform variables :
     $envMatrix                          u_envMatrix                         mat4       Rotation matrix for the environment.
     $envIrradiance                      u_envIrradiance                     sampler2D  Sampler for the texture used for diffuse environment lighting.
     $envRadiance                        u_envRadiance                       sampler2D  Sampler for the texture used for specular environment lighting.
+    $envLightIntensity                  u_envLightIntensity                 float      Linear multiplier for environment lighting
     $envRadianceMips                    u_envRadianceMips                   int        Number of mipmaps used on the specular environment texture.
     $envRadianceSamples                 u_envRadianceSamples                int        Samples to use if Filtered Importance Sampling is used for specular environment lighting.
-    $envLightIntensity                  u_envLightIntensity                 float      Linear multiplier for environment lighting
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
