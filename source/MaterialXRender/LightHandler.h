@@ -151,11 +151,13 @@ class MX_RENDER_API LightHandler
         return _envSampleCount;
     }
 
+    /// Set the environment light intensity.
     void setEnvLightIntensity(const float intensity)
     {
         _envLightIntensity = intensity;
     }
 
+    /// Return the environment light intensity.
     float getEnvLightIntensity()
     {
         return _envLightIntensity;
