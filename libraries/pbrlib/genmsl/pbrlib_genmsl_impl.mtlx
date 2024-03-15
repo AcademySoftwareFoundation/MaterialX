@@ -28,9 +28,6 @@
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genmsl" nodedef="ND_anisotropic_vdf" file="../genglsl/mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genmsl" />
 
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genmsl" nodedef="ND_thin_film_bsdf" target="genmsl" />
-
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genmsl" nodedef="ND_layer_bsdf" target="genmsl" />
   <implementation name="IM_layer_vdf_genmsl" nodedef="ND_layer_vdf" target="genmsl" />

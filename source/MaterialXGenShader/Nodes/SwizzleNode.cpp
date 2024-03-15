@@ -49,7 +49,7 @@ void SwizzleNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
 
         if (!swizzle.empty())
         {
-            const TypeDesc* type = in->getConnection() ? in->getConnection()->getType() : in->getType();
+            const TypeDesc type = in->getConnection() ? in->getConnection()->getType() : in->getType();
             variableName = shadergen.getSyntax().getSwizzledVariable(variableName, type, swizzle, node.getOutput()->getType());
         }
 

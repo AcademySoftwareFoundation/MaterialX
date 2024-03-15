@@ -42,9 +42,8 @@
   </implementation>
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
+  <implementation name="IM_normalmap_float_genglsl" nodedef="ND_normalmap_float" file="mx_normalmap.glsl" function="mx_normalmap_float" target="genglsl" />
   <implementation name="IM_normalmap_vector2_genglsl" nodedef="ND_normalmap_vector2" file="mx_normalmap.glsl" function="mx_normalmap_vector2" target="genglsl" />
-
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
@@ -330,25 +329,25 @@
   <implementation name="IM_tan_float_genglsl" nodedef="ND_tan_float" target="genglsl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_float_genglsl" nodedef="ND_asin_float" target="genglsl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_float_genglsl" nodedef="ND_acos_float" target="genglsl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_float_genglsl" nodedef="ND_atan2_float" target="genglsl" sourcecode="atan({{in1}}, {{in2}})" />
+  <implementation name="IM_atan2_float_genglsl" nodedef="ND_atan2_float" target="genglsl" sourcecode="atan({{iny}}, {{inx}})" />
   <implementation name="IM_sin_vector2_genglsl" nodedef="ND_sin_vector2" target="genglsl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector2_genglsl" nodedef="ND_cos_vector2" target="genglsl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector2_genglsl" nodedef="ND_tan_vector2" target="genglsl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector2_genglsl" nodedef="ND_asin_vector2" target="genglsl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector2_genglsl" nodedef="ND_acos_vector2" target="genglsl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector2_genglsl" nodedef="ND_atan2_vector2" target="genglsl" sourcecode="atan({{in1}}, {{in2}})" />
+  <implementation name="IM_atan2_vector2_genglsl" nodedef="ND_atan2_vector2" target="genglsl" sourcecode="atan({{iny}}, {{inx}})" />
   <implementation name="IM_sin_vector3_genglsl" nodedef="ND_sin_vector3" target="genglsl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector3_genglsl" nodedef="ND_cos_vector3" target="genglsl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector3_genglsl" nodedef="ND_tan_vector3" target="genglsl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector3_genglsl" nodedef="ND_asin_vector3" target="genglsl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector3_genglsl" nodedef="ND_acos_vector3" target="genglsl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector3_genglsl" nodedef="ND_atan2_vector3" target="genglsl" sourcecode="atan({{in1}}, {{in2}})" />
+  <implementation name="IM_atan2_vector3_genglsl" nodedef="ND_atan2_vector3" target="genglsl" sourcecode="atan({{iny}}, {{inx}})" />
   <implementation name="IM_sin_vector4_genglsl" nodedef="ND_sin_vector4" target="genglsl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector4_genglsl" nodedef="ND_cos_vector4" target="genglsl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector4_genglsl" nodedef="ND_tan_vector4" target="genglsl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector4_genglsl" nodedef="ND_asin_vector4" target="genglsl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector4_genglsl" nodedef="ND_acos_vector4" target="genglsl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector4_genglsl" nodedef="ND_atan2_vector4" target="genglsl" sourcecode="atan({{in1}}, {{in2}})" />
+  <implementation name="IM_atan2_vector4_genglsl" nodedef="ND_atan2_vector4" target="genglsl" sourcecode="atan({{iny}}, {{inx}})" />
 
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genglsl" nodedef="ND_sqrt_float" target="genglsl" sourcecode="sqrt({{in}})" />

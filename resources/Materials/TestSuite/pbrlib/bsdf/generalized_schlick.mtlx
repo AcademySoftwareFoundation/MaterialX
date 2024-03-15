@@ -4,6 +4,7 @@
     <generalized_schlick_bsdf name="schlick_R" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="R" />
@@ -16,6 +17,7 @@
     <generalized_schlick_bsdf name="schlick_T" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="T" />
@@ -28,6 +30,7 @@
     <generalized_schlick_bsdf name="schlick_RT" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="RT" />
@@ -49,6 +52,7 @@
     <generalized_schlick_bsdf name="schlick_R2" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.5, 0.0, 0.0" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="0.0, 1.0, 0.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="R" />
@@ -61,6 +65,7 @@
     <generalized_schlick_bsdf name="schlick_T2" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.5, 0.0, 0.0" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="0.0, 1.0, 0.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="T" />
@@ -73,6 +78,7 @@
     <generalized_schlick_bsdf name="schlick_RT2" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.5, 0.0, 0.0" />
+      <input name="color82" type="color3" value="1.0, 1.0, 1.0" />
       <input name="color90" type="color3" value="0.0, 1.0, 0.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="scatter_mode" type="string" value="RT" />
@@ -90,6 +96,19 @@
       <input name="bsdf" type="BSDF" nodename="layer_RT2" />
     </surface>
     <output name="layer_RT2_out" type="surfaceshader" nodename="surface_layer_RT2" />
+
+    <generalized_schlick_bsdf name="schlick_R3" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color0" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="color82" type="color3" value="0.0, 0.0, 1.0" />
+      <input name="color90" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="exponent" type="float" value="5.0" />
+      <input name="scatter_mode" type="string" value="R" />
+    </generalized_schlick_bsdf>
+    <surface name="surface_R3" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="schlick_R3" />
+    </surface>
+    <output name="R3_out" type="surfaceshader" nodename="surface_R3" />
 
   </nodegraph>
 </materialx>

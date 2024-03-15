@@ -41,110 +41,67 @@ void ClosureLayerNodeOsl::emitFunctionCall(const ShaderNode& _node, GenContext& 
 
     ClosureContext* cct = context.getClosureContext();
 
-    if (top->hasClassification(ShaderNode::Classification::THINFILM))
+    // Evaluate top and base nodes and combine their result
+    // according to throughput.
+    //
+    // TODO: In the BSDF over BSDF case should we emit code
+    //       to check the top throughput amount before calling
+    //       the base BSDF?
+
+    // Make sure the connections are sibling nodes and not the graph interface.
+    if (top->getParent() == node.getParent())
     {
-        // This is a layer node with thin-film as top layer.
-        // Call only the base BSDF but with thin-film parameters set.
-
-        // Make sure the connection to base is a sibling node and not the graph interface.
-        if (base->getParent() != node.getParent())
-        {
-            throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
-        }
-
-        // Set the extra parameters for thin-film.
-        ClosureContext::ClosureParams params;
-        params[THICKNESS] = top->getInput(THICKNESS);
-        params[IOR] = top->getInput(IOR);
-        ScopedSetClosureParams setParams(&params, base, cct);
-
-        // Store the base result in the layer result variable.
-        ScopedSetVariableName setVariable(output->getVariable(), base->getOutput());
-
-        // Emit the function call.
+        // If this layer node has closure parameters set,
+        // we pass this on to the top component only.
+        ScopedSetClosureParams setParams(&node, top, cct);
+        shadergen.emitFunctionCall(*top, context, stage);
+    }
+    if (base->getParent() == node.getParent())
+    {
         shadergen.emitFunctionCall(*base, context, stage);
+    }
+
+    // Get the result variables.
+    const string& topResult = topInput->getConnection()->getVariable();
+    const string& baseResult = baseInput->getConnection()->getVariable();
+
+    // Calculate the layering result.
+    emitOutputVariables(node, context, stage);
+    if (base->getOutput()->getType() == Type::VDF)
+    {
+        // Combining a surface closure with a volumetric closure is simply done with the add operator in OSL.
+        shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult, stage);
+        // Just pass the throughput along.
+        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput", stage);
     }
     else
     {
-        // Evaluate top and base nodes and combine their result
-        // according to throughput.
-        //
-        // TODO: In the BSDF over BSDF case should we emit code
-        //       to check the top throughput amount before calling
-        //       the base BSDF?
-
-        // Make sure the connections are sibling nodes and not the graph interface.
-        if (top->getParent() == node.getParent())
-        {
-            // If this layer node has closure parameters set,
-            // we pass this on to the top component only.
-            ScopedSetClosureParams setParams(&node, top, cct);
-            shadergen.emitFunctionCall(*top, context, stage);
-        }
-        if (base->getParent() == node.getParent())
-        {
-            shadergen.emitFunctionCall(*base, context, stage);
-        }
-
-        // Get the result variables.
-        const string& topResult = topInput->getConnection()->getVariable();
-        const string& baseResult = baseInput->getConnection()->getVariable();
-
-        // Calculate the layering result.
-        emitOutputVariables(node, context, stage);
-        if (*base->getOutput()->getType() == *Type::VDF)
-        {
-            // Combining a surface closure with a volumetric closure is simply done with the add operator in OSL.
-            shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult, stage);
-            // Just pass the throughput along.
-            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput", stage);
-        }
-        else
-        {
-            shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult + ".response * " + topResult + ".throughput", stage);
-            shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
-        }
+        shadergen.emitLine(output->getVariable() + ".response = " + topResult + ".response + " + baseResult + ".response * " + topResult + ".throughput", stage);
+        shadergen.emitLine(output->getVariable() + ".throughput = " + topResult + ".throughput * " + baseResult + ".throughput", stage);
     }
 
 #else
 
-    if (top->hasClassification(ShaderNode::Classification::THINFILM))
+    // Emit the function call for top and base layer.
+    // Make sure the connections are sibling nodes and not the graph interface.
+    if (top->getParent() == node.getParent())
     {
-        // Make sure the connection to base is a sibling node and not the graph interface.
-        if (base->getParent() != node.getParent())
-        {
-            throw ExceptionShaderGenError("Thin-film can only be applied to a sibling node, not through a graph interface");
-        }
-
-        // TODO: Thin-film is not supported yet.
-        // Emit the function call for base layer but
-        // store the base result in the layer result variable.
-        ScopedSetVariableName setVariable(output->getVariable(), base->getOutput());
+        shadergen.emitFunctionCall(*top, context, stage);
+    }
+    if (base->getParent() == node.getParent())
+    {
         shadergen.emitFunctionCall(*base, context, stage);
     }
-    else
-    {
-        // Emit the function call for top and base layer.
-        // Make sure the connections are sibling nodes and not the graph interface.
-        if (top->getParent() == node.getParent())
-        {
-            shadergen.emitFunctionCall(*top, context, stage);
-        }
-        if (base->getParent() == node.getParent())
-        {
-            shadergen.emitFunctionCall(*base, context, stage);
-        }
 
-        // Get the result variables.
-        const string& topResult = topInput->getConnection()->getVariable();
-        const string& baseResult = baseInput->getConnection()->getVariable();
+    // Get the result variables.
+    const string& topResult = topInput->getConnection()->getVariable();
+    const string& baseResult = baseInput->getConnection()->getVariable();
 
-        // Emit the layer closure call.
-        shadergen.emitLineBegin(stage);
-        shadergen.emitOutput(output, true, false, context, stage);
-        shadergen.emitString(" = layer(" + topResult + ", " + baseResult + ")", stage);
-        shadergen.emitLineEnd(stage);
-    }
+    // Emit the layer closure call.
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(output, true, false, context, stage);
+    shadergen.emitString(" = layer(" + topResult + ", " + baseResult + ")", stage);
+    shadergen.emitLineEnd(stage);
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
 }

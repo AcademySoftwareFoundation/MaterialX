@@ -60,11 +60,11 @@ void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& contex
         // larger datatype than the requested number of texture coordinates, if several texture
         // coordinate nodes with different width coexist).
         string suffix = EMPTY_STRING;
-        if (*output->getType() == *Type::VECTOR2)
+        if (output->getType() == Type::VECTOR2)
         {
             suffix = ".xy";
         }
-        else if (*output->getType() == *Type::VECTOR3)
+        else if (output->getType() == Type::VECTOR3)
         {
             suffix = ".xyz";
         }

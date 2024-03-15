@@ -1154,7 +1154,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-atan2"> </a>
 
-* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `in1` and `in2` are provided, they must be the same type.
+* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `iny` and `inx` are provided, they must be the same type.
     * `iny` (float or vector<em>N</em>): the value or nodename for the "y" input; default is 0.0.
     * `inx` (float or vector<em>N</em>): the value or nodename for the "x" input; default is 1.0.
 

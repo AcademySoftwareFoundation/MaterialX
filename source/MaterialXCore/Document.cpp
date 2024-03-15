@@ -46,6 +46,44 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     return NodeDefPtr();
 }
 
+void copyConnectionOrValue(NodePtr srcNode, const string& srcInput, NodePtr dstNode, const string& dstInput)
+{
+    InputPtr src = srcNode->getInput(srcInput);
+    if (src)
+    {
+        InputPtr dst = dstNode->getInput(dstInput);
+        if (!dst)
+        {
+            dst = dstNode->addInput(dstInput, src->getType());
+        }
+
+        if (src->hasNodeName())
+        {
+            dst->setNodeName(src->getNodeName());
+            if (src->hasOutputString())
+            {
+                dst->setOutputString(src->getOutputString());
+            }
+        }
+        else if (src->hasNodeGraphString())
+        {
+            dst->setNodeGraphString(src->getNodeGraphString());
+            if (src->hasOutputString())
+            {
+                dst->setOutputString(src->getOutputString());
+            }
+        }
+        else if (src->hasInterfaceName())
+        {
+            dst->setInterfaceName(src->getInterfaceName());
+        }
+        else if (src->hasValueString())
+        {
+            dst->setValueString(src->getValueString());
+        }
+    }
+}
+
 } // anonymous namespace
 
 //
@@ -916,7 +954,7 @@ void Document::upgradeVersion()
     }
 
     // Upgrade from 1.37 to 1.38
-    if (majorVersion == 1 && minorVersion >= 37)
+    if (majorVersion == 1 && minorVersion == 37)
     {
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
@@ -1333,6 +1371,111 @@ void Document::upgradeVersion()
         }
 
         minorVersion = 38;
+    }
+
+    // Upgrade from 1.38 to 1.39
+    if (majorVersion == 1 && minorVersion == 38)
+    {
+        const StringSet BSDF_WITH_THINFILM = { "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf" };
+        const string LAYER = "layer";
+        const string TOP = "top";
+        const string BASE = "base";
+        const string THIN_FILM_BSDF = "thin_film_bsdf";
+        const string THICKNESS = "thickness";
+        const string IOR = "ior";
+        const string THINFILM_THICKNESS = "thinfilm_thickness";
+        const string THINFILM_IOR = "thinfilm_ior";
+
+        // Convert layering of thin_film_bsdf nodes to thin-film parameters on the affected BSDF nodes.
+        for (ElementPtr elem : traverseTree())
+        {
+            if (elem->isA<Node>(LAYER))
+            {
+                NodePtr layer = elem->asA<Node>();
+                NodePtr top = layer->getConnectedNode(TOP);
+                NodePtr base = layer->getConnectedNode(BASE);
+                if (top && base && top->getCategory() == THIN_FILM_BSDF)
+                {
+                    // Apply thin-film parameters to all supported BSDF's upstream. 
+                    for (Edge edge : layer->traverseGraph())
+                    {
+                        NodePtr upstream = edge.getUpstreamElement()->asA<Node>();
+                        if (upstream && BSDF_WITH_THINFILM.count(upstream->getCategory()))
+                        {
+                            copyConnectionOrValue(top, THICKNESS, upstream, THINFILM_THICKNESS);
+                            copyConnectionOrValue(top, IOR, upstream, THINFILM_IOR);
+                        }
+                    }
+
+                    // Bypass the thin-film layer operator.
+                    vector<MaterialX::PortElementPtr> downstreamPorts = layer->getDownstreamPorts();
+                    for (auto port : downstreamPorts)
+                    {
+                        port->setNodeName(base->getName());
+                    }
+
+                    // Remove the now unused nodes.
+                    removeNode(layer->getName());
+                    removeNode(top->getName());
+                }
+            }
+
+            NodePtr node = elem->asA<Node>();
+            if (!node)
+            {
+                continue;
+            }
+            const string& nodeCategory = node->getCategory();
+            const string& nodeDef = node->getNodeDefString();
+            if (nodeCategory == "atan2")
+            {
+                // rename input ports
+                // "in1" -> "iny"
+                // "in2" -> "inx"
+
+                auto input1 = node->getInput("in1");
+                if (input1)
+                {
+                    input1->setName("iny");
+                }
+                auto input2 = node->getInput("in2");
+                if (input2)
+                {
+                    input2->setName("inx");
+                }
+            }
+            else if (nodeCategory == "switch")
+            {
+                // previously we only had 5 inputs, and any value of "which" outside of the valid range of inputs would default to the
+                // first input.  To retain backwards image compatibility we need to revert any value of "which" that is now a valid value
+                // ie 6,7,8,9,10, to the value of the default, ie. 1.
+                // NOTE : this won't catch the case if there is something connected upstream in to the 'which' port.  Open to suggestions
+                // on how to handle this.
+
+                auto which = node->getInput("which");
+                if (which && which->hasValue())
+                {
+                    auto whichValue = which->getValue();
+                    if (whichValue->isA<int>() && whichValue->asA<int>() >= 5)
+                    {
+                        which->setValue(0);
+                    }
+                    else if (whichValue->isA<float>() && whichValue->asA<float>() >= 5)
+                    {
+                        which->setValue(0.0);
+                    }
+                }
+            }
+            else if (nodeDef == "ND_normalmap")
+            {
+                // ND_normalmap was renamed to ND_normalmap_float
+                node->setNodeDefString("ND_normalmap_float");
+            }
+        }
+
+        removeNodeDef("ND_thin_film_bsdf");
+
+        minorVersion = 39;
     }
 
     std::pair<int, int> upgradedVersion(majorVersion, minorVersion);

@@ -6,6 +6,12 @@ float mx_pow5(float x)
     return mx_square(mx_square(x)) * x;
 }
 
+float mx_pow6(float x)
+{
+    float x2 = mx_square(x);
+    return mx_square(x2) * x2;
+}
+
 // Standard Schlick Fresnel
 float mx_fresnel_schlick(float cosTheta, float F0)
 {

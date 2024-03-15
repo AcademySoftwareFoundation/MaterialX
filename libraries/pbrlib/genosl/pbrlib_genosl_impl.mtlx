@@ -14,7 +14,7 @@
   <implementation name="IM_dielectric_bsdf_genosl" nodedef="ND_dielectric_bsdf" file="mx_dielectric_bsdf.osl" function="mx_dielectric_bsdf" target="genosl" />
 
   <!-- <conductor_bsdf> -->
-  <implementation name="IM_conductor_bsdf_genosl" nodedef="ND_conductor_bsdf" sourcecode="{{weight}} * conductor_bsdf({{normal}}, {{tangent}}, {{roughness}}.x, {{roughness}}.y, {{ior}}, {{extinction}}, {{distribution}})" target="genosl" />
+  <implementation name="IM_conductor_bsdf_genosl" nodedef="ND_conductor_bsdf" sourcecode="{{weight}} * conductor_bsdf({{normal}}, {{tangent}}, {{roughness}}.x, {{roughness}}.y, {{ior}}, {{extinction}}, {{distribution}}, &quot;thinfilm_thickness&quot;, {{thinfilm_thickness}}, &quot;thinfilm_ior&quot;, {{thinfilm_ior}})" target="genosl" />
 
   <!-- <generalized_schlick_bsdf> -->
   <implementation name="IM_generalized_schlick_bsdf_genosl" nodedef="ND_generalized_schlick_bsdf" file="mx_generalized_schlick_bsdf.osl" function="mx_generalized_schlick_bsdf" target="genosl" />
@@ -27,9 +27,6 @@
 
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />
-
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genosl" nodedef="ND_thin_film_bsdf" target="genosl" />
 
   <!-- <uniform_edf> -->
   <implementation name="IM_uniform_edf_genosl" nodedef="ND_uniform_edf" sourcecode="uniform_edf({{color}})" target="genosl" />

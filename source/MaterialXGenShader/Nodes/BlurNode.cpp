@@ -46,14 +46,13 @@ void BlurNode::computeSampleOffsetStrings(const string& sampleSizeName, const st
     }
 }
 
-bool BlurNode::acceptsInputType(const TypeDesc* type) const
+bool BlurNode::acceptsInputType(TypeDesc type) const
 {
     // Float 1-4 is acceptable as input
-    return ((*type == *Type::FLOAT && type->isScalar()) ||
-            type->isFloat2() || type->isFloat3() || type->isFloat4());
+    return (type == Type::FLOAT || type.isFloat2() || type.isFloat3() || type.isFloat4());
 }
 
-void BlurNode::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
+void BlurNode::outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, TypeDesc inputType,
                                  const string& sampleName, const StringVec& sampleStrings) const
 {
     const string MX_MAX_SAMPLE_COUNT_STRING("MX_MAX_SAMPLE_COUNT");
@@ -164,7 +163,7 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
             shadergen.emitString("if (", stage);
             shadergen.emitInput(filterTypeInput, context, stage);
             // Remap enumeration for comparison as needed
-            std::pair<const TypeDesc*, ValuePtr> result;
+            std::pair<TypeDesc, ValuePtr> result;
             string emitValue = "\"" + GAUSSIAN_FILTER + "\"";
             if (syntax.remapEnumeration(GAUSSIAN_FILTER, Type::STRING, FILTER_LIST, result))
             {

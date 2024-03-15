@@ -281,10 +281,10 @@ GlslSyntax::GlslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { vec3 response; vec3 throughput; float thickness; float ior; };"));
+            "struct BSDF { vec3 response; vec3 throughput; };"));
 
     registerTypeSyntax(
         Type::EDF,
@@ -299,7 +299,7 @@ GlslSyntax::GlslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(vec3(0.0),vec3(1.0), 0.0, 0.0)",
+            "BSDF(vec3(0.0),vec3(1.0))",
             EMPTY_STRING));
 
     registerTypeSyntax(
@@ -350,10 +350,10 @@ GlslSyntax::GlslSyntax()
 
 bool GlslSyntax::typeSupported(const TypeDesc* type) const
 {
-    return type != Type::STRING;
+    return *type != Type::STRING;
 }
 
-bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
+bool GlslSyntax::remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const
 {
     // Early out if not an enum input.
     if (enumNames.empty())
@@ -362,9 +362,7 @@ bool GlslSyntax::remapEnumeration(const string& value, const TypeDesc* type, con
     }
 
     // Don't convert already supported types
-    // or filenames and arrays.
-    if (typeSupported(type) ||
-        *type == *Type::FILENAME || (type && type->isArray()))
+    if (type != Type::STRING)
     {
         return false;
     }

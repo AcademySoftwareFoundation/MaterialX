@@ -278,7 +278,7 @@ class MX_RENDERMSL_API MslProgram
     void reset();
 
     // Utility to map a MaterialX type to an METAL type
-    static MTLDataType mapTypeToMetalType(const TypeDesc* type);
+    static MTLDataType mapTypeToMetalType(TypeDesc type);
 
   private:
     // Stages used to create program

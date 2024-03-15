@@ -28,11 +28,11 @@ using ColorManagementSystemPtr = shared_ptr<class ColorManagementSystem>;
 /// Structure that represents color space transform information
 struct MX_GENSHADER_API ColorSpaceTransform
 {
-    ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t);
+    ColorSpaceTransform(const string& ss, const string& ts, TypeDesc t);
 
     string sourceSpace;
     string targetSpace;
-    const TypeDesc* type;
+    TypeDesc type;
 
     /// Comparison operator
     bool operator==(const ColorSpaceTransform& other) const

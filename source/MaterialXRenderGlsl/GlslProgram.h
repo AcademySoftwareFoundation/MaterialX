@@ -230,7 +230,7 @@ class MX_RENDERGLSL_API GlslProgram
                          ImageHandlerPtr imageHandler, const ImageSamplingProperties& imageProperties);
 
     // Utility to map a MaterialX type to an OpenGL type
-    static int mapTypeToOpenGLType(const TypeDesc* type);
+    static int mapTypeToOpenGLType(TypeDesc type);
 
     // Bind a value to the uniform at the given location.
     void bindUniformLocation(int location, ConstValuePtr value);

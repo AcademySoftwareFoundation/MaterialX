@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
+
+  <!--
+  Leaving these unchanged as v1.38 documents to test the automatic upgrade of thin-film setups from 1.38 to 1.39.
+  -->
+
   <nodegraph name="thin_film_test1">
     <dielectric_bsdf name="dielectric_brdf_1" type="BSDF">
       <input name="ior" type="float" value="2.5" />

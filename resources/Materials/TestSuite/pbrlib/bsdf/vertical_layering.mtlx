@@ -17,129 +17,36 @@
   </nodegraph>
 
   <nodegraph name="vertical_layering_ex2">
-    <thin_film_bsdf name="thin_film_bsdf" type="BSDF" nodedef="ND_thin_film_bsdf">
-      <input name="thickness" type="float" value="300" />
-    </thin_film_bsdf>
-    <dielectric_bsdf name="dielectric_bsdf" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="3" />
-    </dielectric_bsdf>
+    <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf1" type="BSDF" nodedef="ND_oren_nayar_diffuse_bsdf">
+      <input name="color" type="color3" value="1, 0, 0" uivisible="true" />
+    </oren_nayar_diffuse_bsdf>
+    <dielectric_bsdf name="dielectric_bsdf1" type="BSDF" nodedef="ND_dielectric_bsdf" />
     <layer name="layer1" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf" />
-      <input name="base" type="BSDF" nodename="dielectric_bsdf" />
+      <input name="top" type="BSDF" nodename="dielectric_bsdf1" uivisible="true" />
+      <input name="base" type="BSDF" nodename="oren_nayar_diffuse_bsdf1" uivisible="true" />
     </layer>
-    <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf" type="BSDF" nodedef="ND_oren_nayar_diffuse_bsdf" />
+    <dielectric_bsdf name="dielectric_bsdf2" type="BSDF" nodedef="ND_dielectric_bsdf">
+      <input name="ior" type="float" value="3" uivisible="true" />
+    </dielectric_bsdf>
+    <mix name="mix1" type="BSDF" nodedef="ND_mix_bsdf">
+      <input name="fg" type="BSDF" nodename="layer1" uivisible="true" />
+      <input name="bg" type="BSDF" nodename="dielectric_bsdf2" uivisible="true" />
+      <input name="mix" type="float" value="0.5" uivisible="true" />
+    </mix>
+    <dielectric_bsdf name="dielectric_bsdf3" type="BSDF" nodedef="ND_dielectric_bsdf">
+      <input name="ior" type="float" value="3" uivisible="true" />
+    </dielectric_bsdf>
     <layer name="layer2" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="layer1" />
-      <input name="base" type="BSDF" nodename="oren_nayar_diffuse_bsdf" />
+      <input name="top" type="BSDF" nodename="dielectric_bsdf3" uivisible="true" />
+      <input name="base" type="BSDF" nodename="mix1" uivisible="true" />
     </layer>
     <surface name="surface1" type="surfaceshader" nodedef="ND_surface">
-      <input name="bsdf" type="BSDF" nodename="layer2" />
+      <input name="bsdf" type="BSDF" nodename="layer2" uivisible="true" />
     </surface>
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
 
   <nodegraph name="vertical_layering_ex3">
-    <thin_film_bsdf name="thin_film_bsdf1" type="BSDF" nodedef="ND_thin_film_bsdf">
-      <input name="thickness" type="float" value="300" />
-    </thin_film_bsdf>
-    <dielectric_bsdf name="dielectric_bsdf1" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="3" />
-    </dielectric_bsdf>
-    <layer name="layer1" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf1" />
-      <input name="base" type="BSDF" nodename="dielectric_bsdf1" />
-    </layer>
-    <dielectric_bsdf name="dielectric_bsdf2" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="2" />
-    </dielectric_bsdf>
-    <layer name="layer2" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="dielectric_bsdf2" />
-      <input name="base" type="BSDF" nodename="layer1" />
-    </layer>
-    <surface name="surface1" type="surfaceshader" nodedef="ND_surface">
-      <input name="bsdf" type="BSDF" nodename="layer2" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-
-  <nodegraph name="vertical_layering_ex4">
-    <thin_film_bsdf name="thin_film_bsdf1" type="BSDF" nodedef="ND_thin_film_bsdf">
-      <input name="thickness" type="float" value="300" />
-    </thin_film_bsdf>
-    <dielectric_bsdf name="dielectric_bsdf1" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="3" />
-    </dielectric_bsdf>
-    <layer name="layer1" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf1" />
-      <input name="base" type="BSDF" nodename="dielectric_bsdf1" />
-    </layer>
-    <dielectric_bsdf name="dielectric_bsdf2" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="2.0" />
-    </dielectric_bsdf>
-    <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf" type="BSDF" nodedef="ND_oren_nayar_diffuse_bsdf" />
-    <layer name="layer2" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="dielectric_bsdf2" />
-      <input name="base" type="BSDF" nodename="oren_nayar_diffuse_bsdf" />
-    </layer>
-    <layer name="layer3" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="layer1" />
-      <input name="base" type="BSDF" nodename="layer2" />
-    </layer>
-    <surface name="surface1" type="surfaceshader" nodedef="ND_surface">
-      <input name="bsdf" type="BSDF" nodename="layer3" />
-    </surface>
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-
-  <nodegraph name="vertical_layering_ex5">
-    <thin_film_bsdf name="thin_film_bsdf" type="BSDF" nodedef="ND_thin_film_bsdf">
-      <input name="thickness" type="float" value="300" uivisible="true" />
-    </thin_film_bsdf>
-    <dielectric_bsdf name="dielectric_bsdf" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="3" uivisible="true" />
-    </dielectric_bsdf>
-    <surface name="surface" type="surfaceshader" nodedef="ND_surface">
-      <input name="bsdf" type="BSDF" value="" uivisible="true" />
-      <input name="edf" type="EDF" value="" uivisible="true" />
-    </surface>
-    <layer name="layer1" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" value="" uivisible="true" />
-      <input name="base" type="BSDF" value="" uivisible="true" />
-    </layer>
-    <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf1" type="BSDF" nodedef="ND_oren_nayar_diffuse_bsdf">
-      <input name="color" type="color3" value="1, 0, 0" uivisible="true" />
-    </oren_nayar_diffuse_bsdf>
-    <surface name="surface1" type="surfaceshader" nodedef="ND_surface">
-      <input name="bsdf" type="BSDF" nodename="layer2" uivisible="true" />
-    </surface>
-    <dielectric_bsdf name="dielectric_bsdf1" type="BSDF" nodedef="ND_dielectric_bsdf">
-      <input name="ior" type="float" value="3" uivisible="true" />
-    </dielectric_bsdf>
-    <layer name="layer2" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="layer3" uivisible="true" />
-      <input name="base" type="BSDF" nodename="mix" uivisible="true" />
-    </layer>
-    <layer name="layer3" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf1" uivisible="true" />
-      <input name="base" type="BSDF" nodename="dielectric_bsdf1" uivisible="true" />
-    </layer>
-    <thin_film_bsdf name="thin_film_bsdf1" type="BSDF" nodedef="ND_thin_film_bsdf">
-      <input name="thickness" type="float" value="300" uivisible="true" />
-    </thin_film_bsdf>
-    <mix name="mix" type="BSDF" nodedef="ND_mix_bsdf">
-      <input name="fg" type="BSDF" nodename="layer" uivisible="true" />
-      <input name="bg" type="BSDF" nodename="dielectric_bsdf" uivisible="true" />
-      <input name="mix" type="float" value="0.5" uivisible="true" />
-    </mix>
-    <layer name="layer" type="BSDF" nodedef="ND_layer_bsdf">
-      <input name="top" type="BSDF" nodename="dielectric_bsdf2" uivisible="true" />
-      <input name="base" type="BSDF" nodename="oren_nayar_diffuse_bsdf1" uivisible="true" />
-    </layer>
-    <dielectric_bsdf name="dielectric_bsdf2" type="BSDF" nodedef="ND_dielectric_bsdf" />
-    <output name="out" type="surfaceshader" nodename="surface1" />
-  </nodegraph>
-
-  <nodegraph name="vertical_layering_ex6">
     <dielectric_bsdf name="dielectric_bsdf2" type="BSDF" nodedef="ND_dielectric_bsdf" />
     <oren_nayar_diffuse_bsdf name="oren_nayar_diffuse_bsdf1" type="BSDF" nodedef="ND_oren_nayar_diffuse_bsdf">
       <input name="color" type="color3" value="1, 0, 0" uivisible="true" />
@@ -183,7 +90,7 @@
     </layer>
     <output name="out" type="BSDF" nodename="layer1" />
   </nodegraph>
-  <nodegraph name="vertical_layering_ex7" type="surfaceshader">
+  <nodegraph name="vertical_layering_ex4" type="surfaceshader">
     <mybsdf name="mybsdf1" type="BSDF">
       <input name="diffuse" type="float" value="0.4" />
       <input name="diffuseColor" type="color3" value="1.0, 0.1, 0.1" />
@@ -205,7 +112,7 @@
     <output name="out" type="surfaceshader" nodename="surface1" />
   </nodegraph>
 
-  <nodegraph name="vertical_layering_ex8" type="surfaceshader">
+  <nodegraph name="vertical_layering_ex5" type="surfaceshader">
     <dielectric_bsdf name="dielectric" type="BSDF" />
     <conductor_bsdf name="conductor" type="BSDF" />
     <multiply name="multiply" type="BSDF">
@@ -234,7 +141,7 @@
     </layer>
     <output name="out" type="BSDF" nodename="layer" />
   </nodegraph>
-  <nodegraph name="vertical_layering_ex9" type="surfaceshader">
+  <nodegraph name="vertical_layering_ex6" type="surfaceshader">
     <dielectric_bsdf name="dielectric" type="BSDF" />
     <conductor_bsdf name="conductor" type="BSDF" />
     <custom_layer name="custom_layer" type="BSDF">
@@ -274,7 +181,7 @@
     </multiply>
     <output name="out" type="BSDF" nodename="layer_scaled" />
   </nodegraph>
-  <nodegraph name="vertical_layering_ex10" type="surfaceshader">
+  <nodegraph name="vertical_layering_ex7" type="surfaceshader">
     <dielectric_bsdf name="dielectric" type="BSDF" />
     <conductor_bsdf name="conductor" type="BSDF" />
     <scaled_layer name="custom_layer" type="BSDF">

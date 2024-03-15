@@ -8,8 +8,8 @@
 
     <!-- Compute longitude coordinate -->
     <atan2 name="angleXZ" type="float">
-      <input name="in1" type="float" nodename="viewDir" channels="x" />
-      <input name="in2" type="float" nodename="viewDir" channels="z" />
+      <input name="iny" type="float" nodename="viewDir" channels="x" />
+      <input name="inx" type="float" nodename="viewDir" channels="z" />
     </atan2>
     <multiply name="scaleXZ" type="float">
       <input name="in1" type="float" nodename="angleXZ" />

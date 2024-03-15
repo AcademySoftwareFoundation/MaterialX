@@ -604,7 +604,7 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                     bool hasUniforms = false;
                     for (const ShaderPort* uniform : uniforms.getVariableOrder())
                     {
-                        if (*uniform->getType() == *Type::FILENAME)
+                        if (uniform->getType() == Type::FILENAME)
                         {
                             emitString(separator, stage);
                             emitString("texture2d<float> " + TEXTURE_NAME(uniform->getVariable()), stage);
@@ -1181,7 +1181,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 }
                 else
                 {
-                    if (!outputSocket->getType()->isFloat4())
+                    if (!outputSocket->getType().isFloat4())
                     {
                         toVec4(outputSocket->getType(), finalOutput);
                     }
@@ -1193,7 +1193,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                 string outputValue = outputSocket->getValue() ?
                                     _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
                                     _syntax->getDefaultValue(outputSocket->getType());
-                if (!outputSocket->getType()->isFloat4())
+                if (!outputSocket->getType().isFloat4())
                 {
                     string finalOutput = outputSocket->getVariable() + "_tmp";
                     emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, stage);
@@ -1272,21 +1272,21 @@ void MslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, 
     }
 }
 
-void MslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
+void MslShaderGenerator::toVec4(TypeDesc type, string& variable)
 {
-    if (type->isFloat3())
+    if (type.isFloat3())
     {
         variable = "float4(" + variable + ", 1.0)";
     }
-    else if (type->isFloat2())
+    else if (type.isFloat2())
     {
         variable = "float4(" + variable + ", 0.0, 1.0)";
     }
-    else if (*type == *Type::FLOAT || *type == *Type::INTEGER)
+    else if (type == Type::FLOAT || type == Type::INTEGER)
     {
         variable = "float4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
-    else if (*type == *Type::BSDF || *type == *Type::EDF)
+    else if (type == Type::BSDF || type == Type::EDF)
     {
         variable = "float4(" + variable + ", 1.0)";
     }
@@ -1302,7 +1302,7 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
                                                  bool assignValue) const
 {
     // A file texture input needs special handling on MSL
-    if (*variable->getType() == *Type::FILENAME)
+    if (variable->getType() == Type::FILENAME)
     {
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -1315,7 +1315,7 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
         str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
         // If an array we need an array qualifier (suffix) for the variable name
-        if (variable->getType()->isArray() && variable->getValue())
+        if (variable->getType().isArray() && variable->getValue())
         {
             str += _syntax->getArrayVariableSuffix(variable->getType(), *variable->getValue());
         }
@@ -1327,7 +1327,7 @@ void MslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, con
 
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && *variable->getType() == *Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
         {
             str += "[[ " + MslSyntax::FLAT_QUALIFIER + " ]]";
         }
@@ -1367,16 +1367,16 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (*outputType == *Type::LIGHTSHADER)
+        if (outputType == Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeMsl::create();
         }
-        else if (outputType->isClosure())
+        else if (outputType.isClosure())
         {
             impl = ClosureCompoundNode::create();
         }
@@ -1392,7 +1392,7 @@ ShaderNodeImplPtr MslShaderGenerator::getImplementation(const NodeDef& nodedef, 
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->isClosure())
+            if (outputType.isClosure())
             {
                 impl = ClosureSourceCodeNode::create();
             }

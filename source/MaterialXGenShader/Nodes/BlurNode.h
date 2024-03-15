@@ -25,15 +25,20 @@ class MX_GENSHADER_API BlurNode : public ConvolutionNode
     virtual void emitSamplingFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const = 0;
 
     /// Return if given type is an acceptible input
-    bool acceptsInputType(const TypeDesc* type) const override;
+    bool acceptsInputType(TypeDesc type) const override;
 
     /// Compute offset strings for sampling
     void computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                     unsigned int filterWidth, StringVec& offsetStrings) const override;
 
     /// Output sample array
-    virtual void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
+    virtual void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, TypeDesc inputType,
                                    const string& sampleName, const StringVec& sampleStrings) const;
+    [[deprecated]] void outputSampleArray(const ShaderGenerator& shadergen, ShaderStage& stage, const TypeDesc* inputType,
+                                          const string& sampleName, const StringVec& sampleStrings) const 
+    { 
+        return outputSampleArray(shadergen, stage, *inputType, sampleName, sampleStrings);
+    }
 
     static const string _sampleSizeFunctionUV;
     static const float _filterSize;
