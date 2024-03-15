@@ -223,8 +223,7 @@ void TextureBaker<Renderer, ShaderGen>::bakeGraphOutput(OutputPtr output, GenCon
         return;
     }
 
-    bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
-                      (output->getType() == "color3" || output->getType() == "color4");
+    bool encodeSrgb = _colorSpace == SRGB_TEXTURE && output->isColorType();
     Renderer::getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
@@ -412,7 +411,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
                 Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
-                if (bakedInput->getType() == "color3" || bakedInput->getType() == "color4")
+                if (bakedInput->isColorType())
                 {
                     bakedInput->setColorSpace(_colorSpace);
                 }

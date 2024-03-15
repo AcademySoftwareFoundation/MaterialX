@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodegraph name="displacement_fractal3d_float" type="displacementshader">
+  <nodegraph name="fractal3d_float" type="displacementshader">
     <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>
@@ -21,7 +21,7 @@
     </displacement>
     <output name="out" type="displacementshader" nodename="disp1" />
   </nodegraph>
-  <nodegraph name="displacement_fractal3d_vector3" type="displacementshader">
+  <nodegraph name="fractal3d_vector3" type="displacementshader">
     <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />
     </position>

@@ -125,6 +125,24 @@ class MX_GENSHADER_API GenContext
         return _closureContexts.size() ? _closureContexts.back() : nullptr;
     }
 
+    /// Push a parent node onto the stack 
+    void pushParentNode(ConstNodePtr node)
+    {
+        _parentNodes.push_back(node);
+    }
+
+    /// Pop the current parent node from the stack.
+    void popParentNode()
+    {
+        _parentNodes.pop_back();
+    }
+
+    /// Return the current stack of parent nodes.
+    const vector<ConstNodePtr>& getParentNodes()
+    {
+        return _parentNodes;
+    }
+
     /// Add user data to the context to make it
     /// available during shader generator.
     void pushUserData(const string& name, GenUserDataPtr data)
@@ -216,6 +234,7 @@ class MX_GENSHADER_API GenContext
     std::unordered_map<const ShaderOutput*, string> _outputSuffix;
 
     vector<ClosureContext*> _closureContexts;
+    vector<ConstNodePtr> _parentNodes;
 
     ApplicationVariableHandler _applicationVariableHandler;
 };
