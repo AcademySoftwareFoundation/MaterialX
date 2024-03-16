@@ -44,7 +44,7 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genosl" nodedef="ND_normalmap" file="mx_normalmap.osl" function="mx_normalmap_float" target="genosl" />
+  <implementation name="IM_normalmap_float_genosl" nodedef="ND_normalmap_float" file="mx_normalmap.osl" function="mx_normalmap_float" target="genosl" />
   <implementation name="IM_normalmap_vector2_genosl" nodedef="ND_normalmap_vector2" file="mx_normalmap.osl" function="mx_normalmap_vector2" target="genosl" />
 
   <!-- ======================================================================== -->
@@ -304,6 +304,15 @@
   <implementation name="IM_ceil_vector4_genosl" nodedef="ND_ceil_vector4" target="genosl" sourcecode="ceil({{in}})" />
   <implementation name="IM_ceil_integer_genosl" nodedef="ND_ceil_integer" target="genosl" sourcecode="int(ceil({{in}}))" />
 
+  <!-- <round> -->
+  <implementation name="IM_round_float_genosl" nodedef="ND_round_float" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color3_genosl" nodedef="ND_round_color3" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_color4_genosl" nodedef="ND_round_color4" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector2_genosl" nodedef="ND_round_vector2" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector3_genosl" nodedef="ND_round_vector3" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_vector4_genosl" nodedef="ND_round_vector4" target="genosl" sourcecode="round({{in}})" />
+  <implementation name="IM_round_integer_genosl" nodedef="ND_round_integer" target="genosl" sourcecode="int(round({{in}}))" />
+
   <!-- <power> -->
   <implementation name="IM_power_float_genosl" nodedef="ND_power_float" target="genosl" sourcecode="pow({{in1}}, {{in2}})" />
   <implementation name="IM_power_color3_genosl" nodedef="ND_power_color3" target="genosl" sourcecode="pow({{in1}}, {{in2}})" />
@@ -323,25 +332,25 @@
   <implementation name="IM_tan_float_genosl" nodedef="ND_tan_float" target="genosl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_float_genosl" nodedef="ND_asin_float" target="genosl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_float_genosl" nodedef="ND_acos_float" target="genosl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_float_genosl" nodedef="ND_atan2_float" target="genosl" sourcecode="atan2({{in1}},{{in2}})" />
+  <implementation name="IM_atan2_float_genosl" nodedef="ND_atan2_float" target="genosl" sourcecode="atan2({{iny}},{{inx}})" />
   <implementation name="IM_sin_vector2_genosl" nodedef="ND_sin_vector2" target="genosl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector2_genosl" nodedef="ND_cos_vector2" target="genosl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector2_genosl" nodedef="ND_tan_vector2" target="genosl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector2_genosl" nodedef="ND_asin_vector2" target="genosl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector2_genosl" nodedef="ND_acos_vector2" target="genosl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector2_genosl" nodedef="ND_atan2_vector2" target="genosl" sourcecode="atan2({{in1}},{{in2}})" />
+  <implementation name="IM_atan2_vector2_genosl" nodedef="ND_atan2_vector2" target="genosl" sourcecode="atan2({{iny}},{{inx}})" />
   <implementation name="IM_sin_vector3_genosl" nodedef="ND_sin_vector3" target="genosl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector3_genosl" nodedef="ND_cos_vector3" target="genosl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector3_genosl" nodedef="ND_tan_vector3" target="genosl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector3_genosl" nodedef="ND_asin_vector3" target="genosl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector3_genosl" nodedef="ND_acos_vector3" target="genosl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector3_genosl" nodedef="ND_atan2_vector3" target="genosl" sourcecode="atan2({{in1}},{{in2}})" />
+  <implementation name="IM_atan2_vector3_genosl" nodedef="ND_atan2_vector3" target="genosl" sourcecode="atan2({{iny}},{{inx}})" />
   <implementation name="IM_sin_vector4_genosl" nodedef="ND_sin_vector4" target="genosl" sourcecode="sin({{in}})" />
   <implementation name="IM_cos_vector4_genosl" nodedef="ND_cos_vector4" target="genosl" sourcecode="cos({{in}})" />
   <implementation name="IM_tan_vector4_genosl" nodedef="ND_tan_vector4" target="genosl" sourcecode="tan({{in}})" />
   <implementation name="IM_asin_vector4_genosl" nodedef="ND_asin_vector4" target="genosl" sourcecode="asin({{in}})" />
   <implementation name="IM_acos_vector4_genosl" nodedef="ND_acos_vector4" target="genosl" sourcecode="acos({{in}})" />
-  <implementation name="IM_atan2_vector4_genosl" nodedef="ND_atan2_vector4" target="genosl" sourcecode="atan2({{in1}},{{in2}})" />
+  <implementation name="IM_atan2_vector4_genosl" nodedef="ND_atan2_vector4" target="genosl" sourcecode="atan2({{iny}},{{inx}})" />
 
   <!-- <sqrt> -->
   <implementation name="IM_sqrt_float_genosl" nodedef="ND_sqrt_float" target="genosl" sourcecode="sqrt({{in}})" />

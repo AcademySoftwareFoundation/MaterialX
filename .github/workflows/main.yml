@@ -64,17 +64,17 @@ jobs:
           clang_format: ON
 
         - name: Linux_Clang_DynamicAnalysis
-          os: ubuntu-22.04
+          os: ubuntu-20.04
           compiler: clang
-          compiler_version: "15"
+          compiler_version: "10"
           python: None
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
 
-        - name: MacOS_Xcode_11_Python37
-          os: macos-11
+        - name: MacOS_Xcode_13_Python37
+          os: macos-12
           compiler: xcode
-          compiler_version: "11.7"
+          compiler_version: "13.1"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
@@ -85,14 +85,14 @@ jobs:
           python: 3.11
 
         - name: MacOS_Xcode_15_Python312
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "15.0"
           python: 3.12
           test_shaders: ON
 
         - name: iOS_Xcode_15
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "15.0"
           python: None
@@ -120,7 +120,7 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -168,7 +168,7 @@ jobs:
 
     - name: Install Python ${{ matrix.python }}
       if: matrix.python != 'None'
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
         architecture: ${{ matrix.architecture }}
@@ -189,7 +189,7 @@ jobs:
 
     - name: Install Node
       if: matrix.build_javascript == 'ON'
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
          node-version: '16'
 
@@ -274,34 +274,34 @@ jobs:
 
     - name: Upload Installed Package
       if: matrix.python != 'None'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MaterialX_${{ matrix.name }}
         path: build/installed/
 
     - name: Upload Formatted Source
       if: matrix.clang_format == 'ON'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MaterialX_ClangFormat
         path: source
 
     - name: Upload Reference Shaders
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.upload_shaders == 'ON'
       with:
         name: Reference_Shaders_${{ matrix.name }}
         path: build/bin/reference/
 
     - name: Upload Renders
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.test_render == 'ON'
       with:
         name: Renders_${{ matrix.name }}
         path: build/render/*.png
 
     - name: Upload Coverage Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.coverage_analysis == 'ON'
       with:
         name: MaterialX_Coverage
@@ -331,7 +331,7 @@ jobs:
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
@@ -340,7 +340,7 @@ jobs:
 
     - name: Upload JavaScript Package
       if: matrix.build_javascript == 'ON'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
@@ -355,10 +355,10 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
 
@@ -370,7 +370,7 @@ jobs:
         echo "filename=$(ls dist)" >> "$GITHUB_OUTPUT"
 
     - name: Upload SDist
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MaterialX_Python_SDist
         path: dist/*.tar.gz
@@ -388,15 +388,15 @@ jobs:
 
     steps:
     - name: Sync Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Python 3.${{ matrix.python-minor }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.${{ matrix.python-minor }}
 
     - name: Download Sdist
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: MaterialX_Python_SDist
         path: sdist
@@ -429,7 +429,7 @@ jobs:
       working-directory: python
 
     - name: Upload Wheel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: MaterialX_Python_Wheels
+        name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl

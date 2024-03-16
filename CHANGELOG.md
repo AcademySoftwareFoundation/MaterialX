@@ -1,14 +1,16 @@
 # Change Log
 
-## [1.38.9] - Development
+## [1.39.0] - Development
+
+## [1.38.9] - 2024-02-26
 
 ### Added
 
-- Added a [non-photorealistic rendering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1631) data library to MaterialX, initially supporting the 'viewdirection' and 'facingratio' nodes.
+- Added an initial NPR (non-photorealistic rendering) data library to MaterialX, supporting the [View Direction](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1631), [Facing Ratio](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1671), and [Gooch Shading](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1674) nodes.
+- Added new nodes to the standard data library, including [Reflect](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1690), [Refract](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1698), [Safe Power](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1689), [Create Matrix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1553), and [Round](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1678).
 - Added support for the generation of [pre-filtered environment maps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1420) in MaterialX GLSL and MSL.
-- Added support for the [creatematrix node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1553) in shader generation.
+- Added support for [geometry drag & drop](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1663), [frame capture](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1636), [UI ranges](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1623) and [enumerated values](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1632) in the MaterialX Web Viewer.
 - Added [floating popups](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1565) for hovered pins in the MaterialX Graph Editor.
-- Added support for [UI attributes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1623) and [enumerated values](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1632) in the MaterialX Web Viewer.
 - Added [UI ranges](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1646) to the 'useSpecularWorkflow' and 'normal' inputs of the UsdPreviewSurface shading model.
 - Added [versioning rules](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1664) for the MaterialX API and data libraries to the developer guide.
 - Added initial C++ [fuzz tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1605) and [coverage tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1548) to GitHub Actions CI.
@@ -16,12 +18,12 @@
 
 ### Changed
 
-- Improved the logic for [connecting pins](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1569) in the MaterialX Graph Editor.
-- Improved the robustness of [type pointer comparisons](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1665) in shader generation.
-- Improved the handling of [filename inputs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1547) in OSL shader generation.
-- Reduced the size of the MaterialX data libraries, improving the use of [graph definitions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1653) and merging [duplicate implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1642).
+- Enabled the [new OSL closures](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1702) by default in shader generation, with the MATERIALX_OSL_LEGACY_CLOSURES flag used to request legacy closures.
 - Updated the MaterialX Web Viewer to [three.js r152](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1615).
 - Switched to a more efficient representation of [HDR images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1616) in the MaterialX Web Viewer.
+- Improved the logic for [connecting pins](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1569) in the MaterialX Graph Editor.
+- Improved the handling of [filename inputs](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1547) in OSL shader generation.
+- Reduced the size of the MaterialX data libraries, improving the use of [graph definitions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1653) and merging [duplicate implementations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1642).
 - Raised the minimum CMake version to [CMake 3.16](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1607).
 - Updated the C++ unit test library to [Catch 2.13.10](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1566).
 
@@ -29,8 +31,10 @@
 
 - Fixed the attenuation of [coated emission](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1534) in the Standard Surface shading model.
 - Fixed the implementation of the [overlay node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1539) in shader generation.
+- Fixed an edge case for [type pointer comparisons](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1665) in shader generation.
 - Fixed an edge case for [transform nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1560) in GLSL and MSL shader generation.
 - Fixed the implementation of [mx_hsvtorgb](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1584) in MDL shader generation.
+- Fixed [orphaned links](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1667) when deleting nodes in the MaterialX Graph Editor.
 - Fixed [scroll wheel interactions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1578) across windows of the MaterialX Graph Editor.
 - Fixed the generation of unused [imgui.ini files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1570) in the MaterialX Graph Editor.
 - Fixed a dependency on [module import order](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1595) in MaterialX Python.

@@ -11,7 +11,7 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const StringVec SwitchNode::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "which" };
+const StringVec SwitchNode::INPUT_NAMES = { "in1", "in2", "in3", "in4", "in5", "in6", "in7", "in8", "in9", "in10" };
 
 ShaderNodeImplPtr SwitchNode::create()
 {
@@ -29,10 +29,10 @@ void SwitchNode::emitFunctionCall(const ShaderNode& node, GenContext& context, S
         shadergen.emitOutput(node.getOutput(), true, true, context, stage);
         shadergen.emitLineEnd(stage);
 
-        const ShaderInput* which = node.getInput(INPUT_NAMES[5]);
+        const ShaderInput* which = node.getInput("which");
 
         // Process the branches of the switch node
-        for (int branch = 0; branch < 5; ++branch)
+        for (int branch = 0; branch < 10; ++branch)
         {
             const ShaderInput* input = node.getInput(INPUT_NAMES[branch]);
             if (!input)
