@@ -176,6 +176,7 @@ export material mx_dielectric_bsdf(
                 roughness_u: mxp_roughness.x,
                 roughness_v: mxp_roughness.y,
                 tint: mxp_tint,
+                multiscatter_tint: mxp_tint,
                 tangent_u: mxp_tangent,
                 mode: df::scatter_reflect),
             base: mxp_base.surface.scattering,
@@ -187,6 +188,7 @@ export material mx_dielectric_bsdf(
             roughness_u: mxp_roughness.x,
             roughness_v: mxp_roughness.y,
             tint: mxp_tint,
+            multiscatter_tint: mxp_tint,
             tangent_u: mxp_tangent,
             mode: df::scatter_transmit),
         normal: mxp_normal);
@@ -200,6 +202,7 @@ export material mx_dielectric_bsdf(
                 roughness_u: mxp_roughness.x,
                 roughness_v: mxp_roughness.y,
                 tint: mxp_tint,
+                multiscatter_tint: mxp_tint,
                 tangent_u: mxp_tangent,
                 mode: df::scatter_reflect_transmit)),
         normal: mxp_normal);
@@ -235,6 +238,8 @@ export material mx_conductor_bsdf(
     bsdf ggx_model = df::microfacet_ggx_smith_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
+        tint: color(1.0),
+        multiscatter_tint: color(1.0),
         tangent_u: mxp_tangent);
     bsdf conductor = df::fresnel_factor(
         ior: mxp_ior,
@@ -280,6 +285,7 @@ export material mx_generalized_schlick_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tint: color(1.0),
+        multiscatter_tint: color(1.0),
         tangent_u: mxp_tangent,
         mode: df::scatter_reflect);
 
@@ -287,6 +293,7 @@ export material mx_generalized_schlick_bsdf(
         roughness_u: mxp_roughness.x,
         roughness_v: mxp_roughness.y,
         tint: color(1.0),
+        multiscatter_tint: color(1.0),
         tangent_u: mxp_tangent,
         mode: df::scatter_transmit);
 } in material(
@@ -299,7 +306,8 @@ export material mx_generalized_schlick_bsdf(
                     grazing_reflectivity: mxp_color90,
                     exponent: mxp_exponent,
                     layer: bsdf(),
-                    base: ggx_model_T)
+                    base: ggx_model_T,
+                    normal: mxp_normal)
                 : df::thin_film(
                     thickness: mxp_thinfilm_thickness,
                     ior: color(coatIor),
@@ -310,9 +318,9 @@ export material mx_generalized_schlick_bsdf(
                         layer: ggx_model_R,
                         base: mxp_scatter_mode == mx_scatter_mode_R 
                             ? mxp_base.surface.scattering 
-                            : ggx_model_T)),
-            base: mxp_base.surface.scattering,
-            normal: mxp_normal
+                            : ggx_model_T,
+                        normal: mxp_normal)),
+            base: mxp_base.surface.scattering
         )
     ),
     // we can't use the computed ior here because it's varying
