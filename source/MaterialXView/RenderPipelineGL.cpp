@@ -296,6 +296,9 @@ mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
             glDrawBuffer(GL_BACK);
         }
+
+        // Reset frame timing after shadow generation.
+        _viewer->resetFrameTiming();
     }
 
     return _viewer->_shadowMap;

@@ -167,13 +167,13 @@ def _writeOperatorFunc(file, outputType, arg1, functionName, arg2):
         else:
             file.write(INDENT + 'return ' + arg1 + ' ' + functionName + ' ' + arg2 + ';\n')
 
-def _writeTwoArgumentFunc(file, outputType, functionName):
+def _writeTwoArgumentFunc(file, outputType, functionName, arg1="mxp_in1", arg2="mxp_in2"):
         if outputType == 'color4':
-            file.write(INDENT + 'return mk_color4(' + functionName + '(mk_float4(mxp_in1), mk_float4(mxp_in2)));\n')
+            file.write(INDENT + 'return mk_color4(' + functionName + '(mk_float4(' + arg1 + '), mk_float4(' + arg2 + ')));\n')
         elif outputType == 'color':
-            file.write(INDENT + 'return color(' + functionName + '(float3(mxp_in1), float3(mxp_in2)));\n')
+            file.write(INDENT + 'return color(' + functionName + '(float3(' + arg1 + '), float3(' + arg2 + ')));\n')
         else:
-            file.write(INDENT + 'return ' + functionName + '(mxp_in1, mxp_in2);\n')
+            file.write(INDENT + 'return ' + functionName + '(' + arg1 + ', ' + arg2 + ');\n')
 
 def _writeThreeArgumentFunc(file, outputType, functionName, arg1, arg2, arg3):
         if outputType == 'color4':
@@ -666,7 +666,7 @@ def main():
                     _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)
                     wroteImplementation = True
                 elif nodeCategory == 'atan2':
-                    _writeTwoArgumentFunc(file, outputType, '::math::'+nodeCategory)
+                    _writeTwoArgumentFunc(file, outputType, '::math::'+nodeCategory, arg1=mxp_iny, arg2=mxp_inx)
                     wroteImplementation = True
                 elif nodeCategory == 'sqrt':
                     _writeOneArgumentFunc(file, outputType, '::math::'+nodeCategory)

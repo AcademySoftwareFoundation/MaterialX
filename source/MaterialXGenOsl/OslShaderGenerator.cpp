@@ -196,11 +196,11 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     // Emit shader type, determined from the first
     // output if there are multiple outputs.
     const ShaderGraphOutputSocket* outputSocket0 = graph.getOutputSocket(0);
-    if (*outputSocket0->getType() == *Type::SURFACESHADER)
+    if (outputSocket0->getType() == Type::SURFACESHADER)
     {
         emitString("surface ", stage);
     }
-    else if (*outputSocket0->getType() == *Type::VOLUMESHADER)
+    else if (outputSocket0->getType() == Type::VOLUMESHADER)
     {
         emitString("volume ", stage);
     }
@@ -250,10 +250,10 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     const VariableBlock& outputs = stage.getOutputBlock(OSL::OUTPUTS);
     const ShaderPort* singleOutput = outputs.size() == 1 ? outputs[0] : NULL;
 
-    const bool isSurfaceShaderOutput = singleOutput && *singleOutput->getType() == *Type::SURFACESHADER;
+    const bool isSurfaceShaderOutput = singleOutput && singleOutput->getType() == Type::SURFACESHADER;
 
 #ifdef MATERIALX_OSL_LEGACY_CLOSURES
-    const bool isBsdfOutput = singleOutput && *singleOutput->getType() == *Type::BSDF;
+    const bool isBsdfOutput = singleOutput && singleOutput->getType() == Type::BSDF;
 #endif
 
     if (isSurfaceShaderOutput)
@@ -301,7 +301,7 @@ ShaderPtr OslShaderGenerator::generate(const string& name, ElementPtr element, G
     for (size_t i = 0; i < inputs.size(); ++i)
     {
         ShaderPort* input = inputs[i];
-        if (*input->getType() == *Type::FILENAME)
+        if (input->getType() == Type::FILENAME)
         {
             // Construct the textureresource variable.
             const string newVariableName = input->getVariable() + "_";
@@ -529,7 +529,7 @@ void OslShaderGenerator::emitShaderInputs(const VariableBlock& inputs, ShaderSta
         const ShaderPort* input = inputs[i];
         const string& type = _syntax->getTypeName(input->getType());
 
-        if (*input->getType() == *Type::FILENAME)
+        if (input->getType() == Type::FILENAME)
         {
             // Shader inputs of type 'filename' (textures) need special handling.
             // In OSL codegen a 'filename' is translated to the custom type 'textureresource',
@@ -593,7 +593,7 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
     for (size_t i = 0; i < outputs.size(); ++i)
     {
         const ShaderPort* output = outputs[i];
-        const TypeDesc* outputType = output->getType();
+        const TypeDesc outputType = output->getType();
         const string type = _syntax->getOutputTypeName(outputType);
         const string value = _syntax->getDefaultValue(outputType, true);
         const string& delim = (i == outputs.size() - 1) ? EMPTY_STRING : Syntax::COMMA;
@@ -603,15 +603,15 @@ void OslShaderGenerator::emitShaderOutputs(const VariableBlock& outputs, ShaderS
 
 void OslShaderGenerator::emitMetadata(const ShaderPort* port, ShaderStage& stage) const
 {
-    static const std::unordered_map<const TypeDesc*, ShaderMetadata> UI_WIDGET_METADATA =
+    static const std::unordered_map<TypeDesc, ShaderMetadata, TypeDesc::Hasher> UI_WIDGET_METADATA =
     {
-        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING->getName())) },
-        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING->getName())) },
-        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING->getName())) }
+        { Type::FLOAT, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
+        { Type::INTEGER, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("number", Type::STRING.getName())) },
+        { Type::FILENAME, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("filename", Type::STRING.getName())) },
+        { Type::BOOLEAN, ShaderMetadata("widget", Type::STRING, Value::createValueFromStrings("checkBox", Type::STRING.getName())) }
     };
 
-    static const std::set<const TypeDesc*> METADATA_TYPE_BLACKLIST =
+    static const std::set<TypeDesc> METADATA_TYPE_BLACKLIST =
     {
         Type::VECTOR2,  // Custom struct types doesn't support metadata declarations.
         Type::VECTOR4,  //

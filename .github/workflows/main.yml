@@ -64,9 +64,9 @@ jobs:
           clang_format: ON
 
         - name: Linux_Clang_DynamicAnalysis
-          os: ubuntu-22.04
+          os: ubuntu-20.04
           compiler: clang
-          compiler_version: "15"
+          compiler_version: "10"
           python: None
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
@@ -331,7 +331,7 @@ jobs:
       working-directory: javascript/MaterialXView
 
     - name: Deploy Web Viewer
-      if: matrix.build_javascript == 'ON' && github.ref == 'refs/heads/main'
+      if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
