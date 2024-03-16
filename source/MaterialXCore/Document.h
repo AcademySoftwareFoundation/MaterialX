@@ -665,6 +665,14 @@ class MX_CORE_API Document : public GraphElement
 
     /// @}
 
+    //
+    // These are deprecated wrappers for older versions of the function interfaces in this module.
+    // Clients using these interfaces should update them to the latest API.
+    //
+    [[deprecated]] NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+        bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+
+
   public:
     static const string CATEGORY;
     static const string CMS_ATTRIBUTE;
