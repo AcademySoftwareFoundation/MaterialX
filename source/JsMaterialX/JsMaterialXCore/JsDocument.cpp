@@ -65,7 +65,7 @@ EMSCRIPTEN_BINDINGS(document)
         .function("addNodeDefFromGraph", ems::optional_override([](mx::Document& self, mx::NodeGraphPtr nodeGraph, const std::string nodedefName,
             const std::string& node, const std::string newGraphName)
             {
-                const std::string message = "This method is deprecated, use addNodeDefFromGraph(nodeGraph, nodeDefName, category, newGraphName) instea";
+                const std::string message = "This method is deprecated, use addNodeDefFromGraph(nodeGraph, nodeDefName, category, newGraphName) instead.";
                 EM_ASM_({
                     console.warn(UTF8ToString($0));
                 }, message.c_str());
