@@ -1526,4 +1526,15 @@ void Document::invalidateCache()
     _cache->valid = false;
 }
 
+//
+// Deprecated methods
+//
+
+NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
+                                         const string&, bool, const string&, const string& newGraphName)
+{
+    return addNodeDefFromGraph(nodeGraph, nodeDefName, node, newGraphName);
+}
+
+
 MATERIALX_NAMESPACE_END
