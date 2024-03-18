@@ -19,7 +19,7 @@ ShaderNodeImplPtr ConvertNode::create()
 
 void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    using ConvertTable = std::unordered_map<const TypeDesc*, std::unordered_map<const TypeDesc*, string>>;
+    using ConvertTable = std::unordered_map<TypeDesc, std::unordered_map<TypeDesc, string, TypeDesc::Hasher>, TypeDesc::Hasher>;
 
     static const ConvertTable CONVERT_TABLE({ { Type::COLOR3,
                                                 { { Type::VECTOR3, string("rgb") },
@@ -63,7 +63,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
         string result;
 
         // Handle supported scalar type conversions.
-        if (in->getType()->isScalar() && out->getType()->isScalar())
+        if (in->getType().isScalar() && out->getType().isScalar())
         {
             result = shadergen.getUpstreamResult(in, context);
             result = shadergen.getSyntax().getTypeName(out->getType()) + "(" + result + ")";
@@ -84,7 +84,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
             }
             if (!swizzle || swizzle->empty())
             {
-                throw ExceptionShaderGenError("Conversion from '" + in->getType()->getName() + "' to '" + out->getType()->getName() + "' is not supported by convert node");
+                throw ExceptionShaderGenError("Conversion from '" + in->getType().getName() + "' to '" + out->getType().getName() + "' is not supported by convert node");
             }
 
             // If the input is unconnected we must declare a local variable
@@ -101,7 +101,7 @@ void ConvertNode::emitFunctionCall(const ShaderNode& node, GenContext& context, 
                 variableName = shadergen.getUpstreamResult(in, context);
             }
 
-            const TypeDesc* type = in->getConnection() ? in->getConnection()->getType() : in->getType();
+            const TypeDesc type = in->getConnection() ? in->getConnection()->getType() : in->getType();
             result = shadergen.getSyntax().getSwizzledVariable(variableName, type, *swizzle, node.getOutput()->getType());
         }
 
