@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
-  <nodegraph name="generalized_schlick_bsdf">
+  <nodegraph name="schlick_bsdf">
     <generalized_schlick_bsdf name="schlick_R" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" value="0.7, 0.7, 0.7" />
