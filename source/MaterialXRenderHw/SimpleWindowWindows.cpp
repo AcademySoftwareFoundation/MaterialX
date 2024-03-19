@@ -111,9 +111,9 @@ SimpleWindow::~SimpleWindow()
     if (hWnd)
     {
         _windowWrapper->release();
+        DestroyWindow(hWnd);
     }
 
-    DestroyWindow(hWnd);
     UnregisterClass(_windowClassName, GetModuleHandle(NULL));
 }
 

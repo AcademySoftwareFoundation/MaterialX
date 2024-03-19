@@ -151,7 +151,7 @@ string Syntax::getSwizzledVariable(const string& srcName, TypeDesc srcType, cons
         else
         {
             const size_t channelIndex = it->second;
-            if (channelIndex < 0 || channelIndex >= srcMembers.size())
+            if (channelIndex >= srcMembers.size())
             {
                 throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
             }
@@ -197,7 +197,7 @@ ValuePtr Syntax::getSwizzledValue(ValuePtr value, TypeDesc srcType, const string
         else
         {
             const size_t channelIndex = it->second;
-            if (channelIndex < 0 || channelIndex >= srcMembers.size())
+            if (channelIndex >= srcMembers.size())
             {
                 throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
             }
