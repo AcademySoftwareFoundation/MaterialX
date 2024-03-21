@@ -376,7 +376,8 @@ class MX_CORE_API NodeGraph : public GraphElement
     /// Add an interface name to an existing NodeDef associated with this NodeGraph.
     /// @param inputPath Path to an input descendant of this graph.
     /// @param interfaceName The new interface name.
-    void addInterfaceName(const string& inputPath, const string& interfaceName);
+    /// @return Interface input.
+    InputPtr addInterfaceName(const string& inputPath, const string& interfaceName);
 
     /// Remove an interface name from an existing NodeDef associated with this NodeGraph.
     /// @param inputPath Path to an input descendant of this graph.
