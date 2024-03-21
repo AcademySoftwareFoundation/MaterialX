@@ -99,11 +99,11 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     return InterfaceElementPtr();
 }
 
-bool NodeDef::validate(string* message) const
+bool NodeDef::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(!hasType(), res, message, "Nodedef should not have a type but an explicit output");
-    return InterfaceElement::validate(message) && res;
+    return InterfaceElement::validate(message, validationOptions) && res;
 }
 
 bool NodeDef::isVersionCompatible(const string& version) const
@@ -145,11 +145,11 @@ NodeDefPtr Implementation::getNodeDef() const
     return resolveNameReference<NodeDef>(getNodeDefString());
 }
 
-bool Implementation::validate(string* message) const
+bool Implementation::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(!hasVersionString(), res, message, "Implementation elements do not support version strings");
-    return InterfaceElement::validate(message) && res;
+    return InterfaceElement::validate(message, validationOptions) && res;
 }
 
 ConstInterfaceElementPtr Implementation::getDeclaration(const string&) const

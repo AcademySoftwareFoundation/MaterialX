@@ -73,18 +73,19 @@ void loadDocuments(const FilePath& rootPath, const FileSearchPath& searchPath, c
     }
 }
 
-void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions)
+void loadLibrary(const FilePath& file, DocumentPtr doc, const FileSearchPath& searchPath, const XmlReadOptions* readOptions, bool errorOnDuplicates)
 {
     DocumentPtr libDoc = createDocument();
     readFromXmlFile(libDoc, file, searchPath, readOptions);
-    doc->importLibrary(libDoc);
+    doc->importLibrary(libDoc, errorOnDuplicates);
 }
 
 StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FileSearchPath& searchPath,
                         DocumentPtr doc,
                         const StringSet& excludeFiles,
-                        const XmlReadOptions* readOptions)
+                        const XmlReadOptions* readOptions,
+                        bool errorOnDuplicates)
 {
     // Append environment path to the specified search path.
     FileSearchPath librarySearchPath = searchPath;
@@ -105,7 +106,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FilePath& file = path / filename;
                         if (loadedLibraries.count(file) == 0)
                         {
-                            loadLibrary(file, doc, searchPath, readOptions);
+                            loadLibrary(file, doc, searchPath, readOptions, errorOnDuplicates);
                             loadedLibraries.insert(file.asString());
                         }
                     }
@@ -128,7 +129,7 @@ StringSet loadLibraries(const FilePathVec& libraryFolders,
                         const FilePath& file = path / filename;
                         if (loadedLibraries.count(file) == 0)
                         {
-                            loadLibrary(file, doc, searchPath, readOptions);
+                            loadLibrary(file, doc, searchPath, readOptions, errorOnDuplicates);
                             loadedLibraries.insert(file.asString());
                         }
                     }

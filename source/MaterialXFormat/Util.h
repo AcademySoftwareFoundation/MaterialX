@@ -40,7 +40,8 @@ MX_FORMAT_API void loadDocuments(const FilePath& rootPath,
 MX_FORMAT_API void loadLibrary(const FilePath& file,
                                DocumentPtr doc,
                                const FileSearchPath& searchPath = FileSearchPath(),
-                               const XmlReadOptions* readOptions = nullptr);
+                               const XmlReadOptions* readOptions = nullptr,
+                               bool errorOnDuplicates=false);
 
 /// Load all MaterialX files within the given library folders into a document,
 /// using the given search path to locate the folders on the file system.
@@ -48,7 +49,8 @@ MX_FORMAT_API StringSet loadLibraries(const FilePathVec& libraryFolders,
                                       const FileSearchPath& searchPath,
                                       DocumentPtr doc,
                                       const StringSet& excludeFiles = StringSet(),
-                                      const XmlReadOptions* readOptions = nullptr);
+                                      const XmlReadOptions* readOptions = nullptr,
+                                      bool errorOnDuplicates=false);
 
 /// Flatten all filenames in the given document, applying string resolvers at the
 /// scope of each element and removing all fileprefix attributes.

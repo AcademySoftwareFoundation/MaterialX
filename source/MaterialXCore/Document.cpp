@@ -266,7 +266,7 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     return nodeDef;
 }
 
-void Document::importLibrary(const ConstDocumentPtr& library)
+void Document::importLibrary(const ConstDocumentPtr& library, bool errorOnDuplicates)
 {
     if (!library)
     {
@@ -286,6 +286,8 @@ void Document::importLibrary(const ConstDocumentPtr& library)
         ConstElementPtr previous = getChild(childName);
         if (previous)
         {
+            if (errorOnDuplicates)
+                throw Exception("Trying to import a child that already exists " + child->getName());
             continue;
         }
 
@@ -429,13 +431,13 @@ vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& n
     return implementations;
 }
 
-bool Document::validate(string* message) const
+bool Document::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     std::pair<int, int> expectedVersion(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
     validateRequire(getVersionIntegers() >= expectedVersion, res, message, "Unsupported document version");
     validateRequire(getVersionIntegers() <= expectedVersion, res, message, "Future document version");
-    return GraphElement::validate(message) && res;
+    return GraphElement::validate(message, validationOptions) && res;
 }
 
 void Document::upgradeVersion()

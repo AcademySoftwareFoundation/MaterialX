@@ -57,7 +57,8 @@ class MX_CORE_API Document : public GraphElement
     /// The contents of the library document are copied into this one, and
     /// are assigned the source URI of the library.
     /// @param library The library document to be imported.
-    void importLibrary(const ConstDocumentPtr& library);
+    /// @param errorOnDuplicates If true then an Exception will be raised if elements have duplicate names
+    void importLibrary(const ConstDocumentPtr& library, bool errorOnDuplicates=false);
 
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
@@ -657,8 +658,10 @@ class MX_CORE_API Document : public GraphElement
     /// specification.
     /// @param message An optional output string, to which a description of
     ///    each error will be appended.
+    /// @param validationOptions An optional pointer to a object that holds
+    ///    options to configure the validation process
     /// @return True if the document passes all tests, false otherwise.
-    bool validate(string* message = nullptr) const override;
+    bool validate(string* message = nullptr, const ValidationOptions* validationOptions = nullptr) const override;
 
     /// @}
     /// @name Utility

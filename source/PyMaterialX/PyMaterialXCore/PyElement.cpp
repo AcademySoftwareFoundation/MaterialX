@@ -90,12 +90,12 @@ void bindPyElement(py::module& mod)
         .def("hasSourceUri", &mx::Element::hasSourceUri)
         .def("getSourceUri", &mx::Element::getSourceUri)
         .def("getActiveSourceUri", &mx::Element::getActiveSourceUri)
-        .def("validate", [](const mx::Element& elem)
+        .def("validate", [](const mx::Element& elem, const mx::ValidationOptions* validationOptions = nullptr)
             {
                 std::string message;
-                bool res = elem.validate(&message);
+                bool res = elem.validate(&message, validationOptions);
                 return std::pair<bool, std::string>(res, message);
-            })
+            }, py::arg("readOptions") = (mx::ValidationOptions*) nullptr)
         .def("copyContentFrom", &mx::Element::copyContentFrom)
         .def("clearContent", &mx::Element::clearContent)
         .def("createValidChildName", &mx::Element::createValidChildName)

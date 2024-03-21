@@ -28,4 +28,8 @@ void bindPyUtil(py::module& mod)
     mod.def("splitNamePath", &mx::splitNamePath);
     mod.def("createNamePath", &mx::createNamePath);
     mod.def("parentNamePath", &mx::parentNamePath);
+
+    py::class_<mx::ValidationOptions>(mod, "ValidationOptions")
+        .def(py::init())
+        .def_readwrite("typesDefined", &mx::ValidationOptions::typesDefined);
 }

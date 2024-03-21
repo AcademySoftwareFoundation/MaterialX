@@ -12,9 +12,15 @@ def main():
     parser = argparse.ArgumentParser(description="Verify that the given file is a valid MaterialX document.")
     parser.add_argument("--resolve", dest="resolve", action="store_true", help="Resolve inheritance and string substitutions.")
     parser.add_argument("--verbose", dest="verbose", action="store_true", help="Print summary of elements found in the document.")
-    parser.add_argument("--stdlib", dest="stdlib", action="store_true", help="Import standard MaterialX libraries into the document.")
+    grp = parser.add_mutually_exclusive_group()
+    grp.add_argument("--stdlib", dest="stdlib", action="store_true", help="Import standard MaterialX libraries into the document.")
+    grp.add_argument("--path", dest="searchPath", action="store", help="")
+    parser.add_argument("--library", dest="libraryFolders", action="append", help="")
+    parser.add_argument("--errorOnDuplicates", dest="errorOnDuplicates", action="store_true", help="")
     parser.add_argument(dest="inputFilename", help="Filename of the input document.")
     opts = parser.parse_args()
+
+    print(opts)
 
     doc = mx.createDocument()
     try:
@@ -23,14 +29,26 @@ def main():
         print(err)
         sys.exit(0)
 
-    if opts.stdlib:
-        stdlib = mx.createDocument()
+    if opts.stdlib or opts.searchPath:
+        libDoc = mx.createDocument()
         try:
-            mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
-        except Exception as err:
+            if opts.stdlib:
+                dataSearchPath = mx.getDefaultDataSearchPath()
+            else:
+                dataSearchPath = mx.FileSearchPath(opts.searchPath, ";")
+
+            if opts.libraryFolders:
+                dataLibaryFolders = opt.libraryFolders
+            else:
+                dataLibaryFolders = mx.getDefaultDataLibraryFolders()
+
+            print(f"Loading Libraries\nSearch Path: {dataSearchPath.asString()}\nFolders : {dataLibaryFolders}")
+
+            mx.loadLibraries(dataLibaryFolders, dataSearchPath, libDoc, errorOnDuplicates=opts.errorOnDuplicates)
+        except err:
             print(err)
             sys.exit(0)
-        doc.importLibrary(stdlib)
+        doc.importLibrary(libDoc, errorOnDuplicates=opts.errorOnDuplicates)
 
     (valid, message) = doc.validate()
     if (valid):
