@@ -52,9 +52,10 @@ void ShaderTranslator::connectTranslationInputs(NodePtr shader, NodeDefPtr trans
                 throw Exception("Shader input has no associated output or value " + shaderInput->getName());
             }
 
-            if (shaderInput->hasColorSpace())
+            string colorSpace = shaderInput->getActiveColorSpace();
+            if (!colorSpace.empty())
             {
-                input->setColorSpace(shaderInput->getColorSpace());
+                input->setColorSpace(colorSpace);
             }
             if (shaderInput->hasUnit())
             {

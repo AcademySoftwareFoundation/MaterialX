@@ -71,10 +71,10 @@ jobs:
           cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
           dynamic_analysis: ON
 
-        - name: MacOS_Xcode_11_Python37
-          os: macos-11
+        - name: MacOS_Xcode_13_Python37
+          os: macos-12
           compiler: xcode
-          compiler_version: "11.7"
+          compiler_version: "13.1"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.7
 
@@ -85,14 +85,14 @@ jobs:
           python: 3.11
 
         - name: MacOS_Xcode_15_Python312
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "15.0"
           python: 3.12
           test_shaders: ON
 
         - name: iOS_Xcode_15
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "15.0"
           python: None
