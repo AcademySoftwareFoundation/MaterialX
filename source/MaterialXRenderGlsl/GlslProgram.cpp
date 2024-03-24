@@ -578,6 +578,7 @@ void GlslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr ima
     Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
+    bindUniform(HW::ENV_LIGHT_INTENSITY, Value::createValue(lightHandler->getEnvLightIntensity()), false);
     ImagePtr envRadiance = nullptr;
     if (lightHandler->getIndirectLighting())
     {
@@ -924,11 +925,11 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             }
 
             // TODO: Shoud we really create new ones here each update?
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType()->getSize()), EMPTY_STRING);
+            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
-            inputPtr->typeString = v->getType()->getName();
+            inputPtr->typeString = v->getType().getName();
             inputPtr->path = v->getPath();
         }
 
@@ -969,14 +970,14 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     input->value = v->getValue();
                     if (input->gltype == glType)
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1002,7 +1003,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     Input* input = inputIt->second.get();
                     if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1013,7 +1014,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1036,25 +1037,25 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
     return _uniformList;
 }
 
-int GlslProgram::mapTypeToOpenGLType(const TypeDesc* type)
+int GlslProgram::mapTypeToOpenGLType(TypeDesc type)
 {
-    if (*type == *Type::INTEGER)
+    if (type == Type::INTEGER)
         return GL_INT;
-    else if (*type == *Type::BOOLEAN)
+    else if (type == Type::BOOLEAN)
         return GL_BOOL;
-    else if (*type == *Type::FLOAT)
+    else if (type == Type::FLOAT)
         return GL_FLOAT;
-    else if (type->isFloat2())
+    else if (type.isFloat2())
         return GL_FLOAT_VEC2;
-    else if (type->isFloat3())
+    else if (type.isFloat3())
         return GL_FLOAT_VEC3;
-    else if (type->isFloat4())
+    else if (type.isFloat4())
         return GL_FLOAT_VEC4;
-    else if (*type == *Type::MATRIX33)
+    else if (type == Type::MATRIX33)
         return GL_FLOAT_MAT3;
-    else if (*type == *Type::MATRIX44)
+    else if (type == Type::MATRIX44)
         return GL_FLOAT_MAT4;
-    else if (*type == *Type::FILENAME)
+    else if (type == Type::FILENAME)
     {
         // A "filename" is not indicative of type, so just return a 2d sampler.
         return GL_SAMPLER_2D;
@@ -1131,13 +1132,13 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->gltype == mapTypeToOpenGLType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". GLType: " + std::to_string(mapTypeToOpenGLType(v->getType()))

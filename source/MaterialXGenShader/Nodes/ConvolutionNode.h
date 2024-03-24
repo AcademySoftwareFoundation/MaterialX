@@ -28,7 +28,8 @@ class MX_GENSHADER_API ConvolutionNode : public ShaderNodeImpl
     ConvolutionNode();
 
     /// Derived classes are responsible for returning if a given type is an acceptable input.
-    virtual bool acceptsInputType(const TypeDesc* type) const = 0;
+    virtual bool acceptsInputType(TypeDesc type) const = 0;
+    [[deprecated]] bool acceptsInputType(const TypeDesc* type) const { return acceptsInputType(*type); }
 
     // Derived classes are responsible for computing offset strings relative to the center sample
     // The sample size and offset type are passed in as arguments.

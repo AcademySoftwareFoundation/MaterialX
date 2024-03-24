@@ -252,6 +252,7 @@ TEST_CASE("Comments and newlines", "[xmlio]")
     mx::XmlReadOptions readOptions;
     readOptions.readComments = true;
     readOptions.readNewlines = true;
+    readOptions.upgradeVersion = false;
     mx::readFromXmlString(doc, origXml, mx::FileSearchPath(), &readOptions);
 
     // Write the document to a new XML string buffer.
