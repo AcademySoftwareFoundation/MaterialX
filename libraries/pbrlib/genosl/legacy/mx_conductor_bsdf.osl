@@ -1,6 +1,6 @@
 #include "../lib/mx_microfacet_specular.osl"
 
-void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, normal N, vector U, string distribution, output BSDF bsdf)
+void mx_conductor_bsdf(float weight, color ior_n, color ior_k, vector2 roughness, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, output BSDF bsdf)
 {
     bsdf.throughput = color(0.0);
 

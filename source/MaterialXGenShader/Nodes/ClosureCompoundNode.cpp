@@ -61,7 +61,7 @@ void ClosureCompoundNode::emitFunctionDefinition(ClosureContext* cct, GenContext
     {
         // Use the first output for classifying node type for the closure context.
         // This is only relevent for closures, and they only have a single output.
-        const TypeDesc* closureType = _rootGraph->getOutputSocket()->getType();
+        const TypeDesc closureType = _rootGraph->getOutputSocket()->getType();
 
         shadergen.emitString("void " + _functionName + cct->getSuffix(closureType) + "(", stage);
 
@@ -167,11 +167,11 @@ void ClosureCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& c
             // Use the first output for classifying node type for the closure context.
             // This is only relevent for closures, and they only have a single output.
             const ShaderGraphOutputSocket* outputSocket = _rootGraph->getOutputSocket();
-            const TypeDesc* closureType = outputSocket->getType();
+            const TypeDesc closureType = outputSocket->getType();
 
             // Check if extra parameters has been added for this node.
             const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
-            if (*closureType == *Type::BSDF && params)
+            if (closureType == Type::BSDF && params)
             {
                 // Assign the parameters to the BSDF.
                 for (auto it : *params)

@@ -387,6 +387,9 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             
             [renderpassDesc release];
         }
+
+        // Reset frame timing after shadow generation.
+        _viewer->resetFrameTiming();
     }
 
     _viewer->_shadowMap = _shadowMap[_viewer->_shadowSoftness % 2];
@@ -489,6 +492,9 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
                 // Apply rotation to the environment shader.
                 float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
                 envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+
+                // Apply light intensity to the environment shader.
+                envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
 
                 // Render the environment mesh.
                 [MTL(renderCmdEncoder) setCullMode:MTLCullModeNone];
