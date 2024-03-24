@@ -1,5 +1,12 @@
 #include "mx_microfacet_specular.glsl"
 
+// Return the mip level associated with the given alpha in a prefiltered environment.
+float mx_latlong_alpha_to_lod(float alpha)
+{
+    float lodBias = (alpha < 0.25) ? sqrt(alpha) : 0.5 * alpha + 0.375;
+    return lodBias * float($envRadianceMips - 1);
+}
+
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     N = mx_forward_facing_normal(N, V);
