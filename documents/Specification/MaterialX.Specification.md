@@ -8,7 +8,7 @@ MaterialX Specification v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-April 20, 2023
+February 11, 2023
 
 
 # Introduction
@@ -53,6 +53,8 @@ This document describes the core MaterialX specification.  Companion documents [
  [Standard Source Nodes](#standard-source-nodes)  
   [Texture Nodes](#texture-nodes)  
   [Procedural Nodes](#procedural-nodes)  
+  [Noise Nodes](#noise-nodes)  
+  [Shape Nodes](#shape-nodes)  
   [Geometric Nodes](#geometric-nodes)  
   [Global Nodes](#global-nodes)  
   [Application Nodes](#application-nodes)  
@@ -331,6 +333,8 @@ By default, MaterialX supports the following color spaces as defined in ACES 1.2
 * `lin_rec709`
 * `g22_rec709`
 * `g18_rec709`
+* `lin_rec2020`
+* `srgb_rec2020`
 * `acescg`
 * `lin_ap1 (alias for "acescg")`
 * `g22_ap1`
@@ -633,7 +637,7 @@ MaterialX also supports the following additional attributes for Output elements 
 
 Source nodes use external data and/or procedural functions to form an output; they do not have any required inputs.  Each source node must define its output type.
 
-This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Geometric Nodes](#geometric-nodes), [Global Nodes](#global-nodes) and [Application Nodes](#application-nodes).
+This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Noise Nodes](#noise-nodes), [Shape Nodes](#shape-nodes), [Geometric Nodes](#geometric-nodes), [Global Nodes](#global-nodes) and [Application Nodes](#application-nodes).
 
 
 ### Texture Nodes
@@ -725,10 +729,10 @@ Procedural nodes are used to generate value data programmatically.
   <constant name="n8" type="color3">
     <input name="value" type="color3" value="0.8,1.0,1.3"/>
   </constant>
-  <noise2d name="n9" type="float">
-    <input name="pivot" type="float" value="0.5"/>
-    <input name="amplitude" type="float" value="0.05"/>
-  </noise2d>
+  <ramptb name="n9" type="float">
+    <input name="valuet" type="float" value="0.9"/>
+    <input name="valueb" type="float" value="0.2"/>
+  </ramptb>
 ```
 
 Standard Procedural nodes:
@@ -782,14 +786,43 @@ Standard Procedural nodes:
     * `center` (float): a value representing the V-coordinate of the split; all pixels above "center" will be `valuet`, all pixels below "center" will be `valueb`.  Default is 0.5.
     * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the split position is evaluated.  Default is to use the first set of texture coordinates.
 
-<a id="node-checkerboard"> </a>
+<a id="node-randomfloat"> </a>
 
-* **`checkerboard`**: a 2D checkerboard pattern.
-    * `color1` (color3): The first color used in the checkerboard pattern.
-    * `color2` (color3): The second color used in the checkerboard pattern.
-    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
-    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+* **`randomfloat`**: Produces a randomized float value between 'min' and 'max', based on an 'input' signal and 'seed' value.
+    * `in` (float or integer): Initial randomization seed, default is 0.
+    * `min` (float): The minimum output value, default is 0.0.
+    * `max` (float): The maximum output value, default is 1.0.
+    * `seed` (integer): Additional randomization seed, default is 0.
+
+<a id="node-randomcolor"> </a>
+
+* **`randomcolor`**: Produces a randomized RGB color within a randomized hue, saturation and brightness range, based on an 'input' signal and 'seed' value.  Output type color3.
+    * `in` (float or integer): Initial randomization seed, default is 0.
+    * `huelow` (float): The minimum hue value, default is 0.0.
+    * `huehigh` (float): The maximum hue value, default is 1.0.
+    * `saturationlow` (float): The minimum saturation value, default is 0.0.
+    * `saturationhigh` (float): The maximum saturation value, default is 1.0.
+    * `brightnesslow` (float): The minimum brightness value, default is 0.0.
+    * `brightnesshigh` (float): The maximum brightness value, default is 1.0.
+    * `seed` (integer): Additional randomization seed, default is 0.
+
+
+To scale or offset `rampX` or `splitX` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+
+
+
+### Noise Nodes
+
+Noise nodes are used to generate value data using one of several procedural noise functions.
+
+```xml
+  <noise2d name="n9" type="float">
+    <input name="pivot" type="float" value="0.5"/>
+    <input name="amplitude" type="float" value="0.05"/>
+  </noise2d>
+```
+
+Standard Noise nodes:
 
 <a id="node-noise2d"> </a>
 
@@ -892,7 +925,108 @@ Standard Procedural nodes:
     * `diminish` (float): The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5.
 
 
-To scale or offset the noise pattern generated by `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset `rampX`, `splitX`, `noise2d` or `cellnoise2d` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+
+
+
+### Shape Nodes
+
+Shape nodes are used to generate shapes or patterns in UV space.
+
+```xml
+  <checkerboard name="n10" type="color3">
+    <input name="color1" type="color3" value="1.0,0.0,0.0"/>
+    <input name="color2" type="color3" value="0.0,0.0,1.0"/>
+    <input name="uvtiling" type="vector2" value="8, 8"/>
+  </checkerboard>
+```
+
+Standard Shape nodes:
+
+<a id="node-checkerboard"> </a>
+
+* **`checkerboard`** (NG): a 2D checkerboard pattern.  Output type color3.
+    * `color1` (color3): The first color used in the checkerboard pattern.
+    * `color2` (color3): The second color used in the checkerboard pattern.
+    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
+    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+
+<a id="node-line"> </a>
+
+* **`line`** (NG): Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): DESCRIPTION, default is (0, 0).
+    * `radius` (float): Radius or "half thickness" of the line, default is 0.1.
+    * `point1` (vector2): UV coordinate of the first endpoint, default is (0.25, 0.25).
+    * `point2` (vector2): UV coordinate of the second endpoint, default is (0.75, 0.75).
+
+<a id="node-circle"> </a>
+
+* **`circle`** (NG): Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): The center coordinate of the circle, default is (0, 0).
+    * `radius` (float): Radius of the circle, default is 0.5.
+
+<a id="node-cloverleaf"> </a>
+
+* **`cloverleaf`** (NG): Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): The center coordinate of the circle, default is (0, 0).
+    * `radius` (float): Radius of the circle, default is 0.5.
+
+<a id="node-hexagon"> </a>
+
+* **`hexagon`** (NG): Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): The center coordinate of the circle, default is (0, 0).
+    * `radius` (float): Radius of the circle, default is 0.5.
+
+<a id="node-grid"> </a>
+
+* **`grid`** (NG): Creates a grid pattern of (1, 1, 1) white lines on a (0, 0, 0) black background with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `thickness` (float): The thickness of the grid lines, default is 0.05.
+    * `staggered` (boolean): If true, every other row will be offset 50% to produce a "brick wall" pattern.  Default is false.
+
+<a id="node-crosshatch"> </a>
+
+* **`crosshatch`** (NG): Creates a crosshatch pattern with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `thickness` (float): The thickness of the grid lines, default is 0.05.
+    * `staggered` (boolean): DESCRIPTION.  Default is false.
+
+<a id="node-tiledcircles"> </a>
+
+* **`tiledcircles`** (NG): Creates a black and white pattern of circles with a defined tiling and size (diameter).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The diameter of the circles in the tiled pattern, default is 0.5.
+    * `staggered` (boolean): If true, every other row will be offset 50%.  Default is false.
+
+<a id="node-tiledcloverleafs"> </a>
+
+* **`tiledcloverleafs`** (NG): Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The outer diameter of the cloverleafs in the tiled pattern, default is 0.5.
+    * `staggered` (boolean): If true, every other row will be offset 50%.  Default is false.
+
+<a id="node-tiledhexagons"> </a>
+
+* **`tiledhexagons`** (NG): Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The outer diameter of the hexagons in the tiled pattern, default is 0.5.
+    * `staggered` (boolean): If true, every other row will be offset 50%.  Default is false.
+
 
 
 

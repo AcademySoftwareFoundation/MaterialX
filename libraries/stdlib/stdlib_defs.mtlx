@@ -468,37 +468,37 @@
     Node: <ramplr>
     A left-to-right bilinear value ramp.
   -->
-  <nodedef name="ND_ramplr_float" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_float" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="float" value="0.0" />
     <input name="valuer" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_ramplr_color3" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_color3" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="color3" value="0.0, 0.0, 0.0" />
     <input name="valuer" type="color3" value="0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramplr_color4" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_color4" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuer" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramplr_vector2" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_vector2" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="vector2" value="0.0, 0.0" />
     <input name="valuer" type="vector2" value="0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramplr_vector3" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_vector3" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="valuer" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramplr_vector4" node="ramplr" nodegroup="procedural2d">
+  <nodedef name="ND_ramplr_vector4" node="ramplr" nodegroup="procedural">
     <input name="valuel" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuer" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
@@ -509,37 +509,37 @@
     Node: <ramptb>
     A top-to-bottom bilinear value ramp.
   -->
-  <nodedef name="ND_ramptb_float" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_float" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="float" value="0.0" />
     <input name="valueb" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_ramptb_color3" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_color3" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="color3" value="0.0, 0.0, 0.0" />
     <input name="valueb" type="color3" value="0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramptb_color4" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_color4" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valueb" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramptb_vector2" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_vector2" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="vector2" value="0.0, 0.0" />
     <input name="valueb" type="vector2" value="0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramptb_vector3" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_vector3" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="valueb" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramptb_vector4" node="ramptb" nodegroup="procedural2d">
+  <nodedef name="ND_ramptb_vector4" node="ramptb" nodegroup="procedural">
     <input name="valuet" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valueb" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
@@ -550,7 +550,7 @@
     Node: <ramp4> Supplemental Node
     A 4-corner bilinear value ramp.
   -->
-  <nodedef name="ND_ramp4_float" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_float" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="float" value="0.0" />
     <input name="valuetr" type="float" value="0.0" />
     <input name="valuebl" type="float" value="0.0" />
@@ -558,7 +558,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_ramp4_color3" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_color3" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="color3" value="0.0, 0.0, 0.0" />
     <input name="valuetr" type="color3" value="0.0, 0.0, 0.0" />
     <input name="valuebl" type="color3" value="0.0, 0.0, 0.0" />
@@ -566,7 +566,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramp4_color4" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_color4" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuetr" type="color4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuebl" type="color4" value="0.0, 0.0, 0.0, 0.0" />
@@ -574,7 +574,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramp4_vector2" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_vector2" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="vector2" value="0.0, 0.0" />
     <input name="valuetr" type="vector2" value="0.0, 0.0" />
     <input name="valuebl" type="vector2" value="0.0, 0.0" />
@@ -582,7 +582,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramp4_vector3" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_vector3" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="valuetr" type="vector3" value="0.0, 0.0, 0.0" />
     <input name="valuebl" type="vector3" value="0.0, 0.0, 0.0" />
@@ -590,7 +590,7 @@
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_ramp4_vector4" node="ramp4" nodegroup="procedural2d">
+  <nodedef name="ND_ramp4_vector4" node="ramp4" nodegroup="procedural">
     <input name="valuetl" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuetr" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="valuebl" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
@@ -603,42 +603,42 @@
     Node: <splitlr>
     A left-right split matte, split at a specified u value.
   -->
-  <nodedef name="ND_splitlr_float" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_float" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="float" value="0.0" uiname="Left" />
     <input name="valuer" type="float" value="0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_splitlr_color3" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_color3" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="color3" value="0.0, 0.0, 0.0" uiname="Left" />
     <input name="valuer" type="color3" value="0.0, 0.0, 0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splitlr_color4" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_color4" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Left" />
     <input name="valuer" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splitlr_vector2" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_vector2" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="vector2" value="0.0, 0.0" uiname="Left" />
     <input name="valuer" type="vector2" value="0.0, 0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splitlr_vector3" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_vector3" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="vector3" value="0.0, 0.0, 0.0" uiname="Left" />
     <input name="valuer" type="vector3" value="0.0, 0.0, 0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splitlr_vector4" node="splitlr" nodegroup="procedural2d">
+  <nodedef name="ND_splitlr_vector4" node="splitlr" nodegroup="procedural">
     <input name="valuel" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Left" />
     <input name="valuer" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Right" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
@@ -649,42 +649,42 @@
     Node: <splittb>
     A top-bottom split matte, split at a specified v value.
   -->
-  <nodedef name="ND_splittb_float" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_float" node="splittb" nodegroup="procedural">
     <input name="valuet" type="float" value="0.0" uiname="Top" />
     <input name="valueb" type="float" value="0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_splittb_color3" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_color3" node="splittb" nodegroup="procedural">
     <input name="valuet" type="color3" value="0.0, 0.0, 0.0" uiname="Top" />
     <input name="valueb" type="color3" value="0.0, 0.0, 0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splittb_color4" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_color4" node="splittb" nodegroup="procedural">
     <input name="valuet" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Top" />
     <input name="valueb" type="color4" value="0.0, 0.0, 0.0, 0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splittb_vector2" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_vector2" node="splittb" nodegroup="procedural">
     <input name="valuet" type="vector2" value="0.0, 0.0" uiname="Top" />
     <input name="valueb" type="vector2" value="0.0, 0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splittb_vector3" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_vector3" node="splittb" nodegroup="procedural">
     <input name="valuet" type="vector3" value="0.0, 0.0, 0.0" uiname="Top" />
     <input name="valueb" type="vector3" value="0.0, 0.0, 0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_splittb_vector4" node="splittb" nodegroup="procedural2d">
+  <nodedef name="ND_splittb_vector4" node="splittb" nodegroup="procedural">
     <input name="valuet" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Top" />
     <input name="valueb" type="vector4" value="0.0, 0.0, 0.0, 0.0" uiname="Bottom" />
     <input name="center" type="float" value="0.5" uiname="Center" uimin="0.0" uimax="1.0" />
@@ -696,67 +696,67 @@
     Node: <noise2d>
     2D Perlin noise in 1, 2, 3 or 4 channels.
   -->
-  <nodedef name="ND_noise2d_float" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_float" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_color3" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_color3" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_color4" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_color4" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector2" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector2" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="vector2" value="1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector3" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector3" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector4" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector4" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_color3FA" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_color3FA" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_color4FA" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_color4FA" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector2FA" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector2FA" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector3FA" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector3FA" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise2d_vector4FA" node="noise2d" nodegroup="procedural2d">
+  <nodedef name="ND_noise2d_vector4FA" node="noise2d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
@@ -767,67 +767,67 @@
     Node: <noise3d>
     3D Perlin noise in 1, 2, 3 or 4 channels.
   -->
-  <nodedef name="ND_noise3d_float" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_float" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_color3" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_color3" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_color4" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_color4" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector2" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector2" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="vector2" value="1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector3" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector3" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector4" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector4" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_color3FA" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_color3FA" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_color4FA" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_color4FA" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector2FA" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector2FA" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector3FA" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector3FA" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_noise3d_vector4FA" node="noise3d" nodegroup="procedural3d">
+  <nodedef name="ND_noise3d_vector4FA" node="noise3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="pivot" type="float" value="0.0" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
@@ -838,7 +838,7 @@
     Node: <fractal3d>
     3D Fractal noise in 1, 2, 3 or 4 channels.
   -->
-  <nodedef name="ND_fractal3d_float" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_float" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -846,7 +846,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_color3" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_color3" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -854,7 +854,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_color4" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_color4" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -862,7 +862,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector2" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector2" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="vector2" value="1.0, 1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -870,7 +870,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector3" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector3" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="vector3" value="1.0, 1.0, 1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -878,7 +878,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector4" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector4" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="vector4" value="1.0, 1.0, 1.0, 1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -886,7 +886,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_color3FA" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_color3FA" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -894,7 +894,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_color4FA" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_color4FA" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -902,7 +902,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector2FA" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector2FA" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -910,7 +910,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector3FA" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector3FA" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -918,7 +918,7 @@
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_fractal3d_vector4FA" node="fractal3d" nodegroup="procedural3d">
+  <nodedef name="ND_fractal3d_vector4FA" node="fractal3d" nodegroup="noise">
     <input name="amplitude" type="float" value="1.0" />
     <input name="octaves" type="integer" value="3" />
     <input name="lacunarity" type="float" value="2.0" />
@@ -931,7 +931,7 @@
     Node: <cellnoise2d>
     2D cellular noise in 1 channel.
   -->
-  <nodedef name="ND_cellnoise2d_float" node="cellnoise2d" nodegroup="procedural2d">
+  <nodedef name="ND_cellnoise2d_float" node="cellnoise2d" nodegroup="noise">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
@@ -940,7 +940,7 @@
     Node: <cellnoise3d>
     3D cellular noise in 1 channel.
   -->
-  <nodedef name="ND_cellnoise3d_float" node="cellnoise3d" nodegroup="procedural3d">
+  <nodedef name="ND_cellnoise3d_float" node="cellnoise3d" nodegroup="noise">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
@@ -949,17 +949,17 @@
     Node: <worleynoise2d>
     2D Worley (voronoi) noise in 1, 2 or 3 channels.
   -->
-  <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="procedural2d">
+  <nodedef name="ND_worleynoise2d_float" node="worleynoise2d" nodegroup="noise">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="procedural2d">
+  <nodedef name="ND_worleynoise2d_vector2" node="worleynoise2d" nodegroup="noise">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="procedural2d">
+  <nodedef name="ND_worleynoise2d_vector3" node="worleynoise2d" nodegroup="noise">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
@@ -969,17 +969,17 @@
     Node: <worleynoise3d>
     3D Worley (voronoi) noise in 1, 2 or 3 channels.
   -->
-  <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="procedural3d">
+  <nodedef name="ND_worleynoise3d_float" node="worleynoise3d" nodegroup="noise">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
-  <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="procedural3d">
+  <nodedef name="ND_worleynoise3d_vector2" node="worleynoise3d" nodegroup="noise">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="procedural3d">
+  <nodedef name="ND_worleynoise3d_vector3" node="worleynoise3d" nodegroup="noise">
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <input name="jitter" type="float" value="1.0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
@@ -1002,7 +1002,7 @@
     
     The output is 1 channel, with controls to adjust the output range.
   -->
-  <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="procedural2d">
+  <nodedef name="ND_unifiednoise2d_float" node="unifiednoise2d" nodegroup="noise">
     <input name="texcoord" type="vector2" uifolder="Common" defaultgeomprop="UV0" doc="The input 2d space. Default is the first texture coordinates." />
     <input name="freq" type="vector2" uiname="Frequency" uifolder="Common" value="1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1)." />
     <input name="offset" type="vector2" uiname="Offset" uifolder="Common" value="0, 0" doc="Shift the noise in 2d space. Default is (0,0)." />
@@ -1021,7 +1021,7 @@
     Node: <unifiednoise3d>
     The 3d flavor of <unifiednoise2d>.
   -->
-  <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="procedural3d">
+  <nodedef name="ND_unifiednoise3d_float" node="unifiednoise3d" nodegroup="noise">
     <input name="position" type="vector3" uifolder="Common" defaultgeomprop="Pobject" doc="The input 3d space. Default is position in object-space." />
     <input name="freq" type="vector3" uiname="Frequency" uifolder="Common" value="1, 1, 1" doc="Adjusts the noise frequency, with higher values producing smaller noise shapes. Default is (1,1,1)." />
     <input name="offset" type="vector3" uiname="Offset" uifolder="Common" value="0, 0, 0" doc="Shift the noise in 3d space. Default is (0,0,0)." />
@@ -1059,7 +1059,7 @@
     Node: <randomcolor>
     Produces a randomized RGB color, based on an 'input' signal and 'seed' value.
   -->
-  <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural3d">
+  <nodedef name="ND_randomcolor_float" node="randomcolor" nodegroup="procedural">
     <input name="in" type="float" uiname="Input" uisoftmin="0.0" uisoftmax="10.0" value="0.0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
@@ -1070,7 +1070,7 @@
     <input name="seed" type="integer" uiname="Seed" value="0" />
     <output name="out" type="color3" />
   </nodedef>
-  <nodedef name="ND_randomcolor_integer" node="randomcolor" nodegroup="procedural3d">
+  <nodedef name="ND_randomcolor_integer" node="randomcolor" nodegroup="procedural">
     <input name="in" type="integer" uiname="Input" uisoftmin="0" uisoftmax="10" value="0" />
     <input name="huelow" type="float" uiname="Hue Low" uisoftmin="0.0" uisoftmax="1.0" value="0" />
     <input name="huehigh" type="float" uiname="Hue High" uisoftmin="0.0" uisoftmax="1.0" value="1" />
@@ -1086,7 +1086,7 @@
     Node: <checkerboard>
     A 2D checkerboard pattern.
   -->
-  <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="procedural2d">
+  <nodedef name="ND_checkerboard_color3" node="checkerboard" nodegroup="shape">
     <input name="color1" type="color3" uiname="Color 1" value="1.0, 1.0, 1.0" doc="The first color used in the checkerboard pattern." />
     <input name="color2" type="color3" uiname="Color 2" value="0.0, 0.0, 0.0" doc="The second color used in the checkerboard pattern." />
     <input name="uvtiling" type="vector2" uiname="UV Tiling" value="8, 8" doc="The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8)." />
@@ -1101,7 +1101,7 @@
     Segment ends will be rounded.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
-  <nodedef name="ND_line_float" node="line" nodegroup="procedural2d">
+  <nodedef name="ND_line_float" node="line" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.1" />
@@ -1114,7 +1114,7 @@
     Node: <circle>
     Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.
   -->
-  <nodedef name="ND_circle_float" node="circle" nodegroup="procedural2d">
+  <nodedef name="ND_circle_float" node="circle" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
@@ -1125,7 +1125,7 @@
     Node: <cloverleaf>
     Returns 1 if texcoord is inside a cloverleaf shape inscribed by a circle defined by center and radius; otherwise returns 0.
   -->
-  <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="procedural2d">
+  <nodedef name="ND_cloverleaf_float" node="cloverleaf" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
@@ -1137,7 +1137,7 @@
     Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
-  <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="procedural2d">
+  <nodedef name="ND_hexagon_float" node="hexagon" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="center" type="vector2" value="0, 0" />
     <input name="radius" type="float" value="0.5" />
@@ -1149,7 +1149,7 @@
     Creates a grid pattern with the given tiling, offset, and line thickness.
     Pattern can be regular or staggered.
   -->
-  <nodedef name="ND_grid_color3" node="grid" nodegroup="procedural2d">
+  <nodedef name="ND_grid_color3" node="grid" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
@@ -1163,7 +1163,7 @@
     Creates a crosshatch pattern with the given tiling, offset, and line thickness.
     Pattern can be regular or staggered.
   -->
-  <nodedef name="ND_crosshatch_color3" node="crosshatch" nodegroup="procedural2d">
+  <nodedef name="ND_crosshatch_color3" node="crosshatch" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
@@ -1177,7 +1177,7 @@
     Creates a black and white pattern of circles with a defined tiling and size (diameter).
     Pattern can be regular or staggered.
   -->
-  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="procedural2d">
+  <nodedef name="ND_tiledcircles_color3" node="tiledcircles" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
@@ -1191,7 +1191,7 @@
     Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).
     Pattern can be regular or staggered.
   -->
-  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="procedural2d">
+  <nodedef name="ND_tiledcloverleafs_color3" node="tiledcloverleafs" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
@@ -1205,7 +1205,7 @@
     Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).
     Pattern can be regular or staggered.
   -->
-  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="procedural2d">
+  <nodedef name="ND_tiledhexagons_color3" node="tiledhexagons" nodegroup="shape">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="uvtiling" type="vector2" value="1.0, 1.0" />
     <input name="uvoffset" type="vector2" value="0.0, 0.0" />
