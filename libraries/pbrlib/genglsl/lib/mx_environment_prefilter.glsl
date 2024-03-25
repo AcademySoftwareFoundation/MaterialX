@@ -20,10 +20,11 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     vec3 FG = fd.refraction ? vec3(1.0) - (F * G) : F * G;
 
     vec3 Li = mx_latlong_map_lookup(L, $envMatrix, mx_latlong_alpha_to_lod(avgAlpha), $envRadiance);
-    return Li * FG;
+    return Li * FG * $envLightIntensity;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
 {
-    return mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
+    vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
+    return Li * $envLightIntensity;
 }
