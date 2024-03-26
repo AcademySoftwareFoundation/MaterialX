@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>MaterialX Web Viewer</title>
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial
+      }
+
+      /* Property editor item color */
+      .peditoritem {
+        background-color: #334444;
+      }
+      /* Property editor folder color */
+      .peditorfolder {
+        background-color: #333333;
+      }
+
+     .peditor_material_assigned {
+        background-color: #006cb8;
+      }
+      .peditor_material_assigned:hover {
+        background-color: #32adff;
+      }
+    </style>
+  <script defer src="main.js"></script></head>
+  <body style="margin: 0px; overflow: hidden;">
+    <div id="container">
+      <div style="color:white; position: absolute; top: 0em; margin: 1em">
+        <label for="materials">Material:</label>
+        <select name="materials" id="materials">
+          
+            <option value="Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx">
+              standard_surface_brass_tiled.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_brick_procedural.mtlx">
+              standard_surface_brick_procedural.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx">
+              standard_surface_carpaint.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx">
+              standard_surface_chess_set.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_chrome.mtlx">
+              standard_surface_chrome.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_copper.mtlx">
+              standard_surface_copper.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_default.mtlx">
+              standard_surface_default.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_glass.mtlx">
+              standard_surface_glass.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_glass_tinted.mtlx">
+              standard_surface_glass_tinted.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_gold.mtlx">
+              standard_surface_gold.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_greysphere.mtlx">
+              standard_surface_greysphere.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_greysphere_calibration.mtlx">
+              standard_surface_greysphere_calibration.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_jade.mtlx">
+              standard_surface_jade.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx">
+              standard_surface_look_brass_tiled.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_look_wood_tiled.mtlx">
+              standard_surface_look_wood_tiled.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx">
+              standard_surface_marble_solid.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_metal_brushed.mtlx">
+              standard_surface_metal_brushed.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_plastic.mtlx">
+              standard_surface_plastic.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_thin_film.mtlx">
+              standard_surface_thin_film.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_velvet.mtlx">
+              standard_surface_velvet.mtlx
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_wood_tiled.mtlx">
+              standard_surface_wood_tiled.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_brass_tiled.mtlx">
+              usd_preview_surface_brass_tiled.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_carpaint.mtlx">
+              usd_preview_surface_carpaint.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_default.mtlx">
+              usd_preview_surface_default.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_glass.mtlx">
+              usd_preview_surface_glass.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_gold.mtlx">
+              usd_preview_surface_gold.mtlx
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_plastic.mtlx">
+              usd_preview_surface_plastic.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_boombox.mtlx">
+              gltf_pbr_boombox.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_carpaint.mtlx">
+              gltf_pbr_carpaint.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_default.mtlx">
+              gltf_pbr_default.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_glass.mtlx">
+              gltf_pbr_glass.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_gold.mtlx">
+              gltf_pbr_gold.mtlx
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_plastic.mtlx">
+              gltf_pbr_plastic.mtlx
+            </option>
+            
+        </select>
+      </div>
+      <div style="color:white; position: absolute; top: 1.5em; margin: 1em">
+        <label for="geometry">Geometry:</label>
+        <select name="geometry" id="geometry">
+          
+            <option value="Geometry/boombox.glb">
+              boombox.glb
+            </option>
+            
+            <option value="Geometry/chess_set.glb">
+              chess_set.glb
+            </option>
+            
+            <option value="Geometry/shaderball.glb">
+              shaderball.glb
+            </option>
+            
+        </select>
+      </div>
+      <canvas id="webglcanvas" tabindex="1" style="outline: none;"></canvas>
+    </div>
+    <script src="JsMaterialXGenShader.js"></script>
+  </body>
+</html>
