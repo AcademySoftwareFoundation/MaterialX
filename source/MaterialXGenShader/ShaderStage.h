@@ -256,7 +256,10 @@ class MX_GENSHADER_API ShaderStage
     /// Add the contents of an include file if not already present.
     void addInclude(const FilePath& includeFilename, const FilePath& sourceFilename, GenContext& context);
 
-    /// Add a source file dependency for dependency tracking purposes
+    /// Return true if this stage depends on the given source file.
+    bool hasSourceDependency(const FilePath& file);
+
+    /// Mark the given source file as a dependency of this stage.
     void addSourceDependency(const FilePath& file);
 
     /// Add a value.
