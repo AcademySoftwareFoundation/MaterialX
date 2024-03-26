@@ -28,6 +28,7 @@ const std::string options =
     "    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
     "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
     "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
+    "    --envLightIntensity [FLOAT]    Specify the environment light intensity (defaults to 1)\n"
     "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
     "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
@@ -87,6 +88,7 @@ int main(int argc, char* const argv[])
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
+    float envLightIntensity = 1.0f;
     float lightRotation = 0.0f;
     bool shadowMap = true;
     DocumentModifiers modifiers;
@@ -159,6 +161,10 @@ int main(int argc, char* const argv[])
         else if (token == "--envSampleCount")
         {
             parseToken(nextToken, "integer", envSampleCount);
+        }
+        else if (token == "--envLightIntensity")
+        {
+            parseToken(nextToken, "float", envLightIntensity);
         }
         else if (token == "--lightRotation")
         {
@@ -278,6 +284,7 @@ int main(int argc, char* const argv[])
         viewer->setCameraZoom(cameraZoom);
         viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
         viewer->setEnvSampleCount(envSampleCount);
+        viewer->setEnvLightIntensity(envLightIntensity);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
         viewer->setDrawEnvironment(drawEnvironment);
