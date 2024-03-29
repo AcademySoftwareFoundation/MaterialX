@@ -14,6 +14,27 @@ float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughne
     return A + B * stinv;
 }
 
+// Rational quadratic fit to Monte Carlo data for Oren-Nayar directional albedo.
+float mx_oren_nayar_diffuse_dir_albedo_analytic(float NdotV, float roughness)
+{
+    vec2 r = vec2(1.0, 1.0) +
+             vec2(-0.4297, -0.6076) * roughness +
+             vec2(-0.7632, -0.4993) * NdotV * roughness +
+             vec2(1.4385, 2.0315) * mx_square(roughness);
+    return r.x / r.y;
+}
+
+float mx_oren_nayar_diffuse_dir_albedo_table_lookup(float NdotV, float roughness)
+{
+#if DIRECTIONAL_ALBEDO_METHOD == 1
+    if (textureSize($albedoTable, 0).x > 1)
+    {
+        return texture($albedoTable, vec2(NdotV, roughness)).b;
+    }
+#endif
+    return 0.0;
+}
+
 float mx_oren_nayar_diffuse_dir_albedo_monte_carlo(float NdotV, float roughness)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
@@ -46,27 +67,6 @@ float mx_oren_nayar_diffuse_dir_albedo_monte_carlo(float NdotV, float roughness)
 
     // Return the final directional albedo.
     return radiance;
-}
-
-float mx_oren_nayar_diffuse_dir_albedo_table_lookup(float NdotV, float roughness)
-{
-#if DIRECTIONAL_ALBEDO_METHOD == 1
-    if (textureSize($albedoTable, 0).x > 1)
-    {
-        return texture($albedoTable, vec2(NdotV, roughness)).b;
-    }
-#endif
-    return 0.0;
-}
-
-// Rational quadratic fit to Monte Carlo data for Oren-Nayar directional albedo.
-float mx_oren_nayar_diffuse_dir_albedo_analytic(float NdotV, float roughness)
-{
-    vec2 r = vec2(1.0, 1.0) +
-             vec2(-0.4297, -0.6076) * roughness +
-             vec2(-0.7632, -0.4993) * NdotV * roughness +
-             vec2(1.4385, 2.0315) * mx_square(roughness);
-    return r.x / r.y;
 }
 
 float mx_oren_nayar_diffuse_dir_albedo(float NdotV, float roughness)
