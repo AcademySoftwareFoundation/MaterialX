@@ -1,7 +1,7 @@
 #include "mx_microfacet.glsl"
 
-// Based on the OSL implementation of Oren-Nayar diffuse, which is in turn
-// based on https://mimosa-pudica.net/improved-oren-nayar.html.
+// Based on the implementation of Oren-Nayar diffuse in Open Shading Language.
+// https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/blob/main/src/testrender/shading.cpp
 float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness)
 {
     float s = LdotV - NdotL * NdotV;
