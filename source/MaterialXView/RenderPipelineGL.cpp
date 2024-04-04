@@ -367,6 +367,9 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
                 float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
                 envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
 
+                // Apply light intensity to the environment shader.
+                envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
+
                 // Render the environment mesh.
                 glDepthMask(GL_FALSE);
                 envMaterial->bindShader();
