@@ -2,6 +2,24 @@
 
 ## [1.39.0] - Development
 
+## [1.38.10] - Development
+
+### Added
+
+- Added support for [environment light intensity](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1737) in generated GLSL shaders.
+
+### Changed
+
+- Removed an [extra suffix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1744) from element names in texture baking.
+
+### Fixed
+
+- Move environment prefilter functions to their [referencing GLSL files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1748), addressing shader compilation errors in USD.
+- Enable color and unit transforms on [root nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1757) in shader generation, addressing missing color transforms in USD.
+- Store [document caches](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1753) in declaration order, addressing compiler-dependent behavior in nodedef lookups.
+- Use [framework linkage](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1752) for OpenGL in MacOS builds, addressing build issues in downstream projects.
+- Added a [missing vertex data prefix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1762) in Vulkan GLSL shader generation.
+
 ## [1.38.9] - 2024-02-26
 
 ### Added
