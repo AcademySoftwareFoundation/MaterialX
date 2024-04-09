@@ -62,15 +62,6 @@ EMSCRIPTEN_BINDINGS(document)
         BIND_MEMBER_FUNC("addNodeDef", mx::Document, addNodeDef, 0, 3, stRef, stRef, stRef)
         BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4,4, const mx::NodeGraphPtr, const std::string,
             const std::string &, const std::string)
-        .function("addNodeDefFromGraph", ems::optional_override([](mx::Document& self, mx::NodeGraphPtr nodeGraph, const std::string nodedefName,
-            const std::string& node, const std::string newGraphName)
-            {
-                const std::string message = "This method is deprecated, use addNodeDefFromGraph(nodeGraph, nodeDefName, category, newGraphName) instead.";
-                EM_ASM_({
-                    console.warn(UTF8ToString($0));
-                }, message.c_str());
-                return self.addNodeDefFromGraph(nodeGraph, nodedefName, node, newGraphName);
-            }))
         .function("getNodeDef", &mx::Document::getNodeDef)
         .function("getNodeDefs", &mx::Document::getNodeDefs)
         .function("removeNodeDef", &mx::Document::removeNodeDef)
