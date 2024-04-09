@@ -359,12 +359,14 @@ void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& so
     }
 }
 
+bool ShaderStage::hasSourceDependency(const FilePath& file)
+{
+    return _sourceDependencies.count(file) != 0;
+}
+
 void ShaderStage::addSourceDependency(const FilePath& file)
 {
-    if (!_sourceDependencies.count(file))
-    {
-        _sourceDependencies.insert(file);
-    }
+    _sourceDependencies.insert(file);
 }
 
 void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& context)

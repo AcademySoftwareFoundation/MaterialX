@@ -109,6 +109,12 @@ class Viewer : public ng::Screen
         _lightHandler->setEnvSampleCount(count);
     }
 
+    // Set the environment light intensity.
+    void setEnvLightIntensity(float intensity)
+    {
+        _lightHandler->setEnvLightIntensity(intensity);
+    }
+
     // Set the rotation of the lighting environment about the Y axis.
     void setLightRotation(float rotation)
     {

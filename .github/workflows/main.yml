@@ -63,14 +63,6 @@ jobs:
           test_render: ON
           clang_format: ON
 
-        - name: Linux_Clang_DynamicAnalysis
-          os: ubuntu-20.04
-          compiler: clang
-          compiler_version: "10"
-          python: None
-          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
-          dynamic_analysis: ON
-
         - name: MacOS_Xcode_13_Python37
           os: macos-12
           compiler: xcode
@@ -90,6 +82,14 @@ jobs:
           compiler_version: "15.0"
           python: 3.12
           test_shaders: ON
+
+        - name: MacOS_Xcode_DynamicAnalysis
+          os: macos-14
+          compiler: xcode
+          compiler_version: "15.0"
+          python: None
+          dynamic_analysis: ON
+          cmake_config: -DMATERIALX_DYNAMIC_ANALYSIS=ON
 
         - name: iOS_Xcode_15
           os: macos-14

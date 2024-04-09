@@ -28,6 +28,14 @@ TEST_CASE("String utilities", "[coreutil]")
 
     REQUIRE(mx::splitString("robot1, robot2", ", ") == (std::vector<std::string>{"robot1", "robot2"}));
     REQUIRE(mx::splitString("[one...two...three]", "[.]") == (std::vector<std::string>{"one", "two", "three"}));
+
+    REQUIRE(mx::stringToLower("testName") == "testname");
+    REQUIRE(mx::stringToLower("testName1") == "testname1");
+
+    REQUIRE(mx::stringStartsWith("testName", "test"));
+    REQUIRE(!mx::stringStartsWith("testName", "Name"));
+    REQUIRE(mx::stringEndsWith("testName", "Name"));
+    REQUIRE(!mx::stringEndsWith("testName", "test"));
 }
 
 TEST_CASE("Print utilities", "[coreutil]")
