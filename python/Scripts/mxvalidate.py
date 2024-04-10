@@ -4,7 +4,7 @@ Verify that the given file is a valid MaterialX document.
 '''
 
 import argparse
-import sys
+import sys, os
 
 import MaterialX as mx
 
@@ -13,63 +13,74 @@ def main():
     parser.add_argument("--resolve", dest="resolve", action="store_true", help="Resolve inheritance and string substitutions.")
     parser.add_argument("--verbose", dest="verbose", action="store_true", help="Print summary of elements found in the document.")
     parser.add_argument("--stdlib", dest="stdlib", action="store_true", help="Import standard MaterialX libraries into the document.")
-    parser.add_argument(dest="inputFilename", help="Filename of the input document.")
+    parser.add_argument(dest="documents", help="Filename of a single input document, or folder containing input documents")
     opts = parser.parse_args()
 
-    doc = mx.createDocument()
-    try:
-        mx.readFromXmlFile(doc, opts.inputFilename)
-    except mx.ExceptionFileMissing as err:
-        print(err)
-        sys.exit(0)
-
-    if opts.stdlib:
-        stdlib = mx.createDocument()
+    # If inputfilename is a directory get all files
+    filelist = []
+    if os.path.isdir(opts.documents):        
+        for subdir, dirs, files in os.walk(opts.documents):
+            for file in files:
+                if file.endswith('mtlx'):
+                    filelist.append(os.path.join(subdir, file))         
+    else:
+        filelist.append(opts.documents)
+    
+    for file in filelist:
+        doc = mx.createDocument()
         try:
-            mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
-        except Exception as err:
+            mx.readFromXmlFile(doc, file)
+        except mx.ExceptionFileMissing as err:
             print(err)
             sys.exit(0)
-        doc.importLibrary(stdlib)
 
-    (valid, message) = doc.validate()
-    if (valid):
-        print("%s is a valid MaterialX document in v%s" % (opts.inputFilename, mx.getVersionString()))
-    else:
-        print("%s is not a valid MaterialX document in v%s" % (opts.inputFilename, mx.getVersionString()))
-        print(message)
+        if opts.stdlib:
+            stdlib = mx.createDocument()
+            try:
+                mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
+            except Exception as err:
+                print(err)
+                sys.exit(0)
+            doc.importLibrary(stdlib)
 
-    if opts.verbose:
-        nodegraphs = doc.getNodeGraphs()
-        materials = doc.getMaterialNodes()
-        looks = doc.getLooks()
-        lookgroups = doc.getLookGroups()
-        collections = doc.getCollections()
-        nodedefs = doc.getNodeDefs()
-        implementations = doc.getImplementations()
-        geominfos = doc.getGeomInfos()
-        geompropdefs = doc.getGeomPropDefs()
-        typedefs = doc.getTypeDefs()
-        propsets = doc.getPropertySets()
-        variantsets = doc.getVariantSets()
-        backdrops = doc.getBackdrops()
+        (valid, message) = doc.validate()
+        if (valid):
+            print("%s is a valid MaterialX document in v%s" % (file, mx.getVersionString()))
+        else:
+            print("%s is not a valid MaterialX document in v%s" % (file, mx.getVersionString()))
+            print(message)
 
-        print("----------------------------------")
-        print("Document Version: {}.{:02d}".format(*doc.getVersionIntegers()))
-        print("%4d Custom Type%s%s" % (len(typedefs), pl(typedefs), listContents(typedefs, opts.resolve)))
-        print("%4d Custom GeomProp%s%s" % (len(geompropdefs), pl(geompropdefs), listContents(geompropdefs, opts.resolve)))
-        print("%4d NodeDef%s%s" % (len(nodedefs), pl(nodedefs), listContents(nodedefs, opts.resolve)))
-        print("%4d Implementation%s%s" % (len(implementations), pl(implementations), listContents(implementations, opts.resolve)))
-        print("%4d Nodegraph%s%s" % (len(nodegraphs), pl(nodegraphs), listContents(nodegraphs, opts.resolve)))
-        print("%4d VariantSet%s%s" % (len(variantsets), pl(variantsets), listContents(variantsets, opts.resolve)))
-        print("%4d Material%s%s" % (len(materials), pl(materials), listContents(materials, opts.resolve)))
-        print("%4d Collection%s%s" % (len(collections), pl(collections), listContents(collections, opts.resolve)))
-        print("%4d GeomInfo%s%s" % (len(geominfos), pl(geominfos), listContents(geominfos, opts.resolve)))
-        print("%4d PropertySet%s%s" % (len(propsets), pl(propsets), listContents(propsets, opts.resolve)))
-        print("%4d Look%s%s" % (len(looks), pl(looks), listContents(looks, opts.resolve)))
-        print("%4d LookGroup%s%s" % (len(lookgroups), pl(lookgroups), listContents(lookgroups, opts.resolve)))
-        print("%4d Top-level backdrop%s%s" % (len(backdrops), pl(backdrops), listContents(backdrops, opts.resolve)))
-        print("----------------------------------")
+        if opts.verbose:
+            nodegraphs = doc.getNodeGraphs()
+            materials = doc.getMaterialNodes()
+            looks = doc.getLooks()
+            lookgroups = doc.getLookGroups()
+            collections = doc.getCollections()
+            nodedefs = doc.getNodeDefs()
+            implementations = doc.getImplementations()
+            geominfos = doc.getGeomInfos()
+            geompropdefs = doc.getGeomPropDefs()
+            typedefs = doc.getTypeDefs()
+            propsets = doc.getPropertySets()
+            variantsets = doc.getVariantSets()
+            backdrops = doc.getBackdrops()
+
+            print("----------------------------------")
+            print("Document Version: {}.{:02d}".format(*doc.getVersionIntegers()))
+            print("%4d Custom Type%s%s" % (len(typedefs), pl(typedefs), listContents(typedefs, opts.resolve)))
+            print("%4d Custom GeomProp%s%s" % (len(geompropdefs), pl(geompropdefs), listContents(geompropdefs, opts.resolve)))
+            print("%4d NodeDef%s%s" % (len(nodedefs), pl(nodedefs), listContents(nodedefs, opts.resolve)))
+            print("%4d Implementation%s%s" % (len(implementations), pl(implementations), listContents(implementations, opts.resolve)))
+            print("%4d Nodegraph%s%s" % (len(nodegraphs), pl(nodegraphs), listContents(nodegraphs, opts.resolve)))
+            print("%4d VariantSet%s%s" % (len(variantsets), pl(variantsets), listContents(variantsets, opts.resolve)))
+            print("%4d Material%s%s" % (len(materials), pl(materials), listContents(materials, opts.resolve)))
+            print("%4d Collection%s%s" % (len(collections), pl(collections), listContents(collections, opts.resolve)))
+            print("%4d GeomInfo%s%s" % (len(geominfos), pl(geominfos), listContents(geominfos, opts.resolve)))
+            print("%4d PropertySet%s%s" % (len(propsets), pl(propsets), listContents(propsets, opts.resolve)))
+            print("%4d Look%s%s" % (len(looks), pl(looks), listContents(looks, opts.resolve)))
+            print("%4d LookGroup%s%s" % (len(lookgroups), pl(lookgroups), listContents(lookgroups, opts.resolve)))
+            print("%4d Top-level backdrop%s%s" % (len(backdrops), pl(backdrops), listContents(backdrops, opts.resolve)))
+            print("----------------------------------")
 
 def listContents(elemlist, resolve):
     if len(elemlist) == 0:
