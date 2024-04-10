@@ -33,12 +33,18 @@ describe('Generate Shaders', function ()
         const doc = createStandardSurfaceMaterial(mx);
 
         const generators = []
-        generators.push(new mx.EsslShaderGenerator());
-        generators.push(new mx.GlslShaderGenerator());
-        generators.push(new mx.MslShaderGenerator());
-        generators.push(new mx.OslShaderGenerator());
-        generators.push(new mx.VkShaderGenerator());
-        generators.push(new mx.MdlShaderGenerator());
+        if (typeof mx.EsslShaderGenerator != 'undefined')
+            generators.push(new mx.EsslShaderGenerator());
+        if (typeof mx.GlslShaderGenerator != 'undefined')
+            generators.push(new mx.GlslShaderGenerator());
+        if (typeof mx.MslShaderGenerator != 'undefined')
+            generators.push(new mx.MslShaderGenerator());
+        if (typeof mx.OslShaderGenerator != 'undefined')
+            generators.push(new mx.OslShaderGenerator());
+        if (typeof mx.VkShaderGenerator != 'undefined')
+            generators.push(new mx.VkShaderGenerator());
+        if (typeof mx.MdlShaderGenerator != 'undefined')
+            generators.push(new mx.MdlShaderGenerator());
 
         const elem = mx.findRenderableElement(doc);
         for (let gen of generators)
