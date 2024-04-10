@@ -53,6 +53,7 @@ EMSCRIPTEN_BINDINGS(interface)
         .function("getConnectedNode", &mx::Input::getConnectedNode)
         .function("setConnectedOutput", &mx::Input::setConnectedOutput)
         .function("getConnectedOutput", &mx::Input::getConnectedOutput)
+        .function("setInterfaceInput", &mx::Input::setInterfaceInput)
         .function("getInterfaceInput", &mx::Input::getInterfaceInput)
         .class_property("CATEGORY", &mx::Input::CATEGORY)
         .class_property("DEFAULT_GEOM_PROP_ATTRIBUTE", &mx::Input::DEFAULT_GEOM_PROP_ATTRIBUTE);

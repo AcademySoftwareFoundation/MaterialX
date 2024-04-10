@@ -52,6 +52,7 @@ void PortElement::setConnectedNode(ConstNodePtr node)
     if (node)
     {
         setNodeName(node->getName());
+        removeAttribute(VALUE_ATTRIBUTE);
     }
     else
     {
@@ -81,6 +82,8 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
             setNodeName(parent->getName());
             removeAttribute(NODE_GRAPH_ATTRIBUTE);
         }
+
+        removeAttribute(VALUE_ATTRIBUTE);
     }
     else
     {
@@ -301,6 +304,23 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
+void Input::setInterfaceInput(const string& interfaceName)
+{
+    if (interfaceName != EMPTY_STRING)
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        if (graph && graph->getInput(interfaceName))
+        {
+            setInterfaceName(interfaceName);
+            removeAttribute(VALUE_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
+    }
+}
+
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
@@ -339,6 +359,7 @@ bool Input::validate(string* message) const
     {
         bool hasValueBinding = hasValue();
         bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
+        validateRequire(!(hasValueBinding && hasConnection), res, message, "Node input binds to both a value and a connection");
         validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
     }
     else if (parent->isA<NodeGraph>())
