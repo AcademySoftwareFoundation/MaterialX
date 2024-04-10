@@ -53,6 +53,8 @@ void PortElement::setConnectedNode(ConstNodePtr node)
     {
         setNodeName(node->getName());
         removeAttribute(VALUE_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
     }
     else
     {
@@ -313,6 +315,9 @@ void Input::setInterfaceInput(const string& interfaceName)
         {
             setInterfaceName(interfaceName);
             removeAttribute(VALUE_ATTRIBUTE);
+            removeAttribute(OUTPUT_ATTRIBUTE);
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+            removeAttribute(NODE_NAME_ATTRIBUTE);
         }
     }
     else
@@ -357,10 +362,14 @@ bool Input::validate(string* message) const
     }
     if (parent->isA<Node>())
     {
-        bool hasValueBinding = hasValue();
-        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
-        validateRequire(!(hasValueBinding && hasConnection), res, message, "Node input binds to both a value and a connection");
-        validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+        int numBindings = 0;
+        if (hasValue()) numBindings++;
+        if (hasNodeName()) numBindings++;
+        if (hasNodeGraphString()) numBindings++;
+        if (hasInterfaceName()) numBindings++;
+        if (hasOutputString() && !(hasNodeName() || hasNodeGraphString()))  numBindings++;
+        validateRequire(numBindings, res, message, "Node input binds no value or connection");
+        validateRequire(numBindings <= 1, res, message, "Node input has too many bindings");
     }
     else if (parent->isA<NodeGraph>())
     {
