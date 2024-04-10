@@ -26,6 +26,16 @@ def main():
     else:
         filelist.append(opts.documents)
     
+    # Load in libraries once and reuse for each file.
+    stdlib = None
+    if opts.stdlib:
+        stdlib = mx.createDocument()
+        try:
+            mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
+        except Exception as err:
+            print(err)
+            sys.exit(0)
+
     for file in filelist:
         doc = mx.createDocument()
         try:
@@ -34,13 +44,7 @@ def main():
             print(err)
             sys.exit(0)
 
-        if opts.stdlib:
-            stdlib = mx.createDocument()
-            try:
-                mx.loadLibraries(mx.getDefaultDataLibraryFolders(), mx.getDefaultDataSearchPath(), stdlib)            
-            except Exception as err:
-                print(err)
-                sys.exit(0)
+        if stdlib:
             doc.importLibrary(stdlib)
 
         (valid, message) = doc.validate()
