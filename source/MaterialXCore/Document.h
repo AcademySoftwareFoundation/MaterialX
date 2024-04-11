@@ -670,8 +670,7 @@ class MX_CORE_API Document : public GraphElement
     // Clients using these interfaces should update them to the latest API.
     //
     [[deprecated]] NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-        bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
-
+                                                  bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
 
   public:
     static const string CATEGORY;
