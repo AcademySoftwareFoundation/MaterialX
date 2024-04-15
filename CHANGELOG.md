@@ -2,7 +2,7 @@
 
 ## [1.39.0] - Development
 
-## [1.38.10] - Development
+## [1.38.10] - 2024-04-12
 
 ### Added
 
@@ -14,10 +14,11 @@
 
 ### Fixed
 
-- Move environment prefilter functions to their [referencing GLSL files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1748), addressing shader compilation errors in USD.
-- Enable color and unit transforms on [root nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1757) in shader generation, addressing missing color transforms in USD.
-- Store [document caches](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1753) in declaration order, addressing compiler-dependent behavior in nodedef lookups.
-- Use [framework linkage](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1752) for OpenGL in MacOS builds, addressing build issues in downstream projects.
+- Moved environment prefilter functions to their [referencing GLSL files](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1748), addressing shader compilation errors in USD.
+- Enabled color and unit transforms on [root nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1757) in shader generation, addressing missing color transforms in USD.
+- Updated [document caches](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1753) to store elements in declaration order, addressing compiler-dependent behavior in nodedef lookups.
+- Switched to [framework linkage](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1752) for OpenGL libraries on MacOS, addressing build issues in downstream projects.
+- Switched to [legacy OpenGL libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1766) for Python wheels on Linux, addressing missing OpenGL functionality in Python wheels.
 - Added a [missing vertex data prefix](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1762) in Vulkan GLSL shader generation.
 
 ## [1.38.9] - 2024-02-26
