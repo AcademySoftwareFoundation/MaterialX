@@ -1057,13 +1057,13 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-add"> </a>
 
 * **`add`**: add a value to the incoming float/color/vector/matrix.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to add; for matrix types, the default is the zero matrix.
 
 <a id="node-subtract"> </a>
 
 * **`subtract`**: subtract a value from the incoming float/color/vector/matrix, outputting "in1-in2".
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to subtract; for matrix types, the default is the zero matrix
 
 <a id="node-multiply"> </a>
