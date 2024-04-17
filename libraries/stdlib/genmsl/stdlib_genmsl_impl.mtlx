@@ -595,12 +595,16 @@
   <implementation name="IM_ifgreater_vector2_genmsl" nodedef="ND_ifgreater_vector2" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector3_genmsl" nodedef="ND_ifgreater_vector3" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector4_genmsl" nodedef="ND_ifgreater_vector4" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix33_genmsl" nodedef="ND_ifgreater_matrix33" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix44_genmsl" nodedef="ND_ifgreater_matrix44" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_floatI_genmsl" nodedef="ND_ifgreater_floatI" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color3I_genmsl" nodedef="ND_ifgreater_color3I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color4I_genmsl" nodedef="ND_ifgreater_color4I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector2I_genmsl" nodedef="ND_ifgreater_vector2I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector3I_genmsl" nodedef="ND_ifgreater_vector3I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector4I_genmsl" nodedef="ND_ifgreater_vector4I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix33I_genmsl" nodedef="ND_ifgreater_matrix33I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix44I_genmsl" nodedef="ND_ifgreater_matrix44I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <ifgreatereq -->
   <implementation name="IM_ifgreatereq_float_genmsl" nodedef="ND_ifgreatereq_float" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
@@ -609,12 +613,16 @@
   <implementation name="IM_ifgreatereq_vector2_genmsl" nodedef="ND_ifgreatereq_vector2" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector3_genmsl" nodedef="ND_ifgreatereq_vector3" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector4_genmsl" nodedef="ND_ifgreatereq_vector4" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix33_genmsl" nodedef="ND_ifgreatereq_matrix33" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix44_genmsl" nodedef="ND_ifgreatereq_matrix44" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_floatI_genmsl" nodedef="ND_ifgreatereq_floatI" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color3I_genmsl" nodedef="ND_ifgreatereq_color3I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color4I_genmsl" nodedef="ND_ifgreatereq_color4I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector2I_genmsl" nodedef="ND_ifgreatereq_vector2I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector3I_genmsl" nodedef="ND_ifgreatereq_vector3I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector4I_genmsl" nodedef="ND_ifgreatereq_vector4I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix33I_genmsl" nodedef="ND_ifgreatereq_matrix33I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix44I_genmsl" nodedef="ND_ifgreatereq_matrix44I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <ifequal -->
   <implementation name="IM_ifequal_float_genmsl" nodedef="ND_ifequal_float" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
@@ -623,18 +631,24 @@
   <implementation name="IM_ifequal_vector2_genmsl" nodedef="ND_ifequal_vector2" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3_genmsl" nodedef="ND_ifequal_vector3" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4_genmsl" nodedef="ND_ifequal_vector4" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33_genmsl" nodedef="ND_ifequal_matrix33" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44_genmsl" nodedef="ND_ifequal_matrix44" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatI_genmsl" nodedef="ND_ifequal_floatI" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3I_genmsl" nodedef="ND_ifequal_color3I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4I_genmsl" nodedef="ND_ifequal_color4I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2I_genmsl" nodedef="ND_ifequal_vector2I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3I_genmsl" nodedef="ND_ifequal_vector3I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4I_genmsl" nodedef="ND_ifequal_vector4I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33I_genmsl" nodedef="ND_ifequal_matrix33I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44I_genmsl" nodedef="ND_ifequal_matrix44I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatB_genmsl" nodedef="ND_ifequal_floatB" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3B_genmsl" nodedef="ND_ifequal_color3B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4B_genmsl" nodedef="ND_ifequal_color4B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2B_genmsl" nodedef="ND_ifequal_vector2B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3B_genmsl" nodedef="ND_ifequal_vector3B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4B_genmsl" nodedef="ND_ifequal_vector4B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33B_genmsl" nodedef="ND_ifequal_matrix33B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44B_genmsl" nodedef="ND_ifequal_matrix44B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <switch> -->
 

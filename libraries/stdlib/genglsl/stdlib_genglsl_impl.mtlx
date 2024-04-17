@@ -595,12 +595,16 @@
   <implementation name="IM_ifgreater_vector2_genglsl" nodedef="ND_ifgreater_vector2" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector3_genglsl" nodedef="ND_ifgreater_vector3" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector4_genglsl" nodedef="ND_ifgreater_vector4" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix33_genglsl" nodedef="ND_ifgreater_matrix33" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix44_genglsl" nodedef="ND_ifgreater_matrix44" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_floatI_genglsl" nodedef="ND_ifgreater_floatI" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color3I_genglsl" nodedef="ND_ifgreater_color3I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color4I_genglsl" nodedef="ND_ifgreater_color4I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector2I_genglsl" nodedef="ND_ifgreater_vector2I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector3I_genglsl" nodedef="ND_ifgreater_vector3I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector4I_genglsl" nodedef="ND_ifgreater_vector4I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix33I_genglsl" nodedef="ND_ifgreater_matrix33I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_matrix44I_genglsl" nodedef="ND_ifgreater_matrix44I" target="genglsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <ifgreatereq -->
   <implementation name="IM_ifgreatereq_float_genglsl" nodedef="ND_ifgreatereq_float" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
@@ -609,12 +613,16 @@
   <implementation name="IM_ifgreatereq_vector2_genglsl" nodedef="ND_ifgreatereq_vector2" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector3_genglsl" nodedef="ND_ifgreatereq_vector3" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector4_genglsl" nodedef="ND_ifgreatereq_vector4" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix33_genglsl" nodedef="ND_ifgreatereq_matrix33" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix44_genglsl" nodedef="ND_ifgreatereq_matrix44" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_floatI_genglsl" nodedef="ND_ifgreatereq_floatI" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color3I_genglsl" nodedef="ND_ifgreatereq_color3I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color4I_genglsl" nodedef="ND_ifgreatereq_color4I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector2I_genglsl" nodedef="ND_ifgreatereq_vector2I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector3I_genglsl" nodedef="ND_ifgreatereq_vector3I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector4I_genglsl" nodedef="ND_ifgreatereq_vector4I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix33I_genglsl" nodedef="ND_ifgreatereq_matrix33I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_matrix44I_genglsl" nodedef="ND_ifgreatereq_matrix44I" target="genglsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <ifequal -->
   <implementation name="IM_ifequal_float_genglsl" nodedef="ND_ifequal_float" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
@@ -623,18 +631,24 @@
   <implementation name="IM_ifequal_vector2_genglsl" nodedef="ND_ifequal_vector2" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3_genglsl" nodedef="ND_ifequal_vector3" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4_genglsl" nodedef="ND_ifequal_vector4" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33_genglsl" nodedef="ND_ifequal_matrix33" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44_genglsl" nodedef="ND_ifequal_matrix44" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatI_genglsl" nodedef="ND_ifequal_floatI" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3I_genglsl" nodedef="ND_ifequal_color3I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4I_genglsl" nodedef="ND_ifequal_color4I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2I_genglsl" nodedef="ND_ifequal_vector2I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3I_genglsl" nodedef="ND_ifequal_vector3I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4I_genglsl" nodedef="ND_ifequal_vector4I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33I_genglsl" nodedef="ND_ifequal_matrix33I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44I_genglsl" nodedef="ND_ifequal_matrix44I" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatB_genglsl" nodedef="ND_ifequal_floatB" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3B_genglsl" nodedef="ND_ifequal_color3B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4B_genglsl" nodedef="ND_ifequal_color4B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2B_genglsl" nodedef="ND_ifequal_vector2B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3B_genglsl" nodedef="ND_ifequal_vector3B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4B_genglsl" nodedef="ND_ifequal_vector4B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix33B_genglsl" nodedef="ND_ifequal_matrix33B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_matrix44B_genglsl" nodedef="ND_ifequal_matrix44B" target="genglsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
 
   <!-- <switch> -->
 
