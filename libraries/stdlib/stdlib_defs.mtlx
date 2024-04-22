@@ -1396,12 +1396,17 @@
 
   <!--
     Node: <add>
-    Add "in2" value/stream to the incoming float/color/vector/matrix.
+    Add "in2" value/stream to the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_add_float" node="add" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_add_integer" node="add" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_add_color3" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
@@ -1476,12 +1481,17 @@
 
   <!--
     Node: <subtract>
-    Subtract "in2" value/stream from the incoming float/color/vector/matrix.
+    Subtract "in2" value/stream from the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_subtract_float" node="subtract" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_subtract_integer" node="subtract" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_subtract_color3" node="subtract" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />

@@ -188,6 +188,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genmsl" nodedef="ND_add_float" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_integer_genmsl" nodedef="ND_add_integer" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3_genmsl" nodedef="ND_add_color3" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3FA_genmsl" nodedef="ND_add_color3FA" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color4_genmsl" nodedef="ND_add_color4" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
@@ -205,6 +206,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmsl" nodedef="ND_subtract_float" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_integer_genmsl" nodedef="ND_subtract_integer" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3_genmsl" nodedef="ND_subtract_color3" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3FA_genmsl" nodedef="ND_subtract_color3FA" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color4_genmsl" nodedef="ND_subtract_color4" target="genmsl" sourcecode="{{in1}} - {{in2}}" />

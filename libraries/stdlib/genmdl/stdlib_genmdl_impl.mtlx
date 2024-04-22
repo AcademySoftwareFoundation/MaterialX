@@ -190,6 +190,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genmdl" nodedef="ND_add_float" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
+  <implementation name="IM_add_integer_genmdl" nodedef="ND_add_integer" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color3_genmdl" nodedef="ND_add_color3" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color3FA_genmdl" nodedef="ND_add_color3FA" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color4_genmdl" nodedef="ND_add_color4" sourcecode="mx_add({{in1}}, {{in2}})" target="genmdl" />
@@ -207,6 +208,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmdl" nodedef="ND_subtract_float" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
+  <implementation name="IM_subtract_integer_genmdl" nodedef="ND_subtract_integer" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color3_genmdl" nodedef="ND_subtract_color3" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color3FA_genmdl" nodedef="ND_subtract_color3FA" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color4_genmdl" nodedef="ND_subtract_color4" sourcecode="mx_subtract({{in1}}, {{in2}})" target="genmdl" />
