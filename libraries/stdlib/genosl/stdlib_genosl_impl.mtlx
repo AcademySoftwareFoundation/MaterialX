@@ -190,6 +190,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genosl" nodedef="ND_add_float" target="genosl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_integer_genosl" nodedef="ND_add_integer" target="genosl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3_genosl" nodedef="ND_add_color3" target="genosl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3FA_genosl" nodedef="ND_add_color3FA" target="genosl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color4_genosl" nodedef="ND_add_color4" target="genosl" sourcecode="{{in1}} + {{in2}}" />
@@ -207,6 +208,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genosl" nodedef="ND_subtract_float" target="genosl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_integer_genosl" nodedef="ND_subtract_integer" target="genosl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3_genosl" nodedef="ND_subtract_color3" target="genosl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3FA_genosl" nodedef="ND_subtract_color3FA" target="genosl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color4_genosl" nodedef="ND_subtract_color4" target="genosl" sourcecode="{{in1}} - {{in2}}" />
@@ -652,6 +654,8 @@
   <implementation name="IM_switch_vector2_genosl" nodedef="ND_switch_vector2" target="genosl" />
   <implementation name="IM_switch_vector3_genosl" nodedef="ND_switch_vector3" target="genosl" />
   <implementation name="IM_switch_vector4_genosl" nodedef="ND_switch_vector4" target="genosl" />
+  <implementation name="IM_switch_matrix33_genosl" nodedef="ND_switch_matrix33" target="genosl" />
+  <implementation name="IM_switch_matrix44_genosl" nodedef="ND_switch_matrix44" target="genosl" />
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genosl" nodedef="ND_switch_floatI" target="genosl" />
   <implementation name="IM_switch_color3I_genosl" nodedef="ND_switch_color3I" target="genosl" />
@@ -659,6 +663,8 @@
   <implementation name="IM_switch_vector2I_genosl" nodedef="ND_switch_vector2I" target="genosl" />
   <implementation name="IM_switch_vector3I_genosl" nodedef="ND_switch_vector3I" target="genosl" />
   <implementation name="IM_switch_vector4I_genosl" nodedef="ND_switch_vector4I" target="genosl" />
+  <implementation name="IM_switch_matrix33I_genosl" nodedef="ND_switch_matrix33I" target="genosl" />
+  <implementation name="IM_switch_matrix44I_genosl" nodedef="ND_switch_matrix44I" target="genosl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->

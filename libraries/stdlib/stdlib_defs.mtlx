@@ -1396,12 +1396,17 @@
 
   <!--
     Node: <add>
-    Add "in2" value/stream to the incoming float/color/vector/matrix.
+    Add "in2" value/stream to the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_add_float" node="add" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_add_integer" node="add" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_add_color3" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
@@ -1476,12 +1481,17 @@
 
   <!--
     Node: <subtract>
-    Subtract "in2" value/stream from the incoming float/color/vector/matrix.
+    Subtract "in2" value/stream from the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_subtract_float" node="subtract" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_subtract_integer" node="subtract" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_subtract_color3" node="subtract" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
@@ -4059,6 +4069,34 @@
     <input name="which" type="float" value="0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_switch_matrix33" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="float" value="0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix44" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="float" value="0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_switch_floatI" node="switch" nodegroup="conditional">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
@@ -4142,6 +4180,34 @@
     <input name="in10" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix33I" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="integer" value="0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix44I" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="integer" value="0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
 
   <!-- ======================================================================== -->
