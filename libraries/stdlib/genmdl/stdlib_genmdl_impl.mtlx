@@ -656,6 +656,8 @@
   <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix33_genmdl" nodedef="ND_switch_matrix33" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix33({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix44_genmdl" nodedef="ND_switch_matrix44" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_floatI({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
@@ -663,6 +665,8 @@
   <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix33I_genmdl" nodedef="ND_switch_matrix33I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix33I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix44I_genmdl" nodedef="ND_switch_matrix44I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix44I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->

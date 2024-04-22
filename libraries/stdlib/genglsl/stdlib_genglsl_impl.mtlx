@@ -647,6 +647,8 @@
   <implementation name="IM_switch_vector2_genglsl" nodedef="ND_switch_vector2" target="genglsl" />
   <implementation name="IM_switch_vector3_genglsl" nodedef="ND_switch_vector3" target="genglsl" />
   <implementation name="IM_switch_vector4_genglsl" nodedef="ND_switch_vector4" target="genglsl" />
+  <implementation name="IM_switch_matrix33_genglsl" nodedef="ND_switch_matrix33" target="genglsl" />
+  <implementation name="IM_switch_matrix44_genglsl" nodedef="ND_switch_matrix44" target="genglsl" />
 
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genglsl" nodedef="ND_switch_floatI" target="genglsl" />
@@ -655,6 +657,8 @@
   <implementation name="IM_switch_vector2I_genglsl" nodedef="ND_switch_vector2I" target="genglsl" />
   <implementation name="IM_switch_vector3I_genglsl" nodedef="ND_switch_vector3I" target="genglsl" />
   <implementation name="IM_switch_vector4I_genglsl" nodedef="ND_switch_vector4I" target="genglsl" />
+  <implementation name="IM_switch_matrix33I_genglsl" nodedef="ND_switch_matrix33I" target="genglsl" />
+  <implementation name="IM_switch_matrix44I_genglsl" nodedef="ND_switch_matrix44I" target="genglsl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
