@@ -591,12 +591,14 @@
 
   <!-- <ifgreater> -->
   <implementation name="IM_ifgreater_float_genosl" nodedef="ND_ifgreater_float" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreater_integer_genosl" nodedef="ND_ifgreater_integer" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_color3_genosl" nodedef="ND_ifgreater_color3" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_color4_genosl" nodedef="ND_ifgreater_color4" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_vector2_genosl" nodedef="ND_ifgreater_vector2" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_vector3_genosl" nodedef="ND_ifgreater_vector3" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_vector4_genosl" nodedef="ND_ifgreater_vector4" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_floatI_genosl" nodedef="ND_ifgreater_floatI" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreater_integerI_genosl" nodedef="ND_ifgreater_integerI" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_color3I_genosl" nodedef="ND_ifgreater_color3I" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_color4I_genosl" nodedef="ND_ifgreater_color4I" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_vector2I_genosl" nodedef="ND_ifgreater_vector2I" target="genosl" sourcecode="mx_ternary({{value1}} > {{value2}}, {{in1}}, {{in2}})" />
@@ -605,12 +607,14 @@
 
   <!-- <ifgreatereq> -->
   <implementation name="IM_ifgreatereq_float_genosl" nodedef="ND_ifgreatereq_float" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreatereq_integer_genosl" nodedef="ND_ifgreatereq_integer" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_color3_genosl" nodedef="ND_ifgreatereq_color3" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_color4_genosl" nodedef="ND_ifgreatereq_color4" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_vector2_genosl" nodedef="ND_ifgreatereq_vector2" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_vector3_genosl" nodedef="ND_ifgreatereq_vector3" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_vector4_genosl" nodedef="ND_ifgreatereq_vector4" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_floatI_genosl" nodedef="ND_ifgreatereq_floatI" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreatereq_integerI_genosl" nodedef="ND_ifgreatereq_integerI" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_color3I_genosl" nodedef="ND_ifgreatereq_color3I" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_color4I_genosl" nodedef="ND_ifgreatereq_color4I" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_vector2I_genosl" nodedef="ND_ifgreatereq_vector2I" target="genosl" sourcecode="mx_ternary({{value1}} >= {{value2}}, {{in1}}, {{in2}})" />
@@ -619,18 +623,21 @@
 
   <!-- <ifequal> -->
   <implementation name="IM_ifequal_float_genosl" nodedef="ND_ifequal_float" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_integer_genosl" nodedef="ND_ifequal_integer" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color3_genosl" nodedef="ND_ifequal_color3" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color4_genosl" nodedef="ND_ifequal_color4" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector2_genosl" nodedef="ND_ifequal_vector2" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector3_genosl" nodedef="ND_ifequal_vector3" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector4_genosl" nodedef="ND_ifequal_vector4" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_floatI_genosl" nodedef="ND_ifequal_floatI" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_integerI_genosl" nodedef="ND_ifequal_integerI" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color3I_genosl" nodedef="ND_ifequal_color3I" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color4I_genosl" nodedef="ND_ifequal_color4I" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector2I_genosl" nodedef="ND_ifequal_vector2I" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector3I_genosl" nodedef="ND_ifequal_vector3I" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector4I_genosl" nodedef="ND_ifequal_vector4I" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_floatB_genosl" nodedef="ND_ifequal_floatB" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_integerB_genosl" nodedef="ND_ifequal_integerB" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color3B_genosl" nodedef="ND_ifequal_color3B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_color4B_genosl" nodedef="ND_ifequal_color4B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_vector2B_genosl" nodedef="ND_ifequal_vector2B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />

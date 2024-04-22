@@ -3088,6 +3088,19 @@ export float mx_ifgreater_float(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export integer mx_ifgreater_integer(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export color mx_ifgreater_color3(
 	float mxp_value1 = float(1.0),
 	float mxp_value2 = float(0.0),
@@ -3158,6 +3171,19 @@ export float mx_ifgreater_floatI(
 	int mxp_value2 = int(0),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export integer mx_ifgreater_integerI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3244,6 +3270,19 @@ export float mx_ifgreatereq_float(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export integer mx_ifgreatereq_integer(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export color mx_ifgreatereq_color3(
 	float mxp_value1 = float(1.0),
 	float mxp_value2 = float(0.0),
@@ -3314,6 +3353,19 @@ export float mx_ifgreatereq_floatI(
 	int mxp_value2 = int(0),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export integer mx_ifgreatereq_integerI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3400,6 +3452,19 @@ export float mx_ifequal_float(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export integer mx_ifequal_integer(
+	float mxp_value1 = float(0.0),
+	float mxp_value2 = float(0.0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export color mx_ifequal_color3(
 	float mxp_value1 = float(0.0),
 	float mxp_value2 = float(0.0),
@@ -3478,6 +3543,19 @@ export float mx_ifequal_floatI(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export integer mx_ifequal_integerI(
+	int mxp_value1 = int(0),
+	int mxp_value2 = int(0),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export color mx_ifequal_color3I(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
@@ -3548,6 +3626,19 @@ export float mx_ifequal_floatB(
 	bool mxp_value2 = bool(false),
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export integer mx_ifequal_integerB(
+	bool mxp_value1 = bool(false),
+	bool mxp_value2 = bool(false),
+	integer mxp_in1 = integer(0),
+	integer mxp_in2 = integer(0)
 )
 	[[
 		anno::description("Node Group: conditional")
