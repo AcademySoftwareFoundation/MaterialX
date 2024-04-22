@@ -7,6 +7,13 @@
     </add>
     <output name="out" type="float" nodename="add1" />
   </nodegraph>
+  <nodegraph name="add_integer">
+    <add name="add1" type="integer">
+      <input name="in1" type="integer" value="2" />
+      <input name="in2" type="integer" value="3" />
+    </add>
+    <output name="out" type="integer" nodename="add1" />
+  </nodegraph>
   <nodegraph name="add_color3">
     <add name="add1" type="color3">
       <input name="in1" type="color3" value="0.2000, 0.3000, 0.0" />
@@ -83,6 +90,13 @@
       <input name="in2" type="float" value="0.5000" />
     </subtract>
     <output name="out" type="float" nodename="subtract1" />
+  </nodegraph>
+  <nodegraph name="subtract_integer">
+    <subtract name="subtract1" type="integer">
+      <input name="in1" type="integer" value="3" />
+      <input name="in2" type="integer" value="2" />
+    </subtract>
+    <output name="out" type="integer" nodename="subtract1" />
   </nodegraph>
   <nodegraph name="subtract_color3">
     <subtract name="subtract1" type="color3">

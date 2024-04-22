@@ -71,6 +71,8 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_switch_vector2_" + MslShaderGenerator::TARGET,
         "IM_switch_vector3_" + MslShaderGenerator::TARGET,
         "IM_switch_vector4_" + MslShaderGenerator::TARGET,
+        "IM_switch_matrix33_" + MslShaderGenerator::TARGET,
+        "IM_switch_matrix44_" + MslShaderGenerator::TARGET,
 
         // <!-- 'which' type : integer -->
         "IM_switch_floatI_" + MslShaderGenerator::TARGET,
@@ -79,6 +81,8 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_switch_vector2I_" + MslShaderGenerator::TARGET,
         "IM_switch_vector3I_" + MslShaderGenerator::TARGET,
         "IM_switch_vector4I_" + MslShaderGenerator::TARGET,
+        "IM_switch_matrix33I_" + MslShaderGenerator::TARGET,
+        "IM_switch_matrix44I_" + MslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, SwitchNode::create);
 
