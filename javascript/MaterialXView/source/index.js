@@ -12,7 +12,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 import { Viewer } from './viewer.js'
-import { dropHandler, dragOverHandler, setLoadingCallback, setSceneLoadingCallback } from './dropHandling.js';
+import { dropHandler, dragOverHandler, setLoadingCallback } from './dropHandling.js';
 
 let renderer, composer, orbitControls;
 
@@ -25,8 +25,7 @@ let captureRequested = false;
 
 // Get URL options. Fallback to defaults if not specified.
 let materialFilename = new URLSearchParams(document.location.search).get("file");
-if (!materialFilename)
-{
+if (!materialFilename) {
     materialFilename = 'Materials/Examples/StandardSurface/standard_surface_default.mtlx';
 }
 
@@ -38,7 +37,7 @@ viewer.getEditor().updateProperties(0.9);
 function captureFrame()
 {
     let canvas = document.getElementById('webglcanvas');
-    var url = canvas.toDataURL();
+    var url = canvas.toDataURL();    
     var link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('target', '_blank');
@@ -46,7 +45,7 @@ function captureFrame()
     link.click();
 }
 
-function init()
+function init() 
 {
     let canvas = document.getElementById('webglcanvas');
     let context = canvas.getContext('webgl2');
@@ -54,8 +53,7 @@ function init()
     // Handle material selection changes
     let materialsSelect = document.getElementById('materials');
     materialsSelect.value = materialFilename;
-    materialsSelect.addEventListener('change', (e) =>
-    {
+    materialsSelect.addEventListener('change', (e) => {
         materialFilename = e.target.value;
         viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
@@ -67,9 +65,7 @@ function init()
     const scene = viewer.getScene();
     let geometrySelect = document.getElementById('geometry');
     geometrySelect.value = scene.getGeometryURL();
-    geometrySelect.addEventListener('change', (e) =>
-    {
-        console.log('Change geometry to:', e.target.value);
+    geometrySelect.addEventListener('change', (e) => {
         scene.setGeometryURL(e.target.value);
         scene.loadGeometry(viewer, orbitControls);
     });
@@ -98,17 +94,14 @@ function init()
 
     // Set up controls
     orbitControls = new OrbitControls(scene.getCamera(), renderer.domElement);
-    orbitControls.addEventListener('change', () =>
-    {
+    orbitControls.addEventListener('change', () => {
         viewer.getScene().setUpdateTransforms();
     })
 
     // Add hotkey 'f' to capture the current frame and save an image file.
     // See check inside the render loop when a capture can be performed.
-    document.addEventListener('keydown', (event) =>
-    {
-        if (event.key === 'f')
-        {
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'f') {
             captureRequested = true;
         }
     });
@@ -122,14 +115,12 @@ function init()
         new Promise(resolve => hdrLoader.load('Lights/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => hdrLoader.load('Lights/irradiance/san_giuseppe_bridge_split.hdr', resolve)),
         new Promise(resolve => fileLoader.load('Lights/san_giuseppe_bridge_split.mtlx', resolve)),
-        new Promise(function (resolve)
-        {
-            MaterialX().then((module) =>
-            {
+        new Promise(function (resolve) {
+            MaterialX().then((module) => {
                 resolve(module);
             });
-        })
-    ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) =>
+        }) 
+    ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) => 
     {
         // Initialize viewer + lighting
         await viewer.initialize(mxIn, renderer, radianceTexture, irradianceTexture, lightRigXml);
@@ -145,12 +136,10 @@ function init()
         viewer.getMaterial().updateMaterialAssignments(viewer);
 
         canvas.addEventListener("keydown", handleKeyEvents, true);
-
-    }).then(() =>
-    {
+        
+    }).then(() => {
         animate();
-    }).catch(err =>
-    {
+    }).catch(err => {
         console.error(Number.isInteger(err) ? this.getMx().getExceptionMessage(err) : err);
     })
 
@@ -158,8 +147,7 @@ function init()
     document.addEventListener('drop', dropHandler, false);
     document.addEventListener('dragover', dragOverHandler, false);
 
-    setLoadingCallback(file =>
-    {
+    setLoadingCallback(file => {
         materialFilename = file.fullPath || file.name;
         viewer.getEditor().initialize();
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
@@ -167,26 +155,18 @@ function init()
         viewer.getScene().setUpdateTransforms();
     });
 
-    setSceneLoadingCallback(file =>
-    {
-        let glbFileName = file.fullPath || file.name;
-        console.log('Drop geometry to:', glbFileName);
-        scene.setGeometryURL(glbFileName);
-        scene.loadGeometry(viewer, orbitControls);
-    });
-
     // enable three.js Cache so that dropped files can reference each other
     THREE.Cache.enabled = true;
 }
 
-function onWindowResize()
+function onWindowResize() 
 {
     viewer.getScene().updateCamera();
-    viewer.getScene().setUpdateTransforms();
+    viewer.getScene().setUpdateTransforms(); 
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate()
+function animate() 
 {
     requestAnimationFrame(animate);
 
@@ -194,7 +174,7 @@ function animate()
     {
         turntableStep = (turntableStep + 1) % 360;
         var turntableAngle = turntableStep * (360.0 / turntableSteps) / 180.0 * Math.PI;
-        viewer.getScene()._scene.rotation.y = turntableAngle;
+        viewer.getScene()._scene.rotation.y = turntableAngle ;
         viewer.getScene().setUpdateTransforms();
     }
 
