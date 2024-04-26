@@ -382,7 +382,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11']
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-13']
 
     steps:
     - name: Sync Repository
@@ -400,7 +400,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.16.5
+      uses: pypa/cibuildwheel@v2.17.0
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -411,7 +411,6 @@ jobs:
         # manylinux2014 is CentOS 7 based. Which means GCC 10 and glibc 2.17.
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
-        CIBW_BEFORE_ALL_MACOS: sudo xcode-select -switch /Applications/Xcode_13.4.app
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build

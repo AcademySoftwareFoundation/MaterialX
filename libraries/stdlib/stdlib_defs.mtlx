@@ -4588,7 +4588,7 @@
     <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
     <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
     <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
   </nodedef>
 
   <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
@@ -4596,7 +4596,7 @@
     <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" />
     <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" />
     <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
-    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
   </nodedef>
 
   <!--
