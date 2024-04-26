@@ -691,43 +691,6 @@
   <implementation name="IM_convert_boolean_float_genmdl" nodedef="ND_convert_boolean_float" target="genmdl" />
   <implementation name="IM_convert_integer_float_genmdl" nodedef="ND_convert_integer_float" target="genmdl" />
 
-  <!-- <swizzle> -->
-  <implementation name="IM_swizzle_float_color3_genmdl" nodedef="ND_swizzle_float_color3" target="genmdl" />
-  <implementation name="IM_swizzle_float_color4_genmdl" nodedef="ND_swizzle_float_color4" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector2_genmdl" nodedef="ND_swizzle_float_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector3_genmdl" nodedef="ND_swizzle_float_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector4_genmdl" nodedef="ND_swizzle_float_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_color3_float_genmdl" nodedef="ND_swizzle_color3_float" target="genmdl" />
-  <implementation name="IM_swizzle_color3_color3_genmdl" nodedef="ND_swizzle_color3_color3" target="genmdl" />
-  <implementation name="IM_swizzle_color3_color4_genmdl" nodedef="ND_swizzle_color3_color4" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector2_genmdl" nodedef="ND_swizzle_color3_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector3_genmdl" nodedef="ND_swizzle_color3_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector4_genmdl" nodedef="ND_swizzle_color3_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_color4_float_genmdl" nodedef="ND_swizzle_color4_float" target="genmdl" />
-  <implementation name="IM_swizzle_color4_color3_genmdl" nodedef="ND_swizzle_color4_color3" target="genmdl" />
-  <implementation name="IM_swizzle_color4_color4_genmdl" nodedef="ND_swizzle_color4_color4" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector2_genmdl" nodedef="ND_swizzle_color4_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector3_genmdl" nodedef="ND_swizzle_color4_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector4_genmdl" nodedef="ND_swizzle_color4_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_float_genmdl" nodedef="ND_swizzle_vector2_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_color3_genmdl" nodedef="ND_swizzle_vector2_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_color4_genmdl" nodedef="ND_swizzle_vector2_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector2_genmdl" nodedef="ND_swizzle_vector2_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector3_genmdl" nodedef="ND_swizzle_vector2_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector4_genmdl" nodedef="ND_swizzle_vector2_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_float_genmdl" nodedef="ND_swizzle_vector3_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_color3_genmdl" nodedef="ND_swizzle_vector3_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_color4_genmdl" nodedef="ND_swizzle_vector3_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector2_genmdl" nodedef="ND_swizzle_vector3_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector3_genmdl" nodedef="ND_swizzle_vector3_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector4_genmdl" nodedef="ND_swizzle_vector3_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_float_genmdl" nodedef="ND_swizzle_vector4_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_color3_genmdl" nodedef="ND_swizzle_vector4_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_color4_genmdl" nodedef="ND_swizzle_vector4_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector2_genmdl" nodedef="ND_swizzle_vector4_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector3_genmdl" nodedef="ND_swizzle_vector4_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector4_genmdl" nodedef="ND_swizzle_vector4_vector4" target="genmdl" />
-
   <!-- <combine2> -->
   <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" />
   <implementation name="IM_combine2_color4CF_genmdl" nodedef="ND_combine2_color4CF" target="genmdl" />
