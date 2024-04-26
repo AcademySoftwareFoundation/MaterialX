@@ -3947,6 +3947,74 @@ export float4 mx_switch_vector4(
 	return returnValue;
 }
 
+export float3x3 mx_switch_matrix33(
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in3 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in4 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in5 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in6 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in7 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in8 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in9 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in10 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float mxp_which = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	float3x3 returnValue;
+	switch (int(mxp_which)) {
+		case 0: returnValue=mxp_in1; break;
+		case 1: returnValue=mxp_in2; break;
+		case 2: returnValue=mxp_in3; break;
+		case 3: returnValue=mxp_in4; break;
+		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
+		default: returnValue=mxp_in1; break;
+	}
+	return returnValue;
+}
+
+export float4x4 mx_switch_matrix44(
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in3 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in4 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in5 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in6 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in7 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in8 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in9 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in10 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float mxp_which = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	float4x4 returnValue;
+	switch (int(mxp_which)) {
+		case 0: returnValue=mxp_in1; break;
+		case 1: returnValue=mxp_in2; break;
+		case 2: returnValue=mxp_in3; break;
+		case 3: returnValue=mxp_in4; break;
+		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
+		default: returnValue=mxp_in1; break;
+	}
+	return returnValue;
+}
+
 export float mx_switch_floatI(
 	float mxp_in1 = float(0.0),
 	float mxp_in2 = float(0.0),
@@ -4086,6 +4154,74 @@ export float4 mx_switch_vector4I(
 		case 2: returnValue=mxp_in3; break;
 		case 3: returnValue=mxp_in4; break;
 		case 4: returnValue=mxp_in5; break;
+		default: returnValue=mxp_in1; break;
+	}
+	return returnValue;
+}
+
+export float3x3 mx_switch_matrix33I(
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in3 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in4 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in5 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in6 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in7 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in8 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in9 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in10 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	int mxp_which = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	float3x3 returnValue;
+	switch (int(mxp_which)) {
+		case 0: returnValue=mxp_in1; break;
+		case 1: returnValue=mxp_in2; break;
+		case 2: returnValue=mxp_in3; break;
+		case 3: returnValue=mxp_in4; break;
+		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
+		default: returnValue=mxp_in1; break;
+	}
+	return returnValue;
+}
+
+export float4x4 mx_switch_matrix44I(
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in3 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in4 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in5 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in6 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in7 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in8 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in9 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in10 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	int mxp_which = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	float4x4 returnValue;
+	switch (int(mxp_which)) {
+		case 0: returnValue=mxp_in1; break;
+		case 1: returnValue=mxp_in2; break;
+		case 2: returnValue=mxp_in3; break;
+		case 3: returnValue=mxp_in4; break;
+		case 4: returnValue=mxp_in5; break;
+		case 5: returnValue=mxp_in6; break;
+		case 6: returnValue=mxp_in7; break;
+		case 7: returnValue=mxp_in8; break;
+		case 8: returnValue=mxp_in9; break;
+		case 9: returnValue=mxp_in10; break;
 		default: returnValue=mxp_in1; break;
 	}
 	return returnValue;

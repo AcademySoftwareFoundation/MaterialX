@@ -188,6 +188,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genmsl" nodedef="ND_add_float" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_integer_genmsl" nodedef="ND_add_integer" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3_genmsl" nodedef="ND_add_color3" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3FA_genmsl" nodedef="ND_add_color3FA" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color4_genmsl" nodedef="ND_add_color4" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
@@ -205,6 +206,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmsl" nodedef="ND_subtract_float" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_integer_genmsl" nodedef="ND_subtract_integer" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3_genmsl" nodedef="ND_subtract_color3" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3FA_genmsl" nodedef="ND_subtract_color3FA" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color4_genmsl" nodedef="ND_subtract_color4" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
@@ -659,6 +661,8 @@
   <implementation name="IM_switch_vector2_genmsl" nodedef="ND_switch_vector2" target="genmsl" />
   <implementation name="IM_switch_vector3_genmsl" nodedef="ND_switch_vector3" target="genmsl" />
   <implementation name="IM_switch_vector4_genmsl" nodedef="ND_switch_vector4" target="genmsl" />
+  <implementation name="IM_switch_matrix33_genmsl" nodedef="ND_switch_matrix33" target="genmsl" />
+  <implementation name="IM_switch_matrix44_genmsl" nodedef="ND_switch_matrix44" target="genmsl" />
 
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genmsl" nodedef="ND_switch_floatI" target="genmsl" />
@@ -667,6 +671,8 @@
   <implementation name="IM_switch_vector2I_genmsl" nodedef="ND_switch_vector2I" target="genmsl" />
   <implementation name="IM_switch_vector3I_genmsl" nodedef="ND_switch_vector3I" target="genmsl" />
   <implementation name="IM_switch_vector4I_genmsl" nodedef="ND_switch_vector4I" target="genmsl" />
+  <implementation name="IM_switch_matrix33I_genmsl" nodedef="ND_switch_matrix33I" target="genmsl" />
+  <implementation name="IM_switch_matrix44I_genmsl" nodedef="ND_switch_matrix44I" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
