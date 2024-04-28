@@ -28,10 +28,6 @@ EMSCRIPTEN_BINDINGS(document)
             mx::StringSet set = self.getReferencedSourceUris();
             return ems::val::array(set.begin(), set.end());
         }))
-        BIND_MEMBER_FUNC("addNodeGraph", mx::Document, addNodeGraph, 0, 1, stRef)
-        .function("getNodeGraph", &mx::Document::getNodeGraph)
-        .function("getNodeGraphs", &mx::Document::getNodeGraphs)
-        .function("removeNodeGraph", &mx::Document::removeNodeGraph)
         .function("getMatchingPorts", &mx::Document::getMatchingPorts)
         BIND_MEMBER_FUNC("addGeomInfo", mx::Document, addGeomInfo, 0, 2, stRef, stRef)
         .function("getGeomInfo", &mx::Document::getGeomInfo)

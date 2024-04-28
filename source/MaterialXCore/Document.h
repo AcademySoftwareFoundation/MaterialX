@@ -62,37 +62,6 @@ class MX_CORE_API Document : public GraphElement
     /// Get a list of source URI's referenced by the document
     StringSet getReferencedSourceUris() const;
 
-    /// @name NodeGraph Elements
-    /// @{
-
-    /// Add a NodeGraph to the document.
-    /// @param name The name of the new NodeGraph.
-    ///     If no name is specified, then a unique name will automatically be
-    ///     generated.
-    /// @return A shared pointer to the new NodeGraph.
-    NodeGraphPtr addNodeGraph(const string& name = EMPTY_STRING)
-    {
-        return addChild<NodeGraph>(name);
-    }
-
-    /// Return the NodeGraph, if any, with the given name.
-    NodeGraphPtr getNodeGraph(const string& name) const
-    {
-        return getChildOfType<NodeGraph>(name);
-    }
-
-    /// Return a vector of all NodeGraph elements in the document.
-    vector<NodeGraphPtr> getNodeGraphs() const
-    {
-        return getChildrenOfType<NodeGraph>();
-    }
-
-    /// Remove the NodeGraph, if any, with the given name.
-    void removeNodeGraph(const string& name)
-    {
-        removeChildOfType<NodeGraph>(name);
-    }
-
     /// Return a vector of all port elements that match the given node name.
     /// Port elements support spatially-varying upstream connections to
     /// nodes, and include both Input and Output elements.

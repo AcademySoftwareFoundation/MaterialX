@@ -105,7 +105,11 @@ OutputPtr PortElement::getConnectedOutput() const
         NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), scope);
         if (!nodeGraph)
         {
-            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+            nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString(), parent);
+            if (!nodeGraph)
+            {
+                nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
+            }
         }
         if (nodeGraph)
         {
@@ -121,6 +125,12 @@ OutputPtr PortElement::getConnectedOutput() const
                     result = nodeGraph->getOutput(outputString);
                 }
             }
+        }
+
+        // Handl direct nodegraph -> nodegraph output connections
+        while (result && result->hasNodeGraphString())
+        {
+            result = result->getConnectedOutput();
         }
     }
     // Look for a node output.
@@ -154,6 +164,7 @@ OutputPtr PortElement::getConnectedOutput() const
     {
         result = getDocument()->getOutput(outputString);
     }
+
     return result;
 }
 
@@ -161,42 +172,58 @@ bool PortElement::validate(string* message) const
 {
     bool res = true;
 
-    NodePtr connectedNode = getConnectedNode();
-    if (hasNodeName() || hasOutputString())
+    const string& outputString = getOutputString();
+    InterfaceElementPtr connectedElement = nullptr;
+    NodePtr connectedNode = nullptr;
+    NodeGraphPtr connectedGraph = nullptr;
+    if (hasNodeName())
     {
-        NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeName());
-        if (!nodeGraph)
-        {
-            validateRequire(connectedNode != nullptr, res, message, "Invalid port connection");
-        }
+        connectedElement = connectedNode = getConnectedNode();
     }
-    if (connectedNode)
+    else if (hasNodeGraphString())
     {
-        const string& outputString = getOutputString();
+        const string& nodeGraphString = getNodeGraphString();
+        connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString);
+        if (!connectedGraph)
+        {
+            if (getParent())
+            {
+                connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString, getParent());
+                if (!connectedGraph)
+                {
+                    connectedGraph = resolveNameReference<NodeGraph>(nodeGraphString, getParent()->getParent());
+                }
+            }
+        }
+        connectedElement = connectedGraph;
+        validateRequire(connectedGraph != nullptr, res, message,
+            "Nodegraph '" + nodeGraphString + "' not found for connection");
+    }
+
+    if (connectedElement)
+    {
         if (!outputString.empty())
         {
-            OutputPtr output;
-            if (hasNodeName())
+            OutputPtr output = nullptr;
+            if (connectedNode)
             {
                 NodeDefPtr nodeDef = connectedNode->getNodeDef();
                 output = nodeDef ? nodeDef->getOutput(outputString) : OutputPtr();
                 if (output)
                 {
                     validateRequire(connectedNode->getType() == MULTI_OUTPUT_TYPE_STRING, res, message,
-                                    "Multi-output type expected in port connection");
+                        "Multi-output type expected in port connection'");
                 }
             }
-            else if (hasNodeGraphString())
+            else if (connectedGraph)
             {
-                NodeGraphPtr nodeGraph = resolveNameReference<NodeGraph>(getNodeGraphString());
-                if (nodeGraph)
+                output = connectedGraph->getOutput(outputString);
+                validateRequire(output != nullptr, res, message,
+                    "Nodegraph output '" + outputString + "' not found for connection");
+                if (connectedGraph->getNodeDef())
                 {
-                    output = nodeGraph->getOutput(outputString);
-                    if (nodeGraph->getNodeDef())
-                    {
-                        validateRequire(nodeGraph->getOutputCount() > 1, res, message,
-                                        "Multi-output type expected in port connection");
-                    }
+                    validateRequire(connectedGraph->getOutputCount() > 1, res, message,
+                        "Multi-output type expected in port connection");
                 }
             }
             else
@@ -215,18 +242,43 @@ bool PortElement::validate(string* message) const
                 }
                 else
                 {
-                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
+                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection:" + 
+                        getType() + " versus " + output->getType());
                 }
             }
         }
-        else if (hasChannels())
+        else 
         {
-            bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
-            validateRequire(valid, res, message, "Invalid channels string in port connection");
-        }
-        else if (connectedNode->getType() != MULTI_OUTPUT_TYPE_STRING)
-        {
-            validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
+            OutputPtr output = nullptr;
+            string outputType = EMPTY_STRING;
+
+            if (connectedNode)
+            {
+                outputType = connectedNode->getType();
+            }
+            else if (connectedGraph)
+            {
+                std::vector<OutputPtr> outputs = connectedGraph->getOutputs();
+                if (!outputs.empty())
+                {
+                    output = outputs[0];
+                    outputType = output->getType();
+                }
+            }
+
+            if (!outputType.empty())
+            {
+                if (hasChannels())
+                {
+                    bool valid = validChannelsString(getChannels(), outputType, getType());
+                    validateRequire(valid, res, message, "Invalid channels string in port connection");
+                }
+                else if (outputType != MULTI_OUTPUT_TYPE_STRING)
+                {
+                    validateRequire(getType() == outputType, res, message, "Mismatched types in port connection:" +
+                        getType() + " versus " + outputType);
+                }
+            }
         }
     }
     return ValueElement::validate(message) && res;
@@ -296,6 +348,18 @@ NodePtr Input::getConnectedNode() const
         {
             return node;
         }
+        else if (output->hasNodeGraphString())
+        {
+            OutputPtr childGraphOutput = output->getConnectedOutput();
+            if (childGraphOutput)
+            {
+                NodePtr childGraphNode = childGraphOutput->getConnectedNode();
+                if (childGraphNode)
+                {
+                    return childGraphNode;
+                }
+            }
+        }
     }
 
     return PortElement::getConnectedNode();
@@ -304,11 +368,34 @@ NodePtr Input::getConnectedNode() const
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
-    {
-        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
-        if (graph)
+    {   
+        const string& interfaceName = getInterfaceName();
+        ConstElementPtr parent = getParent();
+        parent = parent->getParent();
+        ConstNodeGraphPtr graph = parent->asA<NodeGraph>();
+        if (graph && !graph->getNodeDef())
         {
-            return graph->getInput(getInterfaceName());
+            InputPtr returnVal = graph->getInput(interfaceName);
+            if (returnVal)
+            {
+                if (returnVal->hasInterfaceName())
+                {
+                    InputPtr val = returnVal->getInterfaceInput();
+                    if (val)
+                    {
+                        returnVal = val;
+                    }
+                    return returnVal;
+                }
+                else
+                {
+                    return returnVal;
+                }
+            }
+            else
+            {
+                throw Exception("Interface name cannot be found: '" + interfaceName + "'");
+            }
         }
     }
     return nullptr;

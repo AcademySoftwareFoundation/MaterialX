@@ -544,6 +544,10 @@ bool ValueElement::validate(string* message) const
     {
         validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
         ConstNodeGraphPtr nodeGraph = getAncestorOfType<NodeGraph>();
+        if (getParent() && getParent()->isA<NodeGraph>())
+        {
+            nodeGraph = nodeGraph->getParent()->getAncestorOfType<NodeGraph>();
+        }
         ConstInterfaceElementPtr decl = nodeGraph ? nodeGraph->getDeclaration() : nullptr;
         if (decl)
         {

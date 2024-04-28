@@ -293,6 +293,37 @@ class MX_CORE_API GraphElement : public InterfaceElement
         removeChildOfType<Backdrop>(name);
     }
 
+    /// @name NodeGraph Elements
+    /// @{
+
+    /// Add a NodeGraph to the document.
+    /// @param name The name of the new NodeGraph.
+    ///     If no name is specified, then a unique name will automatically be
+    ///     generated.
+    /// @return A shared pointer to the new NodeGraph.
+    NodeGraphPtr addNodeGraph(const string& name = EMPTY_STRING)
+    {
+        return addChild<NodeGraph>(name);
+    }
+
+    /// Return the NodeGraph, if any, with the given name.
+    NodeGraphPtr getNodeGraph(const string& name) const
+    {
+        return getChildOfType<NodeGraph>(name);
+    }
+
+    /// Return a vector of all NodeGraph elements in the document.
+    vector<NodeGraphPtr> getNodeGraphs() const
+    {
+        return getChildrenOfType<NodeGraph>();
+    }
+
+    /// Remove the NodeGraph, if any, with the given name.
+    void removeNodeGraph(const string& name)
+    {
+        removeChildOfType<NodeGraph>(name);
+    }
+
     /// @}
     /// @name Utility
     /// @{

@@ -613,6 +613,89 @@ TEST_CASE("Tokens", "[nodegraph]")
     }
 }
 
+TEST_CASE("Nested Nodegraphs", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Create 2 level nesting of graphs
+    mx::NodeGraphPtr level1 = doc->addNodeGraph("level1_graph");
+    mx::NodeGraphPtr level2 = level1->addNodeGraph("level2_graph");
+    REQUIRE(level2);
+    mx::NodeGraphPtr level3 = level2->addNodeGraph("level3_graph");
+    REQUIRE(level3);
+
+    // Add an input connection between the graph inputs at the levels 1 and 2
+    // (An interface connection)
+    mx::InputPtr level1Input = level1->addInput("level1_input", "color3");
+    mx::InputPtr level2Input = level2->addInput("level2_input", "color3");
+    level2Input->setInterfaceName("level1_input");
+    REQUIRE(level2Input->getInterfaceInput()->getNamePath() == level1Input->getNamePath());
+
+    // Add an input connection between the graphs inputs at level 1, 2 and 3
+    // Recursive interfacename search
+    mx::InputPtr level1Input2 = level1->addInput("level1_input2", "color3");
+    mx::InputPtr level2Input2 = level2->addInput("level2_input2", "color3");
+    level2Input2->setInterfaceName(level1Input2->getName());
+    mx::InputPtr level3Input = level3->addInput("level3_input", "color3");
+    level3Input->setInterfaceName(level2Input2->getName());
+    REQUIRE(level3Input->getInterfaceInput()->getNamePath() == level1Input2->getNamePath());
+
+    // Add output connection from child nodegraph to node inside nodegraph
+    mx::OutputPtr level2Output = level2->addOutput("level2_output", "color3");
+    mx::NodePtr level1Multiply = level1->addNode("multiply", "color3");
+    mx::InputPtr level1MultiplyInput = level1Multiply->addInput("in1", "color3");
+    level1MultiplyInput->setNodeGraphString(level2->getName());
+    level1MultiplyInput->setOutputString(level2Output->getName());
+    mx::OutputPtr outputPtr = level1MultiplyInput->getConnectedOutput();
+    REQUIRE(outputPtr->getNamePath() == level2Output->getNamePath());
+
+    // Check for connected node inside level2
+    mx::NodePtr level2Add = level2->addNode("add", "color3");
+    level2Output->setNodeName(level2Add->getName());
+    mx::NodePtr connectedNode = level1MultiplyInput->getConnectedNode();
+    REQUIRE(connectedNode->getNamePath() == level2Add->getNamePath());
+    REQUIRE(outputPtr->getNamePath() == level2Output->getNamePath());
+
+    // Also connect to level 1 output
+    mx::OutputPtr leve1Output = level1->addOutput("leve1_output", "color3");
+    leve1Output->setNodeGraphString(level2->getName());
+    level1MultiplyInput->setOutputString(level2Output->getName());
+    outputPtr = level1MultiplyInput->getConnectedOutput();
+    REQUIRE(outputPtr->getNamePath() == level2Output->getNamePath());
+
+    // Check transitive outputs
+    mx::OutputPtr level3Output = level3->addOutput("level3_output", "color3");
+
+    mx::OutputPtr level2Output2 = level2->addOutput("level2_output2", "color3");
+    level2Output2->setNodeGraphString(level3->getName());
+    level2Output2->setOutputString(level3Output->getName());
+
+    mx::OutputPtr connectedOutput = level2Output2->getConnectedOutput();
+    REQUIRE(connectedOutput);
+    REQUIRE(connectedOutput->getNamePath() == level3Output->getNamePath());
+
+    mx::OutputPtr level1Output2 = level1->addOutput("level1_output2", "color3");
+    level1Output2->setNodeGraphString(level2->getName());
+    level1Output2->setOutputString(level2Output2->getName());
+
+    connectedOutput = level1Output2->getConnectedOutput();
+    REQUIRE(connectedOutput);
+    REQUIRE(connectedOutput->getNamePath() == level3Output->getNamePath());
+    
+    mx::OutputPtr docOutput = doc->addOutput("doc_output", "color3");
+    docOutput->setNodeGraphString(level1->getName());
+    docOutput->setOutputString(level1Output2->getName());
+    REQUIRE(connectedOutput->getNamePath() == level3Output->getNamePath());
+
+    std::string errors;
+    bool valid = doc->validate(&errors);
+    if (!valid)
+    {
+        INFO("Validation errors:" + errors);
+    }
+    REQUIRE(valid);
+}
+
 TEST_CASE("Node Definition Creation", "[nodedef]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
