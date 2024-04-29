@@ -41,41 +41,18 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     return NodeDefPtr();
 }
 
-void copyConnectionOrValue(NodePtr srcNode, const string& srcInput, NodePtr dstNode, const string& dstInput)
+void copyInputWithBindings(NodePtr sourceNode, const string& sourceInputName,
+                           NodePtr destNode, const string& destInputName)
 {
-    InputPtr src = srcNode->getInput(srcInput);
-    if (src)
+    InputPtr sourceInput = sourceNode->getInput(sourceInputName);
+    if (sourceInput)
     {
-        InputPtr dst = dstNode->getInput(dstInput);
-        if (!dst)
+        InputPtr destInput = destNode->getInput(destInputName);
+        if (!destInput)
         {
-            dst = dstNode->addInput(dstInput, src->getType());
+            destInput = destNode->addInput(destInputName, sourceInput->getType());
         }
-
-        if (src->hasNodeName())
-        {
-            dst->setNodeName(src->getNodeName());
-            if (src->hasOutputString())
-            {
-                dst->setOutputString(src->getOutputString());
-            }
-        }
-        else if (src->hasNodeGraphString())
-        {
-            dst->setNodeGraphString(src->getNodeGraphString());
-            if (src->hasOutputString())
-            {
-                dst->setOutputString(src->getOutputString());
-            }
-        }
-        else if (src->hasInterfaceName())
-        {
-            dst->setInterfaceName(src->getInterfaceName());
-        }
-        else if (src->hasValueString())
-        {
-            dst->setValueString(src->getValueString());
-        }
+        destInput->copyContentFrom(sourceInput);
     }
 }
 
@@ -759,15 +736,6 @@ void Document::upgradeVersion()
             }
         };
 
-        // Function for copy all attributes from one element to another.
-        auto copyAttributes = [](ConstElementPtr src, ElementPtr dest)
-        {
-            for (const string& attr : src->getAttributeNames())
-            {
-                dest->setAttribute(attr, src->getAttribute(attr));
-            }
-        };
-
         // Storage for inputs found connected downstream from artistic_ior node.
         vector<InputPtr> artisticIorConnections, artisticExtConnections;
 
@@ -847,19 +815,9 @@ void Document::upgradeVersion()
                 OutputPtr artisticIor_ior = artisticIor->addOutput("ior", "color3");
                 OutputPtr artisticIor_extinction = artisticIor->addOutput("extinction", "color3");
 
-                // Copy values and connections from conductor node to artistic_ior node.
-                InputPtr reflectivity = node->getInput("reflectivity");
-                if (reflectivity)
-                {
-                    InputPtr artisticIor_reflectivity = artisticIor->addInput("reflectivity", "color3");
-                    copyAttributes(reflectivity, artisticIor_reflectivity);
-                }
-                InputPtr edge_color = node->getInput("edge_color");
-                if (edge_color)
-                {
-                    InputPtr artisticIor_edge_color = artisticIor->addInput("edge_color", "color3");
-                    copyAttributes(edge_color, artisticIor_edge_color);
-                }
+                // Copy inputs and bindings from conductor node to artistic_ior node.
+                copyInputWithBindings(node, "reflectivity", artisticIor, "reflectivity");
+                copyInputWithBindings(node, "edge_color", artisticIor, "edge_color");
 
                 // Update the parameterization on the conductor node
                 // and connect it to the artistic_ior node.
@@ -1062,8 +1020,8 @@ void Document::upgradeVersion()
                         NodePtr upstream = edge.getUpstreamElement()->asA<Node>();
                         if (upstream && BSDF_WITH_THINFILM.count(upstream->getCategory()))
                         {
-                            copyConnectionOrValue(top, "thickness", upstream, "thinfilm_thickness");
-                            copyConnectionOrValue(top, "ior", upstream, "thinfilm_ior");
+                            copyInputWithBindings(top, "thickness", upstream, "thinfilm_thickness");
+                            copyInputWithBindings(top, "ior", upstream, "thinfilm_ior");
                         }
                     }
 
@@ -1186,8 +1144,7 @@ void Document::upgradeVersion()
                                 combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
                             }
                         }
-                        InputPtr separateInInput = separateNode->addInput("in");
-                        separateInInput->copyContentFrom(inInput);
+                        copyInputWithBindings(node, inInput->getName(), separateNode, "in");
                         node->removeInput(inInput->getName());
                     }
 
