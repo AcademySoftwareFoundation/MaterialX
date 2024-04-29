@@ -683,49 +683,6 @@
   <implementation name="IM_convert_boolean_float_genglsl" nodedef="ND_convert_boolean_float" target="genglsl" />
   <implementation name="IM_convert_integer_float_genglsl" nodedef="ND_convert_integer_float" target="genglsl" />
 
-  <!-- <swizzle> -->
-  <!-- from type: float -->
-  <implementation name="IM_swizzle_float_color3_genglsl" nodedef="ND_swizzle_float_color3" target="genglsl" />
-  <implementation name="IM_swizzle_float_color4_genglsl" nodedef="ND_swizzle_float_color4" target="genglsl" />
-  <implementation name="IM_swizzle_float_vector2_genglsl" nodedef="ND_swizzle_float_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_float_vector3_genglsl" nodedef="ND_swizzle_float_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_float_vector4_genglsl" nodedef="ND_swizzle_float_vector4" target="genglsl" />
-  <!-- from type: color3 -->
-  <implementation name="IM_swizzle_color3_float_genglsl" nodedef="ND_swizzle_color3_float" target="genglsl" />
-  <implementation name="IM_swizzle_color3_color3_genglsl" nodedef="ND_swizzle_color3_color3" target="genglsl" />
-  <implementation name="IM_swizzle_color3_color4_genglsl" nodedef="ND_swizzle_color3_color4" target="genglsl" />
-  <implementation name="IM_swizzle_color3_vector2_genglsl" nodedef="ND_swizzle_color3_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_color3_vector3_genglsl" nodedef="ND_swizzle_color3_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_color3_vector4_genglsl" nodedef="ND_swizzle_color3_vector4" target="genglsl" />
-  <!-- from type: color4 -->
-  <implementation name="IM_swizzle_color4_float_genglsl" nodedef="ND_swizzle_color4_float" target="genglsl" />
-  <implementation name="IM_swizzle_color4_color3_genglsl" nodedef="ND_swizzle_color4_color3" target="genglsl" />
-  <implementation name="IM_swizzle_color4_color4_genglsl" nodedef="ND_swizzle_color4_color4" target="genglsl" />
-  <implementation name="IM_swizzle_color4_vector2_genglsl" nodedef="ND_swizzle_color4_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_color4_vector3_genglsl" nodedef="ND_swizzle_color4_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_color4_vector4_genglsl" nodedef="ND_swizzle_color4_vector4" target="genglsl" />
-  <!-- from type: vector2 -->
-  <implementation name="IM_swizzle_vector2_float_genglsl" nodedef="ND_swizzle_vector2_float" target="genglsl" />
-  <implementation name="IM_swizzle_vector2_color3_genglsl" nodedef="ND_swizzle_vector2_color3" target="genglsl" />
-  <implementation name="IM_swizzle_vector2_color4_genglsl" nodedef="ND_swizzle_vector2_color4" target="genglsl" />
-  <implementation name="IM_swizzle_vector2_vector2_genglsl" nodedef="ND_swizzle_vector2_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_vector2_vector3_genglsl" nodedef="ND_swizzle_vector2_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_vector2_vector4_genglsl" nodedef="ND_swizzle_vector2_vector4" target="genglsl" />
-  <!-- from type: vector3 -->
-  <implementation name="IM_swizzle_vector3_float_genglsl" nodedef="ND_swizzle_vector3_float" target="genglsl" />
-  <implementation name="IM_swizzle_vector3_color3_genglsl" nodedef="ND_swizzle_vector3_color3" target="genglsl" />
-  <implementation name="IM_swizzle_vector3_color4_genglsl" nodedef="ND_swizzle_vector3_color4" target="genglsl" />
-  <implementation name="IM_swizzle_vector3_vector2_genglsl" nodedef="ND_swizzle_vector3_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_vector3_vector3_genglsl" nodedef="ND_swizzle_vector3_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_vector3_vector4_genglsl" nodedef="ND_swizzle_vector3_vector4" target="genglsl" />
-  <!-- from type: vector4 -->
-  <implementation name="IM_swizzle_vector4_float_genglsl" nodedef="ND_swizzle_vector4_float" target="genglsl" />
-  <implementation name="IM_swizzle_vector4_color3_genglsl" nodedef="ND_swizzle_vector4_color3" target="genglsl" />
-  <implementation name="IM_swizzle_vector4_color4_genglsl" nodedef="ND_swizzle_vector4_color4" target="genglsl" />
-  <implementation name="IM_swizzle_vector4_vector2_genglsl" nodedef="ND_swizzle_vector4_vector2" target="genglsl" />
-  <implementation name="IM_swizzle_vector4_vector3_genglsl" nodedef="ND_swizzle_vector4_vector3" target="genglsl" />
-  <implementation name="IM_swizzle_vector4_vector4_genglsl" nodedef="ND_swizzle_vector4_vector4" target="genglsl" />
-
   <!-- <combine> -->
   <implementation name="IM_combine2_vector2_genglsl" nodedef="ND_combine2_vector2" target="genglsl" />
   <implementation name="IM_combine2_color4CF_genglsl" nodedef="ND_combine2_color4CF" target="genglsl" />
