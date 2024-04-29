@@ -190,6 +190,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genmdl" nodedef="ND_add_float" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
+  <implementation name="IM_add_integer_genmdl" nodedef="ND_add_integer" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color3_genmdl" nodedef="ND_add_color3" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color3FA_genmdl" nodedef="ND_add_color3FA" sourcecode="{{in1}} + {{in2}}" target="genmdl" />
   <implementation name="IM_add_color4_genmdl" nodedef="ND_add_color4" sourcecode="mx_add({{in1}}, {{in2}})" target="genmdl" />
@@ -207,6 +208,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmdl" nodedef="ND_subtract_float" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
+  <implementation name="IM_subtract_integer_genmdl" nodedef="ND_subtract_integer" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color3_genmdl" nodedef="ND_subtract_color3" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color3FA_genmdl" nodedef="ND_subtract_color3FA" sourcecode="{{in1}} - {{in2}}" target="genmdl" />
   <implementation name="IM_subtract_color4_genmdl" nodedef="ND_subtract_color4" sourcecode="mx_subtract({{in1}}, {{in2}})" target="genmdl" />
@@ -654,6 +656,8 @@
   <implementation name="IM_switch_vector2_genmdl" nodedef="ND_switch_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector3_genmdl" nodedef="ND_switch_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector4_genmdl" nodedef="ND_switch_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix33_genmdl" nodedef="ND_switch_matrix33" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix33({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix44_genmdl" nodedef="ND_switch_matrix44" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genmdl" nodedef="ND_switch_floatI" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_floatI({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_color3I_genmdl" nodedef="ND_switch_color3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_color3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
@@ -661,6 +665,8 @@
   <implementation name="IM_switch_vector2I_genmdl" nodedef="ND_switch_vector2I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector2I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector3I_genmdl" nodedef="ND_switch_vector3I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector3I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
   <implementation name="IM_switch_vector4I_genmdl" nodedef="ND_switch_vector4I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_vector4I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix33I_genmdl" nodedef="ND_switch_matrix33I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix33I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
+  <implementation name="IM_switch_matrix44I_genmdl" nodedef="ND_switch_matrix44I" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_switch_matrix44I({{in1}}, {{in2}}, {{in3}}, {{in4}}, {{in5}}, {{in6}}, {{in7}}, {{in8}}, {{in9}}, {{in10}}, {{which}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
@@ -684,43 +690,6 @@
   <implementation name="IM_convert_color4_color3_genmdl" nodedef="ND_convert_color4_color3" target="genmdl" />
   <implementation name="IM_convert_boolean_float_genmdl" nodedef="ND_convert_boolean_float" target="genmdl" />
   <implementation name="IM_convert_integer_float_genmdl" nodedef="ND_convert_integer_float" target="genmdl" />
-
-  <!-- <swizzle> -->
-  <implementation name="IM_swizzle_float_color3_genmdl" nodedef="ND_swizzle_float_color3" target="genmdl" />
-  <implementation name="IM_swizzle_float_color4_genmdl" nodedef="ND_swizzle_float_color4" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector2_genmdl" nodedef="ND_swizzle_float_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector3_genmdl" nodedef="ND_swizzle_float_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_float_vector4_genmdl" nodedef="ND_swizzle_float_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_color3_float_genmdl" nodedef="ND_swizzle_color3_float" target="genmdl" />
-  <implementation name="IM_swizzle_color3_color3_genmdl" nodedef="ND_swizzle_color3_color3" target="genmdl" />
-  <implementation name="IM_swizzle_color3_color4_genmdl" nodedef="ND_swizzle_color3_color4" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector2_genmdl" nodedef="ND_swizzle_color3_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector3_genmdl" nodedef="ND_swizzle_color3_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_color3_vector4_genmdl" nodedef="ND_swizzle_color3_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_color4_float_genmdl" nodedef="ND_swizzle_color4_float" target="genmdl" />
-  <implementation name="IM_swizzle_color4_color3_genmdl" nodedef="ND_swizzle_color4_color3" target="genmdl" />
-  <implementation name="IM_swizzle_color4_color4_genmdl" nodedef="ND_swizzle_color4_color4" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector2_genmdl" nodedef="ND_swizzle_color4_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector3_genmdl" nodedef="ND_swizzle_color4_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_color4_vector4_genmdl" nodedef="ND_swizzle_color4_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_float_genmdl" nodedef="ND_swizzle_vector2_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_color3_genmdl" nodedef="ND_swizzle_vector2_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_color4_genmdl" nodedef="ND_swizzle_vector2_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector2_genmdl" nodedef="ND_swizzle_vector2_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector3_genmdl" nodedef="ND_swizzle_vector2_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector2_vector4_genmdl" nodedef="ND_swizzle_vector2_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_float_genmdl" nodedef="ND_swizzle_vector3_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_color3_genmdl" nodedef="ND_swizzle_vector3_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_color4_genmdl" nodedef="ND_swizzle_vector3_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector2_genmdl" nodedef="ND_swizzle_vector3_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector3_genmdl" nodedef="ND_swizzle_vector3_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector3_vector4_genmdl" nodedef="ND_swizzle_vector3_vector4" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_float_genmdl" nodedef="ND_swizzle_vector4_float" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_color3_genmdl" nodedef="ND_swizzle_vector4_color3" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_color4_genmdl" nodedef="ND_swizzle_vector4_color4" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector2_genmdl" nodedef="ND_swizzle_vector4_vector2" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector3_genmdl" nodedef="ND_swizzle_vector4_vector3" target="genmdl" />
-  <implementation name="IM_swizzle_vector4_vector4_genmdl" nodedef="ND_swizzle_vector4_vector4" target="genmdl" />
 
   <!-- <combine2> -->
   <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" />

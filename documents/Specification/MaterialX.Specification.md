@@ -1057,13 +1057,13 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-add"> </a>
 
 * **`add`**: add a value to the incoming float/color/vector/matrix.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to add; for matrix types, the default is the zero matrix.
 
 <a id="node-subtract"> </a>
 
 * **`subtract`**: subtract a value from the incoming float/color/vector/matrix, outputting "in1-in2".
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to subtract; for matrix types, the default is the zero matrix
 
 <a id="node-multiply"> </a>
@@ -1592,7 +1592,7 @@ Conditional nodes are used to compare values of two streams, or to select a valu
 <a id="node-switch"> </a>
 
 * **`switch`**: output the value of one of up to ten input streams, according to the value of a selector input `which`.  Switch nodes can be of output type float, color<em>N</em> or vector<em>N</em>, and have five inputs, in1 through in10 (not all of which must be connected), which must match the output type.
-    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
+    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em> or matrix33 or matrix44): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
     * `which` (integer or float): a selector to choose which input to take values from; the output comes from input "floor(`which`)+1", clamped to the 1-10 range.  So `which`&lt;1 will pass on the value from in1, 1&lt;=`which`&lt;2 will pass the value from in2, 2&lt;=`which`&lt;3 will pass the value from in3, and so on up to 9&lt;=`which` will pass the value from in10.  The default value of `which` is 0.
 
 <a id="node-ifelse"> </a>
@@ -1612,13 +1612,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 * **`extract`**: extract the specified channel number from a color<em>N</em> or vector<em>N</em> stream.
     * `in` (color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `which` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
+    * `index` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
 
 <a id="node-extractrowvector"> </a>
 
 * **`extractrowvector`**: extract the specified row vector number from a matrix<em>N</em> stream.
     * `in` (matrix<em>N</em>): the input value or nodename
-    * `which` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
+    * `index` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
 
 <a id="node-convert"> </a>
 
