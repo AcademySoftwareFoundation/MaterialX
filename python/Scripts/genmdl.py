@@ -45,7 +45,7 @@ def _loadLibraries(doc, searchPath, libraryPath):
 def _writeHeader(file, version):
     file.write('mdl ' + version + ';\n')
     file.write('using core import *;\n')
-    IMPORT_LIST = { '::anno::*', '::base::*', '.::swizzle::*', '.::cm::*', '::math::*', '::state::*', '::tex::*', '::state::*',  '.::vectormatrix::*', '.::hsv::*', '.::noise::*'}
+    IMPORT_LIST = { '::anno::*', '::base::*', '.::cm::*', '::math::*', '::state::*', '::tex::*', '::state::*',  '.::vectormatrix::*', '.::hsv::*', '.::noise::*'}
     # To verify what are the minimal imports required
     for i in IMPORT_LIST:
         file.write('import' + i + ';\n')
@@ -66,7 +66,7 @@ def _mapGeomProp(geomprop):
     outputValue = ''
     if len(geomprop):
         if geomprop.find('UV') >= 0:
-            outputValue = 'swizzle::xy(::state::texture_coordinate(0))'
+            outputValue = 'mx_swizzle_xy(::state::texture_coordinate(0))'
         elif geomprop.find('Pobject') >= 0:
             outputValue = '::state::transform_point(::state::coordinate_internal,::state::coordinate_object,::state::position())'
         elif geomprop.find('PWorld') >= 0:
@@ -818,9 +818,6 @@ def main():
                     wroteImplementation = True
                 elif nodeCategory == 'mix':
                     _writeThreeArgumentFunc(file, outputType, '::math::lerp', 'mxp_bg', 'mxp_fg', 'mxp_mix')
-                    wroteImplementation = True
-                elif nodeCategory == 'swizzle':
-                    _writeOneArgumentFunc(file, outputType, 'swizzle::' + channelString)
                     wroteImplementation = True
                 elif nodeCategory == 'combine2':
                     _writeTwoArgumentCombine(file, outputType)
