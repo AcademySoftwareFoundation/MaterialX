@@ -1612,13 +1612,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 * **`extract`**: extract the specified channel number from a color<em>N</em> or vector<em>N</em> stream.
     * `in` (color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `which` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
+    * `index` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
 
 <a id="node-extractrowvector"> </a>
 
 * **`extractrowvector`**: extract the specified row vector number from a matrix<em>N</em> stream.
     * `in` (matrix<em>N</em>): the input value or nodename
-    * `which` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
+    * `index` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
 
 <a id="node-convert"> </a>
 
