@@ -50,7 +50,6 @@ class UdimFilePath(mx.FilePath):
         return self.asPattern()
 
     def asPattern(self, format=mx.FormatPosix):
-
         if not self._isUdim:
             return self.asString(format=format)
 
