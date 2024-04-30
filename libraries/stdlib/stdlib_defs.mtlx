@@ -3634,6 +3634,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreater_integer" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreater_color3" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="float" value="1.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3675,6 +3682,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreater_integerI" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifgreater_color3I" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
@@ -3723,6 +3737,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreatereq_integer" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreatereq_color3" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="float" value="1.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3764,6 +3785,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_integerI" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifgreatereq_color3I" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
@@ -3812,6 +3840,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_integer" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_color3" node="ifequal" nodegroup="conditional">
     <input name="value1" type="float" value="0.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3854,6 +3889,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_integerI" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_color3I" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="0" />
     <input name="value2" type="integer" value="0" />
@@ -3895,6 +3937,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_integerB" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" />
+    <input name="value2" type="boolean" value="false" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifequal_color3B" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
