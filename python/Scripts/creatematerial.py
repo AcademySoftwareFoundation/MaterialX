@@ -177,7 +177,7 @@ def buildDocument(textureFiles, mtlxFile, shadingModel, colorspace, useTiledImag
         imageNode = nodeGraph.addNode(imageNodeCategory, textureName, inputType)
 
         # Set color space.
-        if 'color' in inputType.lower():
+        if shaderInput.isColorType():
             imageNode.setColorSpace(colorspace)
 
         # Set file path.
