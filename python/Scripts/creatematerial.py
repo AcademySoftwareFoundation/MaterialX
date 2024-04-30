@@ -169,8 +169,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
         inputName = shaderInput.getName()
         inputType = shaderInput.getType()
 
-        # Create textures
-        # Skip if the plug already created (in the case of UDIMs)
+        # Skip inputs that have already been created, e.g. in multi-UDIM materials.
         if shaderNode.getInput(inputName) or nodeGraph.getChild(textureName):
             continue
 
