@@ -1396,12 +1396,17 @@
 
   <!--
     Node: <add>
-    Add "in2" value/stream to the incoming float/color/vector/matrix.
+    Add "in2" value/stream to the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_add_float" node="add" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_add_integer" node="add" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_add_color3" node="add" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
@@ -1476,12 +1481,17 @@
 
   <!--
     Node: <subtract>
-    Subtract "in2" value/stream from the incoming float/color/vector/matrix.
+    Subtract "in2" value/stream from the incoming float/integer/color/vector/matrix.
   -->
   <nodedef name="ND_subtract_float" node="subtract" nodegroup="math">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_subtract_integer" node="subtract" nodegroup="math">
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_subtract_color3" node="subtract" nodegroup="math">
     <input name="in1" type="color3" value="0.0, 0.0, 0.0" />
@@ -3624,6 +3634,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreater_integer" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreater_color3" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="float" value="1.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3665,6 +3682,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreater_integerI" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifgreater_color3I" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
@@ -3713,6 +3737,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreatereq_integer" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreatereq_color3" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="float" value="1.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3754,6 +3785,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_integerI" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifgreatereq_color3I" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
@@ -3802,6 +3840,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_integer" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_color3" node="ifequal" nodegroup="conditional">
     <input name="value1" type="float" value="0.0" />
     <input name="value2" type="float" value="0.0" />
@@ -3844,6 +3889,13 @@
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_integerI" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_color3I" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="0" />
     <input name="value2" type="integer" value="0" />
@@ -3885,6 +3937,13 @@
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
     <output name="out" type="float" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_integerB" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" />
+    <input name="value2" type="boolean" value="false" />
+    <input name="in1" type="integer" value="0" />
+    <input name="in2" type="integer" value="0" />
+    <output name="out" type="integer" defaultinput="in1" />
   </nodedef>
   <nodedef name="ND_ifequal_color3B" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
@@ -4010,6 +4069,34 @@
     <input name="which" type="float" value="0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_switch_matrix33" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="float" value="0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix44" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="float" value="0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_switch_floatI" node="switch" nodegroup="conditional">
     <input name="in1" type="float" value="0.0" />
     <input name="in2" type="float" value="0.0" />
@@ -4093,6 +4180,34 @@
     <input name="in10" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="which" type="integer" value="0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix33I" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="integer" value="0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_switch_matrix44I" node="switch" nodegroup="conditional">
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in3" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in4" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in5" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in6" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in7" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in8" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in9" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in10" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="which" type="integer" value="0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
 
   <!-- ======================================================================== -->
@@ -4206,194 +4321,6 @@
   </nodedef>
 
   <!--
-    Node: <swizzle>
-    Perform an arbitrary permutation of the channels of the input stream, returning a new
-    stream of the specified type. Individual channels may be replicated or omitted, and the output
-    stream may have a different number of channels than the input.
-  -->
-  <!-- from type: float -->
-  <nodedef name="ND_swizzle_float_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0" />
-    <input name="channels" type="string" value="rrr" uniform="true" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_float_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0" />
-    <input name="channels" type="string" value="rrrr" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_float_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0" />
-    <input name="channels" type="string" value="xx" uniform="true" />
-    <output name="out" type="vector2" default="0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_float_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_float_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="float" value="0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <!-- from type: color3 -->
-  <nodedef name="ND_swizzle_color3_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="r" uniform="true" />
-    <output name="out" type="float" default="0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrr" uniform="true" />
-    <output name="out" type="color3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrrr" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rr" uniform="true" />
-    <output name="out" type="vector2" default="0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrr" uniform="true" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color3_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrrr" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <!-- from type: color4 -->
-  <nodedef name="ND_swizzle_color4_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="r" uniform="true" />
-    <output name="out" type="float" default="0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color4_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrr" uniform="true" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color4_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrrr" uniform="true" />
-    <output name="out" type="color4" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color4_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rr" uniform="true" />
-    <output name="out" type="vector2" default="0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color4_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrr" uniform="true" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_color4_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="rrrr" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <!-- from type: vector2 -->
-  <nodedef name="ND_swizzle_vector2_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="x" uniform="true" />
-    <output name="out" type="float" default="0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="xx" uniform="true" />
-    <output name="out" type="vector2" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector2_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector2" value="0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <!-- from type: vector3 -->
-  <nodedef name="ND_swizzle_vector3_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="x" uniform="true" />
-    <output name="out" type="float" default="0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector3_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector3_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector3_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xx" uniform="true" />
-    <output name="out" type="vector2" default="0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector3_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="vector3" defaultinput="in" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector3_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <!-- from type: vector4 -->
-  <nodedef name="ND_swizzle_vector4_float" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="x" uniform="true" />
-    <output name="out" type="float" default="0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_color3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_color4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_vector2" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xx" uniform="true" />
-    <output name="out" type="vector2" default="0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_vector3" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxx" uniform="true" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_swizzle_vector4_vector4" node="swizzle" nodegroup="channel">
-    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
-    <input name="channels" type="string" value="xxxx" uniform="true" />
-    <output name="out" type="vector4" defaultinput="in" />
-  </nodedef>
-
-  <!--
     Node: <combine2>
     Combine the channels from two streams into the same number of channels of a
     single output stream of a specified compatible type.
@@ -4473,7 +4400,7 @@
     <input name="in2" type="vector3" value="0.0, 1.0, 0.0" />
     <input name="in3" type="vector3" value="0.0, 0.0, 1.0" />
     <input name="in4" type="vector3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
   </nodedef>
 
   <nodedef name="ND_creatematrix_vector4_matrix44" node="creatematrix" nodegroup="math">
@@ -4481,7 +4408,7 @@
     <input name="in2" type="vector4" value="0.0, 1.0, 0.0, 0.0" />
     <input name="in3" type="vector4" value="0.0, 0.0, 1.0, 0.0" />
     <input name="in4" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
-    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  1.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" default="1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  0.0, 0.0, 0.0, 1.0" />
   </nodedef>
 
   <!--

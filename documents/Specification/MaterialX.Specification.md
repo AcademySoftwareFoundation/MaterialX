@@ -656,7 +656,7 @@ Standard Texture nodes:
 <a id="node-image"> </a>
 
 * **`image`**: samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.
+The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
     * `layer` (uniform string): the name of the layer to extract from a multi-layer input file.  If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer.  Note: the number of channels defined by the `type` of the `<image>` must match the number of channels in the named layer.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
@@ -1057,13 +1057,13 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 <a id="node-add"> </a>
 
 * **`add`**: add a value to the incoming float/color/vector/matrix.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to add; for matrix types, the default is the zero matrix.
 
 <a id="node-subtract"> </a>
 
 * **`subtract`**: subtract a value from the incoming float/color/vector/matrix, outputting "in1-in2".
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
     * `in2` (same type as `in1` or float): the value or nodename to subtract; for matrix types, the default is the zero matrix
 
 <a id="node-multiply"> </a>
@@ -1570,29 +1570,29 @@ Conditional nodes are used to compare values of two streams, or to select a valu
 * **`ifgreater`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than the value of another.  Ifgreater nodes can be of output type float, color<em>N</em> or vector<em>N</em>.  There is also a "boolean" output-type **`ifgreater`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` > `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
 
 <a id="node-ifgreatereq"> </a>
 
 * **`ifgreatereq`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than or equal to the value of another.  Ifgreatereq nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifgreatereq`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` >= `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
 
 <a id="node-ifequal"> </a>
 
 * **`ifequal`**: output the value of the `in1` or `in2` stream depending on whether the value of two test inputs are equal or not.  Ifequal nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifequal`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` == `value2`.
     * `value1` (boolean or integer or float): the first value or nodename to compare.  Default is 0 or "false".
     * `value2` (boolean or integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0 or "false".
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
 
 <a id="node-switch"> </a>
 
 * **`switch`**: output the value of one of up to ten input streams, according to the value of a selector input `which`.  Switch nodes can be of output type float, color<em>N</em> or vector<em>N</em>, and have five inputs, in1 through in10 (not all of which must be connected), which must match the output type.
-    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
+    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em> or matrix33 or matrix44): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
     * `which` (integer or float): a selector to choose which input to take values from; the output comes from input "floor(`which`)+1", clamped to the 1-10 range.  So `which`&lt;1 will pass on the value from in1, 1&lt;=`which`&lt;2 will pass the value from in2, 2&lt;=`which`&lt;3 will pass the value from in3, and so on up to 9&lt;=`which` will pass the value from in10.  The default value of `which` is 0.
 
 <a id="node-ifelse"> </a>
@@ -1612,13 +1612,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 * **`extract`**: extract the specified channel number from a color<em>N</em> or vector<em>N</em> stream.
     * `in` (color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `which` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
+    * `index` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
 
 <a id="node-extractrowvector"> </a>
 
 * **`extractrowvector`**: extract the specified row vector number from a matrix<em>N</em> stream.
     * `in` (matrix<em>N</em>): the input value or nodename
-    * `which` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
+    * `index` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
 
 <a id="node-convert"> </a>
 

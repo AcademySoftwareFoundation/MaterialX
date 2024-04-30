@@ -71,7 +71,7 @@ jobs:
           python: 3.7
 
         - name: MacOS_Xcode_14_Python311
-          os: macos-13
+          os: macos-14
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
@@ -128,7 +128,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install xorg-dev mesa-utils
+        sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
             sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
@@ -212,6 +212,8 @@ jobs:
       run: |
         python MaterialXTest/main.py
         python MaterialXTest/genshader.py
+        python Scripts/creatematerial.py ../resources/Materials/Examples/StandardSurface/chess_set --texturePrefix chessboard --shadingModel standard_surface
+        python Scripts/creatematerial.py ../resources/Materials/Examples/GltfPbr/boombox --shadingModel gltf_pbr
         python Scripts/mxformat.py ../resources/Materials/TestSuite/stdlib/upgrade --yes --upgrade
         python Scripts/mxvalidate.py ../resources/Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx --stdlib --verbose
         python Scripts/mxdoc.py --docType md ../libraries/pbrlib/pbrlib_defs.mtlx
@@ -255,7 +257,6 @@ jobs:
         Xvfb :1 -screen 0 1280x960x24 &
         echo "DISPLAY=:1" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
-        echo "GALLIUM_DRIVER=llvmpipe" >> $GITHUB_ENV
 
     - name: Render Script Tests
       if: matrix.test_render == 'ON'
@@ -344,7 +345,6 @@ jobs:
       with:
         name: MaterialX_JavaScript
         path: javascript/build/installed/JavaScript/MaterialX        
-        if-no-files-found: ignore   
 
   sdist:
     name: Python SDist
@@ -384,7 +384,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11']
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        os: ['ubuntu-latest', 'windows-latest', 'macos-13']
 
     steps:
     - name: Sync Repository
@@ -402,7 +402,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.16.5
+      uses: pypa/cibuildwheel@v2.17.0
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
@@ -413,7 +413,6 @@ jobs:
         # manylinux2014 is CentOS 7 based. Which means GCC 10 and glibc 2.17.
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
         CIBW_BEFORE_ALL_LINUX: yum install -y libXt-devel
-        CIBW_BEFORE_ALL_MACOS: sudo xcode-select -switch /Applications/Xcode_13.4.app
         CIBW_BUILD_VERBOSITY: 1
         CIBW_ENVIRONMENT: CMAKE_BUILD_PARALLEL_LEVEL=2
         # CIBW_BUILD_FRONTEND: build  # https://github.com/pypa/build
