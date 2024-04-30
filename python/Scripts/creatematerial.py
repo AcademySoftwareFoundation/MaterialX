@@ -49,16 +49,16 @@ class UdimFilePath(mx.FilePath):
     def __str__(self):
         return self.asPattern()
 
-    def asPattern(self, format=mx.FormatPosix):
+    def asPattern(self):
         if not self._isUdim:
-            return self.asString(format=format)
+            return self.asString()
 
         textureDir = self.getParentPath()
         textureName = self.getBaseName()
 
         pattern = textureDir / mx.FilePath(
             self._udimRegex.sub(UDIM_TOKEN, textureName))
-        return pattern.asString(format=format)
+        return pattern.asString()
 
     def isUdim(self):
         return self._isUdim
