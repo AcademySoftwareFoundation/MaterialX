@@ -21,7 +21,6 @@ import ::state::*;
 
 import .::core::*;
 import .::noise::*;
-import .::swizzle::*;
 import .::hsv::*;
 
 // Changes since MDL 1.7
