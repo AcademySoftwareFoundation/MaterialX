@@ -41,41 +41,18 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     return NodeDefPtr();
 }
 
-void copyConnectionOrValue(NodePtr srcNode, const string& srcInput, NodePtr dstNode, const string& dstInput)
+void copyInputWithBindings(NodePtr sourceNode, const string& sourceInputName,
+                           NodePtr destNode, const string& destInputName)
 {
-    InputPtr src = srcNode->getInput(srcInput);
-    if (src)
+    InputPtr sourceInput = sourceNode->getInput(sourceInputName);
+    if (sourceInput)
     {
-        InputPtr dst = dstNode->getInput(dstInput);
-        if (!dst)
+        InputPtr destInput = destNode->getInput(destInputName);
+        if (!destInput)
         {
-            dst = dstNode->addInput(dstInput, src->getType());
+            destInput = destNode->addInput(destInputName, sourceInput->getType());
         }
-
-        if (src->hasNodeName())
-        {
-            dst->setNodeName(src->getNodeName());
-            if (src->hasOutputString())
-            {
-                dst->setOutputString(src->getOutputString());
-            }
-        }
-        else if (src->hasNodeGraphString())
-        {
-            dst->setNodeGraphString(src->getNodeGraphString());
-            if (src->hasOutputString())
-            {
-                dst->setOutputString(src->getOutputString());
-            }
-        }
-        else if (src->hasInterfaceName())
-        {
-            dst->setInterfaceName(src->getInterfaceName());
-        }
-        else if (src->hasValueString())
-        {
-            dst->setValueString(src->getValueString());
-        }
+        destInput->copyContentFrom(sourceInput);
     }
 }
 
@@ -759,15 +736,6 @@ void Document::upgradeVersion()
             }
         };
 
-        // Function for copy all attributes from one element to another.
-        auto copyAttributes = [](ConstElementPtr src, ElementPtr dest)
-        {
-            for (const string& attr : src->getAttributeNames())
-            {
-                dest->setAttribute(attr, src->getAttribute(attr));
-            }
-        };
-
         // Storage for inputs found connected downstream from artistic_ior node.
         vector<InputPtr> artisticIorConnections, artisticExtConnections;
 
@@ -847,19 +815,9 @@ void Document::upgradeVersion()
                 OutputPtr artisticIor_ior = artisticIor->addOutput("ior", "color3");
                 OutputPtr artisticIor_extinction = artisticIor->addOutput("extinction", "color3");
 
-                // Copy values and connections from conductor node to artistic_ior node.
-                InputPtr reflectivity = node->getInput("reflectivity");
-                if (reflectivity)
-                {
-                    InputPtr artisticIor_reflectivity = artisticIor->addInput("reflectivity", "color3");
-                    copyAttributes(reflectivity, artisticIor_reflectivity);
-                }
-                InputPtr edge_color = node->getInput("edge_color");
-                if (edge_color)
-                {
-                    InputPtr artisticIor_edge_color = artisticIor->addInput("edge_color", "color3");
-                    copyAttributes(edge_color, artisticIor_edge_color);
-                }
+                // Copy inputs and bindings from conductor node to artistic_ior node.
+                copyInputWithBindings(node, "reflectivity", artisticIor, "reflectivity");
+                copyInputWithBindings(node, "edge_color", artisticIor, "edge_color");
 
                 // Update the parameterization on the conductor node
                 // and connect it to the artistic_ior node.
@@ -1019,6 +977,26 @@ void Document::upgradeVersion()
     // Upgrade from 1.38 to 1.39
     if (majorVersion == 1 && minorVersion == 38)
     {
+        const std::unordered_map<char, size_t> CHANNEL_INDEX_MAP =
+        {
+            { 'r', 0 }, { 'g', 1 }, { 'b', 2 }, { 'a', 3 },
+            { 'x', 0 }, { 'y', 1 }, { 'z', 2 }, { 'w', 3 }
+        };
+        const std::unordered_map<char, float> CHANNEL_CONSTANT_MAP =
+        {
+            { '0', 0.0f }, { '1', 1.0f }
+        };
+        const std::unordered_map<string, size_t> CHANNEL_COUNT_MAP =
+        {
+            { "float", 1 },
+            { "color3", 3 }, { "color4", 4 },
+            { "vector2", 2 }, { "vector3", 3 }, { "vector4", 4 }
+        };
+        const StringSet CHANNEL_CONVERT_PATTERNS =
+        {
+            "rgb", "rgba", "xyz", "xyzw"
+        };
+
         // Update all nodes.
         for (ElementPtr elem : traverseTree())
         {
@@ -1042,8 +1020,8 @@ void Document::upgradeVersion()
                         NodePtr upstream = edge.getUpstreamElement()->asA<Node>();
                         if (upstream && BSDF_WITH_THINFILM.count(upstream->getCategory()))
                         {
-                            copyConnectionOrValue(top, "thickness", upstream, "thinfilm_thickness");
-                            copyConnectionOrValue(top, "ior", upstream, "thinfilm_ior");
+                            copyInputWithBindings(top, "thickness", upstream, "thinfilm_thickness");
+                            copyInputWithBindings(top, "ior", upstream, "thinfilm_ior");
                         }
                     }
 
@@ -1077,6 +1055,106 @@ void Document::upgradeVersion()
                     }
                 }
             }
+            else if (nodeCategory == "swizzle")
+            {
+                InputPtr inInput = node->getInput("in");
+                InputPtr channelsInput = node->getInput("channels");
+                if (inInput &&
+                    CHANNEL_COUNT_MAP.count(inInput->getType()) &&
+                    CHANNEL_COUNT_MAP.count(node->getType()))
+                {
+                    string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
+                    size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
+                    size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
+                    if (inInput->hasValue())
+                    {
+                        // Replace swizzle with constant.
+                        node->setCategory("constant");
+                        string valueString = inInput->getValueString();
+                        StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
+                        StringVec newValueTokens;
+                        for (size_t i = 0; i < destChannelCount; i++)
+                        {
+                            if (i < channelString.size())
+                            {
+                                if (CHANNEL_INDEX_MAP.count(channelString[i]))
+                                {
+                                    size_t index = CHANNEL_INDEX_MAP.at(channelString[i]);
+                                    if (index < origValueTokens.size())
+                                    {
+                                        newValueTokens.push_back(origValueTokens[index]);
+                                    }
+                                }
+                                else if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
+                                {
+                                    newValueTokens.push_back(std::to_string(CHANNEL_CONSTANT_MAP.at(channelString[i])));
+                                }
+                                else
+                                {
+                                    newValueTokens.push_back(origValueTokens[0]);
+                                }
+                            }
+                            else
+                            {
+                                newValueTokens.push_back(origValueTokens[0]);
+                            }
+                        }
+                        InputPtr valueInput = node->addInput("value", node->getType());
+                        valueInput->setValueString(joinStrings(newValueTokens, ", "));
+                        node->removeInput(inInput->getName());
+                    }
+                    else if (destChannelCount == 1)
+                    {
+                        // Replace swizzle with extract.
+                        node->setCategory("extract");
+                        if (!channelString.empty() && CHANNEL_INDEX_MAP.count(channelString[0]))
+                        {
+                            node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
+                        }
+                    }
+                    else if (CHANNEL_CONVERT_PATTERNS.count(channelString))
+                    {
+                        // Replace swizzle with convert.
+                        node->setCategory("convert");
+                    }
+                    else
+                    {
+                        // Replace swizzle with separate and combine.
+                        GraphElementPtr parent = node->getParent()->asA<GraphElement>();
+                        NodePtr separateNode = parent->addNode(std::string("separate") + std::to_string(sourceChannelCount), EMPTY_STRING, MULTI_OUTPUT_TYPE_STRING);
+                        node->setCategory("combine" + std::to_string(destChannelCount));
+                        for (size_t i = 0; i < destChannelCount; i++)
+                        {
+                            InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
+                            if (i < channelString.size())
+                            {
+                                if (CHANNEL_INDEX_MAP.count(channelString[i]))
+                                {
+                                    combineInInput->setConnectedNode(separateNode);
+                                    combineInInput->setOutputString(std::string("out") + channelString[i]);
+                                }
+                                else if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
+                                {
+                                    combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
+                                }
+                            }
+                            else
+                            {
+                                combineInInput->setConnectedNode(separateNode);
+                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                            }
+                        }
+                        copyInputWithBindings(node, inInput->getName(), separateNode, "in");
+                        node->removeInput(inInput->getName());
+                    }
+
+                    // Remove the channels input from the converted node.
+                    if (channelsInput)
+                    {
+                        node->removeInput(channelsInput->getName());
+                    }
+                }
+            }
             else if (nodeCategory == "atan2")
             {
                 InputPtr input1 = node->getInput("in1");
@@ -1096,10 +1174,6 @@ void Document::upgradeVersion()
                 node->setNodeDefString("ND_normalmap_float");
             }
         }
-
-        // During the development of 1.39, we remove unsupported nodedefs at runtime, and this
-        // change should be applied to the MaterialX data libraries before the release of 1.39.
-        removeNodeDef("ND_thin_film_bsdf");
 
         minorVersion = 39;
     }
