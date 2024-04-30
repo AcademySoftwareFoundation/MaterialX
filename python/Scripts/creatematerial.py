@@ -33,7 +33,6 @@ class UdimFilePath(mx.FilePath):
         textureExtension = self.getExtension()
 
         if not self._udimRegex.search(textureName):
-            # non udims files
             self._udimFiles = [self]
             return
 
