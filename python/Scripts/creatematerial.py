@@ -17,9 +17,8 @@ import MaterialX as mx
 UDIM_TOKEN = '.<UDIM>.'
 UDIM_REGEX = r'\.\d+\.'
 TEXTURE_EXTENSIONS = [ "exr", "png", "jpg", "jpeg", "tif", "hdr" ]
-TEXTURE_MAPPING = {
-    "roughness": "specular_roughness"
-}
+INPUT_ALIASES = { "roughness": "specular_roughness" }
+
 class UdimFilePath(mx.FilePath):
 
     def __init__(self, pathString):
@@ -112,9 +111,8 @@ def findBestMatch(textureName, shadingModel):
     baseTexName = parts[-1]
     if baseTexName.lower() == 'color':
         baseTexName = ''.join(parts[-2:])
-
-    if TEXTURE_MAPPING.get(baseTexName):
-        baseTexName = TEXTURE_MAPPING.get(baseTexName.lower())
+    if baseTexName in INPUT_ALIASES:
+        baseTexName = INPUT_ALIASES.get(baseTexName.lower())
 
     shaderInputs = shadingModel.getActiveInputs()
     ratios = []
