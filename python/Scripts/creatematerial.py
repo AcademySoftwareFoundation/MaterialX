@@ -131,9 +131,9 @@ def findBestMatch(textureName, shadingModel):
     idx = ratios.index(highscore)
     return shaderInputs[idx]
 
-def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, colorspace = 'srgb_texture', useTiledImage = False):
+def buildDocument(textureFiles, mtlxFile, shadingModel, colorspace, useTiledImage):
     '''
-    Create a MaterialX document from the given textures and shading model.
+    Build a MaterialX document from the given textures and shading model.
     '''
 
     # Find the default library nodedef, if any, for the requested shading model.
@@ -182,9 +182,7 @@ def createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths = True, co
             imageNode.setColorSpace(colorspace)
 
         # Set file path.
-        filePathString = textureFile.asPattern()
-        if relativePaths:
-            filePathString = os.path.relpath(filePathString, mtlxFile.getParentPath().asString())
+        filePathString = os.path.relpath(textureFile.asPattern(), mtlxFile.getParentPath().asString())
         imageNode.setInputValue('file', filePathString, 'filename')
 
         # Apply special cases for normal maps.
@@ -222,7 +220,6 @@ def main():
     parser.add_argument('--shadingModel', dest='shadingModel', type=str, default="standard_surface", help='The shading model used in analyzing input textures.')
     parser.add_argument('--colorSpace', dest='colorSpace', type=str, help='The colorspace in which input textures should be interpreted, defaulting to srgb_texture.')
     parser.add_argument('--texturePrefix', dest='texturePrefix', type=str, help='Filter input textures by the given prefix.')
-    parser.add_argument('--absolutePaths', dest='absolutePaths', action="store_true", help='Store absolute texture paths in the MaterialX file.')
     parser.add_argument('--tiledImage', dest='tiledImage', action="store_true", help='Request tiledimage nodes instead of image nodes.')
     parser.add_argument(dest='inputDirectory', nargs='?', help='Input folder that will be scanned for textures, defaulting to the current working directory.')
 
@@ -254,8 +251,7 @@ def main():
     print('Analyzing textures in the', texturePath.asString(), 'folder for the', shadingModel, 'shading model.')
 
     # Create the MaterialX document.
-    doc = createMtlxDoc(textureFiles, mtlxFile, shadingModel, relativePaths=not options.absolutePaths,
-                        colorspace=colorspace, useTiledImage=options.tiledImage)
+    doc = buildDocument(textureFiles, mtlxFile, shadingModel, colorspace, options.tiledImage)
     if not doc:
         return
 
