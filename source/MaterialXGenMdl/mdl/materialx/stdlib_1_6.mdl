@@ -4461,11 +4461,87 @@ export float4x4 mx_creatematrix_vector4_matrix44(
 		mxp_in4[0], mxp_in4[1], mxp_in4[2], mxp_in4[3]);
 }
 
-// Nodedef: ND_extract_color3 is represented by a nodegraph: NG_extract_color3
-// Nodedef: ND_extract_color4 is represented by a nodegraph: NG_extract_color4
-// Nodedef: ND_extract_vector2 is represented by a nodegraph: NG_extract_vector2
-// Nodedef: ND_extract_vector3 is represented by a nodegraph: NG_extract_vector3
-// Nodedef: ND_extract_vector4 is represented by a nodegraph: NG_extract_vector4
+export float mx_extract_color3(
+	color mxp_in = color(0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return float3(mxp_in).r;
+		case 1: return float3(mxp_in).g;
+		default: return float3(mxp_in).b;
+	}
+}
+
+export float mx_extract_color4(
+	core::mk_color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return float3(mxp_in.rgb).r;
+		case 1: return float3(mxp_in.rgb).g;
+		case 2: return float3(mxp_in.rgb).b;
+		default: return mxp_in.a;
+	}
+}
+
+export float mx_extract_vector2(
+	float2 mxp_in = float2(0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		default: return mxp_in.y;
+	}
+}
+
+export float mx_extract_vector3(
+	float3 mxp_in = float3(0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		case 1: return mxp_in.y;
+		default: return mxp_in.z;
+	}
+}
+
+export float mx_extract_vector4(
+	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		case 1: return mxp_in.y;
+		case 2: return mxp_in.z;
+		default: return mxp_in.w;
+	}
+}
+
 // Nodedef: ND_separate2_vector2 is represented by a nodegraph: NG_separate2_vector2
 // Nodedef: ND_separate3_color3 is represented by a nodegraph: NG_separate3_color3
 // Nodedef: ND_separate3_vector3 is represented by a nodegraph: NG_separate3_vector3
