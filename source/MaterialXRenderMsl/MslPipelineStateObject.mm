@@ -706,6 +706,7 @@ void MslProgram::bindLighting(LightHandlerPtr lightHandler, ImageHandlerPtr imag
     Matrix44 envRotation = Matrix44::createRotationY(PI) * lightHandler->getLightTransform().getTranspose();
     bindUniform(HW::ENV_MATRIX, Value::createValue(envRotation), false);
     bindUniform(HW::ENV_RADIANCE_SAMPLES, Value::createValue(lightHandler->getEnvSampleCount()), false);
+    bindUniform(HW::ENV_LIGHT_INTENSITY, Value::createValue(lightHandler->getEnvLightIntensity()), false);
     ImageMap envLights =
     {
         { HW::ENV_RADIANCE, lightHandler->getEnvRadianceMap() },
@@ -1018,9 +1019,20 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     continue;
                 }
 
-                int tries = 0;
                 auto inputIt = _uniformList.find(v->getVariable());
-try_again:      if (inputIt != _uniformList.end())
+                if (inputIt == _uniformList.end())
+                {
+                    if (v->getType() == Type::FILENAME)
+                    {
+                        inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
+                    }
+                    else
+                    {
+                        inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
+                    }
+                }
+
+                if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
                     input->path = v->getPath();
@@ -1040,22 +1052,6 @@ try_again:      if (inputIt != _uniformList.end())
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
-                    }
-                }
-                else
-                {
-                    if(tries == 0)
-                    {
-                        ++tries;
-                        if(v->getType() == Type::FILENAME)
-                        {
-                            inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
-                        }
-                        else
-                        {
-                            inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
-                        }
-                        goto try_again;
                     }
                 }
             }

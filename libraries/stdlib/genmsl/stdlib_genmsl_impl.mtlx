@@ -188,6 +188,7 @@
 
   <!-- <add> -->
   <implementation name="IM_add_float_genmsl" nodedef="ND_add_float" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_integer_genmsl" nodedef="ND_add_integer" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3_genmsl" nodedef="ND_add_color3" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color3FA_genmsl" nodedef="ND_add_color3FA" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_color4_genmsl" nodedef="ND_add_color4" target="genmsl" sourcecode="{{in1}} + {{in2}}" />
@@ -205,6 +206,7 @@
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genmsl" nodedef="ND_subtract_float" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_integer_genmsl" nodedef="ND_subtract_integer" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3_genmsl" nodedef="ND_subtract_color3" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color3FA_genmsl" nodedef="ND_subtract_color3FA" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_color4_genmsl" nodedef="ND_subtract_color4" target="genmsl" sourcecode="{{in1}} - {{in2}}" />
@@ -590,12 +592,14 @@
 
   <!-- <ifgreater -->
   <implementation name="IM_ifgreater_float_genmsl" nodedef="ND_ifgreater_float" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_integer_genmsl" nodedef="ND_ifgreater_integer" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color3_genmsl" nodedef="ND_ifgreater_color3" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color4_genmsl" nodedef="ND_ifgreater_color4" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector2_genmsl" nodedef="ND_ifgreater_vector2" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector3_genmsl" nodedef="ND_ifgreater_vector3" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector4_genmsl" nodedef="ND_ifgreater_vector4" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_floatI_genmsl" nodedef="ND_ifgreater_floatI" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreater_integerI_genmsl" nodedef="ND_ifgreater_integerI" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color3I_genmsl" nodedef="ND_ifgreater_color3I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_color4I_genmsl" nodedef="ND_ifgreater_color4I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreater_vector2I_genmsl" nodedef="ND_ifgreater_vector2I" target="genmsl" sourcecode="({{value1}} > {{value2}}) ? {{in1}} : {{in2}}" />
@@ -604,12 +608,14 @@
 
   <!-- <ifgreatereq -->
   <implementation name="IM_ifgreatereq_float_genmsl" nodedef="ND_ifgreatereq_float" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_integer_genmsl" nodedef="ND_ifgreatereq_integer" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color3_genmsl" nodedef="ND_ifgreatereq_color3" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color4_genmsl" nodedef="ND_ifgreatereq_color4" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector2_genmsl" nodedef="ND_ifgreatereq_vector2" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector3_genmsl" nodedef="ND_ifgreatereq_vector3" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector4_genmsl" nodedef="ND_ifgreatereq_vector4" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_floatI_genmsl" nodedef="ND_ifgreatereq_floatI" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifgreatereq_integerI_genmsl" nodedef="ND_ifgreatereq_integerI" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color3I_genmsl" nodedef="ND_ifgreatereq_color3I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_color4I_genmsl" nodedef="ND_ifgreatereq_color4I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifgreatereq_vector2I_genmsl" nodedef="ND_ifgreatereq_vector2I" target="genmsl" sourcecode="({{value1}} >= {{value2}}) ? {{in1}} : {{in2}}" />
@@ -618,18 +624,21 @@
 
   <!-- <ifequal -->
   <implementation name="IM_ifequal_float_genmsl" nodedef="ND_ifequal_float" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_integer_genmsl" nodedef="ND_ifequal_integer" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3_genmsl" nodedef="ND_ifequal_color3" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4_genmsl" nodedef="ND_ifequal_color4" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2_genmsl" nodedef="ND_ifequal_vector2" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3_genmsl" nodedef="ND_ifequal_vector3" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4_genmsl" nodedef="ND_ifequal_vector4" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatI_genmsl" nodedef="ND_ifequal_floatI" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_integerI_genmsl" nodedef="ND_ifequal_integerI" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3I_genmsl" nodedef="ND_ifequal_color3I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4I_genmsl" nodedef="ND_ifequal_color4I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2I_genmsl" nodedef="ND_ifequal_vector2I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector3I_genmsl" nodedef="ND_ifequal_vector3I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector4I_genmsl" nodedef="ND_ifequal_vector4I" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_floatB_genmsl" nodedef="ND_ifequal_floatB" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
+  <implementation name="IM_ifequal_integerB_genmsl" nodedef="ND_ifequal_integerB" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color3B_genmsl" nodedef="ND_ifequal_color3B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_color4B_genmsl" nodedef="ND_ifequal_color4B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
   <implementation name="IM_ifequal_vector2B_genmsl" nodedef="ND_ifequal_vector2B" target="genmsl" sourcecode="({{value1}} == {{value2}}) ? {{in1}} : {{in2}}" />
@@ -645,6 +654,8 @@
   <implementation name="IM_switch_vector2_genmsl" nodedef="ND_switch_vector2" target="genmsl" />
   <implementation name="IM_switch_vector3_genmsl" nodedef="ND_switch_vector3" target="genmsl" />
   <implementation name="IM_switch_vector4_genmsl" nodedef="ND_switch_vector4" target="genmsl" />
+  <implementation name="IM_switch_matrix33_genmsl" nodedef="ND_switch_matrix33" target="genmsl" />
+  <implementation name="IM_switch_matrix44_genmsl" nodedef="ND_switch_matrix44" target="genmsl" />
 
   <!-- 'which' type : integer -->
   <implementation name="IM_switch_floatI_genmsl" nodedef="ND_switch_floatI" target="genmsl" />
@@ -653,6 +664,8 @@
   <implementation name="IM_switch_vector2I_genmsl" nodedef="ND_switch_vector2I" target="genmsl" />
   <implementation name="IM_switch_vector3I_genmsl" nodedef="ND_switch_vector3I" target="genmsl" />
   <implementation name="IM_switch_vector4I_genmsl" nodedef="ND_switch_vector4I" target="genmsl" />
+  <implementation name="IM_switch_matrix33I_genmsl" nodedef="ND_switch_matrix33I" target="genmsl" />
+  <implementation name="IM_switch_matrix44I_genmsl" nodedef="ND_switch_matrix44I" target="genmsl" />
 
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
@@ -676,49 +689,6 @@
   <implementation name="IM_convert_color4_color3_genmsl" nodedef="ND_convert_color4_color3" target="genmsl" />
   <implementation name="IM_convert_boolean_float_genmsl" nodedef="ND_convert_boolean_float" target="genmsl" />
   <implementation name="IM_convert_integer_float_genmsl" nodedef="ND_convert_integer_float" target="genmsl" />
-
-  <!-- <swizzle> -->
-  <!-- from type: float -->
-  <implementation name="IM_swizzle_float_color3_genmsl" nodedef="ND_swizzle_float_color3" target="genmsl" />
-  <implementation name="IM_swizzle_float_color4_genmsl" nodedef="ND_swizzle_float_color4" target="genmsl" />
-  <implementation name="IM_swizzle_float_vector2_genmsl" nodedef="ND_swizzle_float_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_float_vector3_genmsl" nodedef="ND_swizzle_float_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_float_vector4_genmsl" nodedef="ND_swizzle_float_vector4" target="genmsl" />
-  <!-- from type: color3 -->
-  <implementation name="IM_swizzle_color3_float_genmsl" nodedef="ND_swizzle_color3_float" target="genmsl" />
-  <implementation name="IM_swizzle_color3_color3_genmsl" nodedef="ND_swizzle_color3_color3" target="genmsl" />
-  <implementation name="IM_swizzle_color3_color4_genmsl" nodedef="ND_swizzle_color3_color4" target="genmsl" />
-  <implementation name="IM_swizzle_color3_vector2_genmsl" nodedef="ND_swizzle_color3_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_color3_vector3_genmsl" nodedef="ND_swizzle_color3_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_color3_vector4_genmsl" nodedef="ND_swizzle_color3_vector4" target="genmsl" />
-  <!-- from type: color4 -->
-  <implementation name="IM_swizzle_color4_float_genmsl" nodedef="ND_swizzle_color4_float" target="genmsl" />
-  <implementation name="IM_swizzle_color4_color3_genmsl" nodedef="ND_swizzle_color4_color3" target="genmsl" />
-  <implementation name="IM_swizzle_color4_color4_genmsl" nodedef="ND_swizzle_color4_color4" target="genmsl" />
-  <implementation name="IM_swizzle_color4_vector2_genmsl" nodedef="ND_swizzle_color4_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_color4_vector3_genmsl" nodedef="ND_swizzle_color4_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_color4_vector4_genmsl" nodedef="ND_swizzle_color4_vector4" target="genmsl" />
-  <!-- from type: vector2 -->
-  <implementation name="IM_swizzle_vector2_float_genmsl" nodedef="ND_swizzle_vector2_float" target="genmsl" />
-  <implementation name="IM_swizzle_vector2_color3_genmsl" nodedef="ND_swizzle_vector2_color3" target="genmsl" />
-  <implementation name="IM_swizzle_vector2_color4_genmsl" nodedef="ND_swizzle_vector2_color4" target="genmsl" />
-  <implementation name="IM_swizzle_vector2_vector2_genmsl" nodedef="ND_swizzle_vector2_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_vector2_vector3_genmsl" nodedef="ND_swizzle_vector2_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_vector2_vector4_genmsl" nodedef="ND_swizzle_vector2_vector4" target="genmsl" />
-  <!-- from type: vector3 -->
-  <implementation name="IM_swizzle_vector3_float_genmsl" nodedef="ND_swizzle_vector3_float" target="genmsl" />
-  <implementation name="IM_swizzle_vector3_color3_genmsl" nodedef="ND_swizzle_vector3_color3" target="genmsl" />
-  <implementation name="IM_swizzle_vector3_color4_genmsl" nodedef="ND_swizzle_vector3_color4" target="genmsl" />
-  <implementation name="IM_swizzle_vector3_vector2_genmsl" nodedef="ND_swizzle_vector3_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_vector3_vector3_genmsl" nodedef="ND_swizzle_vector3_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_vector3_vector4_genmsl" nodedef="ND_swizzle_vector3_vector4" target="genmsl" />
-  <!-- from type: vector4 -->
-  <implementation name="IM_swizzle_vector4_float_genmsl" nodedef="ND_swizzle_vector4_float" target="genmsl" />
-  <implementation name="IM_swizzle_vector4_color3_genmsl" nodedef="ND_swizzle_vector4_color3" target="genmsl" />
-  <implementation name="IM_swizzle_vector4_color4_genmsl" nodedef="ND_swizzle_vector4_color4" target="genmsl" />
-  <implementation name="IM_swizzle_vector4_vector2_genmsl" nodedef="ND_swizzle_vector4_vector2" target="genmsl" />
-  <implementation name="IM_swizzle_vector4_vector3_genmsl" nodedef="ND_swizzle_vector4_vector3" target="genmsl" />
-  <implementation name="IM_swizzle_vector4_vector4_genmsl" nodedef="ND_swizzle_vector4_vector4" target="genmsl" />
 
   <!-- <combine> -->
   <implementation name="IM_combine2_vector2_genmsl" nodedef="ND_combine2_vector2" target="genmsl" />
