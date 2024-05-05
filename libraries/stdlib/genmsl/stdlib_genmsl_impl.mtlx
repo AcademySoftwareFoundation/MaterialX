@@ -705,6 +705,13 @@
   <implementation name="IM_creatematrix_vector3_matrix44_genmsl" nodedef="ND_creatematrix_vector3_matrix44" file="../genglsl/mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" target="genmsl" />
   <implementation name="IM_creatematrix_vector4_matrix44_genmsl" nodedef="ND_creatematrix_vector4_matrix44" file="../genglsl/mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" target="genmsl" />
 
+  <!-- <extract> -->
+  <implementation name="IM_extract_color3_genmsl" nodedef="ND_extract_color3" sourcecode="{{in}}[{{index}}]" target="genmsl" />
+  <implementation name="IM_extract_color4_genmsl" nodedef="ND_extract_color4" sourcecode="{{in}}[{{index}}]" target="genmsl" />
+  <implementation name="IM_extract_vector2_genmsl" nodedef="ND_extract_vector2" sourcecode="{{in}}[{{index}}]" target="genmsl" />
+  <implementation name="IM_extract_vector3_genmsl" nodedef="ND_extract_vector3" sourcecode="{{in}}[{{index}}]" target="genmsl" />
+  <implementation name="IM_extract_vector4_genmsl" nodedef="ND_extract_vector4" sourcecode="{{in}}[{{index}}]" target="genmsl" />
+
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->

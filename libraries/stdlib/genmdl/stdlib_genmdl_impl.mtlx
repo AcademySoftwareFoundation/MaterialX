@@ -717,6 +717,13 @@
   <implementation name="IM_creatematrix_vector3_matrix44_genmdl" nodedef="ND_creatematrix_vector3_matrix44" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_creatematrix_vector3_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
   <implementation name="IM_creatematrix_vector4_matrix44_genmdl" nodedef="ND_creatematrix_vector4_matrix44" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_creatematrix_vector4_matrix44({{in1}}, {{in2}}, {{in3}}, {{in4}})" target="genmdl" />
 
+  <!-- <extract> -->
+  <implementation name="IM_extract_color3_genmdl" nodedef="ND_extract_color3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_color3({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_color4_genmdl" nodedef="ND_extract_color4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_color4({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_vector2_genmdl" nodedef="ND_extract_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector2({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_vector3_genmdl" nodedef="ND_extract_vector3" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector3({{in}}, {{index}})" target="genmdl" />
+  <implementation name="IM_extract_vector4_genmdl" nodedef="ND_extract_vector4" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_extract_vector4({{in}}, {{index}})" target="genmdl" />
+
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->

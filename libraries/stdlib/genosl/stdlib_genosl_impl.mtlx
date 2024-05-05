@@ -708,6 +708,13 @@
   <implementation name="IM_creatematrix_vector3_matrix44_genosl" nodedef="ND_creatematrix_vector3_matrix44" file="mx_creatematrix.osl" function="mx_creatematrix_vector3_matrix44" target="genosl" />
   <implementation name="IM_creatematrix_vector4_matrix44_genosl" nodedef="ND_creatematrix_vector4_matrix44" file="mx_creatematrix.osl" function="mx_creatematrix_vector4_matrix44" target="genosl" />
 
+  <!-- <extract> -->
+  <implementation name="IM_extract_color3_genosl" nodedef="ND_extract_color3" sourcecode="mx_extract({{in}}, {{index}})" target="genosl" />
+  <implementation name="IM_extract_color4_genosl" nodedef="ND_extract_color4" sourcecode="mx_extract({{in}}, {{index}})"  target="genosl" />
+  <implementation name="IM_extract_vector2_genosl" nodedef="ND_extract_vector2" sourcecode="mx_extract({{in}}, {{index}})"  target="genosl" />
+  <implementation name="IM_extract_vector3_genosl" nodedef="ND_extract_vector3" sourcecode="mx_extract({{in}}, {{index}})"  target="genosl" />
+  <implementation name="IM_extract_vector4_genosl" nodedef="ND_extract_vector4" sourcecode="mx_extract({{in}}, {{index}})"  target="genosl" />
+
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
