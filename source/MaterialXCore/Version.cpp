@@ -10,6 +10,7 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
+// Return the NodeDef associated with a legacy ShaderRef element.
 NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
 {
     if (shaderRef->hasAttribute(NodeDef::NODE_DEF_ATTRIBUTE))
@@ -41,6 +42,7 @@ NodeDefPtr getShaderNodeDef(ElementPtr shaderRef)
     return NodeDefPtr();
 }
 
+// Copy an input between nodes, maintaining all existing bindings.
 void copyInputWithBindings(NodePtr sourceNode, const string& sourceInputName,
                            NodePtr destNode, const string& destInputName)
 {
@@ -994,7 +996,7 @@ void Document::upgradeVersion()
         };
         const StringSet CHANNEL_CONVERT_PATTERNS =
         {
-            "rgb", "rgba", "xyz", "xyzw"
+            "rgb", "rgba", "xyz", "xyzw", "rrr", "xxx"
         };
 
         // Update all nodes.
@@ -1117,11 +1119,43 @@ void Document::upgradeVersion()
                         // Replace swizzle with convert.
                         node->setCategory("convert");
                     }
+                    else if (sourceChannelCount == 1)
+                    {
+                        // Replace swizzle with combine.
+                        node->setCategory("combine" + std::to_string(destChannelCount));
+                        for (size_t i = 0; i < destChannelCount; i++)
+                        {
+                            InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
+                            if (i < channelString.size())
+                            {
+                                if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
+                                {
+                                    combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
+                                }
+                                else
+                                {
+                                    copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
+                                }
+                            }
+                            else
+                            {
+                                combineInInput->setConnectedNode(node);
+                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                            }
+                        }
+                        node->removeInput(inInput->getName());
+                    }
                     else
                     {
                         // Replace swizzle with separate and combine.
-                        GraphElementPtr parent = node->getParent()->asA<GraphElement>();
-                        NodePtr separateNode = parent->addNode(std::string("separate") + std::to_string(sourceChannelCount), EMPTY_STRING, MULTI_OUTPUT_TYPE_STRING);
+                        GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                        NodePtr separateNode = graph->addNode(std::string("separate") + std::to_string(sourceChannelCount),
+                            graph->createValidChildName("separate"), MULTI_OUTPUT_TYPE_STRING);
+                        int childIndex = graph->getChildIndex(node->getName());
+                        if (childIndex != -1)
+                        {
+                            graph->setChildIndex(separateNode->getName(), childIndex);
+                        }
                         node->setCategory("combine" + std::to_string(destChannelCount));
                         for (size_t i = 0; i < destChannelCount; i++)
                         {

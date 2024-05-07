@@ -163,12 +163,14 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 }
             }
 
-            // If mapped but not an adjustment then assume transparency
+            // If mapped but not an operator node then assume transparency.
             NodePtr inputNode = checkInput->getConnectedNode();
             if (inputNode)
             {
                 NodeDefPtr nodeDef = inputNode->getNodeDef();
-                if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
+                string nodeGroup = nodeDef ? nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) : EMPTY_STRING;
+                if (nodeGroup != NodeDef::ADJUSTMENT_NODE_GROUP &&
+                    nodeGroup != NodeDef::CHANNEL_NODE_GROUP)
                 {
                     return true;
                 }
