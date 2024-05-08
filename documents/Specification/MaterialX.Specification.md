@@ -566,24 +566,7 @@ A float/vector<em>N</em> input of a node, or a "filename"-type input referring t
   </constant>
 ```
 
-Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector  types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
-
-A node input must generally be connected to outputs of the same type, but float inputs may also be connected to any single channel within a multi-channel data types by adding an integer "channel" attribute, indicating the channel number (0-3) to extract from the input:
-
-```xml
-  <constant name="c3" type="color3">
-    <input name="value" type="color3" value="0.1, 0.2, 0.3"/>
-  </constant>
-  <constant name="v4" type="vector4">
-    <input name="value" type="vector4" value="0.1, 0.2, 0.3, 0.4"/>
-  </constant>
-  <add name="mult1" type="float">
-    <input name="in1" type="float" nodename="c3" channel="0"/>
-    <input name="in2" type="float" nodename="v4" channel="3"/>
-  </add>
-```
-
-The "channel" attribute is valid in any non-token element that allows a "nodename" attribute.
+Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
 
 Standard MaterialX nodes have exactly one output, while custom nodes may have any number of outputs; please see the [Custom Nodes](#custom-nodes) section for details.
 
@@ -1674,8 +1657,8 @@ The following input/output data type conversions are supported by **`convert`**:
 * color3 to color4: copy RGB, set output alpha to 1.0
 * color4 to color3: drop alpha channel
 * boolean or integer to float: output is 0.0 or 1.0
-* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0 (e.g. convert from non-homogeneous to homogeneous vector)
-* vector3 to vector2, or vector4 to vector3: drop the last channel; if a homogeneous vector conversion is desired, use a **`divide`** node with `in1` connected to a `convert` node on the input to remove its last channel,and `in2` connected to the input with `channel="3"`.
+* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0
+* vector3 to vector2, or vector4 to vector3: drop the last channel
 * string to filename: no change in value
 
 Table of allowable input/output types for **`combine2`**, **`combine3`**, **`combine4`**:

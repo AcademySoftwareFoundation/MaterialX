@@ -394,11 +394,6 @@ string MdlShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContex
         variable = upstreamOutput->getVariable();
     }
 
-    if (!input->getChannels().empty())
-    {
-        variable = _syntax->getSwizzledVariable(variable, input->getConnection()->getType(), input->getChannels(), input->getType());
-    }
-
     // Look for any additional suffix to append
     string suffix;
     context.getInputSuffix(input, suffix);
