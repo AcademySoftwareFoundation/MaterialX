@@ -19,7 +19,6 @@
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
@@ -85,57 +84,6 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_switch_matrix44I_" + MslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <swizzle> -->
-    elementNames = {
-        // <!-- from type : float -->
-        "IM_swizzle_float_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_float_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector4_" + MslShaderGenerator::TARGET,
-
-        // <!-- from type : color3 -->
-        "IM_swizzle_color3_float_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color3_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color3_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector4_" + MslShaderGenerator::TARGET,
-
-        // <!-- from type : color4 -->
-        "IM_swizzle_color4_float_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color4_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color4_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector4_" + MslShaderGenerator::TARGET,
-
-        // <!-- from type : vector2 -->
-        "IM_swizzle_vector2_float_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector4_" + MslShaderGenerator::TARGET,
-
-        // <!-- from type : vector3 -->
-        "IM_swizzle_vector3_float_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector4_" + MslShaderGenerator::TARGET,
-
-        // <!-- from type : vector4 -->
-        "IM_swizzle_vector4_float_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_color3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_color4_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector2_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector3_" + MslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector4_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwizzleNode::create);
 
     // <!-- <convert> -->
     elementNames = {
@@ -1161,11 +1109,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             if (outputConnection)
             {
                 string finalOutput = outputConnection->getVariable();
-                const string& channels = outputSocket->getChannels();
-                if (!channels.empty())
-                {
-                    finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
-                }
 
                 if (graph.hasClassification(ShaderNode::Classification::SURFACE))
                 {

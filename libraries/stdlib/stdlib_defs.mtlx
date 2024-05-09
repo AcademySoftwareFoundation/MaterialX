@@ -4510,7 +4510,7 @@
   </nodedef>
 
   <!--
-    Node: <extract> Supplemental Node
+    Node: <extract>
     Extract a single channel from a colorN or vectorN stream, outputting a float.
   -->
   <nodedef name="ND_extract_color3" node="extract" nodegroup="channel">

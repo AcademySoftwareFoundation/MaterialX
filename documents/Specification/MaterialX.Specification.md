@@ -566,24 +566,7 @@ A float/vector<em>N</em> input of a node, or a "filename"-type input referring t
   </constant>
 ```
 
-Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector  types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
-
-A node input must generally be connected to outputs of the same type, but float inputs may also be connected to any single channel within a multi-channel data types by adding an integer "channel" attribute, indicating the channel number (0-3) to extract from the input:
-
-```xml
-  <constant name="c3" type="color3">
-    <input name="value" type="color3" value="0.1, 0.2, 0.3"/>
-  </constant>
-  <constant name="v4" type="vector4">
-    <input name="value" type="vector4" value="0.1, 0.2, 0.3, 0.4"/>
-  </constant>
-  <add name="mult1" type="float">
-    <input name="in1" type="float" nodename="c3" channel="0"/>
-    <input name="in2" type="float" nodename="v4" channel="3"/>
-  </add>
-```
-
-The "channel" attribute is valid in any non-token element that allows a "nodename" attribute.
+Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
 
 Standard MaterialX nodes have exactly one output, while custom nodes may have any number of outputs; please see the [Custom Nodes](#custom-nodes) section for details.
 
@@ -656,7 +639,7 @@ Standard Texture nodes:
 <a id="node-image"> </a>
 
 * **`image`**: samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.
+The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
     * `layer` (uniform string): the name of the layer to extract from a multi-layer input file.  If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer.  Note: the number of channels defined by the `type` of the `<image>` must match the number of channels in the named layer.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
@@ -1674,8 +1657,8 @@ The following input/output data type conversions are supported by **`convert`**:
 * color3 to color4: copy RGB, set output alpha to 1.0
 * color4 to color3: drop alpha channel
 * boolean or integer to float: output is 0.0 or 1.0
-* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0 (e.g. convert from non-homogeneous to homogeneous vector)
-* vector3 to vector2, or vector4 to vector3: drop the last channel; if a homogeneous vector conversion is desired, use a **`divide`** node with `in1` connected to a `convert` node on the input to remove its last channel,and `in2` connected to the input with `channel="3"`.
+* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0
+* vector3 to vector2, or vector4 to vector3: drop the last channel
 * string to filename: no change in value
 
 Table of allowable input/output types for **`combine2`**, **`combine3`**, **`combine4`**:

@@ -719,6 +719,13 @@
   <implementation name="IM_creatematrix_vector3_matrix44_genglsl" nodedef="ND_creatematrix_vector3_matrix44" file="mx_creatematrix_vector3_matrix44.glsl" function="mx_creatematrix_vector3_matrix44" target="genglsl" />
   <implementation name="IM_creatematrix_vector4_matrix44_genglsl" nodedef="ND_creatematrix_vector4_matrix44" file="mx_creatematrix_vector4_matrix44.glsl" function="mx_creatematrix_vector4_matrix44" target="genglsl" />
 
+  <!-- <extract> -->
+  <implementation name="IM_extract_color3_genglsl" nodedef="ND_extract_color3" sourcecode="{{in}}[{{index}}]" target="genglsl" />
+  <implementation name="IM_extract_color4_genglsl" nodedef="ND_extract_color4" sourcecode="{{in}}[{{index}}]" target="genglsl" />
+  <implementation name="IM_extract_vector2_genglsl" nodedef="ND_extract_vector2" sourcecode="{{in}}[{{index}}]" target="genglsl" />
+  <implementation name="IM_extract_vector3_genglsl" nodedef="ND_extract_vector3" sourcecode="{{in}}[{{index}}]" target="genglsl" />
+  <implementation name="IM_extract_vector4_genglsl" nodedef="ND_extract_vector4" sourcecode="{{in}}[{{index}}]" target="genglsl" />
+
   <!-- ======================================================================== -->
   <!-- Convolution nodes                                                        -->
   <!-- ======================================================================== -->
