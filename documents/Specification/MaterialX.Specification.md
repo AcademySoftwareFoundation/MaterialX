@@ -1553,24 +1553,24 @@ Conditional nodes are used to compare values of two streams, or to select a valu
 * **`ifgreater`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than the value of another.  Ifgreater nodes can be of output type float, color<em>N</em> or vector<em>N</em>.  There is also a "boolean" output-type **`ifgreater`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` > `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
-    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
 
 <a id="node-ifgreatereq"> </a>
 
 * **`ifgreatereq`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than or equal to the value of another.  Ifgreatereq nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifgreatereq`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` >= `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
-    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
 
 <a id="node-ifequal"> </a>
 
 * **`ifequal`**: output the value of the `in1` or `in2` stream depending on whether the value of two test inputs are equal or not.  Ifequal nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifequal`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` == `value2`.
     * `value1` (boolean or integer or float): the first value or nodename to compare.  Default is 0 or "false".
     * `value2` (boolean or integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0 or "false".
-    * `in1` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
-    * `in2` (float or integer or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
 
 <a id="node-switch"> </a>
 

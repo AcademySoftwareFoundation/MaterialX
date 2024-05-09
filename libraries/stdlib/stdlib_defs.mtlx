@@ -3676,6 +3676,20 @@
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreater_matrix33" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreater_matrix44" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreater_floatI" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
@@ -3724,6 +3738,20 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreater_matrix33I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreater_matrix44I" node="ifgreater" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
 
   <!--
@@ -3779,6 +3807,20 @@
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifgreatereq_matrix33" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_matrix44" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="float" value="1.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifgreatereq_floatI" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
@@ -3827,6 +3869,20 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_matrix33I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifgreatereq_matrix44I" node="ifgreatereq" nodegroup="conditional">
+    <input name="value1" type="integer" value="1" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
 
   <!--
@@ -3882,6 +3938,20 @@
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_matrix33" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_matrix44" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="float" value="0.0" />
+    <input name="value2" type="float" value="0.0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_floatI" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="0" />
     <input name="value2" type="integer" value="0" />
@@ -3931,6 +4001,20 @@
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
   </nodedef>
+  <nodedef name="ND_ifequal_matrix33I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_matrix44I" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="integer" value="0" />
+    <input name="value2" type="integer" value="0" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
+  </nodedef>
   <nodedef name="ND_ifequal_floatB" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
     <input name="value2" type="boolean" value="false" />
@@ -3979,6 +4063,20 @@
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector4" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_matrix33B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" />
+    <input name="value2" type="boolean" value="false" />
+    <input name="in1" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix33" defaultinput="in1" />
+  </nodedef>
+  <nodedef name="ND_ifequal_matrix44B" node="ifequal" nodegroup="conditional">
+    <input name="value1" type="boolean" value="false" />
+    <input name="value2" type="boolean" value="false" />
+    <input name="in1" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="matrix44" defaultinput="in1" />
   </nodedef>
 
   <!--
