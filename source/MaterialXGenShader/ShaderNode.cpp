@@ -363,8 +363,6 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             {
                 input->setValue(portValue);
             }
-
-            input->setChannels(nodeInput->getChannels());
         }
     }
 

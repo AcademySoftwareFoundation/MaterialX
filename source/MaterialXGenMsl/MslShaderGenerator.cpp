@@ -1109,11 +1109,6 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
             if (outputConnection)
             {
                 string finalOutput = outputConnection->getVariable();
-                const string& channels = outputSocket->getChannels();
-                if (!channels.empty())
-                {
-                    finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
-                }
 
                 if (graph.hasClassification(ShaderNode::Classification::SURFACE))
                 {

@@ -593,11 +593,11 @@ void Document::upgradeVersion()
 
                 for (PortElementPtr port : parentNode->getDownstreamPorts())
                 {
-                    if (port->hasChannels())
+                    if (port->hasAttribute("channels"))
                     {
-                        string channels = port->getChannels();
+                        string channels = port->getAttribute("channels");
                         channels = replaceSubstrings(channels, COLOR2_CHANNEL_MAP);
-                        port->setChannels(channels);
+                        port->setAttribute("channels", channels);
                     }
                     if (port->hasOutputString())
                     {
@@ -998,6 +998,70 @@ void Document::upgradeVersion()
         {
             "rgb", "rgba", "xyz", "xyzw", "rrr", "xxx"
         };
+        const StringSet CHANNEL_FLOAT_PATTERNS =
+        {
+            "xx", "xxx", "xxxx"
+        };
+        const StringSet CHANNEL_COLOR4_PATTERNS =
+        {
+            "rgba", "a"
+        };
+
+        // Convert channels attributes to legacy swizzle nodes, which are then converted
+        // to modern nodes in a second pass.
+        for (ElementPtr elem : traverseTree())
+        {
+            PortElementPtr port = elem->asA<PortElement>();
+            if (!port)
+            {
+                continue;
+            }
+
+            string channelString = port ? port->getAttribute("channels") : EMPTY_STRING;
+            if (channelString.empty())
+            {
+                continue;
+            }
+
+            ElementPtr parent = port->getParent();
+            GraphElementPtr graph = port->getAncestorOfType<GraphElement>();
+            NodePtr upstreamNode = port->getConnectedNode();
+            string upstreamType = upstreamNode ? upstreamNode->getType() : EMPTY_STRING;
+            if (upstreamType.empty() || upstreamType == MULTI_OUTPUT_TYPE_STRING)
+            {
+                if (CHANNEL_FLOAT_PATTERNS.count(channelString))
+                {
+                    upstreamType = "float";
+                }
+                else if (CHANNEL_COLOR4_PATTERNS.count(channelString))
+                {
+                    upstreamType = "color4";
+                }
+                else
+                {
+                    upstreamType = "color3";
+                }
+            }
+
+            // Create the new swizzle node.
+            NodePtr swizzleNode = graph->addNode("swizzle", graph->createValidChildName("swizzle"), port->getType());
+            int childIndex = (parent->getParent() == graph) ? graph->getChildIndex(parent->getName()) : graph->getChildIndex(port->getName());
+            if (childIndex != -1)
+            {
+                graph->setChildIndex(swizzleNode->getName(), childIndex);
+            }
+            InputPtr in = swizzleNode->addInput("in");
+            in->copyContentFrom(port);
+            in->removeAttribute("channels");
+            in->setType(upstreamType);
+            swizzleNode->setInputValue("channels", channelString);
+
+            // Connect the original port to this node.
+            port->setConnectedNode(swizzleNode);
+            port->removeAttribute(PortElement::OUTPUT_ATTRIBUTE);
+            port->removeAttribute(PortElement::INTERFACE_NAME_ATTRIBUTE);
+            port->removeAttribute("channels");
+        }
 
         // Update all nodes.
         for (ElementPtr elem : traverseTree())

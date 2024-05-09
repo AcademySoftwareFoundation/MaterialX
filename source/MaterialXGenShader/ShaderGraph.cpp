@@ -68,8 +68,7 @@ void ShaderGraph::addOutputSockets(const InterfaceElement& elem)
 {
     for (const OutputPtr& output : elem.getActiveOutputs())
     {
-        ShaderGraphOutputSocket* outputSocket = addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
-        outputSocket->setChannels(output->getChannels());
+        addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
     }
     if (numOutputSockets() == 0)
     {
@@ -490,7 +489,6 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Create the given output socket
         ShaderGraphOutputSocket* outputSocket = graph->addOutputSocket(output->getName(), TypeDesc::get(output->getType()));
         outputSocket->setPath(output->getNamePath());
-        outputSocket->setChannels(output->getChannels());
         const string& outputUnit = output->getUnit();
         if (!outputUnit.empty())
         {
@@ -803,7 +801,7 @@ void ShaderGraph::finalize(GenContext& context)
     _outputUnitTransformMap.clear();
 
     // Optimize the graph, removing redundant paths.
-    optimize(context);
+    optimize();
 
     // Sort the nodes in topological order.
     topologicalSort();
@@ -863,7 +861,7 @@ void ShaderGraph::disconnect(ShaderNode* node) const
     }
 }
 
-void ShaderGraph::optimize(GenContext& context)
+void ShaderGraph::optimize()
 {
     size_t numEdits = 0;
     for (ShaderNode* node : getNodes())
@@ -871,16 +869,16 @@ void ShaderGraph::optimize(GenContext& context)
         if (node->hasClassification(ShaderNode::Classification::CONSTANT))
         {
             // Constant nodes can be elided by moving their value downstream.
-            bypass(context, node, 0);
+            bypass(node, 0);
             ++numEdits;
         }
         else if (node->hasClassification(ShaderNode::Classification::DOT))
         {
             // Filename dot nodes must be elided so they do not create extra samplers.
             ShaderInput* in = node->getInput("in");
-            if (in->getChannels().empty() && in->getType() == Type::FILENAME)
+            if (in->getType() == Type::FILENAME)
             {
-                bypass(context, node, 0);
+                bypass(node, 0);
                 ++numEdits;
             }
         }
@@ -929,7 +927,7 @@ void ShaderGraph::optimize(GenContext& context)
     }
 }
 
-void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex)
+void ShaderGraph::bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex)
 {
     ShaderInput* input = node->getInput(inputIndex);
     ShaderOutput* output = node->getOutput(outputIndex);
@@ -968,19 +966,6 @@ void ShaderGraph::bypass(GenContext& context, ShaderNode* node, size_t inputInde
             if (!inputColorSpace.empty())
             {
                 downstream->setColorSpace(inputColorSpace);
-            }
-
-            // Swizzle the input value. Once done clear the channel to indicate
-            // no further swizzling is reqiured.
-            const string& channels = downstream->getChannels();
-            if (!channels.empty())
-            {
-                downstream->setValue(context.getShaderGenerator().getSyntax().getSwizzledValue(input->getValue(),
-                                                                                               input->getType(),
-                                                                                               channels,
-                                                                                               downstream->getType()));
-                downstream->setType(downstream->getType());
-                downstream->setChannels(EMPTY_STRING);
             }
         }
     }
