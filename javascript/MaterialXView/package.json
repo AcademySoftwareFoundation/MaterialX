@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "lil-gui": "^0.19.1",
-    "three": "^0.152.2",
+    "three": "^0.163.0",
     "webpack": "^5.89.0"
   },
   "devDependencies": {
