@@ -12,7 +12,7 @@
   "dependencies": {
     "lil-gui": "^0.19.1",
     "three": "^0.152.2",
-    "webpack": "^5.89.0"
+    "webpack": "^5.91.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.1.1",
