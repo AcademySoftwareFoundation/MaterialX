@@ -218,9 +218,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     };
     registerImplementation(elementNames, ClosureMultiplyNode::create);
 
-    // <!-- <thin_film> -->
-    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
-
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
 

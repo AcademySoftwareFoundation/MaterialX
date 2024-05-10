@@ -112,9 +112,6 @@ OslShaderGenerator::OslShaderGenerator() :
 
 #endif // MATERIALX_OSL_LEGACY_CLOSURES
 
-    // <!-- <thin_film> -->
-    registerImplementation("IM_thin_film_bsdf_" + OslShaderGenerator::TARGET, NopNode::create);
-
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + OslShaderGenerator::TARGET, SurfaceNodeOsl::create);
 
