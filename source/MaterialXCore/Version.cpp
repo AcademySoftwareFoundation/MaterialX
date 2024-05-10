@@ -998,13 +998,11 @@ void Document::upgradeVersion()
         {
             "rgb", "rgba", "xyz", "xyzw", "rrr", "xxx"
         };
-        const StringSet CHANNEL_FLOAT_PATTERNS =
+        const vector<std::pair<StringSet, string>> CHANNEL_ATTRIBUTE_PATTERNS =
         {
-            "xx", "xxx", "xxxx"
-        };
-        const StringSet CHANNEL_COLOR4_PATTERNS =
-        {
-            "rgba", "a"
+            { { "xx", "xxx", "xxxx" }, "float" },
+            { { "xyz", "x", "y", "z" }, "vector3" },
+            { { "rgba", "a" }, "color4" }
         };
 
         // Convert channels attributes to legacy swizzle nodes, which are then converted
@@ -1023,23 +1021,24 @@ void Document::upgradeVersion()
                 continue;
             }
 
+            // Determine the upstream type.
             ElementPtr parent = port->getParent();
             GraphElementPtr graph = port->getAncestorOfType<GraphElement>();
             NodePtr upstreamNode = port->getConnectedNode();
             string upstreamType = upstreamNode ? upstreamNode->getType() : EMPTY_STRING;
             if (upstreamType.empty() || upstreamType == MULTI_OUTPUT_TYPE_STRING)
             {
-                if (CHANNEL_FLOAT_PATTERNS.count(channelString))
+                for (const auto& pair : CHANNEL_ATTRIBUTE_PATTERNS)
                 {
-                    upstreamType = "float";
+                    if (pair.first.count(channelString))
+                    {
+                        upstreamType = pair.second;
+                        break;
+                    }
                 }
-                else if (CHANNEL_COLOR4_PATTERNS.count(channelString))
+                if (upstreamType.empty() || upstreamType == MULTI_OUTPUT_TYPE_STRING)
                 {
-                    upstreamType = "color4";
-                }
-                else
-                {
-                    upstreamType = "color3";
+                    upstreamType = (port->getType() == "color3") ? "color4" : "color3";
                 }
             }
 
