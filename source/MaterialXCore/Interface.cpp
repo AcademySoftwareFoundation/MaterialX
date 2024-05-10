@@ -306,9 +306,9 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
-void Input::setInterfaceInput(const string& interfaceName)
+void Input::setConnectedInterface(const string& interfaceName)
 {
-    if (interfaceName != EMPTY_STRING)
+    if (!interfaceName.empty())
     {
         ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
         if (graph && graph->getInput(interfaceName))
