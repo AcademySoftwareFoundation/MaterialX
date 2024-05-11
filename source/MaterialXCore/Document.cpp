@@ -182,13 +182,12 @@ NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const str
     nodeDef->setNodeString(category);
 
     // Expose any existing interfaces from the graph.
-    // Any connection attributes ("nodegraph", "nodename", "channels", "interfacename") on the 
+    // Any connection attributes ("nodegraph", "nodename", "interfacename") on the 
     // existing interface should be removed from the definition as well as any source URI.
 
     // Attributes which should not be copied over
     StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
-                                   PortElement::CHANNELS_ATTRIBUTE, PortElement::INTERFACE_NAME_ATTRIBUTE,
-                                   Element::XPOS_ATTRIBUTE, Element::YPOS_ATTRIBUTE };
+                                   PortElement::INTERFACE_NAME_ATTRIBUTE, Element::XPOS_ATTRIBUTE, Element::YPOS_ATTRIBUTE };
 
     // Transfer input interface from the graph to the nodedef
     for (InputPtr input : graph->getInputs())
