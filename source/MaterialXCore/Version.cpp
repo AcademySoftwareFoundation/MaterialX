@@ -452,6 +452,7 @@ void Document::upgradeVersion()
             }
         }
 
+        vector<NodePtr> unusedNodes;
         for (ElementPtr elem : traverseTree())
         {
             NodePtr node = elem->asA<Node>();
@@ -561,16 +562,13 @@ void Document::upgradeVersion()
                         backdrop->setAttribute(child->getName(), child->getAttribute(ValueElement::VALUE_ATTRIBUTE));
                     }
                 }
-                removeNode(node->getName());
+                unusedNodes.push_back(node);
             }
         }
-
-        // Remove deprecated nodedefs
-        removeNodeDef("ND_backdrop");
-        removeNodeDef("ND_invert_matrix33");
-        removeNodeDef("ND_invert_matrix44");
-        removeNodeDef("ND_rotate_vector2");
-        removeNodeDef("ND_rotate_vector3");
+        for (NodePtr node : unusedNodes)
+        {
+            node->getParent()->removeChild(node->getName());
+        }
 
         minorVersion = 37;
     }
@@ -1063,6 +1061,7 @@ void Document::upgradeVersion()
         }
 
         // Update all nodes.
+        vector<NodePtr> unusedNodes;
         for (ElementPtr elem : traverseTree())
         {
             NodePtr node = elem->asA<Node>();
@@ -1097,9 +1096,9 @@ void Document::upgradeVersion()
                         port->setNodeName(base->getName());
                     }
 
-                    // Remove the now unused nodes.
-                    removeNode(node->getName());
-                    removeNode(top->getName());
+                    // Mark original nodes as unused.
+                    unusedNodes.push_back(node);
+                    unusedNodes.push_back(top);
                 }
             }
             else if (nodeCategory == "switch")
@@ -1270,6 +1269,10 @@ void Document::upgradeVersion()
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
             }
+        }
+        for (NodePtr node : unusedNodes)
+        {
+            node->getParent()->removeChild(node->getName());
         }
 
         minorVersion = 39;
