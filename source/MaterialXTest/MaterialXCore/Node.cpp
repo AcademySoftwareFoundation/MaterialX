@@ -677,7 +677,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         {
             mx::PortElement::NODE_GRAPH_ATTRIBUTE,
             mx::PortElement::NODE_NAME_ATTRIBUTE,
-            mx::PortElement::CHANNELS_ATTRIBUTE,
             mx::PortElement::INTERFACE_NAME_ATTRIBUTE,
             mx::Element::XPOS_ATTRIBUTE,
             mx::Element::YPOS_ATTRIBUTE
