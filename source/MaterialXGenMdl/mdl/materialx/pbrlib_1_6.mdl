@@ -32,7 +32,6 @@ import ::math::*;
 import ::state::*;
 
 import .::core::*;
-import .::swizzle::*;
 
 // NOTE: We use the MDL material type to represent all PBS nodes of 
 //       BSDF, EDF, VDF and other MaterialX material related types.

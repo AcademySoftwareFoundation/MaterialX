@@ -159,12 +159,12 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     void finalize(GenContext& context);
 
     /// Optimize the graph, removing redundant paths.
-    void optimize(GenContext& context);
+    void optimize();
 
     /// Bypass a node for a particular input and output,
     /// effectively connecting the input's upstream connection
     /// with the output's downstream connections.
-    void bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
+    void bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
 
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique
