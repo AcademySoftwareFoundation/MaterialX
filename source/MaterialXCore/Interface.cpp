@@ -306,7 +306,7 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
-void Input::setConnectedInterface(const string& interfaceName)
+void Input::setConnectedInterfaceName(const string& interfaceName)
 {
     if (!interfaceName.empty())
     {

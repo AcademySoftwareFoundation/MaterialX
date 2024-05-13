@@ -39,7 +39,7 @@ void bindPyInterface(py::module& mod)
         .def("getDefaultGeomPropString", &mx::Input::getDefaultGeomPropString)
         .def("getDefaultGeomProp", &mx::Input::getDefaultGeomProp)
         .def("getConnectedNode", &mx::Input::getConnectedNode)
-        .def("setConnectedInterface", &mx::Input::setConnectedInterface)
+        .def("setConnectedInterfaceName", &mx::Input::setConnectedInterfaceName)
         .def("getInterfaceInput", &mx::Input::getInterfaceInput)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
 

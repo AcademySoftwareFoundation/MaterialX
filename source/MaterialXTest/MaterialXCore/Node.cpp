@@ -59,7 +59,7 @@ TEST_CASE("Interface Input Validation", "[node]")
         }
         REQUIRE(!valid);
 
-        addInput->setConnectedInterface(graphInput->getName());
+        addInput->setConnectedInterfaceName(graphInput->getName());
         mx::InputPtr interfaceInput = addInput->getInterfaceInput();
         REQUIRE((interfaceInput && interfaceInput->getNamePath() == graphInput->getNamePath()));
         REQUIRE(!addInput->getValue());
@@ -70,7 +70,7 @@ TEST_CASE("Interface Input Validation", "[node]")
         }
         REQUIRE(valid);
 
-        addInput->setConnectedInterface(mx::EMPTY_STRING);
+        addInput->setConnectedInterfaceName(mx::EMPTY_STRING);
         addInput->setValueString("2, 2, 2");
         interfaceInput = addInput->getInterfaceInput();
         REQUIRE(!interfaceInput);

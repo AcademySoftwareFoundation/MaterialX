@@ -249,7 +249,7 @@ class MX_CORE_API Input : public PortElement
 
     /// Connects this input to a corresponding interface with the given name.
     /// If the interface name specified is an empty string then any existing connection is removed.
-    void setConnectedInterface(const string& interfaceName);
+    void setConnectedInterfaceName(const string& interfaceName);
 
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
