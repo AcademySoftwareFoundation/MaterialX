@@ -11,7 +11,7 @@
   <standard_surface name="Surf1" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng1" output="float_output" />
   </standard_surface>
-  <surfacematerial name="Channel1" type="material" topo="Channel1_topo.mtlx">
+  <surfacematerial name="Channel1" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf1" />
   </surfacematerial>
 
@@ -25,7 +25,7 @@
   <standard_surface name="Surf2" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng2" output="color3_output" channels="g" />
   </standard_surface>
-  <surfacematerial name="Channel2" type="material" topo="Channel1_topo.mtlx">
+  <surfacematerial name="Channel2" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf2" />
   </surfacematerial>
 
@@ -39,7 +39,7 @@
   <standard_surface name="Surf3" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng3" output="color4_output" channels="g" />
   </standard_surface>
-  <surfacematerial name="Channel3" type="material" topo="Channel1_topo.mtlx">
+  <surfacematerial name="Channel3" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf3" />
   </surfacematerial>
 
@@ -53,7 +53,7 @@
   <standard_surface name="Surf4" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng4" output="color4_output" channels="g" />
   </standard_surface>
-  <surfacematerial name="Channel4" type="material" topo="Channel4_topo.mtlx">
+  <surfacematerial name="Channel4" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf4" />
   </surfacematerial>
 
@@ -64,7 +64,7 @@
   <constant name="constant5" type="color3" nodedef="ND_constant_color3">
     <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
   </constant>
-  <surfacematerial name="Channel5" type="material" topo="Channel1_topo.mtlx">
+  <surfacematerial name="Channel5" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf5" />
   </surfacematerial>
 
@@ -78,7 +78,7 @@
   <standard_surface name="Surf6" type="surfaceshader">
     <input name="base_color" type="color3" nodegraph="Ng6" output="ior_output" />
   </standard_surface>
-  <surfacematerial name="MultiOut6" type="material" topo="MultiOut6_topo.mtlx">
+  <surfacematerial name="MultiOut6" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf6" />
   </surfacematerial>
 
@@ -89,7 +89,7 @@
   <standard_surface name="Surf7" type="surfaceshader">
     <input name="base_color" type="color3" nodename="ior7" output="ior" />
   </standard_surface>
-  <surfacematerial name="MultiOut7" type="material" topo="MultiOut6_topo.mtlx">
+  <surfacematerial name="MultiOut7" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf7" />
   </surfacematerial>
 
@@ -104,7 +104,7 @@
   <standard_surface name="Surf8" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng8" output="float_output" />
   </standard_surface>
-  <surfacematerial name="Interface1" type="material" topo="Channel1_topo.mtlx">
+  <surfacematerial name="Interface1" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf8" />
   </surfacematerial>
 
@@ -129,7 +129,7 @@
   <standard_surface name="Surf9" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng9b" output="float_output" />
   </standard_surface>
-  <surfacematerial name="Interface2" type="material" topo="Interface2_topo.mtlx">
+  <surfacematerial name="Interface2" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf9" />
   </surfacematerial>
 
@@ -154,11 +154,11 @@
   <standard_surface name="Surf10" type="surfaceshader">
     <input name="base" type="float" nodegraph="Ng10b" output="float_output" />
   </standard_surface>
-  <surfacematerial name="Interface3" type="material" topo="Interface2_topo.mtlx">
+  <surfacematerial name="Interface3" type="material">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf10" />
   </surfacematerial>
 
-  <surfacematerial name="MultiConnect1" type="material" nodedef="ND_surfacematerial" topo="MultiConnect1_topo.mtlx">
+  <surfacematerial name="MultiConnect1" type="material" nodedef="ND_surfacematerial">
     <input name="surfaceshader" type="surfaceshader" nodename="Surf11" />
   </surfacematerial>
   <standard_surface name="Surf11" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
