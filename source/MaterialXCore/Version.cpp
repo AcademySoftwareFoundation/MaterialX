@@ -1058,6 +1058,24 @@ void Document::upgradeVersion()
             port->removeAttribute(PortElement::OUTPUT_ATTRIBUTE);
             port->removeAttribute(PortElement::INTERFACE_NAME_ATTRIBUTE);
             port->removeAttribute("channels");
+
+            // Update any nodegraph reference
+            if (graph)
+            {
+                const string& portNodeGraphString = port->getNodeGraphString();
+                if (!portNodeGraphString.empty())
+                {
+                    const string& graphName = graph->getName();
+                    if (graphName.empty())
+                    {
+                        port->removeAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+                    }
+                    else if (graphName != portNodeGraphString)
+                    {
+                        port->setNodeGraphString(graphName);
+                    }
+                }
+            }
         }
 
         // Update all nodes.
