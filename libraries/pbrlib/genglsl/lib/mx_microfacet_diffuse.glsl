@@ -1,7 +1,7 @@
 #include "mx_microfacet.glsl"
 
-// Based on the implementation of Oren-Nayar diffuse in Open Shading Language.
-// https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/blob/main/src/testrender/shading.cpp
+// Qualitative Oren-Nayar diffuse with improvements from Fujii:
+// https://mimosa-pudica.net/improved-oren-nayar.html
 float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness)
 {
     float s = LdotV - NdotL * NdotV;
@@ -77,6 +77,33 @@ float mx_oren_nayar_diffuse_dir_albedo(float NdotV, float roughness)
     float dirAlbedo = mx_oren_nayar_diffuse_dir_albedo_analytic(NdotV, roughness);
 #endif
     return clamp(dirAlbedo, 0.0, 1.0);
+}
+
+float mx_oren_nayar_diffuse_avg_albedo(float NdotV, float roughness)
+{
+    float sigma2 = mx_square(roughness);
+    float A = 1.0 - 0.5 * (sigma2 / (sigma2 + 0.33));
+    float B = 0.45 * sigma2 / (sigma2 + 0.09);
+    return A + (2.0 / 3.0 - 64.0 / (45.0 * M_PI)) * B;
+}
+
+// Energy compensation for Oren-Nayar diffuse from the OpenPBR project at openpbr.org.
+vec3 mx_oren_nayar_diffuse_energy_compensation(float NdotV, float NdotL, float roughness, vec3 color)
+{
+    // Compute directional and average albedos.
+    float dirAlbedoV = mx_oren_nayar_diffuse_dir_albedo(NdotV, roughness);
+    float dirAlbedoL = mx_oren_nayar_diffuse_dir_albedo(NdotL, roughness);
+    float avgAlbedo = mx_oren_nayar_diffuse_avg_albedo(NdotV, roughness);
+
+    // Compute the multi-scatter color term.
+    vec3 rhoMultiScatter = mx_square(color) * avgAlbedo /
+                           (vec3(1.0) - color * max(0.0, 1.0 - avgAlbedo));
+
+    // Return the final energy compensation.
+    return rhoMultiScatter *
+           max(M_FLOAT_EPS, 1.0 - dirAlbedoV) *
+           max(M_FLOAT_EPS, 1.0 - dirAlbedoL) /
+           max(M_FLOAT_EPS, 1.0 - avgAlbedo);
 }
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
