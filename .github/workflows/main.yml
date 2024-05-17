@@ -55,10 +55,10 @@ jobs:
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Linux_Clang_15_Python312
+        - name: Linux_Clang_18_Python312
           os: ubuntu-24.04
           compiler: clang
-          compiler_version: "15"
+          compiler_version: "18"
           python: 3.12
           test_render: ON
           clang_format: ON
