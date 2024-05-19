@@ -1,6 +1,6 @@
 #include "lib/mx_microfacet_diffuse.glsl"
 
-void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, bool energy_compensation, vec3 normal, inout BSDF bsdf)
+void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 normal, bool energy_compensation, inout BSDF bsdf)
 {
     bsdf.throughput = vec3(0.0);
 
@@ -23,7 +23,7 @@ void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusi
     bsdf.response *= occlusion * weight * NdotL * M_PI_INV;
 }
 
-void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, bool energy_compensation, vec3 normal, inout BSDF bsdf)
+void mx_oren_nayar_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, bool energy_compensation, inout BSDF bsdf)
 {
     bsdf.throughput = vec3(0.0);
 
