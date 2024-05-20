@@ -123,7 +123,6 @@ vec3 mx_energy_compensated_oren_nayar_diffuse(float NdotV, float NdotL, float Ld
     return lobeSingleScatter + lobeMultiScatter;
 }
 
-
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
 float mx_burley_diffuse(float NdotV, float NdotL, float LdotH, float roughness)
