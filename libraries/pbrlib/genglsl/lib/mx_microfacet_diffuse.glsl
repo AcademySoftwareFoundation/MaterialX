@@ -79,32 +79,50 @@ float mx_oren_nayar_diffuse_dir_albedo(float NdotV, float roughness)
     return clamp(dirAlbedo, 0.0, 1.0);
 }
 
-float mx_oren_nayar_diffuse_avg_albedo(float NdotV, float roughness)
+const float FUJII_CONSTANT_1 = 0.5 - 2.0 / (3.0 * M_PI);
+const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
+
+float mx_oren_nayar_fujii_diffuse_dir_albedo(float cosTheta, float roughness)
 {
-    float sigma2 = mx_square(roughness);
-    float A = 1.0 - 0.5 * (sigma2 / (sigma2 + 0.33));
-    float B = 0.45 * sigma2 / (sigma2 + 0.09);
-    return A + (2.0 / 3.0 - 64.0 / (45.0 * M_PI)) * B;
+    float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
+    float B = roughness * A;
+    float Si = sqrt(max(0.0, 1.0 - mx_square(cosTheta)));
+    float G = Si * (acos(clamp(cosTheta, -1.0, 1.0)) - Si * cosTheta) +
+              2.0 * ((Si / cosTheta) * (1.0 - Si * Si * Si) - Si) / 3.0;
+    return A + (B * float(M_PI_INV)) * G;
 }
 
-// Energy compensation for Oren-Nayar diffuse from the OpenPBR project at openpbr.org.
-vec3 mx_oren_nayar_diffuse_energy_compensation(float NdotV, float NdotL, float roughness, vec3 color)
+float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
 {
-    // Compute directional and average albedos.
-    float dirAlbedoV = mx_oren_nayar_diffuse_dir_albedo(NdotV, roughness);
-    float dirAlbedoL = mx_oren_nayar_diffuse_dir_albedo(NdotL, roughness);
-    float avgAlbedo = mx_oren_nayar_diffuse_avg_albedo(NdotV, roughness);
+    float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
+    return A * (1.0 + FUJII_CONSTANT_2 * roughness);
+}   
 
-    // Compute the multi-scatter color term.
+// Energy-compensated Oren-Nayar diffuse, as defined in the OpenPBR project.
+vec3 mx_energy_compensated_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
+{
+    float s = LdotV - NdotL * NdotV;
+    float stinv = s > 0.0 ? s / max(NdotL, NdotV) : s;
+
+    // Compute the single-scatter lobe.
+    float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
+    vec3 lobeSingleScatter = color * A * (1.0 + roughness * stinv);
+
+    // Compute the multi-scatter lobe.
+    float dirAlbedoV = mx_oren_nayar_fujii_diffuse_dir_albedo(NdotV, roughness);
+    float dirAlbedoL = mx_oren_nayar_fujii_diffuse_dir_albedo(NdotL, roughness);
+    float avgAlbedo = mx_oren_nayar_fujii_diffuse_avg_albedo(roughness);
     vec3 rhoMultiScatter = mx_square(color) * avgAlbedo /
                            (vec3(1.0) - color * max(0.0, 1.0 - avgAlbedo));
+    vec3 lobeMultiScatter = rhoMultiScatter *
+                            max(M_FLOAT_EPS, 1.0 - dirAlbedoV) *
+                            max(M_FLOAT_EPS, 1.0 - dirAlbedoL) /
+                            max(M_FLOAT_EPS, 1.0 - avgAlbedo);
 
-    // Return the final energy compensation.
-    return rhoMultiScatter *
-           max(M_FLOAT_EPS, 1.0 - dirAlbedoV) *
-           max(M_FLOAT_EPS, 1.0 - dirAlbedoL) /
-           max(M_FLOAT_EPS, 1.0 - avgAlbedo);
+    // Return the sum of lobes.
+    return lobeSingleScatter + lobeMultiScatter;
 }
+
 
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
