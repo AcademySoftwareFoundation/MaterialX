@@ -1040,6 +1040,13 @@ void Document::upgradeVersion()
                 }
             }
 
+            // Just remove "channels" if the upstream type is a float
+            if (upstreamType == "float")
+            {
+                port->removeAttribute("channels");
+                continue;
+            }
+
             // Create the new swizzle node.
             NodePtr swizzleNode = graph->addNode("swizzle", graph->createValidChildName("swizzle"), port->getType());
             int childIndex = (parent->getParent() == graph) ? graph->getChildIndex(parent->getName()) : graph->getChildIndex(port->getName());
