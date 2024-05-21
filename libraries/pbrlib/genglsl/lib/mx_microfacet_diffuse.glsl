@@ -102,7 +102,7 @@ float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
 vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
 {
     float s = LdotV - NdotL * NdotV;
-    float stinv = s > 0.0 ? s / max(NdotL, NdotV) : s;
+    float stinv = (s > 0.0) ? s / max(NdotL, NdotV) : s;
 
     // Compute the single-scatter lobe.
     float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
