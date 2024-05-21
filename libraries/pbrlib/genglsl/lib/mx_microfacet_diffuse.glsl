@@ -102,7 +102,7 @@ float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
 
 // Energy-compensated Oren-Nayar diffuse from OpenPBR Surface:
 // https://academysoftwarefoundation.github.io/OpenPBR/
-vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
+vec3 mx_oren_nayar_compensated_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
 {
     float s = LdotV - NdotL * NdotV;
     float stinv = (s > 0.0) ? s / max(NdotL, NdotV) : s;
@@ -115,9 +115,9 @@ vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float Ld
     float dirAlbedoV = mx_oren_nayar_fujii_diffuse_dir_albedo(NdotV, roughness);
     float dirAlbedoL = mx_oren_nayar_fujii_diffuse_dir_albedo(NdotL, roughness);
     float avgAlbedo = mx_oren_nayar_fujii_diffuse_avg_albedo(roughness);
-    vec3 rhoMultiScatter = mx_square(color) * avgAlbedo /
-                           (vec3(1.0) - color * max(0.0, 1.0 - avgAlbedo));
-    vec3 lobeMultiScatter = rhoMultiScatter *
+    vec3 colorMultiScatter = mx_square(color) * avgAlbedo /
+                             (vec3(1.0) - color * max(0.0, 1.0 - avgAlbedo));
+    vec3 lobeMultiScatter = colorMultiScatter *
                             max(M_FLOAT_EPS, 1.0 - dirAlbedoV) *
                             max(M_FLOAT_EPS, 1.0 - dirAlbedoL) /
                             max(M_FLOAT_EPS, 1.0 - avgAlbedo);
@@ -126,6 +126,16 @@ vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float Ld
     return lobeSingleScatter + lobeMultiScatter;
 }
 
+vec3 mx_oren_nayar_compensated_diffuse_dir_albedo(float cosTheta, float roughness, vec3 color)
+{
+    float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
+    float dirAlbedoFujii = mx_oren_nayar_fujii_diffuse_dir_albedo(cosTheta, roughness);
+    float avgAlbedoFujii = mx_oren_nayar_fujii_diffuse_avg_albedo(roughness);
+    vec3 colorMultiScatter = mx_square(color) * avgAlbedoFujii /
+                             (vec3(1.0) - color * max(0.0, 1.0 - avgAlbedoFujii));
+    return mix(colorMultiScatter, color, dirAlbedoFujii);
+}
+  
 // https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf
 // Section 5.3
 float mx_burley_diffuse(float NdotV, float NdotL, float LdotH, float roughness)
