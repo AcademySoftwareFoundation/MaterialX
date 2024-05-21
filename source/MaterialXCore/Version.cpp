@@ -1041,7 +1041,7 @@ void Document::upgradeVersion()
             }
 
             // Just remove "channels" if the upstream type is a float
-            if (upstreamType == "float")
+            if (upstreamType == "float" && port->getType() =="float")
             {
                 port->removeAttribute("channels");
                 continue;
