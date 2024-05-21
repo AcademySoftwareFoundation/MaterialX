@@ -8,7 +8,7 @@ const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
 float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness)
 {
     float s = LdotV - NdotL * NdotV;
-    float stinv = (s > 0.0f) ? s / max(NdotL, NdotV) : 0.0;
+    float stinv = (s > 0.0) ? s / max(NdotL, NdotV) : 0.0;
 
     float sigma2 = mx_square(roughness);
     float A = 1.0 - 0.5 * (sigma2 / (sigma2 + 0.33));
@@ -41,7 +41,7 @@ float mx_oren_nayar_diffuse_dir_albedo_table_lookup(float NdotV, float roughness
 float mx_oren_nayar_diffuse_dir_albedo_monte_carlo(float NdotV, float roughness)
 {
     NdotV = clamp(NdotV, M_FLOAT_EPS, 1.0);
-    vec3 V = vec3(sqrt(1.0f - mx_square(NdotV)), 0, NdotV);
+    vec3 V = vec3(sqrt(1.0 - mx_square(NdotV)), 0, NdotV);
 
     float radiance = 0.0;
     const int SAMPLE_COUNT = 64;
