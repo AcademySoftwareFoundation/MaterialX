@@ -1148,7 +1148,7 @@ void Document::upgradeVersion()
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
-                    if (inInput->hasValue())
+                    if (inInput->hasValue() && !inInput->getConnectedNode())
                     {
                         // Replace swizzle with constant.
                         node->setCategory("constant");
