@@ -1,6 +1,9 @@
 #include "mx_microfacet.glsl"
 
-// Qualitative Oren-Nayar diffuse with improvements from Fujii:
+const float FUJII_CONSTANT_1 = 0.5 - 2.0 / (3.0 * M_PI);
+const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
+
+// Qualitative Oren-Nayar diffuse with minor improvements from Fujii:
 // https://mimosa-pudica.net/improved-oren-nayar.html
 float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness)
 {
@@ -79,9 +82,8 @@ float mx_oren_nayar_diffuse_dir_albedo(float NdotV, float roughness)
     return clamp(dirAlbedo, 0.0, 1.0);
 }
 
-const float FUJII_CONSTANT_1 = 0.5 - 2.0 / (3.0 * M_PI);
-const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
-
+// Proposed upgrade to Oren-Nayar diffuse from Fujii:
+// https://mimosa-pudica.net/improved-oren-nayar.html
 float mx_oren_nayar_fujii_diffuse_dir_albedo(float cosTheta, float roughness)
 {
     float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
