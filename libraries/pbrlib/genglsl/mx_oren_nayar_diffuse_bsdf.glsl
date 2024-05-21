@@ -18,7 +18,7 @@ void mx_oren_nayar_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusi
     vec3 diffuse;
     if (energy_compensation)
     {
-        diffuse = mx_energy_compensated_oren_nayar_diffuse(NdotV, NdotL, LdotV, roughness, color);
+        diffuse = mx_oren_nayar_energy_compensated_diffuse(NdotV, NdotL, LdotV, roughness, color);
     }
     else
     {

@@ -99,7 +99,7 @@ float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
 }   
 
 // Energy-compensated Oren-Nayar diffuse, as defined in the OpenPBR project.
-vec3 mx_energy_compensated_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
+vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
 {
     float s = LdotV - NdotL * NdotV;
     float stinv = s > 0.0 ? s / max(NdotL, NdotV) : s;
