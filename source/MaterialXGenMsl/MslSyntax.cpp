@@ -281,7 +281,7 @@ MslSyntax::MslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
+            "BSDF{float3(0.0),float3(1.0)}",
             EMPTY_STRING));
 
     registerTypeSyntax(
