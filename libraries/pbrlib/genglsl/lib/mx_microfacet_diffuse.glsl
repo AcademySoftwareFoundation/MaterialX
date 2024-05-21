@@ -128,7 +128,6 @@ vec3 mx_oren_nayar_compensated_diffuse(float NdotV, float NdotL, float LdotV, fl
 
 vec3 mx_oren_nayar_compensated_diffuse_dir_albedo(float cosTheta, float roughness, vec3 color)
 {
-    float A = 1.0 / (1.0 + FUJII_CONSTANT_1 * roughness);
     float dirAlbedoFujii = mx_oren_nayar_fujii_diffuse_dir_albedo(cosTheta, roughness);
     float avgAlbedoFujii = mx_oren_nayar_fujii_diffuse_avg_albedo(roughness);
     vec3 colorMultiScatter = mx_square(color) * avgAlbedoFujii /
