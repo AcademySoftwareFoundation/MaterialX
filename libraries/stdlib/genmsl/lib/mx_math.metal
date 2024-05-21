@@ -97,6 +97,9 @@ T atan(T y_over_x) { return ::atan(y_over_x); }
 template <typename T>
 T atan(T y, T x) { return ::atan2(y, x); }
 
+template <typename T>
+T inversesqrt(T x) { return ::rsqrt(x); }
+
 #define lessThan(a, b) ((a) < (b))
 #define lessThanEqual(a, b) ((a) <= (b))
 #define greaterThan(a, b) ((a) > (b))
