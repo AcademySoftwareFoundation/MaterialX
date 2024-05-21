@@ -89,7 +89,7 @@ float mx_oren_nayar_fujii_diffuse_dir_albedo(float cosTheta, float roughness)
     float Si = sqrt(max(0.0, 1.0 - mx_square(cosTheta)));
     float G = Si * (acos(clamp(cosTheta, -1.0, 1.0)) - Si * cosTheta) +
               2.0 * ((Si / cosTheta) * (1.0 - Si * Si * Si) - Si) / 3.0;
-    return A + (B * float(M_PI_INV)) * G;
+    return A + (B * M_PI_INV) * G;
 }
 
 float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
