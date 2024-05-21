@@ -1148,9 +1148,10 @@ void Document::upgradeVersion()
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
-                    if (inInput->hasValue() && !inInput->getConnectedNode())
+                    const bool isDisconnected = inInput->getNodeName().empty() && inInput->getNodeGraphString().empty() && inInput->getInterfaceName().empty();
+                    if (inInput->hasValue() && isDisconnected)
                     {
-                        // Replace swizzle with constant.
+                        // Replace swizzle with constant if a connection was not also specified.
                         node->setCategory("constant");
                         string valueString = inInput->getValueString();
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
