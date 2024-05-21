@@ -3,8 +3,8 @@
 const float FUJII_CONSTANT_1 = 0.5 - 2.0 / (3.0 * M_PI);
 const float FUJII_CONSTANT_2 = 2.0 / 3.0 - 28.0 / (15.0 * M_PI);
 
-// Qualitative Oren-Nayar diffuse with minor improvements from Fujii:
-// https://mimosa-pudica.net/improved-oren-nayar.html
+// Qualitative Oren-Nayar diffuse with simplified math:
+// https://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_SIGGRAPH94.pdf
 float mx_oren_nayar_diffuse(float NdotV, float NdotL, float LdotV, float roughness)
 {
     float s = LdotV - NdotL * NdotV;
@@ -82,7 +82,7 @@ float mx_oren_nayar_diffuse_dir_albedo(float NdotV, float roughness)
     return clamp(dirAlbedo, 0.0, 1.0);
 }
 
-// Proposed upgrade to Oren-Nayar diffuse from Fujii:
+// Improved Oren-Nayar diffuse from Fujii:
 // https://mimosa-pudica.net/improved-oren-nayar.html
 float mx_oren_nayar_fujii_diffuse_dir_albedo(float cosTheta, float roughness)
 {
@@ -100,7 +100,8 @@ float mx_oren_nayar_fujii_diffuse_avg_albedo(float roughness)
     return A * (1.0 + FUJII_CONSTANT_2 * roughness);
 }   
 
-// Energy-compensated Oren-Nayar diffuse, as defined in the OpenPBR project.
+// Energy-compensated Oren-Nayar diffuse from OpenPBR Surface:
+// https://academysoftwarefoundation.github.io/OpenPBR/
 vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float LdotV, float roughness, vec3 color)
 {
     float s = LdotV - NdotL * NdotV;
@@ -121,7 +122,7 @@ vec3 mx_oren_nayar_energy_compensated_diffuse(float NdotV, float NdotL, float Ld
                             max(M_FLOAT_EPS, 1.0 - dirAlbedoL) /
                             max(M_FLOAT_EPS, 1.0 - avgAlbedo);
 
-    // Return the sum of lobes.
+    // Return the sum.
     return lobeSingleScatter + lobeMultiScatter;
 }
 
