@@ -9,7 +9,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
 import { prepareEnvTexture, getLightRotation, findLights, registerLights, getUniformValues } from './helper.js'
 import { Group } from 'three';
-import GUI from 'lil-gui'; 
+import GUI from 'lil-gui';
 
 const ALL_GEOMETRY_SPECIFIER = "*";
 const NO_GEOMETRY_SPECIFIER = "";
@@ -21,18 +21,18 @@ var logDetailedTime = false;
 /*
     Scene management
 */
-export class Scene 
+export class Scene
 {
-    constructor() 
+    constructor()
     {
         this._geometryURL = new URLSearchParams(document.location.search).get("geom");
         if (!this._geometryURL)
         {
-            this._geometryURL = 'Geometry/shaderball.glb'; 
+            this._geometryURL = 'Geometry/shaderball.glb';
         }
     }
 
-    initialize() 
+    initialize()
     {
         this._scene = new THREE.Scene();
         this._scene.background = new THREE.Color(this.#_backgroundColor);
@@ -64,9 +64,10 @@ export class Scene
     }
 
     // Utility to perform geometry file load
-    loadGeometryFile(geometryFilename, loader) 
+    loadGeometryFile(geometryFilename, loader)
     {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) =>
+        {
             loader.load(geometryFilename, data => resolve(data), null, reject);
         });
     }
@@ -82,8 +83,9 @@ export class Scene
 
         const gltfData = await this.loadGeometryFile(this.getGeometryURL(), this.#_gltfLoader);
 
-        const scene = this.getScene(); 
-        while (scene.children.length > 0) {
+        const scene = this.getScene();
+        while (scene.children.length > 0)
+        {
             scene.remove(scene.children[0]);
         }
 
@@ -100,7 +102,7 @@ export class Scene
         else
         {
             this.#_rootNode = model;
-        } 
+        }
         scene.add(model);
 
         console.log("- Scene load time: ", performance.now() - geomLoadTime, "ms");
@@ -123,7 +125,7 @@ export class Scene
     {
         var startUpdateSceneTime = performance.now();
         var uvTime = 0;
-        var normalTime = 0 ;
+        var normalTime = 0;
         var tangentTime = 0;
         var streamTime = 0;
         var bboxTime = 0;
@@ -136,41 +138,47 @@ export class Scene
 
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
-    
 
-        this._scene.traverse((child) => {
-            if (child.isMesh) {
+
+        this._scene.traverse((child) =>
+        {
+            if (child.isMesh)
+            {
                 var startUVTime = performance.now();
-                if (!child.geometry.attributes.uv) {
+                if (!child.geometry.attributes.uv)
+                {
                     const posCount = child.geometry.attributes.position.count;
                     const uvs = [];
                     const pos = child.geometry.attributes.position.array;
-    
-                    for (let i = 0; i < posCount; i++) {
+
+                    for (let i = 0; i < posCount; i++)
+                    {
                         uvs.push((pos[i * 3] - bsphere.center.x) / bsphere.radius);
                         uvs.push((pos[i * 3 + 1] - bsphere.center.y) / bsphere.radius);
                     }
-    
+
                     child.geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
                 }
                 else if (flipV)
                 {
                     const uvCount = child.geometry.attributes.position.count;
                     const uvs = child.geometry.attributes.uv.array;
-                    for (let i = 0; i < uvCount; i++) {
-                        let v = 1.0-(uvs[i*2 +1]);
-                        uvs[i*2+1] = v;
+                    for (let i = 0; i < uvCount; i++)
+                    {
+                        let v = 1.0 - (uvs[i * 2 + 1]);
+                        uvs[i * 2 + 1] = v;
                     }
                 }
                 uvTime += performance.now() - startUVTime;
-    
-                if (!child.geometry.attributes.normal) {
+
+                if (!child.geometry.attributes.normal)
+                {
                     var startNormalTime = performance.new();
                     child.geometry.computeVertexNormals();
                     normalTime += performance.now() - startNormalTime;
                 }
-    
-                if (child.geometry.getIndex()) 
+
+                if (child.geometry.getIndex())
                 {
                     if (!child.geometry.attributes.tangent)
                     {
@@ -179,7 +187,7 @@ export class Scene
                         tangentTime += performance.now() - startTangentTime;
                     }
                 }
-    
+
                 // Use default MaterialX naming convention.
                 var startStreamTime = performance.now();
                 child.geometry.attributes.i_position = child.geometry.attributes.position;
@@ -199,7 +207,7 @@ export class Scene
             console.log('  - Stream Update time: ', streamTime);
             console.log('  - Bounds compute time: ', bboxTime);
         }
-    
+
         // Update the background
         this._scene.background = this.getBackground();
 
@@ -208,10 +216,10 @@ export class Scene
         camera.position.y = bsphere.center.y;
         camera.position.z = bsphere.radius * 2.0;
         camera.updateProjectionMatrix();
-    
+
         orbitControls.target = bsphere.center;
         orbitControls.update();
-    }    
+    }
 
     setUpdateTransforms()
     {
@@ -231,10 +239,13 @@ export class Scene
 
         const scene = this.getScene();
         const camera = this.getCamera();
-        scene.traverse((child) => {
-            if (child.isMesh) {
+        scene.traverse((child) =>
+        {
+            if (child.isMesh)
+            {
                 const uniforms = child.material.uniforms;
-                if (uniforms) {
+                if (uniforms)
+                {
                     uniforms.u_worldMatrix.value = child.matrixWorld;
                     uniforms.u_viewProjectionMatrix.value = this.#_viewProjMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
 
@@ -242,8 +253,8 @@ export class Scene
                         uniforms.u_viewPosition.value = camera.getWorldPosition(this.#_worldViewPos);
 
                     if (uniforms.u_worldInverseTransposeMatrix)
-                        uniforms.u_worldInverseTransposeMatrix.value = 
-                        new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
+                        uniforms.u_worldInverseTransposeMatrix.value =
+                            new THREE.Matrix4().setFromMatrix3(this.#_normalMat.getNormalMatrix(child.matrixWorld));
                 }
             }
         });
@@ -283,9 +294,9 @@ export class Scene
 
         const scene = this.getScene();
         const camera = this.getCamera();
-        scene.traverse((child) => 
+        scene.traverse((child) =>
         {
-            if (child.isMesh) 
+            if (child.isMesh)
             {
                 const dagPath = this.getDagPath(child).join('/');
 
@@ -336,19 +347,23 @@ export class Scene
         camera.updateProjectionMatrix();
     }
 
-    getScene() {
+    getScene()
+    {
         return this._scene;
     }
 
-    getCamera() {
+    getCamera()
+    {
         return this._camera;
     }
 
-    getGeometryURL() {
+    getGeometryURL()
+    {
         return this._geometryURL;
     }
 
-    setGeometryURL(url) {
+    setGeometryURL(url)
+    {
         this._geometryURL = url;
     }
 
@@ -367,7 +382,7 @@ export class Scene
         this.#_showBackgroundTexture = enable;
     }
 
-    getBackground() 
+    getBackground()
     {
         if (this.#_backgroundTexture && this.#_showBackgroundTexture)
         {
@@ -424,31 +439,34 @@ export class Editor
     initialize()
     {
         Array.from(document.getElementsByClassName('lil-gui')).forEach(
-            function (element, index, array) {
-                if (element.className) {
+            function (element, index, array)
+            {
+                if (element.className)
+                {
                     element.remove();
                 }
             }
         );
 
-        this._gui = new GUI( { title: "Property Editor" } );
+        this._gui = new GUI({ title: "Property Editor" });
         this._gui.close();
     }
 
     // Update ui properties
     // - Hide close button
     // - Update transparency so scene shows through if overlapping
-    updateProperties(targetOpacity = 1) 
+    updateProperties(targetOpacity = 1)
     {
         // Set opacity
         Array.from(document.getElementsByClassName('dg')).forEach(
-            function (element, index, array) {
+            function (element, index, array)
+            {
                 element.style.opacity = targetOpacity;
             }
         );
     }
 
-    getGUI() 
+    getGUI()
     {
         return this._gui;
     }
@@ -491,7 +509,7 @@ class MaterialAssign
     {
         return this._material;
     }
-    
+
     getGeometry()
     {
         return this._geometry;
@@ -547,13 +565,13 @@ export class Material
     }
 
     // If no material file is selected, we programmatically create a default material as a fallback
-    static createFallbackMaterial(doc) 
+    static createFallbackMaterial(doc)
     {
         let ssNode = doc.getChild('Generated_Default_Shader');
         if (ssNode)
         {
             return ssNode;
-        } 
+        }
         const ssName = 'Generated_Default_Shader';
         ssNode = doc.addChildOfCategory('standard_surface', ssName);
         ssNode.setType('surfaceshader');
@@ -568,7 +586,8 @@ export class Material
 
     async loadMaterialFile(loader, materialFilename)
     {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) =>
+        {
             loader.load(materialFilename, data => resolve(data), null, reject);
         });
     }
@@ -585,7 +604,7 @@ export class Material
         doc.importLibrary(viewer.getLibrary());
         viewer.setDocument(doc);
 
-        const fileloader = viewer.getFileLoader(); 
+        const fileloader = viewer.getFileLoader();
 
         let mtlxMaterial = await viewer.getMaterial().loadMaterialFile(fileloader, materialFilename);
 
@@ -598,7 +617,7 @@ export class Material
         // location.
         if (!materialFilename) materialFilename = "/";
         const paths = materialFilename.split('/');
-        paths.pop(); 
+        paths.pop();
         const searchPath = paths.join('/');
 
         // Load material
@@ -613,18 +632,18 @@ export class Material
         // and assign to the associated geometry. If there are no looks
         // then the first material is found and assignment to all the
         // geometry.
-        this.clearMaterials(); 
+        this.clearMaterials();
         var looks = doc.getLooks();
         if (looks.length)
         {
             for (let look of looks)
             {
                 const materialAssigns = look.getMaterialAssigns();
-                for (let materialAssign of materialAssigns) 
+                for (let materialAssign of materialAssigns)
                 {
                     let matName = materialAssign.getMaterial();
                     if (matName)
-                    {   
+                    {
                         let mat = doc.getChild(matName);
                         var shader;
                         if (mat)
@@ -672,8 +691,8 @@ export class Material
             // The identifier used is "*" to mean the entire scene. 
             const materialNodes = doc.getMaterialNodes();
             let shaderList = [];
-            let foundRenderable = false;            
-            for (let i=0; i<materialNodes.length; ++i)
+            let foundRenderable = false;
+            for (let i = 0; i < materialNodes.length; ++i)
             {
                 let materialNode = materialNodes[i];
                 if (materialNode)
@@ -690,16 +709,16 @@ export class Material
                             {
                                 assignment = ALL_GEOMETRY_SPECIFIER;
                                 foundRenderable = true;
-                            }                        
+                            }
                             console.log('-- add shader: ', shaderNodePath);
                             shaderList.push(shaderNodePath);
                             this._materials.push(new MaterialAssign(shaderNodes[0], assignment));
                         }
                     }
-                }            
+                }
             }
             const nodeGraphs = doc.getNodeGraphs();
-            for (let i=0; i<nodeGraphs.length; ++i)
+            for (let i = 0; i < nodeGraphs.length; ++i)
             {
                 let nodeGraph = nodeGraphs[i];
                 if (nodeGraph)
@@ -707,14 +726,14 @@ export class Material
                     if (nodeGraph.hasAttribute('nodedef') || nodeGraph.hasSourceUri())
                     {
                         continue;
-                    } 
+                    }
                     // Skip any nodegraph that is connected to something downstream
                     if (nodeGraph.getDownstreamPorts().length > 0)
                     {
                         continue
                     }
                     let outputs = nodeGraph.getOutputs();
-                    for (let j=0; j<outputs.length; ++j)
+                    for (let j = 0; j < outputs.length; ++j)
                     {
                         let output = outputs[j];
                         {
@@ -731,7 +750,7 @@ export class Material
                 }
             }
             const outputs = doc.getOutputs();
-            for (let i=0; i<outputs.length; ++i)
+            for (let i = 0; i < outputs.length; ++i)
             {
                 let output = outputs[i];
                 if (output)
@@ -746,8 +765,8 @@ export class Material
                 }
             }
 
-            const shaderNodes = []; 
-            for (let i=0; i<shaderNodes.length; ++i)
+            const shaderNodes = [];
+            for (let i = 0; i < shaderNodes.length; ++i)
             {
                 let shaderNode = shaderNodes[i];
                 let shaderNodePath = shaderNode.getNamePath()
@@ -771,7 +790,7 @@ export class Material
             const defaultNode = Material.createFallbackMaterial(doc);
             this._materials.push(new MaterialAssign(defaultNode, ALL_GEOMETRY_SPECIFIER));
         }
-        
+
         // Create a new shader for each material node.
         // Only create the shader once even if assigned more than once.
         var startGenTime = performance.now();
@@ -790,7 +809,7 @@ export class Material
             matassign.setShader(shader);
             closeUI = true;
         }
-        console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.", );
+        console.log("- Generate (", this._materials.length, ") shader(s) time: ", performance.now() - startGenTime, " ms.",);
 
         // Update scene shader assignments
         this.updateMaterialAssignments(viewer, "");
@@ -819,8 +838,10 @@ export class Material
         {
             if (matassign.getShader())
             {
-                if (soloMaterial.length) {
-                    if (matassign.getMaterial().getNamePath() == soloMaterial) {
+                if (soloMaterial.length)
+                {
+                    if (matassign.getMaterial().getNamePath() == soloMaterial)
+                    {
                         let temp = matassign.getGeometry();
                         matassign.setGeometry(ALL_GEOMETRY_SPECIFIER);
                         assigned += viewer.getScene().updateMaterial(matassign);
@@ -829,7 +850,7 @@ export class Material
                         break
                     }
                 }
-                else 
+                else
                 {
                     assigned += viewer.getScene().updateMaterial(matassign);
                 }
@@ -851,7 +872,7 @@ export class Material
     // 
     // Generate a new material for a given element
     //
-    generateMaterial(matassign, viewer, searchPath, closeUI) 
+    generateMaterial(matassign, viewer, searchPath, closeUI)
     {
         var elem = matassign.getMaterial();
 
@@ -877,10 +898,10 @@ export class Material
         genContext.getOptions().shaderInterfaceType = mx.ShaderInterfaceType.SHADER_INTERFACE_COMPLETE;
 
         if (logDetailedTime)
-            console.log("  - Transparency check time: ", performance.now() -  startTranspCheckTime, "ms"); 
+            console.log("  - Transparency check time: ", performance.now() - startTranspCheckTime, "ms");
 
         // Generate GLES code
-        var startMTLXGenTime = performance.now();        
+        var startMTLXGenTime = performance.now();
         let shader = gen.generate(elem.getNamePath(), elem, genContext);
         if (logDetailedTime)
             console.log("  - MaterialX gen time: ", performance.now() - startMTLXGenTime, "ms");
@@ -910,7 +931,7 @@ export class Material
         });
 
         // Create Three JS Material
-        let newMaterial  = new THREE.RawShaderMaterial({
+        let newMaterial = new THREE.RawShaderMaterial({
             uniforms: uniforms,
             vertexShader: vShader,
             fragmentShader: fShader,
@@ -936,7 +957,7 @@ export class Material
 
     clearSoloMaterialUI()
     {
-        for (let i=0; i<this._materials.length; ++i)
+        for (let i = 0; i < this._materials.length; ++i)
         {
             let matassign = this._materials[i];
             let matUI = matassign.getMaterialUI();
@@ -944,7 +965,7 @@ export class Material
             {
                 let matTitle = matUI.domElement.getElementsByClassName('title')[0];
                 matTitle.classList.remove('peditor_material_assigned');
-                let img = matTitle.getElementsByTagName('img')[0];    
+                let img = matTitle.getElementsByTagName('img')[0];
                 img.src = 'public/shader_ball.svg';
                 //matTitle.classList.remove('peditor_material_unassigned');
             }
@@ -956,16 +977,16 @@ export class Material
         // Prevent the event from being passed to parent folder
         event.stopPropagation();
 
-        for (let i=0; i<materials.length; ++i)
+        for (let i = 0; i < materials.length; ++i)
         {
             let matassign = materials[i];
             // Need to use path vs name to get a unique key.
             let materialName = matassign.getMaterial().getNamePath();
             var matUI = matassign.getMaterialUI();
             let matTitle = matUI.domElement.getElementsByClassName('title')[0];
-            let img = matTitle.getElementsByTagName('img')[0];    
+            let img = matTitle.getElementsByTagName('img')[0];
             if (materialName == elemPath)
-            {                
+            {
                 if (this._soloMaterial == elemPath)
                 {
                     img.src = 'public/shader_ball.svg';
@@ -982,7 +1003,7 @@ export class Material
             else
             {
                 img.src = 'public/shader_ball.svg';
-                matTitle.classList.remove('peditor_material_assigned');                   
+                matTitle.classList.remove('peditor_material_assigned');
             }
         }
         viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
@@ -1006,7 +1027,7 @@ export class Material
         const elemPath = elem.getNamePath();
 
         // Create and cache associated UI
-        var matUI = gui.addFolder(elemPath);        
+        var matUI = gui.addFolder(elemPath);
         matassign.setMaterialUI(matUI);
 
         let matTitle = matUI.domElement.getElementsByClassName('title')[0];
@@ -1018,16 +1039,16 @@ export class Material
         if (img)
         {
             // Add event listener to icon to call updateSoloMaterial function
-            img.addEventListener('click', function(event) 
+            img.addEventListener('click', function (event)
             {
-                Material.updateSoloMaterial(viewer, elemPath, materials,event);
+                Material.updateSoloMaterial(viewer, elemPath, materials, event);
             });
         }
-    
+
         if (closeUI)
         {
             matUI.close();
-        }  
+        }
         const uniformBlocks = Object.values(shader.getStage('pixel').getUniformBlocks());
         var uniformToUpdate;
         const ignoreList = ['u_envRadianceMips', 'u_envRadianceSamples', 'u_alphaThreshold'];
@@ -1035,67 +1056,81 @@ export class Material
         var folderList = new Map();
         folderList[elemPath] = matUI;
 
-        uniformBlocks.forEach(uniforms => 
+        uniformBlocks.forEach(uniforms =>
         {
-            if (!uniforms.empty()) 
+            if (!uniforms.empty())
             {
-                for (let i = 0; i < uniforms.size(); ++i) 
+                for (let i = 0; i < uniforms.size(); ++i)
                 {
                     const variable = uniforms.get(i);
                     const value = variable.getValue()?.getData();
                     let name = variable.getVariable();
 
-                    if (ignoreList.includes(name)) {
+                    if (ignoreList.includes(name))
+                    {
                         continue;
                     }
 
                     let currentFolder = matUI;
                     let currentElemPath = variable.getPath();
-                    if (!currentElemPath || currentElemPath.length == 0) {
+                    if (!currentElemPath || currentElemPath.length == 0)
+                    {
                         continue;
                     }
                     let currentElem = elem.getDocument().getDescendant(currentElemPath);
-                    if (!currentElem) {
+                    if (!currentElem)
+                    {
+                        continue;
+                    }
+                    
+                    // Skip non-input types and anything > 2 levels deep 
+                    if (!currentElem.asAInput() || currentElem.getNamePath().split('/').length > 2)
+                    {
                         continue;
                     }
 
                     let currentNode = null;
                     if (currentElem.getParent() && currentElem.getParent().getNamePath() != "")
-                    { 
+                    {
                         currentNode = currentElem.getParent();
                     }
                     let uiname = "";
                     let nodeDefInput = null;
-                    if (currentNode) {
+                    if (currentNode)
+                    {
 
                         let currentNodePath = currentNode.getNamePath();
                         var pathSplit = currentNodePath.split('/');
-                        if (pathSplit.length) {
+                        if (pathSplit.length)
+                        {
                             currentNodePath = pathSplit[0];
                         }
                         currentFolder = folderList[currentNodePath];
-                        if (!currentFolder) {
+                        if (!currentFolder)
+                        {
                             currentFolder = matUI.addFolder(currentNodePath);
                             folderList[currentNodePath] = currentFolder;
                         }
 
                         // Check for ui attributes
                         var nodeDef = currentNode.getNodeDef();
-                        if (nodeDef) {
+                        if (nodeDef)
+                        {
                             // Remove node name from shader uniform name for non root nodes
                             let lookup_name = name.replace(currentNode.getName() + '_', '');
                             nodeDefInput = nodeDef.getActiveInput(lookup_name);
-                            if (nodeDefInput) 
+                            if (nodeDefInput)
                             {
                                 uiname = nodeDefInput.getAttribute('uiname');
                                 let uifolderName = nodeDefInput.getAttribute('uifolder');
-                                if (uifolderName && uifolderName.length) {
+                                if (uifolderName && uifolderName.length)
+                                {
                                     let newFolderName = currentNodePath + '/' + uifolderName;
                                     currentFolder = folderList[newFolderName];
-                                    if (!currentFolder) 
+                                    if (!currentFolder)
                                     {
                                         currentFolder = matUI.addFolder(uifolderName);
-                                        currentFolder.domElement.classList.add('peditorfolder');                                
+                                        currentFolder.domElement.classList.add('peditorfolder');
                                         folderList[newFolderName] = currentFolder;
                                     }
                                 }
@@ -1106,17 +1141,21 @@ export class Material
                     // Determine UI name to use
                     let path = name;
                     let interfaceName = currentElem.getAttribute("interfacename");
-                    if (interfaceName && interfaceName.length) {
+                    if (interfaceName && interfaceName.length)
+                    {
                         const graph = currentNode.getParent();
                         if (graph)
                         {
                             const graphInput = graph.getInput(interfaceName);
-                            if (graphInput) {
+                            if (graphInput)
+                            {
                                 let uiname = graphInput.getAttribute('uiname');
-                                if (uiname.length) {
+                                if (uiname.length)
+                                {
                                     path = uiname;
                                 }
-                                else {
+                                else
+                                {
                                     path = graphInput.getName();
                                 }
                             }
@@ -1126,13 +1165,31 @@ export class Material
                             path = interfaceName;
                         }
                     }
-                    else {
-                        if (!uiname) {
+                    else
+                    {
+                        if (!uiname)
+                        {
                             uiname = currentElem.getAttribute('uiname');
                         }
-                        if (uiname && uiname.length) {
+                        if (uiname && uiname.length)
+                        {
                             path = uiname;
                         }
+                    }
+
+                    // Skip if already added to current folder 
+                    let found = false;
+                    for (let i = 0; i < currentFolder.children.length; ++i)
+                    {
+                        if (currentFolder.children[i]._name == path)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }                        
+                    if (found)
+                    {
+                        continue;
                     }
 
                     switch (variable.getType().getName())
@@ -1236,33 +1293,35 @@ export class Material
                                 {
                                     let w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
                                     w.domElement.classList.add('peditoritem');
-                                }    
+                                }
                                 else
                                 {
                                     // Map enumList strings to values
                                     // Map to 0..N if no values are specified via enumvalues attribute
                                     if (enumValues.length == 0)
-                                    {                                
+                                    {
                                         for (let i = 0; i < enumList.length; ++i)
                                         {
                                             enumValues.push(i);
                                         }
                                     }
                                     const enumeration = {};
-                                    enumList.forEach((str, index) => {
+                                    enumList.forEach((str, index) =>
+                                    {
                                         enumeration[str] = enumValues[index];
                                     });
-                                
+
                                     // Function to handle enum drop-down
-                                    function handleDropdownChange(value) {
+                                    function handleDropdownChange(value)
+                                    {
                                         if (material.uniforms[name])
                                         {
                                             material.uniforms[name].value = value;
-                                        } 
-                                    }                                    
+                                        }
+                                    }
                                     const defaultOption = enumList[value]; // Set the default selected option
                                     const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
-                                    dropdownController.onChange(handleDropdownChange);                                
+                                    dropdownController.onChange(handleDropdownChange);
                                     dropdownController.domElement.classList.add('peditoritem');
                                 }
                             }
@@ -1273,7 +1332,7 @@ export class Material
                             if (uniformToUpdate && value != null)
                             {
                                 let w = currentFolder.add(material.uniforms[name], 'value').name(path);
-                                w.domElement.classList.add('peditoritem');                                
+                                w.domElement.classList.add('peditoritem');
                             }
                             break;
 
@@ -1287,7 +1346,7 @@ export class Material
                                 var maxValue = [DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX, DEFAULT_MAX];
                                 var step = [0, 0, 0, 0];
 
-                                if (nodeDefInput) 
+                                if (nodeDefInput)
                                 {
                                     if (nodeDefInput.hasAttribute('uisoftmin'))
                                         minValue = nodeDefInput.getAttribute('uisoftmin').split(',').map(Number);
@@ -1300,7 +1359,7 @@ export class Material
                                         maxValue = nodeDefInput.getAttribute('uimax').split(',').map(Number);
 
                                     if (nodeDefInput.hasAttribute('uistep'))
-                                            step = nodeDefInput.getAttribute('uistep').split(',').map(Number);
+                                        step = nodeDefInput.getAttribute('uistep').split(',').map(Number);
                                 }
                                 for (let i = 0; i < 4; ++i)
                                 {
@@ -1312,10 +1371,11 @@ export class Material
 
                                 const keyString = ["x", "y", "z", "w"];
                                 let vecFolder = currentFolder.addFolder(path);
-                                Object.keys(material.uniforms[name].value).forEach((key) => {
-                                    let w = vecFolder.add(material.uniforms[name].value, 
+                                Object.keys(material.uniforms[name].value).forEach((key) =>
+                                {
+                                    let w = vecFolder.add(material.uniforms[name].value,
                                         key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
-                                    w.domElement.classList.add('peditoritem');                                
+                                    w.domElement.classList.add('peditoritem');
                                 })
                             }
                             break;
@@ -1333,11 +1393,12 @@ export class Material
                                 color3.fromArray(material.uniforms[name].value);
                                 dummy.color = color3.getHex();
                                 let w = currentFolder.addColor(dummy, 'color').name(path)
-                                    .onChange(function (value) {
+                                    .onChange(function (value)
+                                    {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
                                     });
-                                w.domElement.classList.add('peditoritem');                                
+                                w.domElement.classList.add('peditoritem');
                             }
                             break;
 
@@ -1350,8 +1411,8 @@ export class Material
                         case 'filename':
                             break;
                         case 'string':
-                            console.log('String: ', name);
-                            if (value != null) {
+                            if (value != null)
+                            {
                                 var dummy =
                                 {
                                     thevalue: value
@@ -1359,7 +1420,7 @@ export class Material
                                 let item = currentFolder.add(dummy, 'thevalue');
                                 item.name(path);
                                 item.disable(true);
-                                item.domElement.classList.add('peditoritem');                                
+                                item.domElement.classList.add('peditoritem');
                             }
                             break;
                         default:
@@ -1388,7 +1449,7 @@ export class Material
     Keeps track of local scene, and property editor as well as current MaterialX document 
     and assocaited material, shader and lighting information.
 */
-export class Viewer 
+export class Viewer
 {
     static create()
     {
@@ -1402,7 +1463,7 @@ export class Viewer
         this.materials.push(new Material());
 
         this.fileLoader = new THREE.FileLoader();
-        this.hdrLoader = new RGBELoader();    
+        this.hdrLoader = new RGBELoader();
     }
 
     //
@@ -1447,15 +1508,18 @@ export class Viewer
         this.irradianceTexture = prepareEnvTexture(irradianceTexture, renderer.capabilities);
     }
 
-    getEditor() {
+    getEditor()
+    {
         return this.editor;
     }
 
-    getScene() {
+    getScene()
+    {
         return this.scene;
     }
 
-    getMaterial() {
+    getMaterial()
+    {
         return this.materials[0];
     }
 
@@ -1469,46 +1533,57 @@ export class Viewer
         return this.hdrLoader;
     }
 
-    setDocument(doc) {
+    setDocument(doc)
+    {
         this.doc = doc;
     }
-    getDocument() {
+    getDocument()
+    {
         return this.doc;
     }
 
-    getLibrary() {
+    getLibrary()
+    {
         return this.stdlib;
     }
 
-    getLightRig() {
+    getLightRig()
+    {
         return this.lightRigDoc;
     }
 
-    getMx() {
+    getMx()
+    {
         return this.mx;
     }
 
-    getGenerator() {
+    getGenerator()
+    {
         return this.generator;
     }
 
-    getGenContext() {
+    getGenContext()
+    {
         return this.genContext;
     }
 
-    getLights() {
+    getLights()
+    {
         return this.lights;
     }
 
-    getLightData() {
+    getLightData()
+    {
         return this.lightData;
     }
 
-    getRadianceTexture() {
+    getRadianceTexture()
+    {
         return this.radianceTexture;
     }
 
-    getIrradianceTexture() {
+    getIrradianceTexture()
+    {
         return this.irradianceTexture;
     }
 

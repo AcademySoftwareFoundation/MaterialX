@@ -80,7 +80,7 @@ void VkResourceBindingContext::emitResourceBindings(GenContext& context, const V
     // Second, emit all sampler uniforms as separate uniforms with separate layout bindings
     for (auto uniform : uniforms.getVariableOrder())
     {
-        if (uniform->getType() == Type::FILENAME)
+        if (*uniform->getType() == *Type::FILENAME)
         {
             generator.emitString("layout (binding=" + std::to_string(_hwUniformBindLocation++) + ") " + syntax.getUniformQualifier() + " ", stage);
             generator.emitVariableDeclaration(uniform, EMPTY_STRING, context, stage, false);

@@ -18,7 +18,6 @@ namespace
 
 const string SRGB_TEXTURE = "srgb_texture";
 const string LIN_REC709 = "lin_rec709";
-const string BAKED_POSTFIX = "_baked";
 const string SHADER_PREFIX = "SR_";
 const string DEFAULT_UDIM_PREFIX = "_";
 
@@ -223,8 +222,7 @@ void TextureBaker<Renderer, ShaderGen>::bakeGraphOutput(OutputPtr output, GenCon
         return;
     }
 
-    bool encodeSrgb = _colorSpace == SRGB_TEXTURE &&
-                      (output->getType() == "color3" || output->getType() == "color4");
+    bool encodeSrgb = _colorSpace == SRGB_TEXTURE && output->isColorType();
     Renderer::getFramebuffer()->setEncodeSrgb(encodeSrgb);
 
     ShaderPtr shader = _generator->generate("BakingShader", output, context);
@@ -353,13 +351,13 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
     }
 
     // Create a shader node.
-    NodePtr bakedShader = _bakedTextureDoc->addNode(shader->getCategory(), shader->getName() + BAKED_POSTFIX, shader->getType());
+    NodePtr bakedShader = _bakedTextureDoc->addNode(shader->getCategory(), shader->getName(), shader->getType());
 
     // Optionally create a material node, connecting it to the new shader node.
     if (_material)
     {
         string materialName = (_texTemplateOverrides.count("$MATERIAL")) ? _texTemplateOverrides["$MATERIAL"] : _material->getName();
-        NodePtr bakedMaterial = _bakedTextureDoc->addNode(_material->getCategory(), materialName + BAKED_POSTFIX, _material->getType());
+        NodePtr bakedMaterial = _bakedTextureDoc->addNode(_material->getCategory(), materialName, _material->getType());
         for (auto sourceMaterialInput : _material->getInputs())
         {
             const string& sourceMaterialInputName = sourceMaterialInput->getName();
@@ -412,7 +410,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
                 Color4 uniformColor = _bakedConstantMap[output].color;
                 string uniformColorString = getValueStringFromColor(uniformColor, bakedInput->getType());
                 bakedInput->setValueString(uniformColorString);
-                if (bakedInput->getType() == "color3" || bakedInput->getType() == "color4")
+                if (bakedInput->isColorType())
                 {
                     bakedInput->setColorSpace(_colorSpace);
                 }
@@ -422,7 +420,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
             if (!_bakedImageMap.empty())
             {
                 // Add the image node.
-                NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName + BAKED_POSTFIX, sourceType);
+                NodePtr bakedImage = bakedNodeGraph->addNode("image", sourceName, sourceType);
                 InputPtr input = bakedImage->addInput("file", "filename");
                 StringMap filenameTemplateMap = initializeFileTemplateMap(bakedInput, shader, udimSet.empty() ? EMPTY_STRING : UDIM_TOKEN);
                 input->setValueString(generateTextureFilename(filenameTemplateMap));
@@ -434,7 +432,7 @@ DocumentPtr TextureBaker<Renderer, ShaderGen>::generateNewDocumentFromShader(Nod
                     NodePtr origWorldSpaceNode = worldSpacePair->second;
                     if (origWorldSpaceNode)
                     {
-                        NodePtr newWorldSpaceNode = bakedNodeGraph->addNode(origWorldSpaceNode->getCategory(), sourceName + BAKED_POSTFIX + "_map", sourceType);
+                        NodePtr newWorldSpaceNode = bakedNodeGraph->addNode(origWorldSpaceNode->getCategory(), sourceName + "_map", sourceType);
                         newWorldSpaceNode->copyContentFrom(origWorldSpaceNode);
                         InputPtr mapInput = newWorldSpaceNode->getInput("in");
                         if (mapInput)

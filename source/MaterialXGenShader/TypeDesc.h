@@ -57,6 +57,12 @@ class MX_GENSHADER_API TypeDesc
     static const TypeDesc* registerType(const string& name, unsigned char basetype, unsigned char semantic = SEMANTIC_NONE,
                                         size_t size = 1, bool editable = true, const ChannelMap& channelMapping = ChannelMap());
 
+    /// Equality operator overload
+    bool operator==(const TypeDesc& rhs) const;
+
+    /// Inequality operator overload
+    bool operator!=(const TypeDesc& rhs) const;
+
     /// Get a type descriptor for given name.
     /// Returns an empty shared pointer if no type with the given name is found.
     static const TypeDesc* get(const string& name);

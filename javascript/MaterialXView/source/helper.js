@@ -45,8 +45,8 @@ function fromVector(value, dimension)
     }
     else
     {
-        outValue = []; 
-        for(let i = 0; i < dimension; ++i)
+        outValue = [];
+        for (let i = 0; i < dimension; ++i)
             outValue.push(0.0);
     }
 
@@ -69,13 +69,13 @@ function fromMatrix(matrix, dimension)
             {
                 vec.push(matrix.getItem(i, k));
             }
-        }    
+        }
     } else
     {
         for (let i = 0; i < dimension; ++i)
             vec.push(0.0);
     }
-     
+
     return vec;
 }
 
@@ -89,7 +89,7 @@ function fromMatrix(matrix, dimension)
  */
 function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
-    let outValue;  
+    let outValue;
     switch (type)
     {
         case 'float':
@@ -97,7 +97,7 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
         case 'boolean':
             outValue = value;
             break;
-        case 'vector2':      
+        case 'vector2':
             outValue = fromVector(value, 2);
             break;
         case 'vector3':
@@ -123,14 +123,12 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
                 if (texture)
                     setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
-            } 
+            }
             break;
         case 'samplerCube':
         case 'string':
-              break;        
         default:
-            // struct
-            outValue = toThreeUniform(value);
+            break;
     }
 
     return outValue;
@@ -184,33 +182,33 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
- function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
- {
-     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
-     const base = name.substring(0, idx) || name;
- 
-     texture.generateMipmaps = generateMipmaps;
-     texture.wrapS = THREE.RepeatWrapping;
-     texture.wrapT = THREE.RepeatWrapping;
-     texture.magFilter = THREE.LinearFilter;
-     texture.flipY = flipY;
-     
-     if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
-     {
-         const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
-         texture.wrapS = getWrapping(uaddressmode);
-     }
- 
-     if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
-     {
-         const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
-         texture.wrapT = getWrapping(vaddressmode);
-     }
- 
-     const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
-     texture.minFilter = getMinFilter(filterType, generateMipmaps);
- }
- 
+function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
+{
+    const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
+    const base = name.substring(0, idx) || name;
+
+    texture.generateMipmaps = generateMipmaps;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.LinearFilter;
+    texture.flipY = flipY;
+
+    if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
+    {
+        const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
+        texture.wrapS = getWrapping(uaddressmode);
+    }
+
+    if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
+    {
+        const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
+        texture.wrapT = getWrapping(vaddressmode);
+    }
+
+    const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
+    texture.minFilter = getMinFilter(filterType, generateMipmaps);
+}
+
 /**
  * Return the global light rotation matrix
  */
@@ -269,7 +267,7 @@ export function registerLights(mx, lights, genContext)
         lightData.push({
             type: lightTypesBound[nodeName],
             direction: rotatedLightDirection,
-            color: new THREE.Vector3(...lightColor), 
+            color: new THREE.Vector3(...lightColor),
             intensity: lightIntensity
         });
     }
@@ -290,16 +288,17 @@ export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
     let threeUniforms = {};
 
     const uniformBlocks = Object.values(shaderStage.getUniformBlocks());
-    uniformBlocks.forEach(uniforms => {
+    uniformBlocks.forEach(uniforms =>
+    {
         if (!uniforms.empty())
         {
             for (let i = 0; i < uniforms.size(); ++i)
             {
-                const variable = uniforms.get(i);                
+                const variable = uniforms.get(i);
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, 
-                                                        textureLoader, searchPath, flipY));
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms,
+                    textureLoader, searchPath, flipY));
             }
         }
     });

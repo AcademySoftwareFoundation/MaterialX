@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 9)
+set(MATERIALX_BUILD_VERSION 10)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -55,7 +55,7 @@ option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. G
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage analysis on supporting platforms." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
-option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." ON)
+option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." OFF)
 
 option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
 if (MATERIALX_BUILD_IOS)
