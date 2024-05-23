@@ -281,7 +281,7 @@ else()
     set(BUILD_SHARED_LIBS "OFF")
 endif()
 
-# Optionally add monolithic build target - needs to be added before the other build targets that may be included.
+# Build a monolithic target - needs to be added before the other build targets that may be included.
 if (MATERIALX_BUILD_MONOLITHIC)
     set(MATERIALX_MONOLITHIC_TARGET MaterialX)
     add_subdirectory(source)
@@ -374,6 +374,8 @@ if(NOT SKBUILD)
     include(CMakePackageConfigHelpers)
 
     if (MATERIALX_BUILD_MONOLITHIC)
+        # export aliases for the MaterialX modules built in this monolithic build to be
+        # less disruptive to downstream probjects.
         get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
         set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
         foreach (MODULE ${MATERIALX_MODULES})

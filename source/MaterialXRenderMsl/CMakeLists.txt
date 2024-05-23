@@ -11,11 +11,6 @@ if(APPLE)
         find_library(COCOA_FRAMEWORK Cocoa)
         find_package(OpenGL REQUIRED)
     endif()
-    file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
-    message("Objective C files: " ${materialx_source_oc})
-    set_source_files_properties(${materialx_source_oc} PROPERTIES
-            COMPILE_FLAGS "-x objective-c++")
-    set(materialx_source ${materialx_source} ${materialx_source_oc})
 elseif(UNIX)
     find_package(X11 REQUIRED)
     # Note - can't just require the Xt component because FindX11 in cmake 3.1
@@ -38,6 +33,7 @@ mx_add_library(MaterialXRenderMsl
         MaterialXGenMsl
     EXPORT_DEFINE
         MATERIALX_RENDERMSL_EXPORTS
+    ADD_OBJECTIVE_C_CODE
 )
 
 

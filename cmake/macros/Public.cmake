@@ -2,6 +2,7 @@
 function(mx_add_library MATERIALX_MODULE_NAME)
 
     set(options
+            ADD_OBJECTIVE_C_CODE
     )
     set(oneValueArgs
             EXPORT_DEFINE
@@ -17,6 +18,13 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             "${multiValueArgs}"
             ${ARGN}
     )
+
+    if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
+        file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
+        set_source_files_properties(${materialx_source_oc} PROPERTIES
+                COMPILE_FLAGS "-x objective-c++")
+        set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
+    endif()
 
     assign_source_group("Source Files" ${args_SOURCE_FILES})
     assign_source_group("Header Files" ${args_HEADER_FILES})
@@ -64,7 +72,6 @@ function(mx_add_library MATERIALX_MODULE_NAME)
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
 
-    # TODO validate if install location is correct
     target_include_directories(${TARGET_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}>
