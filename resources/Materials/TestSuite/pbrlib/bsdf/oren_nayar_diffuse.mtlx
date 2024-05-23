@@ -5,6 +5,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse1" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="0.0" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <surface name="surface1" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse1" />
@@ -14,6 +15,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse2" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="0.25" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <surface name="surface2" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse2" />
@@ -23,6 +25,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse3" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="0.5" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <surface name="surface3" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse3" />
@@ -32,6 +35,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse4" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="0.75" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <surface name="surface4" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse4" />
@@ -41,6 +45,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse5" type="BSDF">
       <input name="color" type="color3" value="0.6, 0.6, 0.6" />
       <input name="roughness" type="float" value="1.0" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <surface name="surface5" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="diffuse5" />
