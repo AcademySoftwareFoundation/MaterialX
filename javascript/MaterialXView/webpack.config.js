@@ -19,16 +19,25 @@ dirent = fs.readdirSync(usdSurfaceMaterials).filter(
 let usdMaterials = dirent
     .map((fileName) => ({ name: fileName, value: `${usdSurfaceMaterialsBaseURL}/${fileName}` }));
 
-const gltfSurfaceMaterials = "../../resources/Materials/Examples/GltfPbr";
-const gltfSurfaceMaterialsBaseURL = "Materials/Examples/GltfPbr";
-dirent = fs.readdirSync(gltfSurfaceMaterials).filter(
+const gltfPbrMaterials = "../../resources/Materials/Examples/GltfPbr";
+const gltfPbrMaterialsBaseURL = "Materials/Examples/GltfPbr";
+dirent = fs.readdirSync(gltfPbrMaterials).filter(
     function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
 )
 let gltfMaterials = dirent
-    .map((fileName) => ({ name: fileName, value: `${gltfSurfaceMaterialsBaseURL}/${fileName}` }));
+    .map((fileName) => ({ name: fileName, value: `${gltfPbrMaterialsBaseURL}/${fileName}` }));
+
+const openPbrMaterials = "../../resources/Materials/Examples/OpenPbr";
+const openPbrMaterialsBaseURL = "Materials/Examples/OpenPbr";
+dirent = fs.readdirSync(openPbrMaterials).filter(
+    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let openMaterials = dirent
+    .map((fileName) => ({ name: fileName, value: `${openPbrMaterialsBaseURL}/${fileName}` }));
 
 materials = materials.concat(usdMaterials);
 materials = materials.concat(gltfMaterials);
+materials = materials.concat(openMaterials);
 
 const geometryFiles = "../../resources/Geometry";
 const geometryFilesURL = "Geometry";
@@ -70,7 +79,8 @@ module.exports = {
                 { context: "../../resources/Lights/irradiance", from: "*.*", to: "Lights/irradiance" },
                 { from: stdSurfaceMaterials, to: stdSurfaceMaterialsBaseURL },
                 { from: usdSurfaceMaterials, to: usdSurfaceMaterialsBaseURL },
-                { from: gltfSurfaceMaterials, to: gltfSurfaceMaterialsBaseURL },
+                { from: gltfPbrMaterials, to: gltfPbrMaterialsBaseURL },
+                { from: openPbrMaterials, to: openPbrMaterialsBaseURL },
                 { from: "../build/bin/JsMaterialXCore.wasm" },
                 { from: "../build/bin/JsMaterialXCore.js" },
                 { from: "../build/bin/JsMaterialXGenShader.wasm" },

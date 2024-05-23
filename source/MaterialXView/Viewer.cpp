@@ -765,7 +765,24 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
         reloadShaders();
-        _renderPipeline->updateAlbedoTable(ALBEDO_TABLE_SIZE);
+        try
+        {
+            _renderPipeline->updateAlbedoTable(ALBEDO_TABLE_SIZE);
+        }
+        catch (mx::ExceptionRenderError& e)
+        {
+            for (const std::string& error : e.errorLog())
+            {
+                std::cerr << error << std::endl;
+            }
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+            _materialAssignments.clear();
+        }
+        catch (std::exception& e)
+        {
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to update albedo table", e.what());
+            _materialAssignments.clear();
+        }
     });
 
     Widget* sampleGroup = new Widget(advancedPopup);

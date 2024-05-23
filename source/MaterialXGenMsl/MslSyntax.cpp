@@ -263,10 +263,10 @@ MslSyntax::MslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
+            "BSDF{float3(0.0),float3(1.0)}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { float3 response; float3 throughput; float thickness; float ior; };"));
+            "struct BSDF { float3 response; float3 throughput; };"));
 
     registerTypeSyntax(
         Type::EDF,
@@ -281,7 +281,7 @@ MslSyntax::MslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
+            "BSDF{float3(0.0),float3(1.0)}",
             EMPTY_STRING));
 
     registerTypeSyntax(

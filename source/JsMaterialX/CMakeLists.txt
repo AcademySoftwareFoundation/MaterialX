@@ -2,6 +2,11 @@ set(CORE ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXCore/)
 set(FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXFormat/)
 set(GENSHADER ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenShader/)
 set(GENESSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenEssl/)
+set(GENOSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenOsl/)
+set(GENGLSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenGlsl/)
+set(GENMSL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMsl/)
+set(GENVK ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenVk/)
+set(GENMDL ${CMAKE_CURRENT_SOURCE_DIR}/JsMaterialXGenMdl/)
 
 set(SOURCE_FOLDER ${CMAKE_SOURCE_DIR}/source)
 
@@ -38,6 +43,11 @@ set(GENSHADER_DEPS ${GENSHADER}JsGenContext.cpp
     ${GENSHADER}JsUtil.cpp)
 
 set(GENESSL_DEPS ${GENESSL}JsEsslShaderGenerator.cpp)
+set(GENOSL_DEPS ${GENOSL}JsOslShaderGenerator.cpp)
+set(GENGLSL_DEPS ${GENGLSL}JsGlslShaderGenerator.cpp)
+set(GENMSL_DEPS ${GENMSL}JsMslShaderGenerator.cpp)
+set(GENVK_DEPS ${GENVK}JsVkShaderGenerator.cpp)
+set(GENMDL_DEPS ${GENMDL}JsMdlShaderGenerator.cpp)
 
 # Linker flags
 set(JS_LINK_FLAGS_CORE "")
@@ -87,6 +97,23 @@ add_executable(JsMaterialXGenShader MaterialXLib.cpp
     ${GENSHADER_DEPS}
     ${GENESSL_DEPS})
 
+if (MATERIALX_BUILD_GEN_GLSL)
+    message("JS: Building JsMaterialXGenShader with GLSL, VK support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENGLSL_DEPS} ${GENVK_DEPS})
+endif()
+if (MATERIALX_BUILD_GEN_OSL)
+    message("JS: Building JsMaterialXGenShader with OSL support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENOSL_DEPS})
+endif()
+if (MATERIALX_BUILD_GEN_MDL)
+    message("JS: Building JsMaterialXGenShader with MDL support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENMDL_DEPS})
+endif()
+if (MATERIALX_BUILD_GEN_MSL)
+    message("JS: Building JsMaterialXGenShader with MSL support")
+    target_sources(JsMaterialXGenShader PRIVATE ${GENMSL_DEPS})
+endif()
+
 set_target_properties(JsMaterialXCore
     PROPERTIES
     OUTPUT_NAME JsMaterialXCore
@@ -114,6 +141,16 @@ target_link_libraries(JsMaterialXGenShader
     PUBLIC MaterialXGenShader
     PUBLIC MaterialXGenGlsl
     PRIVATE ${CMAKE_DL_LIBS})
+
+if (MATERIALX_BUILD_GEN_OSL)
+    target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenOsl)
+endif()
+if (MATERIALX_BUILD_GEN_MDL)
+    target_link_libraries(JsMaterialXGenShader PRIVATE MaterialXGenMdl)
+endif()
+if (MATERIALX_BUILD_GEN_MSL)
+    target_link_libraries(JsMaterialXGenShader PUBLIC MaterialXGenMsl)
+endif()    
 
 # Install the JavaScript output
 install(TARGETS JsMaterialXCore DESTINATION "JavaScript/MaterialX")
