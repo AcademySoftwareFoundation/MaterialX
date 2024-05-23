@@ -28,6 +28,7 @@
     <input name="color" type="color3" value="0.18, 0.18, 0.18" />
     <input name="roughness" type="float" value="0.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="energy_compensation" type="boolean" value="false" uniform="true" />
     <output name="out" type="BSDF" />
   </nodedef>
 
