@@ -33,6 +33,11 @@ endif()
 
 project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 
+list(APPEND CMAKE_MODULE_PATH
+        ${PROJECT_SOURCE_DIR}/cmake/macros)
+
+include(Public)
+
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
@@ -369,10 +374,15 @@ if(NOT SKBUILD)
     include(CMakePackageConfigHelpers)
 
     if (MATERIALX_BUILD_MONOLITHIC)
+        get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
         set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
         foreach (MODULE ${MATERIALX_MODULES})
             string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
         endforeach ()
+
+        if (NOT MATERIALX_MODULES)
+            message(FATAL_ERROR "Building MaterialX as a monolithic library, but did not find any libraries to alias.")
+        endif()
     endif()
 
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
