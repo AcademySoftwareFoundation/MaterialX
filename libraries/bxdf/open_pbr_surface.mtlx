@@ -201,6 +201,7 @@
       <input name="color" type="color3" nodename="base_color_nonnegative" />
       <input name="roughness" type="float" interfacename="base_diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <convert name="subsurface_selector" type="float">
       <input name="in" type="boolean" interfacename="geometry_thin_walled" />

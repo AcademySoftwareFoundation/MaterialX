@@ -1,17 +1,5 @@
 #include "mx_microfacet_specular.glsl"
 
-// Construct an orthonormal basis from a unit vector.
-// https://graphics.pixar.com/library/OrthonormalB/paper.pdf
-mat3 mx_orthonormal_basis(vec3 N)
-{
-    float sign = (N.z < 0.0) ? -1.0 : 1.0;
-    float a = -1.0 / (sign + N.z);
-    float b = N.x * N.y * a;
-    vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);
-    vec3 Y = vec3(b, sign + N.y * N.y * a, -N.y);
-    return mat3(X, Y, N);
-}
-
 // Return the alpha associated with the given mip level in a prefiltered environment.
 float mx_latlong_lod_to_alpha(float lod)
 {
