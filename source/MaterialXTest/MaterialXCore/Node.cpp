@@ -703,13 +703,13 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
 
-        std::string errors;
-        doc->validate(&errors);
-        if (!errors.empty())
+        std::string message;
+        bool valid = doc->validate(&message);
+        if (!valid)
         {
-            INFO(errors);
+            INFO(message);
         }
-        REQUIRE(doc->validate());
+        REQUIRE(valid);
 
         // Try to create the new node
         mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
