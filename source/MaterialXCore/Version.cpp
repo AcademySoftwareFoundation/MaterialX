@@ -1309,6 +1309,28 @@ void Document::upgradeVersion()
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
             }
+            else if (nodeCategory == "subsurface_bsdf")
+            {
+                InputPtr radiusInput = node->getInput("radius");
+                if (radiusInput)
+                {
+                    NodePtr connectedNode = radiusInput->getConnectedNode();
+                    if (connectedNode)
+                    {
+                        GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                        NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
+                        InputPtr inInput = convertNode->addInput("in", "vector3");
+                        inInput->setConnectedNode(connectedNode);
+                        radiusInput->setConnectedNode(convertNode);
+                    }
+                    else
+                    {
+                        // vector3 value is trivially convertible
+                    }
+
+                    radiusInput->setType("color3");
+                }
+            }
         }
         for (NodePtr node : unusedNodes)
         {
