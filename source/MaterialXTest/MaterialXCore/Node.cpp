@@ -727,7 +727,6 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             REQUIRE(temp == nullptr);
         }
 
-
         // Remove default version attribute from previous definitions
         for (mx::NodeDefPtr prevNodeDef : doc->getMatchingNodeDefs(NODENAME))
         {
@@ -778,11 +777,12 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
 
         doc->removeChild(graph->getName());
     }
-    std::string errors;
-    bool valid = doc->validate(&errors);
+    
+    std::string message;
+    bool valid = doc->validate(&message);
     if (!valid)
     {
-        INFO("Validation errors: " + errors);
-        REQUIRE(valid);
+        INFO(message);
     }
+    REQUIRE(valid);
 }
