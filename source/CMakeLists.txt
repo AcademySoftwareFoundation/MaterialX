@@ -1,6 +1,4 @@
-
 if (MATERIALX_BUILD_MONOLITHIC)
-
     set(MATERIALX_MODULE_NAME ${MATERIALX_MONOLITHIC_TARGET})
 
     # No sources are added - this will be added from each separate module, if the options are set
