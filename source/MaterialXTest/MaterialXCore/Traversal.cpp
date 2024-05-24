@@ -178,7 +178,7 @@ TEST_CASE("InterGraph Traversal", "[traversal]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::DocumentPtr doc = mx::createDocument();
-    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/nodegraph_inputs/nodegraph_nodegraph.mtlx", searchPath);
+    mx::readFromXmlFile(doc, "resources/Materials/TestSuite/stdlib/nodegraphs/nodegraph_nodegraph.mtlx", searchPath);
 
     for (mx::NodeGraphPtr graph : doc->getNodeGraphs())
     {

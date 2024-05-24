@@ -155,6 +155,8 @@ export float mx_image_float(
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
+		return mxp_default;
 
 	float returnValue = ::tex::lookup_float(tex: mxp_file, 
 						coord: mxp_flip_v
@@ -229,6 +231,8 @@ export color mx_image_color3(
 		return mxp_default;
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
+		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
 		return mxp_default;
 
 	color returnValue = ::tex::lookup_color(tex: mxp_file, 
@@ -305,6 +309,8 @@ export core::color4 mx_image_color4(
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
+		return mxp_default;
 
 	core::color4 returnValue = core::mk_color4(::tex::lookup_float4(tex: mxp_file, 
 						coord: mxp_flip_v
@@ -379,6 +385,8 @@ export float2 mx_image_vector2(
 		return mxp_default;
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
+		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
 		return mxp_default;
 
 	float2 returnValue = ::tex::lookup_float2(tex: mxp_file, 
@@ -455,6 +463,8 @@ export float3 mx_image_vector3(
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
 		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
+		return mxp_default;
 
 	float3 returnValue = ::tex::lookup_float3(tex: mxp_file, 
 						coord: mxp_flip_v
@@ -529,6 +539,8 @@ export float4 mx_image_vector4(
 		return mxp_default;
 	if ( mxp_vaddressmode == core::mx_addressmode_type_constant
 	     && ( mxp_texcoord.y < 0.0 || mxp_texcoord.y > 1.0))
+		return mxp_default;
+	if (::tex::texture_isvalid(mxp_file) == false)
 		return mxp_default;
 
 	float4 returnValue = ::tex::lookup_float4(tex: mxp_file, 
@@ -3165,6 +3177,32 @@ export float4 mx_ifgreater_vector4(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export float3x3 mx_ifgreater_matrix33(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifgreater_matrix44(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export float mx_ifgreater_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3248,6 +3286,32 @@ export float4 mx_ifgreater_vector4I(
 	int mxp_value2 = int(0),
 	float4 mxp_in1 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float3x3 mx_ifgreater_matrix33I(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifgreater_matrix44I(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3347,6 +3411,32 @@ export float4 mx_ifgreatereq_vector4(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export float3x3 mx_ifgreatereq_matrix33(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifgreatereq_matrix44(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export float mx_ifgreatereq_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3430,6 +3520,32 @@ export float4 mx_ifgreatereq_vector4I(
 	int mxp_value2 = int(0),
 	float4 mxp_in1 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float3x3 mx_ifgreatereq_matrix33I(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifgreatereq_matrix44I(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -3529,6 +3645,32 @@ export float4 mx_ifequal_vector4(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export float3x3 mx_ifequal_matrix33(
+	float mxp_value1 = float(0.0),
+	float mxp_value2 = float(0.0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifequal_matrix44(
+	float mxp_value1 = float(0.0),
+	float mxp_value2 = float(0.0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export float mx_ifequal_floatI(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
@@ -3620,6 +3762,32 @@ export float4 mx_ifequal_vector4I(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export float3x3 mx_ifequal_matrix33I(
+	int mxp_value1 = int(0),
+	int mxp_value2 = int(0),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifequal_matrix44I(
+	int mxp_value1 = int(0),
+	int mxp_value2 = int(0),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
 export float mx_ifequal_floatB(
 	bool mxp_value1 = bool(false),
 	bool mxp_value2 = bool(false),
@@ -3703,6 +3871,32 @@ export float4 mx_ifequal_vector4B(
 	bool mxp_value2 = bool(false),
 	float4 mxp_in1 = float4(0.0, 0.0, 0.0, 0.0),
 	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float3x3 mx_ifequal_matrix33B(
+	bool mxp_value1 = bool(false),
+	bool mxp_value2 = bool(false),
+	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export float4x4 mx_ifequal_matrix44B(
+	bool mxp_value1 = bool(false),
+	bool mxp_value2 = bool(false),
+	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
 )
 	[[
 		anno::description("Node Group: conditional")
@@ -4461,11 +4655,87 @@ export float4x4 mx_creatematrix_vector4_matrix44(
 		mxp_in4[0], mxp_in4[1], mxp_in4[2], mxp_in4[3]);
 }
 
-// Nodedef: ND_extract_color3 is represented by a nodegraph: NG_extract_color3
-// Nodedef: ND_extract_color4 is represented by a nodegraph: NG_extract_color4
-// Nodedef: ND_extract_vector2 is represented by a nodegraph: NG_extract_vector2
-// Nodedef: ND_extract_vector3 is represented by a nodegraph: NG_extract_vector3
-// Nodedef: ND_extract_vector4 is represented by a nodegraph: NG_extract_vector4
+export float mx_extract_color3(
+	color mxp_in = color(0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return float3(mxp_in).r;
+		case 1: return float3(mxp_in).g;
+		default: return float3(mxp_in).b;
+	}
+}
+
+export float mx_extract_color4(
+	core::mk_color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return float3(mxp_in.rgb).r;
+		case 1: return float3(mxp_in.rgb).g;
+		case 2: return float3(mxp_in.rgb).b;
+		default: return mxp_in.a;
+	}
+}
+
+export float mx_extract_vector2(
+	float2 mxp_in = float2(0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		default: return mxp_in.y;
+	}
+}
+
+export float mx_extract_vector3(
+	float3 mxp_in = float3(0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		case 1: return mxp_in.y;
+		default: return mxp_in.z;
+	}
+}
+
+export float mx_extract_vector4(
+	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
+	float mxp_index = int(0)
+)
+	[[
+		anno::description("Node Group: channel")
+	]]
+{
+	switch (mxp_index)
+	{
+		case 0: return mxp_in.x;
+		case 1: return mxp_in.y;
+		case 2: return mxp_in.z;
+		default: return mxp_in.w;
+	}
+}
+
 // Nodedef: ND_separate2_vector2 is represented by a nodegraph: NG_separate2_vector2
 // Nodedef: ND_separate3_color3 is represented by a nodegraph: NG_separate3_color3
 // Nodedef: ND_separate3_vector3 is represented by a nodegraph: NG_separate3_vector3

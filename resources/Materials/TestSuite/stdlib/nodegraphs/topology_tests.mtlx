@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="lin_rec709">
+
+  <!-- Simple use of channels on output node -->
+  <nodegraph name="Ng1">
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+    </constant>
+    <output name="float_output" type="float" nodename="constant" channels="g" />
+  </nodegraph>
+  <standard_surface name="Surf1" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng1" output="float_output" />
+  </standard_surface>
+  <surfacematerial name="Channel1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf1" />
+  </surfacematerial>
+
+  <!-- Simple use of channels on node outside of graph -->
+  <nodegraph name="Ng2">
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+    </constant>
+    <output name="color3_output" type="color3" nodename="constant" />
+  </nodegraph>
+  <standard_surface name="Surf2" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng2" output="color3_output" channels="g" />
+  </standard_surface>
+  <surfacematerial name="Channel2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf2" />
+  </surfacematerial>
+
+  <!-- Devious use of a double channel to confuse the code -->
+  <nodegraph name="Ng3">
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+    </constant>
+    <output name="color4_output" type="color4" nodename="constant" channels="rgb1" />
+  </nodegraph>
+  <standard_surface name="Surf3" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng3" output="color4_output" channels="g" />
+  </standard_surface>
+  <surfacematerial name="Channel3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf3" />
+  </surfacematerial>
+
+  <!-- Even worse use of a double channel to confuse the code. We expect final channel to be "r" -->
+  <nodegraph name="Ng4">
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+    </constant>
+    <output name="color4_output" type="color4" nodename="constant" channels="rrrr" />
+  </nodegraph>
+  <standard_surface name="Surf4" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng4" output="color4_output" channels="g" />
+  </standard_surface>
+  <surfacematerial name="Channel4" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf4" />
+  </surfacematerial>
+
+  <!-- Absence of a nodegraph does not influence flattened topology -->
+  <standard_surface name="Surf5" type="surfaceshader">
+    <input name="base" type="float" nodename="constant5" channels="g" />
+  </standard_surface>
+  <constant name="constant5" type="color3" nodedef="ND_constant_color3">
+    <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+  </constant>
+  <surfacematerial name="Channel5" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf5" />
+  </surfacematerial>
+
+  <!-- Multi-output test -->
+  <nodegraph name="Ng6">
+    <artistic_ior name="ior6" type="multioutput">
+      <input name="edge_color" type="color3" value="0.7, 0.4, 0.1" colorspace="lin_rec709" />
+    </artistic_ior>
+    <output name="ior_output" type="color3" nodename="ior6" output="ior" />
+  </nodegraph>
+  <standard_surface name="Surf6" type="surfaceshader">
+    <input name="base_color" type="color3" nodegraph="Ng6" output="ior_output" />
+  </standard_surface>
+  <surfacematerial name="MultiOut6" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf6" />
+  </surfacematerial>
+
+  <!-- Multi-output test no nodegraph -->
+  <artistic_ior name="ior7" type="multioutput">
+    <input name="edge_color" type="color3" value="0.7, 0.4, 0.1" colorspace="lin_rec709" />
+  </artistic_ior>
+  <standard_surface name="Surf7" type="surfaceshader">
+    <input name="base_color" type="color3" nodename="ior7" output="ior" />
+  </standard_surface>
+  <surfacematerial name="MultiOut7" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf7" />
+  </surfacematerial>
+
+  <!-- Constant value on interface -->
+  <nodegraph name="Ng8">
+    <input name="ng_const" type="color3" value="0.263273, 0.263273, 0.263273" /> 
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" interfacename="ng_const" />
+    </constant>
+    <output name="float_output" type="float" nodename="constant" channels="g" />
+  </nodegraph>
+  <standard_surface name="Surf8" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng8" output="float_output" />
+  </standard_surface>
+  <surfacematerial name="Interface1" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf8" />
+  </surfacematerial>
+
+  <!-- Chaining nodegraphs: -->
+  <nodegraph name="Ng9a">
+    <input name="ng_const" type="color3" value="0.263273, 0.263273, 0.263273" /> 
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" interfacename="ng_const" />
+    </constant>
+    <output name="float_output" type="float" nodename="constant" channels="g" />
+  </nodegraph>
+  <add name="add9a" type="float" nodedef="ND_add_float">
+    <input name="in1" type="float" nodegraph="Ng9a" output="float_output" />
+  </add>
+  <nodegraph name="Ng9b">
+    <input name="ng_add" type="float" nodename="add9a" /> 
+    <add name="add9b" type="float" nodedef="ND_add_float">
+      <input name="in1" type="float" interfacename="ng_add" />
+    </add>
+    <output name="float_output" type="float" nodename="add9b" />
+  </nodegraph>
+  <standard_surface name="Surf9" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng9b" output="float_output" />
+  </standard_surface>
+  <surfacematerial name="Interface2" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf9" />
+  </surfacematerial>
+
+  <!-- Chaining nodegraphs without intermediate node: -->
+  <nodegraph name="Ng10a">
+    <input name="ng_const" type="color3" value="0.263273, 0.263273, 0.263273" /> 
+    <constant name="constant" type="color3" nodedef="ND_constant_color3">
+      <input name="value" type="color3" interfacename="ng_const" />
+    </constant>
+    <add name="add10a" type="float" nodedef="ND_add_float">
+      <input name="in1" type="float" nodename="constant" channels="g" />
+    </add>
+    <output name="float_output" type="float" nodename="add10a" />
+  </nodegraph>
+  <nodegraph name="Ng10b">
+    <input name="ng_add" type="float" nodegraph="Ng10a" output="float_output" /> 
+    <add name="add10b" type="float" nodedef="ND_add_float">
+      <input name="in1" type="float" interfacename="ng_add" />
+    </add>
+    <output name="float_output" type="float" nodename="add10b" />
+  </nodegraph>
+  <standard_surface name="Surf10" type="surfaceshader">
+    <input name="base" type="float" nodegraph="Ng10b" output="float_output" />
+  </standard_surface>
+  <surfacematerial name="Interface3" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf10" />
+  </surfacematerial>
+
+  <surfacematerial name="MultiConnect1" type="material" nodedef="ND_surfacematerial">
+    <input name="surfaceshader" type="surfaceshader" nodename="Surf11" />
+  </surfacematerial>
+  <standard_surface name="Surf11" type="surfaceshader" nodedef="ND_standard_surface_surfaceshader">
+    <input name="base_color" type="color3" nodename="constant11a" />
+    <input name="opacity" type="color3" nodename="constant11a" />
+    <input name="subsurface" type="float" nodename="add11" />
+    <input name="transmission" type="float" nodename="constant11b" />
+    <input name="base" type="float" nodename="constant11b" />
+  </standard_surface>
+  <constant name="constant11a" type="color3" nodedef="ND_constant_color3">
+    <input name="value" type="color3" value="0.263273, 0.263273, 0.263273" />
+  </constant>
+  <constant name="constant11b" type="float" nodedef="ND_constant_float">
+    <input name="value" type="float" value="0.5" />
+  </constant>
+  <add name="add11" type="float" nodedef="ND_add_float">
+    <input name="in1" type="float" nodename="constant11b" />
+    <input name="in2" type="float" nodename="constant11b" />
+  </add>
+
+</materialx>

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     OpenPBR Surface node definition
   -->
-  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="0.4" isdefaultversion="true"
+  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="0.5" isdefaultversion="true"
            doc="OpenPBR Surface Shading Model">
     <input name="base_weight" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base Weight" uifolder="Base"
            doc="Multiplier on the intensity of the reflection from the diffuse and metallic base." />
@@ -21,10 +21,8 @@
            doc="The roughness of the specular reflection. Lower numbers produce sharper reflections, higher numbers produce blurrier reflections." />
     <input name="specular_ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Specular Index of Refraction" uifolder="Specular"
            doc="Index of refraction of the dielectric base." />
-    <input name="specular_anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Specular Anisotropy" uifolder="Specular" uiadvanced="true"
+    <input name="specular_roughness_anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Specular Anisotropy" uifolder="Specular" uiadvanced="true"
            doc="The directional bias of the roughness of the metal/dielectric base, resulting in increasingly stretched highlights along the tangent direction." />
-    <input name="specular_rotation" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Specular Rotation" uifolder="Specular" uiadvanced="true"
-           doc="Rotation of the axis of specular roughness anisotropy around the surface normal." />
     <input name="transmission_weight" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Transmission Weight" uifolder="Transmission" uiadvanced="true"
            doc="Mixture weight between the transparent and opaque dielectric base. The greater the value the more transparent the material." />
     <input name="transmission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Transmission Color" uifolder="Transmission" uiadvanced="true"
@@ -39,7 +37,7 @@
            doc="Linearly scales the amount of dispersion." />
     <input name="transmission_dispersion_abbe_number" type="float" value="0.0" uimin="0.0" uisoftmin="9.0" uisoftmax="91.0" uiname="Transmission Dispersion Abbe Number" uifolder="Transmission" uiadvanced="true"
            doc="Physical Abbe number of the dielectric medium, describing how much the dielectric index of refraction varies across wavelengths." />
-    <input name="subsurface_weight" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface" uifolder="Subsurface Weight" uiadvanced="true"
+    <input name="subsurface_weight" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface Weight" uifolder="Subsurface" uiadvanced="true"
            doc="Mixture weight which dials the opaque dielectric base between diffuse reflection and subsurface scattering. A value of 1.0 indicates full subsurface scattering and a value 0 for diffuse reflection only." />
     <input name="subsurface_color" type="color3" value="0.8, 0.8, 0.8" uimin="0,0,0" uimax="1,1,1" uiname="Subsurface Color" uifolder="Subsurface" uiadvanced="true"
            doc="The observed reflection color of the subsurface scattering medium." />
@@ -47,7 +45,7 @@
            doc="Length scale of the subsurface scattering mean free path." />
     <input name="subsurface_radius_scale" type="color3" value="1.0, 0.5, 0.25" uimin="0,0,0" uimax="1,1,1" uiname="Subsurface Radius Scale" uifolder="Subsurface" uiadvanced="true"
            doc="RGB multiplier to subsurface_radius, giving the per-channel scattering mean-free-paths." />
-    <input name="subsurface_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
+    <input name="subsurface_scatter_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
            doc="Controls the phase-function of subsurface scattering, where zero scatters light evenly, positive values scatter forwards, and negative values scatter backwards." />
     <input name="fuzz_weight" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Fuzz Weight" uifolder="Fuzz" uiadvanced="true"
            doc="The presence weight of a fuzz layer that can be used to approximate microfibers, for fabrics such as velvet and satin as well as dust grains." />
@@ -61,30 +59,34 @@
            doc="The color of the clear-coat layer's transparency, due to absorption in the coat." />
     <input name="coat_roughness" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Coat Roughness" uifolder="Coat"
            doc="The roughness of the clear-coat reflections. The lower the value, the sharper the reflection." />
-    <input name="coat_anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Coat Anisotropy" uifolder="Coat" uiadvanced="true"
+    <input name="coat_roughness_anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Coat Anisotropy" uifolder="Coat" uiadvanced="true"
            doc="The directional bias of the roughness of the clear-coat layer, resulting in increasingly stretched highlights along the coat tangent direction." />
-    <input name="coat_rotation" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Coat Rotation" uifolder="Coat" uiadvanced="true"
-           doc="Rotation of the axis of clear-coat roughness anisotropy around the coat normal." />
     <input name="coat_ior" type="float" value="1.6" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Coat Index of Refraction" uifolder="Coat"
            doc="The index of refraction of the clear-coat layer." />
-    <input name="thin_film_thickness" type="float" value="0" uimin="0.0" uisoftmax="2000.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
-           doc="The thickness of the thin film layer on the base (in nanometers). Use for materials such as multi-tone car paint or soap bubbles." />
+    <input name="coat_darkening" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Coat Darkening" uifolder="Coat"
+           doc="Modulates the physical coat darkening effect." />
+    <input name="thin_film_weight" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Thin Film Weight" uifolder="Thin Film" uiadvanced="true"
+           doc="Coverage weight of the thin-film. Use for materials such as multi-tone car paint or soap bubbles." />
+    <input name="thin_film_thickness" type="float" value="0.5" uimin="0.0" uisoftmax="1.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
+           doc="The thickness of the thin-film layer on the base (in micrometers)." />
     <input name="thin_film_ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
            doc="The index of refraction of the thin-film." />
     <input name="emission_luminance" type="float" value="0.0" uimin="0.0" uisoftmax="1000.0" uiname="Emission Luminance" uifolder="Emission"
            doc="The amount of emitted light, as a luminance in nits." />
     <input name="emission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Emission Color" uifolder="Emission"
            doc="The color of the emitted light." />
-    <input name="geometry_opacity" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Opacity" uifolder="Geometry"
+    <input name="geometry_opacity" type="float" value="1" uimin="0" uimax="1" uiname="Opacity" uifolder="Geometry"
            doc="The opacity of the entire material." />
     <input name="geometry_thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry" uiadvanced="true"
            doc="If true the surface is double-sided and represents an infinitesimally thin shell. Suitable for extremely geometrically thin objects such as leaves or paper." />
     <input name="geometry_normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"
            doc="Input geometric normal" />
     <input name="geometry_coat_normal" type="vector3" defaultgeomprop="Nworld" uiname="Coat Normal" uifolder="Geometry"
-           doc="Input normal for clear-coat layer" />
-    <input name="geometry_tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent Input" uifolder="Geometry"
+           doc="Input normal for coat layer" />
+    <input name="geometry_tangent" type="vector3" defaultgeomprop="Tworld" uiname="Tangent" uifolder="Geometry"
            doc="Input geometric tangent" />
+    <input name="geometry_coat_tangent" type="vector3" defaultgeomprop="Tworld" uiname="Coat Tangent" uifolder="Geometry"
+           doc="Input geometric tangent for coat layer" />
     <output name="out" type="surfaceshader" />
   </nodedef>
 
@@ -93,65 +95,42 @@
   -->
   <nodegraph name="NG_open_pbr_surface_surfaceshader" nodedef="ND_open_pbr_surface_surfaceshader">
 
-    <!-- Roughness influence by coat-->
-    <!-- Calculate main specular roughness -->
-    <multiply name="coat_affect_roughness_multiply1" type="float">
+    <!-- Roughening due to coat-->
+    <power name="coat_roughness_to_power_4" type="float">
+      <input name="in1" type="float" interfacename="coat_roughness" />
+      <input name="in2" type="float" value="4.0" />
+    </power>
+    <multiply name="two_times_coat_roughness_to_power_4" type="float">
+      <input name="in1" type="float" nodename="coat_roughness_to_power_4" />
+      <input name="in2" type="float" value="2.0" />
+    </multiply>
+    <power name="specular_roughness_to_power_4" type="float">
+      <input name="in1" type="float" interfacename="specular_roughness" />
+      <input name="in2" type="float" value="4.0" />
+    </power>
+    <add name="add_coat_and_spec_roughnesses_to_power_4" type="float">
+      <input name="in1" type="float" nodename="two_times_coat_roughness_to_power_4" />
+      <input name="in2" type="float" nodename="specular_roughness_to_power_4" />
+    </add>
+    <min name="min_1_add_coat_and_spec_roughnesses_to_power_4" type="float">
       <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="coat_weight" />
-    </multiply>
-    <multiply name="coat_affect_roughness_multiply2" type="float">
-      <input name="in1" type="float" nodename="coat_affect_roughness_multiply1" />
-      <input name="in2" type="float" interfacename="coat_roughness" />
-    </multiply>
-    <mix name="coat_affected_roughness" type="float">
-      <input name="fg" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="add_coat_and_spec_roughnesses_to_power_4" />
+    </min>
+    <power name="coat_affected_specular_roughness" type="float">
+      <input name="in1" type="float" nodename="min_1_add_coat_and_spec_roughnesses_to_power_4" />
+      <input name="in2" type="float" value="0.25" />
+    </power>
+    <mix name="effective_specular_roughness" type="float">
+      <input name="fg" type="float" nodename="coat_affected_specular_roughness" />
       <input name="bg" type="float" interfacename="specular_roughness" />
-      <input name="mix" type="float" nodename="coat_affect_roughness_multiply2" />
+      <input name="mix" type="float" interfacename="coat_weight" />
     </mix>
+
+    <!-- Calculate main specular roughness -->
     <open_pbr_anisotropy name="main_roughness" type="vector2">
-      <input name="roughness" type="float" nodename="coat_affected_roughness" />
-      <input name="anisotropy" type="float" interfacename="specular_anisotropy" />
+      <input name="roughness" type="float" nodename="effective_specular_roughness" />
+      <input name="anisotropy" type="float" interfacename="specular_roughness_anisotropy" />
     </open_pbr_anisotropy>
-
-    <!-- Tangent rotation -->
-    <multiply name="tangent_rotate_degree" type="float">
-      <input name="in1" type="float" interfacename="specular_rotation" />
-      <input name="in2" type="float" value="360" />
-    </multiply>
-    <rotate3d name="tangent_rotate" type="vector3">
-      <input name="in" type="vector3" interfacename="geometry_tangent" />
-      <input name="amount" type="float" nodename="tangent_rotate_degree" />
-      <input name="axis" type="vector3" interfacename="geometry_normal" />
-    </rotate3d>
-    <normalize name="tangent_rotate_normalize" type="vector3">
-      <input name="in" type="vector3" nodename="tangent_rotate" />
-    </normalize>
-    <ifgreater name="main_tangent" type="vector3">
-      <input name="value1" type="float" interfacename="specular_anisotropy" />
-      <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="vector3" nodename="tangent_rotate_normalize" />
-      <input name="in2" type="vector3" interfacename="geometry_tangent" />
-    </ifgreater>
-
-    <!-- Coat tangent rotation -->
-    <multiply name="coat_tangent_rotate_degree" type="float">
-      <input name="in1" type="float" interfacename="coat_rotation" />
-      <input name="in2" type="float" value="360" />
-    </multiply>
-    <rotate3d name="coat_tangent_rotate" type="vector3">
-      <input name="in" type="vector3" interfacename="geometry_tangent" />
-      <input name="amount" type="float" nodename="coat_tangent_rotate_degree" />
-      <input name="axis" type="vector3" interfacename="geometry_coat_normal" />
-    </rotate3d>
-    <normalize name="coat_tangent_rotate_normalize" type="vector3">
-      <input name="in" type="vector3" nodename="coat_tangent_rotate" />
-    </normalize>
-    <ifgreater name="coat_tangent" type="vector3">
-      <input name="value1" type="float" interfacename="coat_anisotropy" />
-      <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="vector3" nodename="coat_tangent_rotate_normalize" />
-      <input name="in2" type="vector3" interfacename="geometry_tangent" />
-    </ifgreater>
 
     <!-- Subsurface (thin-walled) -->
     <max name="subsurface_color_nonnegative" type="color3">
@@ -159,35 +138,33 @@
       <input name="in2" type="float" value="0.0" />
     </max>
     <oren_nayar_diffuse_bsdf name="subsurface_thin_walled_reflection_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="roughness" type="float" interfacename="base_diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </oren_nayar_diffuse_bsdf>
-    <subtract name="one_minus_subsurface_anisotropy" type="float">
+    <subtract name="one_minus_subsurface_scatter_anisotropy" type="float">
       <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_anisotropy" />
+      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
     </subtract>
     <multiply name="subsurface_thin_walled_brdf_factor" type="color3">
       <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_minus_subsurface_anisotropy" />
+      <input name="in2" type="float" nodename="one_minus_subsurface_scatter_anisotropy" />
     </multiply>
     <multiply name="subsurface_thin_walled_reflection" type="BSDF">
       <input name="in1" type="BSDF" nodename="subsurface_thin_walled_reflection_bsdf" />
       <input name="in2" type="color3" nodename="subsurface_thin_walled_brdf_factor" />
     </multiply>
     <translucent_bsdf name="subsurface_thin_walled_transmission_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </translucent_bsdf>
-    <add name="one_plus_subsurface_anisotropy" type="float">
+    <add name="one_plus_subsurface_scatter_anisotropy" type="float">
       <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_anisotropy" />
+      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
     </add>
     <multiply name="subsurface_thin_walled_btdf_factor" type="color3">
       <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_plus_subsurface_anisotropy" />
+      <input name="in2" type="float" nodename="one_plus_subsurface_scatter_anisotropy" />
     </multiply>
     <multiply name="subsurface_thin_walled_transmission" type="BSDF">
       <input name="in1" type="BSDF" nodename="subsurface_thin_walled_transmission_bsdf" />
@@ -208,10 +185,9 @@
       <input name="in2" type="float" interfacename="subsurface_radius" />
     </multiply>
     <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="radius" type="vector3" nodename="subsurface_radius_scaled" />
-      <input name="anisotropy" type="float" interfacename="subsurface_anisotropy" />
+      <input name="anisotropy" type="float" interfacename="subsurface_scatter_anisotropy" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </subsurface_bsdf>
 
@@ -225,6 +201,7 @@
       <input name="color" type="color3" nodename="base_color_nonnegative" />
       <input name="roughness" type="float" interfacename="base_diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <convert name="subsurface_selector" type="float">
       <input name="in" type="boolean" interfacename="geometry_thin_walled" />
@@ -320,6 +297,12 @@
       <input name="anisotropy" type="float" interfacename="transmission_scatter_anisotropy" />
     </anisotropic_vdf>
 
+    <!-- Thin-film Thickness -->
+    <multiply name="thin_film_thickness_nm" type="float">
+      <input name="in1" type="float" interfacename="thin_film_thickness" />
+      <input name="in2" type="float" value="1000.0" />
+    </multiply>
+
     <!-- Dielectric Base -->
     <divide name="specular_to_coat_ior_ratio" type="float">
       <input name="in1" type="float" interfacename="specular_ior" />
@@ -384,13 +367,11 @@
       <input name="in2" type="color3" interfacename="transmission_color" />
     </ifgreater>
     <dielectric_bsdf name="dielectric_transmission" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" nodename="if_transmission_tint" />
       <input name="ior" type="float" nodename="modulated_eta_s" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
-      <input name="tangent" type="vector3" nodename="main_tangent" />
-      <input name="distribution" type="string" value="ggx" />
+      <input name="tangent" type="vector3" interfacename="geometry_tangent" />
       <input name="scatter_mode" type="string" value="T" />
     </dielectric_bsdf>
     <layer name="dielectric_volume_transmission" type="BSDF">
@@ -403,17 +384,30 @@
       <input name="mix" type="float" interfacename="transmission_weight" />
     </mix>
     <dielectric_bsdf name="dielectric_reflection" type="BSDF">
-      <input name="weight" type="float" interfacename="specular_weight" />
       <input name="tint" type="color3" interfacename="specular_color" />
       <input name="ior" type="float" nodename="modulated_eta_s" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
-      <input name="tangent" type="vector3" nodename="main_tangent" />
-      <input name="distribution" type="string" value="ggx" />
+      <input name="tangent" type="vector3" interfacename="geometry_tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
+    <dielectric_bsdf name="dielectric_reflection_tf" type="BSDF">
+      <input name="tint" type="color3" interfacename="specular_color" />
+      <input name="ior" type="float" nodename="modulated_eta_s" />
+      <input name="roughness" type="vector2" nodename="main_roughness" />
+      <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="tangent" type="vector3" interfacename="geometry_tangent" />
+      <input name="scatter_mode" type="string" value="R" />
+      <input name="thinfilm_thickness" type="float" nodename="thin_film_thickness_nm" />
+      <input name="thinfilm_ior" type="float" interfacename="thin_film_ior" />
+    </dielectric_bsdf>
+    <mix name="dielectric_reflection_tf_mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="dielectric_reflection_tf" />
+      <input name="bg" type="BSDF" nodename="dielectric_reflection" />
+      <input name="mix" type="float" interfacename="thin_film_weight" />
+    </mix>
     <layer name="dielectric_base" type="BSDF">
-      <input name="top" type="BSDF" nodename="dielectric_reflection" />
+      <input name="top" type="BSDF" nodename="dielectric_reflection_tf_mix" />
       <input name="base" type="BSDF" nodename="dielectric_substrate" />
     </layer>
 
@@ -426,31 +420,103 @@
       <input name="in1" type="color3" interfacename="specular_color" />
       <input name="in2" type="float" interfacename="specular_weight" />
     </multiply>
-
-    <!-- TODO: Add support for a color82 input in generalized_schlick_bsdf -->
     <generalized_schlick_bsdf name="metal_bsdf" type="BSDF">
-      <input name="weight" type="float" value="1.0" />
+      <input name="weight" type="float" interfacename="specular_weight" />
       <input name="color0" type="color3" nodename="metal_reflectivity" />
-      <input name="color90" type="color3" nodename="metal_edgecolor" />
+      <input name="color82" type="color3" nodename="metal_edgecolor" />
       <input name="roughness" type="vector2" nodename="main_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
-      <input name="tangent" type="vector3" nodename="main_tangent" />
+      <input name="tangent" type="vector3" interfacename="geometry_tangent" />
     </generalized_schlick_bsdf>
+    <generalized_schlick_bsdf name="metal_bsdf_tf" type="BSDF">
+      <input name="weight" type="float" interfacename="specular_weight" />
+      <input name="color0" type="color3" nodename="metal_reflectivity" />
+      <input name="color82" type="color3" nodename="metal_edgecolor" />
+      <input name="roughness" type="vector2" nodename="main_roughness" />
+      <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="tangent" type="vector3" interfacename="geometry_tangent" />
+      <input name="thinfilm_thickness" type="float" nodename="thin_film_thickness_nm" />
+      <input name="thinfilm_ior" type="float" interfacename="thin_film_ior" />
+    </generalized_schlick_bsdf>
+    <mix name="metal_bsdf_tf_mix" type="BSDF">
+      <input name="fg" type="BSDF" nodename="metal_bsdf_tf" />
+      <input name="bg" type="BSDF" nodename="metal_bsdf" />
+      <input name="mix" type="float" interfacename="thin_film_weight" />
+    </mix>
     <mix name="base_substrate" type="BSDF">
-      <input name="fg" type="BSDF" nodename="metal_bsdf" />
+      <input name="fg" type="BSDF" nodename="metal_bsdf_tf_mix" />
       <input name="bg" type="BSDF" nodename="dielectric_base" />
       <input name="mix" type="float" interfacename="base_metalness" />
     </mix>
 
-    <!-- Thin-film Layer -->
-    <thin_film_bsdf name="thin_film_bsdf" type="BSDF">
-      <input name="thickness" type="float" interfacename="thin_film_thickness" />
-      <input name="ior" type="float" interfacename="thin_film_ior" />
-    </thin_film_bsdf>
-    <layer name="thin_film_layer" type="BSDF">
-      <input name="top" type="BSDF" nodename="thin_film_bsdf" />
-      <input name="base" type="BSDF" nodename="base_substrate" />
-    </layer>
+    <!-- Coat darkening calculation  -->
+    <!-- approximate Kcoat, "internal diffuse reflection coefficient" of coat  -->
+    <subtract name="one_minus_coat_F0" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="coat_ior_to_F0" />
+    </subtract>
+    <multiply name="coat_ior_sqr" type="float">
+      <input name="in1" type="float" interfacename="coat_ior" />
+      <input name="in2" type="float" interfacename="coat_ior" />
+    </multiply>
+    <divide name="one_minus_coat_F0_over_eta2" type="float">
+      <input name="in1" type="float" nodename="one_minus_coat_F0" />
+      <input name="in2" type="float" nodename="coat_ior_sqr" />
+    </divide>
+    <subtract name="Kcoat" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="one_minus_coat_F0_over_eta2" />
+    </subtract>
+    <!-- approximate base metal albedo estimate, Emetal  -->
+    <multiply name="Emetal" type="color3">
+      <input name="in1" type="color3" interfacename="base_color" />
+      <input name="in2" type="float" interfacename="specular_weight" />
+    </multiply>
+    <!-- approximate base dielectric albedo estimate, Edielectric  -->
+    <mix name="Edielectric" type="color3">
+      <input name="fg" type="color3" interfacename="subsurface_color" />
+      <input name="bg" type="color3" interfacename="base_color" />
+      <input name="mix" type="float" interfacename="subsurface_weight" />
+    </mix>
+    <!-- thus calculate overall base albedo estimate approximation, Ebase  -->
+    <mix name="Ebase" type="color3">
+      <input name="fg" type="color3" nodename="Emetal" />
+      <input name="bg" type="color3" nodename="Edielectric" />
+      <input name="mix" type="float" interfacename="base_metalness" />
+    </mix>
+    <!-- final base darkening factor due to coat:  base_darkening = (1 - Kcoat) / (1 - Ebase*Kcoat)  -->
+    <multiply name="Ebase_Kcoat" type="color3">
+      <input name="in1" type="color3" nodename="Ebase" />
+      <input name="in2" type="float" nodename="Kcoat" />
+    </multiply>
+    <subtract name="one_minus_Kcoat" type="float">
+      <input name="in1" type="float" value="1.0" />
+      <input name="in2" type="float" nodename="Kcoat" />
+    </subtract>
+    <subtract name="one_minus_Ebase_Kcoat" type="color3">
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="in2" type="color3" nodename="Ebase_Kcoat" />
+    </subtract>
+    <convert name="one_minus_Kcoat_color" type="color3">
+      <input name="in" type="float" nodename="one_minus_Kcoat" />
+    </convert>
+    <divide name="base_darkening" type="color3">
+      <input name="in1" type="color3" nodename="one_minus_Kcoat_color" />
+      <input name="in2" type="color3" nodename="one_minus_Ebase_Kcoat" />
+    </divide>
+    <multiply name="coat_weight_times_coat_darkening" type="float">
+      <input name="in1" type="float" interfacename="coat_weight" />
+      <input name="in2" type="float" interfacename="coat_darkening" />
+    </multiply>
+    <mix name="modulated_base_darkening" type="color3">
+      <input name="fg" type="color3" nodename="base_darkening" />
+      <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="mix" type="float" nodename="coat_weight_times_coat_darkening" />
+    </mix>
+    <multiply name="darkened_base_substrate" type="BSDF">
+      <input name="in1" type="BSDF" nodename="base_substrate" />
+      <input name="in2" type="color3" nodename="modulated_base_darkening" />
+    </multiply>
 
     <!-- Coat Layer -->
     <mix name="coat_attenuation" type="color3">
@@ -459,21 +525,20 @@
       <input name="mix" type="float" interfacename="coat_weight" />
     </mix>
     <multiply name="coat_substrate_attenuated" type="BSDF">
-      <input name="in1" type="BSDF" nodename="thin_film_layer" />
+      <input name="in1" type="BSDF" nodename="darkened_base_substrate" />
       <input name="in2" type="color3" nodename="coat_attenuation" />
     </multiply>
+
     <open_pbr_anisotropy name="coat_roughness_vector" type="vector2">
       <input name="roughness" type="float" interfacename="coat_roughness" />
-      <input name="anisotropy" type="float" interfacename="coat_anisotropy" />
+      <input name="anisotropy" type="float" interfacename="coat_roughness_anisotropy" />
     </open_pbr_anisotropy>
     <dielectric_bsdf name="coat_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="coat_weight" />
-      <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
       <input name="ior" type="float" interfacename="coat_ior" />
       <input name="roughness" type="vector2" nodename="coat_roughness_vector" />
       <input name="normal" type="vector3" interfacename="geometry_coat_normal" />
-      <input name="tangent" type="vector3" nodename="coat_tangent" />
-      <input name="distribution" type="string" value="ggx" />
+      <input name="tangent" type="vector3" interfacename="geometry_coat_tangent" />
       <input name="scatter_mode" type="string" value="R" />
     </dielectric_bsdf>
     <layer name="coat_layer" type="BSDF">
@@ -522,12 +587,11 @@
       <input name="in1" type="EDF" nodename="uncoated_emission_edf" />
       <input name="in2" type="color3" interfacename="coat_color" />
     </multiply>
-    <subtract name="one_minus_coat_F0" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" nodename="coat_ior_to_F0" />
-    </subtract>
+    <convert name="one_minus_coat_F0_color" type="color3">
+      <input name="in" type="float" nodename="one_minus_coat_F0" />
+    </convert>
     <generalized_schlick_edf name="coated_emission_edf" type="EDF">
-      <input name="color0" type="color3" nodename="one_minus_coat_F0" channels="rrr" />
+      <input name="color0" type="color3" nodename="one_minus_coat_F0_color" />
       <input name="color90" type="color3" value="0.0, 0.0, 0.0" />
       <input name="exponent" type="float" value="5.0" />
       <input name="base" type="EDF" nodename="coat_tinted_emission_edf" />
@@ -538,15 +602,11 @@
       <input name="mix" type="float" interfacename="coat_weight" />
     </mix>
 
-    <!-- Surface construction with opacity -->
-    <!-- Node <surface> only supports monochromatic opacity so use the luminance of input opacity color -->
-    <luminance name="opacity_luminance" type="color3">
-      <input name="in" type="color3" interfacename="geometry_opacity" />
-    </luminance>
+    <!-- Surface Construction -->
     <surface name="shader_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="fuzz_layer" />
       <input name="edf" type="EDF" nodename="emission_edf" />
-      <input name="opacity" type="float" nodename="opacity_luminance" channels="r" />
+      <input name="opacity" type="float" interfacename="geometry_opacity" />
     </surface>
 
     <!-- Output -->

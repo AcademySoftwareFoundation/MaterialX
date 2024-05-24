@@ -30,7 +30,7 @@ const float PI = std::acos(-1.0f);
 // Metal Constants
 unsigned int MslProgram::UNDEFINED_METAL_RESOURCE_ID = 0;
 int MslProgram::UNDEFINED_METAL_PROGRAM_LOCATION = -1;
-int MslProgram::Input::INVALID_METAL_TYPE = -1;
+MTLDataType MslProgram::Input::INVALID_METAL_TYPE = MTLDataTypeNone;
 
 //
 // MslProgram methods
@@ -957,7 +957,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
             if(HW::ENV_RADIANCE != arg.name.UTF8String && HW::ENV_IRRADIANCE != arg.name.UTF8String)
             {
                 std::string texture_name = arg.name.UTF8String;
-                InputPtr inputPtr = std::make_shared<Input>(arg.index, 58, -1, EMPTY_STRING);
+                InputPtr inputPtr = std::make_shared<Input>(arg.index, MTLDataTypeTexture, -1, EMPTY_STRING);
                 _uniformList[texture_name] = inputPtr;
             }
         }
@@ -983,8 +983,8 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                 continue;
             }
 
-            // TODO: Shoud we really create new ones here each update?
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType().getSize()), EMPTY_STRING);
+            // TODO: Should we really create new ones here each update?
+            InputPtr inputPtr = std::make_shared<Input>(-1, MTLDataTypeNone, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
