@@ -45,6 +45,21 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     _hash = std::hash<string>{}(_functionName);
 }
 
+void CompoundNode::addInputs(ShaderNode& node, GenContext& context) const
+{
+    // Propagate inputs added to the ShaderGraph
+    for (auto const& name: _rootGraph->getPropagatedAddedInputs()) {
+        const auto* inputSocket = _rootGraph->getInputSocket(name);
+        if (inputSocket)
+        {
+            ShaderInput* input = node.addInput(name, inputSocket->getType());
+            input->setValue(inputSocket->getValue());
+        }
+    }
+}
+
+// Note: No addedInputNames here. Not necessary unless we start nesting ShaderGraphs.
+
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Gather shader inputs from all child nodes

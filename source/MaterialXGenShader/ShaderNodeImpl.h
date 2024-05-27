@@ -62,6 +62,9 @@ class MX_GENSHADER_API ShaderNodeImpl
     /// Add additional inputs on a node.
     virtual void addInputs(ShaderNode& node, GenContext& context) const;
 
+    /// Return input names that are added by this implementation
+    virtual StringVec addedInputNames() const;
+
     /// Set values for additional inputs on a node.
     virtual void setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const;
 
