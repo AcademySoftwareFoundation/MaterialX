@@ -761,5 +761,5 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         doc->removeChild(graph->getName());
     }
     
-    REQUIRE(doc->validate();
+    REQUIRE(doc->validate());
 }
