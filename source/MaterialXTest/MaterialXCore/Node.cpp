@@ -702,7 +702,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
         mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
-        REQUIRE(doc->validate();
+        REQUIRE(doc->validate());
 
         // Create the new node
         mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
