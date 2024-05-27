@@ -1102,8 +1102,12 @@ void Document::upgradeVersion()
                         NodePtr upstream = edge.getUpstreamElement()->asA<Node>();
                         if (upstream && BSDF_WITH_THINFILM.count(upstream->getCategory()))
                         {
-                            copyInputWithBindings(top, "thickness", upstream, "thinfilm_thickness");
-                            copyInputWithBindings(top, "ior", upstream, "thinfilm_ior");
+                            InputPtr scatterMode = upstream->getInput("scatter_mode");
+                            if (!scatterMode || scatterMode->getValueString() != "T")
+                            {
+                                copyInputWithBindings(top, "thickness", upstream, "thinfilm_thickness");
+                                copyInputWithBindings(top, "ior", upstream, "thinfilm_ior");
+                            }
                         }
                     }
 
