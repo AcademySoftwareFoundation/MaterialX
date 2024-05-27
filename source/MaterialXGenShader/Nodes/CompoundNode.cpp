@@ -45,7 +45,7 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     _hash = std::hash<string>{}(_functionName);
 }
 
-void CompoundNode::addInputs(ShaderNode& node, GenContext& context) const
+void CompoundNode::addInputs(ShaderNode& node, GenContext&) const
 {
     // Propagate inputs added to the ShaderGraph
     for (auto const& name: _rootGraph->getPropagatedAddedInputs()) {
