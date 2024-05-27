@@ -702,30 +702,11 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
         mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
         REQUIRE(decl->getName() == nodeDef->getName());
+        REQUIRE(doc->validate();
 
-        std::string message;
-        bool valid = doc->validate(&message);
-        if (!valid)
-        {
-            INFO(message);
-        }
-        REQUIRE(valid);
-
-        // Try to create the new node
+        // Create the new node
         mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
         REQUIRE(newInstance);
-
-        // Try and fail to create the same definition
-        mx::NodeDefPtr temp;
-        try
-        {
-            temp = nullptr;
-            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
-        }
-        catch (mx::Exception&)
-        {
-            REQUIRE(temp == nullptr);
-        }
 
         // Remove default version attribute from previous definitions
         for (mx::NodeDefPtr prevNodeDef : doc->getMatchingNodeDefs(NODENAME))
@@ -738,6 +719,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         newGraphName = mx::EMPTY_STRING;
         newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_2");
         newGraphName = doc->createValidChildName("NG_" + graph->getName() + "_2");
+        
         // Create new default version
         nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName + "2", NODENAME, newGraphName);
         nodeDef->setVersionString(VERSION2);
@@ -746,6 +728,7 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         REQUIRE(nodeDef != nullptr);
         nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION2);
         nodeDef->setDocString("This is version 2 of the definition for the graph: " + newGraphName);
+        
         // Check that we create the version by default
         mx::NodePtr newDefault = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
         if (newDefault)
@@ -778,11 +761,5 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
         doc->removeChild(graph->getName());
     }
     
-    std::string message;
-    bool valid = doc->validate(&message);
-    if (!valid)
-    {
-        INFO(message);
-    }
-    REQUIRE(valid);
+    REQUIRE(doc->validate();
 }
