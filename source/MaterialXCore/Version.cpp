@@ -1172,7 +1172,7 @@ void Document::upgradeVersion()
 
                     if (inInput->hasValue())
                     {
-                        // Replace swizzle with constant if a connection was not also specified.
+                        // Replace swizzle with constant.
                         node->setCategory("constant");
                         string valueString = inInput->getValueString();
                         StringVec origValueTokens = splitString(valueString, ARRAY_VALID_SEPARATORS);
