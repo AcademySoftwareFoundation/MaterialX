@@ -13,7 +13,7 @@ namespace mx = MaterialX;
 class PyBindDocument : public mx::Document
 {
   public:
-    mx::NodeDefPtr old_addNodeDefFromGraph(const mx::NodeGraphPtr nodeGraph, const std::string& nodeDefName, const std::string& node, 
+    mx::NodeDefPtr old_addNodeDefFromGraph(mx::NodeGraphPtr nodeGraph, const std::string& nodeDefName, const std::string& node, 
         const std::string&, bool, const std::string&, const std::string& newGraphName)
     {
         PyErr_WarnEx(PyExc_DeprecationWarning,
@@ -71,8 +71,8 @@ void bindPyDocument(py::module& mod)
         .def("removeTypeDef", &mx::Document::removeTypeDef)
         .def("addNodeDef", &mx::Document::addNodeDef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING, py::arg("node") = mx::EMPTY_STRING)
-        .def("addNodeDefFromGraph", (mx::NodeDefPtr (mx::Document::*)(const mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&)) & mx::Document::addNodeDefFromGraph)
-        .def("addNodeDefFromGraph", (mx::NodeDefPtr(mx::Document::*)(const mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&,
+        .def("addNodeDefFromGraph", (mx::NodeDefPtr (mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&)) & mx::Document::addNodeDefFromGraph)
+        .def("addNodeDefFromGraph", (mx::NodeDefPtr(mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&,
             bool, const std::string&, const std::string& )) & PyBindDocument::old_addNodeDefFromGraph)
         .def("getNodeDef", &mx::Document::getNodeDef)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
