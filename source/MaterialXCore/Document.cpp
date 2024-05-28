@@ -147,7 +147,7 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName,
+NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
                                          const string& category, const string& newGraphName)
 {
     if (category.empty())
