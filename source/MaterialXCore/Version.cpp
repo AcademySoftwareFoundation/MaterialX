@@ -1040,7 +1040,7 @@ void Document::upgradeVersion()
                 }
             }
 
-            // Just remove "channels" if the upstream type is a float
+            // Ignore the channels string for purely scalar connections.
             if (upstreamType == getTypeString<float>() && port->getType() == getTypeString<float>())
             {
                 port->removeAttribute("channels");
