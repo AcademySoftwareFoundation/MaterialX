@@ -9,7 +9,6 @@
 #include <MaterialXCore/Document.h>
 
 #include <emscripten/bind.h>
-#include <emscripten/emscripten.h>
 
 namespace ems = emscripten;
 namespace mx = MaterialX;
@@ -60,7 +59,7 @@ EMSCRIPTEN_BINDINGS(document)
         .function("getTypeDefs", &mx::Document::getTypeDefs)
         .function("removeTypeDef", &mx::Document::removeTypeDef)
         BIND_MEMBER_FUNC("addNodeDef", mx::Document, addNodeDef, 0, 3, stRef, stRef, stRef)
-        BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4,4, const mx::NodeGraphPtr,
+        BIND_MEMBER_FUNC("addNodeDefFromGraph", mx::Document, addNodeDefFromGraph, 4, 4, mx::NodeGraphPtr,
             const std::string&, const std::string&, const std::string&)
         .function("getNodeDef", &mx::Document::getNodeDef)
         .function("getNodeDefs", &mx::Document::getNodeDefs)
