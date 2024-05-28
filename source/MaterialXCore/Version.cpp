@@ -578,7 +578,6 @@ void Document::upgradeVersion()
     {
         // Convert color2 types to vector2
         const StringMap COLOR2_CHANNEL_MAP = { { "r", "x" }, { "a", "y" } };
-        const string CHANNELS_ATTRIBUTE_STRING = "channels";
         for (ElementPtr elem : traverseTree())
         {
             if (elem->getAttribute(TypedElement::TYPE_ATTRIBUTE) == "color2")
@@ -592,11 +591,11 @@ void Document::upgradeVersion()
 
                 for (PortElementPtr port : parentNode->getDownstreamPorts())
                 {
-                    if (port->hasAttribute(CHANNELS_ATTRIBUTE_STRING))
+                    if (port->hasAttribute("channels"))
                     {
-                        string channels = port->getAttribute(CHANNELS_ATTRIBUTE_STRING);
+                        string channels = port->getAttribute("channels");
                         channels = replaceSubstrings(channels, COLOR2_CHANNEL_MAP);
-                        port->setAttribute(CHANNELS_ATTRIBUTE_STRING, channels);
+                        port->setAttribute("channels", channels);
                     }
                     if (port->hasOutputString())
                     {
@@ -606,7 +605,7 @@ void Document::upgradeVersion()
                     }
                 }
 
-                ElementPtr channels = parentNode->getChild(CHANNELS_ATTRIBUTE_STRING);
+                ElementPtr channels = parentNode->getChild("channels");
                 if (channels && channels->hasAttribute(ValueElement::VALUE_ATTRIBUTE))
                 {
                     string value = channels->getAttribute(ValueElement::VALUE_ATTRIBUTE);
@@ -1003,7 +1002,6 @@ void Document::upgradeVersion()
             { { "xyz", "x", "y", "z" }, "vector3" },
             { { "rgba", "a" }, "color4" }
         };
-        const string CHANNELS_ATTRIBUTE_STRING = "channels";
 
         // Convert channels attributes to legacy swizzle nodes, which are then converted
         // to modern nodes in a second pass.
@@ -1015,7 +1013,7 @@ void Document::upgradeVersion()
                 continue;
             }
 
-            string channelString = port ? port->getAttribute(CHANNELS_ATTRIBUTE_STRING) : EMPTY_STRING;
+            string channelString = port ? port->getAttribute("channels") : EMPTY_STRING;
             if (channelString.empty())
             {
                 continue;
@@ -1045,7 +1043,7 @@ void Document::upgradeVersion()
             // Just remove "channels" if the upstream type is a float
             if (upstreamType == getTypeString<float>() && port->getType() == getTypeString<float>())
             {
-                port->removeAttribute(CHANNELS_ATTRIBUTE_STRING);
+                port->removeAttribute("channels");
                 continue;
             }
 
@@ -1058,15 +1056,15 @@ void Document::upgradeVersion()
             }
             InputPtr in = swizzleNode->addInput("in");
             in->copyContentFrom(port);
-            in->removeAttribute(CHANNELS_ATTRIBUTE_STRING);
+            in->removeAttribute("channels");
             in->setType(upstreamType);
-            swizzleNode->setInputValue(CHANNELS_ATTRIBUTE_STRING, channelString);
+            swizzleNode->setInputValue("channels", channelString);
 
             // Connect the original port to this node.
             port->setConnectedNode(swizzleNode);
             port->removeAttribute(PortElement::OUTPUT_ATTRIBUTE);
             port->removeAttribute(PortElement::INTERFACE_NAME_ATTRIBUTE);
-            port->removeAttribute(CHANNELS_ATTRIBUTE_STRING);
+            port->removeAttribute("channels");
 
             // Update any nodegraph reference
             if (graph)
@@ -1153,7 +1151,7 @@ void Document::upgradeVersion()
             else if (nodeCategory == "swizzle")
             {
                 InputPtr inInput = node->getInput("in");
-                InputPtr channelsInput = node->getInput(CHANNELS_ATTRIBUTE_STRING);
+                InputPtr channelsInput = node->getInput("channels");
                 if (inInput &&
                     CHANNEL_COUNT_MAP.count(inInput->getType()) &&
                     CHANNEL_COUNT_MAP.count(node->getType()))
