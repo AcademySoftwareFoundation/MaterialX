@@ -339,7 +339,7 @@ class MX_CORE_API Document : public GraphElement
     /// @param nodeDefName Name of new NodeDef
     /// @param category Category of the new NodeDef
     /// @return New declaration if successful.
-    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName,
+    NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
                                    const string& category, const string& newGraphName);
 
     /// Return the NodeDef, if any, with the given name.
@@ -669,7 +669,7 @@ class MX_CORE_API Document : public GraphElement
     // These are deprecated wrappers for older versions of the function interfaces in this module.
     // Clients using these interfaces should update them to the latest API.
     //
-    [[deprecated]] NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+    [[deprecated]] NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
                                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
 
   public:
