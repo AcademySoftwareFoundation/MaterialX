@@ -333,18 +333,14 @@ class MX_CORE_API Document : public GraphElement
         return child;
     }
 
-    /// Create a NodeDef declaration which is based on a NodeGraph.
-    /// @param nodeGraph NodeGraph used to create NodeDef
-    /// @param nodeDefName Declaration name
-    /// @param node Node type for the new declaration
-    /// @param version Version for the new declaration
-    /// @param isDefaultVersion If a version is specified is thie definition the default version
-    /// @param newGraphName Make a copy of this NodeGraph with the given name if a non-empty name is provided. Otherwise
-    ///        modify the existing NodeGraph. Default value is an empty string.
-    /// @param nodeGroup Optional node group for the new declaration. The Default value is an emptry string.
+    /// Create a NodeDef and Functional Graph based on a Compound NodeGraph
+    /// @param nodeGraph Compound NodeGraph.
+    /// @param newGraphName Name of new functional NodeGraph. 
+    /// @param nodeDefName Name of new NodeDef
+    /// @param category Category of the new NodeDef
     /// @return New declaration if successful.
-    NodeDefPtr addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
-                                   bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
+    NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
+                                   const string& category, const string& newGraphName);
 
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
@@ -668,6 +664,13 @@ class MX_CORE_API Document : public GraphElement
     void invalidateCache();
 
     /// @}
+
+    //
+    // These are deprecated wrappers for older versions of the function interfaces in this module.
+    // Clients using these interfaces should update them to the latest API.
+    //
+    [[deprecated]] NodeDefPtr addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node, const string& version,
+                                                  bool isDefaultVersion, const string& nodeGroup, const string& newGraphName);
 
   public:
     static const string CATEGORY;

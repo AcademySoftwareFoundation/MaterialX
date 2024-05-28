@@ -147,47 +147,82 @@ void Document::initialize()
     setVersionIntegers(MATERIALX_MAJOR_VERSION, MATERIALX_MINOR_VERSION);
 }
 
-NodeDefPtr Document::addNodeDefFromGraph(const NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
-                                         const string& version, bool isDefaultVersion, const string& group, const string& newGraphName)
+NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName,
+                                         const string& category, const string& newGraphName)
 {
+    if (category.empty())
+    {
+        throw Exception("Cannot create a nodedef without a category identifier");
+    }
+
     if (getNodeDef(nodeDefName))
     {
         throw Exception("Cannot create duplicate nodedef: " + nodeDefName);
     }
 
-    NodeGraphPtr graph = nodeGraph;
-    if (!newGraphName.empty())
+    if (getNodeGraph(newGraphName))
     {
-        if (getNodeGraph(newGraphName))
-        {
-            throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
-        }
-        graph = addNodeGraph(newGraphName);
-        graph->copyContentFrom(nodeGraph);
+        throw Exception("Cannot create duplicate nodegraph: " + newGraphName);
     }
+    
+    // Create a new functional nodegraph, and copy over the
+    // contents from the compound nodegraph
+    NodeGraphPtr graph = addNodeGraph(newGraphName);
+    graph->copyContentFrom(nodeGraph);
+
+    for (auto graphChild : graph->getChildren())
+    {
+        graphChild->removeAttribute(Element::XPOS_ATTRIBUTE);
+        graphChild->removeAttribute(Element::YPOS_ATTRIBUTE);
+    }        
     graph->setNodeDefString(nodeDefName);
 
-    NodeDefPtr nodeDef = addChild<NodeDef>(nodeDefName);
-    nodeDef->setNodeString(node);
-    if (!group.empty())
-    {
-        nodeDef->setNodeGroup(group);
-    }
+    // Create a new nodedef and set its category
+    NodeDefPtr nodeDef = addNodeDef(nodeDefName, EMPTY_STRING);
+    nodeDef->setNodeString(category);
 
-    if (!version.empty())
-    {
-        nodeDef->setVersionString(version);
+    // Expose any existing interfaces from the graph.
+    // Any connection attributes ("nodegraph", "nodename", "interfacename") on the 
+    // existing interface should be removed from the definition as well as any source URI.
 
-        // Can only be a default version if there is a version string
-        if (isDefaultVersion)
+    // Attributes which should not be copied over
+    StringSet filterAttributes = { PortElement::NODE_GRAPH_ATTRIBUTE, PortElement::NODE_NAME_ATTRIBUTE, 
+                                   PortElement::INTERFACE_NAME_ATTRIBUTE, Element::XPOS_ATTRIBUTE, Element::YPOS_ATTRIBUTE };
+
+    // Transfer input interface from the graph to the nodedef
+    for (InputPtr input : graph->getInputs())
+    {
+        InputPtr nodeDefInput = nodeDef->addInput(input->getName(), input->getType());
+        if (nodeDefInput)
         {
-            nodeDef->setDefaultVersion(true);
-        }
+            nodeDefInput->copyContentFrom(input);
+            for (const string& filterAttribute : filterAttributes )
+            {
+                nodeDefInput->removeAttribute(filterAttribute);
+            }
+            nodeDefInput->setSourceUri(EMPTY_STRING);
+            input->setInterfaceName(nodeDefInput->getName());
+        }        
+    }
+    // Remove interfaces from the nodegraph
+    for (InputPtr input : graph->getInputs())
+    {
+        graph->removeInput(input->getName());
     }
 
-    for (auto output : graph->getOutputs())
+    // Copy the output interface from the graph to the nodedef
+    for (OutputPtr output : graph->getOutputs())
     {
-        nodeDef->addOutput(output->getName(), output->getType());
+        OutputPtr nodeDefOutput = nodeDef->addOutput(output->getName(), output->getType());
+        if (nodeDefOutput)
+        {
+            nodeDefOutput->copyContentFrom(output);
+            for (const string& filterAttribute : filterAttributes)
+            {
+                nodeDefOutput->removeAttribute(filterAttribute);
+            }
+            nodeDefOutput->setSourceUri(EMPTY_STRING);
+        }
     }
 
     return nodeDef;
@@ -366,5 +401,16 @@ void Document::invalidateCache()
 {
     _cache->valid = false;
 }
+
+//
+// Deprecated methods
+//
+
+NodeDefPtr Document::addNodeDefFromGraph(NodeGraphPtr nodeGraph, const string& nodeDefName, const string& node,
+                                         const string&, bool, const string&, const string& newGraphName)
+{
+    return addNodeDefFromGraph(nodeGraph, nodeDefName, node, newGraphName);
+}
+
 
 MATERIALX_NAMESPACE_END
