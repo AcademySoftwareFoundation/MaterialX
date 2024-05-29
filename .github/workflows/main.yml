@@ -127,7 +127,6 @@ jobs:
     - name: Install Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
-        sudo apt-get update
         sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
