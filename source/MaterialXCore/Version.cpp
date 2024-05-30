@@ -1311,21 +1311,23 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "subsurface_bsdf")
             {
-                InputPtr radiusInput = node->getInput("radius");
+                InputPtr radiusInput = node->getActiveInput("radius");
                 if (radiusInput)
                 {
-                    NodePtr connectedNode = radiusInput->getConnectedNode();
-                    if (connectedNode)
+                    if (NodePtr connectedNode = radiusInput->getConnectedNode(); connectedNode)
                     {
                         GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+
                         NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
                         InputPtr inInput = convertNode->addInput("in", "vector3");
+
                         inInput->setConnectedNode(connectedNode);
                         radiusInput->setConnectedNode(convertNode);
                     }
-                    else
+                    else if (ValuePtr value = radiusInput->getValue(); value && value->isA<Vector3>())
                     {
-                        // vector3 value is trivially convertible
+                        Vector3 v = value->asA<Vector3>();
+                        radiusInput->setValue(Color3(v[0], v[1], v[2]));
                     }
 
                     radiusInput->setType("color3");
