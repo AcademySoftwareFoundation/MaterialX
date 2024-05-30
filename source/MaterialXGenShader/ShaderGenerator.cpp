@@ -170,7 +170,7 @@ void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const 
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
     str += _syntax->getTypeName(variable->getType());
 
-    bool haveArray = variable->getType()->isArray() && variable->getValue();
+    bool haveArray = variable->getType().isArray() && variable->getValue();
     if (haveArray)
     {
         str += _syntax->getArrayTypeSuffix(variable->getType(), *variable->getValue());
@@ -247,10 +247,6 @@ string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& 
     }
 
     string variable = input->getConnection()->getVariable();
-    if (!input->getChannels().empty())
-    {
-        variable = _syntax->getSwizzledVariable(variable, input->getConnection()->getType(), input->getChannels(), input->getType());
-    }
 
     // Look for any additional suffix to append
     string suffix;
@@ -304,12 +300,12 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (outputType->isClosure())
+        if (outputType.isClosure())
         {
             impl = ClosureCompoundNode::create();
         }
@@ -325,7 +321,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->isClosure())
+            if (outputType.isClosure())
             {
                 impl = ClosureSourceCodeNode::create();
             }
@@ -377,11 +373,11 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
     {
         ShaderMetadata(ValueElement::UI_NAME_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UI_FOLDER_ATTRIBUTE, Type::STRING),
-        ShaderMetadata(ValueElement::UI_MIN_ATTRIBUTE, nullptr),
-        ShaderMetadata(ValueElement::UI_MAX_ATTRIBUTE, nullptr),
-        ShaderMetadata(ValueElement::UI_SOFT_MIN_ATTRIBUTE, nullptr),
-        ShaderMetadata(ValueElement::UI_SOFT_MAX_ATTRIBUTE, nullptr),
-        ShaderMetadata(ValueElement::UI_STEP_ATTRIBUTE, nullptr),
+        ShaderMetadata(ValueElement::UI_MIN_ATTRIBUTE, Type::NONE),
+        ShaderMetadata(ValueElement::UI_MAX_ATTRIBUTE, Type::NONE),
+        ShaderMetadata(ValueElement::UI_SOFT_MIN_ATTRIBUTE, Type::NONE),
+        ShaderMetadata(ValueElement::UI_SOFT_MAX_ATTRIBUTE, Type::NONE),
+        ShaderMetadata(ValueElement::UI_STEP_ATTRIBUTE, Type::NONE),
         ShaderMetadata(ValueElement::UI_ADVANCED_ATTRIBUTE, Type::BOOLEAN),
         ShaderMetadata(ValueElement::DOC_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING),
@@ -399,8 +395,8 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         if (def->getExportable())
         {
             const string& attrName = def->getAttrName();
-            const TypeDesc* type = TypeDesc::get(def->getType());
-            if (!attrName.empty() && type)
+            const TypeDesc type = TypeDesc::get(def->getType());
+            if (!attrName.empty() && type != Type::NONE)
             {
                 registry->addMetadata(attrName, type, def->getValue());
             }

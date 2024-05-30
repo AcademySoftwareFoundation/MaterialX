@@ -38,6 +38,7 @@ EMSCRIPTEN_BINDINGS(definition)
         .class_property("GEOMETRIC_NODE_GROUP", &mx::NodeDef::GEOMETRIC_NODE_GROUP)
         .class_property("ADJUSTMENT_NODE_GROUP", &mx::NodeDef::ADJUSTMENT_NODE_GROUP)
         .class_property("CONDITIONAL_NODE_GROUP", &mx::NodeDef::CONDITIONAL_NODE_GROUP)
+        .class_property("CHANNEL_NODE_GROUP", &mx::NodeDef::CHANNEL_NODE_GROUP)
         .class_property("ORGANIZATION_NODE_GROUP", &mx::NodeDef::ORGANIZATION_NODE_GROUP)
         .class_property("TRANSLATION_NODE_GROUP", &mx::NodeDef::TRANSLATION_NODE_GROUP);
 

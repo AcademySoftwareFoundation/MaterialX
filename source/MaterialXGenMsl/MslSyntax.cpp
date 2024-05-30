@@ -263,10 +263,10 @@ MslSyntax::MslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
+            "BSDF{float3(0.0),float3(1.0)}",
             EMPTY_STRING,
             EMPTY_STRING,
-            "struct BSDF { float3 response; float3 throughput; float thickness; float ior; };"));
+            "struct BSDF { float3 response; float3 throughput; };"));
 
     registerTypeSyntax(
         Type::EDF,
@@ -281,7 +281,7 @@ MslSyntax::MslSyntax()
         Type::VDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF{float3(0.0),float3(1.0), 0.0, 0.0}",
+            "BSDF{float3(0.0),float3(1.0)}",
             EMPTY_STRING));
 
     registerTypeSyntax(
@@ -330,7 +330,7 @@ MslSyntax::MslSyntax()
             "#define material surfaceshader"));
 }
 
-string MslSyntax::getOutputTypeName(const TypeDesc* type) const
+string MslSyntax::getOutputTypeName(TypeDesc type) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
     return "thread " + syntax.getName() + "&";
@@ -338,10 +338,10 @@ string MslSyntax::getOutputTypeName(const TypeDesc* type) const
 
 bool MslSyntax::typeSupported(const TypeDesc* type) const
 {
-    return type != Type::STRING;
+    return *type != Type::STRING;
 }
 
-bool MslSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
+bool MslSyntax::remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const
 {
     // Early out if not an enum input.
     if (enumNames.empty())
@@ -350,9 +350,7 @@ bool MslSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     }
 
     // Don't convert already supported types
-    // or filenames and arrays.
-    if (typeSupported(type) ||
-        *type == *Type::FILENAME || (type && type->isArray()))
+    if (type != Type::STRING)
     {
         return false;
     }

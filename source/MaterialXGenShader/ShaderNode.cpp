@@ -17,7 +17,7 @@ const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 // ShaderPort methods
 //
 
-ShaderPort::ShaderPort(ShaderNode* node, const TypeDesc* type, const string& name, ValuePtr value) :
+ShaderPort::ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value) :
     _node(node),
     _type(type),
     _name(name),
@@ -41,7 +41,7 @@ string ShaderPort::getValueString() const
 // ShaderInput methods
 //
 
-ShaderInput::ShaderInput(ShaderNode* node, const TypeDesc* type, const string& name) :
+ShaderInput::ShaderInput(ShaderNode* node, TypeDesc type, const string& name) :
     ShaderPort(node, type, name),
     _connection(nullptr)
 {
@@ -92,7 +92,7 @@ ShaderNode* ShaderInput::getConnectedSibling() const
 // ShaderOutput methods
 //
 
-ShaderOutput::ShaderOutput(ShaderNode* node, const TypeDesc* type, const string& name) :
+ShaderOutput::ShaderOutput(ShaderNode* node, TypeDesc type, const string& name) :
     ShaderPort(node, type, name)
 {
 }
@@ -179,7 +179,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Create interface from nodedef
     for (const ValueElementPtr& port : nodeDef.getActiveValueElements())
     {
-        const TypeDesc* portType = TypeDesc::get(port->getType());
+        const TypeDesc portType = TypeDesc::get(port->getType());
         if (port->isA<Output>())
         {
             newNode->addOutput(port->getName(), portType);
@@ -188,7 +188,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             ShaderInput* input;
             const string& portValue = port->getResolvedValueString();
-            std::pair<const TypeDesc*, ValuePtr> enumResult;
+            std::pair<TypeDesc, ValuePtr> enumResult;
             const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
@@ -229,11 +229,11 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
 
     // First, check for specific output types
     const ShaderOutput* primaryOutput = newNode->getOutput();
-    if (*primaryOutput->getType() == *Type::MATERIAL)
+    if (primaryOutput->getType() == Type::MATERIAL)
     {
         newNode->_classification = Classification::MATERIAL;
     }
-    else if (*primaryOutput->getType() == *Type::SURFACESHADER)
+    else if (primaryOutput->getType() == Type::SURFACESHADER)
     {
         if (nodeDefName == "ND_surface_unlit")
         {
@@ -244,15 +244,15 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             newNode->_classification = Classification::SHADER | Classification::SURFACE | Classification::CLOSURE;
         }
     }
-    else if (*primaryOutput->getType() == *Type::VOLUMESHADER)
+    else if (primaryOutput->getType() == Type::VOLUMESHADER)
     {
         newNode->_classification = Classification::SHADER | Classification::VOLUME | Classification::CLOSURE;
     }
-    else if (*primaryOutput->getType() == *Type::LIGHTSHADER)
+    else if (primaryOutput->getType() == Type::LIGHTSHADER)
     {
         newNode->_classification = Classification::LIGHT | Classification::SHADER | Classification::CLOSURE;
     }
-    else if (*primaryOutput->getType() == *Type::BSDF)
+    else if (primaryOutput->getType() == Type::BSDF)
     {
         newNode->_classification = Classification::BSDF | Classification::CLOSURE;
 
@@ -276,17 +276,12 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
         {
             newNode->_classification |= Classification::LAYER;
         }
-        // Check specifically for the thin-film node
-        else if (nodeDefName == "ND_thin_film_bsdf")
-        {
-            newNode->_classification |= Classification::THINFILM;
-        }
     }
-    else if (*primaryOutput->getType() == *Type::EDF)
+    else if (primaryOutput->getType() == Type::EDF)
     {
         newNode->_classification = Classification::EDF | Classification::CLOSURE;
     }
-    else if (*primaryOutput->getType() == *Type::VDF)
+    else if (primaryOutput->getType() == Type::VDF)
     {
         newNode->_classification = Classification::VDF | Classification::CLOSURE;
     }
@@ -352,9 +347,9 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
                 }
             }
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
-            std::pair<const TypeDesc*, ValuePtr> enumResult;
+            std::pair<TypeDesc, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc* type = TypeDesc::get(nodeDefInput->getType());
+            const TypeDesc type = TypeDesc::get(nodeDefInput->getType());
             if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
             {
                 input->setValue(enumResult.second);
@@ -363,8 +358,6 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             {
                 input->setValue(portValue);
             }
-
-            input->setChannels(nodeInput->getChannels());
         }
     }
 
@@ -444,7 +437,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
             const string& attrValue = nodeDef.getAttribute(nodedefAttr);
             if (!attrValue.empty())
             {
-                ValuePtr value = Value::createValueFromStrings(attrValue, metadataEntry->type->getName());
+                ValuePtr value = Value::createValueFromStrings(attrValue, metadataEntry->type.getName());
                 if (!value)
                 {
                     value = metadataEntry->value;
@@ -478,8 +471,8 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
                     const string& attrValue = nodedefPort->getAttribute(nodedefPortAttr);
                     if (!attrValue.empty())
                     {
-                        const TypeDesc* type = metadataEntry->type ? metadataEntry->type : input->getType();
-                        ValuePtr value = Value::createValueFromStrings(attrValue, type->getName());
+                        const TypeDesc type = metadataEntry->type != Type::NONE ? metadataEntry->type : input->getType();
+                        ValuePtr value = Value::createValueFromStrings(attrValue, type.getName());
                         if (!value)
                         {
                             value = metadataEntry->value;
@@ -524,7 +517,7 @@ const ShaderOutput* ShaderNode::getOutput(const string& name) const
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
+ShaderInput* ShaderNode::addInput(const string& name, TypeDesc type)
 {
     if (getInput(name))
     {
@@ -538,7 +531,7 @@ ShaderInput* ShaderNode::addInput(const string& name, const TypeDesc* type)
     return input.get();
 }
 
-ShaderOutput* ShaderNode::addOutput(const string& name, const TypeDesc* type)
+ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type)
 {
     if (getOutput(name))
     {

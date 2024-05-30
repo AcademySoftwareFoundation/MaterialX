@@ -387,6 +387,9 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             
             [renderpassDesc release];
         }
+
+        // Reset frame timing after shadow generation.
+        _viewer->resetFrameTiming();
     }
 
     _viewer->_shadowMap = _shadowMap[_viewer->_shadowSoftness % 2];

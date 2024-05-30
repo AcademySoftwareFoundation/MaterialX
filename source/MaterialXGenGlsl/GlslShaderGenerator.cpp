@@ -19,7 +19,6 @@
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/SwizzleNode.h>
 #include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
@@ -67,6 +66,8 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_switch_vector2_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector3_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector4_" + GlslShaderGenerator::TARGET,
+        "IM_switch_matrix33_" + GlslShaderGenerator::TARGET,
+        "IM_switch_matrix44_" + GlslShaderGenerator::TARGET,
 
         // <!-- 'which' type : integer -->
         "IM_switch_floatI_" + GlslShaderGenerator::TARGET,
@@ -75,59 +76,10 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_switch_vector2I_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector3I_" + GlslShaderGenerator::TARGET,
         "IM_switch_vector4I_" + GlslShaderGenerator::TARGET,
+        "IM_switch_matrix33I_" + GlslShaderGenerator::TARGET,
+        "IM_switch_matrix44I_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <swizzle> -->
-    elementNames = {
-        // <!-- from type : float -->
-        "IM_swizzle_float_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_float_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_float_vector4_" + GlslShaderGenerator::TARGET,
-
-        // <!-- from type : color3 -->
-        "IM_swizzle_color3_float_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color3_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color3_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color3_vector4_" + GlslShaderGenerator::TARGET,
-
-        // <!-- from type : color4 -->
-        "IM_swizzle_color4_float_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color4_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color4_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_color4_vector4_" + GlslShaderGenerator::TARGET,
-
-        // <!-- from type : vector2 -->
-        "IM_swizzle_vector2_float_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector2_vector4_" + GlslShaderGenerator::TARGET,
-
-        // <!-- from type : vector3 -->
-        "IM_swizzle_vector3_float_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector3_vector4_" + GlslShaderGenerator::TARGET,
-
-        // <!-- from type : vector4 -->
-        "IM_swizzle_vector4_float_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_color3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_color4_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_swizzle_vector4_vector4_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwizzleNode::create);
 
     // <!-- <convert> -->
     elementNames = {
@@ -265,9 +217,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_multiply_edfF_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, ClosureMultiplyNode::create);
-
-    // <!-- <thin_film> -->
-    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
 
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
@@ -689,11 +638,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         if (outputConnection)
         {
             string finalOutput = outputConnection->getVariable();
-            const string& channels = outputSocket->getChannels();
-            if (!channels.empty())
-            {
-                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
-            }
 
             if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {
@@ -713,7 +657,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             }
             else
             {
-                if (!outputSocket->getType()->isFloat4())
+                if (!outputSocket->getType().isFloat4())
                 {
                     toVec4(outputSocket->getType(), finalOutput);
                 }
@@ -725,7 +669,7 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
             string outputValue = outputSocket->getValue() ?
                                  _syntax->getValue(outputSocket->getType(), *outputSocket->getValue()) :
                                  _syntax->getDefaultValue(outputSocket->getType());
-            if (!outputSocket->getType()->isFloat4())
+            if (!outputSocket->getType().isFloat4())
             {
                 string finalOutput = outputSocket->getVariable() + "_tmp";
                 emitLine(_syntax->getTypeName(outputSocket->getType()) + " " + finalOutput + " = " + outputValue, stage);
@@ -772,21 +716,21 @@ void GlslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph,
     }
 }
 
-void GlslShaderGenerator::toVec4(const TypeDesc* type, string& variable)
+void GlslShaderGenerator::toVec4(TypeDesc type, string& variable)
 {
-    if (type->isFloat3())
+    if (type.isFloat3())
     {
         variable = "vec4(" + variable + ", 1.0)";
     }
-    else if (type->isFloat2())
+    else if (type.isFloat2())
     {
         variable = "vec4(" + variable + ", 0.0, 1.0)";
     }
-    else if (*type == *Type::FLOAT || *type == *Type::INTEGER)
+    else if (type == Type::FLOAT || type == Type::INTEGER)
     {
         variable = "vec4(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
-    else if (*type == *Type::BSDF || *type == *Type::EDF)
+    else if (type == Type::BSDF || type == Type::EDF)
     {
         variable = "vec4(" + variable + ", 1.0)";
     }
@@ -802,7 +746,7 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
                                                   bool assignValue) const
 {
     // A file texture input needs special handling on GLSL
-    if (*variable->getType() == *Type::FILENAME)
+    if (variable->getType() == Type::FILENAME)
     {
         // Samplers must always be uniforms
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -813,14 +757,14 @@ void GlslShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, co
         string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
         // Varying parameters of type int must be flat qualified on output from vertex stage and
         // input to pixel stage. The only way to get these is with geompropvalue_integer nodes.
-        if (qualifier.empty() && *variable->getType() == *Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
+        if (qualifier.empty() && variable->getType() == Type::INTEGER && !assignValue && variable->getName().rfind(HW::T_IN_GEOMPROP, 0) == 0)
         {
             str += GlslSyntax::FLAT_QUALIFIER + " ";
         }
         str += _syntax->getTypeName(variable->getType()) + " " + variable->getVariable();
 
         // If an array we need an array qualifier (suffix) for the variable name
-        if (variable->getType()->isArray() && variable->getValue())
+        if (variable->getType().isArray() && variable->getValue())
         {
             str += _syntax->getArrayVariableSuffix(variable->getType(), *variable->getValue());
         }
@@ -865,16 +809,16 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc* outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
         // Use a compound implementation.
-        if (*outputType == *Type::LIGHTSHADER)
+        if (outputType == Type::LIGHTSHADER)
         {
             impl = LightCompoundNodeGlsl::create();
         }
-        else if (outputType->isClosure())
+        else if (outputType.isClosure())
         {
             impl = ClosureCompoundNode::create();
         }
@@ -890,7 +834,7 @@ ShaderNodeImplPtr GlslShaderGenerator::getImplementation(const NodeDef& nodedef,
         if (!impl)
         {
             // Fall back to source code implementation.
-            if (outputType->isClosure())
+            if (outputType.isClosure())
             {
                 impl = ClosureSourceCodeNode::create();
             }

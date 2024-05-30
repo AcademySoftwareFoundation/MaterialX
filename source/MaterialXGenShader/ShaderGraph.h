@@ -98,9 +98,13 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Create a new node in the graph
     ShaderNode* createNode(ConstNodePtr node, GenContext& context);
 
-    /// Add input/output sockets
-    ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type);
-    ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type);
+    /// Add input sockets
+    ShaderGraphInputSocket* addInputSocket(const string& name, TypeDesc type);
+    [[deprecated]] ShaderGraphInputSocket* addInputSocket(const string& name, const TypeDesc* type) { return addInputSocket(name, *type); }
+
+    /// Add output sockets
+    ShaderGraphOutputSocket* addOutputSocket(const string& name, TypeDesc type);
+    [[deprecated]] ShaderGraphOutputSocket* addOutputSocket(const string& name, const TypeDesc* type) { return addOutputSocket(name, *type);  }
 
     /// Add a default geometric node and connect to the given input.
     void addDefaultGeomNode(ShaderInput* input, const GeomPropDef& geomprop, GenContext& context);
@@ -155,12 +159,12 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     void finalize(GenContext& context);
 
     /// Optimize the graph, removing redundant paths.
-    void optimize(GenContext& context);
+    void optimize();
 
     /// Bypass a node for a particular input and output,
     /// effectively connecting the input's upstream connection
     /// with the output's downstream connections.
-    void bypass(GenContext& context, ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
+    void bypass(ShaderNode* node, size_t inputIndex, size_t outputIndex = 0);
 
     /// For inputs and outputs in the graph set the variable names to be used
     /// in generated code. Making sure variable names are valid and unique

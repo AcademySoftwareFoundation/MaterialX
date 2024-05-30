@@ -118,7 +118,7 @@ ImagePtr OiioImageLoader::loadImage(const FilePath& filePath)
 
     ImagePtr image = Image::create(imageSpec.width, imageSpec.height, imageSpec.nchannels, baseType);
     image->createResourceBuffer();
-    if (!imageInput->read_image(imageSpec.format, image->getResourceBuffer()))
+    if (!imageInput->read_image(0, 0, 0, imageSpec.nchannels, imageSpec.format, image->getResourceBuffer()))
     {
         image = nullptr;
     }
