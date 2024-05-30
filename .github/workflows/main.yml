@@ -32,10 +32,10 @@ jobs:
           python: 3.11
           build_javascript: ON
 
-        - name: Linux_GCC_13_Python312
+        - name: Linux_GCC_12_Python312
           os: ubuntu-22.04
           compiler: gcc
-          compiler_version: "13"
+          compiler_version: "12"
           python: 3.12
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -127,15 +127,14 @@ jobs:
     - name: Install Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
-        sudo apt-get update
         sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            sudo apt-get install -y g++-${{ matrix.compiler_version }}
             echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           else
-            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            sudo apt-get install -y clang-${{ matrix.compiler_version }}
             echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
@@ -198,7 +197,7 @@ jobs:
       run: find source \( -name *.h -o -name *.cpp -o -name *.mm -o -name *.inl \) ! -path "*/External/*" ! -path "*/NanoGUI/*" | xargs clang-format -i --verbose
 
     - name: CMake Generate
-      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
+      run: cmake -S . -B build -DMATERIALX_BUILD_PYTHON=ON -DMATERIALX_BUILD_VIEWER=ON -DMATERIALX_BUILD_GRAPH_EDITOR=ON -DMATERIALX_BUILD_TESTS=ON -DMATERIALX_TEST_RENDER=OFF -DMATERIALX_WARNINGS_AS_ERRORS=ON ${{matrix.cmake_config}}
 
     - name: CMake Build
       run: cmake --build build --target install --config Release --parallel 2
@@ -383,7 +382,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-minor: ['7', '8', '9', '10', '11']
+        python-minor: ['7', '8', '9', '10', '11', '12']
         os: ['ubuntu-latest', 'windows-latest', 'macos-13']
 
     steps:

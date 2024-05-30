@@ -218,9 +218,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     };
     registerImplementation(elementNames, ClosureMultiplyNode::create);
 
-    // <!-- <thin_film> -->
-    registerImplementation("IM_thin_film_bsdf_" + GlslShaderGenerator::TARGET, NopNode::create);
-
     // <!-- <surfacematerial> -->
     registerImplementation("IM_surfacematerial_" + GlslShaderGenerator::TARGET, MaterialNode::create);
 
@@ -641,11 +638,6 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         if (outputConnection)
         {
             string finalOutput = outputConnection->getVariable();
-            const string& channels = outputSocket->getChannels();
-            if (!channels.empty())
-            {
-                finalOutput = _syntax->getSwizzledVariable(finalOutput, outputConnection->getType(), channels, outputSocket->getType());
-            }
 
             if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {

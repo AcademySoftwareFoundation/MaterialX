@@ -9,7 +9,7 @@ MaterialX Physically Based Shading Nodes v1.39
 Niklas Harrysson - Lumiere Software  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-April 7, 2022
+April 28, 2024
 
 # Introduction
 
@@ -105,7 +105,7 @@ In order to simplify authoring of complex materials, our model supports the noti
 
 
 * Horizontal Layering: A simple way of layering is using per-shading-point linear mixing of different BSDFs where a mix factor is given per BSDF controlling its contribution. Since the weight is calculated per shading point it can be used as a mask to hide contributions on different parts of a surface. The weight can also be calculated dependent on view angle to simulate approximate Fresnel behavior. This type of layering can be done both on a BSDF level and on a surface shader level. The latter is useful for mixing complete shaders which internally contain many BSDFs, e.g. to put dirt over a car paint, grease over a rusty metal or adding decals to a plastic surface. We refer to this type of layering as **horizontal layering** and the [&lt;mix> node](#node-mix) in the PBS library can be used to achieve this (see below).
-* Vertical Layering: A more physically correct form of layering is also supported where a top BSDF layer is placed over another base BSDF layer, and the light not reflected by the top layer is assumed to be transmitted to the base layer; for example, adding a dielectric coating layer over a substrate. The refraction index and roughness of the coating will then affect the attenuation of light reaching the substrate. The substrate can be a transmissive BSDF to transmit the light further, or a reflective BSDF to reflect the light back up through the coating. The substrate can in turn be a reflective BSDF to simulate multiple specular lobes. We refer to this type of layering as **vertical layering** and it can be achieved using the [&lt;layer> node](#node-layer) in the PBS library. See [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;sheen_bsdf>](#node-sheen-bsdf) and [&lt;thin_film_bsdf>](#node-thin-film-bsdf) below.
+* Vertical Layering: A more physically correct form of layering is also supported where a top BSDF layer is placed over another base BSDF layer, and the light not reflected by the top layer is assumed to be transmitted to the base layer; for example, adding a dielectric coating layer over a substrate. The refraction index and roughness of the coating will then affect the attenuation of light reaching the substrate. The substrate can be a transmissive BSDF to transmit the light further, or a reflective BSDF to reflect the light back up through the coating. The substrate can in turn be a reflective BSDF to simulate multiple specular lobes. We refer to this type of layering as **vertical layering** and it can be achieved using the [&lt;layer> node](#node-layer) in the PBS library. See [&lt;dielectric_bsdf>](#node-dielectric-bsdf) and [&lt;sheen_bsdf>](#node-sheen-bsdf) below.
 * Shader Input Blending: Calculating and blending many BSDFs or separate surface shaders can be expensive. In some situations good results can be achieved by blending the texture/value inputs instead, before any illumination calculations. Typically one would use this with an über-shader that can simulate many different materials, and by masking or blending its inputs over the surface you get the appearance of having multiple layers, but with less expensive texture or value blending. Examples of this are given in the main [MaterialX Specification "Pre-Shader Compositing Example"](./MaterialX.Specification.md#example-pre-shader-compositing-material).
 
 
@@ -185,6 +185,8 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `tint` (color3): Color weight to tint the reflected and transmitted light. Defaults to (1.0, 1.0, 1.0). Note that changing the tint gives non-physical results and should only be done when needed for artistic purposes.
     * `ior` (float): Index of refraction of the surface. Defaults to 1.5. If set to 0.0 the Fresnel curve is disabled and reflectivity is controlled only by weight and tint.
     * `roughness` (vector2): Surface roughness. Defaults to (0.05, 0.05).
+    * `thinfilm_thickness` (float): The thickness of an iridescent thin film layer applied over the base bsdf[^5], expressed in nanometers. Defaults to 0.0, for no thin film.
+    * `thinfilm_ior` (float): The index of refraction of the thin film layer. Defaults to 1.5.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `tangent` (vector3): Tangent vector of the surface. Defaults to world space tangent.
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
@@ -192,27 +194,32 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-conductor-bsdf"> </a>
 
-* **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^5]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^6] is needed the [&lt;artistic_ior> utility node](#node-artistic-ior) can be connected to handle this.
+* **`conductor_bsdf`**: Constructs a reflection BSDF based on a microfacet reflectance model[^6]. Uses a Fresnel curve with complex refraction index for conductors/metals. If an artistic parametrization[^7] is needed the [&lt;artistic_ior> utility node](#node-artistic-ior) can be connected to handle this.
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `ior `(color3): Index of refraction. Default is (0.18, 0.42, 1.37) with colorspace "none" (approximate IOR for gold).
     * `extinction` (color3): Extinction coefficient. Default is (3.42, 2.35, 1.77) with colorspace "none" (approximate extinction coefficients for gold).
     * `roughness` (vector2): Surface roughness. Defaults to (0.05, 0.05).
+    * `thinfilm_thickness` (float): The thickness of an iridescent thin film layer applied over the base bsdf, expressed in nanometers. Defaults to 0.0, for no thin film.
+    * `thinfilm_ior` (float): The index of refraction of the thin film layer. Defaults to 1.5.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `tangent` (vector3): Tangent vector of the surface. Defaults to world space tangent.
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
 
 <a id="node-generalized-schlick-bsdf"> </a>
 
-* **`generalized_schlick_bsdf`**: Constructs a reflection and/or transmission BSDF based on a microfacet model and a generalized Schlick Fresnel curve[^7]. If reflection scattering is enabled the node may be layered vertically over a base BSDF for the surface beneath the dielectric layer. By chaining multiple &lt;generalized_schlick_bsdf> nodes you can describe a surface with multiple specular lobes. If transmission scattering is enabled the node may be layered over a VDF describing the surface interior to handle absorption and scattering inside the medium, useful for colored glass, turbid water, etc.
+* **`generalized_schlick_bsdf`**: Constructs a reflection and/or transmission BSDF based on a microfacet model and a generalized Schlick Fresnel curve[^8]. If reflection scattering is enabled the node may be layered vertically over a base BSDF for the surface beneath the dielectric layer. By chaining multiple &lt;generalized_schlick_bsdf> nodes you can describe a surface with multiple specular lobes. If transmission scattering is enabled the node may be layered over a VDF describing the surface interior to handle absorption and scattering inside the medium, useful for colored glass, turbid water, etc.
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color0` (color3): Reflectivity per color component at facing angles. Defaults to (1.0, 1.0, 1.0).
+    * `color82` (color3): A multiplier on the reflectivity per color component at 82 degrees, useful for capturing the "dip" in the reflectance curve of metallic surfaces. Defaults to (1.0, 1.0, 1.0), which effectively disables "color82" for backward compatibility[^9].
     * `color90` (color3): Reflectivity per color component at grazing angles. Defaults to (1.0, 1.0, 1.0).
     * `exponent` (float): Exponent for the Schlick blending between `color0` and `color90`. Defaults to 5.0.
     * `roughness` (vector2): Surface roughness. Defaults to (0.05, 0.05).
+    * `thinfilm_thickness` (float): The thickness of an iridescent thin film layer applied over the base bsdf, expressed in nanometers. Defaults to 0.0, for no thin film.
+    * `thinfilm_ior` (float): The index of refraction of the thin film layer. Defaults to 1.5.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `tangent` (vector3): Tangent vector of the surface. Defaults to world space tangent.
     * `distribution` (uniform string): Microfacet distribution type. Defaults to "ggx".
@@ -227,7 +234,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-subsurface-bsdf"> </a>
 
-* **`subsurface_bsdf`**: Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods as well as approximate empirical methods[^8]. Note that this category of subsurface scattering can be defined more rigorously as a BSDF vertically layered over an [<anisotropic_vdf>](#node-anisotropic-vdf), and we expect these two descriptions of the scattering-surface distribution function to be unified in future versions of MaterialX.
+* **`subsurface_bsdf`**: Constructs a subsurface scattering BSDF for subsurface scattering within a homogeneous medium. The parameterization is chosen to match random walk Monte Carlo methods as well as approximate empirical methods[^10]. Note that this category of subsurface scattering can be defined more rigorously as a BSDF vertically layered over an [<anisotropic_vdf>](#node-anisotropic-vdf), and we expect these two descriptions of the scattering-surface distribution function to be unified in future versions of MaterialX.
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color` (color3): Diffuse reflectivity (albedo). Defaults to (0.18, 0.18, 0.18).
@@ -237,21 +244,13 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-sheen-bsdf"> </a>
 
-* **`sheen_bsdf`**: Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a [&lt;layer> node](#node-layer). All energy that is not reflected will be transmitted to the base layer[^9].
+* **`sheen_bsdf`**: Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials. This node may be layered vertically over a base BSDF using a [&lt;layer> node](#node-layer). All energy that is not reflected will be transmitted to the base layer[^11].
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
     * `color` (color3): Sheen reflectivity. Defaults to (1.0, 1.0, 1.0).
     * `roughness` (float): Surface roughness, range [0.0, 1.0]. Defaults to 0.3.
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
-
-<a id="node-thin-film-bsdf"> </a>
-
-* **`thin_film_bsdf`**: Adds an iridescent thin film layer over a microfacet base BSDF[^10]. The thin film node must be layered over the base BSDF using a [&lt;layer> node](#node-layer), as the node is a modifier and cannot be used as a standalone BSDF.
-
-
-    * `thickness` (float): Thickness of the thin film layer in nanometers.  Default is 550 nm.
-    * `ior` (float): Index of refraction of the thin film layer.  Default is 1.5.
 
 
 ## EDF Nodes
@@ -271,7 +270,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-measured-edf"> </a>
 
-* **`measured_edf`**: Constructs an EDF emitting light according to a measured IES light profile[^11].
+* **`measured_edf`**: Constructs an EDF emitting light according to a measured IES light profile[^12].
 
 
     * `color` (color3): Radiant emittance of light leaving the surface.  Default is (1, 1, 1).
@@ -296,7 +295,7 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 <a id="node-anisotropic-vdf"> </a>
 
-* **`anisotropic_vdf`**: Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function[^12]. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
+* **`anisotropic_vdf`**: Constructs a VDF scattering light for a participating medium, based on the Henyey-Greenstein phase function[^13]. Forward, backward and uniform scattering is supported and controlled by the anisotropy input.
 
     * `absorption` (color3): Absorption rate for the medium (rate per distance traveled in the medium, given in _m<sup>−1</sup>_). Set for each color component/wavelength separately. Default is (0, 0, 0).
     * `scattering` (color3): Scattering rate for the medium (rate per distance traveled in the medium, given in _m<sup>−1</sup>_). Set for each color component/wavelength separately. Default is (0, 0, 0).
@@ -326,14 +325,6 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `intensity` (color3): Intensity multiplier for the EDF’s emittance. Defaults to (1.0, 1.0, 1.0).
     * `exposure` (float): Exposure control for the EDF’s emittance. Defaults to 0.0.
 
-<a id="node-environment"> </a>
-
-* **`environment`**: Constructs a light shader describing an environment or IBL light source. The light shader will emit light coming from all directions according to the specified lat/long environment image file, in which the bottom edge is the "downward" direction, the top edge is the "upward" direction, and the left/right edge "seam" in the environment image is aligned with the "toward camera" axis.  E.g. in applications where +Y is "up" and +Z is "toward camera", latitudes -pi/2 and +pi/2 correspond to the negative and positive y direction; latitude 0, longitude 0 points into positive z direction; and latitude 0, longitude pi/2 points into positive x direction. Output type "lightshader".
-    * `in` (color3): the latlong environment/IBL texture for the light source.  Defaults to (0,0,0), producing no emission.
-    * `space` (uniform string): the space in which the environment is defined, defaults to "world".
-    * `intensity` (color3): Intensity multiplier for the light's emittance. Defaults to (1.0, 1.0, 1.0).
-    * `exposure` (float): Exposure control for the light's emittance. Defaults to 0.0.
-
 Note that the standard library includes definitions for [**`displacement`**](./MaterialX.Specification.md#node-displacement) and [**`surface_unlit`**](./MaterialX.Specification.md#node-surfaceunlit) shader nodes.
 
 
@@ -349,7 +340,7 @@ Note that the standard library includes definitions for [**`displacement`**](./M
 
 <a id="node-layer"> </a>
 
-* **`layer`**: Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf), [&lt;sheen_bsdf>](#node-sheen-bsdf) or [&lt;thin_film_bsdf>](#node-thin-film-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
+* **`layer`**: Vertically layer a layerable BSDF such as [&lt;dielectric_bsdf>](#node-dielectric-bsdf), [&lt;generalized_schlick_bsdf>](#node-generalized-schlick-bsdf) or [&lt;sheen_bsdf>](#node-sheen-bsdf) over a BSDF or VDF. The implementation is target specific, but a standard way of handling this is by albedo scaling, using the function "base*(1-reflectance(top)) + top", where the reflectance function calculates the directional albedo of a given BSDF.
     * `top` (BSDF): The top BSDF.  Defaults to "".
     * `base` (BSDF or VDF): The base BSDF or VDF.  Defaults to "".
 
@@ -404,7 +395,7 @@ This section contains examples of shading model implementations using the Materi
 
 ## Autodesk Standard Surface
 
-This is a surface shading model used in Autodesk products created by the Solid Angle team for the Arnold renderer. It is an über shader built from ten different BSDF layers[^13].
+This is a surface shading model used in Autodesk products created by the Solid Angle team for the Arnold renderer. It is an über shader built from ten different BSDF layers[^14].
 
 A MaterialX definition and nodegraph implementation of Autodesk Standard Surface can be found here:  
 [https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/standard_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/standard_surface.mtlx)
@@ -412,7 +403,7 @@ A MaterialX definition and nodegraph implementation of Autodesk Standard Surface
 
 ## UsdPreviewSurface
 
-This is a shading model proposed by Pixar for USD[^14]. It is meant to model a physically based surface that strikes a balance between expressiveness and reliable interchange between current day DCC’s and game engines and other real-time rendering clients.
+This is a shading model proposed by Pixar for USD[^15]. It is meant to model a physically based surface that strikes a balance between expressiveness and reliable interchange between current day DCC’s and game engines and other real-time rendering clients.
 
 A MaterialX definition and nodegraph implementation of UsdPreviewSurface can be found here:  
 [https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/usd_preview_surface.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/usd_preview_surface.mtlx)
@@ -444,23 +435,25 @@ The MaterialX PBS Library includes a number of nodegraphs that can be used to ap
 
 [^4]: Bruce Walter et al., **Microfacet Models for Refraction through Rough Surfaces**, <https://www.cs.cornell.edu/\~srm/publications/EGSR07-btdf.pdf>, 2007
 
-[^5]: Brent Burley, **Physically-Based Shading at Disney**, <https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf>, 2012
+[^5]: Laurent Belcour, Pascal Barla, **A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence**, <https://belcour.github.io/blog/research/2017/05/01/brdf-thin-film.html>, 2017
 
-[^6]: Ole Gulbrandsen, **Artist Friendly Metallic Fresnel**, <http://jcgt.org/published/0003/04/03/paper.pdf>, 2014
+[^6]: Brent Burley, **Physically-Based Shading at Disney**, <https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf>, 2012
 
-[^7]: Sony Pictures Imageworks, **Revisiting Physically Based Shading at Imageworks**, <https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017\_pbs\_imageworks\_slides.pdf>
+[^7]: Ole Gulbrandsen, **Artist Friendly Metallic Fresnel**, <http://jcgt.org/published/0003/04/03/paper.pdf>, 2014
 
-[^8]: Pixar, **Approximate Reflectance Profiles for Efficient Subsurface Scattering**, <http://graphics.pixar.com/library/ApproxBSSRDF/> 2015
+[^8]: Sony Pictures Imageworks, **Revisiting Physically Based Shading at Imageworks**, <https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017\_pbs\_imageworks\_slides.pdf>
 
-[^9]: Sony Pictures Imageworks, **Production Friendly Microfacet Sheen BRDF**, <https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017\_pbs\_imageworks\_sheen.pdf>
+[^9]: Naty Hoffman, **Generalization of Adobe's Fresnel Model**, <https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf> 2023
 
-[^10]: Laurent Belcour, Pascal Barla, **A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence**, <https://belcour.github.io/blog/research/2017/05/01/brdf-thin-film.html>, 2017
+[^10]: Pixar, **Approximate Reflectance Profiles for Efficient Subsurface Scattering**, <http://graphics.pixar.com/library/ApproxBSSRDF/> 2015
 
-[^11]: **Standard File Format for Electronic Transfer of Photometric Data**, <https://www.ies.org/product/standard-file-format-for-electronic-transfer-of-photometric-data/>
+[^11]: Sony Pictures Imageworks, **Production Friendly Microfacet Sheen BRDF**, <https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017\_pbs\_imageworks\_sheen.pdf>
 
-[^12]: Matt Pharr, Wenzel Jakob, Greg Humphreys, **Physically Based Rendering: From Theory To Implementation**, Chapter 11.2, <http://www.pbr-book.org/3ed-2018/Volume\_Scattering/Phase\_Functions.html>
+[^12]: **Standard File Format for Electronic Transfer of Photometric Data**, <https://www.ies.org/product/standard-file-format-for-electronic-transfer-of-photometric-data/>
 
-[^13]: <a name="footnote13">13.</a> Autodesk, **A Surface Standard**, <https://github.com/Autodesk/standard-surface>, 2019.
+[^13]: Matt Pharr, Wenzel Jakob, Greg Humphreys, **Physically Based Rendering: From Theory To Implementation**, Chapter 11.2, <http://www.pbr-book.org/3ed-2018/Volume\_Scattering/Phase\_Functions.html>
 
-[^14]: <a name="footnote14">14.</a> Pixar, **UsdPreviewSurface Proposal**, <<https://graphics.pixar.com/usd/docs/UsdPreviewSurface-Proposal.html>, 2018.
+[^14]: Autodesk, **A Surface Standard**, <https://github.com/Autodesk/standard-surface>, 2019.
+
+[^15]: Pixar, **UsdPreviewSurface Proposal**, <<https://graphics.pixar.com/usd/docs/UsdPreviewSurface-Proposal.html>, 2018.
 

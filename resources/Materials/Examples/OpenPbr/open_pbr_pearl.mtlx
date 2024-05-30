@@ -13,7 +13,8 @@
     <input name="coat_weight" type="float" value="1" />
     <input name="coat_roughness" type="float" value="0.15" />
     <input name="coat_ior" type="float" value="1.68" />
-    <input name="thin_film_thickness" type="float" value="420" />
+    <input name="thin_film_weight" type="float" value="1.0" />
+    <input name="thin_film_thickness" type="float" value="0.420" />
     <input name="thin_film_ior" type="float" value="2" />
   </open_pbr_surface>
 </materialx>

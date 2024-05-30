@@ -90,3 +90,62 @@ float mx_imageworks_sheen_dir_albedo(float NdotV, float roughness)
 #endif
     return clamp(dirAlbedo, 0.0, 1.0);
 }
+
+// The following functions are adapted from https://github.com/tizian/ltc-sheen.
+// "Practical Multiple-Scattering Sheen Using Linearly Transformed Cosines", Zeltner et al.
+
+// Gaussian fit to directional albedo table.
+float mx_zeltner_sheen_dir_albedo(float x, float y)
+{
+    float s = y*(0.0206607 + 1.58491*y)/(0.0379424 + y*(1.32227 + y));
+    float m = y*(-0.193854 + y*(-1.14885 + y*(1.7932 - 0.95943*y*y)))/(0.046391 + y);
+    float o = y*(0.000654023 + (-0.0207818 + 0.119681*y)*y)/(1.26264 + y*(-1.92021 + y));
+    return exp(-0.5*mx_square((x - m)/s))/(s*sqrt(2.0*M_PI)) + o;
+}
+
+// Rational fits to LTC matrix coefficients.
+float mx_zeltner_sheen_ltc_aInv(float x, float y)
+{
+    return (2.58126*x + 0.813703*y)*y/(1.0 + 0.310327*x*x + 2.60994*x*y);
+}
+
+float mx_zeltner_sheen_ltc_bInv(float x, float y)
+{
+    return sqrt(1.0 - x)*(y - 1.0)*y*y*y/(0.0000254053 + 1.71228*x - 1.71506*x*y + 1.34174*y*y);
+}
+
+// V and N are assumed to be unit vectors.
+mat3 mx_orthonormal_basis_ltc(vec3 V, vec3 N, float NdotV)
+{
+    // Generate a tangent vector in the plane of V and N.
+    // This required to correctly orient the LTC lobe.
+    vec3 X = V - N*NdotV;
+    float lenSqr = dot(X, X);
+    if (lenSqr > 0.0)
+    {
+        X *= inversesqrt(lenSqr);
+        vec3 Y = cross(N, X);
+        return mat3(X, Y, N);
+    }
+
+    // If lenSqr == 0, then V == N, so any orthonormal basis will do.
+    return mx_orthonormal_basis(N);
+}
+
+// Multiplication by directional albedo is handled by the calling function.
+float mx_zeltner_sheen_brdf(vec3 L, vec3 V, vec3 N, float NdotV, float roughness)
+{
+    mat3 toLTCSpace = transpose(mx_orthonormal_basis_ltc(V, N, NdotV));
+    vec3 wi = toLTCSpace * L;
+
+    float aInv = mx_zeltner_sheen_ltc_aInv(NdotV, roughness);
+    float bInv = mx_zeltner_sheen_ltc_bInv(NdotV, roughness);
+
+    vec3 wiOrig = vec3(aInv*wi.x + bInv*wi.z, aInv * wi.y, wi.z);
+    float lenSqr = dot(wiOrig, wiOrig);
+
+    float det = aInv * aInv;
+    float jacobian = det / mx_square(lenSqr);
+
+    return jacobian * max(wiOrig.z, 0.0) * M_PI_INV;
+}

@@ -57,7 +57,7 @@ Additionally, a &lt;nodegraph> could previously declare itself to be an implemen
 
 **Generalized Swizzle Operator Removed**
 
-The standard &lt;swizzle> node using a string of channel names and allowing arbitrary channel reordering is very inefficient (and in some shading languages virtually impossible) to implement as previously specified, and as such has been removed.  Nodegraphs should instead use combinations of &lt;extract> (which is now a standard node), &lt;separateN> and &lt;combineN> nodes to perform arbitrary channel reordering.  Additionally, the previous "channels" attribute for inputs which allowed arbitrary channel reordering and used string "swizzle" channel naming has been replaced with an integer "channel" attribute, allowing a float input to be connected to a specified channel number of a color<em>N</em> or vector<em>N</em> output.  This is both far more efficient to implement and more closely matches the conventions for connecting different input and output types available in modern DCCs.
+The standard &lt;swizzle> node using a string of channel names and allowing arbitrary channel reordering is very inefficient (and in some shading languages virtually impossible) to implement as previously specified, and as such has been removed.  Nodegraphs should instead use combinations of &lt;extract> (which is now a standard node), &lt;separateN> and &lt;combineN> nodes to perform arbitrary channel reordering.  Additionally, the previous "channels" attribute for inputs which allowed arbitrary channel reordering and used string "swizzle" channel naming has been removed.
 
 
 **New Unlit Surface Shader and Standard Materials**

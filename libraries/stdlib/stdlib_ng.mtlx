@@ -3977,10 +3977,10 @@
   </nodegraph>
   <nodegraph name="NG_overlay_color3" nodedef="ND_overlay_color3">
     <output name="out" type="color3" nodename="N_combine" />
-    <separate3 name="N_split_color3_fg" type="multioutput" nodedef="ND_separate3_color3">
+    <separate3 name="N_split_color3_fg" type="multioutput">
       <input name="in" type="color3" interfacename="fg" />
     </separate3>
-    <separate3 name="N_split_color3_bg" type="multioutput" nodedef="ND_separate3_color3">
+    <separate3 name="N_split_color3_bg" type="multioutput">
       <input name="in" type="color3" interfacename="bg" />
     </separate3>
     <combine3 name="N_combine" type="color3" nodedef="ND_combine3_color3">
@@ -4006,10 +4006,10 @@
   </nodegraph>
   <nodegraph name="NG_overlay_color4" nodedef="ND_overlay_color4">
     <output name="out" type="color4" nodename="N_combine" />
-    <separate4 name="N_split_fg" type="multioutput" nodedef="ND_separate4_color4">
+    <separate4 name="N_split_fg" type="multioutput">
       <input name="in" type="color4" interfacename="fg" />
     </separate4>
-    <separate4 name="N_split_bg" type="multioutput" nodedef="ND_separate4_color4">
+    <separate4 name="N_split_bg" type="multioutput">
       <input name="in" type="color4" interfacename="bg" />
     </separate4>
     <overlay name="N_overlay_r" type="float" nodedef="ND_overlay_float">
@@ -4147,100 +4147,98 @@
   </nodegraph>
 
   <!--
-    Node: <extract>
-    Extract a single channel from a colorN or vectorN stream, outputting a float.
-  -->
-  <nodegraph name="NG_extract_color3" nodedef="ND_extract_color3">
-    <switch name="N_sw_color3" type="float">
-      <input name="in1" type="float" interfacename="in" channels="r" />
-      <input name="in2" type="float" interfacename="in" channels="g" />
-      <input name="in3" type="float" interfacename="in" channels="b" />
-      <input name="which" type="integer" interfacename="index" />
-    </switch>
-    <output name="out" type="float" nodename="N_sw_color3" />
-  </nodegraph>
-  <nodegraph name="NG_extract_color4" nodedef="ND_extract_color4">
-    <switch name="N_sw_color4" type="float">
-      <input name="in1" type="float" interfacename="in" channels="r" />
-      <input name="in2" type="float" interfacename="in" channels="g" />
-      <input name="in3" type="float" interfacename="in" channels="b" />
-      <input name="in4" type="float" interfacename="in" channels="a" />
-      <input name="which" type="integer" interfacename="index" />
-    </switch>
-    <output name="out" type="float" nodename="N_sw_color4" />
-  </nodegraph>
-  <nodegraph name="NG_extract_vector2" nodedef="ND_extract_vector2">
-    <switch name="N_sw_vector2" type="float">
-      <input name="in1" type="float" interfacename="in" channels="x" />
-      <input name="in2" type="float" interfacename="in" channels="y" />
-      <input name="which" type="integer" interfacename="index" />
-    </switch>
-    <output name="out" type="float" nodename="N_sw_vector2" />
-  </nodegraph>
-  <nodegraph name="NG_extract_vector3" nodedef="ND_extract_vector3">
-    <switch name="N_sw_vector3" type="float">
-      <input name="in1" type="float" interfacename="in" channels="x" />
-      <input name="in2" type="float" interfacename="in" channels="y" />
-      <input name="in3" type="float" interfacename="in" channels="z" />
-      <input name="which" type="integer" interfacename="index" />
-    </switch>
-    <output name="out" type="float" nodename="N_sw_vector3" />
-  </nodegraph>
-  <nodegraph name="NG_extract_vector4" nodedef="ND_extract_vector4">
-    <switch name="N_sw_vector4" type="float">
-      <input name="in1" type="float" interfacename="in" channels="x" />
-      <input name="in2" type="float" interfacename="in" channels="y" />
-      <input name="in3" type="float" interfacename="in" channels="z" />
-      <input name="in4" type="float" interfacename="in" channels="w" />
-      <input name="which" type="integer" interfacename="index" />
-    </switch>
-    <output name="out" type="float" nodename="N_sw_vector4" />
-  </nodegraph>
-
-  <!--
     Nodes: <separate2>, <separate3>, <separate4>
     Output each of the channels of a color/vector stream as a separate float output.
   -->
   <nodegraph name="NG_separate3_color3" nodedef="ND_separate3_color3">
-    <dot name="N_dot_color3" type="color3">
+    <extract name="N_extract_0" type="float">
       <input name="in" type="color3" interfacename="in" />
-    </dot>
-    <output name="outr" type="float" nodename="N_dot_color3" channels="r" />
-    <output name="outg" type="float" nodename="N_dot_color3" channels="g" />
-    <output name="outb" type="float" nodename="N_dot_color3" channels="b" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="N_extract_1" type="float">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="N_extract_2" type="float">
+      <input name="in" type="color3" interfacename="in" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <output name="outr" type="float" nodename="N_extract_0" />
+    <output name="outg" type="float" nodename="N_extract_1" />
+    <output name="outb" type="float" nodename="N_extract_2" />
   </nodegraph>
   <nodegraph name="NG_separate4_color4" nodedef="ND_separate4_color4">
-    <dot name="N_dot_color4" type="color4">
+     <extract name="N_extract_0" type="float">
       <input name="in" type="color4" interfacename="in" />
-    </dot>
-    <output name="outr" type="float" nodename="N_dot_color4" channels="r" />
-    <output name="outg" type="float" nodename="N_dot_color4" channels="g" />
-    <output name="outb" type="float" nodename="N_dot_color4" channels="b" />
-    <output name="outa" type="float" nodename="N_dot_color4" channels="a" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="N_extract_1" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="N_extract_2" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <extract name="N_extract_3" type="float">
+      <input name="in" type="color4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <output name="outr" type="float" nodename="N_extract_0" />
+    <output name="outg" type="float" nodename="N_extract_1" />
+    <output name="outb" type="float" nodename="N_extract_2" />
+    <output name="outa" type="float" nodename="N_extract_3" />
   </nodegraph>
   <nodegraph name="NG_separate2_vector2" nodedef="ND_separate2_vector2">
-    <dot name="N_dot_vector2" type="vector2">
+     <extract name="N_extract_0" type="float">
       <input name="in" type="vector2" interfacename="in" />
-    </dot>
-    <output name="outx" type="float" nodename="N_dot_vector2" channels="x" />
-    <output name="outy" type="float" nodename="N_dot_vector2" channels="y" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="N_extract_1" type="float">
+      <input name="in" type="vector2" interfacename="in" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <output name="outx" type="float" nodename="N_extract_0" />
+    <output name="outy" type="float" nodename="N_extract_1" />
   </nodegraph>
   <nodegraph name="NG_separate3_vector3" nodedef="ND_separate3_vector3">
-    <dot name="N_dot_vector3" type="vector3">
+     <extract name="N_extract_0" type="float">
       <input name="in" type="vector3" interfacename="in" />
-    </dot>
-    <output name="outx" type="float" nodename="N_dot_vector3" channels="x" />
-    <output name="outy" type="float" nodename="N_dot_vector3" channels="y" />
-    <output name="outz" type="float" nodename="N_dot_vector3" channels="z" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="N_extract_1" type="float">
+      <input name="in" type="vector3" interfacename="in" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="N_extract_2" type="float">
+      <input name="in" type="vector3" interfacename="in" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <output name="outx" type="float" nodename="N_extract_0" />
+    <output name="outy" type="float" nodename="N_extract_1" />
+    <output name="outz" type="float" nodename="N_extract_2" />
   </nodegraph>
   <nodegraph name="NG_separate4_vector4" nodedef="ND_separate4_vector4">
-    <dot name="N_dot_vector4" type="vector4">
+    <extract name="N_extract_0" type="float">
       <input name="in" type="vector4" interfacename="in" />
-    </dot>
-    <output name="outx" type="float" nodename="N_dot_vector4" channels="x" />
-    <output name="outy" type="float" nodename="N_dot_vector4" channels="y" />
-    <output name="outz" type="float" nodename="N_dot_vector4" channels="z" />
-    <output name="outw" type="float" nodename="N_dot_vector4" channels="w" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="N_extract_1" type="float">
+      <input name="in" type="vector4" interfacename="in" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="N_extract_2" type="float">
+      <input name="in" type="vector4" interfacename="in" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <extract name="N_extract_3" type="float">
+      <input name="in" type="vector4" interfacename="in" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <output name="outx" type="float" nodename="N_extract_0" />
+    <output name="outy" type="float" nodename="N_extract_1" />
+    <output name="outz" type="float" nodename="N_extract_2" />
+    <output name="outw" type="float" nodename="N_extract_3" />
   </nodegraph>
 
   <!-- ======================================================================== -->

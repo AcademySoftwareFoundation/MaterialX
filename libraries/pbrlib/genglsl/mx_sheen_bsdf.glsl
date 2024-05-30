@@ -1,5 +1,9 @@
 #include "lib/mx_microfacet_sheen.glsl"
 
+#define SHEEN_METHOD 0
+
+#if SHEEN_METHOD == 0
+
 void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
 {
     if (weight < M_FLOAT_EPS)
@@ -41,3 +45,43 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     vec3 Li = mx_environment_irradiance(N);
     bsdf.response = Li * color * dirAlbedo * weight;
 }
+
+#elif SHEEN_METHOD == 1
+
+void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
+{
+    if (weight < M_FLOAT_EPS)
+    {
+        return;
+    }
+
+    N = mx_forward_facing_normal(N, V);
+
+    float NdotV = min(dot(N, V), 1.0);
+
+    vec3 fr = color * mx_zeltner_sheen_brdf(L, V, N, NdotV, roughness);
+    float dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
+    bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
+
+    bsdf.response = dirAlbedo * fr * occlusion * weight;
+}
+
+void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
+{
+    if (weight < M_FLOAT_EPS)
+    {
+        return;
+    }
+
+    N = mx_forward_facing_normal(N, V);
+
+    float NdotV = min(dot(N, V), 1.0);
+
+    float dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
+    bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
+
+    vec3 Li = mx_environment_irradiance(N);
+    bsdf.response = Li * color * dirAlbedo * weight;
+}
+
+#endif
