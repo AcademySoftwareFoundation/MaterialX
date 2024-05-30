@@ -20,9 +20,9 @@ void bindPyUtil(py::module& mod)
         py::arg("rootPath"), py::arg("searchPath"), py::arg("skipFiles"), py::arg("includeFiles"), py::arg("documents"), py::arg("documentsPaths"),
         py::arg("readOptions") = (mx::XmlReadOptions*) nullptr, py::arg("errors") = (mx::StringVec*) nullptr);
     mod.def("loadLibrary", &mx::loadLibrary,
-        py::arg("file"), py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
+        py::arg("file"), py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr, py::arg("errorOnDuplicates") = false);
     mod.def("loadLibraries", &mx::loadLibraries,
-        py::arg("libraryFolders"), py::arg("searchPath"), py::arg("doc"), py::arg("excludeFiles") = mx::StringSet(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
+        py::arg("libraryFolders"), py::arg("searchPath"), py::arg("doc"), py::arg("excludeFiles") = mx::StringSet(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr, py::arg("errorOnDuplicates") = false);
     mod.def("flattenFilenames", &mx::flattenFilenames,
         py::arg("doc"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("customResolver") = (mx::StringResolverPtr) nullptr);
     mod.def("getSourceSearchPath", &mx::getSourceSearchPath);

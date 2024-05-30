@@ -136,7 +136,7 @@ OutputPtr PortElement::getConnectedOutput() const
     return result;
 }
 
-bool PortElement::validate(string* message) const
+bool PortElement::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
 
@@ -195,7 +195,7 @@ bool PortElement::validate(string* message) const
             validateRequire(getType() == connectedNode->getType(), res, message, "Mismatched types in port connection");
         }
     }
-    return ValueElement::validate(message) && res;
+    return ValueElement::validate(message, validationOptions) && res;
 }
 
 //
@@ -259,7 +259,7 @@ GeomPropDefPtr Input::getDefaultGeomProp() const
     return nullptr;
 }
 
-bool Input::validate(string* message) const
+bool Input::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     ConstElementPtr parent = getParent();
@@ -279,7 +279,7 @@ bool Input::validate(string* message) const
     {
         validateRequire(parent->asA<NodeGraph>()->getNodeDef() == nullptr, res, message, "Input element in a functional nodegraph has no effect");
     }
-    return PortElement::validate(message) && res;
+    return PortElement::validate(message, validationOptions) && res;
 }
 
 //
@@ -309,11 +309,11 @@ bool Output::hasUpstreamCycle() const
     return false;
 }
 
-bool Output::validate(string* message) const
+bool Output::validate(string* message, const ValidationOptions* validationOptions) const
 {
     bool res = true;
     validateRequire(!hasUpstreamCycle(), res, message, "Cycle in upstream path");
-    return PortElement::validate(message) && res;
+    return PortElement::validate(message, validationOptions) && res;
 }
 
 //

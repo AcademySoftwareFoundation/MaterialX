@@ -29,7 +29,8 @@ void bindPyDocument(py::module& mod)
     py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
-        .def("importLibrary", &mx::Document::importLibrary)
+        .def("importLibrary", &mx::Document::importLibrary,
+            py::arg("library"), py::arg("errorOnDuplicates")=false)
         .def("getReferencedSourceUris", &mx::Document::getReferencedSourceUris)
         .def("addNodeGraph", &mx::Document::addNodeGraph,
             py::arg("name") = mx::EMPTY_STRING)
@@ -111,6 +112,12 @@ void bindPyDocument(py::module& mod)
         .def("getUnitTypeDefs", &mx::Document::getUnitTypeDefs)
         .def("removeUnitTypeDef", &mx::Document::removeUnitTypeDef)
         .def("upgradeVersion", &mx::Document::upgradeVersion)
+        .def("validate", [](const mx::Element& elem, const mx::ValidationOptions* validationOptions = nullptr)
+            {
+                std::string message;
+                bool res = elem.validate(&message, validationOptions);
+                return std::pair<bool, std::string>(res, message);
+            }, py::arg("readOptions") = (mx::ValidationOptions*) nullptr)
         .def("setColorManagementSystem", &mx::Document::setColorManagementSystem)
         .def("hasColorManagementSystem", &mx::Document::hasColorManagementSystem)
         .def("getColorManagementSystem", &mx::Document::getColorManagementSystem)
