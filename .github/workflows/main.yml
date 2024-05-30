@@ -130,11 +130,11 @@ jobs:
         sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            sudo apt-get install -y g++-${{ matrix.compiler_version }}
             echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           else
-            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            sudo apt-get install -y clang-${{ matrix.compiler_version }}
             echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi
