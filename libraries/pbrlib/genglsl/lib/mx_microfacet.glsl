@@ -6,6 +6,12 @@ float mx_pow5(float x)
     return mx_square(mx_square(x)) * x;
 }
 
+float mx_pow6(float x)
+{
+    float x2 = mx_square(x);
+    return mx_square(x2) * x2;
+}
+
 // Standard Schlick Fresnel
 float mx_fresnel_schlick(float cosTheta, float F0)
 {
@@ -74,4 +80,16 @@ vec3 mx_uniform_sample_hemisphere(vec2 Xi)
     return vec3(cos(phi) * sinTheta,
                 sin(phi) * sinTheta,
                 cosTheta);
+}
+
+// Construct an orthonormal basis from a unit vector.
+// https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+mat3 mx_orthonormal_basis(vec3 N)
+{
+    float sign = (N.z < 0.0) ? -1.0 : 1.0;
+    float a = -1.0 / (sign + N.z);
+    float b = N.x * N.y * a;
+    vec3 X = vec3(1.0 + sign * N.x * N.x * a, sign * b, -sign * N.x);
+    vec3 Y = vec3(b, sign + N.y * N.y * a, -N.y);
+    return mat3(X, Y, N);
 }

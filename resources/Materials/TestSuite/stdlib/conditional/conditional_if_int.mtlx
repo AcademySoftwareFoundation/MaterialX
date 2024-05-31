@@ -15,6 +15,15 @@
     </ifgreater>
     <output name="out" type="float" nodename="ifgreater1" />
   </nodegraph>
+  <nodegraph name="ifgreater_integer">
+    <ifgreater name="ifgreater1" type="integer">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="integer" value="1" />
+      <input name="in2" type="integer" value="0" />
+    </ifgreater>
+    <output name="out" type="integer" nodename="ifgreater1" />
+  </nodegraph>
   <nodegraph name="ifgreater_color3">
     <ifgreater name="ifgreater1" type="color3">
       <input name="value1" type="integer" value="8" />
@@ -60,6 +69,24 @@
     </ifgreater>
     <output name="out" type="vector4" nodename="ifgreater1" />
   </nodegraph>
+  <nodegraph name="ifgreater_matrix33">
+    <ifgreater name="ifgreater1" type="matrix33">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="matrix33" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifgreater>
+    <output name="out" type="matrix33" nodename="ifgreater1" />
+  </nodegraph>
+  <nodegraph name="ifgreater_matrix44">
+    <ifgreater name="ifgreater1" type="matrix44">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="matrix44" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifgreater>
+    <output name="out" type="matrix44" nodename="ifgreater1" />
+  </nodegraph>
 
   <!-- equal int condition -->
   <nodegraph name="ifequal_float">
@@ -70,6 +97,15 @@
       <input name="in2" type="float" value="0.0" />
     </ifequal>
     <output name="out" type="float" nodename="ifequal1" />
+  </nodegraph>
+  <nodegraph name="ifequal_integer">
+    <ifequal name="ifequal1" type="integer">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="8" />
+      <input name="in1" type="integer" value="1" />
+      <input name="in2" type="integer" value="0" />
+    </ifequal>
+    <output name="out" type="integer" nodename="ifequal1" />
   </nodegraph>
   <nodegraph name="ifequal_color3">
     <ifequal name="ifequal1" type="color3">
@@ -116,6 +152,24 @@
     </ifequal>
     <output name="out" type="vector4" nodename="ifequal1" />
   </nodegraph>
+  <nodegraph name="ifequal_matrix33">
+    <ifequal name="ifequal1" type="matrix33">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="8" />
+      <input name="in1" type="matrix33" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifequal>
+    <output name="out" type="matrix33" nodename="ifequal1" />
+  </nodegraph>
+  <nodegraph name="ifequal_matrix44">
+    <ifequal name="ifequal1" type="matrix44">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="8" />
+      <input name="in1" type="matrix44" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifequal>
+    <output name="out" type="matrix44" nodename="ifequal1" />
+  </nodegraph>
 
   <!-- equal boolean condition -->
   <nodegraph name="ifequalB_float">
@@ -126,6 +180,15 @@
       <input name="in2" type="float" value="0.0" />
     </ifequal>
     <output name="out" type="float" nodename="ifequal1" />
+  </nodegraph>
+  <nodegraph name="ifequalB_integer">
+    <ifequal name="ifequal1" type="integer">
+      <input name="value1" type="boolean" value="true" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="integer" value="1" />
+      <input name="in2" type="integer" value="0" />
+    </ifequal>
+    <output name="out" type="integer" nodename="ifequal1" />
   </nodegraph>
   <nodegraph name="ifequalB_color3">
     <ifequal name="ifequal1" type="color3">
@@ -172,6 +235,24 @@
     </ifequal>
     <output name="out" type="vector4" nodename="ifequal1" />
   </nodegraph>
+  <nodegraph name="ifequalB_matrix33">
+    <ifequal name="ifequal1" type="matrix33">
+      <input name="value1" type="boolean" value="true" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="matrix33" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifequal>
+    <output name="out" type="matrix33" nodename="ifequal1" />
+  </nodegraph>
+  <nodegraph name="ifequalB_matrix44">
+    <ifequal name="ifequal1" type="matrix44">
+      <input name="value1" type="boolean" value="true" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="matrix44" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifequal>
+    <output name="out" type="matrix44" nodename="ifequal1" />
+  </nodegraph>
 
   <!-- greatereq int condition -->
   <nodegraph name="ifgreatereq_float">
@@ -182,6 +263,15 @@
       <input name="in2" type="float" value="0.0" />
     </ifgreatereq>
     <output name="out" type="float" nodename="ifgreatereq1" />
+  </nodegraph>
+  <nodegraph name="ifgreatereq_integer">
+    <ifgreatereq name="ifgreatereq1" type="integer">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="integer" value="1" />
+      <input name="in2" type="integer" value="0" />
+    </ifgreatereq>
+    <output name="out" type="integer" nodename="ifgreatereq1" />
   </nodegraph>
   <nodegraph name="ifgreatereq_color3">
     <ifgreatereq name="ifgreatereq1" type="color3">
@@ -227,5 +317,23 @@
       <input name="in2" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
     </ifgreatereq>
     <output name="out" type="vector4" nodename="ifgreatereq1" />
+  </nodegraph>
+  <nodegraph name="ifgreatereq_matrix33">
+    <ifgreatereq name="ifgreatereq1" type="matrix33">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="matrix33" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix33" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifgreatereq>
+    <output name="out" type="matrix33" nodename="ifgreatereq1" />
+  </nodegraph>
+  <nodegraph name="ifgreatereq_matrix44">
+    <ifgreatereq name="ifgreatereq1" type="matrix44">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" value="6" />
+      <input name="in1" type="matrix44" value="1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0" />
+      <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
+    </ifgreatereq>
+    <output name="out" type="matrix44" nodename="ifgreatereq1" />
   </nodegraph>
 </materialx>

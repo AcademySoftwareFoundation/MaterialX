@@ -8,7 +8,7 @@ MaterialX Specification v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-April 20, 2023
+May 9, 2024
 
 
 # Introduction
@@ -53,6 +53,8 @@ This document describes the core MaterialX specification.  Companion documents [
  [Standard Source Nodes](#standard-source-nodes)  
   [Texture Nodes](#texture-nodes)  
   [Procedural Nodes](#procedural-nodes)  
+  [Noise Nodes](#noise-nodes)  
+  [Shape Nodes](#shape-nodes)  
   [Geometric Nodes](#geometric-nodes)  
   [Global Nodes](#global-nodes)  
   [Application Nodes](#application-nodes)  
@@ -362,20 +364,26 @@ MaterialX reserves the color space name "none" to mean no color space conversion
 
 MaterialX allows floating-point and vector values to be defined in terms of a specific unit and unit type, and can automatically convert values from their specified unit into a scene unit of the same type specified by the application.  This allows images and the quantities they represent such as displacement amount to be specified at an absolute real-world size, and then be converted automatically to the expected scene units of the application.
 
-Unit types are defined using a &lt;unittypedef> element, and a set of units of that type is defined using a &lt;unitdef> element with one or more child &lt;unit> elements:
+Unit types are defined using a &lt;unittypedef> element, and a set of units of that type is defined using a &lt;unitdef> element with one or more child &lt;unit> elements.  The following unittypes and units are pre-defined by MaterialX:
 
 ```xml
   <unittypedef name="distance"/>
   <unitdef name="UD_stdlib_distance" unittype="distance">
+    <unit name="nanometer" scale="0.000000001"/>
     <unit name="micron" scale="0.000001"/>
     <unit name="millimeter" scale="0.001"/>
     <unit name="centimeter" scale="0.01"/>
-    <unit name="meter" scale="1.0"/>
-    <unit name="kilometer" scale="1000.0"/>
     <unit name="inch" scale="0.0254"/>
     <unit name="foot" scale="0.3048"/>
     <unit name="yard" scale="0.9144"/>
+    <unit name="meter" scale="1.0"/>
+    <unit name="kilometer" scale="1000.0"/>
     <unit name="mile" scale="1609.34"/>
+  </unitdef>
+  <unittypedef name="angle"/>
+  <unitdef name="UD_stdlib_angle" unittype="angle">
+    <unit name="degree" scale="1.0"/>
+    <unit name="radian" scale="57.295779513"/>
   </unitdef>
 ```
 
@@ -450,6 +458,20 @@ A `namespace` attribute may also be added to individual &lt;nodedef>s or &lt;nod
 ## Geometric Properties
 
 Geometric Properties, or "geomprops", are intrinsic or user-defined surface coordinate properties of geometries referenced in a specific space and/or index, and are functionally equivalent to USD's concept of "primvars".  A number of geometric properties are predefined in MaterialX: `position`, `normal`, `tangent`, `bitangent`, `texcoord` and `geomcolor`, the values of which can be accessed in nodegraphs using elements of those same names; see the [Geometric Nodes](#geometric-nodes) section below for details.  The value of a varying geometric property can also be used as the default value for a node input using a `defaultgeomprop` attribute.
+
+The following geometric properties are pre-defined by MaterialX:
+
+| GeomProp Name | Type | Description |
+| ---- | ---- | ---- |
+| Pobject | vector3 | Object space position |
+| Nobject | vector3 | Object space surface normal |
+| Tobject | vector3 | Object space tangent vector (index 0) |
+| Bobject | vector3 | Object space bitangent vector (index 0) |
+| Pworld | vector3 | World space position |
+| Nworld | vector3 | World space surface normal |
+| Tworld | vector3 | World space tangent vector (index 0) |
+| Bworld | vector3 | World space bitangent vector (index 0) |
+| UV0 | vector2 | Index "0" UV texture coordinate |
 
 One may also define custom geometric properties using a &lt;geompropdef> element:
 
@@ -566,24 +588,7 @@ A float/vector<em>N</em> input of a node, or a "filename"-type input referring t
   </constant>
 ```
 
-Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector  types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
-
-A node input must generally be connected to outputs of the same type, but float inputs may also be connected to any single channel within a multi-channel data types by adding an integer "channel" attribute, indicating the channel number (0-3) to extract from the input:
-
-```xml
-  <constant name="c3" type="color3">
-    <input name="value" type="color3" value="0.1, 0.2, 0.3"/>
-  </constant>
-  <constant name="v4" type="vector4">
-    <input name="value" type="vector4" value="0.1, 0.2, 0.3, 0.4"/>
-  </constant>
-  <add name="mult1" type="float">
-    <input name="in1" type="float" nodename="c3" channel="0"/>
-    <input name="in2" type="float" nodename="v4" channel="3"/>
-  </add>
-```
-
-The "channel" attribute is valid in any non-token element that allows a "nodename" attribute.
+Unless specified otherwise, all inputs default to a value of 0 in all channels for integer, float, color and vector types, "" for string and filename types, "false" for boolean types, the identity matrix for matrix types, and for array types, an appropriate-length array consisting of the default value for the array's base type.
 
 Standard MaterialX nodes have exactly one output, while custom nodes may have any number of outputs; please see the [Custom Nodes](#custom-nodes) section for details.
 
@@ -633,7 +638,7 @@ MaterialX also supports the following additional attributes for Output elements 
 
 Source nodes use external data and/or procedural functions to form an output; they do not have any required inputs.  Each source node must define its output type.
 
-This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Geometric Nodes](#geometric-nodes), [Global Nodes](#global-nodes) and [Application Nodes](#application-nodes).
+This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Noise Nodes](#noise-nodes), [Shape Nodes](#shape-nodes), [Geometric Nodes](#geometric-nodes), [Global Nodes](#global-nodes) and [Application Nodes](#application-nodes).
 
 
 ### Texture Nodes
@@ -656,7 +661,7 @@ Standard Texture nodes:
 <a id="node-image"> </a>
 
 * **`image`**: samples data from a single image, or from a layer within a multi-layer image.  When used in the context of rendering a geometry, the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image mapping to the (0,0) UV coordinate (or to the fractional (0,0) UV coordinate for tiled images).
-The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.
+The type of the &lt;image> node determines the number of channels output, which may be less than the number of channels in the image file, outputting the first N channels from the image file.  So a `float` &lt;image> would return the Red channel of an RGB image, and a `color3` &lt;image> would return the RGB channels of an RGBA image.  If the type of the &lt;image> node has more channels than the referenced image file, then the output will contain zero values in all channels beyond the N channels of the image file.
     * `file` (uniform filename): the URI of an image file.  The filename can include one or more substitutions to change the file name (including frame number) that is accessed, as described in the [Filename Substitutions](#filename-substitutions) section above.
     * `layer` (uniform string): the name of the layer to extract from a multi-layer input file.  If no value for `layer` is provided and the input file has multiple layers, then the "default" layer will be used, or "rgba" if there is no "default" layer.  Note: the number of channels defined by the `type` of the `<image>` must match the number of channels in the named layer.
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if the `file` reference can not be resolved (e.g. if a &lt;_geometry token_>, [_interface token_] or {_hostattr_} is included in the filename but no substitution value or default is defined, or if the resolved `file` URI cannot be read), or if the specified `layer` does not exist in the file.  The `default` value must be the same type as the `<image>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
@@ -689,6 +694,7 @@ The type of the &lt;image> node determines the number of channels output, which 
     * `default` (float or color<em>N</em> or vector<em>N</em>): a default value to use if any `file<em>X</em>` reference can not be resolved (e.g. if a &lt;geomtoken>, [interfacetoken] or {hostattr} is included in the filename but no substitution value or default is defined, or if the resolved file URI cannot be read)  The `default` value must be the same type as the `<triplanarprojection>` element itself.  If `default` is not defined, the default color value will be 0.0 in all channels.
     * `position` (vector3): a spatially-varying input specifying the 3D position at which the projection is evaluated.  Default is to use the current 3D object-space coordinate.
     * `normal` (vector3): a spatially-varying input specifying the 3D normal vector used for blending.  Default is to use the current object-space surface normal.
+    * `upaxis` (integer enum): which axis is considered to be "up", either 0 for X, 1 for Y, or 2 for Z.  Default is Y (1).
     * `blend` (float): a 0-1 weighting factor for blending the three axis samples using the geometric normal, with higher values giving softer blending.  Default is 1.0.
     * `filtertype` (uniform string): the type of texture filtering to use; standard values include "closest" (nearest-neighbor single-sample), "linear", and "cubic".  If not specified, an application may use its own default texture filtering method.
 
@@ -725,10 +731,10 @@ Procedural nodes are used to generate value data programmatically.
   <constant name="n8" type="color3">
     <input name="value" type="color3" value="0.8,1.0,1.3"/>
   </constant>
-  <noise2d name="n9" type="float">
-    <input name="pivot" type="float" value="0.5"/>
-    <input name="amplitude" type="float" value="0.05"/>
-  </noise2d>
+  <ramptb name="n9" type="float">
+    <input name="valuet" type="float" value="0.9"/>
+    <input name="valueb" type="float" value="0.2"/>
+  </ramptb>
 ```
 
 Standard Procedural nodes:
@@ -782,14 +788,43 @@ Standard Procedural nodes:
     * `center` (float): a value representing the V-coordinate of the split; all pixels above "center" will be `valuet`, all pixels below "center" will be `valueb`.  Default is 0.5.
     * `texcoord` (vector2): the name of a vector2-type node specifying the 2D texture coordinate at which the split position is evaluated.  Default is to use the first set of texture coordinates.
 
-<a id="node-checkerboard"> </a>
+<a id="node-randomfloat"> </a>
 
-* **`checkerboard`**: a 2D checkerboard pattern.
-    * `color1` (color3): The first color used in the checkerboard pattern.
-    * `color2` (color3): The second color used in the checkerboard pattern.
-    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
-    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
-    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+* **`randomfloat`**: Produces a stable randomized float value between 'min' and 'max', based on an 'input' signal and 'seed' value.  Uses a 2d cellnoise function to produce the output.
+    * `in` (float or integer): Initial randomization seed, default is 0.
+    * `min` (float): The minimum output value, default is 0.0.
+    * `max` (float): The maximum output value, default is 1.0.
+    * `seed` (integer): Additional randomization seed, default is 0.
+
+<a id="node-randomcolor"> </a>
+
+* **`randomcolor`**: Produces a randomized RGB color within a randomized hue, saturation and brightness range, based on an 'input' signal and 'seed' value.  Output type color3.
+    * `in` (float or integer): Initial randomization seed, default is 0.
+    * `huelow` (float): The minimum hue value, default is 0.0.
+    * `huehigh` (float): The maximum hue value, default is 1.0.
+    * `saturationlow` (float): The minimum saturation value, default is 0.0.
+    * `saturationhigh` (float): The maximum saturation value, default is 1.0.
+    * `brightnesslow` (float): The minimum brightness value, default is 0.0.
+    * `brightnesshigh` (float): The maximum brightness value, default is 1.0.
+    * `seed` (integer): Additional randomization seed, default is 0.
+
+
+To scale or offset `rampX` or `splitX` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+
+
+
+### Noise Nodes
+
+Noise nodes are used to generate value data using one of several procedural noise functions.
+
+```xml
+  <noise2d name="n9" type="float">
+    <input name="pivot" type="float" value="0.5"/>
+    <input name="amplitude" type="float" value="0.05"/>
+  </noise2d>
+```
+
+Standard Noise nodes:
 
 <a id="node-noise2d"> </a>
 
@@ -892,7 +927,108 @@ Standard Procedural nodes:
     * `diminish` (float): The rate at which noise amplitude is diminished for each octave of Fractal noise. Default is 0.5.
 
 
-To scale or offset the noise pattern generated by `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset `rampX`, `splitX`, `noise2d` or `cellnoise2d` input coordinates, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+To scale or offset the noise pattern generated by a 3D noise node such as `noise3d`, `fractal3d` or `cellnoise3d`, use a &lt;position> or other [Geometric Node](#geometric-nodes) (see below) connected to vector3 &lt;multiply> and/or &lt;add> nodes, in turn connected to the noise node's `position` input.  To scale or offset the noise pattern generated by a 2D noise node such as `noise2d` or `cellnoise2d`, use a &lt;texcoord> or similar Geometric node processed by vector2 &lt;multiply>, &lt;rotate> and/or &lt;add> nodes, and connect to the node's `texcoord` input.
+
+
+
+### Shape Nodes
+
+Shape nodes are used to generate shapes or patterns in UV space.
+
+```xml
+  <checkerboard name="n10" type="color3">
+    <input name="color1" type="color3" value="1.0,0.0,0.0"/>
+    <input name="color2" type="color3" value="0.0,0.0,1.0"/>
+    <input name="uvtiling" type="vector2" value="8, 8"/>
+  </checkerboard>
+```
+
+Standard Shape nodes:
+
+<a id="node-checkerboard"> </a>
+
+* **`checkerboard`** (NG): a 2D checkerboard pattern.  Output type color3.
+    * `color1` (color3): The first color used in the checkerboard pattern.
+    * `color2` (color3): The second color used in the checkerboard pattern.
+    * `uvtiling` (vector2): The tiling of the checkerboard pattern along each axis, with higher values producing smaller squares. Default is (8, 8).
+    * `uvoffset` (vector2): The offset of the checkerboard pattern along each axis. Default is (0, 0).
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+
+<a id="node-line"> </a>
+
+* **`line`** (NG): Returns 1 if texcoord is at less than radius distance from a line segment defined by point1 and point2; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): An offset value added to both the point1 and point2 coordinates, default is (0, 0).
+    * `radius` (float): The radius or "half thickness" of the line, default is 0.1.
+    * `point1` (vector2): The UV coordinate of the first endpoint, default is (0.25, 0.25).
+    * `point2` (vector2): The UV coordinate of the second endpoint, default is (0.75, 0.75).
+
+<a id="node-circle"> </a>
+
+* **`circle`** (NG): Returns 1 if texcoord is inside a circle defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): The center coordinate of the circle, default is (0, 0).
+    * `radius` (float): The radius of the circle, default is 0.5.
+
+<a id="node-cloverleaf"> </a>
+
+* **`cloverleaf`** (NG): Returns 1 if texcoord is inside a cloverleaf shape described by four semicircles on the edges of a square defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): 2x the coordinate of the center of the cloverleaf pattern, default is (0, 0); a value of (1,1) will center the cloverleaf in the 0-1 UV space.
+    * `radius` (float): The radius of the complete cloverleaf pattern, default is 0.5 resulting in a cloverleaf pattern filling the 0-1 UV boundary.
+
+<a id="node-hexagon"> </a>
+
+* **`hexagon`** (NG): Returns 1 if texcoord is inside a hexagon shape inscribed by a circle defined by center and radius; otherwise returns 0.  Output type float.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `center` (vector2): The center coordinate of the hexagon, default is (0, 0).
+    * `radius` (float): The inner (edge center to opposite edge center) radius of the hexagon, default is 0.5.
+
+<a id="node-grid"> </a>
+
+* **`grid`** (NG): Creates a grid pattern of (1, 1, 1) white lines on a (0, 0, 0) black background with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `thickness` (float): The thickness of the grid lines, default is 0.05.
+    * `staggered` (boolean): If true, every other row will be offset 50% to produce a "brick wall" pattern.  Default is false.
+
+<a id="node-crosshatch"> </a>
+
+* **`crosshatch`** (NG): Creates a crosshatch pattern with the given tiling, offset, and line thickness.  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `thickness` (float): The thickness of the grid lines, default is 0.05.
+    * `staggered` (boolean): If true, every other row will be offset 50% to produce an "alternating diamond" pattern.  Default is false.
+
+<a id="node-tiledcircles"> </a>
+
+* **`tiledcircles`** (NG): Creates a black and white pattern of circles with a defined tiling and size (diameter).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The diameter of the circles in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent circles in the tiling will exactly touch.
+    * `staggered` (boolean): If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the circles on the vertices of an equilateral triangle grid.  Default is false.
+
+<a id="node-tiledcloverleafs"> </a>
+
+* **`tiledcloverleafs`** (NG): Creates a black and white pattern of cloverleafs with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The outer diameter of the cloverleafs in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent cloverleafs in the tiling will exactly touch.
+    * `staggered` (boolean): If true, an additional pattern of cloverleafs will be generated in between the originals offset by 50% in both U and V.  Default is false.
+
+<a id="node-tiledhexagons"> </a>
+
+* **`tiledhexagons`** (NG): Creates a black and white pattern of hexagons with a defined tiling and size (diameter of the circles circumscribing the shape).  Pattern can be regular or staggered.  Output type color3.
+    * `texcoord` (vector2): The input 2d space. Default is the first texture coordinates.
+    * `uvtiling` (vector2): Tiling factor, with higher values producing a denser grid.  Default is (1, 1).
+    * `uvoffset` (vector2): UV Offset, default is (0, 0).
+    * `size` (float): The inner diameter of the hexagons in the tiled pattern, default is 0.5; if `size` is 1.0, the edges of adjacent hexagons in the U-direcction tiling will exactly touch.
+    * `staggered` (boolean): If true, every other row will be offset 50%, and the spacing of the tiling will be adjusted in the V direction to center the hexagons on the vertices of an equilateral triangle grid.  Default is false.
+
 
 
 
@@ -1056,15 +1192,15 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-add"> </a>
 
-* **`add`**: add a value to the incoming float/color/vector/matrix.
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the value or nodename to add; for matrix types, the default is the zero matrix.
+* **`add`**: add a value to the incoming float/color/vector/matrix, or, add one integer value to another.
+    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>, or integer): the value or nodename for the primary input; for matrix types, the default is the zero matrix.
+    * `in2` (same type as `in1` or float, or integer): the value or nodename to add; for matrix types, the default is the zero matrix.
 
 <a id="node-subtract"> </a>
 
-* **`subtract`**: subtract a value from the incoming float/color/vector/matrix, outputting "in1-in2".
-    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename for the primary input
-    * `in2` (same type as `in1` or float): the value or nodename to subtract; for matrix types, the default is the zero matrix
+* **`subtract`**: subtract a value from the incoming float/color/vector/matrix, or subtract one integer value from another; in either case, outputting "in1-in2".
+    * `in1` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>, or integer): the value or nodename for the primary input; for matrix types, the default is the zero matrix.
+    * `in2` (same type as `in1` or float, or integer): the value or nodename to subtract; for matrix types, the default is the zero matrix
 
 <a id="node-multiply"> </a>
 
@@ -1154,7 +1290,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 
 <a id="node-atan2"> </a>
 
-* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `in1` and `in2` are provided, they must be the same type.
+* **`atan2`**: the arctangent of the expression (iny/inx); the output will be expressed in radians.  If both `iny` and `inx` are provided, they must be the same type.
     * `iny` (float or vector<em>N</em>): the value or nodename for the "y" input; default is 0.0.
     * `inx` (float or vector<em>N</em>): the value or nodename for the "x" input; default is 1.0.
 
@@ -1179,6 +1315,11 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
     * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
     * `low` (same type as `in` or float): clamp low value; any value lower than this will be set to "low".  Default is 0 in all channels.
     * `high` (same type as `in` or float): clamp high value; any value higher than this will be set to "high".  Default is 1 in all channels.
+
+<a id="node-trianglewave"> </a>
+
+* **`trianglewave`**: Generate a triangle wave from the given scalar input.  The generated wave ranges from zero to one and repeats on integer boundaries.
+    * `in` (float): the scalar value or nodename
 
 <a id="node-min"> </a>
 
@@ -1317,6 +1458,20 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
     * `amount` (float): the amount to rotate, specified in degrees; default is 0.
     * `axis` (vector3): For vector3 inputs only, the unit axis vector about which to rotate; default is (0,1,0).
 
+<a id="node-reflect"> </a>
+
+* **`reflect`**: computes the vector3 reflection of an input vector against a surface normal vector.
+    * `in` (vector3): the input vector to reflect, defaults to (1.0, 0.0, 0.0).
+    * `normal` (vector3): the normal vector about which to reflect "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
+
+<a id="node-refract"> </a>
+
+* **`refract`**: computes the vetor3 refraction vector of an input vector through a surface with a given index of refraction.
+    * `in` (vector3): the input vector to reflect, defaults to (1.0, 0.0, 0.0).
+    * `normal` (vector3): the normal vector about which to reflect "in", defaults to the value of the "Nworld" (world space view direction) geometric property.  This vector is expected to be prenormalized to length 1.0.
+    * `ior` (float): the index of refraction of the surface, defaults to 1.0.
+
+
 <a id="node-place2d"> </a>
 
 * **`place2d`** (NG): transform incoming UV texture coordinates for 2D texture placement.
@@ -1325,7 +1480,7 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
     * `scale` (vector2): divide the u,v coord (after subtracting `pivot`) by this, so a scale (2,2) makes the texture image appear twice as big.  Negative values can be used to flip or flop the texture space.  Default is (1,1).
     * `rotate` (float): rotate u,v coord (after subtracting pivot) by this amount in degrees, so a positive value rotates UV coords counter-clockwise, and the image clockwise.  Default is 0.
     * `offset` (vector2): subtract this amount from the scaled/rotated/“pivot added back” UV coordinate; since U0,V0 is typically the lower left corner, a positive offset moves the texture image up and right.  Default is (0,0).
-    * `operationorder` (integer enum): the order in which to perform the transform operations. "0" or "SRT" performs <em>-pivot scale rotate translate +pivot</em> as per the original implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs <em>-pivot translate rotate scale +pivot</em> which does not introduce texture shear.  Default is 0 "SRT" for backward compatibility.
+    * `operationorder` (integer enum): the order in which to perform the transform operations. "0" or "SRT" performs "<em>-pivot scale rotate translate +pivot</em>" as per the original implementation matching the behavior of certain DCC packages, and "1" or "TRS" performs "<em>-pivot translate rotate scale +pivot</em>" which does not introduce texture shear.  Default is 0 "SRT" for backward compatibility.
 
 <a id="node-triplanarblend"> </a>
 
@@ -1435,7 +1590,7 @@ Adjustment nodes have one input named "in", and apply a specified function to va
 
 <a id="node-hsvadjust"> </a>
 
-* **`hsvadjust`** (NG): adjust the hue, saturation and value of an RGB color by converting the input color to HSV, adding amount.x to the hue, multiplying the saturation by amount.y, multiplying the value by amount.z, then converting back to RGB.  A positive "amount.x" rotates hue in the "red to green to blue" direction, with amount of 1.0 being the equivalent to a 360 degree (e.g. no-op) rotation.  Negative or greater-than-1.0 hue adjustment values are allowed, wrapping at the 0-1 boundaries.  For color4 inputs, the alpha value is unchanged.
+* **`hsvadjust`** (NG): adjust the hue, saturation and value of an RGB color by converting the input color to HSV, adding amount.x to the hue, multiplying the saturation by amount.y, multiplying the value by amount.z, then converting back to RGB.  A positive "amount.x" rotates hue in the "red to green to blue" direction, with amount of 1.0 being the equivalent to a 360 degree (e.g. no-op) rotation.  Negative or greater-than-1.0 hue adjustment values are allowed, wrapping at the 0-1 boundaries.  The internal conversions between RGB and HSV spaces are not affected by the current color space.  For color4 inputs, the alpha value is unchanged.
     * `in` (color3 or color4): the input value or nodename
     * `amount` (vector3): the HSV adjustment; a value of (0, 1, 1) is "no change" and is the default.
 
@@ -1567,32 +1722,32 @@ Conditional nodes are used to compare values of two streams, or to select a valu
 
 <a id="node-ifgreater"> </a>
 
-* **`ifgreater`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than the value of another.  Ifgreater nodes can be of output type float, color<em>N</em> or vector<em>N</em>.  There is also a "boolean" output-type **`ifgreater`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` > `value2`.
+* **`ifgreater`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than the value of another.  Ifgreater nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>.  There is also a "boolean" output-type **`ifgreater`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` > `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` > `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0 in all channels.
+    * `in2` (float or integer or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt;= `value2`; must be the same type as the `ifgreater` node's output.  Default is 0.0 in all channels.
 
 <a id="node-ifgreatereq"> </a>
 
-* **`ifgreatereq`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than or equal to the value of another.  Ifgreatereq nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifgreatereq`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` >= `value2`.
+* **`ifgreatereq`**: output the value of the `in1` or `in2` stream depending on whether the value of one test input is greater than or equal to the value of another.  Ifgreatereq nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>. There is also a "boolean" output-type **`ifgreatereq`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` >= `value2`.
     * `value1` (integer or float): the first value or nodename to compare.  Default is 1.0.
     * `value2` (integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0.0.
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` >= `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0 in all channels.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` &lt; `value2`; must be the same type as the `ifgreatereq` node's output.  Default is 0.0 in all channels.
 
 <a id="node-ifequal"> </a>
 
-* **`ifequal`**: output the value of the `in1` or `in2` stream depending on whether the value of two test inputs are equal or not.  Ifequal nodes can be of output type float, color<em>N</em> or vector<em>N</em>. There is also a "boolean" output-type **`ifequal`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` == `value2`.
+* **`ifequal`**: output the value of the `in1` or `in2` stream depending on whether the value of two test inputs are equal or not.  Ifequal nodes can be of output type float, integer, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>. There is also a "boolean" output-type **`ifequal`** node, with `value1` and `value2` inputs but no `in1` or `in2`: output is "true" if `value1` == `value2`.
     * `value1` (boolean or integer or float): the first value or nodename to compare.  Default is 0 or "false".
     * `value2` (boolean or integer or float): the second value or nodename to compare; must be the same type as `value1`.  Default is 0 or "false".
-    * `in1` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
-    * `in2` (float or color<em>N </em>or vector<em>N</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0.
+    * `in1` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` == `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0 in all channels.
+    * `in2` (float or integer or color<em>N </em>or vector<em>N</em> or matrix<em>NN</em>): the value or nodename to output if `value1` != `value2`; must be the same type as the `ifequal` node's output.  Default is 0.0 in all channels.
 
 <a id="node-switch"> </a>
 
-* **`switch`**: output the value of one of up to ten input streams, according to the value of a selector input `which`.  Switch nodes can be of output type float, color<em>N</em> or vector<em>N</em>, and have five inputs, in1 through in10 (not all of which must be connected), which must match the output type.
-    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
+* **`switch`**: output the value of one of up to ten input streams, according to the value of a selector input `which`.  Switch nodes can be of output type float, color<em>N</em>, vector<em>N</em> or matrix<em>NN</em>, and have ten inputs, in1 through in10 (not all of which need be connected), which must match the output type.
+    * `in1`, `in2`, `in3`, `in4`, `in5`, `in6`, `in7`, `in8`, `in9`, `in10` (float or color<em>N</em> or vector<em>N</em> or matrix<em>NN</em>): the values or nodenames to select from based on the value of the `which` input.  The types of the various `in`<em>N</em> inputs must match the type of the `switch` node itself.  The default value of all `in`<em>N</em> inputs is 0.0 in all channels.
     * `which` (integer or float): a selector to choose which input to take values from; the output comes from input "floor(`which`)+1", clamped to the 1-10 range.  So `which`&lt;1 will pass on the value from in1, 1&lt;=`which`&lt;2 will pass the value from in2, 2&lt;=`which`&lt;3 will pass the value from in3, and so on up to 9&lt;=`which` will pass the value from in10.  The default value of `which` is 0.
 
 <a id="node-ifelse"> </a>
@@ -1612,13 +1767,13 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 * **`extract`**: extract the specified channel number from a color<em>N</em> or vector<em>N</em> stream.
     * `in` (color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `which` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
+    * `index` (integer): the channel number to extract.  For color<em>N</em> streams, use "0" to extract the red channel, "1" for green, "2" for blue and "3" for alpha; for vector<em>N</em> streams, use "0" to extract the x channel, "1" for y, "2" for z and "3" for w.  Default is 0.
 
 <a id="node-extractrowvector"> </a>
 
 * **`extractrowvector`**: extract the specified row vector number from a matrix<em>N</em> stream.
     * `in` (matrix<em>N</em>): the input value or nodename
-    * `which` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
+    * `index` (integer): the row number to extract, should be 0-2 for matrix33 streams, or 0-3 for matrix44 streams.
 
 <a id="node-convert"> </a>
 
@@ -1674,8 +1829,8 @@ The following input/output data type conversions are supported by **`convert`**:
 * color3 to color4: copy RGB, set output alpha to 1.0
 * color4 to color3: drop alpha channel
 * boolean or integer to float: output is 0.0 or 1.0
-* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0 (e.g. convert from non-homogeneous to homogeneous vector)
-* vector3 to vector2, or vector4 to vector3: drop the last channel; if a homogeneous vector conversion is desired, use a **`divide`** node with `in1` connected to a `convert` node on the input to remove its last channel,and `in2` connected to the input with `channel="3"`.
+* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0
+* vector3 to vector2, or vector4 to vector3: drop the last channel
 * string to filename: no change in value
 
 Table of allowable input/output types for **`combine2`**, **`combine3`**, **`combine4`**:
@@ -1712,7 +1867,7 @@ Convolution nodes have one input named "in", and apply a defined convolution fun
 * **`heighttonormal`**: convert a scalar height map to a normal map of type vector3.
     * `in` (float): the input value or nodename
     * `scale` (float): the scale of normal map deflections relative to the gradient of the height map.  Default is 1.0.
-    * space (string): the space in which the output normal map vector should be; defaults to "tangent".
+    * `space` (string): the space in which the output normal map vector should be; defaults to "tangent".
 
 
 

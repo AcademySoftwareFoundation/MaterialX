@@ -15,33 +15,12 @@ MATERIALX_NAMESPACE_BEGIN
 const string PortElement::NODE_NAME_ATTRIBUTE = "nodename";
 const string PortElement::NODE_GRAPH_ATTRIBUTE = "nodegraph";
 const string PortElement::OUTPUT_ATTRIBUTE = "output";
-const string PortElement::CHANNELS_ATTRIBUTE = "channels";
 const string InterfaceElement::NODE_DEF_ATTRIBUTE = "nodedef";
 const string InterfaceElement::TARGET_ATTRIBUTE = "target";
 const string InterfaceElement::VERSION_ATTRIBUTE = "version";
 const string InterfaceElement::DEFAULT_VERSION_ATTRIBUTE = "isdefaultversion";
 const string Input::DEFAULT_GEOM_PROP_ATTRIBUTE = "defaultgeomprop";
 const string Output::DEFAULT_INPUT_ATTRIBUTE = "defaultinput";
-
-// Map from type strings to swizzle pattern character sets.
-const std::unordered_map<string, CharSet> PortElement::CHANNELS_CHARACTER_SET = {
-    { "float", { '0', '1', 'r', 'x' } },
-    { "color3", { '0', '1', 'r', 'g', 'b' } },
-    { "color4", { '0', '1', 'r', 'g', 'b', 'a' } },
-    { "vector2", { '0', '1', 'x', 'y' } },
-    { "vector3", { '0', '1', 'x', 'y', 'z' } },
-    { "vector4", { '0', '1', 'x', 'y', 'z', 'w' } }
-};
-
-// Map from type strings to swizzle pattern lengths.
-const std::unordered_map<string, size_t> PortElement::CHANNELS_PATTERN_LENGTH = {
-    { "float", 1 },
-    { "color3", 3 },
-    { "color4", 4 },
-    { "vector2", 2 },
-    { "vector3", 3 },
-    { "vector4", 4 }
-};
 
 //
 // PortElement methods
@@ -208,21 +187,8 @@ bool PortElement::validate(string* message) const
 
             if (output)
             {
-                if (hasChannels())
-                {
-                    bool valid = validChannelsString(getChannels(), output->getType(), getType());
-                    validateRequire(valid, res, message, "Invalid channels string in port connection");
-                }
-                else
-                {
-                    validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
-                }
+                validateRequire(getType() == output->getType(), res, message, "Mismatched types in port connection");
             }
-        }
-        else if (hasChannels())
-        {
-            bool valid = validChannelsString(getChannels(), connectedNode->getType(), getType());
-            validateRequire(valid, res, message, "Invalid channels string in port connection");
         }
         else if (connectedNode->getType() != MULTI_OUTPUT_TYPE_STRING)
         {
@@ -230,38 +196,6 @@ bool PortElement::validate(string* message) const
         }
     }
     return ValueElement::validate(message) && res;
-}
-
-bool PortElement::validChannelsCharacters(const string& channels, const string& sourceType)
-{
-    if (!CHANNELS_CHARACTER_SET.count(sourceType))
-    {
-        return false;
-    }
-    const CharSet& validCharSet = CHANNELS_CHARACTER_SET.at(sourceType);
-    for (const char& channelChar : channels)
-    {
-        if (!validCharSet.count(channelChar))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool PortElement::validChannelsString(const string& channels, const string& sourceType, const string& destinationType)
-{
-    if (!validChannelsCharacters(channels, sourceType))
-    {
-        return false;
-    }
-    if (!CHANNELS_PATTERN_LENGTH.count(destinationType) ||
-        CHANNELS_PATTERN_LENGTH.at(destinationType) != channels.size())
-    {
-        return false;
-    }
-
-    return true;
 }
 
 //

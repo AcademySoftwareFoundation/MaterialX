@@ -225,7 +225,12 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeRequested(false),
     _bakeWidth(0),
     _bakeHeight(0),
-    _bakeDocumentPerMaterial(false)
+    _bakeDocumentPerMaterial(false),
+    _frameTiming(false),
+    _timingLabel(nullptr),
+    _timingPanel(nullptr),
+    _timingText(nullptr),
+    _avgFrameTime(0.0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -326,6 +331,21 @@ void Viewer::initialize()
             assignMaterial(getSelectedGeometry(), _materials[index]);
         }
     });
+
+    // Create frame timing display
+    if (_frameTiming)
+    {
+        _timingLabel = new ng::Label(_window, "Timing");
+        _timingPanel = new ng::Widget(_window);
+        _timingPanel->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal,
+                                 ng::Alignment::Middle, 0, 6));
+        new ng::Label(_timingPanel, "Frame time:");
+        _timingText = new ng::TextBox(_timingPanel);
+        _timingText->set_value("0");
+        _timingText->set_units(" ms");
+        _timingText->set_fixed_size(ng::Vector2i(80, 25));
+        _timingText->set_alignment(ng::TextBox::Alignment::Right);
+    }
 
     // Create geometry handler.
     mx::TinyObjLoaderPtr objLoader = mx::TinyObjLoader::create();
@@ -2093,6 +2113,17 @@ void Viewer::draw_contents()
 #ifndef MATERIALXVIEW_METAL_BACKEND
         glDisable(GL_FRAMEBUFFER_SRGB);
 #endif
+    }
+
+    // Update frame timing.
+    if (_frameTiming)
+    {
+        const double DEFAULT_SMOOTHING_BIAS = 0.9;
+        double elapsedTime = _frameTimer.elapsedTime() * 1000.0;
+        double bias = (_avgFrameTime > 0.0) ? DEFAULT_SMOOTHING_BIAS : 0.0;
+        _avgFrameTime = bias * _avgFrameTime + (1.0 - bias) * elapsedTime;
+        _timingText->set_value(std::to_string((int) _avgFrameTime));
+        _frameTimer.startTimer();
     }
 
     // Capture the current frame.

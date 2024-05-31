@@ -143,12 +143,6 @@ target_include_directories(
     ${NANOGUI_INCLUDE_DIRS}
     ${NANOGUI_EXTRA_INCS})
 
-if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
-    add_custom_command(TARGET MaterialXView POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
-endif()
-
 set_target_properties(
     MaterialXView PROPERTIES
     INSTALL_RPATH "${MATERIALX_UP_ONE_RPATH}")

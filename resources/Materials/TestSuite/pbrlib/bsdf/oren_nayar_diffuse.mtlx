@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+  <nodegraph name="oren_nayar_diffuse">
+
+    <oren_nayar_diffuse_bsdf name="diffuse1" type="BSDF">
+      <input name="color" type="color3" value="0.6, 0.6, 0.6" />
+      <input name="roughness" type="float" value="0.0" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuse1" />
+    </surface>
+    <output name="out1" type="surfaceshader" nodename="surface1" />
+
+    <oren_nayar_diffuse_bsdf name="diffuse2" type="BSDF">
+      <input name="color" type="color3" value="0.6, 0.6, 0.6" />
+      <input name="roughness" type="float" value="0.25" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <surface name="surface2" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuse2" />
+    </surface>
+    <output name="out2" type="surfaceshader" nodename="surface2" />
+
+    <oren_nayar_diffuse_bsdf name="diffuse3" type="BSDF">
+      <input name="color" type="color3" value="0.6, 0.6, 0.6" />
+      <input name="roughness" type="float" value="0.5" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <surface name="surface3" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuse3" />
+    </surface>
+    <output name="out3" type="surfaceshader" nodename="surface3" />
+
+    <oren_nayar_diffuse_bsdf name="diffuse4" type="BSDF">
+      <input name="color" type="color3" value="0.6, 0.6, 0.6" />
+      <input name="roughness" type="float" value="0.75" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <surface name="surface4" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuse4" />
+    </surface>
+    <output name="out4" type="surfaceshader" nodename="surface4" />
+
+    <oren_nayar_diffuse_bsdf name="diffuse5" type="BSDF">
+      <input name="color" type="color3" value="0.6, 0.6, 0.6" />
+      <input name="roughness" type="float" value="1.0" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <surface name="surface5" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="diffuse5" />
+    </surface>
+    <output name="out5" type="surfaceshader" nodename="surface5" />
+
+  </nodegraph>
+</materialx>

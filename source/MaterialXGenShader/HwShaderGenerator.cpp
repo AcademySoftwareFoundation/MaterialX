@@ -462,7 +462,7 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
             {
                 for (ShaderInput* input : node->getInputs())
                 {
-                    if (!input->getConnection() && *input->getType() == *Type::FILENAME)
+                    if (!input->getConnection() && input->getType() == Type::FILENAME)
                     {
                         // Create the uniform using the filename type to make this uniform into a texture sampler.
                         ShaderPort* filename = psPublicUniforms->add(Type::FILENAME, input->getVariable(), input->getValue());

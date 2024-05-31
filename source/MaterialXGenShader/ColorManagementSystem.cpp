@@ -15,7 +15,7 @@ MATERIALX_NAMESPACE_BEGIN
 // ColorSpaceTransform methods
 //
 
-ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, const TypeDesc* t) :
+ColorSpaceTransform::ColorSpaceTransform(const string& ss, const string& ts, TypeDesc t) :
     sourceSpace(ss),
     targetSpace(ts),
     type(t)

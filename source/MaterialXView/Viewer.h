@@ -157,6 +157,22 @@ class Viewer : public ng::Screen
         _bakeFilename = bakeFilename;
     }
 
+    // Enable or disable frame timing.
+    void setFrameTiming(bool enable)
+    {
+        _frameTiming = enable;
+    }
+
+    // Reset frame timing after a blocking event.
+    void resetFrameTiming()
+    {
+        if (_frameTiming)
+        {
+            _frameTimer.startTimer();
+            _avgFrameTime = 0.0;
+        }
+    }
+
     // Return true if all inputs should be shown in the property editor.
     bool getShowAllInputs() const
     {
@@ -456,6 +472,14 @@ class Viewer : public ng::Screen
     unsigned int _bakeHeight;
     bool _bakeDocumentPerMaterial;
     mx::FilePath _bakeFilename;
+
+    // Frame timing
+    bool _frameTiming;
+    ng::Label* _timingLabel;
+    ng::Widget* _timingPanel;
+    ng::TextBox* _timingText;
+    mx::ScopedTimer _frameTimer;
+    double _avgFrameTime;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

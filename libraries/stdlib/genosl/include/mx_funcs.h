@@ -16,6 +16,7 @@
 //
 
 float mx_ternary(int expr, float v1, float v2) { if (expr) return v1; else return v2; }
+int mx_ternary(int expr, int v1, int v2) { if (expr) return v1; else return v2; }
 color mx_ternary(int expr, color v1, color v2) { if (expr) return v1; else return v2; }
 color4 mx_ternary(int expr, color4 v1, color4 v2) { if (expr) return v1; else return v2; }
 vector mx_ternary(int expr, vector v1, vector v2) { if (expr) return v1; else return v2; }
@@ -96,6 +97,39 @@ matrix mx_subtract(matrix a, float b)
         a[1][0]-b, a[1][1]-b, a[1][2]-b, a[1][3]-b,
         a[2][0]-b, a[2][1]-b, a[2][2]-b, a[2][3]-b,
         a[3][0]-b, a[3][1]-b, a[3][2]-b, a[3][3]-b);
+}
+
+
+float mx_extract(color in, int index)
+{
+    return in[index];
+}
+
+float mx_extract(color4 in, int index)
+{
+    if (index == 0) return in.rgb.r;
+    else if (index == 1) return in.rgb.g;
+    else if (index == 2) return in.rgb.b;
+    else return in.a;
+}
+
+float mx_extract(vector2 in, int index)
+{
+    if (index == 0) return in.x;
+    else return in.y;
+}
+
+float mx_extract(vector in, int index)
+{
+    return in[index];
+}
+
+float mx_extract(vector4 in, int index)
+{
+    if (index == 0) return in.x;
+    else if (index == 1) return in.y;
+    else if (index == 2) return in.z;
+    else return in.w;
 }
 
 

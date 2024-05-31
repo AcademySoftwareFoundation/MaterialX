@@ -30,7 +30,7 @@ const float PI = std::acos(-1.0f);
 // Metal Constants
 unsigned int MslProgram::UNDEFINED_METAL_RESOURCE_ID = 0;
 int MslProgram::UNDEFINED_METAL_PROGRAM_LOCATION = -1;
-int MslProgram::Input::INVALID_METAL_TYPE = -1;
+MTLDataType MslProgram::Input::INVALID_METAL_TYPE = MTLDataTypeNone;
 
 //
 // MslProgram methods
@@ -957,7 +957,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
             if(HW::ENV_RADIANCE != arg.name.UTF8String && HW::ENV_IRRADIANCE != arg.name.UTF8String)
             {
                 std::string texture_name = arg.name.UTF8String;
-                InputPtr inputPtr = std::make_shared<Input>(arg.index, 58, -1, EMPTY_STRING);
+                InputPtr inputPtr = std::make_shared<Input>(arg.index, MTLDataTypeTexture, -1, EMPTY_STRING);
                 _uniformList[texture_name] = inputPtr;
             }
         }
@@ -983,12 +983,12 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                 continue;
             }
 
-            // TODO: Shoud we really create new ones here each update?
-            InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType()->getSize()), EMPTY_STRING);
+            // TODO: Should we really create new ones here each update?
+            InputPtr inputPtr = std::make_shared<Input>(-1, MTLDataTypeNone, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
             inputPtr->value = v->getValue();
-            inputPtr->typeString = v->getType()->getName();
+            inputPtr->typeString = v->getType().getName();
             inputPtr->path = v->getPath();
         }
 
@@ -1019,44 +1019,39 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     continue;
                 }
 
-                int tries = 0;
                 auto inputIt = _uniformList.find(v->getVariable());
-try_again:      if (inputIt != _uniformList.end())
+                if (inputIt == _uniformList.end())
+                {
+                    if (v->getType() == Type::FILENAME)
+                    {
+                        inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
+                    }
+                    else
+                    {
+                        inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
+                    }
+                }
+
+                if (inputIt != _uniformList.end())
                 {
                     Input* input = inputIt->second.get();
                     input->path = v->getPath();
                     input->value = v->getValue();
                     if (input->resourceType == resourceType)
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Pixel shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
                         );
                         uniformTypeMismatchFound = true;
-                    }
-                }
-                else
-                {
-                    if(tries == 0)
-                    {
-                        ++tries;
-                        if(v->getType() == Type::FILENAME)
-                        {
-                            inputIt = _uniformList.find(TEXTURE_NAME(v->getVariable()));
-                        }
-                        else
-                        {
-                            inputIt = _uniformList.find(uniforms.getInstance() + "." + v->getVariable());
-                        }
-                        goto try_again;
                     }
                 }
             }
@@ -1075,7 +1070,7 @@ try_again:      if (inputIt != _uniformList.end())
                     Input* input = inputIt->second.get();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                         input->value = v->getValue();
                         input->path = v->getPath();
                         input->unit = v->getUnit();
@@ -1085,7 +1080,7 @@ try_again:      if (inputIt != _uniformList.end())
                         errors.push_back(
                             "Vertex shader uniform block type mismatch [" + uniforms.getName() + "]. "
                             + "Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". Unit: \"" + (!v->getUnit().empty() ? v->getUnit() : "<none>")
@@ -1399,7 +1394,7 @@ void MslProgram::reset()
     clearInputLists();
 }
 
-MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
+MTLDataType MslProgram::mapTypeToMetalType(TypeDesc type)
 {
     if (type == Type::INTEGER)
         return MTLDataTypeInt;
@@ -1407,11 +1402,11 @@ MTLDataType MslProgram::mapTypeToMetalType(const TypeDesc* type)
         return MTLDataTypeBool;
     else if (type == Type::FLOAT)
         return MTLDataTypeFloat;
-    else if (type->isFloat2())
+    else if (type.isFloat2())
         return MTLDataTypeFloat2;
-    else if (type->isFloat3())
+    else if (type.isFloat3())
         return MTLDataTypeFloat3;
-    else if (type->isFloat4())
+    else if (type.isFloat4())
         return MTLDataTypeFloat4;
     else if (type == Type::MATRIX33)
         return MTLDataTypeFloat3x3;
@@ -1470,13 +1465,13 @@ const MslProgram::InputMap& MslProgram::updateAttributesList()
                     input->value = v->getValue();
                     if (input->resourceType == mapTypeToMetalType(v->getType()))
                     {
-                        input->typeString = v->getType()->getName();
+                        input->typeString = v->getType().getName();
                     }
                     else
                     {
                         errors.push_back(
                             "Vertex shader attribute type mismatch in block. Name: \"" + v->getVariable()
-                            + "\". Type: \"" + v->getType()->getName()
+                            + "\". Type: \"" + v->getType().getName()
                             + "\". Semantic: \"" + v->getSemantic()
                             + "\". Value: \"" + (v->getValue() ? v->getValue()->getValueString() : "<none>")
                             + "\". resourceType: " + std::to_string(mapTypeToMetalType(v->getType()))
