@@ -9,7 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
 #include <MaterialXGenShader/Nodes/ClosureMixNode.h>
@@ -32,26 +31,6 @@ OslShaderGenerator::OslShaderGenerator() :
     ShaderGenerator(OslSyntax::create())
 {
     // Register build-in implementations
-
-    // <!-- <switch> -->
-    // <!-- 'which' type : float -->
-    registerImplementation("IM_switch_float_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_matrix33_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_matrix44_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    // <!-- 'which' type : integer -->
-    registerImplementation("IM_switch_floatI_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_color4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector2I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector3I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_matrix33I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-    registerImplementation("IM_switch_matrix44I_" + OslShaderGenerator::TARGET, SwitchNode::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);

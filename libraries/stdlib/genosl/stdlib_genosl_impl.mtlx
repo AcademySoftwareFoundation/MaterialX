@@ -660,26 +660,6 @@
   <implementation name="IM_ifequal_matrix33B_genosl" nodedef="ND_ifequal_matrix33B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_matrix44B_genosl" nodedef="ND_ifequal_matrix44B" target="genosl" sourcecode="mx_ternary({{value1}} == {{value2}}, {{in1}}, {{in2}})" />
 
-  <!-- <switch> -->
-  <!-- 'which' type : float -->
-  <implementation name="IM_switch_float_genosl" nodedef="ND_switch_float" target="genosl" />
-  <implementation name="IM_switch_color3_genosl" nodedef="ND_switch_color3" target="genosl" />
-  <implementation name="IM_switch_color4_genosl" nodedef="ND_switch_color4" target="genosl" />
-  <implementation name="IM_switch_vector2_genosl" nodedef="ND_switch_vector2" target="genosl" />
-  <implementation name="IM_switch_vector3_genosl" nodedef="ND_switch_vector3" target="genosl" />
-  <implementation name="IM_switch_vector4_genosl" nodedef="ND_switch_vector4" target="genosl" />
-  <implementation name="IM_switch_matrix33_genosl" nodedef="ND_switch_matrix33" target="genosl" />
-  <implementation name="IM_switch_matrix44_genosl" nodedef="ND_switch_matrix44" target="genosl" />
-  <!-- 'which' type : integer -->
-  <implementation name="IM_switch_floatI_genosl" nodedef="ND_switch_floatI" target="genosl" />
-  <implementation name="IM_switch_color3I_genosl" nodedef="ND_switch_color3I" target="genosl" />
-  <implementation name="IM_switch_color4I_genosl" nodedef="ND_switch_color4I" target="genosl" />
-  <implementation name="IM_switch_vector2I_genosl" nodedef="ND_switch_vector2I" target="genosl" />
-  <implementation name="IM_switch_vector3I_genosl" nodedef="ND_switch_vector3I" target="genosl" />
-  <implementation name="IM_switch_vector4I_genosl" nodedef="ND_switch_vector4I" target="genosl" />
-  <implementation name="IM_switch_matrix33I_genosl" nodedef="ND_switch_matrix33I" target="genosl" />
-  <implementation name="IM_switch_matrix44I_genosl" nodedef="ND_switch_matrix44I" target="genosl" />
-
   <!-- ======================================================================== -->
   <!-- Channel nodes                                                            -->
   <!-- ======================================================================== -->
