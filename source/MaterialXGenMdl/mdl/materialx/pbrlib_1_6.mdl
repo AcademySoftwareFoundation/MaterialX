@@ -545,6 +545,7 @@ export material mx_surface(
     material mxp_bsdf = material() [[ anno::usage( "materialx:bsdf") ]],
     material mxp_edf  = material() [[ anno::usage( "materialx:edf") ]],
     float mxp_opacity = 1.0,
+    uniform bool mxp_thin_walled = false,
     uniform float mxp_transmission_ior = 0.0 // extra parameter for setting transmission IOR
 ) [[
     anno::usage( "materialx:surfaceshader")
@@ -555,7 +556,7 @@ export material mx_surface(
     // we need to carry volume properties along for SSS
     material_volume   bsdf_volume = mxp_bsdf.volume;
 } in material(
-    thin_walled: false,
+    thin_walled: mxp_thin_walled,
     surface: material_surface(
         scattering: bsdf_node,
         emission: edf_node

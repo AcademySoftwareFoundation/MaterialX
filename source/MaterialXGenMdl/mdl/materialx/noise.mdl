@@ -251,7 +251,7 @@ int3 mx_hash_int3(int mxp_x, int mxp_y, int mxp_z)
 }
 
 export float mx_perlin_noise_float(
-  float2 mxp_p = mx_swizzle_xy( ::state::texture_coordinate(0)))
+  float2 mxp_p = core::mx_swizzle_xy( ::state::texture_coordinate(0)))
 [[
     anno::noinline()
 ]]
@@ -274,7 +274,7 @@ export float mx_perlin_noise_float(
 }
 
 export float3 mx_perlin_noise_float3(
-  float2 mxp_p = mx_swizzle_xy( ::state::texture_coordinate(0)))
+  float2 mxp_p = core::mx_swizzle_xy( ::state::texture_coordinate(0)))
 [[
     anno::noinline()
 ]]
@@ -368,7 +368,7 @@ export float mx_cell_noise_float(float mxp_p)
 }
 
 export float mx_cell_noise_float(
-  float2 mxp_p = mx_swizzle_xy( ::state::texture_coordinate(0)))
+  float2 mxp_p = core::mx_swizzle_xy( ::state::texture_coordinate(0)))
 [[
     anno::noinline() 
 ]]
@@ -416,7 +416,7 @@ export float3 mx_cell_noise_float3(float mxp_p)
 }
 
 export float3 mx_cell_noise_float3(
-    float2 mxp_p = mx_swizzle_xy( ::state::texture_coordinate(0)))
+    float2 mxp_p = core::mx_swizzle_xy( ::state::texture_coordinate(0)))
 [[
     anno::noinline() 
 ]]

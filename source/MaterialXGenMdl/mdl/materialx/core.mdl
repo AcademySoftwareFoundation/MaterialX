@@ -186,8 +186,8 @@ export struct mx_separate4_vector4_type { float outx = 0.0; float outy = 0.0; fl
 export float2 mx_swizzle_xy( float2 a) { return float2( a.x, a.y); }
 export float2 mx_swizzle_xy( float3 a) { return float2( a.x, a.y); }
 export float2 mx_swizzle_xy( float4 a) { return float2( a.x, a.y); }
-export float2 mx_swizzle_xy( color a) { return xy( float3(a)); }
-export float2 mx_swizzle_xy( core::color4 a) { return xy( float3( a.rgb)); }
+export float2 mx_swizzle_xy( color a) { return mx_swizzle_xy( float3(a)); }
+export float2 mx_swizzle_xy( color4 a) { return mx_swizzle_xy( float3( a.rgb)); }
 
 // Enum for blur filter type, instead of string
 export enum mx_filter_type {

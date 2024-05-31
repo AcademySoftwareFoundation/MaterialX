@@ -86,6 +86,7 @@
   <!-- Surface material -->
   <nodedef name="ND_surfacematerial" node="surfacematerial" nodegroup="material">
     <input name="surfaceshader" type="surfaceshader" value="" />
+    <input name="backsurfaceshader" type="surfaceshader" value="" />
     <input name="displacementshader" type="displacementshader" value="" />
     <output name="out" type="material" />
   </nodedef>
