@@ -4657,7 +4657,7 @@ export float4x4 mx_creatematrix_vector4_matrix44(
 
 export float mx_extract_color3(
 	color mxp_in = color(0.0, 0.0, 0.0),
-	float mxp_index = int(0)
+	int mxp_index = int(0)
 )
 	[[
 		anno::description("Node Group: channel")
@@ -4665,15 +4665,15 @@ export float mx_extract_color3(
 {
 	switch (mxp_index)
 	{
-		case 0: return float3(mxp_in).r;
-		case 1: return float3(mxp_in).g;
-		default: return float3(mxp_in).b;
+		case 0: return float3(mxp_in).x;
+		case 1: return float3(mxp_in).y;
+		default: return float3(mxp_in).z;
 	}
 }
 
 export float mx_extract_color4(
-	core::mk_color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	float mxp_index = int(0)
+	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0),
+	int mxp_index = int(0)
 )
 	[[
 		anno::description("Node Group: channel")
@@ -4681,16 +4681,16 @@ export float mx_extract_color4(
 {
 	switch (mxp_index)
 	{
-		case 0: return float3(mxp_in.rgb).r;
-		case 1: return float3(mxp_in.rgb).g;
-		case 2: return float3(mxp_in.rgb).b;
+		case 0: return float3(mxp_in.rgb).x;
+		case 1: return float3(mxp_in.rgb).y;
+		case 2: return float3(mxp_in.rgb).z;
 		default: return mxp_in.a;
 	}
 }
 
 export float mx_extract_vector2(
 	float2 mxp_in = float2(0.0, 0.0),
-	float mxp_index = int(0)
+	int mxp_index = int(0)
 )
 	[[
 		anno::description("Node Group: channel")
@@ -4705,7 +4705,7 @@ export float mx_extract_vector2(
 
 export float mx_extract_vector3(
 	float3 mxp_in = float3(0.0, 0.0, 0.0),
-	float mxp_index = int(0)
+	int mxp_index = int(0)
 )
 	[[
 		anno::description("Node Group: channel")
@@ -4721,7 +4721,7 @@ export float mx_extract_vector3(
 
 export float mx_extract_vector4(
 	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0),
-	float mxp_index = int(0)
+	int mxp_index = int(0)
 )
 	[[
 		anno::description("Node Group: channel")
