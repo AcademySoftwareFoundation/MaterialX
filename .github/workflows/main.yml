@@ -26,7 +26,7 @@ jobs:
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
         - name: Linux_GCC_12_Python311
-          os: ubuntu-24.04
+          os: ubuntu-22.04
           compiler: gcc
           compiler_version: "12"
           python: 3.11
@@ -41,7 +41,7 @@ jobs:
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: Linux_GCC_CoverageAnalysis
-          os: ubuntu-24.04
+          os: ubuntu-22.04
           compiler: gcc
           compiler_version: "None"
           python: None
@@ -127,15 +127,14 @@ jobs:
     - name: Install Dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
-        sudo apt-get update
         sudo apt-get install xorg-dev
         if [ "${{ matrix.compiler_version }}" != 'None' ]; then
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            sudo apt-get install -y g++-${{ matrix.compiler_version }} g++-${{ matrix.compiler_version }}-multilib
+            sudo apt-get install -y g++-${{ matrix.compiler_version }}
             echo "CC=gcc-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=g++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           else
-            sudo apt-get install -y clang-${{ matrix.compiler_version }} libc++-${{ matrix.compiler_version }}-dev libc++abi-${{ matrix.compiler_version }}-dev
+            sudo apt-get install -y clang-${{ matrix.compiler_version }}
             echo "CC=clang-${{ matrix.compiler_version }}" >> $GITHUB_ENV
             echo "CXX=clang++-${{ matrix.compiler_version }}" >> $GITHUB_ENV
           fi

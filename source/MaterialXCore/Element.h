@@ -807,6 +807,8 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
     static const string DOC_ATTRIBUTE;
+    static const string XPOS_ATTRIBUTE;
+    static const string YPOS_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);

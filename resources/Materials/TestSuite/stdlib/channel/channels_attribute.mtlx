@@ -110,4 +110,24 @@
     </add>
     <output name="out" type="float" nodename="add1" />
   </nodegraph>
+  <nodegraph name="value_connection_priority_in">
+    <constant name="constant1" type="color4">
+      <input name="value" type="color4" value="1.0, 1.0, 1.0, 1.0" />
+    </constant>
+    <add name="add1" type="float">
+      <input name="in1" type="float" value="0.0" nodename="constant1" channels="g" />
+      <input name="in2" type="float" value="0.0" />
+    </add>
+    <output name="out" type="float" nodename="add1" />
+  </nodegraph>
+  <nodegraph name="float_to_float_noop_in">
+    <constant name="constant1" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
+    <add name="add1" type="float">
+      <input name="in1" type="float" nodename="constant1" channels="r" />
+      <input name="in2" type="float" value="0.0" />
+    </add>
+    <output name="out" type="float" nodename="add1" />
+  </nodegraph>
 </materialx>

@@ -1040,6 +1040,13 @@ void Document::upgradeVersion()
                 }
             }
 
+            // Ignore the channels string for purely scalar connections.
+            if (upstreamType == getTypeString<float>() && port->getType() == getTypeString<float>())
+            {
+                port->removeAttribute("channels");
+                continue;
+            }
+
             // Create the new swizzle node.
             NodePtr swizzleNode = graph->addNode("swizzle", graph->createValidChildName("swizzle"), port->getType());
             int childIndex = (parent->getParent() == graph) ? graph->getChildIndex(parent->getName()) : graph->getChildIndex(port->getName());
@@ -1152,6 +1159,17 @@ void Document::upgradeVersion()
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
+                    
+                    // Resolve the invalid case of having both a connection and a value
+                    // by removing the value attribute. 
+                    if (inInput->hasValue())
+                    {
+                        if (inInput->hasNodeName() || inInput->hasNodeGraphString() || inInput->hasInterfaceName())
+                        {
+                            inInput->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+                        }
+                    }
+
                     if (inInput->hasValue())
                     {
                         // Replace swizzle with constant.
