@@ -58,6 +58,7 @@ void mx_sheen_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float wei
     N = mx_forward_facing_normal(N, V);
 
     float NdotV = min(dot(N, V), 1.0);
+    roughness = clamp(roughness, 0.01, 1.0); // Clamp to range of original impl.
 
     vec3 fr = color * mx_zeltner_sheen_brdf(L, V, N, NdotV, roughness);
     float dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
@@ -76,6 +77,7 @@ void mx_sheen_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, v
     N = mx_forward_facing_normal(N, V);
 
     float NdotV = min(dot(N, V), 1.0);
+    roughness = clamp(roughness, 0.01, 1.0); // Clamp to range of original impl.
 
     float dirAlbedo = mx_zeltner_sheen_dir_albedo(NdotV, roughness);
     bsdf.throughput = vec3(1.0 - dirAlbedo * weight);
