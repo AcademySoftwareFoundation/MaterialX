@@ -690,7 +690,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
             ElementPtr interfacePort = interface->getChild(interfaceName);
             if (interfacePort)
             {
-                InputPtr interfaceInput = interfacePort ? interfacePort->asA<Input>() : nullptr;
+                InputPtr interfaceInput = interfacePort->asA<Input>();
                 if (interfaceInput && interfaceInput->hasValue())
                 {
                     input->setValueString(interfaceInput->getValueString());

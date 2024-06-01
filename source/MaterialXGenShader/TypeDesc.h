@@ -131,7 +131,7 @@ public:
     /// Hash operator
     struct Hasher
     {
-        size_t operator()(TypeDesc t) const
+        size_t operator()(const TypeDesc& t) const
         {
             return t._id;
         }
