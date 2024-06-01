@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-
 option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
 set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "")
