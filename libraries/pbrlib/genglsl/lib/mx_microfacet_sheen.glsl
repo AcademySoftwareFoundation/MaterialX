@@ -135,17 +135,25 @@ mat3 mx_orthonormal_basis_ltc(vec3 V, vec3 N, float NdotV)
 // Multiplication by directional albedo is handled by the calling function.
 float mx_zeltner_sheen_brdf(vec3 L, vec3 V, vec3 N, float NdotV, float roughness)
 {
-    mat3 toLTCSpace = transpose(mx_orthonormal_basis_ltc(V, N, NdotV));
-    vec3 wi = toLTCSpace * L;
+    mat3 toLTC = transpose(mx_orthonormal_basis_ltc(V, N, NdotV));
+    vec3 w = toLTC * L;
 
     float aInv = mx_zeltner_sheen_ltc_aInv(NdotV, roughness);
     float bInv = mx_zeltner_sheen_ltc_bInv(NdotV, roughness);
 
-    vec3 wiOrig = vec3(aInv*wi.x + bInv*wi.z, aInv * wi.y, wi.z);
-    float lenSqr = dot(wiOrig, wiOrig);
+    // Transform w to original configuration (clamped cosine).
+    //                 |aInv    0 bInv|
+    // wo = M^-1 . w = |   0 aInv    0| . w
+    //                 |   0    0    1|
+    vec3 wo = vec3(aInv*w.x + bInv*w.z, aInv * w.y, w.z);
+    float lenSqr = dot(wo, wo);
 
-    float det = aInv * aInv;
-    float jacobian = det / mx_square(lenSqr);
-
-    return jacobian * max(wiOrig.z, 0.0) * M_PI_INV;
+    // D(w) = Do(M^-1.w / ||M^-1.w||) . |M^-1| / ||M^-1.w||^3
+    //      = Do(M^-1.w) . |M^-1| / ||M^-1.w||^4
+    //      = Do(wo) . |M^-1| / dot(wo, wo)^2
+    //      = Do(wo) . aInv^2 / dot(wo, wo)^2
+    //      = Do(wo) . (aInv / dot(wo, wo))^2
+    return max(wo.z, 0.0) * M_PI_INV * mx_square(aInv / lenSqr);
 }
+
+
