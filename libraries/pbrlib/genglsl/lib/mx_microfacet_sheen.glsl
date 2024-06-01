@@ -156,4 +156,34 @@ float mx_zeltner_sheen_brdf(vec3 L, vec3 V, vec3 N, float NdotV, float roughness
     return max(wo.z, 0.0) * M_PI_INV * mx_square(aInv / lenSqr);
 }
 
+vec3 mx_zeltner_sheen_importance_sample(vec2 Xi, vec3 V, vec3 N, float roughness, out float pdf)
+{
+    float NdotV = clamp(dot(N, V), 0.0, 1.0);
+    roughness = clamp(roughness, 0.01, 1.0); // Clamp to range of original impl.
 
+    vec3 wo = mx_cosine_sample_hemisphere(Xi);
+
+    float aInv = mx_zeltner_sheen_ltc_aInv(NdotV, roughness);
+    float bInv = mx_zeltner_sheen_ltc_bInv(NdotV, roughness);
+
+    // Transform wo from original configuration (clamped cosine).
+    //              |1/aInv      0 -bInv/aInv|
+    // w = M . wo = |     0 1/aInv          0| . wo
+    //              |     0      0          1|    
+    vec3 w = vec3(wo.x/aInv - wo.z*bInv/aInv, wo.y / aInv, wo.z);
+
+    float lenSqr = dot(w, w);
+    w *= inversesqrt(lenSqr);
+
+    // D(w) = Do(wo) . ||M.wo||^3 / |M|
+    //      = Do(wo / ||M.wo||) . ||M.wo||^4 / |M| 
+    //      = Do(w) . ||M.wo||^4 / |M| (possible because M doesn't change z component)
+    //      = Do(w) . dot(w, w)^2 * aInv^2
+    //      = Do(w) . (aInv * dot(w, w))^2
+    pdf = max(w.z, 0.0) * M_PI_INV * mx_square(aInv * lenSqr);
+
+    mat3 fromLTC = mx_orthonormal_basis_ltc(V, N, NdotV);
+    w = fromLTC * w;
+
+    return w;
+}
