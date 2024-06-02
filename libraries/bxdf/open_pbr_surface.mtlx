@@ -177,16 +177,13 @@
     </mix>
 
     <!-- Subsurface (non-thin-walled) -->
-    <convert name="subsurface_radius_vector" type="vector3">
-      <input name="in" type="color3" interfacename="subsurface_radius_scale" />
-    </convert>
-    <multiply name="subsurface_radius_scaled" type="vector3">
-      <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
+    <multiply name="subsurface_radius_scaled" type="color3">
+      <input name="in1" type="color3" interfacename="subsurface_radius_scale" />
       <input name="in2" type="float" interfacename="subsurface_radius" />
     </multiply>
     <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
-      <input name="radius" type="vector3" nodename="subsurface_radius_scaled" />
+      <input name="radius" type="color3" nodename="subsurface_radius_scaled" />
       <input name="anisotropy" type="float" interfacename="subsurface_scatter_anisotropy" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </subsurface_bsdf>
