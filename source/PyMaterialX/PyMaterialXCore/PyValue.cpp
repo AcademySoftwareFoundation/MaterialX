@@ -23,7 +23,10 @@ void bindPyValue(py::module& mod)
     py::class_<mx::Value, mx::ValuePtr>(mod, "Value")
         .def("getValueString", &mx::Value::getValueString)
         .def("getTypeString", &mx::Value::getTypeString)
-        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings);
+        .def_static("createValueFromStrings", &mx::Value::createValueFromStrings,
+                    py::arg("value"),
+                    py::arg("type"),
+                    py::arg("typeDefPtr") = nullptr);
 
     BIND_TYPE_INSTANCE(integer, int)
     BIND_TYPE_INSTANCE(boolean, bool)
