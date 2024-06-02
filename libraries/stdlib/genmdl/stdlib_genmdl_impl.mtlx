@@ -694,23 +694,23 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color3_genmdl" nodedef="ND_convert_float_color3" target="genmdl" />
-  <implementation name="IM_convert_float_color4_genmdl" nodedef="ND_convert_float_color4" target="genmdl" />
-  <implementation name="IM_convert_float_vector2_genmdl" nodedef="ND_convert_float_vector2" target="genmdl" />
-  <implementation name="IM_convert_float_vector3_genmdl" nodedef="ND_convert_float_vector3" target="genmdl" />
-  <implementation name="IM_convert_float_vector4_genmdl" nodedef="ND_convert_float_vector4" target="genmdl" />
-  <implementation name="IM_convert_vector2_vector3_genmdl" nodedef="ND_convert_vector2_vector3" target="genmdl" />
-  <implementation name="IM_convert_vector3_color3_genmdl" nodedef="ND_convert_vector3_color3" target="genmdl" />
-  <implementation name="IM_convert_vector3_vector2_genmdl" nodedef="ND_convert_vector3_vector2" target="genmdl" />
-  <implementation name="IM_convert_vector3_vector4_genmdl" nodedef="ND_convert_vector3_vector4" target="genmdl" />
-  <implementation name="IM_convert_vector4_color4_genmdl" nodedef="ND_convert_vector4_color4" target="genmdl" />
-  <implementation name="IM_convert_vector4_vector3_genmdl" nodedef="ND_convert_vector4_vector3" target="genmdl" />
-  <implementation name="IM_convert_color3_vector3_genmdl" nodedef="ND_convert_color3_vector3" target="genmdl" />
-  <implementation name="IM_convert_color4_vector4_genmdl" nodedef="ND_convert_color4_vector4" target="genmdl" />
-  <implementation name="IM_convert_color3_color4_genmdl" nodedef="ND_convert_color3_color4" target="genmdl" />
-  <implementation name="IM_convert_color4_color3_genmdl" nodedef="ND_convert_color4_color3" target="genmdl" />
-  <implementation name="IM_convert_boolean_float_genmdl" nodedef="ND_convert_boolean_float" target="genmdl" />
-  <implementation name="IM_convert_integer_float_genmdl" nodedef="ND_convert_integer_float" target="genmdl" />
+  <implementation name="IM_convert_float_color3_genmdl" nodedef="ND_convert_float_color3" target="genmdl" sourcecode="color({{in}},{{in}},{{in}})" />
+  <implementation name="IM_convert_float_color4_genmdl" nodedef="ND_convert_float_color4" target="genmdl" sourcecode="color4({{in}},{{in}},{{in}},{{in}})" />
+  <implementation name="IM_convert_float_vector2_genmdl" nodedef="ND_convert_float_vector2" target="genmdl" sourcecode="float2({{in}},{{in}})" />
+  <implementation name="IM_convert_float_vector3_genmdl" nodedef="ND_convert_float_vector3" target="genmdl" sourcecode="float3({{in}},{{in}},{{in}})" />
+  <implementation name="IM_convert_float_vector4_genmdl" nodedef="ND_convert_float_vector4" target="genmdl" sourcecode="float4({{in}},{{in}},{{in}},{{in}})" />
+  <implementation name="IM_convert_vector2_vector3_genmdl" nodedef="ND_convert_vector2_vector3" target="genmdl" sourcecode="float3({{in}}[0],{{in}}[1],0)" />
+  <implementation name="IM_convert_vector3_color3_genmdl" nodedef="ND_convert_vector3_color3" target="genmdl" sourcecode="color({{in}})" />
+  <implementation name="IM_convert_vector3_vector2_genmdl" nodedef="ND_convert_vector3_vector2" target="genmdl" sourcecode="float2({{in}}[0],{{in}}[1])" />
+  <implementation name="IM_convert_vector3_vector4_genmdl" nodedef="ND_convert_vector3_vector4" target="genmdl" sourcecode="float4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
+  <implementation name="IM_convert_vector4_color4_genmdl" nodedef="ND_convert_vector4_color4" target="genmdl" sourcecode="color4({{in}}[0],{{in}}[1],{{in}}[2],{{in}}[3])" />
+  <implementation name="IM_convert_vector4_vector3_genmdl" nodedef="ND_convert_vector4_vector3" target="genmdl" sourcecode="float3({{in}}[0],{{in}}[1],{{in}}[2])" />
+  <implementation name="IM_convert_color3_vector3_genmdl" nodedef="ND_convert_color3_vector3" target="genmdl" sourcecode="float3({{in}})" />
+  <implementation name="IM_convert_color4_vector4_genmdl" nodedef="ND_convert_color4_vector4" target="genmdl" sourcecode="float4({{in}})" />
+  <implementation name="IM_convert_color3_color4_genmdl" nodedef="ND_convert_color3_color4" target="genmdl" sourcecode="color4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
+  <implementation name="IM_convert_color4_color3_genmdl" nodedef="ND_convert_color4_color3" target="genmdl" sourcecode="color({{in}}[0],{{in}}[1],{{in}}[2])" />
+  <implementation name="IM_convert_boolean_float_genmdl" nodedef="ND_convert_boolean_float" target="genmdl" sourcecode="float({{in}})" />
+  <implementation name="IM_convert_integer_float_genmdl" nodedef="ND_convert_integer_float" target="genmdl" sourcecode="float({{in}})" />
 
   <!-- <combine2> -->
   <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" />
