@@ -1130,6 +1130,18 @@ void Document::upgradeVersion()
                     unusedNodes.push_back(top);
                 }
             }
+            else if (nodeCategory == "subsurface_bsdf")
+            {
+                InputPtr radiusInput = node->getInput("radius");
+                if (radiusInput && radiusInput->getType() == "vector3")
+                {
+                    GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                    NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
+                    copyInputWithBindings(node, "radius", convertNode, "in");
+                    radiusInput->setConnectedNode(convertNode);
+                    radiusInput->setType("color3");
+                }
+            }
             else if (nodeCategory == "switch")
             {
                 // Upgrade switch nodes from 5 to 10 inputs, handling the fallback behavior for
@@ -1308,30 +1320,6 @@ void Document::upgradeVersion()
             {
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
-            }
-            else if (nodeCategory == "subsurface_bsdf")
-            {
-                InputPtr radiusInput = node->getActiveInput("radius");
-                if (radiusInput)
-                {
-                    if (NodePtr connectedNode = radiusInput->getConnectedNode(); connectedNode)
-                    {
-                        GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
-
-                        NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
-                        InputPtr inInput = convertNode->addInput("in", "vector3");
-
-                        inInput->setConnectedNode(connectedNode);
-                        radiusInput->setConnectedNode(convertNode);
-                    }
-                    else if (ValuePtr value = radiusInput->getValue(); value && value->isA<Vector3>())
-                    {
-                        Vector3 v = value->asA<Vector3>();
-                        radiusInput->setValue(Color3(v[0], v[1], v[2]));
-                    }
-
-                    radiusInput->setType("color3");
-                }
             }
         }
         for (NodePtr node : unusedNodes)
