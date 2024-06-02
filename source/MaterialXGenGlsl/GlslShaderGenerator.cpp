@@ -19,7 +19,6 @@
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
@@ -80,28 +79,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
         "IM_switch_matrix44I_" + GlslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <convert> -->
-    elementNames = {
-        "IM_convert_float_color3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_float_color4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_float_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_convert_float_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_float_vector4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector2_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector3_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector3_color3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector3_vector4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector4_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_vector4_color4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_color3_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_color4_vector4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_color3_color4_" + GlslShaderGenerator::TARGET,
-        "IM_convert_color4_color3_" + GlslShaderGenerator::TARGET,
-        "IM_convert_boolean_float_" + GlslShaderGenerator::TARGET,
-        "IM_convert_integer_float_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, ConvertNode::create);
 
     // <!-- <combine> -->
     elementNames = {

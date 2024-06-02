@@ -110,20 +110,6 @@ class MX_GENSHADER_API Syntax
     /// Returns the value string for a given shader port object
     virtual string getValue(const ShaderPort* port, bool uniform = false) const;
 
-    /// Get syntax for a swizzled variable
-    virtual string getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const;
-    [[deprecated]] string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
-    {
-        return getSwizzledVariable(srcName, *srcType, channels, *dstType);
-    }
-
-    /// Get swizzled value
-    virtual ValuePtr getSwizzledValue(ValuePtr value, TypeDesc srcType, const string& channels, TypeDesc dstType) const;
-    [[deprecated]] ValuePtr getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
-    {
-        return getSwizzledValue(value, *srcType, channels, *dstType);
-    }
-
     /// Returns a type qualifier to be used when declaring types for input variables.
     /// Default implementation returns empty string and derived syntax classes should
     /// override this method.
