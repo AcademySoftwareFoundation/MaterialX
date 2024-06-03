@@ -58,6 +58,9 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     static ShaderGraphPtr create(const ShaderGraph* parent, const NodeGraph& nodeGraph,
                                  GenContext& context);
 
+    /// Get the list of added inputs to propagate further up
+    const StringVec& getPropagatedAddedInputs() const { return _propagatedAddedInputs; }
+    
     /// Return true if this node is a graph.
     bool isAGraph() const override { return true; }
 
@@ -132,6 +135,9 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Add a node to the graph
     void addNode(ShaderNodePtr node);
 
+    /// Propagate additional inputs added on a node.
+    void propagateAddedInputs(ShaderNode& node, const StringVec& addedInputs);
+    
     /// Add input sockets from an interface element (nodedef, nodegraph or node)
     void addInputSockets(const InterfaceElement& elem, GenContext& context);
 
@@ -187,6 +193,10 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     std::unordered_map<string, ShaderNodePtr> _nodeMap;
     std::vector<ShaderNode*> _nodeOrder;
     IdentifierMap _identifiers;
+
+    // Propagate or not the extra inputs added by nodes
+    bool _propagateAddedInputs = false;
+    StringVec _propagatedAddedInputs;
 
     // Temporary storage for inputs that require color transformations
     std::unordered_map<ShaderInput*, ColorSpaceTransform> _inputColorTransformMap;
