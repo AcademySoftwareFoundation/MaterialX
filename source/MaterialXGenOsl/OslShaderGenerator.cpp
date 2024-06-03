@@ -9,7 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
 #include <MaterialXGenShader/Nodes/ClosureAddNode.h>
@@ -53,16 +52,6 @@ OslShaderGenerator::OslShaderGenerator() :
     registerImplementation("IM_switch_vector4I_" + OslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_matrix33I_" + OslShaderGenerator::TARGET, SwitchNode::create);
     registerImplementation("IM_switch_matrix44I_" + OslShaderGenerator::TARGET, SwitchNode::create);
-
-    // <!-- <combine> -->
-    registerImplementation("IM_combine2_vector2_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_color4CF_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VF_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine2_vector4VV_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine3_color3_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine3_vector3_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine4_color4_" + OslShaderGenerator::TARGET, CombineNode::create);
-    registerImplementation("IM_combine4_vector4_" + OslShaderGenerator::TARGET, CombineNode::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + OslShaderGenerator::TARGET, BlurNodeOsl::create);
