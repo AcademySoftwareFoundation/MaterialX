@@ -19,7 +19,6 @@
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/CombineNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
@@ -83,19 +82,6 @@ MslShaderGenerator::MslShaderGenerator() :
         "IM_switch_matrix44I_" + MslShaderGenerator::TARGET,
     };
     registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <combine> -->
-    elementNames = {
-        "IM_combine2_vector2_" + MslShaderGenerator::TARGET,
-        "IM_combine2_color4CF_" + MslShaderGenerator::TARGET,
-        "IM_combine2_vector4VF_" + MslShaderGenerator::TARGET,
-        "IM_combine2_vector4VV_" + MslShaderGenerator::TARGET,
-        "IM_combine3_color3_" + MslShaderGenerator::TARGET,
-        "IM_combine3_vector3_" + MslShaderGenerator::TARGET,
-        "IM_combine4_color4_" + MslShaderGenerator::TARGET,
-        "IM_combine4_vector4_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, HwPositionNode::create);
