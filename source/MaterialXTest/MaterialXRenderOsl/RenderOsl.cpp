@@ -126,7 +126,6 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
     _renderer->setOslCompilerExecutable(oslcExecutable);
     const std::string testRenderExecutable(MATERIALX_OSL_BINARY_TESTRENDER);
     _renderer->setOslTestRenderExecutable(testRenderExecutable);
-    _renderer->setOslIncludePath(mx::FileSearchPath(MATERIALX_OSL_INCLUDE_PATH));
 
     try
     {

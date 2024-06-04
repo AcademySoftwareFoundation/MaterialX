@@ -48,10 +48,6 @@ void OslRenderer::setSize(unsigned int width, unsigned int height)
 
 void OslRenderer::initialize(RenderContextHandle)
 {
-    if (_oslIncludePath.isEmpty())
-    {
-        throw ExceptionRenderError("OSL validation include path is empty");
-    }
     if (_oslTestShadeExecutable.isEmpty() && _oslCompilerExecutable.isEmpty())
     {
         throw ExceptionRenderError("OSL validation executables not set");
@@ -61,7 +57,7 @@ void OslRenderer::initialize(RenderContextHandle)
 void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
 {
     // If command options missing, skip testing.
-    if (_oslTestRenderExecutable.isEmpty() || _oslIncludePath.isEmpty() ||
+    if (_oslTestRenderExecutable.isEmpty() ||
         _oslTestRenderSceneTemplateFile.isEmpty() || _oslUtilityOSOPath.isEmpty())
     {
         throw ExceptionRenderError("Command input arguments are missing");
@@ -218,7 +214,7 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
 void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, const string& outputName)
 {
     // If no command and include path specified then skip checking.
-    if (_oslTestShadeExecutable.isEmpty() || _oslIncludePath.isEmpty())
+    if (_oslTestShadeExecutable.isEmpty())
     {
         return;
     }
@@ -279,7 +275,7 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
 void OslRenderer::compileOSL(const FilePath& oslFilePath)
 {
     // If no command and include path specified then skip checking.
-    if (_oslCompilerExecutable.isEmpty() || _oslIncludePath.isEmpty())
+    if (_oslCompilerExecutable.isEmpty())
     {
         return;
     }
@@ -333,7 +329,7 @@ void OslRenderer::createProgram(const StageMap& stages)
         throw ExceptionRenderError("No shader code to validate");
     }
 
-    bool haveCompiler = !_oslCompilerExecutable.isEmpty() && !_oslIncludePath.isEmpty();
+    bool haveCompiler = !_oslCompilerExecutable.isEmpty();
     if (!haveCompiler)
     {
         throw ExceptionRenderError("No OSL compiler specified for validation");
