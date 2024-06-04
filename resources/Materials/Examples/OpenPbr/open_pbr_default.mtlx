@@ -20,7 +20,7 @@
     <input name="transmission_scatter" type="color3" value="0, 0, 0" />
     <input name="transmission_scatter_anisotropy" type="float" value="0.0" />
     <input name="transmission_dispersion_scale" type="float" value="0.0" />
-    <input name="transmission_dispersion_abbe_number" type="float" value="0.0" />
+    <input name="transmission_dispersion_abbe_number" type="float" value="20.0" />
     <input name="subsurface_weight" type="float" value="0" />
     <input name="subsurface_color" type="color3" value="0.8, 0.8, 0.8" />
     <input name="subsurface_radius" type="float" value="1.0" />
@@ -35,8 +35,8 @@
     <input name="coat_roughness_anisotropy" type="float" value="0.0" />
     <input name="coat_ior" type="float" value="1.6" />
     <input name="coat_darkening" type="float" value="1.0" />
-    <input name="thin_film_weight" type="float" value="0.0" />
-    <input name="thin_film_thickness" type="float" value="0" />
+    <input name="thin_film_weight" type="float" value="0" />
+    <input name="thin_film_thickness" type="float" value="0.5" />
     <input name="thin_film_ior" type="float" value="1.5" />
     <input name="emission_luminance" type="float" value="0.0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
