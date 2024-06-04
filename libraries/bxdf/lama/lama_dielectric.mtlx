@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_dielectric" node="LamaDielectric" nodegroup="pbr" doc="Lama dielectric" version="1.0" isdefaultversion="true">
     <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
            doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
@@ -29,7 +29,7 @@
            doc="Absorption radius" />
     <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" uiname="Scatter Color" uifolder="Interior"
            doc="Scatter color" />
-    <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior" 
+    <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior"
            doc="Scatter anisotropy" />
     <output name="out" type="BSDF" />
   </nodedef>
@@ -44,9 +44,13 @@
       <input name="reflectivity" type="color3" nodename="reflectivity_color" />
       <input name="edge_color" type="color3" value="0.0, 0.0, 0.0" />
     </artistic_ior>
+    <extract name="ior_float" type="float">
+      <input name="in" type="color3" nodename="artistic_ior" output="ior" />
+      <input name="index" type="integer" value="0" />
+    </extract>
     <switch name="fresnel_mode_switch" type="float">
       <input name="in1" type="float" interfacename="IOR" />
-      <input name="in2" type="float" nodename="artistic_ior" output="ior" channels="r" />
+      <input name="in2" type="float" nodename="ior_float" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
     <divide name="relative_ior" type="float">

@@ -12,7 +12,6 @@
 #include <MaterialXGenMdl/Nodes/SurfaceNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/BlurNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/CombineNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureLayerNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureCompoundNodeMdl.h>
 #include <MaterialXGenMdl/Nodes/ClosureSourceCodeNodeMdl.h>
@@ -21,7 +20,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Nodes/ConvertNode.h>
 #include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/ClosureCompoundNode.h>
 #include <MaterialXGenShader/Nodes/ClosureSourceCodeNode.h>
@@ -92,35 +90,6 @@ MdlShaderGenerator::MdlShaderGenerator() :
 
     // <!-- <surface> -->
     registerImplementation("IM_surface_" + MdlShaderGenerator::TARGET, SurfaceNodeMdl::create);
-
-    // <!-- <convert> -->
-    registerImplementation("IM_convert_float_color3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_color4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector2_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_float_vector4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector2_vector3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector2_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_color3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector3_vector4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_vector3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_vector4_color4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color3_vector3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color4_vector4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color3_color4_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_color4_color3_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_boolean_float_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-    registerImplementation("IM_convert_integer_float_" + MdlShaderGenerator::TARGET, ConvertNode::create);
-
-    // <!-- <combine> -->
-    registerImplementation("IM_combine2_vector2_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine2_color4CF_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine2_vector4VF_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine2_vector4VV_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine3_color3_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine3_vector3_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine4_color4_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
-    registerImplementation("IM_combine4_vector4_" + MdlShaderGenerator::TARGET, CombineNodeMdl::create);
 
     // <!-- <blur> -->
     registerImplementation("IM_blur_float_" + MdlShaderGenerator::TARGET, BlurNodeMdl::create);

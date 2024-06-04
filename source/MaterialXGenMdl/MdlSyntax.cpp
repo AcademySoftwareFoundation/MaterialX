@@ -493,56 +493,6 @@ TypeDesc MdlSyntax::getEnumeratedType(const string& value) const
     return Type::NONE;
 }
 
-string MdlSyntax::getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const
-{
-    if (srcType == Type::COLOR3 || srcType == Type::COLOR4)
-    {
-        const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
-        const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
-
-        const StringVec& srcMembers = srcSyntax.getMembers();
-
-        StringVec membersSwizzled;
-
-        for (size_t i = 0; i < channels.size(); ++i)
-        {
-            const char ch = channels[i];
-            if (ch == '0' || ch == '1')
-            {
-                membersSwizzled.push_back(string(1, ch));
-                continue;
-            }
-
-            auto it = CHANNELS_MAPPING.find(ch);
-            if (it == CHANNELS_MAPPING.end())
-            {
-                throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
-            }
-
-            const size_t channelIndex = it->second;
-            if (channelIndex < 0 || channelIndex >= srcMembers.size())
-            {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
-            }
-
-            string variable = srcName;
-            if (srcType == Type::COLOR3)
-            {
-                variable = "float3(" + srcName + ")";
-            }
-            else if (channelIndex < 3)
-            {
-                variable = "float3(" + srcName + ".rgb)";
-            }
-
-            membersSwizzled.push_back(variable + srcMembers[channelIndex]);
-        }
-
-        return dstSyntax.getValue(membersSwizzled, false);
-    }
-    return Syntax::getSwizzledVariable(srcName, srcType, channels, dstType);
-}
-
 string MdlSyntax::getArrayTypeSuffix(TypeDesc type, const Value& value) const
 {
     if (type.isArray())

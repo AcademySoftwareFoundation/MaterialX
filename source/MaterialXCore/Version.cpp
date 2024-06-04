@@ -1013,7 +1013,7 @@ void Document::upgradeVersion()
                 continue;
             }
 
-            string channelString = port ? port->getAttribute("channels") : EMPTY_STRING;
+            const string& channelString = port->getAttribute("channels");
             if (channelString.empty())
             {
                 continue;
