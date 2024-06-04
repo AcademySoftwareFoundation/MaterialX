@@ -93,23 +93,6 @@ class MdlArrayTypeSyntax : public ScalarTypeSyntax
         return EMPTY_STRING;
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct an array value");
-        }
-
-        string result = getName() + "[](" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i];
-        }
-        result += ")";
-
-        return result;
-    }
-
   protected:
     virtual bool isEmpty(const Value& value) const = 0;
 };
@@ -177,20 +160,6 @@ class MdlColor4TypeSyntax : public AggregateTypeSyntax
         ss << "mk_color4(" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ")";
 
         return ss.str();
-    }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        size_t valueCount = values.size();
-        if (valueCount == 4)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ", " + values[2] + ", " + values[3] + ")";
-        }
-        else if (valueCount == 2)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ")";
-        }
-        throw ExceptionShaderGenError("Incorrect number of values to construct a color4 value:" + std::to_string(valueCount));
     }
 };
 

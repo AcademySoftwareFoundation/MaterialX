@@ -246,11 +246,6 @@ class MX_GENSHADER_API TypeSyntax
     /// The value is constructed from the given value object.
     virtual string getValue(const Value& value, bool uniform) const = 0;
 
-    /// Returns a value formatted according to this type syntax.
-    /// The value is constructed from the given list of value entries
-    /// with one entry for each member of the type.
-    virtual string getValue(const StringVec& values, bool uniform) const = 0;
-
   protected:
     /// Protected constructor
     TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -274,7 +269,6 @@ class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 /// Specialization of TypeSyntax for string types.
@@ -296,7 +290,6 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
                         const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 MATERIALX_NAMESPACE_END
