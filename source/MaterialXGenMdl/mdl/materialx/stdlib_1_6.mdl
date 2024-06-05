@@ -36,12 +36,13 @@ import .::hsv::*;
 
 export material mx_surfacematerial(
     material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_backsurfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
     material mxp_displacementshader =  material() [[ anno::usage( "materialx:displacementshader") ]]
 )
 = material(
-    thin_walled: false,
+    thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
-    backface: mxp_surfaceshader.backface,
+    backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
         displacement : mxp_displacementshader.geometry.displacement,
