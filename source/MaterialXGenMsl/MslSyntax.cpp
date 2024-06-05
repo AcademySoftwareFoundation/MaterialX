@@ -44,23 +44,6 @@ class MslArrayTypeSyntax : public ScalarTypeSyntax
         return EMPTY_STRING;
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct an array value");
-        }
-
-        string result = "{" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i] + "f";
-        }
-        result += "}";
-
-        return result;
-    }
-
   protected:
     virtual size_t getSize(const Value& value) const = 0;
 };
