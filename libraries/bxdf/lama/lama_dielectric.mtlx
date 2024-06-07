@@ -52,7 +52,6 @@
 		<input name="which" type="integer" interfacename="fresnelMode" />
 	</switch>
 
-
     <!-- Roughness -->
     <subtract name="roughness_inverse" type="float">
       <input name="in1" type="float" value="1.0" />
