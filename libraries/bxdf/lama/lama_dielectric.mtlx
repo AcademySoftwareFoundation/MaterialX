@@ -34,6 +34,25 @@
 
   <nodegraph name="IMPL_lama_dielectric" nodedef="ND_lama_dielectric">
 
+	<!-- IOR -->
+	<convert name="reflectivity_color" type="color3">
+		<input name="in" type="float" interfacename="reflectivity" uivisible="false" />
+	</convert>
+	<artistic_ior name="artistic_ior" type="multioutput">
+		<input name="reflectivity" type="color3" nodename="reflectivity_color" />
+		<input name="edge_color" type="color3" value="0.0, 0.0, 0.0" />
+	</artistic_ior>
+	<extract name="ior_float" type="float">
+		<input name="in" type="color3" nodename="artistic_ior" output="ior" />
+		<input name="index" type="integer" value="0" />
+	</extract>
+	<switch name="fresnel_mode_switch" type="float">
+		<input name="in1" type="float" interfacename="IOR" />
+		<input name="in2" type="float" nodename="ior_float" />
+		<input name="which" type="integer" interfacename="fresnelMode" />
+	</switch>
+
+
     <!-- Roughness -->
     <subtract name="roughness_inverse" type="float">
       <input name="in1" type="float" value="1.0" />
@@ -108,7 +127,7 @@
     <dielectric_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmissionTint" />
-      <input name="ior" type="float" interfacename="IOR" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
@@ -124,7 +143,7 @@
     <dielectric_bsdf name="reflection_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="reflectionTint" />
-      <input name="ior" type="float" interfacename="IOR" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
