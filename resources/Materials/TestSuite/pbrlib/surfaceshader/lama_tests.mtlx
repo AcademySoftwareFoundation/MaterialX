@@ -33,7 +33,6 @@
     <input name="roughness" type="float" value="0.1" />
     <input name="anisotropy" type="float" value="0.0" />
     <input name="rotation" type="float" value="0.0" />
-    <input name="exteriorIOR" type="float" value="1.0" />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" />
     <input name="absorptionRadius" type="float" value="1.0" />
     <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" />
@@ -51,8 +50,6 @@
     <input name="color" type="color3" value="0.1, 0.2, 0.3" />
     <input name="roughness" type="float" value="0.5" />
     <input name="energyCompensation" type="float" value="1.0" />
-    <input name="lobeName" type="string" value="diffuse" />
-    <input name="matte" type="string" value="" />
   </LamaDiffuse>
   <surface name="LamaDiffuseSurface" type="surfaceshader">
     <input name="bsdf" type="BSDF" nodename="LamaDiffuse" />
