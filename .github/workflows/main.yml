@@ -104,18 +104,18 @@ jobs:
           python: 3.7
           cmake_config: -G "Visual Studio 16 2019" -A "Win32" -DMATERIALX_BUILD_SHARED_LIBS=ON
 
-        - name: Windows_VS2022_x64_Python311
-          os: windows-2022
+        - name: Windows_VS2019_x64_Python311
+          os: windows-2019
           architecture: x64
           python: 3.11
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          cmake_config: -G "Visual Studio 16 2019" -A "x64"
           test_shaders: ON
 
-        - name: Windows_VS2022_x64_Python312
-          os: windows-2022
+        - name: Windows_VS2019_x64_Python312
+          os: windows-2019
           architecture: x64
           python: 3.12
-          cmake_config: -G "Visual Studio 17 2022" -A "x64"
+          cmake_config: -G "Visual Studio 16 2019" -A "x64"
           upload_shaders: ON
 
     steps:
