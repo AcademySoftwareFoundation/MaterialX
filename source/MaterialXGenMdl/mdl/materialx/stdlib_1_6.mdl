@@ -3204,6 +3204,17 @@ export float4x4 mx_ifgreater_matrix44(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifgreater_boolean(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return true; } return false;
+}
+
 export float mx_ifgreater_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3319,6 +3330,17 @@ export float4x4 mx_ifgreater_matrix44I(
 	]]
 {
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifgreater_booleanI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return true; } return false;
 }
 
 export float mx_ifgreatereq_float(
@@ -3438,6 +3460,17 @@ export float4x4 mx_ifgreatereq_matrix44(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifgreatereq_boolean(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return true; } return false;
+}
+
 export float mx_ifgreatereq_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3553,6 +3586,17 @@ export float4x4 mx_ifgreatereq_matrix44I(
 	]]
 {
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifgreatereq_booleanI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return true; } return false;
 }
 
 export float mx_ifequal_float(
@@ -3672,6 +3716,17 @@ export float4x4 mx_ifequal_matrix44(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifequal_float(
+	float mxp_value1 = float(0.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return true; } return false;
+}
+
 export float mx_ifequal_floatI(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
@@ -3789,6 +3844,17 @@ export float4x4 mx_ifequal_matrix44I(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifequal_booleanI(
+	int mxp_value1 = int(0),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return true; } return false;
+}
+
 export float mx_ifequal_floatB(
 	bool mxp_value1 = bool(false),
 	bool mxp_value2 = bool(false),
@@ -3904,6 +3970,17 @@ export float4x4 mx_ifequal_matrix44B(
 	]]
 {
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifequal_booleanB(
+	bool mxp_value1 = bool(false),
+	bool mxp_value2 = bool(false)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return true; } return false;
 }
 
 export float mx_switch_float(

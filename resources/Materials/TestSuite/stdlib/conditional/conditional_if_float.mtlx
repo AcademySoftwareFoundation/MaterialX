@@ -85,6 +85,13 @@
     </ifgreater>
     <output name="out" type="matrix44" nodename="ifgreater1" />
   </nodegraph>
+  <nodegraph name="ifgreater_boolean">
+    <ifgreater name="ifgreater1" type="boolean">
+      <input name="value1" type="float" value="0.8000" />
+      <input name="value2" type="float" value="0.6000" />
+    </ifgreater>
+    <output name="out" type="boolean" nodename="ifgreater1" />
+  </nodegraph>
   <nodegraph name="ifequal_float">
     <ifequal name="ifequal1" type="float">
       <input name="value1" type="float" value="0.8000" />
@@ -166,6 +173,13 @@
     </ifequal>
     <output name="out" type="matrix44" nodename="ifequal1" />
   </nodegraph>
+  <nodegraph name="ifequal_boolean">
+    <ifequal name="ifequal1" type="boolean">
+      <input name="value1" type="float" value="0.8000" />
+      <input name="value2" type="float" value="0.6000" />
+    </ifequal>
+    <output name="out" type="boolean" nodename="ifequal1" />
+  </nodegraph>
   <nodegraph name="ifgreatereq_float">
     <ifgreatereq name="ifgreatereq1" type="float">
       <input name="value1" type="float" value="0.8000" />
@@ -246,5 +260,12 @@
       <input name="in2" type="matrix44" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" />
     </ifgreatereq>
     <output name="out" type="matrix44" nodename="ifgreatereq1" />
+  </nodegraph>
+  <nodegraph name="ifgreatereq_boolean">
+    <ifgreatereq name="ifgreatereq1" type="boolean">
+      <input name="value1" type="float" value="0.8000" />
+      <input name="value2" type="float" value="0.6000" />
+    </ifgreatereq>
+    <output name="out" type="boolean" nodename="ifgreatereq1" />
   </nodegraph>
 </materialx>
