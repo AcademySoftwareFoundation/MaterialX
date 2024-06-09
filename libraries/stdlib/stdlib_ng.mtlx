@@ -4242,7 +4242,1017 @@
   </nodegraph>
 
   <!-- ======================================================================== -->
-  <!-- Convolution nodes                                                        -->
+  <!-- Switch nodes                                                             -->
   <!-- ======================================================================== -->
+
+  <nodegraph name="NG_switch_float" nodedef="ND_switch_float">
+    <ifgreater name="ifgreater_10" type="float">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in10" />
+      <input name="in2" type="float" value="0.0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="float">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in9" />
+      <input name="in2" type="float" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="float">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in8" />
+      <input name="in2" type="float" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="float">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in7" />
+      <input name="in2" type="float" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="float">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in6" />
+      <input name="in2" type="float" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="float">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in5" />
+      <input name="in2" type="float" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="float">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in4" />
+      <input name="in2" type="float" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="float">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in3" />
+      <input name="in2" type="float" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="float">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in2" />
+      <input name="in2" type="float" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="float">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="float" interfacename="in1" />
+      <input name="in2" type="float" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="float" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_color3" nodedef="ND_switch_color3">
+    <ifgreater name="ifgreater_10" type="color3">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in10" />
+      <input name="in2" type="color3" value="0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="color3">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in9" />
+      <input name="in2" type="color3" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="color3">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in8" />
+      <input name="in2" type="color3" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="color3">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in7" />
+      <input name="in2" type="color3" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="color3">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in6" />
+      <input name="in2" type="color3" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="color3">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in5" />
+      <input name="in2" type="color3" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="color3">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in4" />
+      <input name="in2" type="color3" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="color3">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in3" />
+      <input name="in2" type="color3" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="color3">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in2" />
+      <input name="in2" type="color3" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="color3">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in1" />
+      <input name="in2" type="color3" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="color3" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_color4" nodedef="ND_switch_color4">
+    <ifgreater name="ifgreater_10" type="color4">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in10" />
+      <input name="in2" type="color4" value="0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="color4">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in9" />
+      <input name="in2" type="color4" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="color4">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in8" />
+      <input name="in2" type="color4" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="color4">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in7" />
+      <input name="in2" type="color4" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="color4">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in6" />
+      <input name="in2" type="color4" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="color4">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in5" />
+      <input name="in2" type="color4" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="color4">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in4" />
+      <input name="in2" type="color4" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="color4">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in3" />
+      <input name="in2" type="color4" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="color4">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in2" />
+      <input name="in2" type="color4" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="color4">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in1" />
+      <input name="in2" type="color4" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="color4" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector2" nodedef="ND_switch_vector2">
+    <ifgreater name="ifgreater_10" type="vector2">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in10" />
+      <input name="in2" type="vector2" value="0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector2">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in9" />
+      <input name="in2" type="vector2" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector2">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in8" />
+      <input name="in2" type="vector2" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector2">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in7" />
+      <input name="in2" type="vector2" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector2">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in6" />
+      <input name="in2" type="vector2" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector2">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in5" />
+      <input name="in2" type="vector2" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector2">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in4" />
+      <input name="in2" type="vector2" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector2">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in3" />
+      <input name="in2" type="vector2" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector2">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in2" />
+      <input name="in2" type="vector2" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector2">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in1" />
+      <input name="in2" type="vector2" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector2" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector3" nodedef="ND_switch_vector3">
+    <ifgreater name="ifgreater_10" type="vector3">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in10" />
+      <input name="in2" type="vector3" value="0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector3">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in9" />
+      <input name="in2" type="vector3" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector3">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in8" />
+      <input name="in2" type="vector3" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector3">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in7" />
+      <input name="in2" type="vector3" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector3">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in6" />
+      <input name="in2" type="vector3" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector3">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in5" />
+      <input name="in2" type="vector3" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector3">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in4" />
+      <input name="in2" type="vector3" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector3">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in3" />
+      <input name="in2" type="vector3" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector3">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in2" />
+      <input name="in2" type="vector3" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector3">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in1" />
+      <input name="in2" type="vector3" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector3" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector4" nodedef="ND_switch_vector4">
+    <ifgreater name="ifgreater_10" type="vector4">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in10" />
+      <input name="in2" type="vector4" value="0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector4">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in9" />
+      <input name="in2" type="vector4" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector4">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in8" />
+      <input name="in2" type="vector4" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector4">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in7" />
+      <input name="in2" type="vector4" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector4">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in6" />
+      <input name="in2" type="vector4" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector4">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in5" />
+      <input name="in2" type="vector4" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector4">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in4" />
+      <input name="in2" type="vector4" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector4">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in3" />
+      <input name="in2" type="vector4" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector4">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in2" />
+      <input name="in2" type="vector4" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector4">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in1" />
+      <input name="in2" type="vector4" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector4" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_matrix33" nodedef="ND_switch_matrix33">
+    <ifgreater name="ifgreater_10" type="matrix33">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in10" />
+      <input name="in2" type="matrix33" value="0,0,0,0,0,0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="matrix33">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in9" />
+      <input name="in2" type="matrix33" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="matrix33">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in8" />
+      <input name="in2" type="matrix33" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="matrix33">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in7" />
+      <input name="in2" type="matrix33" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="matrix33">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in6" />
+      <input name="in2" type="matrix33" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="matrix33">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in5" />
+      <input name="in2" type="matrix33" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="matrix33">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in4" />
+      <input name="in2" type="matrix33" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="matrix33">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in3" />
+      <input name="in2" type="matrix33" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="matrix33">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in2" />
+      <input name="in2" type="matrix33" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="matrix33">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in1" />
+      <input name="in2" type="matrix33" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="matrix33" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_matrix44" nodedef="ND_switch_matrix44">
+    <ifgreater name="ifgreater_10" type="matrix44">
+      <input name="value1" type="float" value="10.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in10" />
+      <input name="in2" type="matrix44" value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="matrix44">
+      <input name="value1" type="float" value="9.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in9" />
+      <input name="in2" type="matrix44" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="matrix44">
+      <input name="value1" type="float" value="8.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in8" />
+      <input name="in2" type="matrix44" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="matrix44">
+      <input name="value1" type="float" value="7.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in7" />
+      <input name="in2" type="matrix44" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="matrix44">
+      <input name="value1" type="float" value="6.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in6" />
+      <input name="in2" type="matrix44" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="matrix44">
+      <input name="value1" type="float" value="5.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in5" />
+      <input name="in2" type="matrix44" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="matrix44">
+      <input name="value1" type="float" value="4.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in4" />
+      <input name="in2" type="matrix44" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="matrix44">
+      <input name="value1" type="float" value="3.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in3" />
+      <input name="in2" type="matrix44" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="matrix44">
+      <input name="value1" type="float" value="2.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in2" />
+      <input name="in2" type="matrix44" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="matrix44">
+      <input name="value1" type="float" value="1.0" />
+      <input name="value2" type="float" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in1" />
+      <input name="in2" type="matrix44" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="matrix44" nodename="ifgreater_1" />
+  </nodegraph>
+
+  <nodegraph name="NG_switch_floatI" nodedef="ND_switch_floatI">
+    <ifgreater name="ifgreater_10" type="float">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in10" />
+      <input name="in2" type="float" value="0.0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="float">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in9" />
+      <input name="in2" type="float" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="float">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in8" />
+      <input name="in2" type="float" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="float">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in7" />
+      <input name="in2" type="float" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="float">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in6" />
+      <input name="in2" type="float" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="float">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in5" />
+      <input name="in2" type="float" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="float">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in4" />
+      <input name="in2" type="float" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="float">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in3" />
+      <input name="in2" type="float" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="float">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in2" />
+      <input name="in2" type="float" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="float">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="float" interfacename="in1" />
+      <input name="in2" type="float" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="float" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_color3I" nodedef="ND_switch_color3I">
+    <ifgreater name="ifgreater_10" type="color3">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in10" />
+      <input name="in2" type="color3" value="0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="color3">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in9" />
+      <input name="in2" type="color3" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="color3">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in8" />
+      <input name="in2" type="color3" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="color3">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in7" />
+      <input name="in2" type="color3" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="color3">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in6" />
+      <input name="in2" type="color3" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="color3">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in5" />
+      <input name="in2" type="color3" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="color3">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in4" />
+      <input name="in2" type="color3" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="color3">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in3" />
+      <input name="in2" type="color3" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="color3">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in2" />
+      <input name="in2" type="color3" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="color3">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color3" interfacename="in1" />
+      <input name="in2" type="color3" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="color3" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_color4I" nodedef="ND_switch_color4I">
+    <ifgreater name="ifgreater_10" type="color4">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in10" />
+      <input name="in2" type="color4" value="0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="color4">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in9" />
+      <input name="in2" type="color4" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="color4">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in8" />
+      <input name="in2" type="color4" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="color4">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in7" />
+      <input name="in2" type="color4" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="color4">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in6" />
+      <input name="in2" type="color4" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="color4">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in5" />
+      <input name="in2" type="color4" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="color4">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in4" />
+      <input name="in2" type="color4" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="color4">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in3" />
+      <input name="in2" type="color4" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="color4">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in2" />
+      <input name="in2" type="color4" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="color4">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="color4" interfacename="in1" />
+      <input name="in2" type="color4" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="color4" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector2I" nodedef="ND_switch_vector2I">
+    <ifgreater name="ifgreater_10" type="vector2">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in10" />
+      <input name="in2" type="vector2" value="0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector2">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in9" />
+      <input name="in2" type="vector2" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector2">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in8" />
+      <input name="in2" type="vector2" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector2">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in7" />
+      <input name="in2" type="vector2" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector2">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in6" />
+      <input name="in2" type="vector2" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector2">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in5" />
+      <input name="in2" type="vector2" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector2">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in4" />
+      <input name="in2" type="vector2" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector2">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in3" />
+      <input name="in2" type="vector2" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector2">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in2" />
+      <input name="in2" type="vector2" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector2">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector2" interfacename="in1" />
+      <input name="in2" type="vector2" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector2" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector3I" nodedef="ND_switch_vector3I">
+    <ifgreater name="ifgreater_10" type="vector3">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in10" />
+      <input name="in2" type="vector3" value="0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector3">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in9" />
+      <input name="in2" type="vector3" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector3">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in8" />
+      <input name="in2" type="vector3" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector3">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in7" />
+      <input name="in2" type="vector3" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector3">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in6" />
+      <input name="in2" type="vector3" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector3">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in5" />
+      <input name="in2" type="vector3" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector3">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in4" />
+      <input name="in2" type="vector3" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector3">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in3" />
+      <input name="in2" type="vector3" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector3">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in2" />
+      <input name="in2" type="vector3" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector3">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector3" interfacename="in1" />
+      <input name="in2" type="vector3" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector3" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_vector4I" nodedef="ND_switch_vector4I">
+    <ifgreater name="ifgreater_10" type="vector4">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in10" />
+      <input name="in2" type="vector4" value="0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="vector4">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in9" />
+      <input name="in2" type="vector4" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="vector4">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in8" />
+      <input name="in2" type="vector4" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="vector4">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in7" />
+      <input name="in2" type="vector4" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="vector4">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in6" />
+      <input name="in2" type="vector4" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="vector4">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in5" />
+      <input name="in2" type="vector4" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="vector4">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in4" />
+      <input name="in2" type="vector4" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="vector4">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in3" />
+      <input name="in2" type="vector4" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="vector4">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in2" />
+      <input name="in2" type="vector4" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="vector4">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="vector4" interfacename="in1" />
+      <input name="in2" type="vector4" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="vector4" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_matrix33I" nodedef="ND_switch_matrix33I">
+    <ifgreater name="ifgreater_10" type="matrix33">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in10" />
+      <input name="in2" type="matrix33" value="0,0,0,0,0,0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="matrix33">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in9" />
+      <input name="in2" type="matrix33" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="matrix33">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in8" />
+      <input name="in2" type="matrix33" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="matrix33">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in7" />
+      <input name="in2" type="matrix33" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="matrix33">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in6" />
+      <input name="in2" type="matrix33" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="matrix33">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in5" />
+      <input name="in2" type="matrix33" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="matrix33">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in4" />
+      <input name="in2" type="matrix33" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="matrix33">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in3" />
+      <input name="in2" type="matrix33" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="matrix33">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in2" />
+      <input name="in2" type="matrix33" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="matrix33">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix33" interfacename="in1" />
+      <input name="in2" type="matrix33" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="matrix33" nodename="ifgreater_1" />
+  </nodegraph>
+  <nodegraph name="NG_switch_matrix44I" nodedef="ND_switch_matrix44I">
+    <ifgreater name="ifgreater_10" type="matrix44">
+      <input name="value1" type="integer" value="10" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in10" />
+      <input name="in2" type="matrix44" value="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" />
+    </ifgreater>
+    <ifgreater name="ifgreater_9" type="matrix44">
+      <input name="value1" type="integer" value="9" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in9" />
+      <input name="in2" type="matrix44" nodename="ifgreater_10" />
+    </ifgreater>
+    <ifgreater name="ifgreater_8" type="matrix44">
+      <input name="value1" type="integer" value="8" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in8" />
+      <input name="in2" type="matrix44" nodename="ifgreater_9" />
+    </ifgreater>
+    <ifgreater name="ifgreater_7" type="matrix44">
+      <input name="value1" type="integer" value="7" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in7" />
+      <input name="in2" type="matrix44" nodename="ifgreater_8" />
+    </ifgreater>
+    <ifgreater name="ifgreater_6" type="matrix44">
+      <input name="value1" type="integer" value="6" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in6" />
+      <input name="in2" type="matrix44" nodename="ifgreater_7" />
+    </ifgreater>
+    <ifgreater name="ifgreater_5" type="matrix44">
+      <input name="value1" type="integer" value="5" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in5" />
+      <input name="in2" type="matrix44" nodename="ifgreater_6" />
+    </ifgreater>
+    <ifgreater name="ifgreater_4" type="matrix44">
+      <input name="value1" type="integer" value="4" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in4" />
+      <input name="in2" type="matrix44" nodename="ifgreater_5" />
+    </ifgreater>
+    <ifgreater name="ifgreater_3" type="matrix44">
+      <input name="value1" type="integer" value="3" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in3" />
+      <input name="in2" type="matrix44" nodename="ifgreater_4" />
+    </ifgreater>
+    <ifgreater name="ifgreater_2" type="matrix44">
+      <input name="value1" type="integer" value="2" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in2" />
+      <input name="in2" type="matrix44" nodename="ifgreater_3" />
+    </ifgreater>
+    <ifgreater name="ifgreater_1" type="matrix44">
+      <input name="value1" type="integer" value="1" />
+      <input name="value2" type="integer" interfacename="which" />
+      <input name="in1" type="matrix44" interfacename="in1" />
+      <input name="in2" type="matrix44" nodename="ifgreater_2" />
+    </ifgreater>
+    <output name="out" type="matrix44" nodename="ifgreater_1" />
+  </nodegraph>
 
 </materialx>

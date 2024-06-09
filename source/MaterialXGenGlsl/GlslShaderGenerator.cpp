@@ -19,7 +19,6 @@
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
@@ -54,30 +53,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     //
 
     StringVec elementNames;
-
-    // <!-- <switch> -->
-    elementNames = {
-        // <!-- 'which' type : float -->
-        "IM_switch_float_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color3_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color4_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector4_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix33_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix44_" + GlslShaderGenerator::TARGET,
-
-        // <!-- 'which' type : integer -->
-        "IM_switch_floatI_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color3I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color4I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector2I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector3I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector4I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix33I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix44I_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwitchNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, HwPositionNode::create);
