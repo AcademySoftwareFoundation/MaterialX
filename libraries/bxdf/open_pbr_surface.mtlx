@@ -558,12 +558,12 @@
     </layer>
 
     <!-- Fuzz Layer -->
-    <!-- TODO: Add a new BSDF node for the selected fuzz model in OpenPBR -->
     <sheen_bsdf name="fuzz_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="fuzz_weight" />
       <input name="color" type="color3" interfacename="fuzz_color" />
       <input name="roughness" type="float" interfacename="fuzz_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="mode" type="string" value="zeltner" />
     </sheen_bsdf>
     <layer name="fuzz_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="fuzz_bsdf" />
