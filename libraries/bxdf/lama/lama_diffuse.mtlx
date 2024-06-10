@@ -21,12 +21,25 @@
       <input name="in1" type="float" nodename="roughness_squared" />
       <input name="in2" type="float" value="0.5" />
     </multiply>
-    <oren_nayar_diffuse_bsdf name="oren_nayar" type="BSDF">
+    <oren_nayar_diffuse_bsdf name="oren_nayar_uncompensated" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" interfacename="color" />
       <input name="roughness" type="float" nodename="half_roughness_squared" />
       <input name="normal" type="vector3" interfacename="normal" />
+      <input name="energy_compensation" type="boolean" value="false" />
     </oren_nayar_diffuse_bsdf>
+    <oren_nayar_diffuse_bsdf name="oren_nayar_compensated" type="BSDF">
+      <input name="weight" type="float" value="1.0" />
+      <input name="color" type="color3" interfacename="color" />
+      <input name="roughness" type="float" nodename="half_roughness_squared" />
+      <input name="normal" type="vector3" interfacename="normal" />
+      <input name="energy_compensation" type="boolean" value="true" />
+    </oren_nayar_diffuse_bsdf>
+    <mix name="oren_nayar" type="BSDF">
+      <input name="fg" type="BSDF" nodename="oren_nayar_compensated" />
+      <input name="bg" type="BSDF" nodename="oren_nayar_uncompensated" />
+      <input name="mix" type="float" interfacename="energyCompensation" />
+    </mix>
     <output name="out" type="BSDF" nodename="oren_nayar" />
   </nodegraph>
 </materialx>
