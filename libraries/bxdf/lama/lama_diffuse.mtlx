@@ -36,8 +36,8 @@
       <input name="energy_compensation" type="boolean" value="true" />
     </oren_nayar_diffuse_bsdf>
     <mix name="oren_nayar" type="BSDF">
-      <input name="fg" type="BSDF" nodename="oren_nayar_uncompensated" />
-      <input name="bg" type="BSDF" nodename="oren_nayar_compensated" />
+      <input name="fg" type="BSDF" nodename="oren_nayar_compensated" />
+      <input name="bg" type="BSDF" nodename="oren_nayar_uncompensated" />
       <input name="mix" type="float" interfacename="energyCompensation" />
     </mix>
     <output name="out" type="BSDF" nodename="oren_nayar" />
