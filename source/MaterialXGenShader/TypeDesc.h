@@ -34,7 +34,7 @@ MATERIALX_NAMESPACE_BEGIN
 ///
 class MX_GENSHADER_API TypeDesc
 {
-  public:
+public:
     enum BaseType
     {
         BASETYPE_NONE,
@@ -61,11 +61,10 @@ class MX_GENSHADER_API TypeDesc
     };
 
     /// Empty constructor.
-    constexpr TypeDesc() noexcept :
-        _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0), _structIndex(-1) { }
+    constexpr TypeDesc() noexcept : _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0), _structIndex(0) {}
 
     /// Constructor.
-    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, int8_t structIndex = -1) noexcept :
+    constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint8_t size = 1, uint8_t structIndex = 0) noexcept :
         _id(constexpr_hash(name)), // Note: We only store the hash to keep the class size minimal.
         _basetype(basetype),
         _semantic(semantic),
