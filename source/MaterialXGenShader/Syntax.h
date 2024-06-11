@@ -319,7 +319,6 @@ class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
                      const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
 
   protected:
 

@@ -284,7 +284,7 @@ StructTypeSyntax::StructTypeSyntax(const Syntax* parentSyntax, const string& nam
 
 string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
 {
-    const AggregateValue& aggValue = dynamic_cast<const AggregateValue&>(value);
+    const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
 
     auto typeDesc = TypeDesc::get(aggValue.getTypeString());
     auto structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
