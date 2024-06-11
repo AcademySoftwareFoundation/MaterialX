@@ -388,7 +388,7 @@ StructTypeSyntaxPtr GlslSyntax::createStructSyntax(const string& structTypeName,
         typeDefinition);
 }
 
-string GlslStructTypeSyntax::getValue(const Value& value, bool uniform) const
+string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
 {
     const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
 
