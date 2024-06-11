@@ -5,7 +5,9 @@
 
 #include <MaterialXGenShader/TypeDesc.h>
 
-#include <MaterialXCore/Exception.h>
+#include <MaterialXGenShader/Exceptions.h>
+
+#include <sstream>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -90,8 +92,9 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
     const auto& members = structTypeDesc.getMembers();
 
     if (subValues.size() != members.size()) {
-        printf("ERROR wrong number of initializers - expect %zu\n", members.size());
-        return nullptr;
+        std::stringstream ss;
+        ss << "Wrong number of initializers - expect " << members.size();
+        throw ExceptionShaderGenError(ss.str());
     }
 
     for (size_t i = 0; i < members.size(); ++i) {
@@ -168,11 +171,18 @@ StructTypeDesc& StructTypeDesc::get(unsigned int index)
     return structs[index];
 }
 
-unsigned int StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
+uint8_t StructTypeDesc::emplace_back(StructTypeDesc structTypeDesc)
 {
     StructTypeDescStorage& structs = structTypeStorage();
+
+    if (structs.size() > 255)
+    {
+        throw ExceptionShaderGenError("Limit of 256 custom struct types has been exceeded.");
+    }
+    uint8_t index = static_cast<uint8_t>(structs.size());
+
     structs.emplace_back(structTypeDesc);
-    return structs.size()-1;
+    return index;
 }
 
 void StructTypeDesc::clear()
