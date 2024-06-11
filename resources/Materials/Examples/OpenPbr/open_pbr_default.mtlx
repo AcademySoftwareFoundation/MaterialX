@@ -37,7 +37,7 @@
     <input name="coat_darkening" type="float" value="1.0" />
     <input name="thin_film_weight" type="float" value="0" />
     <input name="thin_film_thickness" type="float" value="0.5" />
-    <input name="thin_film_ior" type="float" value="1.5" />
+    <input name="thin_film_ior" type="float" value="1.4" />
     <input name="emission_luminance" type="float" value="0.0" />
     <input name="emission_color" type="color3" value="1, 1, 1" />
     <input name="geometry_opacity" type="float" value="1" />
