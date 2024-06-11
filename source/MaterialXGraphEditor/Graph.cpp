@@ -1834,7 +1834,7 @@ void Graph::copyInputs()
                             else if (upNode->getInput())
                             {
 
-                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setConnectedInterfaceName(upNode->getName());
                             }
                             else
                             {
@@ -1860,7 +1860,7 @@ void Graph::copyInputs()
                         {
                             if (upNode->getInput())
                             {
-                                copyNode->inputPins[count]->_input->setInterfaceName(upNode->getName());
+                                copyNode->inputPins[count]->_input->setConnectedInterfaceName(upNode->getName());
                             }
                             else
                             {
@@ -1869,7 +1869,6 @@ void Graph::copyInputs()
                         }
 
                         copyNode->inputPins[count]->setConnected(true);
-                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     }
                     else if (copyNode->getOutput() != nullptr)
                     {
@@ -1885,7 +1884,7 @@ void Graph::copyInputs()
                 {
                     if (pin->_input->getInterfaceInput())
                     {
-                        copyNode->inputPins[count]->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                        copyNode->inputPins[count]->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     }
                     copyNode->inputPins[count]->setConnected(false);
                     setDefaults(copyNode->inputPins[count]->_input);
@@ -2625,7 +2624,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                         }
                         else if (uiUpNode->getInput() != nullptr)
                         {
-                            pin->_input->setInterfaceName(uiUpNode->getName());
+                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                         }
                         else
                         {
@@ -2651,7 +2650,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     {
                         if (uiUpNode->getInput())
                         {
-                            pin->_input->setInterfaceName(uiUpNode->getName());
+                            pin->_input->setConnectedInterfaceName(uiUpNode->getName());
                         }
                         else
                         {
@@ -2697,7 +2696,6 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
                     }
 
                     pin->setConnected(true);
-                    pin->_input->removeAttribute(mx::ValueElement::VALUE_ATTRIBUTE);
                     connectingInput = pin->_input;
                     break;
                 }
@@ -2777,7 +2775,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 if (_graphNodes[upNode]->getInput())
                 {
                     // Remove interface value in order to set the default of the input
-                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    pin->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(pin->_input);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
@@ -2810,7 +2808,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
                 removeEdge(downNode, upNode, pin);
                 if (_graphNodes[upNode]->getInput())
                 {
-                    _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    _graphNodes[downNode]->getNodeGraph()->getInput(pin->_name)->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(_graphNodes[upNode]->getInput());
                 }
                 for (UiPinPtr connect : pin->_connections)
@@ -2906,8 +2904,8 @@ void Graph::deleteNode(UiNodePtr node)
                 }
                 if (node->getInput())
                 {
-                    // Remove interface value in order to set the default of the input
-                    pin->_input->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    // Remove interface in order to set the default of the input
+                    pin->_input->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(pin->_input);
                     setDefaults(node->getInput());
                 }
@@ -2916,7 +2914,7 @@ void Graph::deleteNode(UiNodePtr node)
             {
                 if (node->getInput())
                 {
-                    pin->_pinNode->getNodeGraph()->getInput(pin->_name)->removeAttribute(mx::ValueElement::INTERFACE_NAME_ATTRIBUTE);
+                    pin->_pinNode->getNodeGraph()->getInput(pin->_name)->setConnectedInterfaceName(mx::EMPTY_STRING);
                     setDefaults(node->getInput());
                 }
                 pin->_input->setConnectedNode(nullptr);
@@ -3320,7 +3318,7 @@ void Graph::propertyEditor()
                                 {
                                     _currUiNode->getInput()->setName(name);
                                     mx::ValuePtr val = _currUiNode->getInput()->getValue();
-                                    input->setInterfaceName(name);
+                                    input->setConnectedInterfaceName(name);
                                     mx::InputPtr pt = input->getInterfaceInput();
                                 }
                             }

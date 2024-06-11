@@ -31,6 +31,9 @@ void PortElement::setConnectedNode(ConstNodePtr node)
     if (node)
     {
         setNodeName(node->getName());
+        removeAttribute(VALUE_ATTRIBUTE);
+        removeAttribute(NODE_GRAPH_ATTRIBUTE);
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
     }
     else
     {
@@ -60,6 +63,8 @@ void PortElement::setConnectedOutput(ConstOutputPtr output)
             setNodeName(parent->getName());
             removeAttribute(NODE_GRAPH_ATTRIBUTE);
         }
+
+        removeAttribute(VALUE_ATTRIBUTE);
     }
     else
     {
@@ -235,6 +240,26 @@ NodePtr Input::getConnectedNode() const
     return PortElement::getConnectedNode();
 }
 
+void Input::setConnectedInterfaceName(const string& interfaceName)
+{
+    if (!interfaceName.empty())
+    {
+        ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+        if (graph && graph->getInput(interfaceName))
+        {
+            setInterfaceName(interfaceName);
+            removeAttribute(VALUE_ATTRIBUTE);
+            removeAttribute(OUTPUT_ATTRIBUTE);
+            removeAttribute(NODE_GRAPH_ATTRIBUTE);
+            removeAttribute(NODE_NAME_ATTRIBUTE);
+        }
+    }
+    else
+    {
+        removeAttribute(INTERFACE_NAME_ATTRIBUTE);
+    }
+}
+
 InputPtr Input::getInterfaceInput() const
 {
     if (hasInterfaceName())
@@ -271,9 +296,14 @@ bool Input::validate(string* message) const
     }
     if (parent->isA<Node>())
     {
-        bool hasValueBinding = hasValue();
-        bool hasConnection = hasNodeName() || hasNodeGraphString() || hasOutputString() || hasInterfaceName();
-        validateRequire(hasValueBinding || hasConnection, res, message, "Node input binds no value or connection");
+        int numBindings = 0;
+        if (hasValue()) numBindings++;
+        if (hasNodeName()) numBindings++;
+        if (hasNodeGraphString()) numBindings++;
+        if (hasInterfaceName()) numBindings++;
+        if (hasOutputString() && !(hasNodeName() || hasNodeGraphString()))  numBindings++;
+        validateRequire(numBindings, res, message, "Node input binds no value or connection");
+        validateRequire(numBindings <= 1, res, message, "Node input has too many bindings");
     }
     else if (parent->isA<NodeGraph>())
     {
