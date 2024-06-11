@@ -466,6 +466,94 @@
   </nodedef>
 
   <!--
+    Node: <ramp>
+    A ramp that supports up to 30 control points.
+  -->
+  <nodedef name="ND_ramp" node="ramp" nodegroup="procedural2d">
+    <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth" enumvalues="0,1" />
+    <input name="num_intervals" type="integer" value="2" uimin="2" uimax="10" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval3" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color3" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval4" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color4" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval5" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color5" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval6" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color6" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval7" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color7" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval8" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color8" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval9" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color9" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval10" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color10" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval11" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color11" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval12" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color12" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval13" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color13" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval14" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color14" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval15" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color15" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval16" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color16" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval17" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color17" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval18" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color18" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval19" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color19" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval20" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color20" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval21" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color21" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval22" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color22" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval23" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color23" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval24" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color24" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval25" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color25" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval26" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color26" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval27" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color27" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval28" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color28" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval29" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color29" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval30" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color30" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!--
+    Node <ramp_gradient>
+    Used by the ramp node to support up to 30 control points.
+  -->
+  <nodedef name="ND_ramp_gradient" node="ramp_gradient" nodegroup="procedural2d">
+    <input name="x" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
+    <input name="interval2" type="float" value="1" uimin="0" uimax="1" />
+    <input name="color1" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="color2" type="color4" value="1,1,1,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interpolation" type="integer" value="1" enum="linear,smooth" enumvalues="0,1" />
+    <input name="prev_color" type="color4" value="0,0,0,1" uimin="0,0,0,0" uimax="1,1,1,1" />
+    <input name="interval_num" type="integer" value="1" />
+    <input name="num_intervals" type="integer" value="10" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <!--
     Node: <ramplr>
     A left-to-right bilinear value ramp.
   -->
