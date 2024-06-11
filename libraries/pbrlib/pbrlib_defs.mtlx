@@ -132,6 +132,7 @@
     <input name="color" type="color3" value="1.0, 1.0, 1.0" />
     <input name="roughness" type="float" value="0.3" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
+    <input name="mode" type="string" value="conty_kulla" enum="conty_kulla, zeltner" uniform="true" />
     <output name="out" type="BSDF" />
   </nodedef>
 
