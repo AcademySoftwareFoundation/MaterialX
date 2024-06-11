@@ -32,6 +32,57 @@ bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
     return true;
 }
 
+TEST_CASE("Interface Input Validation", "[node]")
+{
+    std::string validationErrors;
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    // Test inside nodegraph
+    mx::GraphElementPtr nodegraph = doc->addNodeGraph("graph1");
+
+    std::vector<mx::GraphElementPtr> graphs = { doc, nodegraph };
+    for (auto graph : graphs)
+    {
+        mx::InputPtr graphInput = graph->addInput(mx::EMPTY_STRING, "color3");
+        mx::NodePtr addNode = graph->addNode("add", mx::EMPTY_STRING, "color3");
+        mx::InputPtr addInput = addNode->addInput("in1");
+
+        addInput->setValueString("3, 3, 3");
+        addInput->setInterfaceName(graphInput->getName());
+        bool valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(!valid);
+
+        addInput->setConnectedInterfaceName(graphInput->getName());
+        mx::InputPtr interfaceInput = addInput->getInterfaceInput();
+        REQUIRE((interfaceInput && interfaceInput->getNamePath() == graphInput->getNamePath()));
+        REQUIRE(!addInput->getValue());
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+
+        addInput->setConnectedInterfaceName(mx::EMPTY_STRING);
+        addInput->setValueString("2, 2, 2");
+        interfaceInput = addInput->getInterfaceInput();
+        REQUIRE(!interfaceInput);
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+    }
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.

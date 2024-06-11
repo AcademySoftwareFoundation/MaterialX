@@ -211,6 +211,10 @@ class MX_CORE_API Input : public PortElement
     /// Return the node, if any, to which this input is connected.
     NodePtr getConnectedNode() const override;
 
+    /// Connects this input to a corresponding interface with the given name.
+    /// If the interface name specified is an empty string then any existing connection is removed.
+    void setConnectedInterfaceName(const string& interfaceName);
+
     /// Return the input on the parent graph corresponding to the interface name
     /// for this input.
     InputPtr getInterfaceInput() const;
