@@ -184,6 +184,7 @@ TEST_CASE("GenShader: OSL Metadata", "[genosl]")
 static void generateOslCode()
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    searchPath.append(searchPath.find("resources/Materials/TestSuite"));
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
