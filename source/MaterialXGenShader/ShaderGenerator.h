@@ -12,6 +12,7 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Exceptions.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
@@ -238,14 +239,6 @@ class MX_GENSHADER_API ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
-};
-
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class MX_GENSHADER_API ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
 };
 
 MATERIALX_NAMESPACE_END
