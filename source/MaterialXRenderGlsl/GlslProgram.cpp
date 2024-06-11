@@ -946,17 +946,11 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
             for (size_t i = 0; i < uniforms.size(); ++i)
             {
                 const ShaderPort* v = uniforms[i];
-                auto typedesc = v->getType();
 
-                auto variableName = v->getVariable();
-
-                auto variablePath = v->getPath();
-                auto variableUnit = v->getUnit();
-                auto variableColorspace = v->getColorSpace();
-                auto variableSemantic = v->getSemantic();
-
-                auto variableValue = v->getValue();
-
+                const auto& variablePath = v->getPath();
+                const auto& variableUnit = v->getUnit();
+                const auto& variableColorspace = v->getColorSpace();
+                const auto& variableSemantic = v->getSemantic();
 
                 const auto populateUniformInput =
                     [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
@@ -1032,7 +1026,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                     return populateUniformInput_impl(typedesc, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(typedesc, variableName, variableValue);
+                populateUniformInput(v->getType(), v->getVariable(), v->getValue());
             }
         }
 

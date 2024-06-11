@@ -137,6 +137,7 @@ enum class GlslType
 static void generateGlslCode(GlslType type)
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    searchPath.append(searchPath.find("resources/Materials/TestSuite"));
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));

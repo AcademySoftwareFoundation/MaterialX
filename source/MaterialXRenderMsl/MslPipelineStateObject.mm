@@ -935,8 +935,6 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                     [this, uboObjectName]
                     (MTLStructMember* member, int index, int size, const string& memberNamePrefix, auto& addUniformToList_ref) -> void
                 {
-                    // TODO - validate if 'size' is correct here - first pass we use arg.bufferDataSize - substructs we use submember.offset
-
                     std::string memberName = memberNamePrefix + member.name.UTF8String;
 
                     if (MTLStructType* structMember = member.structType)
@@ -1032,11 +1030,8 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
             {
                 const ShaderPort* v = uniforms[i];
 
-                // TODO - im pretty sure the variablePath stuff is wrong here - but it appears to only be used for debug/testing - perhaps we remove it?
-                // or else someone needs to help guide as to the intention... - this implementation is somewhat placeholder
-                // similarly the semantic is only used for debug output print
-                const string variablePath = v->getPath();
-                const string variableSemantic = v->getSemantic();
+                const string& variablePath = v->getPath();
+                const string& variableSemantic = v->getSemantic();
 
                 const auto populateUniformInput =
                     [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]

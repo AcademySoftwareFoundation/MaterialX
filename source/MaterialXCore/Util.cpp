@@ -110,11 +110,9 @@ StringVec splitListInitializer(const string& str)
     if (str.empty())
         return StringVec();
 
-    // validate the string is correctly formatted - must be atleast 2 characters long and start and end with braces
+    // validate the string is correctly formatted - must be at least 2 characters long and start and end with braces
     if (str.size() < 2 || (str[0] != OPEN_BRACE || str[str.size()-1] != CLOSE_BRACE))
     {
-        // TODO - whats the best way to report this error?
-        printf("ERROR2");
         return StringVec();
     }
 
@@ -126,17 +124,21 @@ StringVec splitListInitializer(const string& str)
     // sequentially examine each character to parse the list initializer.
     string part = "";
     int braceDepth = 0;
-    for (const char c : substring) {
-        if (c == OPEN_BRACE) {
+    for (const char c : substring)
+    {
+        if (c == OPEN_BRACE)
+        {
             // we've already trimmed the starting brace, so any additional braces indicate members that are themselves list initializers.
             // we will just return this as a string of the list initializer.
             braceDepth += 1;
         }
-        if (braceDepth > 0 && c == CLOSE_BRACE) {
+        if (braceDepth > 0 && c == CLOSE_BRACE)
+        {
             braceDepth -= 1;
         }
 
-        if (braceDepth == 0 && c == SEPARATOR) {
+        if (braceDepth == 0 && c == SEPARATOR)
+        {
             // when we hit a separator we store the currently accumlated part, and clear to start collecting the next.
             split.emplace_back(part);
             part = "";

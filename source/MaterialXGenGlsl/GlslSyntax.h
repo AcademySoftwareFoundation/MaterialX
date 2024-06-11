@@ -52,7 +52,6 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
     StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
                                                        const string& uniformDefaultValue, const string& typeAlias,
                                                        const string& typeDefinition) const override;
-
 };
 
 /// Specialization of TypeSyntax for aggregate types.
@@ -62,9 +61,6 @@ class MX_GENSHADER_API GlslStructTypeSyntax : public StructTypeSyntax
     using StructTypeSyntax::StructTypeSyntax;
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
-
-
 };
 
 MATERIALX_NAMESPACE_END

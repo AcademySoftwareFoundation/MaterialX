@@ -326,8 +326,9 @@ AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& v
 
     if (subValues.size() != members.size())
     {
-        printf("ERROR wrong number of initializers - expect %zu\n", members.size());
-        return nullptr;
+        std::stringstream ss;
+        ss << "Wrong number of initializers - expect " << members.size();
+        throw Exception(ss.str());
     }
 
     auto doc = typeDefPtr->getDocument();

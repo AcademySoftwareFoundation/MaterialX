@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <materialx version="1.38">
+
+
+
     <nodegraph name="test_struct_texcoord">
 
-        <extractsgroup name="extracts_group" type="float">
-            <input name="in" type="texcoordGroup_struct" value="{{0.1;0.2};{0.3;0.4};{0.5;0.6}}"/>
-            <input name="index" type="integer" value="0"/>
-        </extractsgroup>
+        <extracts name="extracts" type="float">
+            <input name="in" type="texcoord_struct" value="{0.01;0.5}"/>
+        </extracts>
 
         <convert name="float_to_color3" type="color3">
-            <input name="in" type="float" nodename="extracts_group"/>
+            <input name="in" type="float" nodename="extracts"/>
         </convert>
         <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
             <input name="color" type="color3" nodename="float_to_color3" />
