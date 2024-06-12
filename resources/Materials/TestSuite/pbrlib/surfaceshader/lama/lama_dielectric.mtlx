@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="acescg">
+
+  <!-- LamaDielectric -->
+  <LamaDielectric name="LamaDielectric" type="BSDF">
+    <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="fresnelMode" type="integer" value="0" />
+    <input name="IOR" type="float" value="1.5" />
+    <input name="reflectivity" type="float" value="0.04" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <input name="rotation" type="float" value="0.0" />
+    <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="absorptionRadius" type="float" value="1.0" />
+    <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="scatterAnisotropy" type="float" value="0.0" />
+  </LamaDielectric>
+  <surface name="LamaDielectricSurface" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="LamaDielectric" />
+  </surface>
+  <surfacematerial name="LamaDielectricTest" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="LamaDielectricSurface" />
+  </surfacematerial>
+
+</materialx>
