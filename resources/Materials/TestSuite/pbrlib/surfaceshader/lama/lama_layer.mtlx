@@ -14,9 +14,6 @@
     <input name="roughness" type="float" value="0.1" />
     <input name="anisotropy" type="float" value="0.0" />
     <input name="anisotropyRotation" type="float" value="0.0" />
-    <input name="iridescenceThickness" type="float" value="0.0" />
-    <input name="iridescenceIOR" type="float" value="1.5" />
-    <input name="exteriorIOR" type="float" value="1.0" />
   </LamaConductor>
 
   <!-- LamaDielectric -->
