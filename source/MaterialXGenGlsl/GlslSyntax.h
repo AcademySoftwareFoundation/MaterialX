@@ -55,7 +55,7 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
 };
 
 /// Specialization of TypeSyntax for aggregate types.
-class MX_GENSHADER_API GlslStructTypeSyntax : public StructTypeSyntax
+class MX_GENGLSL_API GlslStructTypeSyntax : public StructTypeSyntax
 {
   public:
     using StructTypeSyntax::StructTypeSyntax;
