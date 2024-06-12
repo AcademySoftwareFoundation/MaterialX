@@ -4,7 +4,7 @@
   <!-- LamaLayer with BSDFs -->
   <!-- TODO: re-enable this test once any BSDF can be layered as the top material. -->
 	
-	  <!-- LamaConductor -->
+    <!-- LamaConductor -->
     <LamaConductor name="LamaConductor" type="BSDF">
       <input name="tint" type="color3" value="1, 1, 1" />
       <input name="fresnelMode" type="integer" value="0" />
