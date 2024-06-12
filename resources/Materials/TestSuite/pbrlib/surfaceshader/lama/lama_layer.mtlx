@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="acescg">
+
+  <!-- LamaLayer with BSDFs -->
+  
+  <!-- LamaConductor -->
+  <LamaConductor name="LamaConductor" type="BSDF">
+    <input name="tint" type="color3" value="1, 1, 1" />
+    <input name="fresnelMode" type="integer" value="0" />
+    <input name="IOR" type="vector3" value="0.180000007153,0.419999986887,1.37000000477" />
+    <input name="extinction" type="vector3" value="3.42000007629,2.34999990463,1.76999998093" />
+    <input name="reflectivity" type="color3" value="0.9450, 0.7772, 0.3737" />
+    <input name="edgeColor" type="color3" value="0.9979, 0.9813, 0.7523" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <input name="anisotropyRotation" type="float" value="0.0" />
+  </LamaConductor>
+
+  <!-- LamaDielectric -->
+  <LamaDielectric name="LamaDielectric" type="BSDF">
+    <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="fresnelMode" type="integer" value="0" />
+    <input name="IOR" type="float" value="1.5" />
+    <input name="reflectivity" type="float" value="0.04" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <input name="rotation" type="float" value="0.0" />
+    <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" />
+    <input name="absorptionRadius" type="float" value="1.0" />
+    <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" />
+    <input name="scatterAnisotropy" type="float" value="0.0" />
+  </LamaDielectric>
+
+  <LamaLayer name="LamaLayerBSDF" type="BSDF">
+      <input name="materialTop" type="BSDF" nodename="LamaDielectric" />
+      <input name="materialBase" type="BSDF" nodename="LamaConductor" />
+      <input name="topMix" type="float" value="1.0" />
+      <input name="topThickness" type="float" value="0.0" />
+  </LamaLayer>
+
+  <surface name="LamaLayerBSDFSurface" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="LamaLayerBSDF" />
+  </surface>
+
+  <surfacematerial name="LamaLayerBSDFTest" type="material">
+      <input name="surfaceshader" type="surfaceshader" nodename="LamaLayerBSDFSurface" />
+  </surfacematerial>
+    
+</materialx>
