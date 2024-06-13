@@ -86,7 +86,7 @@ public:
     /// Return the semantic for the type.
     unsigned char getSemantic() const { return _semantic; }
 
-    /// Return the index for the struct member information in StructTypeDesc, valid is invalid if `isStruct()` returns false.
+    /// Return the index for the struct member information in StructTypeDesc, the result is invalid if `isStruct()` returns false.
     uint8_t getStructIndex() const { return _structIndex; }
 
     /// Return the number of elements the type is composed of.
