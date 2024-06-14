@@ -50,12 +50,12 @@
   <nodedef name="ND_legacy_checker" node="legacy_checker" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
     <input name="color1" type="color3" value="1, 1, 1" xpos="2.094203" ypos="-4.965517" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" xpos="2.050725" ypos="-3.862069" uivisible="true" uiname="Color 2" />
-    <input name="width" type="float" value="0.4" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance"/>
-    <input name="height" type="float" value="0.2" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance"/>
-    <input name="offsetX" type="float" value="0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance"/>
-    <input name="offsetY" type="float" value="0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance"/>
+    <input name="width" type="float" value="0.4" xpos="2.115942" ypos="-0.172414" uivisible="true" uiname="Width" unittype="distance" unit="meter" />
+    <input name="height" type="float" value="0.2" xpos="2.115942" ypos="0.948276" uivisible="true" uiname="Height" unittype="distance" unit="meter"/>
+    <input name="offsetX" type="float" value="0" xpos="2.115942" ypos="2.060345" uivisible="true" uiname="Offset X" unittype="distance" unit="meter"/>
+    <input name="offsetY" type="float" value="0" xpos="2.072464" ypos="3.560345" uivisible="true" uiname="Offset Y" unittype="distance" unit="meter"/>
     <input name="soften" type="float" value="0" xpos="2.050725" ypos="-2.482759" uivisible="true" uiname="Soften" />
-    <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" uisoftmin="0" uisoftmax="360" />
+    <input name="rotate" type="float" value="0" xpos="1.978261" ypos="4.974138" uivisible="true" uiname="Rotate" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
     <input name="tile_X" type="boolean" value="true" xpos="1.934783" ypos="6.629310" uivisible="true" uiname="Tile X" />
     <input name="tile_Y" type="boolean" value="true" xpos="1.934783" ypos="8.000000" uivisible="true" uiname="Tile Y" />
     <output name="output_color3" type="color3" xpos="28.485508" ypos="0.284483" />
@@ -71,13 +71,13 @@
     <input name="threshold_high" type="float" value="0.51" xpos="-2.688406" ypos="0.698276" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
     <input name="levels" type="float" value="3" xpos="-2.572464" ypos="-6.344828" uivisible="true" uiname="Levels" uimin="0" uisoftmax="10" />
     <input name="phase" type="float" value="0" xpos="-2.572464" ypos="3.706897" uivisible="true"  uiname="Phase" uimin="0" uisoftmax="10" />
-    <input name="size" type="float" value="1" xpos="-2.572464" ypos="6.336207" uivisible="true" uiname="Size" unittype="distance" uimin="0" uisoftmax="10" />
-    <input name="offset_x" type="float" value="0" xpos="-2.688406" ypos="8.284483" uivisible="true" uiname="Offset X" unittype="distance"/>
-    <input name="offset_y" type="float" value="0" xpos="-2.688406" ypos="9.387931" uivisible="true" uiname="Offset Y" unittype="distance"/>
-    <input name="offset_z" type="float" value="0" xpos="-2.652174" ypos="10.491380" uivisible="true" uiname="Offset Z" unittype="distance"/>
-    <input name="rotate_x" type="float" value="0" xpos="-2.652174" ypos="12.258620" uivisible="true" uiname="Rotate X" unittype="angle" uisoftmin="0" uisoftmax="360" />
-    <input name="rotate_y" type="float" value="0" xpos="-2.652174" ypos="13.370689" uivisible="true" uiname="Rotate Y" unittype="angle" uisoftmin="0" uisoftmax="360"/>
-    <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" uisoftmin="0" uisoftmax="360"/>
+    <input name="size" type="float" value="1" xpos="-2.572464" ypos="6.336207" uivisible="true" uiname="Size" unittype="distance" unit="meter" uimin="0" uisoftmax="10" />
+    <input name="offset_x" type="float" value="0" xpos="-2.688406" ypos="8.284483" uivisible="true" uiname="Offset X" unittype="distance" unit="meter" />
+    <input name="offset_y" type="float" value="0" xpos="-2.688406" ypos="9.387931" uivisible="true" uiname="Offset Y" unittype="distance" unit="meter" />
+    <input name="offset_z" type="float" value="0" xpos="-2.652174" ypos="10.491380" uivisible="true" uiname="Offset Z" unittype="distance" unit="meter" />
+    <input name="rotate_x" type="float" value="0" xpos="-2.652174" ypos="12.258620" uivisible="true" uiname="Rotate X" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
+    <input name="rotate_y" type="float" value="0" xpos="-2.652174" ypos="13.370689" uivisible="true" uiname="Rotate Y" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360"/>
+    <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360"/>
     <output name="output_color3" type="color3" xpos="12.717391" ypos="-2.206897" />
   </nodedef>
   
