@@ -3716,7 +3716,7 @@ export float4x4 mx_ifequal_matrix44(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export bool mx_ifequal_float(
+export bool mx_ifequal_boolean(
 	float mxp_value1 = float(0.0),
 	float mxp_value2 = float(0.0)
 )
