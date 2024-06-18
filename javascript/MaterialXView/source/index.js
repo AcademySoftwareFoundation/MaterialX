@@ -82,6 +82,7 @@ function init()
     orbitControls.addEventListener('change', () =>
     {
         viewer.getScene().setUpdateTransforms();
+        viewer.scheduleUpdate();
     })
 
     // Add hotkey 'f' to capture the current frame and save an image file.
@@ -91,6 +92,7 @@ function init()
         if (event.key === 'f')
         {
             captureRequested = true;
+            viewer.scheduleUpdate();
         }
     });
 
@@ -129,6 +131,7 @@ function init()
 
     }).then(() =>
     {
+        viewer.scheduleUpdate();           
         animate();
     }).catch(err =>
     {
@@ -146,6 +149,7 @@ function init()
         viewer.getMaterial().loadMaterials(viewer, materialFilename);
         viewer.getEditor().updateProperties(0.9);
         viewer.getScene().setUpdateTransforms();
+        viewer.scheduleUpdate();
     });
 
     setSceneLoadingCallback(file =>
@@ -154,6 +158,7 @@ function init()
         console.log('Drop geometry to:', glbFileName);
         scene.setGeometryURL(glbFileName);
         scene.loadGeometry(viewer, orbitControls);
+        viewer.scheduleUpdate();
     });
 
     // enable three.js Cache so that dropped files can reference each other
@@ -165,10 +170,12 @@ function onWindowResize()
     viewer.getScene().updateCamera();
     viewer.getScene().setUpdateTransforms();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    console.log('resize refresh....');
+    viewer.scheduleUpdate();
 }
 
 function animate()
-{
+{ 
     requestAnimationFrame(animate);
 
     if (turntableEnabled)
@@ -179,8 +186,19 @@ function animate()
         viewer.getScene().setUpdateTransforms();
     }
 
-    renderer.render(viewer.getScene().getScene(), viewer.getScene().getCamera());
-    viewer.getScene().updateTransforms();
+    // Only re-render when an update request was made
+    if (viewer.needUpdate() || turntableEnabled)
+    {
+        renderer.render(viewer.getScene().getScene(), viewer.getScene().getCamera());
+
+        if (viewer.getScene().getUpdateTransforms())
+        {
+            viewer.getScene().updateTransforms();
+            viewer.getScene().setUpdateTransforms(false);
+        }
+
+        viewer.finishUpdate();
+    }
 
     if (captureRequested)
     {
@@ -197,9 +215,11 @@ function handleKeyEvents(event)
     if (event.keyCode == V_KEY)
     {
         viewer.getScene().toggleBackgroundTexture();
+        viewer.scheduleUpdate();
     }
     else if (event.keyCode == P_KEY)
     {
         turntableEnabled = !turntableEnabled;
+        viewer.scheduleUpdate();
     }
 }
