@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -3762,7 +3762,7 @@
   <nodedef name="ND_ifgreater_booleanI" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
@@ -3903,7 +3903,7 @@
   <nodedef name="ND_ifgreatereq_booleanI" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
@@ -4044,7 +4044,7 @@
   <nodedef name="ND_ifequal_booleanI" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
   <nodedef name="ND_ifequal_floatB" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
@@ -4112,7 +4112,7 @@
   <nodedef name="ND_ifequal_booleanB" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
     <input name="value2" type="boolean" value="false" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
