@@ -80,7 +80,7 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             "geompropvalue", "surfacematerial", "volumematerial", 
             "IM_absorption_vdf_", "IM_mix_vdf_", "IM_add_vdf_", "IM_multiply_vdf",
             "IM_measured_edf_", "IM_blackbody_", "IM_conical_edf_", 
-            "IM_displacement_", "IM_thin_surface_", "IM_volume_", "IM_light_"
+            "IM_displacement_", "IM_volume_", "IM_light_"
         };
         ShaderGeneratorTester::getImplementationWhiteList(whiteList);
     }

@@ -568,41 +568,6 @@ export material mx_surface(
     )
 );
 
-export material mx_thin_surface(
-    material mxp_front_bsdf    = material() [[ anno::usage( "materialx:bsdf") ]],
-    material mxp_front_edf     = material() [[ anno::usage( "materialx:edf") ]],
-    material mxp_back_bsdf     = material() [[ anno::usage( "materialx:bsdf") ]],
-    material mxp_back_edf      = material() [[ anno::usage( "materialx:edf") ]],
-    float    mxp_opacity = 1.0
-) [[ 
-    anno::usage( "materialx:surfaceshader") 
-]]
-= let {
-    bsdf              front_bsdf_node = mxp_front_bsdf.surface.scattering;
-    material_emission front_edf_node  = mxp_front_edf.surface.emission;
-    bsdf              back_bsdf_node  = mxp_back_bsdf.surface.scattering;
-    material_emission back_edf_node   = mxp_back_edf.surface.emission;
-    // we need to carry volume properties along for SSS
-    // TODO: clarify SSS behavior in MaterialX for thin-walled surfaces,
-    //       in MDL there is only one volume property
-    material_volume   bsdf_volume = mxp_front_bsdf.volume;
-} in material(
-    thin_walled: true,
-    surface: material_surface( 
-        scattering: front_bsdf_node,
-        emission: front_edf_node
-    ),
-    backface: material_surface( 
-        scattering: back_bsdf_node,
-        emission: back_edf_node
-    ),
-    ior: color(1.0),
-    volume: bsdf_volume,
-    geometry: material_geometry(
-        cutout_opacity: mxp_opacity
-    )
-);
-
 // MDL 1.6, Volumes do not support emission.
 export material mx_volume(
     material mxp_vdf    = material() [[ anno::usage( "materialx:vdf") ]],

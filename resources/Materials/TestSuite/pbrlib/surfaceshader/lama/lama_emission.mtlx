@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.38" colorspace="acescg">
+
+  <!-- LamaEmission -->
+  <LamaEmission name="LamaEmission" type="EDF">
+    <input name="color" type="color3" value="0.0, 1.0, 0.0" />
+  </LamaEmission>
+  <surface name="LamaEmissionSurface" type="surfaceshader">
+    <input name="edf" type="EDF" nodename="LamaEmission" />
+  </surface>
+  <surfacematerial name="LamaEmissionTest" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="LamaEmissionSurface" />
+  </surfacematerial>
+
+</materialx>

@@ -97,7 +97,6 @@ void checkImplementations(mx::GenContext& context,
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
-        "thin_surface",
         "geompropvalue",
         "surfacematerial",
         "volumematerial"

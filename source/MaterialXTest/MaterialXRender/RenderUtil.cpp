@@ -15,8 +15,7 @@ namespace RenderUtil
 
 ShaderRenderTester::ShaderRenderTester(mx::ShaderGeneratorPtr shaderGenerator) :
     _shaderGenerator(shaderGenerator),
-    _resolveImageFilenames(false),
-    _emitColorTransforms(true)
+    _resolveImageFilenames(false)
 {
 }
 
@@ -164,9 +163,6 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
 
     // Set target unit space
     context.getOptions().targetDistanceUnit = "meter";
-
-    // Set whether to emit colorspace transforms
-    context.getOptions().emitColorTransforms = _emitColorTransforms;
 
     // Register shader metadata defined in the libraries.
     _shaderGenerator->registerShaderMetadata(dependLib, context);

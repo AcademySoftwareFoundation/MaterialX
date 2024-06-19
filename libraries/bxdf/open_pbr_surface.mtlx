@@ -69,7 +69,7 @@
            doc="Coverage weight of the thin-film. Use for materials such as multi-tone car paint or soap bubbles." />
     <input name="thin_film_thickness" type="float" value="0.5" uimin="0.0" uisoftmax="1.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
            doc="The thickness of the thin-film layer on the base (in micrometers)." />
-    <input name="thin_film_ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
+    <input name="thin_film_ior" type="float" value="1.4" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
            doc="The index of refraction of the thin-film." />
     <input name="emission_luminance" type="float" value="0.0" uimin="0.0" uisoftmax="1000.0" uiname="Emission Luminance" uifolder="Emission"
            doc="The amount of emitted light, as a luminance in nits." />
@@ -558,12 +558,12 @@
     </layer>
 
     <!-- Fuzz Layer -->
-    <!-- TODO: Add a new BSDF node for the selected fuzz model in OpenPBR -->
     <sheen_bsdf name="fuzz_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="fuzz_weight" />
       <input name="color" type="color3" interfacename="fuzz_color" />
       <input name="roughness" type="float" interfacename="fuzz_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="mode" type="string" value="zeltner" />
     </sheen_bsdf>
     <layer name="fuzz_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="fuzz_bsdf" />

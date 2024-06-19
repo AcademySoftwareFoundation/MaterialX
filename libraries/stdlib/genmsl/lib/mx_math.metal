@@ -15,6 +15,12 @@ vec3 mx_square(vec3 x)
     return x*x;
 }
 
+template<class T1, class T2>
+T1 mx_mod(T1 x, T2 y)
+{
+    return x - y * floor(x/y);
+}
+
 #ifdef __DECL_GL_MATH_FUNCTIONS__
 
 float radians(float degree) { return (degree * M_PI_F / 180.0f); }
@@ -83,12 +89,6 @@ float4x4 inverse(float4x4 m)
     ret[3][3] = (n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 - n11 * n23 * n32 - n12 * n21 * n33 + n11 * n22 * n33) * idet;
 
     return ret;
-}
-
-template<class T1, class T2>
-T1 mod(T1 x, T2 y)
-{
-    return x - y * floor(x/y);
 }
 
 template <typename T>

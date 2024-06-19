@@ -95,11 +95,6 @@ class ShaderRenderTester
 
     bool validate(const mx::FilePath optionsFilePath);
 
-    void setEmitColorTransforms(bool val)
-    {
-        _emitColorTransforms = val;
-    }
-
   protected:
     // Check if testing should be performed based in input options
 #if defined(MATERIALX_TEST_RENDER)
@@ -177,7 +172,6 @@ class ShaderRenderTester
     // Color management information
     mx::ColorManagementSystemPtr _colorManagementSystem;
     mx::FilePath _colorManagementConfigFile;
-    bool _emitColorTransforms;
 };
 
 } // namespace RenderUtil

@@ -887,6 +887,7 @@ export class Material
         const irradianceTexture = viewer.getIrradianceTexture();
         const gen = viewer.getGenerator();
         const genContext = viewer.getGenContext();
+        genContext.getOptions().hwSrgbEncodeOutput = true;
 
         // Perform transparency check on renderable item
         var startTranspCheckTime = performance.now();

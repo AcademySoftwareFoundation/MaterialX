@@ -5,7 +5,8 @@
 
 #ifndef MATERIALX_OIIOIMAGELOADER_H
 #define MATERIALX_OIIOIMAGELOADER_H
-
+    
+#if MATERIALX_BUILD_OIIO
 /// @file
 /// Image loader wrapper using OpenImageIO
 
@@ -55,5 +56,5 @@ class MX_RENDER_API OiioImageLoader : public ImageLoader
 };
 
 MATERIALX_NAMESPACE_END
-
+#endif //MATERIALX_BUILD_OIIO
 #endif
