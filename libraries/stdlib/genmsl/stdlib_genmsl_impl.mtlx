@@ -253,17 +253,17 @@
   <implementation name="IM_divide_matrix44_genmsl" nodedef="ND_divide_matrix44" target="genmsl" sourcecode="{{in1}} / {{in2}}" />
 
   <!-- <modulo> -->
-  <implementation name="IM_modulo_float_genmsl" nodedef="ND_modulo_float" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3_genmsl" nodedef="ND_modulo_color3" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color3FA_genmsl" nodedef="ND_modulo_color3FA" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4_genmsl" nodedef="ND_modulo_color4" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_color4FA_genmsl" nodedef="ND_modulo_color4FA" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2_genmsl" nodedef="ND_modulo_vector2" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector2FA_genmsl" nodedef="ND_modulo_vector2FA" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3_genmsl" nodedef="ND_modulo_vector3" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector3FA_genmsl" nodedef="ND_modulo_vector3FA" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4_genmsl" nodedef="ND_modulo_vector4" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
-  <implementation name="IM_modulo_vector4FA_genmsl" nodedef="ND_modulo_vector4FA" target="genmsl" sourcecode="mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_float_genmsl" nodedef="ND_modulo_float" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3_genmsl" nodedef="ND_modulo_color3" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color3FA_genmsl" nodedef="ND_modulo_color3FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4_genmsl" nodedef="ND_modulo_color4" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_color4FA_genmsl" nodedef="ND_modulo_color4FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2_genmsl" nodedef="ND_modulo_vector2" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector2FA_genmsl" nodedef="ND_modulo_vector2FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3_genmsl" nodedef="ND_modulo_vector3" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector3FA_genmsl" nodedef="ND_modulo_vector3FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4_genmsl" nodedef="ND_modulo_vector4" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
+  <implementation name="IM_modulo_vector4FA_genmsl" nodedef="ND_modulo_vector4FA" target="genmsl" sourcecode="mx_mod({{in1}}, {{in2}})" />
 
   <!-- <invert> -->
   <implementation name="IM_invert_float_genmsl" nodedef="ND_invert_float" target="genmsl" sourcecode="{{amount}} - {{in}}" />
