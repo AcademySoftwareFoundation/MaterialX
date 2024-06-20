@@ -5441,4 +5441,400 @@
   </nodegraph>
 
 
+    <!-- ======================================================================== -->
+    <!-- Channel nodes                                                            -->
+    <!-- ======================================================================== -->
+
+    <!--
+      Node: <convert>
+      Convert a stream from one type to another; only certain unambiguous conversion
+      types are supported.
+    -->
+    <nodegraph name="NG_convert_float_color3" nodedef="ND_convert_float_color3">
+        <combine3 name="combine" type="color3">
+            <input name="in1" type="float" interfacename="in"/>
+            <input name="in2" type="float" interfacename="in"/>
+            <input name="in3" type="float" interfacename="in"/>
+        </combine3>
+        <output name="out" type="color3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_float_color4" nodedef="ND_convert_float_color4">
+        <combine4 name="combine" type="color4">
+            <input name="in1" type="float" interfacename="in"/>
+            <input name="in2" type="float" interfacename="in"/>
+            <input name="in3" type="float" interfacename="in"/>
+            <input name="in4" type="float" interfacename="in"/>
+        </combine4>
+        <output name="out" type="color4" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_float_vector2" nodedef="ND_convert_float_vector2">
+        <combine2 name="combine" type="vector2">
+            <input name="in1" type="float" interfacename="in"/>
+            <input name="in2" type="float" interfacename="in"/>
+        </combine2>
+        <output name="out" type="vector2" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_float_vector3" nodedef="ND_convert_float_vector3">
+        <combine3 name="combine" type="vector3">
+            <input name="in1" type="float" interfacename="in"/>
+            <input name="in2" type="float" interfacename="in"/>
+            <input name="in3" type="float" interfacename="in"/>
+        </combine3>
+        <output name="out" type="vector3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_float_vector4" nodedef="ND_convert_float_vector4">
+        <combine4 name="combine" type="vector4">
+            <input name="in1" type="float" interfacename="in"/>
+            <input name="in2" type="float" interfacename="in"/>
+            <input name="in3" type="float" interfacename="in"/>
+            <input name="in4" type="float" interfacename="in"/>
+        </combine4>
+        <output name="out" type="vector4" nodename="combine" />
+    </nodegraph>
+
+    <nodegraph name="NG_convert_color3_color4" nodedef="ND_convert_color3_color4">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="color3" interfacename="in"/>
+        </separate3>
+        <combine4 name="combine" type="color4">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="color4" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color3_vector2" nodedef="ND_convert_color3_vector2">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="color3" interfacename="in"/>
+        </separate3>
+        <combine2 name="combine" type="vector2">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+        </combine2>
+        <output name="out" type="vector2" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color3_vector3" nodedef="ND_convert_color3_vector3">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="color3" interfacename="in"/>
+        </separate3>
+        <combine3 name="combine" type="vector3">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+        </combine3>
+        <output name="out" type="vector3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color3_vector4" nodedef="ND_convert_color3_vector4">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="color3" interfacename="in"/>
+        </separate3>
+        <combine4 name="combine" type="vector4">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="vector4" nodename="combine" />
+    </nodegraph>
+
+    <nodegraph name="NG_convert_color4_color3" nodedef="ND_convert_color4_color3">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="color4" interfacename="in"/>
+        </separate4>
+        <combine3 name="combine" type="color3">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+        </combine3>
+        <output name="out" type="color3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color4_vector2" nodedef="ND_convert_color4_vector2">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="color4" interfacename="in"/>
+        </separate4>
+        <combine2 name="combine" type="vector2">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+        </combine2>
+        <output name="out" type="vector2" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color4_vector3" nodedef="ND_convert_color4_vector3">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="color4" interfacename="in"/>
+        </separate4>
+        <combine3 name="combine" type="vector3">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+        </combine3>
+        <output name="out" type="vector3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_color4_vector4" nodedef="ND_convert_color4_vector4">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="color4" interfacename="in"/>
+        </separate4>
+        <combine4 name="combine" type="vector4">
+            <input name="in1" type="float" nodename="separate" output="outr"/>
+            <input name="in2" type="float" nodename="separate" output="outg"/>
+            <input name="in3" type="float" nodename="separate" output="outb"/>
+            <input name="in4" type="float" nodename="separate" output="outa"/>
+        </combine4>
+        <output name="out" type="vector4" nodename="combine" />
+    </nodegraph>
+
+
+    <nodegraph name="NG_convert_vector2_color3" nodedef="ND_convert_vector2_color3">
+        <separate2 name="separate" type="multioutput">
+            <input name="in" type="vector2" interfacename="in"/>
+        </separate2>
+        <combine3 name="combine" type="color3">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" value="0.0"/>
+        </combine3>
+        <output name="out" type="color3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector2_color4" nodedef="ND_convert_vector2_color4">
+        <separate2 name="separate" type="multioutput">
+            <input name="in" type="vector2" interfacename="in"/>
+        </separate2>
+        <combine4 name="combine" type="color4">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" value="0.0"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="color4" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector2_vector3" nodedef="ND_convert_vector2_vector3">
+        <separate2 name="separate" type="multioutput">
+            <input name="in" type="vector2" interfacename="in"/>
+        </separate2>
+        <combine3 name="combine" type="vector3">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" value="0.0"/>
+        </combine3>
+        <output name="out" type="vector3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector2_vector4" nodedef="ND_convert_vector2_vector4">
+        <separate2 name="separate" type="multioutput">
+            <input name="in" type="vector2" interfacename="in"/>
+        </separate2>
+        <combine4 name="combine" type="vector4">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" value="0.0"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="vector4" nodename="combine" />
+    </nodegraph>
+
+
+    <nodegraph name="NG_convert_vector3_color3" nodedef="ND_convert_vector3_color3">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="vector3" interfacename="in"/>
+        </separate3>
+        <combine3 name="combine" type="color3">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+        </combine3>
+        <output name="out" type="color3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector3_color4" nodedef="ND_convert_vector3_color4">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="vector3" interfacename="in"/>
+        </separate3>
+        <combine4 name="combine" type="color4">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="color4" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector3_vector2" nodedef="ND_convert_vector3_vector2">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="vector3" interfacename="in"/>
+        </separate3>
+        <combine2 name="combine" type="vector2">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+        </combine2>
+        <output name="out" type="vector2" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector3_vector4" nodedef="ND_convert_vector3_vector4">
+        <separate3 name="separate" type="multioutput">
+            <input name="in" type="vector3" interfacename="in"/>
+        </separate3>
+        <combine4 name="combine" type="vector4">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+            <input name="in4" type="float" value="1.0"/>
+        </combine4>
+        <output name="out" type="vector4" nodename="combine" />
+    </nodegraph>
+
+    <nodegraph name="NG_convert_vector4_color3" nodedef="ND_convert_vector4_color3">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="vector4" interfacename="in"/>
+        </separate4>
+        <combine3 name="combine" type="color3">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+        </combine3>
+        <output name="out" type="color3" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector4_color4" nodedef="ND_convert_vector4_color4">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="vector4" interfacename="in"/>
+        </separate4>
+        <combine4 name="combine" type="color4">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+            <input name="in4" type="float" nodename="separate" output="outw"/>
+        </combine4>
+        <output name="out" type="color4" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector4_vector2" nodedef="ND_convert_vector4_vector2">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="vector4" interfacename="in"/>
+        </separate4>
+        <combine2 name="combine" type="vector2">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+        </combine2>
+        <output name="out" type="vector2" nodename="combine" />
+    </nodegraph>
+    <nodegraph name="NG_convert_vector4_vector3" nodedef="ND_convert_vector4_vector3">
+        <separate4 name="separate" type="multioutput">
+            <input name="in" type="vector4" interfacename="in"/>
+        </separate4>
+        <combine3 name="combine" type="vector3">
+            <input name="in1" type="float" nodename="separate" output="outx"/>
+            <input name="in2" type="float" nodename="separate" output="outy"/>
+            <input name="in3" type="float" nodename="separate" output="outz"/>
+        </combine3>
+        <output name="out" type="vector3" nodename="combine" />
+    </nodegraph>
+
+
+    <nodegraph name="NG_convert_boolean_color3" nodedef="ND_convert_boolean_color3">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="boolean" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="color3">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="color3" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_boolean_color4" nodedef="ND_convert_boolean_color4">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="boolean" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="color4">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="color4" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_boolean_vector2" nodedef="ND_convert_boolean_vector2">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="boolean" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector2">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector2" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_boolean_vector3" nodedef="ND_convert_boolean_vector3">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="boolean" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector3">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector3" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_boolean_vector4" nodedef="ND_convert_boolean_vector4">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="boolean" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector4">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector4" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_boolean_integer" nodedef="ND_convert_boolean_integer">
+        <ifequal name="ifequal" type="integer">
+            <input name="value1" type="boolean" interfacename="in"/>
+            <input name="value2" type="boolean" value="true"/>
+            <input name="in1" type="integer" value="1"/>
+            <input name="in2" type="integer" value="0"/>
+        </ifequal>
+        <output name="out" type="integer" nodename="ifequal" />
+    </nodegraph>
+
+
+    <nodegraph name="NG_convert_integer_color3" nodedef="ND_convert_integer_color3">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="integer" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="color3">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="color3" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_integer_color4" nodedef="ND_convert_integer_color4">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="integer" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="color4">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="color4" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_integer_vector2" nodedef="ND_convert_integer_vector2">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="integer" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector2">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector2" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_integer_vector3" nodedef="ND_convert_integer_vector3">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="integer" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector3">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector3" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_integer_vector4" nodedef="ND_convert_integer_vector4">
+        <convert name="convert_to_float" type="float">
+            <input name="in" type="integer" interfacename="in"/>
+        </convert>
+        <convert name="convert" type="vector4">
+            <input name="in" type="float" nodename="convert_to_float"/>
+        </convert>
+        <output name="out" type="vector4" nodename="convert" />
+    </nodegraph>
+    <nodegraph name="NG_convert_integer_boolean" nodedef="ND_convert_integer_boolean">
+        <ifequal name="ifequal" type="boolean">
+            <input name="value1" type="integer" interfacename="in"/>
+            <input name="value2" type="integer" value="0"/>
+        </ifequal>
+        <not name="not" type="boolean">
+            <input name="in" type="boolean" nodename="ifequal"/>
+        </not>
+        <output name="out" type="boolean" nodename="not" />
+    </nodegraph>
+
+
 </materialx>
