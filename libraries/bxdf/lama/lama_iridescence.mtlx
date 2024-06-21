@@ -60,7 +60,7 @@
       <input name="mix" type="float" interfacename="relativeFilmThickness" />
     </mix>
 
-    <!-- BTDF -->
+    <!-- BSDF -->
     <dielectric_bsdf name="iridescence_bsdf" type="BSDF">
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="ior" type="float" value="1.0" />
