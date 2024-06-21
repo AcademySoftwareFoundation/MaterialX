@@ -12,9 +12,9 @@
     <input name="reflectivity" type="color3" value="0.04, 0.04, 0.04" uiname="Reflectivity" uifolder="Main"
            doc="Color reflected by the surface in the normal direction." />
     <input name="reflectivity90" type="color3" value="1.0, 1.0, 1.0" uiname="Reflectivity90" uifolder="Main"
-               doc="Color reflected by the surface at the grazing angle. Should be kept at 1,1,1 for most materials." />
+           doc="Color reflected by the surface at the grazing angle. Should be kept at 1,1,1 for most materials." />
     <input name="reflectivityProfile" type="float" value="0.2" uiname="ReflectivityProfile" uifolder="Main"
-                   doc="The inverse of the exponent to use for Schlick." />
+           doc="The inverse of the exponent to use for Schlick." />
     <input name="roughness" type="float" value="0.1" uimin="0.0" uimax="1.0" uiname="Roughness" uifolder="Main"
            doc="Micro-facet distribution roughness." />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Main"
@@ -26,7 +26,7 @@
     <input name="anisotropyRotation" type="float" value="0.0" uiname="Rotation" uifolder="Anisotropy"
            doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
-               doc="Absorption color" />
+           doc="Absorption color" />
     <input name="absorptionRadius" type="float" value="1.0" uiname="Absorption Radius" uifolder="Interior"
            doc="Absorption radius" />
     <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" uiname="Scatter Color" uifolder="Interior"
