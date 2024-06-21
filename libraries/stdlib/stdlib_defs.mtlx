@@ -4667,6 +4667,49 @@
   </nodedef>
 
   <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <and>
+    Logical And operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_and" node="and" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <or>
+    Logical Inclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_or" node="or" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <xor>
+    Logical Exclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_xor" node="xor" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <not>
+    Returns logical Not of input.
+  -->
+  <nodedef name="ND_logical_not" node="not" nodegroup="conditional">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="boolean" default="true"/>
+  </nodedef>
+
+  <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
   <!-- ======================================================================== -->
 

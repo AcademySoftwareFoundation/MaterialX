@@ -5255,4 +5255,36 @@
     <output name="out" type="matrix44" nodename="ifgreater_1" />
   </nodegraph>
 
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <xor>
+    Logical XOR operation for two boolean values.
+  -->
+  <nodegraph name="NG_logical_xor" nodedef="ND_logical_xor">
+    <not name="not_in1" type="boolean">
+      <input name="in" type="boolean" interfacename="in1"/>
+    </not>
+    <not name="not_in2" type="boolean">
+      <input name="in" type="boolean" interfacename="in2"/>
+    </not>
+    <and name="in1_and_not_in2" type="boolean">
+      <input name="in1" type="boolean" interfacename="in1" />
+      <input name="in2" type="boolean" nodename="not_in2" />
+    </and>
+    <and name="in2_and_not_in1" type="boolean">
+      <input name="in1" type="boolean" interfacename="in2" />
+      <input name="in2" type="boolean" nodename="not_in1" />
+    </and>
+    <or name="or" type="boolean">
+      <input name="in1" type="boolean" nodename="in1_and_not_in2"/>
+      <input name="in2" type="boolean" nodename="in2_and_not_in1"/>
+    </or>
+    <output name="out" type="boolean" nodename="or" />
+  </nodegraph>
+
+
 </materialx>

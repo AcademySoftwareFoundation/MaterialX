@@ -741,6 +741,14 @@
   <implementation name="IM_heighttonormal_vector3_genmdl" nodedef="ND_heighttonormal_vector3" target="genmdl" />
 
   <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_logical_and_genmdl" nodedef="ND_logical_and" target="genmdl" sourcecode="{{in1}} && {{in2}}"/>
+  <implementation name="IM_logical_or_genmdl" nodedef="ND_logical_or" target="genmdl" sourcecode="{{in1}} || {{in2}}"/>
+  <implementation name="IM_logical_not_genmdl" nodedef="ND_logical_not" target="genmdl" sourcecode="!{{in}}"/>
+
+  <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
   <!-- ======================================================================== -->
 

@@ -731,6 +731,14 @@
   <implementation name="IM_heighttonormal_vector3_genglsl" nodedef="ND_heighttonormal_vector3" target="genglsl" />
 
   <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_logical_and_genglsl" nodedef="ND_logical_and" target="genglsl" sourcecode="{{in1}} && {{in2}}"/>
+  <implementation name="IM_logical_or_genglsl" nodedef="ND_logical_or" target="genglsl" sourcecode="{{in1}} || {{in2}}"/>
+  <implementation name="IM_logical_not_genglsl" nodedef="ND_logical_not" target="genglsl" sourcecode="!{{in}}"/>
+
+  <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
   <!-- ======================================================================== -->
 
