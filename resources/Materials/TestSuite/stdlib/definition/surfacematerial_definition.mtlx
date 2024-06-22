@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Nodegraph definition with material node -->
   <nodedef name="ND_mymaterial" node="mymaterial" nodegroup="material" version="1.3" isdefaultversion="true">
     <output name="out" type="material" />

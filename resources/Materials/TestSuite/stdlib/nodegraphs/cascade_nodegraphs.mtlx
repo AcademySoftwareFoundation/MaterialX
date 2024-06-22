@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="upstream3">
     <input name="file" type="filename" uniform="true" value="resources/Images/cloth.png" />
     <input name="file1" type="filename" uniform="true" value="resources/Images/grid.png" />
