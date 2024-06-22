@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodedef name="ND_material_def_material_1_0" node="material_def" version="1.0" isdefaultversion="true">
     <output name="out" type="material" />
   </nodedef>
