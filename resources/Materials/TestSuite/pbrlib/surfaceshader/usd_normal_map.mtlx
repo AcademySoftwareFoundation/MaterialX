@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <nodegraph name="NG_usd_normal_map">
     <tiledimage name="N_tiledimage" type="vector3" nodedef="ND_tiledimage_vector3">
       <input name="file" type="filename" value="resources/Images/mesh_wire_norm.png" />
       <input name="uvtiling" type="vector2" value="8.0, 8.0" />
     </tiledimage>
-    <normalmap name="N_normalmap" type="vector3" nodedef="ND_normalmap">
+    <normalmap name="N_normalmap" type="vector3" nodedef="ND_normalmap_float">
       <input name="in" type="vector3" nodename="N_tiledimage" />
       <input name="space" type="string" value="object" />
     </normalmap>

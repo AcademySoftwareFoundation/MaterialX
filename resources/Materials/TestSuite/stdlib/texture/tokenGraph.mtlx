@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- use tokens which are defined by the parent nodegraph -->
   <nodegraph name="Tokenized_Image_2k_png">
     <token name="Image_Resolution" type="string" value="2k" uiname="Image Resolution" />
