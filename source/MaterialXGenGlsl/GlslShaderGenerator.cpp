@@ -19,8 +19,6 @@
 #include <MaterialXGenGlsl/Nodes/BlurNodeGlsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/CombineNode.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
@@ -55,43 +53,6 @@ GlslShaderGenerator::GlslShaderGenerator() :
     //
 
     StringVec elementNames;
-
-    // <!-- <switch> -->
-    elementNames = {
-        // <!-- 'which' type : float -->
-        "IM_switch_float_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color3_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color4_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector4_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix33_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix44_" + GlslShaderGenerator::TARGET,
-
-        // <!-- 'which' type : integer -->
-        "IM_switch_floatI_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color3I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_color4I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector2I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector3I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_vector4I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix33I_" + GlslShaderGenerator::TARGET,
-        "IM_switch_matrix44I_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <combine> -->
-    elementNames = {
-        "IM_combine2_vector2_" + GlslShaderGenerator::TARGET,
-        "IM_combine2_color4CF_" + GlslShaderGenerator::TARGET,
-        "IM_combine2_vector4VF_" + GlslShaderGenerator::TARGET,
-        "IM_combine2_vector4VV_" + GlslShaderGenerator::TARGET,
-        "IM_combine3_color3_" + GlslShaderGenerator::TARGET,
-        "IM_combine3_vector3_" + GlslShaderGenerator::TARGET,
-        "IM_combine4_color4_" + GlslShaderGenerator::TARGET,
-        "IM_combine4_vector4_" + GlslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + GlslShaderGenerator::TARGET, HwPositionNode::create);
@@ -614,14 +575,18 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         const ShaderOutput* outputConnection = outputSocket->getConnection();
         if (outputConnection)
         {
-            string finalOutput = outputConnection->getVariable();
-
             if (graph.hasClassification(ShaderNode::Classification::SURFACE))
             {
+                string outColor = outputConnection->getVariable() + ".color";
+                string outTransparency = outputConnection->getVariable() + ".transparency";
+                if (context.getOptions().hwSrgbEncodeOutput)
+                {
+                    outColor = "mx_srgb_encode(" + outColor + ")";
+                }
                 if (context.getOptions().hwTransparency)
                 {
-                    emitLine("float outAlpha = clamp(1.0 - dot(" + finalOutput + ".transparency, vec3(0.3333)), 0.0, 1.0)", stage);
-                    emitLine(outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, outAlpha)", stage);
+                    emitLine("float outAlpha = clamp(1.0 - dot(" + outTransparency + ", vec3(0.3333)), 0.0, 1.0)", stage);
+                    emitLine(outputSocket->getVariable() + " = vec4(" + outColor + ", outAlpha)", stage);
                     emitLine("if (outAlpha < " + HW::T_ALPHA_THRESHOLD + ")", stage, false);
                     emitScopeBegin(stage);
                     emitLine("discard", stage);
@@ -629,16 +594,21 @@ void GlslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
                 }
                 else
                 {
-                    emitLine(outputSocket->getVariable() + " = vec4(" + finalOutput + ".color, 1.0)", stage);
+                    emitLine(outputSocket->getVariable() + " = vec4(" + outColor + ", 1.0)", stage);
                 }
             }
             else
             {
+                string outValue = outputConnection->getVariable();
+                if (context.getOptions().hwSrgbEncodeOutput && outputSocket->getType().isFloat3())
+                {
+                    outValue = "mx_srgb_encode(" + outValue + ")";
+                }
                 if (!outputSocket->getType().isFloat4())
                 {
-                    toVec4(outputSocket->getType(), finalOutput);
+                    toVec4(outputSocket->getType(), outValue);
                 }
-                emitLine(outputSocket->getVariable() + " = " + finalOutput, stage);
+                emitLine(outputSocket->getVariable() + " = " + outValue, stage);
             }
         }
         else

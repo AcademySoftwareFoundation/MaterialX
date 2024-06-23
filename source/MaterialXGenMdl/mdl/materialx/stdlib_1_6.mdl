@@ -36,12 +36,13 @@ import .::hsv::*;
 
 export material mx_surfacematerial(
     material mxp_surfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
+    material mxp_backsurfaceshader = material() [[ anno::usage( "materialx:surfaceshader") ]],
     material mxp_displacementshader =  material() [[ anno::usage( "materialx:displacementshader") ]]
 )
 = material(
-    thin_walled: false,
+    thin_walled: mxp_surfaceshader.thin_walled || mxp_backsurfaceshader.thin_walled,
     surface: mxp_surfaceshader.surface,
-    backface: mxp_surfaceshader.backface,
+    backface: mxp_backsurfaceshader.surface,
     geometry: material_geometry(
         cutout_opacity: mxp_surfaceshader.geometry.cutout_opacity,
         displacement : mxp_displacementshader.geometry.displacement,
@@ -3203,6 +3204,17 @@ export float4x4 mx_ifgreater_matrix44(
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifgreater_boolean(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return true; } return false;
+}
+
 export float mx_ifgreater_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3318,6 +3330,17 @@ export float4x4 mx_ifgreater_matrix44I(
 	]]
 {
 	if (mxp_value1 > mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifgreater_booleanI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 > mxp_value2) { return true; } return false;
 }
 
 export float mx_ifgreatereq_float(
@@ -3437,6 +3460,17 @@ export float4x4 mx_ifgreatereq_matrix44(
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifgreatereq_boolean(
+	float mxp_value1 = float(1.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return true; } return false;
+}
+
 export float mx_ifgreatereq_floatI(
 	int mxp_value1 = int(1),
 	int mxp_value2 = int(0),
@@ -3552,6 +3586,17 @@ export float4x4 mx_ifgreatereq_matrix44I(
 	]]
 {
 	if (mxp_value1 >= mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifgreatereq_booleanI(
+	int mxp_value1 = int(1),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 >= mxp_value2) { return true; } return false;
 }
 
 export float mx_ifequal_float(
@@ -3671,6 +3716,17 @@ export float4x4 mx_ifequal_matrix44(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
+export bool mx_ifequal_boolean(
+	float mxp_value1 = float(0.0),
+	float mxp_value2 = float(0.0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return true; } return false;
+}
+
 export float mx_ifequal_floatI(
 	int mxp_value1 = int(0),
 	int mxp_value2 = int(0),
@@ -3786,6 +3842,17 @@ export float4x4 mx_ifequal_matrix44I(
 	]]
 {
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
+}
+
+export bool mx_ifequal_booleanI(
+	int mxp_value1 = int(0),
+	int mxp_value2 = int(0)
+)
+	[[
+		anno::description("Node Group: conditional")
+	]]
+{
+	if (mxp_value1 == mxp_value2) { return true; } return false;
 }
 
 export float mx_ifequal_floatB(
@@ -3905,703 +3972,15 @@ export float4x4 mx_ifequal_matrix44B(
 	if (mxp_value1 == mxp_value2) { return mxp_in1; } return mxp_in2;
 }
 
-export float mx_switch_float(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0),
-	float mxp_in4 = float(0.0),
-	float mxp_in5 = float(0.0),
-	float mxp_which = float(0.0)
+export bool mx_ifequal_booleanB(
+	bool mxp_value1 = bool(false),
+	bool mxp_value2 = bool(false)
 )
 	[[
 		anno::description("Node Group: conditional")
 	]]
 {
-	float returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export color mx_switch_color3(
-	color mxp_in1 = color(0.0, 0.0, 0.0),
-	color mxp_in2 = color(0.0, 0.0, 0.0),
-	color mxp_in3 = color(0.0, 0.0, 0.0),
-	color mxp_in4 = color(0.0, 0.0, 0.0),
-	color mxp_in5 = color(0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	color returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export core::color4 mx_switch_color4(
-	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in3 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in4 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in5 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	core::color4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float2 mx_switch_vector2(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0),
-	float2 mxp_in3 = float2(0.0, 0.0),
-	float2 mxp_in4 = float2(0.0, 0.0),
-	float2 mxp_in5 = float2(0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float2 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float3 mx_switch_vector3(
-	float3 mxp_in1 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in2 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float3 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float4 mx_switch_vector4(
-	float4 mxp_in1 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float3x3 mx_switch_matrix33(
-	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in3 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in4 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in5 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in6 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in7 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in8 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in9 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in10 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float3x3 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		case 5: returnValue=mxp_in6; break;
-		case 6: returnValue=mxp_in7; break;
-		case 7: returnValue=mxp_in8; break;
-		case 8: returnValue=mxp_in9; break;
-		case 9: returnValue=mxp_in10; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float4x4 mx_switch_matrix44(
-	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in3 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in4 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in5 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in6 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in7 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in8 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in9 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in10 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float mxp_which = float(0.0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float4x4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		case 5: returnValue=mxp_in6; break;
-		case 6: returnValue=mxp_in7; break;
-		case 7: returnValue=mxp_in8; break;
-		case 8: returnValue=mxp_in9; break;
-		case 9: returnValue=mxp_in10; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float mx_switch_floatI(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0),
-	float mxp_in4 = float(0.0),
-	float mxp_in5 = float(0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export color mx_switch_color3I(
-	color mxp_in1 = color(0.0, 0.0, 0.0),
-	color mxp_in2 = color(0.0, 0.0, 0.0),
-	color mxp_in3 = color(0.0, 0.0, 0.0),
-	color mxp_in4 = color(0.0, 0.0, 0.0),
-	color mxp_in5 = color(0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	color returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export core::color4 mx_switch_color4I(
-	core::color4 mxp_in1 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in2 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in3 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in4 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	core::color4 mxp_in5 = core::mk_color4(0.0, 0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	core::color4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float2 mx_switch_vector2I(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0),
-	float2 mxp_in3 = float2(0.0, 0.0),
-	float2 mxp_in4 = float2(0.0, 0.0),
-	float2 mxp_in5 = float2(0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float2 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float3 mx_switch_vector3I(
-	float3 mxp_in1 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in2 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in3 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in4 = float3(0.0, 0.0, 0.0),
-	float3 mxp_in5 = float3(0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float3 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float4 mx_switch_vector4I(
-	float4 mxp_in1 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in2 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in3 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in4 = float4(0.0, 0.0, 0.0, 0.0),
-	float4 mxp_in5 = float4(0.0, 0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float3x3 mx_switch_matrix33I(
-	float3x3 mxp_in1 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in2 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in3 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in4 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in5 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in6 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in7 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in8 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in9 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float3x3 mxp_in10 = float3x3(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float3x3 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		case 5: returnValue=mxp_in6; break;
-		case 6: returnValue=mxp_in7; break;
-		case 7: returnValue=mxp_in8; break;
-		case 8: returnValue=mxp_in9; break;
-		case 9: returnValue=mxp_in10; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export float4x4 mx_switch_matrix44I(
-	float4x4 mxp_in1 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in2 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in3 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in4 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in5 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in6 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in7 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in8 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in9 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	float4x4 mxp_in10 = float4x4(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
-	int mxp_which = int(0)
-)
-	[[
-		anno::description("Node Group: conditional")
-	]]
-{
-	float4x4 returnValue;
-	switch (int(mxp_which)) {
-		case 0: returnValue=mxp_in1; break;
-		case 1: returnValue=mxp_in2; break;
-		case 2: returnValue=mxp_in3; break;
-		case 3: returnValue=mxp_in4; break;
-		case 4: returnValue=mxp_in5; break;
-		case 5: returnValue=mxp_in6; break;
-		case 6: returnValue=mxp_in7; break;
-		case 7: returnValue=mxp_in8; break;
-		case 8: returnValue=mxp_in9; break;
-		case 9: returnValue=mxp_in10; break;
-		default: returnValue=mxp_in1; break;
-	}
-	return returnValue;
-}
-
-export color mx_convert_float_color3(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return color(mxp_in);
-}
-
-export core::color4 mx_convert_float_color4(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::mk_color4(mxp_in);
-}
-
-export float2 mx_convert_float_vector2(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float2(mxp_in);
-}
-
-export float3 mx_convert_float_vector3(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float3(mxp_in);
-}
-
-export float4 mx_convert_float_vector4(
-	float mxp_in = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float4(mxp_in);
-}
-
-export float3 mx_convert_vector2_vector3(
-	float2 mxp_in = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float3(mxp_in.x, mxp_in.y, 0.0);
-}
-
-export color mx_convert_vector3_color3(
-	float3 mxp_in = float3(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return color(mxp_in);
-}
-
-export float2 mx_convert_vector3_vector2(
-	float3 mxp_in = float3(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float2(mxp_in.x, mxp_in.y);
-}
-
-export float4 mx_convert_vector3_vector4(
-	float3 mxp_in = float3(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float4(mxp_in.x, mxp_in.y, mxp_in.z, 0.0);
-}
-
-export core::color4 mx_convert_vector4_color4(
-	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::mk_color4(mxp_in);
-}
-
-export float3 mx_convert_vector4_vector3(
-	float4 mxp_in = float4(0.0, 0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float3(mxp_in.x, mxp_in.y, mxp_in.z);
-}
-
-export float3 mx_convert_color3_vector3(
-	color mxp_in = color(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float3(mxp_in);
-}
-
-export float4 mx_convert_color4_vector4(
-	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::mk_float4(mxp_in);
-}
-
-export core::color4 mx_convert_color3_color4(
-	color mxp_in = color(0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::mk_color4(mxp_in);
-}
-
-export color mx_convert_color4_color3(
-	core::color4 mxp_in = core::mk_color4(0.0, 0.0, 0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return mxp_in.rgb;
-}
-
-export float mx_convert_boolean_float(
-	bool mxp_in = bool(false)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float(mxp_in);
-}
-
-export float mx_convert_integer_float(
-	int mxp_in = int(0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float(mxp_in);
-}
-
-export float2 mx_combine2_vector2(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float2(mxp_in1, mxp_in2);
-}
-
-export core::color4 mx_combine2_color4CF(
-	color mxp_in1 = color(0.0, 0.0, 0.0),
-	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::color4(mxp_in1, mxp_in2);
-}
-
-export float4 mx_combine2_vector4VF(
-	float3 mxp_in1 = float3(0.0, 0.0, 0.0),
-	float mxp_in2 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float4(mxp_in1.x, mxp_in1.y, mxp_in1.z, mxp_in2);
-}
-
-export core::color4 mx_combine2_color4CC(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::color4(color(mxp_in1.x, mxp_in1.y, mxp_in2.x), mxp_in2.y);
-}
-
-export float4 mx_combine2_vector4VV(
-	float2 mxp_in1 = float2(0.0, 0.0),
-	float2 mxp_in2 = float2(0.0, 0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float4(mxp_in1.x, mxp_in1.y, mxp_in2.x, mxp_in2.y);
-}
-
-export color mx_combine3_color3(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return color(mxp_in1, mxp_in2, mxp_in3);
-}
-
-export float3 mx_combine3_vector3(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float3(mxp_in1, mxp_in2, mxp_in3);
-}
-
-export core::color4 mx_combine4_color4(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0),
-	float mxp_in4 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return core::mk_color4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
-}
-
-export float4 mx_combine4_vector4(
-	float mxp_in1 = float(0.0),
-	float mxp_in2 = float(0.0),
-	float mxp_in3 = float(0.0),
-	float mxp_in4 = float(0.0)
-)
-	[[
-		anno::description("Node Group: channel")
-	]]
-{
-	return float4(mxp_in1, mxp_in2, mxp_in3, mxp_in4);
+	if (mxp_value1 == mxp_value2) { return true; } return false;
 }
 
 export float3x3 mx_creatematrix_vector3_matrix33(

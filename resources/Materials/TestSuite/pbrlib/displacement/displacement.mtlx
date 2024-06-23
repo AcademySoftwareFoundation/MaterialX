@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="fractal3d_float" type="displacementshader">
     <position name="position1" type="vector3">
       <input name="space" type="string" value="object" />

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <surfacematerial name="surfacematerial" type="material" xpos="17.246376" ypos="-15.689655">
     <input name="surfaceshader" type="surfaceshader" nodename="surface_unlit" />
   </surfacematerial>

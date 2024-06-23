@@ -54,7 +54,6 @@ export using .::pbrlib_1_6 import mx_measured_edf;
 export using .::pbrlib_1_6 import mx_absorption_vdf;
 export using .::pbrlib_1_6 import mx_anisotropic_vdf;
 export using .::pbrlib_1_6 import mx_surface;
-export using .::pbrlib_1_6 import mx_thin_surface;
 export using .::pbrlib_1_6 import mx_light;
 export using .::pbrlib_1_6 import mx_displacement_float;
 export using .::pbrlib_1_6 import mx_displacement_vector3;

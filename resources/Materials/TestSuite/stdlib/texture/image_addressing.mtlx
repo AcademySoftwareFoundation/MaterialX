@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="uclamp">
     <image name="image_number_1" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" />

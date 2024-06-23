@@ -21,8 +21,6 @@
            doc="Overrides the surface tangent as the anisotropy direction." />
     <input name="rotation" type="float" value="0.0" uiname="Rotation" uifolder="Anisotropy"
            doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
-    <input name="exteriorIOR" type="float" value="1.0" uimin="1.0" uimax="3.0" uiname="Exterior IOR" uifolder="Advanced"
-           doc="Defines what the IOR of the exterior medium is (can be either the outside medium, eg. air or water, or in case of a layered material, the top layer medium, like plexiglass or varnish)." />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
            doc="Absorption color" />
     <input name="absorptionRadius" type="float" value="1.0" uiname="Absorption Radius" uifolder="Interior"
@@ -53,10 +51,6 @@
       <input name="in2" type="float" nodename="ior_float" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
-    <divide name="relative_ior" type="float">
-      <input name="in1" type="float" nodename="fresnel_mode_switch" />
-      <input name="in2" type="float" interfacename="exteriorIOR" />
-    </divide>
 
     <!-- Roughness -->
     <subtract name="roughness_inverse" type="float">
@@ -132,7 +126,7 @@
     <dielectric_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmissionTint" />
-      <input name="ior" type="float" nodename="relative_ior" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
@@ -148,7 +142,7 @@
     <dielectric_bsdf name="reflection_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="reflectionTint" />
-      <input name="ior" type="float" nodename="relative_ior" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />

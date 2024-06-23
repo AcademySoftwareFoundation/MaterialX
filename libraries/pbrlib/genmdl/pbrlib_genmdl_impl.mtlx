@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
   <implementation name="IM_oren_nayar_diffuse_bsdf_genmdl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_oren_nayar_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl" />
@@ -45,9 +45,6 @@
 
   <!-- <surface> -->
   <implementation name="IM_surface_genmdl" nodedef="ND_surface" target="genmdl" />
-
-  <!-- <thin_surface> -->
-  <implementation name="IM_thin_surface_genmdl" nodedef="ND_thin_surface" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_thin_surface(mxp_front_bsdf:{{front_bsdf}}, mxp_front_edf:{{front_edf}}, mxp_back_bsdf:{{back_bsdf}}, mxp_back_edf:{{back_edf}}, mxp_opacity:{{opacity}})" target="genmdl" />
 
   <!-- <volume> -->
   <implementation name="IM_volume_genmdl" nodedef="ND_volume" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_volume(mxp_vdf:{{vdf}}, mxp_edf:{{edf}})" target="genmdl" />
