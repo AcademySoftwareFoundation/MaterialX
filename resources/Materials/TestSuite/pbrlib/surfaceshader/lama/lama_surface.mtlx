@@ -22,10 +22,10 @@
   </LamaDiffuse>
 
   <!-- LamaSurface -->
-  <LamaSurface name="LamaSurface" type="material">
+  <!--<LamaSurface name="LamaSurface" type="material">
     <input name="materialSides" type="integer" value="1" />
     <input name="materialFront" type="BSDF" nodename="LamaDiffuse" />
     <input name="materialBack" type="BSDF" nodename="LamaConductor" />
-  </LamaSurface>
+  </LamaSurface>-->
 
 </materialx>
