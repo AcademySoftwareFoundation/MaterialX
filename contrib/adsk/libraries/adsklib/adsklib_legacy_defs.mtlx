@@ -208,7 +208,7 @@
   <!-- <Legacy Wall Paint> -->
   <nodedef name="ND_legacy_wallpaint" node="legacy_wallpaint" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
     <input name="color" type="color3" value="0.9, 0.9, 0.9" uivisible="true" uiname="Color" />
-    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Flat-Matte,Eggshell,Platinum,Pearl,Semi-gloss,Gloss" enumvalues="0,1,2,3,4,5,6" uimin="0" uimax="6" />
+    <input name="finish" type="float" value="0" uivisible="true" uiname="Finish" enum="Flat-Matte,Eggshell,Platinum,Pearl,Semi-gloss,Gloss" enumvalues="0,1,2,3,4,5" uimin="0" uimax="5" />
     <input name="application" type="float" value="0" uivisible="true" uiname="Application" enum="Roller,Brush,Spray" enumvalues="0,1,2" uimin="0" uimax="2" />
     <input name="tint_enable" type="boolean" value="false" uivisible="true" uiname="Tint" />
     <input name="tint_color" type="color3" value="1, 1, 1" uivisible="true" uiname="Tint Color" />
