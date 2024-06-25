@@ -33,13 +33,11 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
     const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
 
-    string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const override;
-
     /// Override to return array type suffix.
-    string getArrayTypeSuffix(const TypeDesc* type, const Value& value) const override;
+    string getArrayTypeSuffix(TypeDesc type, const Value& value) const override;
 
     /// Override to indicate array variables have no array suffix.
-    string getArrayVariableSuffix(const TypeDesc*, const Value&) const override { return EMPTY_STRING; };
+    string getArrayVariableSuffix(TypeDesc, const Value&) const override { return EMPTY_STRING; };
 
     static const string CONST_QUALIFIER;
     static const string UNIFORM_QUALIFIER;
@@ -57,11 +55,11 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     static const StringVec SCATTER_MODE_MEMBERS;
 
     /// Get an type description for an enumeration based on member value
-    const TypeDesc* getEnumeratedType(const string& value) const;
+    TypeDesc getEnumeratedType(const string& value) const;
 
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
-    bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const override;
+    bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;
 
     /// Modify the given name string to remove any invalid characters or tokens.
     void makeValidName(string& name) const override;
@@ -70,11 +68,12 @@ class MX_GENMDL_API MdlSyntax : public Syntax
 namespace Type
 {
 
-extern MX_GENMDL_API const TypeDesc* MDL_ADDRESSMODE;
-extern MX_GENMDL_API const TypeDesc* MDL_COORDINATESPACE;
-extern MX_GENMDL_API const TypeDesc* MDL_FILTERLOOKUPMODE;
-extern MX_GENMDL_API const TypeDesc* MDL_FILTERTYPE;
-extern MX_GENMDL_API const TypeDesc* MDL_DISTRIBUTIONTYPE;
+TYPEDESC_DEFINE_TYPE(MDL_COORDINATESPACE, "coordinatespace", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_ADDRESSMODE, "addressmode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_FILTERTYPE, "filtertype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
+TYPEDESC_DEFINE_TYPE(MDL_SCATTER_MODE, "scatter_mode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0)
 
 } // namespace Type
 

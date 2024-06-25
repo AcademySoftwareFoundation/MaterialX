@@ -584,6 +584,21 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 
     /// Return the first ancestor of the given subclass, or an empty shared
     /// pointer if no ancestor of this subclass is found.
+    template <class T> shared_ptr<T> getAncestorOfType()
+    {
+        for (ElementPtr elem = getSelf(); elem; elem = elem->getParent())
+        {
+            shared_ptr<T> typedElem = elem->asA<T>();
+            if (typedElem)
+            {
+                return typedElem;
+            }
+        }
+        return nullptr;
+    }
+
+    /// Return the first ancestor of the given subclass, or an empty shared
+    /// pointer if no ancestor of this subclass is found.
     template <class T> shared_ptr<const T> getAncestorOfType() const
     {
         for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
@@ -792,6 +807,8 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     static const string INHERIT_ATTRIBUTE;
     static const string NAMESPACE_ATTRIBUTE;
     static const string DOC_ATTRIBUTE;
+    static const string XPOS_ATTRIBUTE;
+    static const string YPOS_ATTRIBUTE;
 
   protected:
     virtual void registerChildElement(ElementPtr child);
@@ -867,6 +884,12 @@ class MX_CORE_API TypedElement : public Element
     virtual const string& getType() const
     {
         return getAttribute(TYPE_ATTRIBUTE);
+    }
+
+    /// Return true if the element is of color type.
+    bool isColorType() const
+    {
+        return getType() == "color3" || getType() == "color4";
     }
 
     /// Return true if the element is of multi-output type.

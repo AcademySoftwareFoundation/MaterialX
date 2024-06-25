@@ -87,12 +87,12 @@ class MX_RENDERMSL_API MslProgram
     /// optimized out if they are unused.
     struct MX_RENDERMSL_API Input
     {
-        static int INVALID_METAL_TYPE;
+        static MTLDataType INVALID_METAL_TYPE;
 
         /// Program location. -1 means an invalid location
         int location;
-        /// Metal type of the input. -1 means an invalid type
-        int resourceType;
+        /// Metal type of the input.
+        MTLDataType resourceType;
         /// Size.
         int size;
         /// Input type string. Will only be non-empty if initialized stages with a HwShader
@@ -110,7 +110,7 @@ class MX_RENDERMSL_API MslProgram
         string colorspace;
 
         /// Program input constructor
-        Input(int inputLocation, int inputType, int inputSize, const string& inputPath) :
+        Input(int inputLocation, MTLDataType inputType, int inputSize, const string& inputPath) :
             location(inputLocation),
             resourceType(inputType),
             size(inputSize),
@@ -278,7 +278,7 @@ class MX_RENDERMSL_API MslProgram
     void reset();
 
     // Utility to map a MaterialX type to an METAL type
-    static MTLDataType mapTypeToMetalType(const TypeDesc* type);
+    static MTLDataType mapTypeToMetalType(TypeDesc type);
 
   private:
     // Stages used to create program

@@ -17,7 +17,7 @@ const string HwTransformNode::WORLD = "world";
 
 void HwTransformNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
 {
-    const string toSpace   = getToSpace(node);
+    const string toSpace = getToSpace(node);
     const string fromSpace = getFromSpace(node);
     const string& matrix = getMatrix(fromSpace, toSpace);
     if (!matrix.empty())

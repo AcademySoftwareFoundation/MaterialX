@@ -33,7 +33,7 @@ class MX_GENGLSL_API GlslSyntax : public Syntax
 
     /// Given an input specification attempt to remap this to an enumeration which is accepted by
     /// the shader generator. The enumeration may be converted to a different type than the input.
-    bool remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const override;
+    bool remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const override;
 
     static const string INPUT_QUALIFIER;
     static const string OUTPUT_QUALIFIER;

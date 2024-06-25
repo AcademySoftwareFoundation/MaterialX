@@ -15,6 +15,35 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+/// Generator context data class to pass strings.
+class MX_GENMDL_API GenMdlOptions : public GenUserData
+{
+  public:
+    /// MDL Versions supported by the Code Generator
+    enum class MdlVersion
+    {
+        MDL_1_6,
+        MDL_1_7,
+        MDL_1_8,
+        MDL_LATEST = MDL_1_8
+    };
+
+    /// Create MDL code generator options with default values.
+    GenMdlOptions() :
+        targetVersion(MdlVersion::MDL_LATEST) { }
+
+    /// Unique identifier for the MDL options on the GenContext object.
+    static const string GEN_CONTEXT_USER_DATA_KEY;
+
+    /// The MDL version number the generated module will have.
+    /// Allows to generate MDL for older applications by limiting support according
+    /// to the corresponding specification. By default this option is MDL_LATEST.
+    MdlVersion targetVersion;
+};
+
+/// Shared pointer to GenMdlOptions
+using GenMdlOptionsPtr = shared_ptr<class GenMdlOptions>;
+
 /// Shared pointer to an MdlShaderGenerator
 using MdlShaderGeneratorPtr = shared_ptr<class MdlShaderGenerator>;
 
@@ -47,12 +76,21 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Map of code snippets for geomprops in MDL.
     static const std::unordered_map<string, string> GEOMPROP_DEFINITIONS;
 
+    /// Add the MDL file header containing the version number of the generated module..
+    void emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const;
+
+    /// Add the version number suffix appended to MDL modules that use versions.
+    void emitMdlVersionFilenameSuffix(GenContext& context, ShaderStage& stage) const;
+
+    /// Get the version number suffix appended to MDL modules that use versions.
+    const string& getMdlVersionFilenameSuffix(GenContext& context) const;
+
   protected:
     // Create and initialize a new MDL shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     // Emit a block of shader inputs.
-    void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
+    void emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const;
 };
 
 namespace MDL

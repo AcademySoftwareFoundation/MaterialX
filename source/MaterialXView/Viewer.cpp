@@ -137,55 +137,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
-// ViewDir implementation for GLSL
-// as needed for the environment shader.
-template<typename NodeGraphImpl>
-class ViewDir : public NodeGraphImpl
-{
-public:
-    static  mx::ShaderNodeImplPtr create()
-    {
-        return std::make_shared<ViewDir>();
-    }
-
-    void createVariables(const  mx::ShaderNode&, mx::GenContext&, mx::Shader& shader) const override
-    {
-        mx::ShaderStage& vs = shader.getStage(mx::Stage::VERTEX);
-        mx::ShaderStage& ps = shader.getStage(mx::Stage::PIXEL);
-        addStageInput(mx::HW::VERTEX_INPUTS, mx::Type::VECTOR3, mx::HW::T_IN_POSITION, vs);
-        addStageConnector(mx::HW::VERTEX_DATA, mx::Type::VECTOR3, mx::HW::T_POSITION_WORLD, vs, ps);
-        addStageUniform(mx::HW::PRIVATE_UNIFORMS, mx::Type::VECTOR3, mx::HW::T_VIEW_POSITION, ps);
-    }
-
-    void emitFunctionCall(const  mx::ShaderNode& node, mx::GenContext& context, mx::ShaderStage& stage) const override
-    {
-        const mx::ShaderGenerator& shadergen = context.getShaderGenerator();
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::VERTEX)
-        {
-            mx::VariableBlock& vertexData = stage.getOutputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            if (!position->isEmitted())
-            {
-                position->setEmitted();
-                shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
-            }
-        }
-
-        DEFINE_SHADER_STAGE(stage, mx::Stage::PIXEL)
-        {
-            mx::VariableBlock& vertexData = stage.getInputBlock(mx::HW::VERTEX_DATA);
-            const mx::string prefix = vertexData.getInstance() + ".";
-            mx::ShaderPort* position = vertexData[mx::HW::T_POSITION_WORLD];
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + mx::HW::T_VIEW_POSITION + ")", stage);
-            shadergen.emitLineEnd(stage);
-        }
-    }
-};
-
 } // anonymous namespace
 
 //
@@ -274,7 +225,12 @@ Viewer::Viewer(const std::string& materialFilename,
     _bakeRequested(false),
     _bakeWidth(0),
     _bakeHeight(0),
-    _bakeDocumentPerMaterial(false)
+    _bakeDocumentPerMaterial(false),
+    _frameTiming(false),
+    _timingLabel(nullptr),
+    _timingPanel(nullptr),
+    _timingText(nullptr),
+    _avgFrameTime(0.0)
 {
     // Resolve input filenames, taking both the provided search path and
     // current working directory into account.
@@ -297,10 +253,8 @@ Viewer::Viewer(const std::string& materialFilename,
     _renderPipeline = MetalRenderPipeline::create(this);
     _renderPipeline->initialize(ng::metal_device(),
                                 ng::metal_command_queue());
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + _genContext.getShaderGenerator().getTarget(), ViewDir<mx::MslImplementation>::create);
 #else
     _renderPipeline = GLRenderPipeline::create(this);
-    _genContext.getShaderGenerator().registerImplementation("IM_viewdir_vector3_" + _genContext.getShaderGenerator().getTarget(), ViewDir<mx::GlslImplementation>::create);
     
     // Set Essl generator options
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709";
@@ -317,7 +271,6 @@ Viewer::Viewer(const std::string& materialFilename,
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
-    // Register the API Spcefic implementation for <viewdir> used by the environment shader.
 }
 
 void Viewer::initialize()
@@ -378,6 +331,21 @@ void Viewer::initialize()
             assignMaterial(getSelectedGeometry(), _materials[index]);
         }
     });
+
+    // Create frame timing display
+    if (_frameTiming)
+    {
+        _timingLabel = new ng::Label(_window, "Timing");
+        _timingPanel = new ng::Widget(_window);
+        _timingPanel->set_layout(new ng::BoxLayout(ng::Orientation::Horizontal,
+                                 ng::Alignment::Middle, 0, 6));
+        new ng::Label(_timingPanel, "Frame time:");
+        _timingText = new ng::TextBox(_timingPanel);
+        _timingText->set_value("0");
+        _timingText->set_units(" ms");
+        _timingText->set_fixed_size(ng::Vector2i(80, 25));
+        _timingText->set_alignment(ng::TextBox::Alignment::Right);
+    }
 
     // Create geometry handler.
     mx::TinyObjLoaderPtr objLoader = mx::TinyObjLoader::create();
@@ -454,7 +422,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // Look for an irradiance map using an expected filename convention.
-    mx::ImagePtr envIrradianceMap = _imageHandler->getZeroImage();
+    mx::ImagePtr envIrradianceMap;
     if (!_normalizeEnvironment && !_splitDirectLight)
     {
         mx::FilePath envIrradiancePath = _envRadianceFilename.getParentPath() / IRRADIANCE_MAP_FOLDER / _envRadianceFilename.getBaseName();
@@ -462,7 +430,7 @@ void Viewer::loadEnvironmentLight()
     }
 
     // If not found, then generate an irradiance map via spherical harmonics.
-    if (envIrradianceMap == _imageHandler->getZeroImage())
+    if (!envIrradianceMap || envIrradianceMap->getWidth() == 1)
     {
         if (_generateReferenceIrradiance)
         {
@@ -485,9 +453,12 @@ void Viewer::loadEnvironmentLight()
 
     // Release any existing environment maps and store the new ones.
     _imageHandler->releaseRenderResources(_lightHandler->getEnvRadianceMap());
+    _imageHandler->releaseRenderResources(_lightHandler->getEnvPrefilteredMap());
     _imageHandler->releaseRenderResources(_lightHandler->getEnvIrradianceMap());
+
     _lightHandler->setEnvRadianceMap(envRadianceMap);
     _lightHandler->setEnvIrradianceMap(envIrradianceMap);
+    _lightHandler->setEnvPrefilteredMap(nullptr);
 
     // Look for a light rig using an expected filename convention.
     if (!_splitDirectLight)
@@ -746,12 +717,14 @@ void Viewer::createAdvancedSettings(Widget* parent)
 
     ng::CheckBox* importanceSampleBox = new ng::CheckBox(advancedPopup, "Environment FIS");
     importanceSampleBox->set_checked(_genContext.getOptions().hwSpecularEnvironmentMethod == mx::SPECULAR_ENVIRONMENT_FIS);
+    _lightHandler->setUsePrefilteredMap(_genContext.getOptions().hwSpecularEnvironmentMethod != mx::SPECULAR_ENVIRONMENT_FIS);
     importanceSampleBox->set_callback([this](bool enable)
     {
         _genContext.getOptions().hwSpecularEnvironmentMethod = enable ? mx::SPECULAR_ENVIRONMENT_FIS : mx::SPECULAR_ENVIRONMENT_PREFILTER;
 #ifndef MATERIALXVIEW_METAL_BACKEND
         _genContextEssl.getOptions().hwSpecularEnvironmentMethod = _genContext.getOptions().hwSpecularEnvironmentMethod;
 #endif
+        _lightHandler->setUsePrefilteredMap(!enable);
         reloadShaders();
     });
 
@@ -792,7 +765,24 @@ void Viewer::createAdvancedSettings(Widget* parent)
     {
         _genContext.getOptions().hwDirectionalAlbedoMethod = (mx::HwDirectionalAlbedoMethod) index;
         reloadShaders();
-        _renderPipeline->updateAlbedoTable(ALBEDO_TABLE_SIZE);
+        try
+        {
+            _renderPipeline->updateAlbedoTable(ALBEDO_TABLE_SIZE);
+        }
+        catch (mx::ExceptionRenderError& e)
+        {
+            for (const std::string& error : e.errorLog())
+            {
+                std::cerr << error << std::endl;
+            }
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Shader generation error", e.what());
+            _materialAssignments.clear();
+        }
+        catch (std::exception& e)
+        {
+            new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Failed to update albedo table", e.what());
+            _materialAssignments.clear();
+        }
     });
 
     Widget* sampleGroup = new Widget(advancedPopup);
@@ -2125,6 +2115,17 @@ void Viewer::draw_contents()
 #endif
     }
 
+    // Update frame timing.
+    if (_frameTiming)
+    {
+        const double DEFAULT_SMOOTHING_BIAS = 0.9;
+        double elapsedTime = _frameTimer.elapsedTime() * 1000.0;
+        double bias = (_avgFrameTime > 0.0) ? DEFAULT_SMOOTHING_BIAS : 0.0;
+        _avgFrameTime = bias * _avgFrameTime + (1.0 - bias) * elapsedTime;
+        _timingText->set_value(std::to_string((int) _avgFrameTime));
+        _frameTimer.startTimer();
+    }
+
     // Capture the current frame.
     if (_captureRequested && !_turntableEnabled)
     {
@@ -2390,7 +2391,7 @@ mx::MaterialPtr Viewer::getEnvironmentMaterial()
 {
     if (!_envMaterial)
     {
-        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/envmap_shader.mtlx"));
+        mx::FilePath envFilename = _searchPath.find(mx::FilePath("resources/Lights/environment_map.mtlx"));
         try
         {
             _envMaterial = _renderPipeline->createMaterial();

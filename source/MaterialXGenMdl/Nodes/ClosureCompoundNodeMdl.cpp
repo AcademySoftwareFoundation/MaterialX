@@ -41,7 +41,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
             {
                 if (!outputSocket->getConnection())
                     continue;
-        
+
                 const ShaderNode* upstream = outputSocket->getConnection()->getNode();
                 const bool isMaterialExpr = (upstream->hasClassification(ShaderNode::Classification::CLOSURE) ||
                                              upstream->hasClassification(ShaderNode::Classification::SHADER));

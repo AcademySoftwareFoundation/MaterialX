@@ -1,12 +1,12 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
-set(MATERIALX_MINOR_VERSION 38)
-set(MATERIALX_BUILD_VERSION 9)
+set(MATERIALX_MINOR_VERSION 39)
+set(MATERIALX_BUILD_VERSION 0)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
 enable_testing()
@@ -44,10 +44,12 @@ option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
-option(MATERIALX_BUILD_TESTS "Build unit tests." ON)
+option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
 option(MATERIALX_BUILD_BENCHMARK_TESTS "Build benchmark tests." OFF)
 
 option(MATERIALX_BUILD_SHARED_LIBS "Build MaterialX libraries as shared rather than static." OFF)
+option(MATERIALX_BUILD_MONOLITHIC "Build a single monolithic MaterialX library." OFF)
+option(MATERIALX_BUILD_USE_CCACHE "Enable the use of ccache to speed up build time, if present." ON)
 option(MATERIALX_PYTHON_LTO "Enable link-time optimizations for MaterialX Python." ON)
 option(MATERIALX_INSTALL_PYTHON "Install the MaterialX Python package as a third-party library when the install target is built." ON)
 option(MATERIALX_INSTALL_RESOURCES "Install the resources folder when building render modules." ON)
@@ -55,12 +57,13 @@ option(MATERIALX_TEST_RENDER "Run rendering tests for MaterialX Render module. G
 option(MATERIALX_WARNINGS_AS_ERRORS "Interpret all compiler warnings as errors." OFF)
 option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage analysis on supporting platforms." OFF)
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
-option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." ON)
+option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." OFF)
 
 option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
 if (MATERIALX_BUILD_IOS)
     set(CMAKE_SYSTEM_NAME iOS)
     add_definitions(-DTARGET_OS_IOS=1)
+    set(MATERIALX_BUILD_MONOLITHIC ON)
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
@@ -71,9 +74,6 @@ if (MATERIALX_BUILD_IOS)
 endif()
 
 if (MATERIALX_BUILD_JS)
-    set(MATERIALX_BUILD_GEN_OSL OFF)
-    set(MATERIALX_BUILD_GEN_MSL OFF)
-    set(MATERIALX_BUILD_GEN_MDL OFF)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
@@ -135,9 +135,10 @@ mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
-mark_as_advanced(MATERIALX_BUILD_TESTS)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
 mark_as_advanced(MATERIALX_BUILD_SHARED_LIBS)
+mark_as_advanced(MATERIALX_BUILD_MONOLITHIC)
+mark_as_advanced(MATERIALX_BUILD_USE_CCACHE)
 mark_as_advanced(MATERIALX_NAMESPACE_SUFFIX)
 mark_as_advanced(MATERIALX_LIBNAME_SUFFIX)
 mark_as_advanced(MATERIALX_PYTHON_LTO)
@@ -168,6 +169,15 @@ if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDL_RENDER_ARGUMENTS)
     mark_as_advanced(MATERIALX_MDL_MODULE_PATHS)
     mark_as_advanced(MATERIALX_INSTALL_MDL_MODULE_PATH)
+endif()
+
+if (MATERIALX_BUILD_USE_CCACHE)
+    # Setup CCache for C/C++ compilation
+    find_program(CCACHE_PROGRAM ccache)
+    if(CCACHE_PROGRAM)
+        set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    endif()
 endif()
 
 # Add global definitions
@@ -226,6 +236,9 @@ endif()
 # Adjust compiler settings
 if(MSVC)
     add_compile_options(/MP)
+    if(MATERIALX_BUILD_MONOLITHIC)
+        add_compile_options(/bigobj)
+    endif()
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
@@ -244,7 +257,7 @@ else()
         add_link_options(--coverage)
     endif()
     if(MATERIALX_DYNAMIC_ANALYSIS)
-        set(DYNAMIC_ANALYSIS_OPTIONS -fsanitize=address -fsanitize=leak -fsanitize=undefined -fno-sanitize-recover=all)
+        set(DYNAMIC_ANALYSIS_OPTIONS -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all)
         add_compile_options(${DYNAMIC_ANALYSIS_OPTIONS})
         add_link_options(${DYNAMIC_ANALYSIS_OPTIONS})
     endif()
@@ -267,11 +280,111 @@ function(assign_source_group prefix)
     endforeach()
 endfunction(assign_source_group)
 
+function(mx_add_library MATERIALX_MODULE_NAME)
+    set(options ADD_OBJECTIVE_C_CODE)
+    set(oneValueArgs EXPORT_DEFINE)
+    set(multiValueArgs
+            SOURCE_FILES
+            HEADER_FILES
+            LIBRARIES)
+    cmake_parse_arguments(args
+            "${options}"
+            "${oneValueArgs}"
+            "${multiValueArgs}"
+            ${ARGN})
+
+    if (APPLE AND args_ADD_OBJECTIVE_C_CODE)
+        file(GLOB_RECURSE materialx_source_oc "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
+        set_source_files_properties(${materialx_source_oc} PROPERTIES
+                COMPILE_FLAGS "-x objective-c++")
+        set(args_SOURCE_FILES ${args_SOURCE_FILES} ${materialx_source_oc})
+    endif()
+
+    assign_source_group("Source Files" ${args_SOURCE_FILES})
+    assign_source_group("Header Files" ${args_HEADER_FILES})
+
+    if (NOT MATERIALX_BUILD_MONOLITHIC)
+        set(TARGET_NAME ${MATERIALX_MODULE_NAME})
+        add_library(${TARGET_NAME} ${args_SOURCE_FILES} ${args_HEADER_FILES})
+
+        # Create version resource
+        if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
+            configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+            target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+        endif()
+
+        target_link_libraries(
+                ${TARGET_NAME}
+                ${args_LIBRARIES}
+                ${CMAKE_DL_LIBS})
+
+        target_include_directories(${TARGET_NAME}
+                PUBLIC
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+                $<INSTALL_INTERFACE:${MATERIALX_INSTALL_INCLUDE_PATH}>
+                PRIVATE
+                ${EXTERNAL_INCLUDE_DIRS})
+
+        set_target_properties(
+                ${TARGET_NAME} PROPERTIES
+                OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
+                COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
+                LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
+                INSTALL_RPATH "${MATERIALX_SAME_DIR_RPATH}"
+                VERSION "${MATERIALX_LIBRARY_VERSION}"
+                SOVERSION "${MATERIALX_MAJOR_VERSION}")
+    else()
+        set(TARGET_NAME ${MATERIALX_MONOLITHIC_TARGET})
+
+        target_sources(${TARGET_NAME} PRIVATE ${args_SOURCE_FILES})
+        target_sources(${TARGET_NAME} PRIVATE ${args_HEADER_FILES})
+
+        add_library(${MATERIALX_MODULE_NAME} ALIAS ${MATERIALX_MONOLITHIC_TARGET})
+
+        # Store the aliased MaterialX modules name to create cmake export aliases later.
+        set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
+    endif()
+
+    target_include_directories(${TARGET_NAME} PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}>)
+
+    target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
+
+    if(NOT SKBUILD)
+        if(NOT MATERIALX_BUILD_MONOLITHIC)
+            install(TARGETS ${MATERIALX_MODULE_NAME}
+                    EXPORT MaterialX
+                    ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                    LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                    RUNTIME DESTINATION bin)
+        endif()
+
+        install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+                DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+                FILES_MATCHING
+                PATTERN "*.h*"
+                PATTERN "*.inl")
+
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
+                DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
+    endif()
+
+    # pass TARGET_NAME back to call site - so caller can modify the build target
+    set(TARGET_NAME ${TARGET_NAME} PARENT_SCOPE)
+endfunction()
+
 # Propagate shared library setting to NanoGUI:
 if(MATERIALX_BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS "ON")
 else()
     set(BUILD_SHARED_LIBS "OFF")
+endif()
+
+# Build a monolithic target - needs to be added before the other build targets that may be included.
+if (MATERIALX_BUILD_MONOLITHIC)
+    set(MATERIALX_MONOLITHIC_TARGET MaterialX)
+    add_subdirectory(source)
 endif()
 
 # Add core subdirectories
@@ -359,6 +472,21 @@ if(NOT SKBUILD)
     set(MATERIALX_GEN_CONFIG_PATH "${MATERIALX_INSTALL_LIB_PATH}/cmake/${CMAKE_PROJECT_NAME}")
 
     include(CMakePackageConfigHelpers)
+
+    if (MATERIALX_BUILD_MONOLITHIC)
+        # export aliases for the MaterialX modules built in this monolithic build to be
+        # less disruptive to downstream probjects.
+        get_property(MATERIALX_MODULES GLOBAL PROPERTY MATERIALX_MODULES)
+        set(EXPORT_ALIASES "# Aliased targets for the the monolithic build\n")
+        foreach (MODULE ${MATERIALX_MODULES})
+            string(APPEND EXPORT_ALIASES "add_library(${MODULE} ALIAS MaterialX)\n")
+        endforeach ()
+
+        if (NOT MATERIALX_MODULES)
+            message(FATAL_ERROR "Building MaterialX as a monolithic library, but did not find any libraries to alias.")
+        endif()
+    endif()
+
     configure_package_config_file(cmake/modules/MaterialXConfig.cmake.in
                                 ${CMAKE_BINARY_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake
                                 INSTALL_DESTINATION "${MATERIALX_GEN_CONFIG_PATH}"

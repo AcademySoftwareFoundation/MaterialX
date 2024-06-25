@@ -119,7 +119,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
     const ShaderInput* inInput = node.getInput("in");
     const ShaderOutput* inConnection = inInput ? inInput->getConnection() : nullptr;
 
-    if (inConnection && inConnection->getType() && acceptsInputType(inConnection->getType()))
+    if (inConnection && acceptsInputType(inConnection->getType()))
     {
         const ShaderNode* upstreamNode = inConnection->getNode();
         if (upstreamNode && upstreamNode->hasClassification(ShaderNode::Classification::SAMPLE2D))

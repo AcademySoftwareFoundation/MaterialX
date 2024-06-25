@@ -20,11 +20,11 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ### Supported Platforms
 
-The MaterialX codebase requires a compiler with support for C++14, and can be built with any of the following:
+The MaterialX codebase requires a compiler with support for C++17, and can be built with any of the following:
 
 - Microsoft Visual Studio 2017 or newer
-- GCC 6 or newer
-- Clang 6 or newer
+- GCC 8 or newer
+- Clang 5 or newer
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.6 and greater.
 

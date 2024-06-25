@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-
 set(DEAR_IMGUI_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui" CACHE STRING "Path to Dear ImGui")
 
 if (NOT IS_DIRECTORY "${DEAR_IMGUI_PREFIX}/backends")
@@ -59,6 +57,9 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
+
+# Explicitly build GLFW with static libraries, independent of the broader build settings.
+set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(External/Glfw)
 

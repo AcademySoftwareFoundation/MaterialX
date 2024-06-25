@@ -12,6 +12,13 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
+namespace
+{
+
+const float MAX_FLOAT = std::numeric_limits<float>::max();
+
+} // anonymous namespace
+
 void GeometryHandler::addLoader(GeometryLoaderPtr loader)
 {
     const StringSet& extensions = loader->supportedExtensions();
@@ -63,7 +70,6 @@ void GeometryHandler::getGeometry(MeshList& meshes, const string& location)
 
 void GeometryHandler::computeBounds()
 {
-    const float MAX_FLOAT = std::numeric_limits<float>::max();
     _minimumBounds = { MAX_FLOAT, MAX_FLOAT, MAX_FLOAT };
     _maximumBounds = { -MAX_FLOAT, -MAX_FLOAT, -MAX_FLOAT };
     for (const auto& mesh : _meshes)
@@ -89,7 +95,7 @@ bool GeometryHandler::loadGeometry(const FilePath& filePath, bool texcoordVertic
 
     bool loaded = false;
 
-    std::pair <GeometryLoaderMap::iterator, GeometryLoaderMap::iterator> range;
+    std::pair<GeometryLoaderMap::iterator, GeometryLoaderMap::iterator> range;
     string extension = filePath.getExtension();
     range = _geometryLoaders.equal_range(extension);
     GeometryLoaderMap::iterator first = --range.second;
@@ -140,19 +146,17 @@ MeshPtr GeometryHandler::createQuadMesh(const Vector2& uvMin, const Vector2& uvM
     quadTexCoords->setStride(MeshStream::STRIDE_2D);
     if (!flipTexCoordsHorizontally)
     {
-        quadTexCoords->getData().assign({
-            uvMax[0], uvMax[1],
-            uvMax[0], uvMin[1],
-            uvMin[0], uvMin[1],
-            uvMin[0], uvMax[1] });
+        quadTexCoords->getData().assign({ uvMax[0], uvMax[1],
+                                          uvMax[0], uvMin[1],
+                                          uvMin[0], uvMin[1],
+                                          uvMin[0], uvMax[1] });
     }
     else
     {
-        quadTexCoords->getData().assign({
-            uvMax[0], uvMin[1],
-            uvMax[0], uvMax[1],
-            uvMin[0], uvMax[1],
-            uvMin[0], uvMin[1] });
+        quadTexCoords->getData().assign({ uvMax[0], uvMin[1],
+                                          uvMax[0], uvMax[1],
+                                          uvMin[0], uvMax[1],
+                                          uvMin[0], uvMin[1] });
     }
     MeshPartitionPtr quadIndices = MeshPartition::create();
     quadIndices->getIndices().assign({ 0, 1, 3, 1, 2, 3 });
@@ -161,7 +165,7 @@ MeshPtr GeometryHandler::createQuadMesh(const Vector2& uvMin, const Vector2& uvM
     quadMesh->addStream(quadPositions);
     quadMesh->addStream(quadTexCoords);
     quadMesh->addPartition(quadIndices);
-    
+
     return quadMesh;
 }
 

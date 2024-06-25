@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
   <implementation name="IM_oren_nayar_diffuse_bsdf_genglsl" nodedef="ND_oren_nayar_diffuse_bsdf" file="mx_oren_nayar_diffuse_bsdf.glsl" function="mx_oren_nayar_diffuse_bsdf" target="genglsl" />
@@ -27,9 +27,6 @@
 
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genglsl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.glsl" function="mx_anisotropic_vdf" target="genglsl" />
-
-  <!-- <thin_film_bsdf> -->
-  <implementation name="IM_thin_film_bsdf_genglsl" nodedef="ND_thin_film_bsdf" target="genglsl" />
 
   <!-- <layer> -->
   <implementation name="IM_layer_bsdf_genglsl" nodedef="ND_layer_bsdf" target="genglsl" />

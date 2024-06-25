@@ -32,7 +32,7 @@ void MslResourceBindingContext::emitDirectives(GenContext&, ShaderStage&)
 
 void MslResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     // First, emit all value uniforms in a block with single layout binding
     bool hasValueUniforms = false;
@@ -69,21 +69,21 @@ void MslResourceBindingContext::emitStructuredResourceBindings(GenContext& conte
                                                                ShaderStage& stage, const std::string& structInstanceName,
                                                                const std::string& arraySuffix)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     const size_t baseAlignment = 16;
     // Values are adjusted based on
     // https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf
-    std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
-                                                               { Type::INTEGER, baseAlignment / 4 },
-                                                               { Type::BOOLEAN, baseAlignment / 4 },
-                                                               { Type::COLOR3, baseAlignment },
-                                                               { Type::COLOR4, baseAlignment },
-                                                               { Type::VECTOR2, baseAlignment / 2 },
-                                                               { Type::VECTOR3, baseAlignment },
-                                                               { Type::VECTOR4, baseAlignment },
-                                                               { Type::MATRIX33, baseAlignment * 4 },
-                                                               { Type::MATRIX44, baseAlignment * 4 } });
+    const std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
+                                                                                { Type::INTEGER, baseAlignment / 4 },
+                                                                                { Type::BOOLEAN, baseAlignment / 4 },
+                                                                                { Type::COLOR3, baseAlignment },
+                                                                                { Type::COLOR4, baseAlignment },
+                                                                                { Type::VECTOR2, baseAlignment / 2 },
+                                                                                { Type::VECTOR3, baseAlignment },
+                                                                                { Type::VECTOR4, baseAlignment },
+                                                                                { Type::MATRIX33, baseAlignment * 4 },
+                                                                                { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index

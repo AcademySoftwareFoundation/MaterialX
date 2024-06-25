@@ -9,8 +9,6 @@
 #include <MaterialXGenShader/GenUserData.h>
 #include <MaterialXGenShader/HwShaderGenerator.h>
 
-#include <string>
-
 namespace py = pybind11;
 namespace mx = MaterialX;
 
