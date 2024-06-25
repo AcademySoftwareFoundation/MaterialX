@@ -7,7 +7,7 @@
     <subsurface_bsdf name="subsurface_brdf1" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color" type="color3" value="0.18, 0.18, 0.18" />
-      <input name="radius" type="vector3" value="1.0, 1.0, 1.0" />
+      <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
       <input name="anisotropy" type="float" value="0.0" />
       <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
     </subsurface_bsdf>
