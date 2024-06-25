@@ -732,6 +732,14 @@
   <implementation name="IM_heighttonormal_vector3_genosl" nodedef="ND_heighttonormal_vector3" file="mx_heighttonormal_vector3.osl" function="mx_heighttonormal_vector3" target="genosl" />
 
   <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <implementation name="IM_logical_and_genosl" nodedef="ND_logical_and" target="genosl" sourcecode="{{in1}} && {{in2}}"/>
+  <implementation name="IM_logical_or_genosl" nodedef="ND_logical_or" target="genosl" sourcecode="{{in1}} || {{in2}}"/>
+  <implementation name="IM_logical_not_genosl" nodedef="ND_logical_not" target="genosl" sourcecode="!{{in}}"/>
+
+  <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->
   <!-- ======================================================================== -->
 
