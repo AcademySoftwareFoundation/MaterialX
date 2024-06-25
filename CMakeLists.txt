@@ -345,10 +345,6 @@ function(mx_add_library MATERIALX_MODULE_NAME)
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
 
-    target_include_directories(${TARGET_NAME} PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}>)
-
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
     if(NOT SKBUILD)
