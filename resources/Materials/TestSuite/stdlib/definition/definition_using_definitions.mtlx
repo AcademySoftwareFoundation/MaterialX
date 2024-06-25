@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
+<materialx version="1.39" colorspace="lin_rec709" xmlns:xi="http://www.w3.org/2001/XInclude">
   <nodedef name="ND_layered" node="mylayered" version="1.0.1" isdefaultversion="true">
     <input name="surface_normal" type="vector3" value="1, 1, 1" defaultgeomprop="Nworld" />
     <input name="surface_cutout" type="color3" value="1, 1, 1" />

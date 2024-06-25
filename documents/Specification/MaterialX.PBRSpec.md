@@ -198,8 +198,8 @@ The PBS nodes also make use of the following standard MaterialX types:
 
 
     * `weight` (float): Weight for this BSDF’s contribution, range [0.0, 1.0]. Defaults to 1.0.
-    * `ior `(color3): Index of refraction. Default is (0.18, 0.42, 1.37) with colorspace "none" (approximate IOR for gold).
-    * `extinction` (color3): Extinction coefficient. Default is (3.42, 2.35, 1.77) with colorspace "none" (approximate extinction coefficients for gold).
+    * `ior `(color3): Index of refraction. Default is (0.18, 0.42, 1.37) (approximate IOR for gold).
+    * `extinction` (color3): Extinction coefficient. Default is (3.42, 2.35, 1.77) (approximate extinction coefficients for gold).
     * `roughness` (vector2): Surface roughness. Defaults to (0.05, 0.05).
     * `thinfilm_thickness` (float): The thickness of an iridescent thin film layer applied over the base bsdf, expressed in nanometers. Defaults to 0.0, for no thin film.
     * `thinfilm_ior` (float): The index of refraction of the thin film layer. Defaults to 1.5.

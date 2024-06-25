@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
   Basic conditional if* function tests each test is in a separate graph for each variation in input type.
   Tests are for floating point comparisons.

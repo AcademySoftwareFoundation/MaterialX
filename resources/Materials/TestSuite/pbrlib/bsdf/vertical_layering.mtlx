@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <nodegraph name="vertical_layering_ex1">
     <dielectric_bsdf name="dielectric_bsdf" type="BSDF" nodedef="ND_dielectric_bsdf">

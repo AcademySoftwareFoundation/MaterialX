@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -3762,7 +3762,7 @@
   <nodedef name="ND_ifgreater_booleanI" node="ifgreater" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
@@ -3903,7 +3903,7 @@
   <nodedef name="ND_ifgreatereq_booleanI" node="ifgreatereq" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
@@ -4044,7 +4044,7 @@
   <nodedef name="ND_ifequal_booleanI" node="ifequal" nodegroup="conditional">
     <input name="value1" type="integer" value="1" />
     <input name="value2" type="integer" value="0" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
   <nodedef name="ND_ifequal_floatB" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
@@ -4112,7 +4112,7 @@
   <nodedef name="ND_ifequal_booleanB" node="ifequal" nodegroup="conditional">
     <input name="value1" type="boolean" value="false" />
     <input name="value2" type="boolean" value="false" />
-   <output name="out" type="boolean" default="false" />
+    <output name="out" type="boolean" default="false" />
   </nodedef>
 
   <!--
@@ -4664,6 +4664,49 @@
     <input name="in" type="float" value="0.0" />
     <input name="scale" type="float" value="1.0" />
     <output name="out" type="vector3" default="0.5, 0.5, 1.0" />
+  </nodedef>
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <and>
+    Logical And operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_and" node="and" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <or>
+    Logical Inclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_or" node="or" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <xor>
+    Logical Exclusive Or operation for two boolean values.
+  -->
+  <nodedef name="ND_logical_xor" node="xor" nodegroup="conditional">
+    <input name="in1" type="boolean" value="false" />
+    <input name="in2" type="boolean" value="false" />
+    <output name="out" type="boolean" defaultinput="in1" />
+  </nodedef>
+
+  <!--
+    Node: <not>
+    Returns logical Not of input.
+  -->
+  <nodedef name="ND_logical_not" node="not" nodegroup="conditional">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="boolean" default="true"/>
   </nodedef>
 
   <!-- ======================================================================== -->

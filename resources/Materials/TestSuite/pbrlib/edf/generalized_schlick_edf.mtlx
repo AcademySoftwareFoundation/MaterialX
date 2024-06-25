@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="generalized_schlick_edf_test">
     <uniform_edf name="uniform_edf_1" type="EDF">
       <input name="color" type="color3" value="1.0, 1.0, 1.0" />

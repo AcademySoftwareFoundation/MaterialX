@@ -61,6 +61,7 @@ This document describes the core MaterialX specification.  Companion documents [
 
  [Standard Operator Nodes](#standard-operator-nodes)  
   [Math Nodes](#math-nodes)  
+  [Logical Operator Nodes](#logical-operator-nodes)  
   [Adjustment Nodes](#adjustment-nodes)  
   [Compositing Nodes](#compositing-nodes)  
   [Conditional Nodes](#conditional-nodes)  
@@ -1498,6 +1499,34 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`dot`**: a no-op, passes its input through to its output unchanged.  Users can use dot nodes to shape edge connection paths or provide documentation checkpoints in node graph layout UI's.  Dot nodes may also pass uniform values from &lt;constant>, &lt;tokenvalue> or other nodes with uniform="true" outputs to uniform &lt;input>s and &lt;token>s.
     * `in` (any type): the nodename to be connected to the Dot node's "in" input.  Unlike inputs on other node types, the &lt;dot> node's input is specifically disallowed to provide a `channels` attribute: input data can only be passed through unmodified.
 
+
+### Logical Operator Nodes
+
+Logical operator nodes have one or two boolean typed inputs, and are used to construct higher level logical flow through the nodegraph.
+
+<a id="node-and"> </a>
+
+* **`and`**: logically And the two input boolean values.
+  * `in1` (boolean): the value or nodename for the first input; the default is false.
+  * `in2` (boolean): the value or nodename for the second input; the default is false.
+
+<a id="node-or"> </a>
+
+* **`or`**: logically Inclusive Or the two input boolean values.
+  * `in1` (boolean): the value or nodename for the first input; the default is false.
+  * `in2` (boolean): the value or nodename for the second input; the default is false.
+
+<a id="node-xor"> </a>
+
+* **`xor`**: logically Exclusive Or the two input boolean values.
+  * `in1` (boolean): the value or nodename for the first input; the default is false.
+  * `in2` (boolean): the value or nodename for the second input; the default is false.
+
+<a id="node-not"> </a>
+
+* **`not`**: logically Not the input boolean value.
+  * `in1` (boolean): the value or nodename for the first input; the default is false.
+  * `in2` (boolean): the value or nodename for the second input; the default is false.
 
 
 ### Adjustment Nodes

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <output name="geompropvalue_integer_out" type="vector4" nodename="switch1" />
   <switch name="switch1" type="vector4">
     <input name="in1" type="vector4" value="0.0, 0.0, 0.0, 1.0" />
@@ -23,10 +23,9 @@
     <input name="geomprop" type="string" value="geompropvalue_bool" />
   </geompropvalue>
   <output name="geompropvalue_string_out" type="color3" nodename="swizzle1" />
-  <swizzle name="swizzle1" type="color3">
-    <input name="in" type="color3" value="0.5, 0.5, 0.5" />
-    <input name="channels" type="string" nodename="geompropvalue_string" />
-  </swizzle>
+  <constant name="swizzle1" type="color3">
+    <input name="value" type="color3" value="0.5, 0.5, 0.5" />
+  </constant>
   <geompropvalue name="geompropvalue_string" type="string">
     <input name="geomprop" type="string" value="geompropvalue_string" />
   </geompropvalue>

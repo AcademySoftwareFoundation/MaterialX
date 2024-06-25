@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <gltf_pbr name="SR_glass" type="surfaceshader">
     <input name="metallic" type="float" value="0" />
     <input name="roughness" type="float" value="0.01" />

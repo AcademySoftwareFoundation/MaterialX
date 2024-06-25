@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <nodegraph name="edge_brighten">
     <facingratio name="facingratio_float" type="float">
       <input name="invert" type="boolean" value="true" />

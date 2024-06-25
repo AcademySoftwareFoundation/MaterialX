@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <gooch_shade name="default_gooch" type="color3">
     <input name="warm_color" type="color3" value="0.8, 0.8, 0.7" />
