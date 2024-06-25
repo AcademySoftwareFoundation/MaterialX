@@ -24,9 +24,9 @@
   <!-- LamaSurface -->
   <!--
   <LamaSurface name="LamaSurface" type="material">
-    <input name="materialSides" type="integer" value="1" />
     <input name="materialFront" type="BSDF" nodename="LamaDiffuse" />
     <input name="materialBack" type="BSDF" nodename="LamaConductor" />
+    <input name="presence" type="float" value="1.0" />
   </LamaSurface>
   -->
 
