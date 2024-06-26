@@ -366,8 +366,8 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                                     }
                                 }
                             }
+                            destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                         }
-                        destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     }
                 }
             }
