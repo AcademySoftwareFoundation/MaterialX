@@ -16,11 +16,11 @@ def createDiff(image1Path, image2Path, imageDiffPath):
     try:
         if os.path.exists(imageDiffPath):
             os.remove(imageDiffPath)
-        
+
         if not os.path.exists(image1Path):
             print ("Image diff input missing: " + image1Path)
             return
-        
+
         if not os.path.exists(image2Path):
             print ("Image diff input missing: " + image2Path)
             return
@@ -70,13 +70,13 @@ def main(args=None):
     dir1 = os.getcwd() if args.inputdir1 == "." else args.inputdir1
     dir2 = os.getcwd() if args.inputdir2 == "." else args.inputdir2
     dir3 = os.getcwd() if args.inputdir3 == "." else args.inputdir3
-    
+
     useThirdLang = True if args.lang3 and (args.inputdir1 != args.inputdir3 or args.lang1 != args.lang3) else False
-    
+
     if useThirdLang:
-        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs "+ args.lang2 + " (in: " + dir2 + ") vs "+ args.lang3 + " (in: " + dir3 + ")</h3>\n")
+        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs " + args.lang2 + " (in: " + dir2 + ") vs " + args.lang3 + " (in: " + dir3 + ")</h3>\n")
     else:
-        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs "+ args.lang2 + " (in: " + dir2 + ")</h3>\n")
+        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs " + args.lang2 + " (in: " + dir2 + ")</h3>\n")
 
     if not DIFF_ENABLED and args.CREATE_DIFF:
         print("--diff argument ignored. Diff utility not installed.")
@@ -86,6 +86,14 @@ def main(args=None):
     if useThirdLang and not args.inputdir3:
         args.inputdir3 = args.inputdir1
 
+    # Remove potential trailing path separators
+    if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
+        args.inputdir1 = args.inputdir1[:-1]
+    if args.inputdir2[-1:] == '/' or args.inputdir2[-1:] == '\\':
+        args.inputdir2 = args.inputdir2[:-1]
+    if args.inputdir3[-1:] == '/' or args.inputdir3[-1:] == '\\':
+        args.inputdir3 = args.inputdir3[:-1]
+
     # Get all source files
     langFiles1 = []
     langPaths1 = []
@@ -93,21 +101,22 @@ def main(args=None):
         for curFile in files:
             if curFile.endswith(args.lang1 + ".png"):
                 langFiles1.append(curFile)
-                langPaths1.append(subdir) 
+                langPaths1.append(subdir)
 
     # Get all destination files, matching source files
     langFiles2 = []
     langPaths2 = []
     langFiles3 = []
     langPaths3 = []
-    postFix = args.lang1 + ".png"
+    preFixLen: int = len(args.inputdir1) + 1  # including the path separator
+    postFix: str = args.lang1 + ".png"
     for file1, path1 in zip(langFiles1, langPaths1):
         # Allow for just one language to be shown if source and dest are the same.
         # Otherwise add in equivalent name with dest language replacement if
         # pointing to the same directory 
         if args.inputdir1 != args.inputdir2 or args.lang1 != args.lang2:
             file2 = file1[:-len(postFix)] + args.lang2 + ".png"
-            path2 = os.path.join(args.inputdir2, path1)
+            path2 = os.path.join(args.inputdir2, path1[preFixLen:])
         else:
             file2 = ""
             path2 = None
@@ -116,7 +125,7 @@ def main(args=None):
 
         if useThirdLang:
             file3 = file1[:-len(postFix)] + args.lang3 + ".png"
-            path3 = os.path.join(args.inputdir2, path1)
+            path3 = os.path.join(args.inputdir3, path1[preFixLen:])
         else:
             file3 = ""
             path3 = None
@@ -142,19 +151,19 @@ def main(args=None):
                 curPath = path1
 
             if file1 and file2 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath1 = fullPath1[0:-8] + "_" + args.lang1 + "_vs_" + args.lang2 + "_diff.png"
+                diffPath1 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang2 + "-2_diff.png"
                 createDiff(fullPath1, fullPath2, diffPath1)
 
             if useThirdLang and file1 and file3 and DIFF_ENABLED and args.CREATE_DIFF:
-                diffPath2 = fullPath1[0:-8] + "_" + args.lang1 + "_vs_" + args.lang3 + "_diff.png"
+                diffPath2 = fullPath1[0:-8] + "_" + args.lang1 + "-1_vs_" + args.lang3 + "-3_diff.png"
                 createDiff(fullPath1, fullPath3, diffPath2)
-                diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "_vs_" + args.lang3 + "_diff.png"
+                diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
                 createDiff(fullPath2, fullPath3, diffPath3)
 
             if os.path.isabs(args.outputfile):
                 fileUri = 'file:///'
             else:
-                fileUri =''
+                fileUri = ''
 
             fh.write("<tr>\n")
             if fullPath1:
