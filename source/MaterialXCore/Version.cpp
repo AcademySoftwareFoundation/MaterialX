@@ -1130,6 +1130,18 @@ void Document::upgradeVersion()
                     unusedNodes.push_back(top);
                 }
             }
+            else if (nodeCategory == "subsurface_bsdf")
+            {
+                InputPtr radiusInput = node->getInput("radius");
+                if (radiusInput && radiusInput->getType() == "vector3")
+                {
+                    GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                    NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
+                    copyInputWithBindings(node, "radius", convertNode, "in");
+                    radiusInput->setConnectedNode(convertNode);
+                    radiusInput->setType("color3");
+                }
+            }
             else if (nodeCategory == "switch")
             {
                 // Upgrade switch nodes from 5 to 10 inputs, handling the fallback behavior for

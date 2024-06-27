@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="acescg">
+
+  <!-- LamaConductor -->
+  <LamaConductor name="LamaConductor" type="BSDF">
+    <input name="tint" type="color3" value="1, 1, 1" />
+    <input name="fresnelMode" type="integer" value="0" />
+    <input name="IOR" type="vector3" value="0.180000007153,0.419999986887,1.37000000477" />
+    <input name="extinction" type="vector3" value="3.42000007629,2.34999990463,1.76999998093" />
+    <input name="reflectivity" type="color3" value="0.9450, 0.7772, 0.3737" />
+    <input name="edgeColor" type="color3" value="0.9979, 0.9813, 0.7523" />
+    <input name="roughness" type="float" value="0.1" />
+    <input name="anisotropy" type="float" value="0.0" />
+    <input name="anisotropyRotation" type="float" value="0.0" />
+  </LamaConductor>
+
+  <!-- LamaDiffuse -->
+  <LamaDiffuse name="LamaDiffuse" type="BSDF">
+    <input name="color" type="color3" value="0.1, 0.2, 0.3" />
+    <input name="roughness" type="float" value="0.5" />
+    <input name="energyCompensation" type="float" value="1.0" />
+  </LamaDiffuse>
+
+  <!-- LamaSurface -->
+  <!--
+  <LamaSurface name="LamaSurface" type="material">
+    <input name="materialFront" type="BSDF" nodename="LamaDiffuse" />
+    <input name="materialBack" type="BSDF" nodename="LamaConductor" />
+    <input name="presence" type="float" value="1.0" />
+  </LamaSurface>
+  -->
+
+</materialx>
