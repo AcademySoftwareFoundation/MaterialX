@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+
+
+    <nodegraph name="test_struct_texcoord">
+
+        <extracts name="extracts" type="float">
+            <input name="in" type="texcoord_struct" value="{0.01;0.5}"/>
+        </extracts>
+
+        <convert name="float_to_color3" type="color3">
+            <input name="in" type="float" nodename="extracts"/>
+        </convert>
+        <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
+            <input name="color" type="color3" nodename="float_to_color3" />
+        </oren_nayar_diffuse_bsdf>
+        <surface name="surface1" type="surfaceshader">
+            <input name="bsdf" type="BSDF" nodename="diffuse_brdf1" />
+            <input name="opacity" type="float" value="1.0" />
+        </surface>
+        <output name="out" type="surfaceshader" nodename="surface1" />
+    </nodegraph>
+</materialx>

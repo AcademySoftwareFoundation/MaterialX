@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+    <!--
+      Copyright Contributors to the MaterialX Project
+      SPDX-License-Identifier: Apache-2.0
+
+      GLSL Implementations of experimental nodes
+    -->
+
+    <implementation name="IM_extract_s_texcoord_genosl" nodedef="ND_extract_s_texcoord" target="genosl" sourcecode="{{in}}.ss" />
+
+    <implementation name="IM_extract_s_texcoordGroup_genosl" nodedef="ND_extract_s_texcoordGroup" file="./mx_extractgroup.osl" function="mx_extractGroup" target="genosl">
+        <input name="in" type="texcoordGroup_struct" implname="data" />
+    </implementation>
+
+</materialx>

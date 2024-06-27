@@ -120,6 +120,7 @@ TEST_CASE("GenShader: MSL Bind Light Shaders", "[genmsl]")
 static void generateMslCode()
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    searchPath.append(searchPath.find("resources/Materials/TestSuite"));
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));
