@@ -1614,7 +1614,7 @@
       <input name="specular_IOR" type="float" nodename="switch_ior" uivisible="true" />
       <input name="transmission" type="float" value="1" uivisible="true" />
       <input name="transmission_color" type="color3" nodename="tint_selection" uivisible="true" />
-      <input name="normal" type="vector3" nodename="normalmap" />
+      <input name="normal" type="vector3" nodename="ifequal_vector3B" />
     </standard_surface>
     <remap name="refl_extra" type="float" xpos="5.152174" ypos="-5.362069">
       <input name="in" type="float" interfacename="reflectance" uivisible="true" />
@@ -1692,11 +1692,11 @@
     <srgb_texture_to_lin_rec709 name="srgb_texture_to_lin_rec709_color3" type="color3" xpos="2.630435" ypos="-12.689655">
       <input name="in" type="color3" nodename="switch_color" />
     </srgb_texture_to_lin_rec709>
-    <normalmap name="normalmap" type="vector3" xpos="7.623188" ypos="12.543103">
-      <input name="in" type="vector3" nodename="ifequal_vector3B" />
+    <normalmap name="normalmap" type="vector3" xpos="2.094203" ypos="14.336206">
+      <input name="in" type="vector3" nodename="constant_no_relief" />
     </normalmap>
-    <ifequal name="ifequal_vector3B" type="vector3" xpos="3.768116" ypos="11.870689">
-      <input name="in2" type="vector3" nodename="constant_no_relief" />
+    <ifequal name="ifequal_vector3B" type="vector3" xpos="5.507246" ypos="11.784483">
+      <input name="in2" type="vector3" nodename="normalmap" />
       <input name="value2" type="boolean" value="true" />
       <input name="value1" type="boolean" interfacename="relief_enable" />
       <input name="in1" type="vector3" nodename="switch_vector3" />
@@ -2209,7 +2209,9 @@
       <input name="in1" type="vector3" interfacename="bump" />
       <input name="in2" type="vector3" nodename="neutral_normalmap" />
     </ifequal>
-    <constant name="neutral_normal" type="vector3" xpos="3.224638" ypos="39.646553" />
+    <constant name="neutral_normal" type="vector3" xpos="3.224638" ypos="39.646553">
+      <input name="value" type="vector3" value="0.5, 0.5, 1" />
+    </constant>
     <normalmap name="neutral_normalmap" type="vector3" xpos="5.768116" ypos="39.663792">
       <input name="in" type="vector3" nodename="neutral_normal" />
     </normalmap>
