@@ -3,7 +3,7 @@
   <!--
     OpenPBR Surface node definition
   -->
-  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="1.0" isdefaultversion="true"
+  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="1.1" isdefaultversion="true"
            doc="OpenPBR Surface Shading Model" uiname="OpenPBR Surface">
     <input name="base_weight" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base Weight" uifolder="Base"
            doc="Multiplier on the intensity of the reflection from the diffuse and metallic base." />
