@@ -13,40 +13,42 @@
 
 NANOGUI_FORCE_DISCRETE_GPU();
 
-const std::string options = 
-" Options: \n"
-"    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the viewer\n"
-"    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
-"    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
-"    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
-"    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
-"    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Defaults to 360\n"
-"    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
-"    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
-"    --cameraViewAngle [FLOAT]      Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)\n"
-"    --cameraZoom [FLOAT]           Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)\n"
-"    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
-"    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
-"    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
-"    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
-"    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
-"    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
-"    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
-"    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
-"    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
-"    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
-"    --drawEnvironment [BOOLEAN]    Specify whether to render the environment as the background (defaults to false)\n"
-"    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
-"    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
-"    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
-"    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
-"    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
-"    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
-"    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
-"    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
-"    --help                         Display the complete list of command-line options\n";
+const std::string options =
+    " Options: \n"
+    "    --material [FILENAME]          Specify the filename of the MTLX document to be displayed in the viewer\n"
+    "    --mesh [FILENAME]              Specify the filename of the OBJ mesh to be displayed in the viewer\n"
+    "    --meshRotation [VECTOR3]       Specify the rotation of the displayed mesh as three comma-separated floats, representing rotations in degrees about the X, Y, and Z axes (defaults to 0,0,0)\n"
+    "    --meshScale [FLOAT]            Specify the uniform scale of the displayed mesh\n"
+    "    --enableTurntable[BOOLEAN]     Specify whether to enable turntable rendering of the scene\n"
+    "    --turntableSteps [INTEGER]     Specify the number of steps for a complete turntable rotation. Defaults to 360\n"
+    "    --cameraPosition [VECTOR3]     Specify the position of the camera as three comma-separated floats (defaults to 0,0,5)\n"
+    "    --cameraTarget [VECTOR3]       Specify the position of the camera target as three comma-separated floats (defaults to 0,0,0)\n"
+    "    --cameraViewAngle [FLOAT]      Specify the view angle of the camera, or zero for an orthographic projection (defaults to 45)\n"
+    "    --cameraZoom [FLOAT]           Specify the zoom factor for the camera, implemented as a mesh scale multiplier (defaults to 1)\n"
+    "    --envRad [FILENAME]            Specify the filename of the environment light to display, stored as HDR environment radiance in the latitude-longitude format\n"
+    "    --envMethod [INTEGER]          Specify the environment lighting method (0 = filtered importance sampling, 1 = prefiltered environment maps, defaults to 0)\n"
+    "    --envSampleCount [INTEGER]     Specify the environment sample count (defaults to 16)\n"
+    "    --envLightIntensity [FLOAT]    Specify the environment light intensity (defaults to 1)\n"
+    "    --lightRotation [FLOAT]        Specify the rotation in degrees of the lighting environment about the Y axis (defaults to 0)\n"
+    "    --shadowMap [BOOLEAN]          Specify whether shadow mapping is enabled (defaults to true)\n"
+    "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
+    "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
+    "    --screenWidth [INTEGER]        Specify the width of the screen image in pixels (defaults to 1280)\n"
+    "    --screenHeight [INTEGER]       Specify the height of the screen image in pixels (defaults to 960)\n"
+    "    --screenColor [VECTOR3]        Specify the background color of the viewer as three comma-separated floats (defaults to 0.3,0.3,0.32)\n"
+    "    --drawEnvironment [BOOLEAN]    Specify whether to render the environment as the background (defaults to false)\n"
+    "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --bakeWidth [INTEGER]          Specify the target width for texture baking (defaults to maximum image width of the source document)\n"
+    "    --bakeHeight [INTEGER]         Specify the target height for texture baking (defaults to maximum image height of the source document)\n"
+    "    --bakeFilename [STRING]        Specify the output document filename for texture baking\n"
+    "    --refresh [FLOAT]              Specify the refresh period for the viewer in milliseconds (defaults to 50, set to -1 to disable)\n"
+    "    --frameTiming [BOOLEAN]        Specify whether the frame timing display is enabled (defaults to false)\n"
+    "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
+    "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
+    "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+    "    --help                         Display the complete list of command-line options\n";
 
-template<class T> void parseToken(std::string token, std::string type, T& res)
+template <class T> void parseToken(std::string token, std::string type, T& res)
 {
     if (token.empty())
     {
@@ -64,7 +66,7 @@ template<class T> void parseToken(std::string token, std::string type, T& res)
 }
 
 int main(int argc, char* const argv[])
-{  
+{
     std::vector<std::string> tokens;
     for (int i = 1; i < argc; i++)
     {
@@ -87,6 +89,7 @@ int main(int argc, char* const argv[])
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
+    float envLightIntensity = 1.0f;
     float lightRotation = 0.0f;
     bool shadowMap = true;
     DocumentModifiers modifiers;
@@ -99,6 +102,7 @@ int main(int argc, char* const argv[])
     int bakeHeight = 0;
     std::string bakeFilename;
     float refresh = 50.0f;
+    bool frameTiming = false;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -131,7 +135,7 @@ int main(int argc, char* const argv[])
         else if (token == "--turntableSteps")
         {
             parseToken(nextToken, "integer", turntableSteps);
-            turntableSteps = std::clamp(turntableSteps, 2, 360);;
+            turntableSteps = std::clamp(turntableSteps, 2, 360);
         }
         else if (token == "--cameraPosition")
         {
@@ -159,7 +163,11 @@ int main(int argc, char* const argv[])
         else if (token == "--envSampleCount")
         {
             parseToken(nextToken, "integer", envSampleCount);
-        }       
+        }
+        else if (token == "--envLightIntensity")
+        {
+            parseToken(nextToken, "float", envLightIntensity);
+        }
         else if (token == "--lightRotation")
         {
             parseToken(nextToken, "float", lightRotation);
@@ -211,6 +219,14 @@ int main(int argc, char* const argv[])
         else if (token == "--refresh")
         {
             parseToken(nextToken, "float", refresh);
+        }
+        else if (token == "--frameTiming")
+        {
+            parseToken(nextToken, "boolean", frameTiming);
+            if (frameTiming)
+            {
+                refresh = 0;
+            }
         }
         else if (token == "--remap")
         {
@@ -278,6 +294,7 @@ int main(int argc, char* const argv[])
         viewer->setCameraZoom(cameraZoom);
         viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
         viewer->setEnvSampleCount(envSampleCount);
+        viewer->setEnvLightIntensity(envLightIntensity);
         viewer->setLightRotation(lightRotation);
         viewer->setShadowMapEnable(shadowMap);
         viewer->setDrawEnvironment(drawEnvironment);
@@ -285,6 +302,7 @@ int main(int argc, char* const argv[])
         viewer->setBakeWidth(bakeWidth);
         viewer->setBakeHeight(bakeHeight);
         viewer->setBakeFilename(bakeFilename);
+        viewer->setFrameTiming(frameTiming);
         viewer->initialize();
 
         if (!captureFilename.empty())

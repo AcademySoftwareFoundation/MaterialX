@@ -155,6 +155,96 @@ void MetalRenderPipeline::updateAlbedoTable(int tableSize)
     }
 }
 
+void MetalRenderPipeline::updatePrefilteredMap()
+{
+    auto& genContext    = _viewer->_genContext;
+    auto& lightHandler  = _viewer->_lightHandler;
+    auto& imageHandler  = _viewer->_imageHandler;
+
+    if (lightHandler->getEnvPrefilteredMap())
+    {
+        return;
+    }
+
+    mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
+    int w = srcTex->getWidth();
+    int h = srcTex->getHeight();
+
+    mx::MetalTextureHandlerPtr mtlImageHandler = std::dynamic_pointer_cast<mx::MetalTextureHandler>(imageHandler);
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
+    mtlImageHandler->createRenderResources(outTex, true, true);
+    id<MTLTexture> metalTex = mtlImageHandler->getAssociatedMetalTexture(outTex);
+
+    // Create framebuffer.
+    _prefilterFramebuffer = mx::MetalFramebuffer::create(
+        MTL(device),
+        w, h,
+        4,
+        mx::Image::BaseType::HALF,
+        metalTex
+    );
+
+    MTL_PUSH_FRAMEBUFFER(_prefilterFramebuffer);
+
+    // Create shader.
+    mx::ShaderPtr hwShader = mx::createEnvPrefilterShader(genContext, _viewer->_stdLib, "__ENV_PREFILTER__");
+    mx::MslMaterialPtr material = mx::MslMaterial::create();
+    try
+    {
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate convolution shader", e.what());
+    }
+
+    int i = 0;
+
+    while (w > 0 && h > 0)
+    {
+        MTL(beginCommandBuffer());
+        MTLRenderPassDescriptor* desc = [MTLRenderPassDescriptor new];
+        [desc.colorAttachments[0] setTexture:metalTex];
+        [desc.colorAttachments[0] setLevel:i];
+        [desc.colorAttachments[0] setLoadAction:MTLLoadActionDontCare];
+        [desc.colorAttachments[0] setStoreAction:MTLStoreActionStore];
+        [desc.depthAttachment setTexture:_prefilterFramebuffer->getDepthTexture()];
+        [desc.depthAttachment setLoadAction:MTLLoadActionDontCare];
+        [desc.depthAttachment setStoreAction:MTLStoreActionDontCare];
+        [desc setStencilAttachment:nil];
+        
+        MTL(beginEncoder(desc));
+        [MTL(renderCmdEncoder) setDepthStencilState:MTL_DEPTHSTENCIL_STATE(opaque)];
+
+        _prefilterFramebuffer->bind(desc);
+        material->bindShader();
+        material->getProgram()->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
+
+        bool prevValue = lightHandler->getUsePrefilteredMap();
+        lightHandler->setUsePrefilteredMap(false);
+        material->getProgram()->prepareUsedResources(
+                        MTL(renderCmdEncoder),
+                        _viewer->_identityCamera,
+                        nullptr,
+                        imageHandler,
+                        lightHandler);
+        lightHandler->setUsePrefilteredMap(prevValue);
+
+        _viewer->renderScreenSpaceQuad(material);
+
+        MTL(endCommandBuffer());
+        [desc release];
+
+        w /= 2;
+        h /= 2;
+        i++;
+    }
+
+    MTL_POP_FRAMEBUFFER();
+
+    lightHandler->setEnvPrefilteredMap(outTex);
+}
+
 mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
 {
     auto& genContext      = _viewer->_genContext;
@@ -175,7 +265,7 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
            !mtlImageHandler->getAssociatedMetalTexture(_shadowMap[i]))
         {
             _shadowMap[i] = mx::Image::create(shadowMapSize, shadowMapSize, 2, mx::Image::BaseType::FLOAT);
-            _viewer->_imageHandler->createRenderResources(_shadowMap[i], false);
+            _viewer->_imageHandler->createRenderResources(_shadowMap[i], false, true);
         }
         
         shadowMapTex[i] =
@@ -297,6 +387,9 @@ mx::ImagePtr MetalRenderPipeline::getShadowMap(int shadowMapSize)
             
             [renderpassDesc release];
         }
+
+        // Reset frame timing after shadow generation.
+        _viewer->resetFrameTiming();
     }
 
     _viewer->_shadowMap = _shadowMap[_viewer->_shadowSoftness % 2];
@@ -315,6 +408,12 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
     
+    // Update prefiltered environment.
+    if (lightHandler->getUsePrefilteredMap() && !_viewer->_materialAssignments.empty())
+    {
+        updatePrefilteredMap();
+    }
+
     // Update lighting state.
     lightHandler->setLightTransform(mx::Matrix44::createRotationY(lightRotation / 180.0f * M_PI));
 
@@ -393,6 +492,9 @@ void MetalRenderPipeline::renderFrame(void* color_texture, int shadowMapSize, co
                 // Apply rotation to the environment shader.
                 float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
                 envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+
+                // Apply light intensity to the environment shader.
+                envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
 
                 // Render the environment mesh.
                 [MTL(renderCmdEncoder) setCullMode:MTLCullModeNone];

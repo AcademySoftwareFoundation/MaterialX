@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <standard_surface name="SR_carpaint" type="surfaceshader">
     <input name="base" type="float" value="0.5" />
     <input name="base_color" type="color3" value="0.1037792, 0.59212029, 0.85064936" />

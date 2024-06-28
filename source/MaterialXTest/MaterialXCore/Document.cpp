@@ -17,12 +17,20 @@ TEST_CASE("Document", "[document]")
     // Create a document.
     mx::DocumentPtr doc = mx::createDocument();
 
+    // Test version strings.
+    REQUIRE(mx::stringStartsWith(mx::getVersionString(), doc->getVersionString()));
+
+    // Test version integers.
+    REQUIRE(doc->getVersionIntegers().first == std::get<0>(mx::getVersionIntegers()));
+    REQUIRE(doc->getVersionIntegers().second == std::get<1>(mx::getVersionIntegers()));
+
     // Create a node graph with a constant color output.
     mx::NodeGraphPtr nodeGraph = doc->addNodeGraph();
     mx::NodePtr constant = nodeGraph->addNode("constant");
     constant->setInputValue("value", mx::Color3(0.5f));
     mx::OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(constant);
+    REQUIRE(output->isColorType());
     REQUIRE(doc->validate());
 
     // Create and test a type mismatch in a connection.

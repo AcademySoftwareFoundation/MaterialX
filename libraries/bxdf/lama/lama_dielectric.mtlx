@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_dielectric" node="LamaDielectric" nodegroup="pbr" doc="Lama dielectric" version="1.0" isdefaultversion="true">
     <input name="reflectionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Reflection Tint" uifolder="Main"
            doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
@@ -21,15 +21,13 @@
            doc="Overrides the surface tangent as the anisotropy direction." />
     <input name="rotation" type="float" value="0.0" uiname="Rotation" uifolder="Anisotropy"
            doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
-    <input name="exteriorIOR" type="float" value="1.0" uimin="1.0" uimax="3.0" uiname="Exterior IOR" uifolder="Advanced"
-           doc="Defines what the IOR of the exterior medium is (can be either the outside medium, eg. air or water, or in case of a layered material, the top layer medium, like plexiglass or varnish)." />
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
            doc="Absorption color" />
     <input name="absorptionRadius" type="float" value="1.0" uiname="Absorption Radius" uifolder="Interior"
            doc="Absorption radius" />
     <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" uiname="Scatter Color" uifolder="Interior"
            doc="Scatter color" />
-    <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior" 
+    <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior"
            doc="Scatter anisotropy" />
     <output name="out" type="BSDF" />
   </nodedef>
@@ -44,15 +42,15 @@
       <input name="reflectivity" type="color3" nodename="reflectivity_color" />
       <input name="edge_color" type="color3" value="0.0, 0.0, 0.0" />
     </artistic_ior>
+    <extract name="ior_float" type="float">
+      <input name="in" type="color3" nodename="artistic_ior" output="ior" />
+      <input name="index" type="integer" value="0" />
+    </extract>
     <switch name="fresnel_mode_switch" type="float">
       <input name="in1" type="float" interfacename="IOR" />
-      <input name="in2" type="float" nodename="artistic_ior" output="ior" channels="r" />
+      <input name="in2" type="float" nodename="ior_float" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
-    <divide name="relative_ior" type="float">
-      <input name="in1" type="float" nodename="fresnel_mode_switch" />
-      <input name="in2" type="float" interfacename="exteriorIOR" />
-    </divide>
 
     <!-- Roughness -->
     <subtract name="roughness_inverse" type="float">
@@ -128,7 +126,7 @@
     <dielectric_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="transmissionTint" />
-      <input name="ior" type="float" nodename="relative_ior" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
@@ -144,7 +142,7 @@
     <dielectric_bsdf name="reflection_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="tint" type="color3" interfacename="reflectionTint" />
-      <input name="ior" type="float" nodename="relative_ior" />
+      <input name="ior" type="float" nodename="fresnel_mode_switch" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />

@@ -31,17 +31,11 @@ EMSCRIPTEN_BINDINGS(interface)
         .function("setOutputString", &mx::PortElement::setOutputString)
         .function("hasOutputString", &mx::PortElement::hasOutputString)
         .function("getOutputString", &mx::PortElement::getOutputString)
-        .function("setChannels", &mx::PortElement::setChannels)
-        .function("hasChannels", &mx::PortElement::hasChannels)
-        .function("getChannels", &mx::PortElement::getChannels)
-        .function("validChannelsCharacters", &mx::PortElement::validChannelsCharacters)
-        .function("validChannelsString", &mx::PortElement::validChannelsString)
         .function("setConnectedNode", &mx::PortElement::setConnectedNode)
         .function("getConnectedNode", &mx::PortElement::getConnectedNode)
         .class_property("NODE_NAME_ATTRIBUTE", &mx::PortElement::NODE_NAME_ATTRIBUTE)
         .class_property("NODE_GRAPH_ATTRIBUTE", &mx::PortElement::NODE_GRAPH_ATTRIBUTE)
-        .class_property("OUTPUT_ATTRIBUTE", &mx::PortElement::OUTPUT_ATTRIBUTE)
-        .class_property("CHANNELS_ATTRIBUTE", &mx::PortElement::CHANNELS_ATTRIBUTE);
+        .class_property("OUTPUT_ATTRIBUTE", &mx::PortElement::OUTPUT_ATTRIBUTE);
 
     ems::class_<mx::Input, ems::base<mx::PortElement>>("Input")
         .smart_ptr_constructor("Input", &std::make_shared<mx::Input, mx::ElementPtr, const std::string &>)
@@ -54,6 +48,7 @@ EMSCRIPTEN_BINDINGS(interface)
         .function("setConnectedOutput", &mx::Input::setConnectedOutput)
         .function("getConnectedOutput", &mx::Input::getConnectedOutput)
         .function("getInterfaceInput", &mx::Input::getInterfaceInput)
+        .function("setConnectedInterfaceName", &mx::Input::setConnectedInterfaceName)
         .class_property("CATEGORY", &mx::Input::CATEGORY)
         .class_property("DEFAULT_GEOM_PROP_ATTRIBUTE", &mx::Input::DEFAULT_GEOM_PROP_ATTRIBUTE);
 

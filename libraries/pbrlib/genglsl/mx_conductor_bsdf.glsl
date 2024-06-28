@@ -1,6 +1,6 @@
 #include "lib/mx_microfacet_specular.glsl"
 
-void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
+void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
     bsdf.throughput = vec3(0.0);
 
@@ -23,12 +23,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     float avgAlpha = mx_average_alpha(safeAlpha);
     vec3 Ht = vec3(dot(H, X), dot(H, Y), dot(H, N));
 
-    FresnelData fd;
-    if (bsdf.thickness > 0.0)
-        fd = mx_init_fresnel_conductor_airy(ior_n, ior_k, bsdf.thickness, bsdf.ior);
-    else
-        fd = mx_init_fresnel_conductor(ior_n, ior_k);
-
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
     vec3 F = mx_compute_fresnel(VdotH, fd);
     float D = mx_ggx_NDF(Ht, safeAlpha);
     float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
@@ -39,7 +34,7 @@ void mx_conductor_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, float
     bsdf.response = D * F * G * comp * occlusion * weight / (4.0 * NdotV);
 }
 
-void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
+void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, vec2 roughness, float thinfilm_thickness, float thinfilm_ior, vec3 N, vec3 X, int distribution, inout BSDF bsdf)
 {
     bsdf.throughput = vec3(0.0);
 
@@ -52,12 +47,7 @@ void mx_conductor_bsdf_indirect(vec3 V, float weight, vec3 ior_n, vec3 ior_k, ve
 
     float NdotV = clamp(dot(N, V), M_FLOAT_EPS, 1.0);
 
-    FresnelData fd;
-    if (bsdf.thickness > 0.0)
-        fd = mx_init_fresnel_conductor_airy(ior_n, ior_k, bsdf.thickness, bsdf.ior);
-    else
-        fd = mx_init_fresnel_conductor(ior_n, ior_k);
-
+    FresnelData fd = mx_init_fresnel_conductor(ior_n, ior_k, thinfilm_thickness, thinfilm_ior);
     vec3 F = mx_compute_fresnel(NdotV, fd);
 
     vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);

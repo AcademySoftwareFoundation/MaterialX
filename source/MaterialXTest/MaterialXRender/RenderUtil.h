@@ -95,11 +95,6 @@ class ShaderRenderTester
 
     bool validate(const mx::FilePath optionsFilePath);
 
-    void setEmitColorTransforms(bool val)
-    {
-        _emitColorTransforms = val;
-    }
-
   protected:
     // Check if testing should be performed based in input options
 #if defined(MATERIALX_TEST_RENDER)
@@ -165,10 +160,6 @@ class ShaderRenderTester
                      std::ostream& stream,
                      mx::DocumentPtr dependLib);
 
-    virtual bool canBake() const { return false; }
-    virtual void runBake(mx::DocumentPtr /*doc*/, const mx::FileSearchPath& /*codeSearchPath*/, const mx::FilePath& /*outputFilename*/,
-                         const GenShaderUtil::TestSuiteOptions::BakeSetting& /*bakeOptions*/, std::ostream& /*log*/) {};
-    
     // If these streams don't exist add them for testing purposes
     void addAdditionalTestStreams(mx::MeshPtr mesh);
 
@@ -181,7 +172,6 @@ class ShaderRenderTester
     // Color management information
     mx::ColorManagementSystemPtr _colorManagementSystem;
     mx::FilePath _colorManagementConfigFile;
-    bool _emitColorTransforms;
 };
 
 } // namespace RenderUtil

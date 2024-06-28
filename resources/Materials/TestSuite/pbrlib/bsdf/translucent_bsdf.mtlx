@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodegraph name="translucent_bsdf">
+    <translucent_bsdf name="translucent_bsdf" type="BSDF">
+      <input name="weight" type="float" value="0.6" />
+      <input name="color" type="color3" value="1.0, 1.0, 1.0" />
+    </translucent_bsdf>
+    <surface name="surface1" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="translucent_bsdf" />
+      <input name="opacity" type="float" value="1.0" />
+    </surface>
+    <output name="out" type="surfaceshader" nodename="surface1" />
+  </nodegraph>
+</materialx>

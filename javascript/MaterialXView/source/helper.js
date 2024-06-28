@@ -19,59 +19,15 @@ const IMAGE_PATH_SEPARATOR = "/";
  */
 export function prepareEnvTexture(texture, capabilities)
 {
-    const rgbaTexture = RGBToRGBA_Float(texture);
-    rgbaTexture.wrapS = THREE.RepeatWrapping;
-    rgbaTexture.anisotropy = capabilities.getMaxAnisotropy();
-    rgbaTexture.minFilter = THREE.LinearMipmapLinearFilter;
-    rgbaTexture.magFilter = THREE.LinearFilter;
-    rgbaTexture.generateMipmaps = true;
-    rgbaTexture.needsUpdate = true;
+    let newTexture = new THREE.DataTexture(texture.image.data, texture.image.width, texture.image.height, texture.format, texture.type);
+    newTexture.wrapS = THREE.RepeatWrapping;
+    newTexture.anisotropy = capabilities.getMaxAnisotropy();
+    newTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    newTexture.magFilter = THREE.LinearFilter;
+    newTexture.generateMipmaps = true;
+    newTexture.needsUpdate = true;
 
-    return rgbaTexture;
-}
-
-/**
- * Create a new (half)float texture containing an alpha channel with a value of 1 from a RGB (half)float texture.
- * @param {THREE.Texture} texture
- */
-function RGBToRGBA_Float(texture)
-{
-    const w = texture.image.width;
-    const h = texture.image.height;
-    const dataSize = texture.image.data.length; 
-    const stride = dataSize / (w *h);
-    // No need to convert to RGBA if already 4 channel.
-    if (stride == 3)
-    {
-        const rgbData = texture.image.data;
-        const length = (rgbData.length / 3) * 4;
-        let rgbaData;
-
-        switch (texture.type)
-        {
-            case THREE.FloatType:
-                rgbaData = new Float32Array(length);
-                break;
-            case THREE.HalfFloatType:
-                rgbaData = new Uint16Array(length);
-                break;
-            default:
-                break;
-        }
-
-        if (rgbaData)
-        {
-            for (let i = 0; i < length / 4; i++)
-            {
-                rgbaData[(i * 4) + 0] = rgbData[(i * 3) + 0];
-                rgbaData[(i * 4) + 1] = rgbData[(i * 3) + 1];
-                rgbaData[(i * 4) + 2] = rgbData[(i * 3) + 2];
-                rgbaData[(i * 4) + 3] = 1.0;
-            }
-            return new THREE.DataTexture(rgbaData, texture.image.width, texture.image.height, THREE.RGBAFormat, texture.type);
-        }
-    }
-    return texture;
+    return newTexture;
 }
 
 /**
@@ -89,8 +45,8 @@ function fromVector(value, dimension)
     }
     else
     {
-        outValue = []; 
-        for(let i = 0; i < dimension; ++i)
+        outValue = [];
+        for (let i = 0; i < dimension; ++i)
             outValue.push(0.0);
     }
 
@@ -113,13 +69,13 @@ function fromMatrix(matrix, dimension)
             {
                 vec.push(matrix.getItem(i, k));
             }
-        }    
+        }
     } else
     {
         for (let i = 0; i < dimension; ++i)
             vec.push(0.0);
     }
-     
+
     return vec;
 }
 
@@ -133,7 +89,7 @@ function fromMatrix(matrix, dimension)
  */
 function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
-    let outValue;  
+    let outValue;
     switch (type)
     {
         case 'float':
@@ -141,7 +97,7 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
         case 'boolean':
             outValue = value;
             break;
-        case 'vector2':      
+        case 'vector2':
             outValue = fromVector(value, 2);
             break;
         case 'vector3':
@@ -167,14 +123,12 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
                 if (texture)
                     setTextureParameters(texture, name, uniforms, flipY);
                 outValue = texture;
-            } 
+            }
             break;
         case 'samplerCube':
         case 'string':
-              break;        
         default:
-            // struct
-            outValue = toThreeUniform(value);
+            break;
     }
 
     return outValue;
@@ -228,33 +182,33 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
- function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
- {
-     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
-     const base = name.substring(0, idx) || name;
- 
-     texture.generateMipmaps = generateMipmaps;
-     texture.wrapS = THREE.RepeatWrapping;
-     texture.wrapT = THREE.RepeatWrapping;
-     texture.magFilter = THREE.LinearFilter;
-     texture.flipY = flipY;
-     
-     if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
-     {
-         const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
-         texture.wrapS = getWrapping(uaddressmode);
-     }
- 
-     if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
-     {
-         const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
-         texture.wrapT = getWrapping(vaddressmode);
-     }
- 
-     const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
-     texture.minFilter = getMinFilter(filterType, generateMipmaps);
- }
- 
+function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
+{
+    const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
+    const base = name.substring(0, idx) || name;
+
+    texture.generateMipmaps = generateMipmaps;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.LinearFilter;
+    texture.flipY = flipY;
+
+    if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
+    {
+        const uaddressmode = uniforms.find(base + UADDRESS_MODE_SUFFIX).getValue().getData();
+        texture.wrapS = getWrapping(uaddressmode);
+    }
+
+    if (uniforms.find(base + VADDRESS_MODE_SUFFIX))
+    {
+        const vaddressmode = uniforms.find(base + VADDRESS_MODE_SUFFIX).getValue().getData();
+        texture.wrapT = getWrapping(vaddressmode);
+    }
+
+    const filterType = uniforms.find(base + FILTER_TYPE_SUFFIX) ? uniforms.get(base + FILTER_TYPE_SUFFIX).value : -1;
+    texture.minFilter = getMinFilter(filterType, generateMipmaps);
+}
+
 /**
  * Return the global light rotation matrix
  */
@@ -313,7 +267,7 @@ export function registerLights(mx, lights, genContext)
         lightData.push({
             type: lightTypesBound[nodeName],
             direction: rotatedLightDirection,
-            color: new THREE.Vector3(...lightColor), 
+            color: new THREE.Vector3(...lightColor),
             intensity: lightIntensity
         });
     }
@@ -334,16 +288,17 @@ export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
     let threeUniforms = {};
 
     const uniformBlocks = Object.values(shaderStage.getUniformBlocks());
-    uniformBlocks.forEach(uniforms => {
+    uniformBlocks.forEach(uniforms =>
+    {
         if (!uniforms.empty())
         {
             for (let i = 0; i < uniforms.size(); ++i)
             {
-                const variable = uniforms.get(i);                
+                const variable = uniforms.get(i);
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms, 
-                                                        textureLoader, searchPath, flipY));
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms,
+                    textureLoader, searchPath, flipY));
             }
         }
     });

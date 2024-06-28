@@ -4,7 +4,8 @@ import { getMtlxStrings } from './testHelpers';
 
 const TIMEOUT = 60000;
 
-describe('XmlIo', () => {
+describe('XmlIo', () =>
+{
     let mx;
 
     // These should be relative to cwd
@@ -24,18 +25,23 @@ describe('XmlIo', () => {
         'UsdPreviewSurface/usd_preview_surface_plastic.mtlx',
     ];
 
-    async function readStdLibrary(asString = false) {
+    async function readStdLibrary(asString = false)
+    {
         const libs = [];
         let iterable = libraryFilenames;
-        if (asString) {
+        if (asString)
+        {
             const libraryMtlxStrings = getMtlxStrings(libraryFilenames, libraryPath);
             iterable = libraryMtlxStrings;
         }
-        for (let file of iterable) {
+        for (let file of iterable)
+        {
             const lib = mx.createDocument();
-            if (asString) {
+            if (asString)
+            {
                 await mx.readFromXmlString(lib, file, libraryPath);
-            } else {
+            } else
+            {
                 await mx.readFromXmlFile(lib, file, libraryPath);
             }
             libs.push(lib);
@@ -43,12 +49,15 @@ describe('XmlIo', () => {
         return libs;
     }
 
-    async function readAndValidateExamples(examples, libraries, readFunc, searchPath = undefined) {
-        for (let file of examples) {
+    async function readAndValidateExamples(examples, libraries, readFunc, searchPath = undefined)
+    {
+        for (let file of examples)
+        {
             const doc = mx.createDocument();
             await readFunc(doc, file, searchPath);
             // Import stdlib into the current document and validate it.
-            for (let lib of libraries) {
+            for (let lib of libraries)
+            {
                 doc.importLibrary(lib);
             }
             expect(doc.validate()).to.be.true;
@@ -56,8 +65,10 @@ describe('XmlIo', () => {
             // Make sure the document does actually contain something.
             let valueElementCount = 0;
             const treeIter = doc.traverseTree();
-            for(const elem of treeIter) {
-                if (elem instanceof mx.ValueElement) {
+            for (const elem of treeIter)
+            {
+                if (elem instanceof mx.ValueElement)
+                {
                     valueElementCount++;
                 }
             }
@@ -65,17 +76,20 @@ describe('XmlIo', () => {
         };
     }
 
-    before(async () => {
+    before(async () =>
+    {
         mx = await Module();
     });
 
-    it('Read XML from file', async () => {
+    it('Read XML from file', async () =>
+    {
         // Read the standard library
         const libs = await readStdLibrary(false);
 
         // Read and validate the example documents.
         await readAndValidateExamples(exampleFilenames, libs,
-            async (document, file, sp) => {
+            async (document, file, sp) =>
+            {
                 await mx.readFromXmlFile(document, file, sp);
             }, examplesPath);
 
@@ -90,14 +104,16 @@ describe('XmlIo', () => {
         expect(copy.equals(doc)).to.be.true;
     }).timeout(TIMEOUT);
 
-    it('Read XML from string', async () => {
+    it('Read XML from string', async () =>
+    {
         // Read the standard library
         const libs = await readStdLibrary(true);
 
         // Read and validate each example document.
         const examplesStrings = getMtlxStrings(exampleFilenames, examplesPath);
         await readAndValidateExamples(examplesStrings, libs,
-            async (document, file) => {
+            async (document, file) =>
+            {
                 await mx.readFromXmlString(document, file);
             });
 
@@ -112,14 +128,16 @@ describe('XmlIo', () => {
         expect(copy.equals(doc)).to.be.true;
     }).timeout(TIMEOUT);
 
-    it('Read XML with recursive includes', async () => {
+    it('Read XML with recursive includes', async () =>
+    {
         const doc = mx.createDocument();
         await mx.readFromXmlFile(doc, includeTestPath + '/root.mtlx');
         expect(doc.getChild('paint_semigloss')).to.exist;
         expect(doc.validate()).to.be.true;
     });
 
-    it('Locate XML includes via search path', async () => {
+    it('Locate XML includes via search path', async () =>
+    {
         const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
         const filename = 'non_relative_includes.mtlx';
         const doc = mx.createDocument();
@@ -137,7 +155,8 @@ describe('XmlIo', () => {
         expect(doc2.equals(doc)).to.be.true;
     });
 
-    it('Locate XML includes via environment variable', async () => {
+    it('Locate XML includes via environment variable', async () =>
+    {
         const searchPath = includeTestPath + ';' + includeTestPath + '/folder';
         const filename = 'non_relative_includes.mtlx';
 
@@ -160,13 +179,16 @@ describe('XmlIo', () => {
         expect(doc2.equals(doc)).to.be.true;
     });
 
-    it('Locate XML includes via absolute search paths', async () => {
+    it('Locate XML includes via absolute search paths', async () =>
+    {
         let absolutePath;
-        if (typeof window === 'object') {
+        if (typeof window === 'object')
+        {
             // We're in the browser
             const cwd = window.location.origin + window.location.pathname;
             absolutePath = cwd + '/' + includeTestPath;
-        } else if (typeof process === 'object') {
+        } else if (typeof process === 'object')
+        {
             // We're in Node
             const nodePath = require('path');
             absolutePath = nodePath.resolve(includeTestPath);
@@ -175,22 +197,26 @@ describe('XmlIo', () => {
         await mx.readFromXmlFile(doc, 'root.mtlx', absolutePath);
     });
 
-    it('Detect XML include cycles', async () => {
+    it('Detect XML include cycles', async () =>
+    {
         const doc = mx.createDocument();
         expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx')).to.throw;
     });
 
-    it('Disabling XML includes', async () => {
+    it('Disabling XML includes', async () =>
+    {
         const doc = mx.createDocument();
         const readOptions = new mx.XmlReadOptions();
         readOptions.readXIncludes = false;
         expect(async () => await mx.readFromXmlFile(doc, includeTestPath + '/cycle.mtlx', readOptions)).to.not.throw;
     });
 
-    it('Write to XML string', async () => {
+    it('Write to XML string', async () =>
+    {
         // Read all example documents and write them to an XML string
         const searchPath = libraryPath + ';' + examplesPath;
-        for (let filename of exampleFilenames) {
+        for (let filename of exampleFilenames)
+        {
             const doc = mx.createDocument();
             await mx.readFromXmlFile(doc, filename, searchPath);
 
@@ -206,7 +232,8 @@ describe('XmlIo', () => {
         };
     });
 
-    it('Prepend include tag', () => {
+    it('Prepend include tag', () =>
+    {
         const doc = mx.createDocument();
         const includePath = "SomePath";
         const writeOptions = new mx.XmlWriteOptions();
@@ -216,7 +243,8 @@ describe('XmlIo', () => {
     });
 
     // Node only, because we cannot read from a downloaded file in the browser
-    it('Write XML to file', async () => {
+    it('Write XML to file', async () =>
+    {
         const filename = '_build/testFile.mtlx';
         const includeRegex = /<xi:include href="(.*)"\s*\/>/g;
         const doc = mx.createDocument();

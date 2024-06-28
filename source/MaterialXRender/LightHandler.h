@@ -37,6 +37,8 @@ class MX_RENDER_API LightHandler
         _lightTransform(Matrix44::IDENTITY),
         _directLighting(true),
         _indirectLighting(true),
+        _usePrefilteredMap(false),
+        _envLightIntensity(1.0f),
         _envSampleCount(DEFAULT_ENV_SAMPLE_COUNT),
         _refractionTwoSided(false)
     {
@@ -48,7 +50,7 @@ class MX_RENDER_API LightHandler
 
     /// @name Global State
     /// @{
-    
+
     /// Set the light transform.
     void setLightTransform(const Matrix44& mat)
     {
@@ -101,6 +103,30 @@ class MX_RENDER_API LightHandler
         return _envRadianceMap;
     }
 
+    /// Set the environment radiance map for the prefiltered environment lighting model.
+    void setEnvPrefilteredMap(ImagePtr map)
+    {
+        _envPrefilteredMap = map;
+    }
+
+    /// Return the environment radiance map for the prefiltered environment lighting model.
+    ImagePtr getEnvPrefilteredMap() const
+    {
+        return _envPrefilteredMap;
+    }
+
+    /// Set whether to use the prefiltered environment lighting model.
+    void setUsePrefilteredMap(bool val)
+    {
+        _usePrefilteredMap = val;
+    }
+
+    /// Return whether to use the prefiltered environment lighting model.
+    bool getUsePrefilteredMap()
+    {
+        return _usePrefilteredMap;
+    }
+
     /// Set the environment irradiance map
     void setEnvIrradianceMap(ImagePtr map)
     {
@@ -123,6 +149,18 @@ class MX_RENDER_API LightHandler
     int getEnvSampleCount() const
     {
         return _envSampleCount;
+    }
+
+    /// Set the environment light intensity.
+    void setEnvLightIntensity(const float intensity)
+    {
+        _envLightIntensity = intensity;
+    }
+
+    /// Return the environment light intensity.
+    float getEnvLightIntensity()
+    {
+        return _envLightIntensity;
     }
 
     /// Set the two-sided refraction property.
@@ -216,9 +254,12 @@ class MX_RENDER_API LightHandler
     Matrix44 _lightTransform;
     bool _directLighting;
     bool _indirectLighting;
+    bool _usePrefilteredMap;
 
     ImagePtr _envRadianceMap;
+    ImagePtr _envPrefilteredMap;
     ImagePtr _envIrradianceMap;
+    float _envLightIntensity;
     int _envSampleCount;
 
     bool _refractionTwoSided;

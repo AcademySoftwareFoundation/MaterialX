@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-
 option(MATERIALX_NANOGUI_EXTERNAL "Build aginst an external install of NanoGUI (NANOGUI_ROOT may also need to be set)" OFF)
 
 set(MATERIALXVIEW_RENDER_BACKEND_DEFINITIONS "")
@@ -142,12 +140,6 @@ target_include_directories(
     PRIVATE
     ${NANOGUI_INCLUDE_DIRS}
     ${NANOGUI_EXTRA_INCS})
-
-if(MATERIALX_BUILD_OIIO AND OPENIMAGEIO_ROOT_DIR)
-    add_custom_command(TARGET MaterialXView POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${OPENIMAGEIO_ROOT_DIR}/bin ${CMAKE_BINARY_DIR}/bin)
-endif()
 
 set_target_properties(
     MaterialXView PROPERTIES

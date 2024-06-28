@@ -40,7 +40,7 @@ void ClosureSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext&
             if (cct)
             {
                 // Check if extra parameters has been added for this node.
-                const TypeDesc* closureType = output->getType();
+                const TypeDesc closureType = output->getType();
                 const ClosureContext::ClosureParams* params = cct->getClosureParams(&node);
                 if (closureType == Type::BSDF && params)
                 {

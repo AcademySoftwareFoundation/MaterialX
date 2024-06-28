@@ -1,15 +1,5 @@
 #include "mx_microfacet_specular.glsl"
 
-// https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
-// Section 20.4 Equation 13
-float mx_latlong_compute_lod(vec3 dir, float pdf, float maxMipLevel, int envSamples)
-{
-    const float MIP_LEVEL_OFFSET = 1.5;
-    float effectiveMaxMipLevel = maxMipLevel - MIP_LEVEL_OFFSET;
-    float distortion = sqrt(1.0 - mx_square(dir.y));
-    return max(effectiveMaxMipLevel - 0.5 * log2(float(envSamples) * pdf * distortion), 0.0);
-}
-
 vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distribution, FresnelData fd)
 {
     // Generate tangent frame.
@@ -69,10 +59,11 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
     radiance /= G1V * float(envRadianceSamples);
 
     // Return the final radiance.
-    return radiance;
+    return radiance * $envLightIntensity;
 }
 
 vec3 mx_environment_irradiance(vec3 N)
 {
-    return mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
+    vec3 Li = mx_latlong_map_lookup(N, $envMatrix, 0.0, $envIrradiance);
+    return Li * $envLightIntensity;
 }

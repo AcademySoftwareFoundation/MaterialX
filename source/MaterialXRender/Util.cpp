@@ -76,6 +76,26 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
     return shader;
 }
 
+ShaderPtr createEnvPrefilterShader(GenContext& context,
+                                        DocumentPtr stdLib,
+                                        const string& shaderName)
+{
+    // Construct a dummy nodegraph.
+    DocumentPtr doc = createDocument();
+    doc->importLibrary(stdLib);
+    NodeGraphPtr nodeGraph = doc->addNodeGraph();
+    NodePtr constant = nodeGraph->addNode("constant");
+    OutputPtr output = nodeGraph->addOutput();
+    output->setConnectedNode(constant);
+
+    // Generate the shader
+    GenContext tableContext = context;
+    tableContext.getOptions().hwWriteEnvPrefilter = true;
+    ShaderPtr shader = createShader(shaderName, tableContext, output);
+
+    return shader;
+}
+
 ShaderPtr createBlurShader(GenContext& context,
                            DocumentPtr stdLib,
                            const string& shaderName,
@@ -137,12 +157,12 @@ unsigned int getUIProperties(InputPtr input, const string& target, UIProperties&
         if (!enumValuesAttr.empty())
         {
             const string COMMA_SEPARATOR = ",";
-            const TypeDesc* typeDesc = TypeDesc::get(input->getType());
+            const TypeDesc typeDesc = TypeDesc::get(input->getType());
             string valueString;
             size_t index = 0;
             for (const string& val : splitString(enumValuesAttr, COMMA_SEPARATOR))
             {
-                if (index < typeDesc->getSize() - 1)
+                if (index < typeDesc.getSize() - 1)
                 {
                     valueString += val + COMMA_SEPARATOR;
                     index++;

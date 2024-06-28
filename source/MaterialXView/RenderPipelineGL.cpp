@@ -110,6 +110,100 @@ void GLRenderPipeline::updateAlbedoTable(int tableSize)
     glDrawBuffer(GL_BACK);
 }
 
+void GLRenderPipeline::updatePrefilteredMap()
+{
+    auto& genContext    = _viewer->_genContext;
+    auto& lightHandler  = _viewer->_lightHandler;
+    auto& imageHandler  = _viewer->_imageHandler;
+
+    if (lightHandler->getEnvPrefilteredMap())
+    {
+        return;
+    }
+
+    // Create the prefilter shader.
+    mx::GlslMaterialPtr material = nullptr;
+    try
+    {
+        mx::ShaderPtr hwShader = mx::createEnvPrefilterShader(genContext, _viewer->_stdLib, "__ENV_PREFILTER__");
+        material = mx::GlslMaterial::create();
+        material->generateShader(hwShader);
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to generate prefilter shader", e.what());
+    }
+
+    mx::ImagePtr srcTex = lightHandler->getEnvRadianceMap();
+
+    int w = srcTex->getWidth();
+    int h = srcTex->getHeight();
+    int numMips = srcTex->getMaxMipCount();
+
+    // Create texture to hold the prefiltered environment.
+    mx::GLTextureHandlerPtr glImageHandler = std::dynamic_pointer_cast<mx::GLTextureHandler>(imageHandler);
+    mx::ImagePtr outTex = mx::Image::create(w, h, 3, mx::Image::BaseType::HALF);
+    glImageHandler->createRenderResources(outTex, true, true);
+
+	mx::GlslProgramPtr program = material->getProgram();
+
+    try
+    {
+        int i = 0;
+        while (w > 0 && h > 0)
+        {
+            // Create framebuffer
+            unsigned int framebuffer;
+            glGenFramebuffers(1, &framebuffer);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); 
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTex->getResourceId(), i);
+            glViewport(0, 0, w, h);
+            material->bindShader();
+
+            // Bind the source texture
+            mx::ImageSamplingProperties samplingProperties;
+            samplingProperties.uaddressMode = mx::ImageSamplingProperties::AddressMode::PERIODIC;
+            samplingProperties.vaddressMode = mx::ImageSamplingProperties::AddressMode::CLAMP;
+            samplingProperties.filterType = mx::ImageSamplingProperties::FilterType::LINEAR;
+            imageHandler->bindImage(srcTex, samplingProperties);
+            int textureLocation = glImageHandler->getBoundTextureLocation(srcTex->getResourceId());
+            assert(textureLocation >= 0);
+            material->getProgram()->bindUniform(mx::HW::ENV_RADIANCE, mx::Value::createValue(textureLocation));
+            // Bind other uniforms
+            program->bindUniform(mx::HW::ENV_PREFILTER_MIP, mx::Value::createValue(i));
+            const mx::Matrix44 yRotationPI = mx::Matrix44::createScale(mx::Vector3(-1, 1, -1));
+            program->bindUniform(mx::HW::ENV_MATRIX, mx::Value::createValue(yRotationPI));
+            program->bindUniform(mx::HW::ENV_RADIANCE_MIPS, mx::Value::createValue<int>(numMips));
+
+            _viewer->renderScreenSpaceQuad(material);
+
+            glDeleteFramebuffers(1, &framebuffer); 
+
+            w /= 2;
+            h /= 2;
+            i++;
+        }
+    }
+    catch (mx::ExceptionRenderError& e)
+    {
+        for (const std::string& error : e.errorLog())
+        {
+            std::cerr << error << std::endl;
+        }
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to render prefiltered environment", e.what());
+    }
+    catch (std::exception& e)
+    {
+        new ng::MessageDialog(_viewer, ng::MessageDialog::Type::Warning, "Failed to render prefiltered environment", e.what());
+    }
+
+    // Clean up.
+    glViewport(0, 0, _viewer->m_fbsize[0], _viewer->m_fbsize[1]);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+    lightHandler->setEnvPrefilteredMap(outTex);
+}
+
 mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
 {
     auto& genContext      = _viewer->_genContext;
@@ -202,6 +296,9 @@ mx::ImagePtr GLRenderPipeline::getShadowMap(int shadowMapSize)
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
             glDrawBuffer(GL_BACK);
         }
+
+        // Reset frame timing after shadow generation.
+        _viewer->resetFrameTiming();
     }
 
     return _viewer->_shadowMap;
@@ -219,7 +316,13 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
     float lightRotation = _viewer->_lightRotation;
     auto& searchPath    = _viewer->_searchPath;
     auto& geometryHandler    = _viewer->_geometryHandler;
-    
+
+    // Update prefiltered environment.
+    if (lightHandler->getUsePrefilteredMap() && !_viewer->_materialAssignments.empty())
+    {
+        updatePrefilteredMap();
+    }
+
     // Initialize OpenGL state
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -266,6 +369,9 @@ void GLRenderPipeline::renderFrame(void*, int shadowMapSize, const char* dirLigh
                 // Apply rotation to the environment shader.
                 float longitudeOffset = (lightRotation / 360.0f) + 0.5f;
                 envMaterial->modifyUniform("longitude/in2", mx::Value::createValue(longitudeOffset));
+
+                // Apply light intensity to the environment shader.
+                envMaterial->modifyUniform("envImageAdjusted/in2", mx::Value::createValue(lightHandler->getEnvLightIntensity()));
 
                 // Render the environment mesh.
                 glDepthMask(GL_FALSE);

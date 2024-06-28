@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="combine_vector2">
     <combine2 name="combine1" type="vector2">
       <input name="in1" type="float" value="0.5000" />

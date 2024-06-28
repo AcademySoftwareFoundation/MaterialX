@@ -38,7 +38,7 @@ bool GlslMaterial::loadSource(const FilePath& vertexShaderFile, const FilePath& 
     }
 
     // TODO:
-    // Here we set new source code on the _glProgram without rebuilding 
+    // Here we set new source code on the _glProgram without rebuilding
     // the _hwShader instance. So the _hwShader is not in sync with the
     // _glProgram after this operation.
     _glProgram = GlslProgram::create();
@@ -361,7 +361,7 @@ void GlslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, s
     {
         valueString = value->getValueString();
     }
-    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType()->getName()));
+    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType().getName()));
     if (_doc)
     {
         ElementPtr element = _doc->getDescendant(uniform->getPath());

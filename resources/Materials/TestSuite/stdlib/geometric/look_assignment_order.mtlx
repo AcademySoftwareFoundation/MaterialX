@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Simple test to check look assignment order. The target geometry
        is assumed to be the default shader ball with the intended
        result being that the Preview mesh is "blue" and the Calibration mesh is

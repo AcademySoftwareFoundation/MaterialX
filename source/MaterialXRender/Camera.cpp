@@ -23,8 +23,8 @@ Matrix44 Camera::createViewMatrix(const Vector3& eye,
 }
 
 Matrix44 Camera::createPerspectiveMatrixZP(float left, float right,
-                                         float bottom, float top,
-                                         float nearP, float farP)
+                                           float bottom, float top,
+                                           float nearP, float farP)
 {
     return Matrix44(
         (2.0f * nearP) / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
@@ -34,8 +34,8 @@ Matrix44 Camera::createPerspectiveMatrixZP(float left, float right,
 }
 
 Matrix44 Camera::createOrthographicMatrixZP(float left, float right,
-                                          float bottom, float top,
-                                          float nearP, float farP)
+                                            float bottom, float top,
+                                            float nearP, float farP)
 {
     return Matrix44(
         2.0f / (right - left), 0.0f, 0.0f, 0.0f,

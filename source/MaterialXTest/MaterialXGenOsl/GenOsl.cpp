@@ -27,8 +27,8 @@ TEST_CASE("GenShader: OSL Syntax", "[genosl]")
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "vector");
     REQUIRE(syntax->getTypeName(mx::Type::FLOATARRAY) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::INTEGERARRAY) == "int");
-    REQUIRE(mx::Type::FLOATARRAY->isArray());
-    REQUIRE(mx::Type::INTEGERARRAY->isArray());
+    REQUIRE(mx::Type::FLOATARRAY.isArray());
+    REQUIRE(mx::Type::INTEGERARRAY.isArray());
 
     REQUIRE(syntax->getTypeName(mx::Type::BSDF) == "BSDF");
     REQUIRE(syntax->getOutputTypeName(mx::Type::BSDF) == "output BSDF");
@@ -89,7 +89,7 @@ TEST_CASE("GenShader: OSL Implementation Check", "[genosl]")
     generatorSkipNodeTypes.insert("light");
     mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 48);
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 31);
 }
 
 TEST_CASE("GenShader: OSL Unique Names", "[genosl]")

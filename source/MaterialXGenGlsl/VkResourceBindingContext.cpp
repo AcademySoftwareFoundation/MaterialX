@@ -24,7 +24,7 @@ void VkResourceBindingContext::initialize()
 
 void VkResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
 
     // Write shader stage directives for Vulkan compliance
     std::string shaderStage;
@@ -45,7 +45,7 @@ void VkResourceBindingContext::emitDirectives(GenContext& context, ShaderStage& 
 
 void VkResourceBindingContext::emitResourceBindings(GenContext& context, const VariableBlock& uniforms, ShaderStage& stage)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // First, emit all value uniforms in a block with single layout binding
@@ -95,7 +95,7 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
                                                               ShaderStage& stage, const std::string& structInstanceName,
                                                               const std::string& arraySuffix)
 {
-    ShaderGenerator& generator = context.getShaderGenerator();
+    const ShaderGenerator& generator = context.getShaderGenerator();
     const Syntax& syntax = generator.getSyntax();
 
     // Glsl structures need to be aligned. We make a best effort to base align struct members and add
@@ -103,16 +103,16 @@ void VkResourceBindingContext::emitStructuredResourceBindings(GenContext& contex
     // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_uniform_buffer_object.txt
 
     const size_t baseAlignment = 16;
-    std::unordered_map<const TypeDesc*, size_t> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
-                                                               { Type::INTEGER, baseAlignment / 4 },
-                                                               { Type::BOOLEAN, baseAlignment / 4 },
-                                                               { Type::COLOR3, baseAlignment },
-                                                               { Type::COLOR4, baseAlignment },
-                                                               { Type::VECTOR2, baseAlignment },
-                                                               { Type::VECTOR3, baseAlignment },
-                                                               { Type::VECTOR4, baseAlignment },
-                                                               { Type::MATRIX33, baseAlignment * 4 },
-                                                               { Type::MATRIX44, baseAlignment * 4 } });
+    const std::unordered_map<TypeDesc, size_t, TypeDesc::Hasher> alignmentMap({ { Type::FLOAT, baseAlignment / 4 },
+                                                                                { Type::INTEGER, baseAlignment / 4 },
+                                                                                { Type::BOOLEAN, baseAlignment / 4 },
+                                                                                { Type::COLOR3, baseAlignment },
+                                                                                { Type::COLOR4, baseAlignment },
+                                                                                { Type::VECTOR2, baseAlignment },
+                                                                                { Type::VECTOR3, baseAlignment },
+                                                                                { Type::VECTOR4, baseAlignment },
+                                                                                { Type::MATRIX33, baseAlignment * 4 },
+                                                                                { Type::MATRIX44, baseAlignment * 4 } });
 
     // Get struct alignment and size
     // alignment, uniform member index
