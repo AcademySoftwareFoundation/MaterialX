@@ -15,7 +15,6 @@ elseif(UNIX)
     endif()
 endif()
 
-
 mx_add_library(MaterialXRenderHw
     SOURCE_FILES
         ${materialx_source}
@@ -25,8 +24,7 @@ mx_add_library(MaterialXRenderHw
         MaterialXRender
     EXPORT_DEFINE
         MATERIALX_RENDERHW_EXPORTS
-    ADD_OBJECTIVE_C_CODE
-)
+    ADD_OBJECTIVE_C_CODE)
 
 if(APPLE)
     target_link_libraries(
