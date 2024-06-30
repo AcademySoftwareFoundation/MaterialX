@@ -1316,10 +1316,28 @@ void Document::upgradeVersion()
                     input2->setName("inx");
                 }
             }
-            else if (node->getNodeDefString() == "ND_normalmap")
+            else if (nodeCategory == "normalmap")
             {
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
+
+                node->removeInput("space");
+
+                // If the normal or tangent inputs are set, the bitangent input should be normalize(cross(N, T))
+                InputPtr normalInput = node->getInput("normal");
+                InputPtr tangentInput = node->getInput("tangent");
+                if (normalInput || tangentInput)
+                {
+                    GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                    NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
+                    copyInputWithBindings(node, "normal", crossNode, "in1");
+                    copyInputWithBindings(node, "tangent", crossNode, "in2");
+
+                    NodePtr normalizeNode = graph->addNode("normalize", graph->createValidChildName("normalmap_cross_norm"), "vector3");
+                    normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);
+
+                    node->addInput("bitangent", "vector3")->setConnectedNode(normalizeNode);
+                }
             }
         }
         for (NodePtr node : unusedNodes)
