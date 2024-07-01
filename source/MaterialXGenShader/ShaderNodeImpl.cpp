@@ -38,6 +38,11 @@ void ShaderNodeImpl::addInputs(ShaderNode&, GenContext&) const
 {
 }
 
+StringVec ShaderNodeImpl::addedInputNames() const
+{
+    return {};
+}
+
 void ShaderNodeImpl::setValues(const Node&, ShaderNode&, GenContext&) const
 {
 }

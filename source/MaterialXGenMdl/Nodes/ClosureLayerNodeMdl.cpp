@@ -172,4 +172,9 @@ void LayerableNodeMdl::addInputs(ShaderNode& node, GenContext& /*context*/) cons
     node.addInput(StringConstantsMdl::BASE, Type::BSDF);
 }
 
+StringVec LayerableNodeMdl::addedInputNames() const
+{
+    return {1, StringConstantsMdl::BASE};
+}
+
 MATERIALX_NAMESPACE_END
