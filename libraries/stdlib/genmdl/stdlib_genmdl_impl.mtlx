@@ -44,8 +44,8 @@
   <!-- <triplanarprojection> -->
 
   <!-- <normalmap> -->
-  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
-  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_space:{{space}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_float_genmdl" nodedef="ND_normalmap_float" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_float(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
+  <implementation name="IM_normalmap_vector2_genmdl" nodedef="ND_normalmap_vector2" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_normalmap_vector2(mxp_in:{{in}}, mxp_scale:{{scale}}, mxp_normal:{{normal}}, mxp_tangent:{{tangent}}, mxp_bitangent:{{bitangent}})" target="genmdl" />
 
   <!-- ======================================================================== -->
   <!-- Procedural nodes                                                         -->
