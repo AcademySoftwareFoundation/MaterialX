@@ -5,10 +5,10 @@ MaterialX NPR Shading Nodes v1.39
 
 # MaterialX NPR Shading Nodes
 
-**Version 1.39**
-Doug Smythe - Industrial Light & Magic
-Jonathan Stone - Lucasfilm Advanced Development Group
-May 1, 2024
+**Version 1.39**  
+Doug Smythe - Industrial Light & Magic  
+Jonathan Stone - Lucasfilm Advanced Development Group  
+July 1, 2024
 
 # Introduction
 
@@ -24,9 +24,10 @@ This document describes a number of MaterialX nodes primarily applicable to non-
  [NPR Utility Nodes](#npr-utility-nodes)  
  [NPR Shading Nodes](#npr-shading-nodes)  
 
+**[References](#references)**
 
 
-## MaterialX NPR Library
+# MaterialX NPR Library
 
 
 ## NPR Application Nodes
@@ -35,13 +36,8 @@ This document describes a number of MaterialX nodes primarily applicable to non-
 
 * **`viewdirection`**: the current scene view direction (e.g. from the viewing/camera position to the current shading position).  If `viewdirection` is used in a PBR shading context, it should be noted that this would be the same as the incident ray direction for primary ("camera") rays but **not** for secondary/reflection rays.  This node must be of type vector3.
 
-    * `space` (uniform string):  the space in which to return the view vector direction, defaults to "world". 
+    * `space` (uniform string):  the space in which to return the view vector direction, defaults to `world`. 
 
-<a id="node-lightdirection"> </a>
-
-* **`lightdirection`**: the predominant incoming light direction, as defined by the shading environment.  This node must be of type vector3.
-
-    * `space` (uniform string):  the space in which to return the lighting vector direction, defaults to "world". 
 
 
 ## NPR Utility Nodes
@@ -61,9 +57,15 @@ This document describes a number of MaterialX nodes primarily applicable to non-
 
 <a id="node-gooch-shade"> </a>
 
-* **`gooch_shade`**: Compute Gooch Shading ([https://en.wikipedia.org/wiki/Gooch_shading](https://en.wikipedia.org/wiki/Gooch_shading) [https://users.cs.northwestern.edu/~ago820/SIG98/gooch98.pdf](https://users.cs.northwestern.edu/~ago820/SIG98/gooch98.pdf)).  Output type "surfaceshader".
-    * `warm_color` (color3): the "warm" color for shading, defaults to (0.8, 0.8, 0.7) in the "lin_rec709" colorspace.
-    * `cool_color` (color3): the "cool" color for shading, defaults to (0.3, 0.3, 0.8) in the "lin_rec709" colorspace.
+* **`gooch_shade`**: Computes the single-pass shading portion of the Gooch[^Gooch1998] lighting model.  Output type `surfaceshader`.
+    * `warm_color` (color3): the "warm" color for shading, defaults to (0.8, 0.8, 0.7) in the `lin_rec709` colorspace.
+    * `cool_color` (color3): the "cool" color for shading, defaults to (0.3, 0.3, 0.8) in the `lin_rec709` colorspace.
     * `specular_intensity` (float): the intensity of the specular component. Defaults to 1.0.
     * `shininess` (float): the specular power typically ranging from 1 to 256, defaults to 64.
     * `light_direction` (vector3): the incoming predominant lighting direction in world space, defaults to (1.0, -0.5, -0.5).
+
+
+
+# References
+
+[^Gooch1998]: Gooch et al., **A Non-Photorealistic Lighting Model For Automatic Technical Illustration**, <https://users.cs.northwestern.edu/~ago820/SIG98/gooch98.pdf>, 1998.
