@@ -366,8 +366,8 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
                                     }
                                 }
                             }
+                            destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                         }
-                        destInput->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
                     }
                 }
             }
@@ -690,7 +690,7 @@ void NodeGraph::removeInterfaceName(const string& inputPath)
             ElementPtr interfacePort = interface->getChild(interfaceName);
             if (interfacePort)
             {
-                InputPtr interfaceInput = interfacePort ? interfacePort->asA<Input>() : nullptr;
+                InputPtr interfaceInput = interfacePort->asA<Input>();
                 if (interfaceInput && interfaceInput->hasValue())
                 {
                     input->setValueString(interfaceInput->getValueString());

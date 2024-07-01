@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Test of surfacematerial in nodegraph to shader node traversal -->
   <standard_surface name="standard_surface" type="surfaceshader" version="1.0.1">
     <input name="base_color" type="color3" value="0.3,0.8,0.1" />

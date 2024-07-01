@@ -33,8 +33,6 @@ class MX_GENMDL_API MdlSyntax : public Syntax
     const string& getUniformQualifier() const override { return UNIFORM_QUALIFIER; };
     const string& getSourceFileExtension() const override { return SOURCE_FILE_EXTENSION; };
 
-    string getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const override;
-
     /// Override to return array type suffix.
     string getArrayTypeSuffix(TypeDesc type, const Value& value) const override;
 

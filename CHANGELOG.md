@@ -11,6 +11,7 @@
 - Added support for [Python 3.12](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1802) in Python wheel generation.
 - Added support for the [full set of shader generators](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1771) in JavaScript.
 - Added an example script to [generate a MaterialX document](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1746) from a folder of textures.
+- Added support for [frame timing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1739) in the MaterialX Viewer.
 - Added unit tests for [core utilities](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1768) and [ESSL shader generation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1781).
 
 ### Changed
@@ -20,6 +21,7 @@
 - Extended the [switch node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1660) to ten inputs in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Renamed the inputs of the [atan2 node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1659) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Renamed the [normalmap nodedef](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1677) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
+- Optimized [Fresnel](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1732) [computations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1733) in [GLSL](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1736), improving the performance of physically based shading in real-time renders.
 - Applied [lossless optimization](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1738) to PNG and JPG textures in the MaterialX repository.
 
 ### Removed

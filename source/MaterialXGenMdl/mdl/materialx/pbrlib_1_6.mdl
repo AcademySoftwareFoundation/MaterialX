@@ -333,7 +333,7 @@ export material mx_generalized_schlick_bsdf(
 export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
     color  mxp_color     = color(0.18),
-    float3 mxp_radius    = float3(1.0), // TODO: should probably be a color in MTLX Spec
+    color  mxp_radius    = color(1.0),
     float  mxp_anisotropy = 0.0,
     float3 mxp_normal    = state::normal() [[ anno::unused() ]]
 ) [[ 
@@ -357,7 +357,7 @@ export material mx_subsurface_bsdf(
     color alpha = 
         (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
 
-    color radius_inv = white/color(mxp_radius);
+    color radius_inv = white / mxp_radius;
 
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;
@@ -545,6 +545,7 @@ export material mx_surface(
     material mxp_bsdf = material() [[ anno::usage( "materialx:bsdf") ]],
     material mxp_edf  = material() [[ anno::usage( "materialx:edf") ]],
     float mxp_opacity = 1.0,
+    uniform bool mxp_thin_walled = false,
     uniform float mxp_transmission_ior = 0.0 // extra parameter for setting transmission IOR
 ) [[
     anno::usage( "materialx:surfaceshader")
@@ -555,47 +556,12 @@ export material mx_surface(
     // we need to carry volume properties along for SSS
     material_volume   bsdf_volume = mxp_bsdf.volume;
 } in material(
-    thin_walled: false,
+    thin_walled: mxp_thin_walled,
     surface: material_surface(
         scattering: bsdf_node,
         emission: edf_node
     ),
     ior: mxp_transmission_ior > 0.0 ? color(mxp_transmission_ior) : mxp_bsdf.ior,
-    volume: bsdf_volume,
-    geometry: material_geometry(
-        cutout_opacity: mxp_opacity
-    )
-);
-
-export material mx_thin_surface(
-    material mxp_front_bsdf    = material() [[ anno::usage( "materialx:bsdf") ]],
-    material mxp_front_edf     = material() [[ anno::usage( "materialx:edf") ]],
-    material mxp_back_bsdf     = material() [[ anno::usage( "materialx:bsdf") ]],
-    material mxp_back_edf      = material() [[ anno::usage( "materialx:edf") ]],
-    float    mxp_opacity = 1.0
-) [[ 
-    anno::usage( "materialx:surfaceshader") 
-]]
-= let {
-    bsdf              front_bsdf_node = mxp_front_bsdf.surface.scattering;
-    material_emission front_edf_node  = mxp_front_edf.surface.emission;
-    bsdf              back_bsdf_node  = mxp_back_bsdf.surface.scattering;
-    material_emission back_edf_node   = mxp_back_edf.surface.emission;
-    // we need to carry volume properties along for SSS
-    // TODO: clarify SSS behavior in MaterialX for thin-walled surfaces,
-    //       in MDL there is only one volume property
-    material_volume   bsdf_volume = mxp_front_bsdf.volume;
-} in material(
-    thin_walled: true,
-    surface: material_surface( 
-        scattering: front_bsdf_node,
-        emission: front_edf_node
-    ),
-    backface: material_surface( 
-        scattering: back_bsdf_node,
-        emission: back_edf_node
-    ),
-    ior: color(1.0),
     volume: bsdf_volume,
     geometry: material_geometry(
         cutout_opacity: mxp_opacity

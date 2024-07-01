@@ -19,9 +19,6 @@
 #include <MaterialXGenMsl/Nodes/BlurNodeMsl.h>
 
 #include <MaterialXGenShader/Nodes/MaterialNode.h>
-#include <MaterialXGenShader/Nodes/ConvertNode.h>
-#include <MaterialXGenShader/Nodes/CombineNode.h>
-#include <MaterialXGenShader/Nodes/SwitchNode.h>
 #include <MaterialXGenShader/Nodes/HwImageNode.h>
 #include <MaterialXGenShader/Nodes/HwTexCoordNode.h>
 #include <MaterialXGenShader/Nodes/HwTransformNode.h>
@@ -60,65 +57,6 @@ MslShaderGenerator::MslShaderGenerator() :
     //
 
     StringVec elementNames;
-
-    // <!-- <switch> -->
-    elementNames = {
-        // <!-- 'which' type : float -->
-        "IM_switch_float_" + MslShaderGenerator::TARGET,
-        "IM_switch_color3_" + MslShaderGenerator::TARGET,
-        "IM_switch_color4_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector2_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector3_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector4_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix33_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix44_" + MslShaderGenerator::TARGET,
-
-        // <!-- 'which' type : integer -->
-        "IM_switch_floatI_" + MslShaderGenerator::TARGET,
-        "IM_switch_color3I_" + MslShaderGenerator::TARGET,
-        "IM_switch_color4I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector2I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector3I_" + MslShaderGenerator::TARGET,
-        "IM_switch_vector4I_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix33I_" + MslShaderGenerator::TARGET,
-        "IM_switch_matrix44I_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, SwitchNode::create);
-
-    // <!-- <convert> -->
-    elementNames = {
-        "IM_convert_float_color3_" + MslShaderGenerator::TARGET,
-        "IM_convert_float_color4_" + MslShaderGenerator::TARGET,
-        "IM_convert_float_vector2_" + MslShaderGenerator::TARGET,
-        "IM_convert_float_vector3_" + MslShaderGenerator::TARGET,
-        "IM_convert_float_vector4_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector2_vector3_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector3_vector2_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector3_color3_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector3_vector4_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector4_vector3_" + MslShaderGenerator::TARGET,
-        "IM_convert_vector4_color4_" + MslShaderGenerator::TARGET,
-        "IM_convert_color3_vector3_" + MslShaderGenerator::TARGET,
-        "IM_convert_color4_vector4_" + MslShaderGenerator::TARGET,
-        "IM_convert_color3_color4_" + MslShaderGenerator::TARGET,
-        "IM_convert_color4_color3_" + MslShaderGenerator::TARGET,
-        "IM_convert_boolean_float_" + MslShaderGenerator::TARGET,
-        "IM_convert_integer_float_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, ConvertNode::create);
-
-    // <!-- <combine> -->
-    elementNames = {
-        "IM_combine2_vector2_" + MslShaderGenerator::TARGET,
-        "IM_combine2_color4CF_" + MslShaderGenerator::TARGET,
-        "IM_combine2_vector4VF_" + MslShaderGenerator::TARGET,
-        "IM_combine2_vector4VV_" + MslShaderGenerator::TARGET,
-        "IM_combine3_color3_" + MslShaderGenerator::TARGET,
-        "IM_combine3_vector3_" + MslShaderGenerator::TARGET,
-        "IM_combine4_color4_" + MslShaderGenerator::TARGET,
-        "IM_combine4_vector4_" + MslShaderGenerator::TARGET,
-    };
-    registerImplementation(elementNames, CombineNode::create);
 
     // <!-- <position> -->
     registerImplementation("IM_position_vector3_" + MslShaderGenerator::TARGET, HwPositionNode::create);

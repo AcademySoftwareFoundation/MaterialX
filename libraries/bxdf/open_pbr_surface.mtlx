@@ -3,8 +3,8 @@
   <!--
     OpenPBR Surface node definition
   -->
-  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="0.5" isdefaultversion="true"
-           doc="OpenPBR Surface Shading Model">
+  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="1.1" isdefaultversion="true"
+           doc="OpenPBR Surface Shading Model" uiname="OpenPBR Surface">
     <input name="base_weight" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base Weight" uifolder="Base"
            doc="Multiplier on the intensity of the reflection from the diffuse and metallic base." />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" uimin="0,0,0" uimax="1,1,1" uiname="Base Color" uifolder="Base"
@@ -35,7 +35,7 @@
            doc="The amount of directional bias, or anisotropy, of the volumetric scattering in the transparent base." />
     <input name="transmission_dispersion_scale" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Transmission Dispersion Scale" uifolder="Transmission" uiadvanced="true"
            doc="Linearly scales the amount of dispersion." />
-    <input name="transmission_dispersion_abbe_number" type="float" value="0.0" uimin="0.0" uisoftmin="9.0" uisoftmax="91.0" uiname="Transmission Dispersion Abbe Number" uifolder="Transmission" uiadvanced="true"
+    <input name="transmission_dispersion_abbe_number" type="float" value="20.0" uimin="0.0" uisoftmin="9.0" uisoftmax="91.0" uiname="Transmission Dispersion Abbe Number" uifolder="Transmission" uiadvanced="true"
            doc="Physical Abbe number of the dielectric medium, describing how much the dielectric index of refraction varies across wavelengths." />
     <input name="subsurface_weight" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Subsurface Weight" uifolder="Subsurface" uiadvanced="true"
            doc="Mixture weight which dials the opaque dielectric base between diffuse reflection and subsurface scattering. A value of 1.0 indicates full subsurface scattering and a value 0 for diffuse reflection only." />
@@ -69,7 +69,7 @@
            doc="Coverage weight of the thin-film. Use for materials such as multi-tone car paint or soap bubbles." />
     <input name="thin_film_thickness" type="float" value="0.5" uimin="0.0" uisoftmax="1.0" uiname="Thin Film Thickness" uifolder="Thin Film" uiadvanced="true"
            doc="The thickness of the thin-film layer on the base (in micrometers)." />
-    <input name="thin_film_ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
+    <input name="thin_film_ior" type="float" value="1.4" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Thin Film Index of Refraction" uifolder="Thin Film" uiadvanced="true"
            doc="The index of refraction of the thin-film." />
     <input name="emission_luminance" type="float" value="0.0" uimin="0.0" uisoftmax="1000.0" uiname="Emission Luminance" uifolder="Emission"
            doc="The amount of emitted light, as a luminance in nits." />
@@ -177,16 +177,13 @@
     </mix>
 
     <!-- Subsurface (non-thin-walled) -->
-    <convert name="subsurface_radius_vector" type="vector3">
-      <input name="in" type="color3" interfacename="subsurface_radius_scale" />
-    </convert>
-    <multiply name="subsurface_radius_scaled" type="vector3">
-      <input name="in1" type="vector3" nodename="subsurface_radius_vector" />
+    <multiply name="subsurface_radius_scaled" type="color3">
+      <input name="in1" type="color3" interfacename="subsurface_radius_scale" />
       <input name="in2" type="float" interfacename="subsurface_radius" />
     </multiply>
     <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
-      <input name="radius" type="vector3" nodename="subsurface_radius_scaled" />
+      <input name="radius" type="color3" nodename="subsurface_radius_scaled" />
       <input name="anisotropy" type="float" interfacename="subsurface_scatter_anisotropy" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </subsurface_bsdf>
@@ -304,12 +301,23 @@
     </multiply>
 
     <!-- Dielectric Base -->
-    <divide name="specular_to_coat_ior_ratio" type="float">
-      <input name="in1" type="float" interfacename="specular_ior" />
-      <input name="in2" type="float" interfacename="coat_ior" />
-    </divide>
+      <!-- apply IOR ratio inversion method to avoid TIR artifact (as in Coat TIR section of spec) -->
+      <divide name="specular_to_coat_ior_ratio" type="float">
+         <input name="in1" type="float" interfacename="specular_ior" />
+         <input name="in2" type="float" interfacename="coat_ior" />
+      </divide>
+      <divide name="coat_to_specular_ior_ratio" type="float">
+         <input name="in1" type="float" interfacename="coat_ior" />
+         <input name="in2" type="float" interfacename="specular_ior" />
+      </divide>
+      <ifgreater name="specular_to_coat_ior_ratio_tir_fix" type="float">
+         <input name="value1" type="float" nodename="specular_to_coat_ior_ratio" />
+         <input name="value2" type="float" value="1.0" />
+         <input name="in1" type="float" nodename="specular_to_coat_ior_ratio" />
+         <input name="in2" type="float" nodename="coat_to_specular_ior_ratio" />
+      </ifgreater>
     <mix name="eta_s" type="float">
-      <input name="fg" type="float" nodename="specular_to_coat_ior_ratio" />
+      <input name="fg" type="float" nodename="specular_to_coat_ior_ratio_tir_fix" />
       <input name="bg" type="float" interfacename="specular_ior" />
       <input name="mix" type="float" interfacename="coat_weight" />
     </mix>
@@ -547,12 +555,12 @@
     </layer>
 
     <!-- Fuzz Layer -->
-    <!-- TODO: Add a new BSDF node for the selected fuzz model in OpenPBR -->
     <sheen_bsdf name="fuzz_bsdf" type="BSDF">
       <input name="weight" type="float" interfacename="fuzz_weight" />
       <input name="color" type="color3" interfacename="fuzz_color" />
       <input name="roughness" type="float" interfacename="fuzz_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
+      <input name="mode" type="string" value="zeltner" />
     </sheen_bsdf>
     <layer name="fuzz_layer" type="BSDF">
       <input name="top" type="BSDF" nodename="fuzz_bsdf" />

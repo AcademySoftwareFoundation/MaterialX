@@ -93,23 +93,6 @@ class MdlArrayTypeSyntax : public ScalarTypeSyntax
         return EMPTY_STRING;
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct an array value");
-        }
-
-        string result = getName() + "[](" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i];
-        }
-        result += ")";
-
-        return result;
-    }
-
   protected:
     virtual bool isEmpty(const Value& value) const = 0;
 };
@@ -177,20 +160,6 @@ class MdlColor4TypeSyntax : public AggregateTypeSyntax
         ss << "mk_color4(" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ")";
 
         return ss.str();
-    }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        size_t valueCount = values.size();
-        if (valueCount == 4)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ", " + values[2] + ", " + values[3] + ")";
-        }
-        else if (valueCount == 2)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ")";
-        }
-        throw ExceptionShaderGenError("Incorrect number of values to construct a color4 value:" + std::to_string(valueCount));
     }
 };
 
@@ -491,56 +460,6 @@ TypeDesc MdlSyntax::getEnumeratedType(const string& value) const
         }
     }
     return Type::NONE;
-}
-
-string MdlSyntax::getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const
-{
-    if (srcType == Type::COLOR3 || srcType == Type::COLOR4)
-    {
-        const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
-        const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
-
-        const StringVec& srcMembers = srcSyntax.getMembers();
-
-        StringVec membersSwizzled;
-
-        for (size_t i = 0; i < channels.size(); ++i)
-        {
-            const char ch = channels[i];
-            if (ch == '0' || ch == '1')
-            {
-                membersSwizzled.push_back(string(1, ch));
-                continue;
-            }
-
-            auto it = CHANNELS_MAPPING.find(ch);
-            if (it == CHANNELS_MAPPING.end())
-            {
-                throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
-            }
-
-            const size_t channelIndex = it->second;
-            if (channelIndex < 0 || channelIndex >= srcMembers.size())
-            {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType.getName() + "'.");
-            }
-
-            string variable = srcName;
-            if (srcType == Type::COLOR3)
-            {
-                variable = "float3(" + srcName + ")";
-            }
-            else if (channelIndex < 3)
-            {
-                variable = "float3(" + srcName + ".rgb)";
-            }
-
-            membersSwizzled.push_back(variable + srcMembers[channelIndex]);
-        }
-
-        return dstSyntax.getValue(membersSwizzled, false);
-    }
-    return Syntax::getSwizzledVariable(srcName, srcType, channels, dstType);
 }
 
 string MdlSyntax::getArrayTypeSuffix(TypeDesc type, const Value& value) const

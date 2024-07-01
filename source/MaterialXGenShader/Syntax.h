@@ -110,20 +110,6 @@ class MX_GENSHADER_API Syntax
     /// Returns the value string for a given shader port object
     virtual string getValue(const ShaderPort* port, bool uniform = false) const;
 
-    /// Get syntax for a swizzled variable
-    virtual string getSwizzledVariable(const string& srcName, TypeDesc srcType, const string& channels, TypeDesc dstType) const;
-    [[deprecated]] string getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
-    {
-        return getSwizzledVariable(srcName, *srcType, channels, *dstType);
-    }
-
-    /// Get swizzled value
-    virtual ValuePtr getSwizzledValue(ValuePtr value, TypeDesc srcType, const string& channels, TypeDesc dstType) const;
-    [[deprecated]] ValuePtr getSwizzledValue(ValuePtr value, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
-    {
-        return getSwizzledValue(value, *srcType, channels, *dstType);
-    }
-
     /// Returns a type qualifier to be used when declaring types for input variables.
     /// Default implementation returns empty string and derived syntax classes should
     /// override this method.
@@ -260,11 +246,6 @@ class MX_GENSHADER_API TypeSyntax
     /// The value is constructed from the given value object.
     virtual string getValue(const Value& value, bool uniform) const = 0;
 
-    /// Returns a value formatted according to this type syntax.
-    /// The value is constructed from the given list of value entries
-    /// with one entry for each member of the type.
-    virtual string getValue(const StringVec& values, bool uniform) const = 0;
-
   protected:
     /// Protected constructor
     TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -288,7 +269,6 @@ class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 /// Specialization of TypeSyntax for string types.
@@ -310,7 +290,6 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
                         const StringVec& members = EMPTY_MEMBERS);
 
     string getValue(const Value& value, bool uniform) const override;
-    string getValue(const StringVec& values, bool uniform) const override;
 };
 
 MATERIALX_NAMESPACE_END

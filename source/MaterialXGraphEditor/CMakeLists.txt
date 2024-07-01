@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-
 set(DEAR_IMGUI_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui" CACHE STRING "Path to Dear ImGui")
 
 if (NOT IS_DIRECTORY "${DEAR_IMGUI_PREFIX}/backends")
@@ -82,10 +80,10 @@ set(MATERIALX_LIBRARIES
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
-if (APPLE)
+if(APPLE)
     find_library(CORE_FOUNDATION Foundation REQUIRED)
     list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
-endif ()
+endif()
 
 target_link_libraries(
     MaterialXGraphEditor

@@ -29,6 +29,7 @@ const std::string options =
     "    --mesh [FILENAME]              Specify the filename of the OBJ or glTF mesh to be displayed in the graph editor\n"
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
+    "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
     "    --help                         Display the complete list of command-line options\n";
 
@@ -65,6 +66,7 @@ int main(int argc, char* const argv[])
     mx::FilePathVec libraryFolders;
     int viewWidth = 256;
     int viewHeight = 256;
+    float uiScale = 0.0f;
     std::string captureFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
@@ -95,6 +97,10 @@ int main(int argc, char* const argv[])
         else if (token == "--viewHeight")
         {
             parseToken(nextToken, "integer", viewHeight);
+        }
+        else if (token == "--uiScale")
+        {
+            parseToken(nextToken, "float", uiScale);
         }
         else if (token == "--captureFilename")
         {
@@ -199,9 +205,12 @@ int main(int argc, char* const argv[])
         float xscale = 1.0f, yscale = 1.0f;
         glfwGetMonitorContentScale(monitor, &xscale, &yscale);
         ImGuiStyle& style = ImGui::GetStyle();
-        float dpiScale = xscale > yscale ? xscale : yscale;
-        style.ScaleAllSizes(dpiScale);
-        graph->setFontScale(dpiScale);
+        if (uiScale <= 0.0f)
+        {
+            uiScale = (xscale > yscale) ? xscale : yscale;
+        }
+        style.ScaleAllSizes(uiScale);
+        graph->setFontScale(uiScale);
     }
 
     // Create editor config and context.

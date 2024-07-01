@@ -32,10 +32,10 @@ jobs:
           python: 3.11
           build_javascript: ON
 
-        - name: Linux_GCC_13_Python312
+        - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
-          compiler_version: "13"
+          compiler_version: "14"
           python: 3.12
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -383,7 +383,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11', '12']
-        os: ['ubuntu-latest', 'windows-latest', 'macos-13']
+        os: ['ubuntu-latest', 'windows-2022', 'macos-13']
 
     steps:
     - name: Sync Repository

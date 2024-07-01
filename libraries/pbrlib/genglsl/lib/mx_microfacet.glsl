@@ -71,12 +71,23 @@ vec2 mx_spherical_fibonacci(int i, int numSamples)
     return vec2((float(i) + 0.5) / float(numSamples), mx_golden_ratio_sequence(i));
 }
 
-// Generate a uniform-weighted sample in the unit hemisphere.
+// Generate a uniform-weighted sample on the unit hemisphere.
 vec3 mx_uniform_sample_hemisphere(vec2 Xi)
 {
     float phi = 2.0 * M_PI * Xi.x;
     float cosTheta = 1.0 - Xi.y;
     float sinTheta = sqrt(1.0 - mx_square(cosTheta));
+    return vec3(cos(phi) * sinTheta,
+                sin(phi) * sinTheta,
+                cosTheta);
+}
+
+// Generate a cosine-weighted sample on the unit hemisphere.
+vec3 mx_cosine_sample_hemisphere(vec2 Xi)
+{
+    float phi = 2.0 * M_PI * Xi.x;
+    float cosTheta = sqrt(Xi.y);
+    float sinTheta = sqrt(1.0 - Xi.y);
     return vec3(cos(phi) * sinTheta,
                 sin(phi) * sinTheta,
                 cosTheta);

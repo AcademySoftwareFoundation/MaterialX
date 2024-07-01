@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
   <implementation name="IM_oren_nayar_diffuse_bsdf_genosl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="{{weight}} * oren_nayar_diffuse_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
