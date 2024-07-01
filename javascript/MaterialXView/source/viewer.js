@@ -221,9 +221,14 @@ export class Scene
         orbitControls.update();
     }
 
-    setUpdateTransforms()
+    setUpdateTransforms(val=true)
     {
-        this.#_updateTransforms = true;
+        this.#_updateTransforms = val;
+    }
+
+    getUpdateTransforms()
+    {
+        return this.#_updateTransforms;
     }
 
     updateTransforms()
@@ -235,7 +240,7 @@ export class Scene
         {
             return;
         }
-        this.#_updateTransforms = false;
+        this.setUpdateTransforms(false);
 
         const scene = this.getScene();
         const camera = this.getCamera();
@@ -622,7 +627,12 @@ export class Material
 
         // Load material
         if (mtlxMaterial)
-            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            try {                
+                await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            }
+            catch (error) {
+                console.log('Error loading material file: ', error);
+            }
         else
             Material.createFallbackMaterial(doc);
 
@@ -847,12 +857,14 @@ export class Material
                         assigned += viewer.getScene().updateMaterial(matassign);
                         matassign.setGeometry(temp);
                         assignedSolo = true;
+                        viewer.scheduleUpdate();
                         break
                     }
                 }
                 else
                 {
                     assigned += viewer.getScene().updateMaterial(matassign);
+                    viewer.scheduleUpdate();
                 }
             }
         }
@@ -861,6 +873,7 @@ export class Material
             this._defaultMaterial = new MaterialAssign(this._materials[0].getMaterial(), ALL_GEOMETRY_SPECIFIER);
             this._defaultMaterial.setShader(this._materials[0].getShader());
             viewer.getScene().updateMaterial(this._defaultMaterial);
+            viewer.scheduleUpdate();
         }
 
         if (assigned > 0)
@@ -916,8 +929,8 @@ export class Material
         let theScene = viewer.getScene();
         let flipV = theScene.getFlipGeometryV();
         let uniforms = {
-            ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
-            ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
+            ...getUniformValues(viewer, shader.getStage('vertex'), textureLoader, searchPath, flipV),
+            ...getUniformValues(viewer, shader.getStage('pixel'), textureLoader, searchPath, flipV),
         }
 
         Object.assign(uniforms, {
@@ -953,6 +966,7 @@ export class Material
         if (logDetailedTime)
             console.log("- Per material generate time: ", performance.now() - startGenerateMat, "ms");
 
+        viewer.scheduleUpdate();
         return newMaterial;
     }
 
@@ -1009,6 +1023,7 @@ export class Material
         }
         viewer.getMaterial().updateMaterialAssignments(viewer, this._soloMaterial);
         viewer.getScene().setUpdateTransforms();
+        viewer.scheduleUpdate();
     }
 
     //
@@ -1231,6 +1246,10 @@ export class Material
                                 }
                                 const w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
                                 w.domElement.classList.add('peditoritem');
+                                w.onChange(function (value)
+                                {
+                                    viewer.scheduleUpdate();
+                                });
                             }
                             break;
 
@@ -1294,6 +1313,10 @@ export class Material
                                 {
                                     let w = currentFolder.add(material.uniforms[name], 'value', minValue, maxValue, step).name(path);
                                     w.domElement.classList.add('peditoritem');
+                                    w.onChange(function (value)
+                                    {
+                                        viewer.scheduleUpdate();
+                                    });    
                                 }
                                 else
                                 {
@@ -1319,6 +1342,7 @@ export class Material
                                         {
                                             material.uniforms[name].value = value;
                                         }
+                                        viewer.scheduleUpdate();
                                     }
                                     const defaultOption = enumList[value]; // Set the default selected option
                                     const dropdownController = currentFolder.add(enumeration, defaultOption, enumeration).name(path);
@@ -1334,6 +1358,11 @@ export class Material
                             {
                                 let w = currentFolder.add(material.uniforms[name], 'value').name(path);
                                 w.domElement.classList.add('peditoritem');
+                                w.onChange(function (value)
+                                {
+                                    viewer.scheduleUpdate();
+                                });
+
                             }
                             break;
 
@@ -1377,6 +1406,10 @@ export class Material
                                     let w = vecFolder.add(material.uniforms[name].value,
                                         key, minValue[key], maxValue[key], step[key]).name(keyString[key]);
                                     w.domElement.classList.add('peditoritem');
+                                    w.onChange(function (value)
+                                    {
+                                        viewer.scheduleUpdate();
+                                    });    
                                 })
                             }
                             break;
@@ -1398,6 +1431,7 @@ export class Material
                                     {
                                         const color3 = new THREE.Color(value);
                                         material.uniforms[name].value.set(color3.toArray());
+                                        viewer.scheduleUpdate();
                                     });
                                 w.domElement.classList.add('peditoritem');
                             }
@@ -1421,7 +1455,11 @@ export class Material
                                 let item = currentFolder.add(dummy, 'thevalue');
                                 item.name(path);
                                 item.disable(true);
-                                item.domElement.classList.add('peditoritem');
+                                let w = item.domElement.classList.add('peditoritem');
+                                w.onChange(function (value)
+                                {
+                                    viewer.scheduleUpdate();
+                                });
                             }
                             break;
                         default:
@@ -1465,6 +1503,30 @@ export class Viewer
 
         this.fileLoader = new THREE.FileLoader();
         this.hdrLoader = new RGBELoader();
+
+        this.updates = 0
+    }
+
+    scheduleUpdate()
+    {
+        this.updates++;
+        //console.log('Schedule update: ', this.updates)
+    }
+
+    finishUpdate()
+    {
+        if (this.updates > 0)
+        {
+            this.updates--;
+            //console.log('Finish update: ', this.updates)
+        }
+    }
+
+    needUpdate()
+    {
+        //if (this.updates > 0)
+        //    console.log('Need update: ', this.updates > 0)
+        return this.updates > 0;
     }
 
     //
