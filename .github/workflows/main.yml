@@ -401,7 +401,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v2.19.2
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:
