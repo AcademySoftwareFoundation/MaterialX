@@ -80,10 +80,10 @@ set(MATERIALX_LIBRARIES
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
-if (APPLE)
+if(APPLE)
     find_library(CORE_FOUNDATION Foundation REQUIRED)
     list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
-endif ()
+endif()
 
 target_link_libraries(
     MaterialXGraphEditor
