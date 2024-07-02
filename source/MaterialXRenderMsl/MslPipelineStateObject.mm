@@ -490,6 +490,13 @@ void MslProgram::bindMesh(id<MTLRenderCommandEncoder> renderCmdEncoder, MeshPtr 
         bindAttribute(renderCmdEncoder, foundList, mesh);
     }
 
+    // Bind bitangents
+    findInputs(HW::IN_BITANGENT, attributeList, foundList, true);
+    if (foundList.size())
+    {
+        bindAttribute(renderCmdEncoder, foundList, mesh);
+    }
+
     // Bind colors
     // Search for anything that starts with the color prefix
     findInputs(HW::IN_COLOR + "_", attributeList, foundList, false);
