@@ -258,7 +258,7 @@ While color<em>N</em> and vector<em>N</em> types both describe vectors of floati
 
 ## Custom Data Types
 
-In addition to the standard data types, MaterialX supports the specification of custom data types for the inputs and outputs of shaders and custom nodes.  This allows documents to describe data streams of any complex type an application may require; examples might include spectral color samples or compound geometric data.
+In addition to the standard data types, MaterialX supports the specification of custom data types for the inputs and outputs of shaders and custom nodes.  This allows documents to describe data streams of any complex type an application may require; examples might include spectral color samples or compound geometric data.  The structure of a custom type's contents may be described using a number of <member> elements, though it is also permissible to only declare the custom type's name and treat the type as "blind data".
 
 Types can be declared to have a specific semantic, which can be used to determine how values of that type should be interpreted, and how nodes outputting that type can be connected.  Currently, MaterialX defines three semantics:
 
@@ -272,18 +272,47 @@ Custom types are defined using the &lt;typedef> element:
 
 ```xml
   <typedef name="spectrum" semantic="color"/>
-  <typedef name="manifold"/>
+  <typedef name="texcoord_struct">
+    <member name="s" type="float" value="0.0"/>
+    <member name="t" type="float" value="0.0"/>
+  </typedef>
 ```
 
 Attributes for &lt;typedef> elements:
 
-* `name` (string, required): the name of this type.  Cannot be the same as a built-in MaterialX type.
+* `name` (string, required): the name of this type.  Cannot be the same as a built-in MaterialX type.  To reduce the possible symbol conflict between custom type names and possible variable names created by code generation, we suggest the convention of using `_struct` as a suffix to the type name.
 * `semantic` (string, optional): the semantic for this type (see above); the default semantic is "default".
 * `context` (string, optional): a semantic-specific context in which this type should be applied.  For "shader" semantic types, `context` defines the rendering context in which the shader output is interpreted; please see the [Shader Nodes](#shader-nodes) section for details.
 * `inherit` (string, optional): the name of another type that this type inherits from, which can be either a built-in type or a custom type.  Applications that do not have a definition for this type can use the inherited type as a "fallback" type.
 * `hint` (string, optional): A hint to help those creating code generators understand how the type might be defined.  The following hints for typedefs are currently defined:
     * "halfprecision": the values within this type are half-precision
     * "doubleprecision: the values within this type are double-precision
+
+Attributes for &lt;member> elements:
+
+* `name` (string, required): the name of the member variable. Must be unique within the list of other member names for this custom type.
+* `type` (string, required): the type of the member variable; can be any built-in MaterialX type, or any previously defined custom type; recursive inclusion for &lt;member> types is not supported.
+* `value` (string, required): the default value of the member variable.
+
+If a number of <member> elements are provided, then a MaterialX file can specify a value for that type any place it is used, as a brace surrounded, semicolon-separated list of numbers and strings, with the expectation that the numbers and strings between semicolons exactly line up with the expected <member> types in order.  The use of the braces allows for custom struct types initializers to be nested.  For example, if the following <typedef> was declared:
+
+```xml
+  <typedef name="exampletype_struct">
+    <member name="id" type="integer" value="2"/>
+    <member name="compclr" type="color3" value="0.2,0.4,0.6"/>
+    <member name="objects" type="stringarray" value="whiz,bang"/>
+    <member name="minvec" type="texcoord_struct" value="{0.2,0.2}"/>
+    <member name="maxvec" type="vector2" value="0.5,0.7"/>
+  </typedef>
+```
+
+Then a permissible input declaration in a custom node using that type could be:
+
+```xml
+  <input name="in2" type="exampletype" value="{3; 0.18,0.2,0.11; foo,bar; {0.0,1.0}; 3.4,5.1}"/>
+```
+
+If <member> child elements are not provided, e.g. if the contents of the custom type cannot be represented as a list of MaterialX types, then a value cannot be provided, and this type can only be used to pass blind data from one custom node's output to another custom node or shader input.
 
 Once a custom type is defined by a &lt;typedef>, it can then be used in any MaterialX element that allows "any MaterialX type"; the list of MaterialX types is effectively expanded to include the new custom type.  It should be noted however that the &lt;typedef> is only declaring the existence of the type and perhaps some hints about its intended definition, but it is up to each application and code generator to provide its own precise definition for any type.
 
