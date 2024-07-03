@@ -1,15 +1,16 @@
 void mx_normalmap_vector2(vector value, vector2 normal_scale, vector N, vector T, vector B, output vector result)
 {
+    vector decodedValue;
     if (value == vector(0.0))
     {
-        value = vector(0.0, 0.0, 1.0);
+        decodedValue = vector(0.0, 0.0, 1.0);
     }
     else
     {
-        value = value * 2.0 - 1.0;
+        decodedValue = value * 2.0 - 1.0;
     }
 
-    result = normalize(T * value[0] * normal_scale.x + B * value[1] * normal_scale.y + N * value[2]);
+    result = normalize(T * decodedValue[0] * normal_scale.x + B * decodedValue[1] * normal_scale.y + N * decodedValue[2]);
 }
 
 void mx_normalmap_float(vector value, float normal_scale, vector N, vector T, vector B, output vector result)
