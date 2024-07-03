@@ -1835,8 +1835,8 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 <a id="node-convert"> </a>
 
-* **`convert`**: convert a stream from one data type to another.  Only certain unambiguous and commonly-needed conversions are supported; see list below.
-    * `in` (boolean or integer or float or color<em>N</em> or vector<em>N</em> or string): the input value or nodename
+* **`convert`**: convert a stream from one data type to another.  Only certain unambiguous conversions are supported; see list below.
+    * `in` (boolean or integer or float or color<em>N</em> or vector<em>N</em>): the input value or nodename
 
 <a id="node-combine2"> </a>
 <a id="node-combine3"> </a>
@@ -1882,17 +1882,16 @@ Channel nodes are used to perform channel manipulations and data type conversion
 
 The following input/output data type conversions are supported by **`convert`**:
 
-* float to color<em>N</em>/vector<em>N</em>: copy the input value to all channels of the output
-* color<em>N</em> to vector<em>N</em> / vector<em>N</em> to color<em>N</em>, where _N_ is the same for in and out: straight copy of channel values
-* color3 to color4: copy RGB, set output alpha to 1.0
-* color4 to color3: drop alpha channel
 * boolean or integer to float: output is 0.0 or 1.0
-* vector2 to vector3, or vector3 to vector4: copy incoming channels and append an additional channel with value 1.0
-* vector3 to vector2, or vector4 to vector3: drop the last channel
-* string to filename: no change in value
+* boolean to integer: output is 0 or 1
+* integer to boolean: true for any non-zero input value
+* float/integer/boolean to color<em>N</em>/vector<em>N</em>: copy the input value to all channels of the output
+* color<em>N</em> / vector<em>N</em> to color<em>M</em> / vector<em>M</em>
+  * if _N_ is the same as _M_, then channels are directly copied. 
+  * if _N_ is larger than _M_, then channels the first _N_ channels are used.
+  * if _N_ is smaller than _M_, then channels are directly copied and additional channels are populated with 0, aside from the fourth channel which is populated with 1
 
 Table of allowable input/output types for **`combine2`**, **`combine3`**, **`combine4`**:
-
 
 | Operator | `type` | `in1` | `in2` | `in3` | `in4` | Output |
 | --- | --- | --- | --- | --- | --- | --- |
