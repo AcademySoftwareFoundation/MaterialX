@@ -30,6 +30,7 @@ namespace
 {
 // Internal OCIO strings:
 constexpr const char OCIO_COLOR3[] = "color3";
+constexpr const char COLOR4_SUFFIX[] = "_color4_temp";
 
 // Lengths where needed:
 constexpr auto OCIO_COLOR3_LEN = sizeof(OCIO_COLOR3) / sizeof(OCIO_COLOR3[0]);
@@ -62,12 +63,19 @@ void OpenColorIONode::emitFunctionDefinition(
         OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
 
         // TODO: Extend to essl and MDL and possibly SLang.
-        if (context.getShaderGenerator().getTarget() == "genglsl") {
+        bool isOSL = false;
+        if (context.getShaderGenerator().getTarget() == "genglsl")
+        {
             shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
-        } else if (context.getShaderGenerator().getTarget() == "genmsl") {
+        }
+        else if (context.getShaderGenerator().getTarget() == "genmsl")
+        {
             shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_MSL_2_0);
-        } else if (context.getShaderGenerator().getTarget() == "genosl") {
+        }
+        else if (context.getShaderGenerator().getTarget() == "genosl")
+        {
             shaderDesc->setLanguage(OCIO::LANGUAGE_OSL_1);
+            isOSL = true;
         }
 
         auto functionName = getFunctionName();
@@ -76,7 +84,26 @@ void OpenColorIONode::emitFunctionDefinition(
 
         gpuProcessor->extractGpuShaderInfo(shaderDesc);
 
-        stage.addString(shaderDesc->getShaderText());
+        string shaderText = shaderDesc->getShaderText();
+        
+        // For OSL, we need to extract the function from the shader OCIO creates.
+        if (isOSL)
+        {
+            const ShaderGenerator& shadergen = context.getShaderGenerator();
+            shadergen.emitLibraryInclude("stdlib/genosl/lib/vector4_extra_ops.osl", context, stage);
+            shadergen.emitLineBreak(stage);
+            auto startpos = shaderText.find(string{"color4 "} + shaderDesc->getFunctionName());
+            if (startpos != string::npos)
+            {
+                auto endpos = shaderText.find(string{"outColor = "} + shaderDesc->getFunctionName(), startpos);
+                if (endpos != string::npos)
+                {
+                    shaderText = shaderText.substr(startpos, endpos - startpos);
+                }
+            }
+        }
+        
+        stage.addString(shaderText);
         stage.endLine(false);
     }
 }
@@ -91,12 +118,8 @@ void OpenColorIONode::emitFunctionCall(
         auto functionName = getFunctionName();
 
         // TODO: Adjust syntax for other languages.
-
-        // The OCIO function uses a vec4 parameter, so:
-        // Function call for color4: vec4 res = func(in);
-        // Function call for color3: vec3 res = func(vec4(in, 1.0)).rgb;
         // TODO: Handle LUT samplers.
-        bool isColor3 = getName().back() == '3';
+        const bool isColor3 = getName().back() == '3';
 
         const auto& shadergen = context.getShaderGenerator();
         shadergen.emitLineBegin(stage);
@@ -104,34 +127,69 @@ void OpenColorIONode::emitFunctionCall(
         const auto* output = node.getOutput();
         const auto* colorInput = node.getInput(0);
 
-        shadergen.emitOutput(output, true, false, context, stage);
-        shadergen.emitString(" = ", stage);
-
-        shadergen.emitString(functionName + "(", stage);
-        if (isColor3)
+        if (context.getShaderGenerator().getTarget() == "genosl")
         {
-            if (context.getShaderGenerator().getTarget() == "genglsl") {
-               shadergen.emitString("vec4(", stage);
-            } else if (context.getShaderGenerator().getTarget() == "genmsl") {
-               shadergen.emitString("float4(", stage);
-            } else if (context.getShaderGenerator().getTarget() == "genosl") {
-               shadergen.emitString("color4(", stage);
+            // For OSL, since swizzling the output of a function is not allowed, we need:
+            // Function call for color4: color4 res = func(in);
+            // Function call for color3:
+            //    color4 res_color4 = func(color4(in, 1.0));
+            //    color res = res_color4.rgb;
+            if (isColor3)
+            {
+                shadergen.emitString("color4 " + output->getVariable() + COLOR4_SUFFIX + " = ", stage);
+                shadergen.emitString(functionName + "(color4(", stage);
+                shadergen.emitInput(colorInput, context, stage);
+                shadergen.emitString(", 1.0))", stage);
+                shadergen.emitLineEnd(stage);
+                shadergen.emitLineBegin(stage);
+                shadergen.emitOutput(output, true, false, context, stage);
+                shadergen.emitString(" = " + output->getVariable() + COLOR4_SUFFIX + ".rgb", stage);
+                shadergen.emitLineEnd(stage);
+            }
+            else
+            {
+                shadergen.emitOutput(output, true, false, context, stage);
+                shadergen.emitString(" = ", stage);
+                shadergen.emitString(functionName + "(", stage);
+                shadergen.emitInput(colorInput, context, stage);
+                shadergen.emitString(")", stage);
+                shadergen.emitLineEnd(stage);
             }
         }
-        shadergen.emitInput(colorInput, context, stage);
-        if (isColor3)
+        else
         {
-            shadergen.emitString(", 1.0)", stage);
+            // The OCIO function uses a vec4 parameter, so:
+            // Function call for color4: vec4 res = func(in);
+            // Function call for color3: vec3 res = func(vec4(in, 1.0)).rgb;
+            shadergen.emitOutput(output, true, false, context, stage);
+            shadergen.emitString(" = ", stage);
+
+            shadergen.emitString(functionName + "(", stage);
+            if (isColor3)
+            {
+                if (context.getShaderGenerator().getTarget() == "genglsl")
+                {
+                    shadergen.emitString("vec4(", stage);
+                }
+                else if (context.getShaderGenerator().getTarget() == "genmsl")
+                {
+                    shadergen.emitString("float4(", stage);
+                }
+            }
+            shadergen.emitInput(colorInput, context, stage);
+            if (isColor3)
+            {
+                shadergen.emitString(", 1.0)", stage);
+            }
+
+            shadergen.emitString(")", stage);
+
+            if (isColor3)
+            {
+                shadergen.emitString(".rgb", stage);
+            }
+            shadergen.emitLineEnd(stage);
         }
-
-        shadergen.emitString(")", stage);
-
-        if (isColor3)
-        {
-            shadergen.emitString(".rgb", stage);
-        }
-
-        shadergen.emitLineEnd(stage);
     }
 }
 

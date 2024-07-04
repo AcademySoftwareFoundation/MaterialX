@@ -48,7 +48,8 @@ const std::map<string, string> COLOR_SPACE_REMAP = {
 
 OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::create(const OCIO::ConstConfigRcPtr& config, const string& target)
 {
-    if (target != "genglsl" && target != "genmsl" && target != "genosl") {
+    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    {
         throw std::runtime_error("OCIO does not support this target");
     }
 
@@ -166,7 +167,8 @@ bool OpenColorIOManagementSystem::hasImplementation(const string& implName) cons
 
 ShaderNodeImplPtr OpenColorIOManagementSystem::createImplementation(const string& implName) const
 {
-    if (_implementations.count(implName)) {
+    if (_implementations.count(implName))
+    {
         return OpenColorIONode::create();
     }
     return {};
