@@ -1484,8 +1484,8 @@
       <input name="in" type="vector2" nodename="box_absval" />
     </separate2>
     <atan2 name="radial_atan2" type="float" nodedef="ND_atan2_float">
-      <input name="in1" type="float" nodename="separate9" output="outx" />
-      <input name="in2" type="float" nodename="separate9" output="outy" />
+      <input name="iny" type="float" nodename="separate9" output="outx" />
+      <input name="inx" type="float" nodename="separate9" output="outy" />
     </atan2>
     <divide name="radial_divide" type="float" nodedef="ND_divide_float">
       <input name="in1" type="float" nodename="radial_atan2" />
