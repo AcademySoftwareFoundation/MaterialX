@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.0] - Development
+## [1.39.0] - 2024-07-05
 
 ### Added
 - Added support for the [OpenPBR Surface](https://academysoftwarefoundation.github.io/OpenPBR/) shading model, including the [MaterialX definition](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx) and [example materials](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples/OpenPbr) for OpenPBR Surface v1.1.
