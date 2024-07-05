@@ -471,6 +471,7 @@
   -->
   <nodedef name="ND_ramp" node="ramp" nodegroup="procedural2d">
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
+    <input name="type" type="integer" value="0" enum="standard,radial,circular,box" enumvalues="0,1,2,3" />
     <input name="interpolation" type="integer" value="1" enum="linear,smooth,step" enumvalues="0,1,2" />
     <input name="num_intervals" type="integer" value="2" uimin="2" uimax="10" />
     <input name="interval1" type="float" value="0" uimin="0" uimax="1" />
