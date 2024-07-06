@@ -1,36 +1,44 @@
 # Change Log
 
-## [1.39.0] - Development
+## [1.39.0] - 2024-07-05
 
 ### Added
-- Added a [MaterialX implementation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1816) of the [OpenPBR Surface](https://academysoftwarefoundation.github.io/OpenPBR/) shading model.
-- Added support for [Hoffman-Schlick Fresnel](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1727), [Zeltner-Burley sheen](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1825), and [energy-compensated Oren-Nayar diffuse](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1822) in physically based shading.
+- Added support for the [OpenPBR Surface](https://academysoftwarefoundation.github.io/OpenPBR/) shading model, including the [MaterialX definition](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/open_pbr_surface.mtlx) and [example materials](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/resources/Materials/Examples/OpenPbr) for OpenPBR Surface v1.1.
+- Added support for [Hoffman-Schlick Fresnel](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1727), [Zeltner sheen](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1880), and [energy-compensated Oren-Nayar diffuse](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1822), with initial implementations in hardware shading languages.
+- Added support for the [LamaGeneralizedSchlick and LamaIridescence](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1897) nodes, with definitions provided as MaterialX graphs.
 - Added support for integer-type [add, subtract](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1777), and [conditional](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1786) nodes.
 - Added support for matrix-type [switch](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1779) and [conditional](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1780) nodes.
+- Added support for additional [convert node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1905) input and output types.
 - Added support for [monolithic builds](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1725) of MaterialX.
-- Added support for [Python 3.12](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1802) in Python wheel generation.
 - Added support for the [full set of shader generators](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1771) in JavaScript.
-- Added an example script to [generate a MaterialX document](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1746) from a folder of textures.
 - Added support for [frame timing](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1739) in the MaterialX Viewer.
+- Added a [uiScale option](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1586) for adjusting DPI in the Graph Editor.
+- Added an example script to [generate a MaterialX document](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1746) from a folder of textures.
 - Added unit tests for [core utilities](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1768) and [ESSL shader generation](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1781).
+- Added support for [Python 3.12](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1802) in Python wheel generation.
+- Added [GCC 14](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1913) and [Clang 18](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1820) builds to GitHub Actions CI.
 
 ### Changed
 - Raised the minimum C++ version for MaterialX builds to [C++17](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1712).
 - Updated the [PyBind11 library](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1839) to version 2.12.0, enabling support for recent compilers and CMake versions.
 - Improved the expression of [thin-film layering](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1413) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
+- Improved the generality of the [normalmap node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1911) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Extended the [switch node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1660) to ten inputs in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Renamed the inputs of the [atan2 node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1659) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
+- Changed the type of [subsurface_bsdf radius](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1834) from vector3 to color3 in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Renamed the [normalmap nodedef](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1677) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
+- Improved the support for [double-sided materials](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1866) in MaterialX 1.39.
 - Optimized [Fresnel](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1732) [computations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1733) in [GLSL](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1736), improving the performance of physically based shading in real-time renders.
 - Applied [lossless optimization](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1738) to PNG and JPG textures in the MaterialX repository.
+
+### Fixed
+- Fixed default values for the [creatematrix node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1788).
+- Fixed an issue with [keyboard input focus](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1596) in the Graph Editor.
 
 ### Removed
 - Removed the [swizzle node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1793) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Removed the [channels attribute](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1804) in MaterialX 1.39, with automatic upgrade logic for legacy documents.
 - Removed the unimplemented [arrayappend node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1707) in MaterialX 1.39.
-
-### Fixed
-- Fixed default values for the [creatematrix node](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1788).
 
 ## [1.38.10] - 2024-04-12
 
