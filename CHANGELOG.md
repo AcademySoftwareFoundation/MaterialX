@@ -1,5 +1,7 @@
 # Change Log
 
+## [1.39.1] - Development
+
 ## [1.39.0] - 2024-07-05
 
 ### Added
