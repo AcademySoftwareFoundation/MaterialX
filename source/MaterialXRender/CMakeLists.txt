@@ -1,3 +1,5 @@
+set(MATERIALX_MODULE_NAME MaterialXRender)
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_inlined "${CMAKE_CURRENT_SOURCE_DIR}/*.inl")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
@@ -6,7 +8,7 @@ if(NOT MATERIALX_BUILD_OIIO)
     list(REMOVE_ITEM materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/OiioImageLoader.cpp")
 endif()
 
-mx_add_library(MaterialXRender
+mx_add_library(${MATERIALX_MODULE_NAME}
     SOURCE_FILES
         ${materialx_source}
     INLINED_FILES
@@ -30,4 +32,12 @@ if(MATERIALX_BUILD_OIIO)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
     find_package(OpenImageIO CONFIG REQUIRED)
     target_link_libraries(${TARGET_NAME} OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
+endif()
+
+if(NOT SKBUILD)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+            DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+            FILES_MATCHING
+            PATTERN "*.h*"
+            PATTERN "*.inl")
 endif()

@@ -1,3 +1,5 @@
+set(MATERIALX_MODULE_NAME MaterialXRenderGlsl)
+
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.c*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -23,7 +25,7 @@ elseif(UNIX)
     find_package(OpenGL REQUIRED)
 endif()
 
-mx_add_library(MaterialXRenderGlsl
+mx_add_library(${MATERIALX_MODULE_NAME}
     SOURCE_FILES
         ${materialx_source}
     HEADER_FILES
@@ -75,4 +77,10 @@ elseif(UNIX)
             OpenGL::GL
             X11::X11
             X11::Xt)
+endif()
+
+if(NOT SKBUILD)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+            DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+            FILES_MATCHING PATTERN "*.h*")
 endif()

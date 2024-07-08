@@ -1,3 +1,4 @@
+set(MATERIALX_MODULE_NAME MaterialXRenderHw)
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
@@ -15,7 +16,7 @@ elseif(UNIX)
     endif()
 endif()
 
-mx_add_library(MaterialXRenderHw
+mx_add_library(${MATERIALX_MODULE_NAME}
     SOURCE_FILES
         ${materialx_source}
     HEADER_FILES
@@ -42,4 +43,10 @@ elseif(UNIX)
             ${TARGET_NAME}
             X11::X11
             X11::Xt)
+endif()
+
+if(NOT SKBUILD)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+            DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
+            FILES_MATCHING PATTERN "*.h*")
 endif()

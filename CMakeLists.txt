@@ -6,6 +6,8 @@ set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSI
 
 # Cmake setup
 cmake_minimum_required(VERSION 3.16)
+cmake_policy(VERSION 3.16)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
@@ -347,17 +349,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     target_sources(${TARGET_NAME}
         PRIVATE
             ${args_SOURCE_FILES}
-        PUBLIC
-            FILE_SET
-                mxHeaders
-            TYPE
-                HEADERS
-            BASE_DIRS
-                ${CMAKE_CURRENT_SOURCE_DIR}/..
-                ${CMAKE_CURRENT_BINARY_DIR}/..
-            FILES
-                ${args_HEADER_FILES}
-                ${args_INLINED_FILES})
+            ${args_INLINED_FILES})
 
     target_include_directories(${TARGET_NAME} PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
@@ -370,8 +362,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     EXPORT MaterialX
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                    RUNTIME DESTINATION bin
-                    FILE_SET mxHeaders)
+                    RUNTIME DESTINATION bin)
         endif()
 
         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
@@ -462,23 +453,6 @@ endif()
 
 if(MATERIALX_BUILD_JS)
     add_subdirectory(source/JsMaterialX)
-endif()
-
-if (MATERIALX_BUILD_MONOLITHIC)
-    # MaterialX monolithic build target needs to be installed after any other included
-    # modules to ensure the correct files are in mxHeaders
-    if(NOT SKBUILD)
-        install(TARGETS ${MATERIALX_MONOLITHIC_TARGET}
-                EXPORT MaterialX
-                ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                RUNTIME DESTINATION bin
-                FILE_SET mxHeaders)
-
-        # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
-        # to do that installation, thus we respect the build options configuration, and only install
-        # the headers for the modules we've built in to the monolithic build.
-    endif()
 endif()
 
 if(MATERIALX_BUILD_VIEWER)

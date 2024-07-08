@@ -32,6 +32,17 @@ if (MATERIALX_BUILD_MONOLITHIC)
             PRIVATE
             ${EXTERNAL_INCLUDE_DIRS})
 
-    # Monolithic target is installed in the root CMakeLists.txt to allow for collection
-    # of all necessary headers.
+
+    if(NOT SKBUILD)
+        install(TARGETS ${MATERIALX_MONOLITHIC_TARGET}
+                EXPORT MaterialX
+                ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                RUNTIME DESTINATION bin)
+
+        # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
+        # to do that installation, thus we respect the build options configuration, and only install
+        # the headers for the modules we've built in to the monolithic build.
+    endif()
+
 endif()
