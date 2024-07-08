@@ -12,7 +12,7 @@ def getRecursivePackageData(root):
 
 setup(name='MaterialX',
       url='www.materialx.org',
-      version='${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION}',
+      version='${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION}.${MATERIALX_PATCH_VERSION}',
       packages=['MaterialX'],
       package_data={'MaterialX' : getRecursivePackageData('MaterialX')},
       zip_safe = False)
