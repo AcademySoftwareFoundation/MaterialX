@@ -8,7 +8,9 @@ endif()
 
 mx_add_library(MaterialXRender
     SOURCE_FILES
-        ${materialx_source} ${materialx_inlined}
+        ${materialx_source}
+    INLINED_FILES
+        ${materialx_inlined}
     HEADER_FILES
         ${materialx_headers}
     LIBRARIES

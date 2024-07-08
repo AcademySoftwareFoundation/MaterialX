@@ -11,3 +11,8 @@ mx_add_library(MaterialXGenMdl
         MaterialXCore
     EXPORT_DEFINE
         MATERIALX_GENMDL_EXPORTS)
+
+if(NOT SKBUILD)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mdl
+            DESTINATION "${MATERIALX_INSTALL_MDL_MODULE_PATH}")
+endif()
