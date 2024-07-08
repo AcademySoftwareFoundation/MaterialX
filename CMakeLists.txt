@@ -360,8 +360,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                 ${args_INLINED_FILES})
 
     target_include_directories(${TARGET_NAME} PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}>)
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
 
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
