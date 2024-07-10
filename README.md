@@ -60,9 +60,9 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python311.zip)
-- [MacOS (Xcode 14, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_14_Python311.zip)
-- [Linux (GCC 12, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_12_Python311.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python312.zip)
+- [MacOS (Xcode 15, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_15_Python312.zip)
+- [Linux (GCC 14, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python312.zip)
 
 ### Additional Resources
 
