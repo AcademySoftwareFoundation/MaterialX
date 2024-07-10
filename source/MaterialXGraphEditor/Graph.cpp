@@ -2753,6 +2753,10 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
     int upNode = getNodeId(startAttr);
     int downNode = getNodeId(endAttr);
 
+    if (upNode == -1 || downNode == -1) {
+        return ;
+    }
+
     // Change input to default value
     if (_graphNodes[downNode]->getNode())
     {
@@ -3354,6 +3358,23 @@ void Graph::propertyEditor()
                 std::string name = _currUiNode->getNodeGraph()->getParent()->createValidChildName(temp);
                 _currUiNode->getNodeGraph()->setName(name);
                 _currUiNode->setName(name);
+
+                for (UiNodePtr node : _graphNodes)
+                {
+                    std::vector<UiPinPtr> inputs = node->inputPins;
+                    if (node->getInput() == nullptr)
+                    {
+                        for (size_t i = 0; i < inputs.size(); i++)
+                        {
+                            std::string inputName = inputs[i]->_name;
+                            UiNodePtr inputNode = node->getConnectedNode(inputName);
+                            if (inputNode != nullptr && inputNode->getName() == name && node->getNode())
+                            {
+                                node->getNode()->getInput(inputName)->setAttribute("nodegraph", name);
+                            }
+                        }
+                    }
+                }
             }
         }
 
