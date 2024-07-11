@@ -11,8 +11,3 @@ mx_add_library(MaterialXGenShader
         MaterialXCore
     EXPORT_DEFINE
         MATERIALX_GENSHADER_EXPORTS)
-
-if(NOT SKBUILD)
-    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../resources"
-            DESTINATION . MESSAGE_NEVER)
-endif()
