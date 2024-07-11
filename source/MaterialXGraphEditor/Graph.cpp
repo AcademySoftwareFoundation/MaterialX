@@ -2752,9 +2752,9 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 {
     int upNode = getNodeId(startAttr);
     int downNode = getNodeId(endAttr);
-
-    if (upNode == -1 || downNode == -1) {
-        return ;
+    if (upNode == -1 || downNode == -1)
+    {
+        return;
     }
 
     // Change input to default value
