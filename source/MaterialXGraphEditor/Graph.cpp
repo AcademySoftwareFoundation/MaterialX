@@ -3362,13 +3362,13 @@ void Graph::propertyEditor()
                 for (UiNodePtr node : _graphNodes)
                 {
                     std::vector<UiPinPtr> inputs = node->inputPins;
-                    if (node->getInput() == nullptr)
+                    if (!node->getInput())
                     {
                         for (size_t i = 0; i < inputs.size(); i++)
                         {
-                            std::string inputName = inputs[i]->_name;
+                            const std::string& inputName = inputs[i]->_name;
                             UiNodePtr inputNode = node->getConnectedNode(inputName);
-                            if (inputNode != nullptr && inputNode->getName() == name && node->getNode())
+                            if (inputNode && inputNode->getName() == name && node->getNode())
                             {
                                 node->getNode()->getInput(inputName)->setAttribute("nodegraph", name);
                             }
