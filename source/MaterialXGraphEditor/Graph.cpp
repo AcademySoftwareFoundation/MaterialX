@@ -3361,9 +3361,9 @@ void Graph::propertyEditor()
 
                 for (UiNodePtr node : _graphNodes)
                 {
-                    std::vector<UiPinPtr> inputs = node->inputPins;
                     if (!node->getInput())
                     {
+                        std::vector<UiPinPtr> inputs = node->inputPins;
                         for (size_t i = 0; i < inputs.size(); i++)
                         {
                             const std::string& inputName = inputs[i]->_name;
