@@ -313,10 +313,16 @@
 
     <!-- Surface -->
 
+    <ifequal name="thin_walled_switch" type="boolean">
+      <input name="value1" type="float" interfacename="thickness" />
+      <input name="value2" type="float" value="0.0" />
+    </ifequal>
+
     <surface name="shader_constructor" type="surfaceshader">
       <input name="bsdf" type="BSDF" nodename="clearcoat_layer" />
       <input name="edf" type="EDF" nodename="emission" />
       <input name="opacity" type="float" nodename="opacity" />
+      <input name="thin_walled" type="boolean" nodename="thin_walled_switch" />
     </surface>
     <output name="out" type="surfaceshader" nodename="shader_constructor" />
   </nodegraph>
