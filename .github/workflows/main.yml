@@ -32,10 +32,10 @@ jobs:
           python: 3.11
           build_javascript: ON
 
-        - name: Linux_GCC_13_Python312
+        - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
-          compiler_version: "13"
+          compiler_version: "14"
           python: 3.12
           static_analysis: ON
           cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -401,7 +401,7 @@ jobs:
         path: sdist
 
     - name: Build Wheel
-      uses: pypa/cibuildwheel@v2.17.0
+      uses: pypa/cibuildwheel@v2.19.2
       with:
         package-dir: ${{ github.workspace }}/sdist/${{ needs.sdist.outputs.sdist_filename }}
       env:

@@ -1,4 +1,3 @@
-
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -11,5 +10,4 @@ mx_add_library(MaterialXGenOsl
         MaterialXGenShader
         MaterialXCore
     EXPORT_DEFINE
-        MATERIALX_GENOSL_EXPORTS
-)
+        MATERIALX_GENOSL_EXPORTS)

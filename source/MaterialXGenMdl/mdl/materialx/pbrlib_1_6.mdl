@@ -333,7 +333,7 @@ export material mx_generalized_schlick_bsdf(
 export material mx_subsurface_bsdf(
     float  mxp_weight    = 1.0 [[ anno::unused() ]],
     color  mxp_color     = color(0.18),
-    float3 mxp_radius    = float3(1.0), // TODO: should probably be a color in MTLX Spec
+    color  mxp_radius    = color(1.0),
     float  mxp_anisotropy = 0.0,
     float3 mxp_normal    = state::normal() [[ anno::unused() ]]
 ) [[ 
@@ -357,7 +357,7 @@ export material mx_subsurface_bsdf(
     color alpha = 
         (white - albedo_sq) / (white - mxp_anisotropy * albedo_sq);
 
-    color radius_inv = white/color(mxp_radius);
+    color radius_inv = white / mxp_radius;
 
     color sigma_s = alpha * radius_inv;
     color sigma_a = radius_inv - sigma_s;

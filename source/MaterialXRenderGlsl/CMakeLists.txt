@@ -1,4 +1,3 @@
-
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.c*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -24,7 +23,6 @@ elseif(UNIX)
     find_package(OpenGL REQUIRED)
 endif()
 
-
 mx_add_library(MaterialXRenderGlsl
     SOURCE_FILES
         ${materialx_source}
@@ -35,9 +33,7 @@ mx_add_library(MaterialXRenderGlsl
         MaterialXGenGlsl
     EXPORT_DEFINE
         MATERIALX_RENDERGLSL_EXPORTS
-    ADD_OBJECTIVE_C_CODE
-)
-
+    ADD_OBJECTIVE_C_CODE)
 
 if(APPLE)
     target_compile_definitions(${TARGET_NAME} PRIVATE -DGL_SILENCE_DEPRECATION)

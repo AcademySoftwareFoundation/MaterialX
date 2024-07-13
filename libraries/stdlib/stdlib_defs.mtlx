@@ -2604,18 +2604,18 @@
   -->
   <nodedef name="ND_normalmap_float" node="normalmap" nodegroup="math">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0" />
-    <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" />
     <input name="scale" type="float" value="1.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
     <output name="out" type="vector3" defaultinput="normal" />
   </nodedef>
   <nodedef name="ND_normalmap_vector2" node="normalmap" nodegroup="math">
     <input name="in" type="vector3" value="0.5, 0.5, 1.0" />
-    <input name="space" type="string" value="tangent" enum="tangent, object" uniform="true" />
     <input name="scale" type="vector2" value="1.0, 1.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="tangent" type="vector3" defaultgeomprop="Tworld" />
+    <input name="bitangent" type="vector3" defaultgeomprop="Bworld" />
     <output name="out" type="vector3" defaultinput="normal" />
   </nodedef>
 
@@ -4373,13 +4373,65 @@
     <input name="in" type="float" value="0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
+
+  <nodedef name="ND_convert_color3_color4" node="convert" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color3_vector2" node="convert" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color3_vector3" node="convert" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color3_vector4" node="convert" nodegroup="channel">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_convert_color4_color3" node="convert" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color4_vector2" node="convert" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color4_vector3" node="convert" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_color4_vector4" node="convert" nodegroup="channel">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
+  <nodedef name="ND_convert_vector2_color3" node="convert" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_vector2_color4" node="convert" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
   <nodedef name="ND_convert_vector2_vector3" node="convert" nodegroup="channel">
     <input name="in" type="vector2" value="0.0, 0.0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
+  <nodedef name="ND_convert_vector2_vector4" node="convert" nodegroup="channel">
+    <input name="in" type="vector2" value="0.0, 0.0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+
   <nodedef name="ND_convert_vector3_color3" node="convert" nodegroup="channel">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_vector3_color4" node="convert" nodegroup="channel">
+    <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_convert_vector3_vector2" node="convert" nodegroup="channel">
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
@@ -4389,38 +4441,82 @@
     <input name="in" type="vector3" value="0.0, 0.0, 0.0" />
     <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
   </nodedef>
+
+  <nodedef name="ND_convert_vector4_color3" node="convert" nodegroup="channel">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
   <nodedef name="ND_convert_vector4_color4" node="convert" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_vector4_vector2" node="convert" nodegroup="channel">
+    <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
   </nodedef>
   <nodedef name="ND_convert_vector4_vector3" node="convert" nodegroup="channel">
     <input name="in" type="vector4" value="0.0, 0.0, 0.0, 0.0" />
     <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
   </nodedef>
-  <nodedef name="ND_convert_color3_vector3" node="convert" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_convert_color4_vector4" node="convert" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_convert_color3_color4" node="convert" nodegroup="channel">
-    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
-    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
-  </nodedef>
-  <nodedef name="ND_convert_color4_color3" node="convert" nodegroup="channel">
-    <input name="in" type="color4" value="0.0, 0.0, 0.0, 0.0" />
-    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
-  </nodedef>
+
   <nodedef name="ND_convert_boolean_float" node="convert" nodegroup="channel">
     <input name="in" type="boolean" value="false" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
+  <nodedef name="ND_convert_boolean_color3" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_color4" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_vector2" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_vector3" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_vector4" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_boolean_integer" node="convert" nodegroup="channel">
+    <input name="in" type="boolean" value="false" />
+    <output name="out" type="integer" default="0" />
+  </nodedef>
+
   <nodedef name="ND_convert_integer_float" node="convert" nodegroup="channel">
     <input name="in" type="integer" value="0" />
     <output name="out" type="float" default="0.0" />
   </nodedef>
+  <nodedef name="ND_convert_integer_color3" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="color3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_color4" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="color4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_vector2" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="vector2" default="0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_vector3" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="vector3" default="0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_vector4" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="vector4" default="0.0, 0.0, 0.0, 0.0" />
+  </nodedef>
+  <nodedef name="ND_convert_integer_boolean" node="convert" nodegroup="channel">
+    <input name="in" type="integer" value="0" />
+    <output name="out" type="boolean" default="false" />
+  </nodedef>
+
   <nodedef name="ND_convert_color3_surfaceshader" node="convert" version="1.0" isdefaultversion="true" nodegroup="shader" doc="Convert color3 to shader">
     <input name="in" type="color3" value="0, 0, 0" />
     <output name="out" type="surfaceshader" />

@@ -1,8 +1,7 @@
 include_directories(
     ${EXTERNAL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Apply Python version and location requests from the user.
 set(PYBIND11_PYTHON_VERSION ${MATERIALX_PYTHON_VERSION})

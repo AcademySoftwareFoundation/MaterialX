@@ -671,21 +671,6 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color3_genmsl" nodedef="ND_convert_float_color3" target="genmsl" sourcecode="vec3({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_color4_genmsl" nodedef="ND_convert_float_color4" target="genmsl" sourcecode="vec4({{in}},{{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector2_genmsl" nodedef="ND_convert_float_vector2" target="genmsl" sourcecode="vec2({{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector3_genmsl" nodedef="ND_convert_float_vector3" target="genmsl" sourcecode="vec3({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector4_genmsl" nodedef="ND_convert_float_vector4" target="genmsl" sourcecode="vec4({{in}},{{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_vector2_vector3_genmsl" nodedef="ND_convert_vector2_vector3" target="genmsl" sourcecode="vec3({{in}}[0],{{in}}[1],0)" />
-  <implementation name="IM_convert_vector3_vector2_genmsl" nodedef="ND_convert_vector3_vector2" target="genmsl" sourcecode="vec2({{in}}[0],{{in}}[1])" />
-  <implementation name="IM_convert_vector3_color3_genmsl" nodedef="ND_convert_vector3_color3" target="genmsl" sourcecode="{{in}}" />
-  <implementation name="IM_convert_vector3_vector4_genmsl" nodedef="ND_convert_vector3_vector4" target="genmsl" sourcecode="vec4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
-  <implementation name="IM_convert_vector4_vector3_genmsl" nodedef="ND_convert_vector4_vector3" target="genmsl" sourcecode="vec3({{in}}[0],{{in}}[1],{{in}}[2])" />
-  <implementation name="IM_convert_vector4_color4_genmsl" nodedef="ND_convert_vector4_color4" target="genmsl" sourcecode="{{in}}" />
-  <implementation name="IM_convert_color3_vector3_genmsl" nodedef="ND_convert_color3_vector3" target="genmsl" sourcecode="{{in}}" />
-  <implementation name="IM_convert_color4_vector4_genmsl" nodedef="ND_convert_color4_vector4" target="genmsl" sourcecode="{{in}}" />
-  <implementation name="IM_convert_color3_color4_genmsl" nodedef="ND_convert_color3_color4" target="genmsl" sourcecode="vec4({{in}}[0],{{in}}[1],{{in}}[2],1)" />
-  <implementation name="IM_convert_color4_color3_genmsl" nodedef="ND_convert_color4_color3" target="genmsl" sourcecode="vec3({{in}}[0],{{in}}[1],{{in}}[2])" />
   <implementation name="IM_convert_boolean_float_genmsl" nodedef="ND_convert_boolean_float" target="genmsl" sourcecode="float({{in}})" />
   <implementation name="IM_convert_integer_float_genmsl" nodedef="ND_convert_integer_float" target="genmsl" sourcecode="float({{in}})" />
 

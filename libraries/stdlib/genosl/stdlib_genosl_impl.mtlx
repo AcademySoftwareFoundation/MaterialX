@@ -672,21 +672,6 @@
   <!-- ======================================================================== -->
 
   <!-- <convert> -->
-  <implementation name="IM_convert_float_color3_genosl" nodedef="ND_convert_float_color3" target="genosl" sourcecode="color({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_color4_genosl" nodedef="ND_convert_float_color4" target="genosl" sourcecode="{ color({{in}},{{in}},{{in}}),{{in}}}" />
-  <implementation name="IM_convert_float_vector2_genosl" nodedef="ND_convert_float_vector2" target="genosl" sourcecode="{ {{in}},{{in}} }" />
-  <implementation name="IM_convert_float_vector3_genosl" nodedef="ND_convert_float_vector3" target="genosl" sourcecode="vector({{in}},{{in}},{{in}})" />
-  <implementation name="IM_convert_float_vector4_genosl" nodedef="ND_convert_float_vector4" target="genosl" sourcecode="{ {{in}},{{in}},{{in}},{{in}} }" />
-  <implementation name="IM_convert_vector2_vector3_genosl" nodedef="ND_convert_vector2_vector3" target="genosl" sourcecode="vector({{in}}.x,{{in}}.y,0)" />
-  <implementation name="IM_convert_vector3_vector2_genosl" nodedef="ND_convert_vector3_vector2" target="genosl" sourcecode="{ {{in}}[0],{{in}}[1] }" />
-  <implementation name="IM_convert_vector3_color3_genosl" nodedef="ND_convert_vector3_color3" target="genosl" sourcecode="color({{in}})" />
-  <implementation name="IM_convert_vector3_vector4_genosl" nodedef="ND_convert_vector3_vector4" target="genosl" sourcecode="{ {{in}}[0],{{in}}[1],{{in}}[2],1 }" />
-  <implementation name="IM_convert_vector4_vector3_genosl" nodedef="ND_convert_vector4_vector3" target="genosl" sourcecode="vector({{in}}.x,{{in}}.y,{{in}}.z)" />
-  <implementation name="IM_convert_vector4_color4_genosl" nodedef="ND_convert_vector4_color4" target="genosl" sourcecode="{ color({{in}}.x,{{in}}.y,{{in}}.z), {{in}}.w }" />
-  <implementation name="IM_convert_color3_vector3_genosl" nodedef="ND_convert_color3_vector3" target="genosl" sourcecode="vector({{in}})" />
-  <implementation name="IM_convert_color4_vector4_genosl" nodedef="ND_convert_color4_vector4" target="genosl" sourcecode="{ {{in}}.rgb[0],{{in}}.rgb[1],{{in}}.rgb[2],{{in}}.a }" />
-  <implementation name="IM_convert_color3_color4_genosl" nodedef="ND_convert_color3_color4" target="genosl" sourcecode="{ color({{in}}[0],{{in}}[1],{{in}}[2]),1 }" />
-  <implementation name="IM_convert_color4_color3_genosl" nodedef="ND_convert_color4_color3" target="genosl" sourcecode="color({{in}}.rgb[0],{{in}}.rgb[1],{{in}}.rgb[2])" />
   <implementation name="IM_convert_boolean_float_genosl" nodedef="ND_convert_boolean_float" target="genosl" sourcecode="float({{in}})" />
   <implementation name="IM_convert_integer_float_genosl" nodedef="ND_convert_integer_float" target="genosl" sourcecode="float({{in}})" />
 
