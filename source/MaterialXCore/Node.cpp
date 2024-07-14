@@ -68,30 +68,6 @@ string Node::getConnectedNodeName(const string& inputName) const
     return input->getNodeName();
 }
 
-void Node::setConnectedOutput(const string& inputName, OutputPtr output)
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        input = addInput(inputName, DEFAULT_TYPE_STRING);
-    }
-    if (output)
-    {
-        input->setType(output->getType());
-    }
-    input->setConnectedOutput(output);
-}
-
-OutputPtr Node::getConnectedOutput(const string& inputName) const
-{
-    InputPtr input = getInput(inputName);
-    if (!input)
-    {
-        return OutputPtr();
-    }
-    return input->getConnectedOutput();
-}
-
 NodeDefPtr Node::getNodeDef(const string& target, bool allowRoughMatch) const
 {
     if (hasNodeDefString())
