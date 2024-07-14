@@ -50,7 +50,7 @@ void GlslResourceBindingContext::emitDirectives(GenContext& context, ShaderStage
         }
     }
 
-    for (auto& extension : _requiredExtensions)
+    for (const string& extension : _requiredExtensions)
     {
         generator.emitLine("#extension " + extension + " : enable", stage, false);
     }
