@@ -95,7 +95,7 @@
 
   <nodegraph name="NG_standard_surface_to_open_pbr_surface" nodedef="ND_standard_surface_to_open_pbr_surface">
 
-    <!--Diffuse-->
+    <!--Base-->
     <dot name="baseWeight" type="float">
       <input name="in" type="float" interfacename="base" />
     </dot>
