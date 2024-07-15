@@ -139,6 +139,9 @@ def main():
         shadergen.setUnitSystem(unitsystem)
         genoptions.targetDistanceUnit = 'meter'
 
+        print('- Set up Struct typedefs ...')
+        shadergen.loadStructTypeDefs(doc)
+
         # Look for renderable nodes
         nodes = mx_gen_shader.findRenderableElements(doc)
         if not nodes:
@@ -165,6 +168,8 @@ def main():
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl']:
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
+                    if gentarget == "msl":
+                        filename += ".metal"
                     print('--- Wrote pixel shader to: ' + filename)
                     file = open(filename, 'w+')
                     file.write(pixelSource)
@@ -173,6 +178,8 @@ def main():
 
                     vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".vert"
+                    if gentarget == "msl":
+                        filename += ".metal"
                     print('--- Wrote vertex shader to: ' + filename)
                     file = open(filename, 'w+')
                     file.write(vertexSource)

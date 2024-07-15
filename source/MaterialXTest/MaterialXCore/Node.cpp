@@ -159,12 +159,11 @@ TEST_CASE("Node", "[node]")
     REQUIRE(typeDef->getMembers().size() == scalarCount);
 
     // Reference the custom type.
-    std::string d65("400.0,82.75,500.0,109.35,600.0,90.01,700.0,71.61,800.0,59.45");
+    std::string d65("{400;2.75;500;109.35;600;90.01;700;71.61;800;59.45}");
     constant->setInputValue<std::string>("value", d65, "spectrum");
     REQUIRE(constant->getInput("value")->getType() == "spectrum");
     REQUIRE(constant->getInput("value")->getValueString() == d65);
-    REQUIRE(constant->getInputValue("value")->isA<std::string>());
-    REQUIRE(constant->getInputValue("value")->asA<std::string>() == d65);
+    REQUIRE(constant->getInputValue("value")->getValueString() == d65);
 
     // Validate the document.
     REQUIRE(doc->validate());

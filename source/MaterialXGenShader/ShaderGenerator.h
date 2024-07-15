@@ -12,6 +12,7 @@
 #include <MaterialXGenShader/Export.h>
 
 #include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/Exceptions.h>
 #include <MaterialXGenShader/Factory.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/Syntax.h>
@@ -191,6 +192,12 @@ class MX_GENSHADER_API ShaderGenerator
         return _tokenSubstitutions;
     }
 
+    /// Load any struct type definitions from the document in to the type cache.
+    void loadStructTypeDefs(const DocumentPtr& doc);
+
+    /// Clear any struct type definitions loaded
+    void clearStructTypeDefs();
+
     /// Register metadata that should be exported to the generated shaders.
     /// Supported metadata includes standard UI attributes like "uiname", "uifolder",
     /// "uimin", "uimax", etc.
@@ -232,14 +239,6 @@ class MX_GENSHADER_API ShaderGenerator
     mutable StringMap _tokenSubstitutions;
 
     friend ShaderGraph;
-};
-
-/// @class ExceptionShaderGenError
-/// An exception that is thrown when shader generation fails.
-class MX_GENSHADER_API ExceptionShaderGenError : public Exception
-{
-  public:
-    using Exception::Exception;
 };
 
 MATERIALX_NAMESPACE_END

@@ -9,6 +9,8 @@
 /// @file
 /// Generic value classes
 
+#include <MaterialXCore/MaterialXCore_fwd.h>
+
 #include <MaterialXCore/Exception.h>
 
 #include <MaterialXCore/Types.h>
@@ -24,21 +26,19 @@ using BoolVec = vector<bool>;
 using FloatVec = vector<float>;
 
 class Value;
+class AggregateValue;
 
 /// A shared pointer to a Value
 using ValuePtr = shared_ptr<Value>;
 /// A shared pointer to a const Value
 using ConstValuePtr = shared_ptr<const Value>;
 
-template <class T> class TypedValue;
+/// A shared pointer to an Aggregate Value
+using AggregateValuePtr = shared_ptr<AggregateValue>;
+/// A shared pointer to a const Aggregate Value
+using ConstAggregateValuePtr = shared_ptr<const AggregateValue>;
 
-/// @class ExceptionTypeError
-/// An exception that is thrown when a type mismatch is encountered.
-class MX_CORE_API ExceptionTypeError : public Exception
-{
-  public:
-    using Exception::Exception;
-};
+template <class T> class TypedValue;
 
 /// A generic, discriminated value, whose type may be queried dynamically.
 class MX_CORE_API Value
@@ -73,7 +73,7 @@ class MX_CORE_API Value
     /// Create a new value instance from value and type strings.
     /// @return A shared pointer to a typed value, or an empty shared pointer
     ///    if the conversion to the given data type cannot be performed.
-    static ValuePtr createValueFromStrings(const string& value, const string& type);
+    static ValuePtr createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDefPtr = nullptr);
 
     /// Create a deep copy of the value.
     virtual ValuePtr copy() const = 0;
@@ -191,6 +191,65 @@ template <class T> class MX_CORE_API TypedValue : public Value
 
   private:
     T _data;
+};
+
+/// The class template for typed subclasses of Value
+class MX_CORE_API AggregateValue : public Value
+{
+  public:
+    AggregateValue(const string& typeName) :
+        _typeName(typeName)
+    {
+    }
+    virtual ~AggregateValue() { }
+
+    /// Create a deep copy of the value.
+    ValuePtr copy() const override
+    {
+        auto result = createAggregateValue(_typeName);
+        for (const auto& val : _data)
+        {
+            result->appendValue(val->copy());
+        }
+        return result;
+    }
+
+    /// Append a member value to the aggregate.
+    void appendValue(ConstValuePtr valuePtr) {
+        _data.emplace_back(valuePtr);
+    }
+
+    const vector<ConstValuePtr>&  getMembers() const {
+        return _data;
+    }
+
+    /// Query an indexed member value from the aggregate.
+    ConstValuePtr getMemberValue(size_t index) const {
+        return _data[index];
+    }
+
+    /// Return type string.
+    const string& getTypeString() const override  { return _typeName; }
+
+    /// Return value string.
+    string getValueString() const override;
+
+    //
+    // Static helper methods
+    //
+
+    /// Create a new value from an object of any valid MaterialX type.
+    static AggregateValuePtr createAggregateValue(const string& typeName)
+    {
+        return std::make_shared<AggregateValue>(typeName);
+    }
+
+    static AggregateValuePtr createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDefPtr);
+
+  private:
+    const string _typeName;
+
+    vector<ConstValuePtr> _data;
 };
 
 /// @class ScopedFloatFormatting

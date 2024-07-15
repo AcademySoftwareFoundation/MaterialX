@@ -553,7 +553,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    loadLibraries({ "libraries" }, _searchPath, _dependLib, _skipLibraryFiles);
+    loadLibraries({ "libraries", "testSuiteLibraries" }, _searchPath, _dependLib, _skipLibraryFiles);
 }
 
 LightIdMap ShaderGeneratorTester::computeLightIdMap(const std::vector<mx::NodePtr>& nodes)
@@ -649,6 +649,9 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
+    // register struct typedefs from the library files.
+    _shaderGenerator->loadStructTypeDefs(_dependLib);
+
     // Test suite setup
     addSkipFiles();
 
@@ -704,6 +707,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         // Apply optional preprocessing.
         preprocessDocument(doc);
         _shaderGenerator->registerShaderMetadata(doc, context);
+
+        _shaderGenerator->loadStructTypeDefs(doc);
 
         // For each new file clear the implementation cache.
         // Since the new file might contain implementations with names
