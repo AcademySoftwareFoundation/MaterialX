@@ -252,7 +252,7 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
     StringVec results;
     string line;
     string successfulOutputSubString("Output " + outputName + " to " +
-                                           outputFileName);
+                                     outputFileName);
     while (std::getline(errorStream, line))
     {
         if (!line.empty() &&
@@ -295,7 +295,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     // Run the command and get back the result. If non-empty string throw exception with error
     string command = _oslCompilerExecutable.asString() + " -q ";
     for (FilePath p : _oslIncludePath)
-    { 
+    {
         command += " -I\"" + p.asString() + "\" ";
     }
     command += oslFilePath.asString() + " -o " + outputFileName.asString() + " > " + errorFile + redirectString;
@@ -320,7 +320,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
 
 void OslRenderer::createProgram(ShaderPtr shader)
 {
-    StageMap stages = { {Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode()} };
+    StageMap stages = { { Stage::PIXEL, shader->getStage(Stage::PIXEL).getSourceCode() } };
     createProgram(stages);
 }
 
@@ -341,7 +341,7 @@ void OslRenderer::createProgram(const StageMap& stages)
 
     // Dump string to disk. For OSL assume shader is in stage 0 slot.
     FilePath filePath(_oslOutputFilePath);
-    filePath = filePath  / _oslShaderName;
+    filePath = filePath / _oslShaderName;
     string fileName = filePath.asString();
     if (fileName.empty())
     {

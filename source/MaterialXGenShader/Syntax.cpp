@@ -190,7 +190,6 @@ bool Syntax::remapEnumeration(const string&, TypeDesc, const string&, std::pair<
     return false;
 }
 
-
 const StringVec TypeSyntax::EMPTY_MEMBERS;
 
 TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,

@@ -223,7 +223,7 @@ mx::ElementPredicate RenderView::getElementPredicate()
             return (_xincludeFiles.count(elem->getSourceUri()) == 0);
         }
         return true;
-        };
+    };
 }
 
 void RenderView::updateGeometrySelections()
