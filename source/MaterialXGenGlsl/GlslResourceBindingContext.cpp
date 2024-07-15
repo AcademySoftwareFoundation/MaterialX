@@ -153,9 +153,9 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     // Sort order from largest to smallest
     std::sort(memberOrder.begin(), memberOrder.end(),
               [](const std::pair<size_t, size_t>& a, const std::pair<size_t, size_t>& b)
-              {
-                  return a.first > b.first;
-              });
+    {
+        return a.first > b.first;
+    });
 
     // Emit the struct
     generator.emitLine("struct " + uniforms.getName(), stage, false);
@@ -181,8 +181,9 @@ void GlslResourceBindingContext::emitStructuredResourceBindings(GenContext& cont
     // Emit binding information
     generator.emitLineBreak(stage);
     generator.emitLine("layout (std140, binding=" + std::to_string(_hwUniformBindLocation++) +
-                       ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
-                       stage.getName(), stage, false);
+                           ") " + syntax.getUniformQualifier() + " " + uniforms.getName() + "_" +
+                           stage.getName(),
+                       stage, false);
     generator.emitScopeBegin(stage);
     generator.emitLine(uniforms.getName() + " " + structInstanceName + arraySuffix, stage);
     generator.emitScopeEnd(stage, true);

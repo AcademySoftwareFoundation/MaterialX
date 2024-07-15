@@ -335,7 +335,7 @@ class MX_CORE_API Document : public GraphElement
 
     /// Create a NodeDef and Functional Graph based on a Compound NodeGraph
     /// @param nodeGraph Compound NodeGraph.
-    /// @param newGraphName Name of new functional NodeGraph. 
+    /// @param newGraphName Name of new functional NodeGraph.
     /// @param nodeDefName Name of new NodeDef
     /// @param category Category of the new NodeDef
     /// @return New declaration if successful.

@@ -48,7 +48,7 @@ class MX_RENDERMSL_API MetalFramebuffer
     /// to the framebuffer are encoded to the sRGB color space.
     void setEncodeSrgb(bool encode)
     {
-        if(encode != _encodeSrgb)
+        if (encode != _encodeSrgb)
         {
             _encodeSrgb = encode;
             resize(_width, _height, true);
@@ -60,13 +60,13 @@ class MX_RENDERMSL_API MetalFramebuffer
     {
         return _encodeSrgb;
     }
-    
+
     /// Return the framebuffer width
     unsigned int getWidth() const { return _width; }
 
     /// Return the framebuffer height
     unsigned int getHeight() const { return _height; }
-    
+
     /// Bind the framebuffer for rendering.
     void bind(MTLRenderPassDescriptor* renderpassDesc);
 
@@ -78,18 +78,18 @@ class MX_RENDERMSL_API MetalFramebuffer
     {
         return _colorTexture;
     }
-    
+
     void setColorTexture(id<MTLTexture> newColorTexture)
     {
         auto sameDim = [](id<MTLTexture> tex0, id<MTLTexture> tex1) -> bool
         {
-            return  [tex0 width]  == [tex1 width] &&
-                    [tex0 height] == [tex1 height];
+            return [tex0 width] == [tex1 width] &&
+                   [tex0 height] == [tex1 height];
         };
-        if((!_colorTextureOwned || sameDim(_colorTexture, newColorTexture)) &&
-           sameDim(newColorTexture, _depthTexture))
+        if ((!_colorTextureOwned || sameDim(_colorTexture, newColorTexture)) &&
+            sameDim(newColorTexture, _depthTexture))
         {
-            if(_colorTextureOwned)
+            if (_colorTextureOwned)
                 [_colorTexture release];
             _colorTexture = newColorTexture;
         }
@@ -122,10 +122,10 @@ class MX_RENDERMSL_API MetalFramebuffer
     Image::BaseType _baseType;
     bool _encodeSrgb;
 
-    id<MTLDevice>  _device = nil;
+    id<MTLDevice> _device = nil;
     id<MTLTexture> _colorTexture = nil;
     id<MTLTexture> _depthTexture = nil;
-    
+
     bool _colorTextureOwned = false;
 };
 
