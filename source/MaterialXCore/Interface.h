@@ -129,7 +129,7 @@ class MX_CORE_API PortElement : public ValueElement
     void setConnectedOutput(ConstOutputPtr output);
 
     /// Return the output, if any, to which this input is connected.
-    virtual OutputPtr getConnectedOutput() const;
+    OutputPtr getConnectedOutput() const;
 
     /// Return the output string of this element.
     const string& getOutputString() const
