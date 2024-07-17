@@ -11,6 +11,9 @@ mx_add_library(MaterialXFormat
     LIBRARIES
         MaterialXCore
     PRIVATE_LIBRARIES
-        pugixml::pugixml
+        "$<BUILD_INTERFACE:pugixml::pugixml>"
     EXPORT_DEFINE
         MATERIALX_FORMAT_EXPORTS)
+
+# we need to use BUILD_INTERFACE here to hide the use of pugixml from the cmake export when we're building
+# MaterialX as a static library - feels like maybe a cmake bug?
