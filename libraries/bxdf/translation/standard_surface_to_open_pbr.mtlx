@@ -46,7 +46,7 @@
     <input name="opacity" type="color3" value="1, 1, 1" />
     <input name="thin_walled" type="boolean" value="false" />
 
-     <!--Outputs-->
+    <!--Outputs-->
     <output name="base_weight_out" type="float" />
     <output name="base_color_out" type="color3" />
     <output name="base_diffuse_roughness_out" type="float" />
