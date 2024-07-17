@@ -1240,21 +1240,13 @@ void Document::upgradeVersion()
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
-                            if (i < channelString.size())
+                            if (i < channelString.size() && CHANNEL_CONSTANT_MAP.count(channelString[i]))
                             {
-                                if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
-                                {
-                                    combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
-                                }
-                                else
-                                {
-                                    copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
-                                }
+                                combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
                             }
                             else
                             {
-                                combineInInput->setConnectedNode(node);
-                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                                copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
                             }
                         }
                         node->removeInput(inInput->getName());
