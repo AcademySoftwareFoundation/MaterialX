@@ -10,3 +10,4 @@ target_sources(pugixml
 )
 
 set_target_properties(pugixml PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(pugixml PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)

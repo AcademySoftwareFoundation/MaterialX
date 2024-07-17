@@ -362,6 +362,9 @@ function(mx_add_library MATERIALX_MODULE_NAME)
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
 
+    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
     target_sources(${TARGET_NAME}
         PRIVATE
             ${args_SOURCE_FILES}
