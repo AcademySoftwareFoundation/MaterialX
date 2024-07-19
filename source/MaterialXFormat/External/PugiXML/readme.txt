@@ -50,3 +50,14 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
+----------------------------------------------------------------
+
+These files are taken from https://github.com/zeux/pugixml/tree/v1.9
+
+There are MaterialX specific patches applied on top of the v1.9 release
+PugiXML
+   * Adding tracking for new-line characters
+   * Adding support for serialization of `<` and `>` instead of `&lt` and `&gt`
+
+The patches are recorded in the pugi.patch file.
