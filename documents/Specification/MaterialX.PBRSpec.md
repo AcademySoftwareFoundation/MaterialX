@@ -43,6 +43,8 @@ This document describes a number of shader-semantic nodes implementing widely-us
 **[Shading Model Examples](#shading-model-examples)**  
  [Autodesk Standard Surface](#autodesk-standard-surface)  
  [UsdPreviewSurface](#usdpreviewsurface)  
+ [Khronos glTF PBR](#khronos-gltf-pbr)  
+ [OpenPBR Surface](#openpbr-surface)  
 
 **[References](#references)**
 

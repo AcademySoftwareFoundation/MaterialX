@@ -8,7 +8,7 @@ MaterialX Specification v1.39
 **Version 1.39**  
 Doug Smythe - Industrial Light & Magic  
 Jonathan Stone - Lucasfilm Advanced Development Group  
-May 9, 2024
+July 20, 2024
 
 
 # Introduction
@@ -1362,23 +1362,6 @@ Math nodes have one or two spatially-varying inputs, and are used to perform a m
 * **`max`**: select the maximum of the two incoming values
     * `in1` (float or color<em>N</em> or vector<em>N</em>): the first value or nodename
     * `in2` (same type as `in1` or float): the second value or nodename
-
-<a id="node-and"> </a>
-
-* **`and`**: boolean "and" of the two incoming boolean values
-    * `in1` (boolean): the first value or nodename
-    * `in2` (boolean): the second value or nodename
-
-<a id="node-or"> </a>
-
-* **`or`**: boolean "or" of the two incoming boolean values
-    * `in1` (boolean): the first value or nodename
-    * `in2` (boolean): the second value or nodename
-
-<a id="node-not"> </a>
-
-* **`not`**: boolean "not" of the incoming boolean value
-    * `in` (boolean): the value or nodename
 
 <a id="node-normalize"> </a>
 
