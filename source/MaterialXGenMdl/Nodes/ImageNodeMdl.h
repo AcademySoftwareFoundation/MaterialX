@@ -24,6 +24,8 @@ class MX_GENMDL_API ImageNodeMdl : public SourceCodeNodeMdl
 
     void addInputs(ShaderNode& node, GenContext& context) const override;
 
+    StringVec addedInputNames() const override;
+   
     bool isEditable(const ShaderInput& input) const override;
 
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
