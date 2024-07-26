@@ -6,14 +6,14 @@ MaterialX Proposals v1.39
 # MaterialX: Proposed Additions and Changes
 
 **Proposals for Version 1.39**  
-July 20, 2024
+July 26, 2024
 
 
 # Introduction
 
-The [MaterialX Specification](./MaterialX.Specification.md) has historically included descriptions of not just current functionality, but also forward-looking proposed functionality intended for eventual implementation.  This has resulted in a lack of clarity about which functionality is actually supported in the library, and which are proposed additions.
+The [MaterialX Specification](./MaterialX.Specification.md) has historically included descriptions of not just current functionality, but also forward-looking proposed functionality intended for eventual implementation.  We believe it will be beneficial to provide clarity on which functionality is currently supported in the library, and which sections document proposed additions.
 
-To remedy this, those forward-looking proposals have been moved into this Proposed Additions and Changes document to be discussed and debated. These descriptions can then be migrated into the appropriate formal Specification document once actually implemented in the code base.  New proposals for changes and additions to MaterialX may be added to this document once a generally favorable consensus from the community is reached.
+As such, those forward-looking proposals have been moved from the formal Specification documents into this Proposed Additions and Changes document to be discussed and debated. These descriptions can then be migrated into the appropriate formal Specification document once actually implemented in the code base.  New proposals for changes and additions to MaterialX may be added to this document once a generally favorable consensus from the community is reached.
 
 
 
@@ -192,7 +192,6 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
 
 ### Shape Nodes
 
-Some of the current shape nodes only output an on/off float output, while others output a color3, some with the ability to specify the "inside" and "outside" colors and others not.  It would be good to standardize all shape nodes to include both "float" and "color3" output variants, and to consistently provide "value0"/"value1" inputs (float or color3 to match the output type).
 
 
 
@@ -341,6 +340,3 @@ Some of the current shape nodes only output an on/off float output, while others
 
 # Proposals: NPR Nodes<a id="propose-npr-nodes"></a>
 
-### Toon Shader
-
-The community has expressed interest in a standard "toon shader", and a proposed definition and implementation would be welcome.
