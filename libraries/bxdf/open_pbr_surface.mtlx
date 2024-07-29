@@ -24,7 +24,7 @@
     <input name="specular_roughness_anisotropy" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Specular Anisotropy" uifolder="Specular" uiadvanced="true"
            doc="The directional bias of the roughness of the metal/dielectric base, resulting in increasingly stretched highlights along the tangent direction." />
     <input name="transmission_weight" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Transmission Weight" uifolder="Transmission" uiadvanced="true"
-           doc="Mixture weight between the transparent and opaque dielectric base. The greater the value the more transparent the material." />
+           doc="Mixture weight between the transparent and opaque dielectric base. The greater the value the more transparent the material." hint="transparency"/>
     <input name="transmission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Transmission Color" uifolder="Transmission" uiadvanced="true"
            doc="Controls color of the transparent base due to Beer's law volumetric absorption under the surface (reverts to a non-physical tint when transmission_depth is zero)." />
     <input name="transmission_depth" type="float" value="0.0" uimin="0.0" uisoftmax="1.0" uiname="Transmission Depth" uifolder="Transmission" uiadvanced="true"
@@ -76,7 +76,7 @@
     <input name="emission_color" type="color3" value="1, 1, 1" uimin="0,0,0" uimax="1,1,1" uiname="Emission Color" uifolder="Emission"
            doc="The color of the emitted light." />
     <input name="geometry_opacity" type="float" value="1" uimin="0" uimax="1" uiname="Opacity" uifolder="Geometry"
-           doc="The opacity of the entire material." />
+           doc="The opacity of the entire material." hint="opacity"/>
     <input name="geometry_thin_walled" type="boolean" value="false" uiname="Thin Walled" uifolder="Geometry" uiadvanced="true"
            doc="If true the surface is double-sided and represents an infinitesimally thin shell. Suitable for extremely geometrically thin objects such as leaves or paper." />
     <input name="geometry_normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Geometry"
