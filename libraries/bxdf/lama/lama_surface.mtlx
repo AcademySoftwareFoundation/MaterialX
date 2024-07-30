@@ -2,11 +2,11 @@
 <materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_surface" node="LamaSurface" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="materialFront" uiname="Material Front" type="BSDF" 
-           doc="This is the material that defines the front facing result." />
+           doc=" Material used on the front side (as defined by the geometric normal)." />
     <input name="materialBack" uiname="Material Back" type="BSDF" 
-           doc="This is the material that defines the back facing result." />
+           doc="Material used on the back side (as defined by the geometric normal)." />
     <input name="presence" type="float" value="1.0"
-           doc="This connection allows you to define the visibility of a surface using a pattern connection." />
+           doc="Connect a mask here to apply a cutout pattern to your object. This is useful for cutouts like creating leaves and other thin, complex shapes. It can also be used as opacity for gray values for semi-opaque results when seen directly by the camera." />
     <output name="out" type="material" />
   </nodedef>
 
