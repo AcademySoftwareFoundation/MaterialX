@@ -2,7 +2,7 @@
 <materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_surface" node="LamaSurface" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="materialFront" uiname="Material Front" type="BSDF" 
-           doc=" Material used on the front side (as defined by the geometric normal)." />
+           doc="Material used on the front side (as defined by the geometric normal)." />
     <input name="materialBack" uiname="Material Back" type="BSDF" 
            doc="Material used on the back side (as defined by the geometric normal)." />
     <input name="presence" type="float" value="1.0"

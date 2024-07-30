@@ -8,7 +8,7 @@
     <input name="sssRadius" type="color3" value="0.0, 0.0, 0.0" uiname="Radius" uifolder="SSS"
            doc="Diffuse Mean Free Path, expressed for each color channel in mm. Indicates on average how much the light travels under the surface before being scattered. The higher the value, the softer the result will be. If zero (black), which is the default value, the computation simplifies to a Lambertian reflection lobe with no subsurface scattering." />
     <input name="sssScale" type="float" value="1.0" uimin="0.0" uiname="Scale" uifolder="SSS"
-           doc=" Multiplies the radius, to adjust its scale to the scene at hand. If zero, the computation simplifies to a Lambertian reflection lobe with no subsurface scattering." />
+           doc="Multiplies the radius, to adjust its scale to the scene at hand. If zero, the computation simplifies to a Lambertian reflection lobe with no subsurface scattering." />
     <input name="sssMode" type="integer" uniform="true" enum="Path-traced Davis,Path-traced exponential,Diffusion Burley,Diffusion Burley (mean free path)" enumvalues="0,1,2,3" value="0" uiname="Mode" uifolder="Main"
            doc="Selects what method should be used to compute sub-surface scattering. The first two options are path-traced variants, with different attenuation strategies applied to the path. The second two are traditional diffusion models. The first Diffusion Burley expects a diffuse mean free path in mm (the average length of a path measured from its entry and exit points after subsurface scattering interactions). The second Diffusion Burley uses mean free path in mm (the average distance that a photon travels in a subsurface volume, which is 1/sigma_t, where sigma_t is the extinction coefficient)." />
     <input name="sssIOR" type="float" value="1.0" uimin="1.0" uisoftmin="1.0" uisoftmax="2.0"  uiname="IOR" uifolder="SSS"
@@ -24,7 +24,7 @@
     <input name="sssContinuationRays" type="integer" value="0" uiname="Continuation Rays" uifolder="SSS"
            doc="When enabled, ignores internal geometry and jumps to the last surface." />
     <input name="sssUnitLength" type="float" value="0.00328" uiname="Unit Length" uifolder="SSS"
-           doc=" This is the multiplier that converts between millimetres and scene units. Both mean free path and diffuse mean free path are specified in millimetres and this parameter is used for the unit conversion. The default value of 0.00328 converts millimetres to feet. For centimetre scene units, this would be 0.1, for metres it would be 0.001 etc." />
+           doc="This is the multiplier that converts between millimetres and scene units. Both mean free path and diffuse mean free path are specified in millimetres and this parameter is used for the unit conversion. The default value of 0.00328 converts millimetres to feet. For centimetre scene units, this would be 0.1, for metres it would be 0.001 etc." />
     <input name="mode" type="integer" uniform="true" enum="Reflection,Transmission,Reflection(with direct illumination)" enumvalues="0,1,2" value="0" uiname="Mode" uifolder="Advanced"
            doc="If the subsurface is enabled, Reflection: should be used when both the camera and the light are outside of the object. Reflection(with direct illumination): should be used when both the camera and the light are outside of the object. This mode also computes the direct illumination at the sss ray exit point. Transmission: should be used when the light is inside the object while the camera is outside. " />
     <input name="albedoInversionMethod" type="integer" enum="Pixar,Chiang" enumvalues="0,1" value="0" uiname="Albedo Inversion Method" uifolder="Advanced"
@@ -36,7 +36,7 @@
     <input name="sssExitLobeName" type="string" uniform="true" value="subsurface" uiname="SSS Exit Lobe Name" uifolder="Advanced"
            doc="Defines the name that can be used in LPE AOVs for the SSS Exit lobe. When a pattern network mixes results of several LamaSSS nodes, those nodes must have different sssExitLobeName or different sssId. (Note that the sssExitLobeNames need to be defined as diffuse LPEs.)" />
     <input name="sssId" type="integer" uniform="true" value="0" enum="0, 1" enumvalues="0, 1" uiname="SSS Id" uifolder="Advanced"
-           doc=" Several SSS materials can share the same sssExitLobeName, but if they do, they must have a different sssId. This is necessary when mixing two materials with the same sssExitLobeName. Note that if their lobe names are different, the sssId is irrelevant." />
+           doc="Several SSS materials can share the same sssExitLobeName, but if they do, they must have a different sssId. This is necessary when mixing two materials with the same sssExitLobeName. Note that if their lobe names are different, the sssId is irrelevant." />
     <input name="matte" type="string" uniform="true" value="" uiname="Matte" uifolder="Advanced"
            doc="Defines the name that can be used by the matte system, to output the weight of this lobe in the final material as an AOV." />
     <output name="out" type="BSDF" />
