@@ -28,7 +28,7 @@
     <input name="absorptionColor" type="color3" value="1.0, 1.0, 1.0" uiname="Absorption Color" uifolder="Interior"
            doc="Interior volume absorption color. It is defined as the negative logarithm of the extinction coefficient, with values between 0 and 1, such that the object itself and its shadows are tinted proportionally. If set to 1, there is no absorption, and if set to 0, the object will be completely opaque. Note that for single scattering to kick in, the value must be inferior to 1. This value will also act as coating color, when this node is used as top layer in a stack." />
     <input name="absorptionRadius" type="float" value="1.0" uimin="0.0" uiname="Absorption Radius" uifolder="Interior"
-           doc="Distance, in world space units, at which the Absorption Colour is assumed to be reached. Can be used to control the rate of absorption." />
+           doc="Distance, in world space units, at which the Absorption Color is assumed to be reached. Can be used to control the rate of absorption." />
     <input name="scatterColor" type="color3" value="0.0, 0.0, 0.0" uiname="Scatter Color" uifolder="Interior"
            doc="Color (aka scattering albedo) of the medium, defines what proportion of the light hitting volumetric particles is scattered around by the phase function (as opposed to just absorbed), for each color channel. Only takes effect if the corresponding channel has a non-null density, in other words if the Absorption Color value for that channel is inferior to 1." />
     <input name="scatterAnisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Scatter Anisotropy" uifolder="Interior"
