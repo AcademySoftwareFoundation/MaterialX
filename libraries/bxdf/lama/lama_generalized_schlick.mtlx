@@ -136,6 +136,7 @@
       <input name="anisotropy" type="float" interfacename="scatterAnisotropy" />
     </anisotropic_vdf>
 
+    <!-- Transmission -->
     <generalized_schlick_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" interfacename="transmissionTint" />
@@ -152,7 +153,7 @@
       <input name="base" type="VDF" nodename="interior_vdf" />
     </layer>
 
-    <!-- BRDF -->
+    <!-- Reflection -->
     <generalized_schlick_bsdf name="reflection_generalized_schlick_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
       <input name="color0" type="color3" nodename="fresnel_mode_switch" />
