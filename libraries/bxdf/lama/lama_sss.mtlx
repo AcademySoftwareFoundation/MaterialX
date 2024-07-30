@@ -29,16 +29,8 @@
            doc="If the subsurface is enabled, Reflection: should be used when both the camera and the light are outside of the object. Reflection(with direct illumination): should be used when both the camera and the light are outside of the object. This mode also computes the direct illumination at the sss ray exit point. Transmission: should be used when the light is inside the object while the camera is outside. " />
     <input name="albedoInversionMethod" type="integer" enum="Pixar,Chiang" enumvalues="0,1" value="0" uiname="Albedo Inversion Method" uifolder="Advanced"
            doc="Decides which albedo inversion methods is used. Pixar: Does the Pixar Path Traced SSS default albedo inversion. Chiang: Does Chiang's albedo inversion (with no dmfp remapping). The look is closer to Arnold Standard Surface randomwalk." />
-    <input name="diffuseLobeName" type="string" uniform="true" value="diffuse" uiname="Diffuse Lobe Name" uifolder="Advanced"
-           doc="Defines the name that can be used in LPE AOVs for the diffuse lobe (when subsurface computation is disabled on LamaSurface)." />
-    <input name="sssEntryLobeName" type="string" uniform="true" value="irradiance" uiname="SSS Entry Lobe Name" uifolder="Advanced"
-           doc="Defines the name that can be used in LPE AOVs for the SSS Entry lobe." />
-    <input name="sssExitLobeName" type="string" uniform="true" value="subsurface" uiname="SSS Exit Lobe Name" uifolder="Advanced"
-           doc="Defines the name that can be used in LPE AOVs for the SSS Exit lobe. When a pattern network mixes results of several LamaSSS nodes, those nodes must have different sssExitLobeName or different sssId. (Note that the sssExitLobeNames need to be defined as diffuse LPEs.)" />
     <input name="sssId" type="integer" uniform="true" value="0" enum="0, 1" enumvalues="0, 1" uiname="SSS Id" uifolder="Advanced"
            doc="Several SSS materials can share the same sssExitLobeName, but if they do, they must have a different sssId. This is necessary when mixing two materials with the same sssExitLobeName. Note that if their lobe names are different, the sssId is irrelevant." />
-    <input name="matte" type="string" uniform="true" value="" uiname="Matte" uifolder="Advanced"
-           doc="Defines the name that can be used by the matte system, to output the weight of this lobe in the final material as an AOV." />
     <output name="out" type="BSDF" />
   </nodedef>
 
