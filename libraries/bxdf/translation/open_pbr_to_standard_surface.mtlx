@@ -198,9 +198,9 @@
     <dot name="coatAffectColor" type="float">
       <input name="in" type="float" interfacename="coat_darkening" />
     </dot>
-    <dot name="coatAffectRoughness" type="float">
-      <input name="in" type="float" value="1.0" />
-    </dot>
+    <constant name="coatAffectRoughness" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
 
     <!--ThinFilm-->
     <multiply name="thinFilmThicknessConversion" type="float">
