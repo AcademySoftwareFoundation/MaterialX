@@ -199,7 +199,7 @@
       <input name="in" type="float" interfacename="coat_darkening" />
     </dot>
     <dot name="coatAffectRoughness" type="float">
-      <input name="in" type="float" interfacename="coat_darkening" />
+      <input name="in" type="float" value="1.0" />
     </dot>
 
     <!--ThinFilm-->
