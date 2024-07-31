@@ -319,17 +319,6 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
 
 
 
-### Convolution Nodes
-
-<a id="node-blur"> </a>
-
-* **`blur`**: a convolution blur.
-    * `in` (float or color<em>N</em> or vector<em>N</em>): the input value or nodename
-    * `size` (float): the size of the blur kernel, relative to 0-1 UV space; default is 0.
-    * `filtertype` (uniform string): the spatial filter used in the blur, either "box" for a linear box filter, or "gaussian" for a gaussian filter.  Default is "box".
-
-
-
 <p>&nbsp;<p><hr><p>
 
 # Proposals: PBR Nodes<a id="propose-pbr-nodes"></a>
