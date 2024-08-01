@@ -87,9 +87,9 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
+function toThreeUniform(viewer, type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
-    let outValue;
+    let outValue = null;
     switch (type)
     {
         case 'float':
@@ -117,18 +117,65 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
         case 'filename':
             if (value)
             {
-                let fullPath = searchPath + IMAGE_PATH_SEPARATOR + value;
-                const texture = textureLoader.load(fullPath);
-                // Set address & filtering mode
-                if (texture)
-                    setTextureParameters(texture, name, uniforms, flipY);
-                outValue = texture;
+                // Cache / reuse texture to avoid reload overhead.
+                // Note: that data blobs and embedded data textures are not cached as they are transient data.
+                let checkCache = true;
+                let texturePath = searchPath + IMAGE_PATH_SEPARATOR + value;
+                if (value.startsWith('blob:'))   
+                {
+                    texturePath = value;
+                    console.log('Load blob URL:', texturePath);
+                    checkCache = false;
+                }
+                else if (value.startsWith('http'))
+                {
+                    texturePath = value;
+                    console.log('Load HTTP URL:', texturePath);
+                }
+                else if (value.startsWith('data:'))
+                {
+                    texturePath = value;
+                    checkCache = false;
+                    console.log('Load data URL:', texturePath);
+                }
+                const cachedTexture = checkCache && THREE.Cache.get(texturePath);
+                if (cachedTexture)
+                {
+                    // Get texture from cache
+                    outValue = cachedTexture;
+                    console.log('Use cached texture: ', texturePath, outValue);
+                }
+                else
+                {
+                    outValue = textureLoader.load(
+                        texturePath, 
+                        function (texture) {
+                            console.log('Load new texture: ' + texturePath, texture);
+                            outValue = texture;
+
+                            // Add texture to ThreeJS cache
+                            if (checkCache)
+                                THREE.Cache.add(texturePath, texture);
+
+                            viewer.scheduleUpdate();
+                        },
+                        undefined,
+                        function (error) {
+                            console.error('Error loading texture: ', error);
+                        });     
+
+                    // Set address & filtering mode
+                    if (outValue)
+                        setTextureParameters(outValue, name, uniforms, flipY);
+                }
             }
             break;
         case 'samplerCube':
         case 'string':
-        default:
             break;
+        default:
+            console.log('Value type not supported: ' + type);
+            outValue = null;
     }
 
     return outValue;
@@ -283,7 +330,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
+export function getUniformValues(viewer, shaderStage, textureLoader, searchPath, flipY)
 {
     let threeUniforms = {};
 
@@ -297,7 +344,8 @@ export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
                 const variable = uniforms.get(i);
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms,
+                //console.log('fill uniform, name:', name, ', value:', value);
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(viewer, variable.getType().getName(), value, name, uniforms,
                     textureLoader, searchPath, flipY));
             }
         }
