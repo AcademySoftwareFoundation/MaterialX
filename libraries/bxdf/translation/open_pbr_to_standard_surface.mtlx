@@ -95,17 +95,7 @@
 
   <nodegraph name="NG_open_pbr_surface_to_standard_surface" nodedef="ND_open_pbr_surface_to_standard_surface">
 
-    <!--Base-->
-    <dot name="base" type="float">
-      <input name="in" type="float" interfacename="base_weight" />
-    </dot>
-    <dot name="diffuseRoughness" type="float">
-      <input name="in" type="float" interfacename="base_diffuse_roughness" />
-    </dot>
-    <dot name="metalness" type="float">
-      <input name="in" type="float" interfacename="base_metalness" />
-    </dot>
-    <!-- Coat Darkening for Base Color  -->
+    <!-- Coat Darkening -->
     <subtract name="coat_ior_minus_one" type="float">
       <input name="in1" type="float" interfacename="coat_ior" />
       <input name="in2" type="float" value="1.0" />
@@ -185,6 +175,17 @@
       <input name="bg" type="color3" value="1.0, 1.0, 1.0" />
       <input name="mix" type="float" nodename="coat_weight_times_coat_darkening" />
     </mix>
+
+    <!--Base-->
+    <dot name="base" type="float">
+      <input name="in" type="float" interfacename="base_weight" />
+    </dot>
+    <dot name="diffuseRoughness" type="float">
+      <input name="in" type="float" interfacename="base_diffuse_roughness" />
+    </dot>
+    <dot name="metalness" type="float">
+      <input name="in" type="float" interfacename="base_metalness" />
+    </dot>
     <multiply name="baseColor" type="color3">
       <input name="in1" type="color3" interfacename="base_color" />
       <input name="in2" type="color3" nodename="modulated_base_darkening" />
