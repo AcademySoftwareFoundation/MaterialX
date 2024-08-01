@@ -992,12 +992,21 @@ void Document::upgradeVersion()
             { "color3", 3 }, { "color4", 4 },
             { "vector2", 2 }, { "vector3", 3 }, { "vector4", 4 }
         };
-        const StringSet CHANNEL_CONVERT_PATTERNS =
-        {
-            "rgb", "rgba", "xyz", "xyzw", "rrr", "xxx"
+
+        // Pairs of channels string & source channel count.
+        // Source channel count is needed to filter out multi-channel inputs when only the first channel is being used.
+        const vector<std::pair<std::string, size_t>> CHANNEL_CONVERT_PATTERNS = {
+            { { "rgb", 3 }, { "rgb", 4 }, { "rgba", 4 }, { "xyz", 3 }, { "xyz", 4 }, { "xyzw", 4 }, { "rrr", 1 }, { "xxx", 1 }, { "rr", 1 }, { "xx", 1 } }
         };
-        const vector<std::pair<StringSet, string>> CHANNEL_ATTRIBUTE_PATTERNS =
+        auto matchesConvertPattern = [&](const string& channels, size_t sourceChannelCount)
         {
+            for (auto& pattern : CHANNEL_CONVERT_PATTERNS)
+                if (pattern == std::make_pair(channels, sourceChannelCount))
+                    return true;
+            return false;
+        };
+
+        const vector<std::pair<StringSet, string>> CHANNEL_ATTRIBUTE_PATTERNS = {
             { { "xx", "xxx", "xxxx" }, "float" },
             { { "xyz", "x", "y", "z" }, "vector3" },
             { { "rgba", "a" }, "color4" }
@@ -1169,8 +1178,10 @@ void Document::upgradeVersion()
                     CHANNEL_COUNT_MAP.count(node->getType()))
                 {
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
-                    size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
-                    size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
+                    string sourceType = inInput->getType();
+                    string destType = node->getType();
+                    size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(sourceType);
+                    size_t destChannelCount = CHANNEL_COUNT_MAP.at(destType);
 
                     // Resolve the invalid case of having both a connection and a value
                     // by removing the value attribute.
@@ -1228,7 +1239,7 @@ void Document::upgradeVersion()
                             node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
                         }
                     }
-                    else if (CHANNEL_CONVERT_PATTERNS.count(channelString))
+                    else if (sourceType != destType && matchesConvertPattern(channelString, sourceChannelCount))
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
