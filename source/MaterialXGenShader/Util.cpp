@@ -117,7 +117,7 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
     }
 
     // Check against nodedef input hints
-    OpaqueTestPairList testList = DEFAULT_INPUT_PAIR_LIST;
+    OpaqueTestPairList inputPairList = DEFAULT_INPUT_PAIR_LIST;
     NodeDefPtr nodeDef = node->getNodeDef();
     StringMap nodeDefList = nodeDef ? nodeDef->getInputHints() : StringMap();
     for (auto &item : nodeDefList)
@@ -125,11 +125,11 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
         string inputName = item.first;
         if (item.second == Input::TRANSPARENCY_HINT)
         {
-            testList.push_back(std::make_pair(inputName, 0.0f) );
+            inputPairList.push_back(std::make_pair(inputName, 0.0f) );
         }
         else if (item.second == Input::OPACITY_HINT)
         {
-            testList.push_back(std::make_pair(inputName, 1.0f));
+            inputPairList.push_back(std::make_pair(inputName, 1.0f));
         }
     }
 
@@ -137,7 +137,7 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
     OpaqueTestPairList interfaceNames;
     if (interfaceNode)
     {
-        for (auto inputPair : testList)
+        for (auto inputPair : inputPairList)
         {
             InputPtr checkInput = node->getActiveInput(inputPair.first);
             if (checkInput)
@@ -161,7 +161,7 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
     // Check against the child input or the corresponding
     // functional nodegraph's interface if the input is mapped
     // via an interface name.
-    for (auto inputPair : testList)
+    for (auto inputPair : inputPairList)
     {
         InputPtr checkInput = node->getActiveInput(inputPair.first);
         if (checkInput)
