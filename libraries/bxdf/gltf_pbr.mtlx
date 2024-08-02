@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
-  <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" version="2.0.1" isdefaultversion="true">
+  <nodedef name="ND_gltf_pbr_surfaceshader" node="gltf_pbr" nodegroup="pbr" doc="glTF PBR" uiname="glTF PBR" version="2.0.1" isdefaultversion="true">
     <input name="base_color" type="color3" value="1, 1, 1" uimin="0, 0, 0" uimax="1, 1, 1" uiname="Base Color" uifolder="Base" />
     <input name="metallic" type="float" value="1" uimin="0" uimax="1" uiname="Metallic" uifolder="Base" />
     <input name="roughness" type="float" value="1" uimin="0" uimax="1" uiname="Roughness" uifolder="Base" />
@@ -325,7 +325,7 @@
     Node: <gltf_colorimage> Supplemental Node
     Multiply a color4 image modulated by uniform color and geometry color. Default uniform and geometry colors are 1,1,1,1 which results in no change to the image.
   -->
-  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_colorimage" node="gltf_colorimage" uiname="glTF Color Image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="color4" value="0, 0, 0, 0" uifolder="Image" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uifolder="Image" />
@@ -384,7 +384,7 @@
     Node: <gltf_image> 
     color3 image lookup which matches glTF
   -->
-  <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_image_color3_color3_1_0" node="gltf_image" uiname="glTF Image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color3" value="1,1,1" />
     <input name="default" type="color3" value="0, 0, 0" />
@@ -439,7 +439,7 @@
     Node: <gltf_image> 
     color4 image lookup which matches glTF
   -->
-  <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_image_color4_color4_1_0" node="gltf_image" uiname="glTF Image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="color4" value="1,1,1,1" />
     <input name="default" type="color4" value="0, 0, 0, 0" />
@@ -494,7 +494,7 @@
     Node: <gltf_image> 
     float image lookup which matches glTF
   -->
-  <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_image_float_float_1_0" node="gltf_image" uiname="glTF Image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="factor" type="float" value="1" />
     <input name="default" type="float" value="0" />
@@ -549,7 +549,7 @@
     Node: <gltf_image> 
     vector3 image lookup which matches glTF
   -->
-  <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" uiname="glTF Image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
@@ -599,7 +599,7 @@
     Node: <gltf_normalmap> 
     normalmap image lookup which matches glTF
   -->
-  <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_normalmap_vector3_1_0" node="gltf_normalmap" uiname="glTF Normal Map" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
     <input name="default" type="vector3" value="0.5, 0.5, 1" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
@@ -652,7 +652,7 @@
     Node: <gltf_iridescence> 
     normalmap image lookup which matches glTF  
   -->
-  <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
+  <nodedef name="ND_gltf_iridescence_thickness_float_1_0" node="gltf_iridescence_thickness" uiname="glTF Iridescence Thickness" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" uifolder="Image" />
     <input name="default" type="vector3" value="0, 0, 0" uifolder="Image" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" uifolder="Image" />

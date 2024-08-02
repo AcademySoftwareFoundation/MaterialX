@@ -7,102 +7,102 @@
     Declarations of the default color transforms in MaterialX.
   -->
 
-  <nodedef name="ND_g18_rec709_to_lin_rec709_color3" node="g18_rec709_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g18_rec709_to_lin_rec709_color3" node="g18_rec709_to_lin_rec709" uiname="Gamma 1.8 Rec. 709 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_g18_rec709_to_lin_rec709_color4" node="g18_rec709_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g18_rec709_to_lin_rec709_color4" node="g18_rec709_to_lin_rec709" uiname="Gamma 1.8 Rec. 709 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_g22_rec709_to_lin_rec709_color3" node="g22_rec709_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g22_rec709_to_lin_rec709_color3" node="g22_rec709_to_lin_rec709" uiname="Gamma 2.2 Rec. 709 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_g22_rec709_to_lin_rec709_color4" node="g22_rec709_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g22_rec709_to_lin_rec709_color4" node="g22_rec709_to_lin_rec709" uiname="Gamma 2.2 Rec. 709 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_rec709_display_to_lin_rec709_color3" node="rec709_display_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_rec709_display_to_lin_rec709_color3" node="rec709_display_to_lin_rec709" uiname="Rec. 709 Display to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_rec709_display_to_lin_rec709_color4" node="rec709_display_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_rec709_display_to_lin_rec709_color4" node="rec709_display_to_lin_rec709" uiname="Rec. 709 Display to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_acescg_to_lin_rec709_color3" node="acescg_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_acescg_to_lin_rec709_color3" node="acescg_to_lin_rec709" uiname="ACEScg to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_acescg_to_lin_rec709_color4" node="acescg_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_acescg_to_lin_rec709_color4" node="acescg_to_lin_rec709" uiname="ACEScg to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_g22_ap1_to_lin_rec709_color3" node="g22_ap1_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g22_ap1_to_lin_rec709_color3" node="g22_ap1_to_lin_rec709" uiname="Gamma 2.2 AP1 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_g22_ap1_to_lin_rec709_color4" node="g22_ap1_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_g22_ap1_to_lin_rec709_color4" node="g22_ap1_to_lin_rec709" uiname="Gamma 2.2 AP1 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_srgb_texture_to_lin_rec709_color3" node="srgb_texture_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_srgb_texture_to_lin_rec709_color3" node="srgb_texture_to_lin_rec709" uiname="sRGB Texture to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_srgb_texture_to_lin_rec709_color4" node="srgb_texture_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_srgb_texture_to_lin_rec709_color4" node="srgb_texture_to_lin_rec709" uiname="sRGB Texture to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_lin_adobergb_to_lin_rec709_color3" node="lin_adobergb_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_lin_adobergb_to_lin_rec709_color3" node="lin_adobergb_to_lin_rec709" uiname="Linear Adobe RGB to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_lin_adobergb_to_lin_rec709_color4" node="lin_adobergb_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_lin_adobergb_to_lin_rec709_color4" node="lin_adobergb_to_lin_rec709" uiname="Linear Adobe RGB to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_adobergb_to_lin_rec709_color3" node="adobergb_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_adobergb_to_lin_rec709_color3" node="adobergb_to_lin_rec709" uiname="Adobe RGB to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_adobergb_to_lin_rec709_color4" node="adobergb_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_adobergb_to_lin_rec709_color4" node="adobergb_to_lin_rec709" uiname="Adobe RGB to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color3" node="srgb_displayp3_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color3" node="srgb_displayp3_to_lin_rec709" uiname="sRGB Display P3 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color4" node="srgb_displayp3_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_srgb_displayp3_to_lin_rec709_color4" node="srgb_displayp3_to_lin_rec709" uiname="sRGB Display P3 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>
 
-  <nodedef name="ND_lin_displayp3_to_lin_rec709_color3" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_lin_displayp3_to_lin_rec709_color3" node="lin_displayp3_to_lin_rec709" uiname="Linear Display P3 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color3" value="0.0, 0.0, 0.0" />
     <output name="out" type="color3" />
   </nodedef>
 
-  <nodedef name="ND_lin_displayp3_to_lin_rec709_color4" node="lin_displayp3_to_lin_rec709" nodegroup="colortransform">
+  <nodedef name="ND_lin_displayp3_to_lin_rec709_color4" node="lin_displayp3_to_lin_rec709" uiname="Linear Display P3 to Linear Rec. 709" nodegroup="colortransform">
     <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
     <output name="out" type="color4" />
   </nodedef>

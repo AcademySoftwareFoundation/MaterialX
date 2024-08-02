@@ -625,7 +625,7 @@
   <!--
     OpenPBR Anisotropy node definition
   -->
-  <nodedef name="ND_open_pbr_anisotropy" node="open_pbr_anisotropy" nodegroup="pbr"
+  <nodedef name="ND_open_pbr_anisotropy" node="open_pbr_anisotropy" uiname="OpenPBR Anisotropy" nodegroup="pbr"
            doc="Computes anisotropic surface roughness as defined in the OpenPBR specification.">
     <input name="roughness" type="float" value="0.0" />
     <input name="anisotropy" type="float" value="0.0" />

@@ -21,7 +21,7 @@
     Node: <viewdirection>
     The current scene view direction, as defined by the shading environment.
   -->
-  <nodedef name="ND_viewdirection_vector3" node="viewdirection" nodegroup="npr">
+  <nodedef name="ND_viewdirection_vector3" node="viewdirection" uiname="View Direction" nodegroup="npr">
     <input name="space" type="string" value="world" enum="model,object,world" uniform="true" />
     <output name="out" type="vector3" default="0.0, 0.0, 1.0" />
   </nodedef>
@@ -31,7 +31,7 @@
     Return the geometric facing ratio, computed as the dot product between the
     view direction and geometric normal.
   -->
-  <nodedef name="ND_facingratio_float" node="facingratio" nodegroup="npr">
+  <nodedef name="ND_facingratio_float" node="facingratio" uiname="Facing Ratio" nodegroup="npr">
     <input name="viewdirection" type="vector3" defaultgeomprop="Vworld" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <input name="faceforward" type="boolean" value="true" />
