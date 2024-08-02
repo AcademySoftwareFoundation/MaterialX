@@ -235,16 +235,10 @@
     <dot name="subsurface" type="float">
       <input name="in" type="float" interfacename="subsurface_weight" />
     </dot>
-    <multiply name="subsurfaceColorMultiply" type="color3">
+    <multiply name="subsurfaceColor" type="color3">
       <input name="in1" type="color3" interfacename="subsurface_color" />
       <input name="in2" type="color3" nodename="modulated_base_darkening" />
     </multiply>
-    <ifgreater name="subsurfaceColor" type="color3">
-      <input name="value1" type="float" interfacename="subsurface_weight" />
-      <input name="value2" type="float" value="0.0" />
-      <input name="in1" type="color3" nodename="subsurfaceColorMultiply" />
-      <input name="in2" type="color3" interfacename="subsurface_color" />
-    </ifgreater>
     <dot name="subsurfaceScale" type="float">
       <input name="in" type="float" interfacename="subsurface_radius" />
     </dot>
