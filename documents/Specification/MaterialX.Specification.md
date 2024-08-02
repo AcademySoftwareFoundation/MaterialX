@@ -56,7 +56,6 @@ This document describes the core MaterialX specification.  Companion documents [
   [Noise Nodes](#noise-nodes)  
   [Shape Nodes](#shape-nodes)  
   [Geometric Nodes](#geometric-nodes)  
-  [Global Nodes](#global-nodes)  
   [Application Nodes](#application-nodes)  
 
  [Standard Operator Nodes](#standard-operator-nodes)  
@@ -664,7 +663,7 @@ MaterialX also supports the following additional attributes for Output elements 
 
 Source nodes use external data and/or procedural functions to form an output; they do not have any required inputs.  Each source node must define its output type.
 
-This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Noise Nodes](#noise-nodes), [Shape Nodes](#shape-nodes), [Geometric Nodes](#geometric-nodes), [Global Nodes](#global-nodes) and [Application Nodes](#application-nodes).
+This section defines the Source Nodes that all MaterialX implementations are expected to support.  Standard Source Nodes are grouped into the following classifications: [Texture Nodes](#texture-nodes), [Procedural Nodes](#procedural-nodes), [Noise Nodes](#noise-nodes), [Shape Nodes](#shape-nodes), [Geometric Nodes](#geometric-nodes) and [Application Nodes](#application-nodes).
 
 
 ### Texture Nodes
@@ -1116,16 +1115,6 @@ The following values are supported by the `space` inputs of Geometric nodes and 
 * "tangent": A coordinate space defined by the tangent, bitangent and normal vectors of the geometry.
 
 Applications may also reference other renderer-specific named spaces, at the expense of portability.
-
-
-
-### Global Nodes
-
-Global nodes generate color data using non-local geometric context, requiring access to geometric features beyond the surface point being processed.  This non-local context can be provided by tracing rays into the scene, rasterizing scene geometry, or any other appropriate method.
-
-Standard Global nodes:
-
-There are currently no Global Nodes implemented in MaterialX.
 
 
 
@@ -2069,7 +2058,7 @@ Attributes for &lt;nodedef> elements:
 * `name` (string, required): a unique name for this &lt;nodedef>
 * `node` (string, required): the name of the custom node being defined
 * `inherit` (string, optional): the `name` of a &lt;nodedef> to inherit node definitions from; the output types of this nodedef and the inherited one must match, and the input/output definitions of this nodedef will be applied on top of those in the inherited-from one.
-* `nodegroup` (string, optional): an optional group to which this node declaration belongs.  Standard MaterialX nodes have `nodegroup` values matching the titles of the section headings in which they are described, e.g. "texture2d", "procedural", "geometric", "global", "application", "math", "adjustment", "compositing", "conditional", "channel", "convolution", or "organization".
+* `nodegroup` (string, optional): an optional group to which this node declaration belongs.  Standard MaterialX nodes have `nodegroup` values matching the titles of the section headings in which they are described, e.g. "texture2d", "procedural", "geometric", "application", "math", "adjustment", "compositing", "conditional", "channel", "convolution", or "organization".
 * `version` (string, optional): a version string for this nodedef, allowing usage of a node to reference a specific version of a node.  Version strings should be of the format "_major_[._minor_]", i.e. one or two integer numbers separated by a dot (the minor version is assumed to be "0" if not provided).  If there are multiple nodedefs for the same `node` and `target` with the same combination of input and output types, they must each specify a `version`.
 * `isdefaultversion` (boolean, optional): If true, then this nodedef should be used for node instances which do not request a specific version.  Specifying `isdefaultversion` "true" is only required if there are multiple nodedefs for a node declaring a `version`, and it is not permissible for multiple nodedefs for the same `node` and `target` with the same combination of input and output types to set `isdefaultversion` "true".  Defaults to "false".
 * `target` (stringarray, optional): the set of targets to which this nodedef is restricted.  By default, a nodedef is considered universal, not restricted to any specific targets, but it is possible that certain targets may have different parameter names or usage for the same node.
