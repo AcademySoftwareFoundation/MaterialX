@@ -10,11 +10,9 @@
 #include <MaterialXFormat/XmlIo.h>
 #include <MaterialXFormat/Util.h>
 
-// TODO: move to format/ ?
-
 namespace mx = MaterialX;
 
-const char* swizzleDoc1 = R"(
+const char* swizzleDoc = R"(
 <?xml version="1.0"?>
 <materialx version="1.38">
   <constant name="f" type="float">
@@ -59,7 +57,7 @@ TEST_CASE("Handling 1.38 swizzle nodes", "[version]")
 
     auto doc = mx::createDocument();
     doc->importLibrary(libs);
-    mx::readFromXmlBuffer(doc, swizzleDoc1);
+    mx::readFromXmlBuffer(doc, swizzleDoc);
     doc->validate();
 
     struct ExpectedNodes
