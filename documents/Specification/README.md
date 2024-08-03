@@ -11,6 +11,7 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 * [**MaterialX NPR Shading Nodes**](./MaterialX.NPRSpec.md) - specifies shading nodes that are designed for use in non-photorealistic and stylized rendering
 * [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) - additional MaterialX elements to define geometry-related information such as collections, properties and material assignments
 * [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes recommended naming and structuring conventions for libraries of custom node definitions
+* [**MaterialX: Proposed Additions and Changes**](./MaterialX.Proposals.md) - describes proposed future updates to various components of the Specification
 
 <p>
 
