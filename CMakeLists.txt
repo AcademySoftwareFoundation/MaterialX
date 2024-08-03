@@ -182,14 +182,17 @@ endif()
 
 # Attempt to configure OSL testing if it can be found by cmake.
 # This will not override any explicitly provided oslc and testrender
-find_package(OSL)
-if(OSL_FOUND)
-    if(NOT MATERIALX_OSL_BINARY_OSLC)
-        set(MATERIALX_OSL_BINARY_OSLC $<TARGET_FILE:OSL::oslc>)
-    endif()
-    if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
-        # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
-        set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+    # We currently only need the actual OSL binaries if we're running tests with Render and GenOSL enabled.
+    find_package(OSL QUIET)
+    if(OSL_FOUND)
+        if(NOT MATERIALX_OSL_BINARY_OSLC)
+            set(MATERIALX_OSL_BINARY_OSLC $<TARGET_FILE:OSL::oslc>)
+        endif()
+        if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
+            # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
+            set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
     endif()
 endif()
 
