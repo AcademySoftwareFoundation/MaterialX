@@ -59,5 +59,3 @@ There are MaterialX specific patches applied on top of the v1.9 release
 PugiXML
    * Adding tracking for new-line characters
    * Adding support for serialization of `<` and `>` instead of `&lt` and `&gt`
-
-The patches are recorded in the pugi.patch file.
