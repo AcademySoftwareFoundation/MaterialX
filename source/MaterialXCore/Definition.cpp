@@ -100,6 +100,19 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     return InterfaceElementPtr();
 }
 
+const StringMap NodeDef::getInputHints() const
+{
+    StringMap hints;
+    for (InputPtr input : getActiveInputs())
+    {
+        if (input->hasHint())
+        {
+            hints[input->getName()] = input->getHint();
+        }
+    }
+    return hints;
+}
+
 bool NodeDef::validate(string* message) const
 {
     bool res = true;
