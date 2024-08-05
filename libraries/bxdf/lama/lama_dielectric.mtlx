@@ -5,7 +5,7 @@
            doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
     <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Transmission Tint" uifolder="Main"
            doc="Color multiplier for rays going inside the medium (covers external transmission and internal reflection). It should be used with parcimony, as a non-white value breaks physicality. The prefered way to define the color of a dielectric is through the Interior attributes right below." />
-    <input name="fresnelMode" type="integer" uniform="true" enum="Scientific,Artistic" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
+    <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
            doc="Switches the Fresnel parameterization between Artistic and Scientific mode. The Artistic mode offers a scalar value defining the reflectivity in the normal direction. The Scientific mode proposes an index of refraction. Both parameterizations can achieve identical results, as one can be mapped to the other." />
     <input name="IOR" type="float" value="1.5" uimin="1.0" uimax="3.0" uiname="IOR" uifolder="Main"
            doc="Index of refraction (often denoted by eta), defining the amount reflected by the surface in the normal direction, and how the rays are bent by refraction." />
@@ -47,8 +47,8 @@
       <input name="index" type="integer" value="0" />
     </extract>
     <switch name="fresnel_mode_switch" type="float">
-      <input name="in1" type="float" interfacename="IOR" />
-      <input name="in2" type="float" nodename="ior_float" />
+      <input name="in1" type="float" nodename="ior_float" />
+      <input name="in2" type="float" interfacename="IOR" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
 

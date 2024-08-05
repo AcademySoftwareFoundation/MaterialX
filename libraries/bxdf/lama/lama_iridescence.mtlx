@@ -5,6 +5,10 @@
            doc="Micro-facet distribution roughness." />
     <input name="anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Anisotropy" uifolder="Anisotropy"
            doc="Defines the amount of anisotropy, changing the co-tangent axis roughness from the original value to 1 (or to 0 with a negative value)." />
+    <input name="anisotropyDirection" type="vector3" defaultgeomprop="Tworld" uiname="Direction" uifolder="Anisotropy"
+               doc="Overrides the surface tangent as the anisotropy direction." />
+    <input name="anisotropyRotation" type="float" value="0.0" uisoftmin="0.0" uisoftmax="1.0" uiname="Rotation" uifolder="Anisotropy"
+           doc="Rotates the anisotropy direction (possibly overriden by the previous attribute) around the normal, from 0 to 360 degrees." />
     <input name="relativeFilmThickness" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Relative Thickness" uifolder="Main"
            doc="Relative thin film thickness in the range from 0 to 1 will be scaled to the minimum and maximum thickness, respectively." />
     <input name="minFilmThickness" type="float" value="400.0" uimin="0.0" uisoftmin="0.0" uisoftmax="1000.0" uiname="Min. Thickness" uifolder="Main"
@@ -53,6 +57,27 @@
       <input name="in2" type="float" value="0.000001" />
     </max>
 
+    <!-- Tangent -->
+    <normal name="tangent_normal" type="vector3">
+      <input name="space" type="string" value="world" />
+    </normal>
+    <multiply name="tangent_rotate_degree" type="float">
+      <input name="in1" type="float" interfacename="anisotropyRotation" />
+      <input name="in2" type="float" value="-360" />
+    </multiply>
+    <subtract name="tangent_rotate_degree_offset" type="float">
+      <input name="in1" type="float" nodename="tangent_rotate_degree" />
+      <input name="in2" type="float" value="0" />
+    </subtract>
+    <rotate3d name="tangent_rotate" type="vector3">
+      <input name="in" type="vector3" interfacename="anisotropyDirection" />
+      <input name="amount" type="float" nodename="tangent_rotate_degree_offset" />
+      <input name="axis" type="vector3" nodename="tangent_normal" /> />
+    </rotate3d>
+    <normalize name="tangent_rotate_normalize" type="vector3">
+      <input name="in" type="vector3" nodename="tangent_rotate" />
+    </normalize>
+
     <!-- Thinfilm Thickness -->
     <mix name="thinfilm_thickness" type="float">
       <input name="fg" type="float" interfacename="maxFilmThickness" />
@@ -66,6 +91,7 @@
       <input name="ior" type="float" value="1.0" />
       <input name="thinfilm_thickness" type="float" nodename="thinfilm_thickness" />
       <input name="thinfilm_ior" type="float" interfacename="filmIOR" />
+      <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
       <input name="distribution" type="string" value="ggx" />
       <input name="scatter_mode" type="string" value="RT" />
     </dielectric_bsdf>

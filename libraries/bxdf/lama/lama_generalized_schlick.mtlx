@@ -5,7 +5,7 @@
            doc="Color multiplier for external reflection. It should be used with parcimony, as a non-white value breaks physicality." />
     <input name="transmissionTint" type="color3" value="1.0, 1.0, 1.0" uiname="Transmission Tint" uifolder="Main"
            doc="Color multiplier for rays going inside the medium (covers external transmission and internal reflection). It should be used sparingly, as a non-white value breaks physicality. The prefered way to define the color of a dielectric is through the Interior attributes right below." />
-    <input name="fresnelMode" type="integer" uniform="true" enum="Scientific, Artistic" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
+    <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
            doc="Switches the Fresnel between Artistic and Scientific parameters. The Artistic mode offers reflectivity in the normal direction and reflectivity90 at the grazing angle. The Scientific mode provides an index of refraction for each rgb component. Note that IOR is only used to calculate the reflectivity value used by the Schlick approximation. When reflectivity90 is 1, then both modes achieve identical results, as one can be mapped to the other." />
     <input name="IOR" type="vector3" value="1.5,1.5,1.5" uiname="IOR" uifolder="Main"
            doc="Index of refraction (often denoted by eta), defining the amount reflected by the surface in the normal direction, and how the rays are bent by refraction. A separate value can be specified for each color channel, if desired." />
@@ -19,7 +19,7 @@
            doc="Micro-facet distribution roughness." />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" uiname="Normal" uifolder="Main"
            doc="Shading normal, typically defined by bump or normal mapping. Defaults to the smooth surface normal if not set." />
-    <input name="anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Anisotropy" uifolder="Anisotropy"
+    <input name="anisotropy" type="float" value="-1.0" uimin="-1.0" uimax="1.0" uiname="Anisotropy" uifolder="Anisotropy"
            doc="Defines the roughness in the co-tangent direction, giving anisotropic reflection if the value differs from the roughness parameter value. A negative value (the default) means use the original roughness value, i.e. no anisotropy. " />
     <input name="anisotropyDirection" type="vector3" defaultgeomprop="Tworld" uiname="Direction" uifolder="Anisotropy"
            doc="Overrides the surface tangent as the anisotropy direction." />
@@ -38,7 +38,7 @@
 
   <nodegraph name="IMPL_lama_generalized_schlick" nodedef="ND_lama_generalized_schlick">
 
-    <!-- Color0 -->
+    <!-- Color0 and Color90 -->
     <convert name="convert_ior" type="color3">
       <input name="in" type="vector3" interfacename="IOR" />
     </convert>
@@ -59,10 +59,18 @@
       <input name="in2" type="color3" nodename="ior_divide" />
     </multiply>
     <switch name="fresnel_mode_switch" type="color3">
-      <input name="in1" type="color3" nodename="ior_multiply"  />
-      <input name="in2" type="color3" interfacename="reflectivity" />
+      <input name="in1" type="color3" interfacename="reflectivity" />
+      <input name="in2" type="color3" nodename="ior_multiply" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
+    <subtract name="transmission_color0" type="color3">
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="in2" type="color3" interfacename="reflectivity" />
+    </subtract>
+    <subtract name="transmission_color90" type="color3">
+      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
+      <input name="in2" type="color3" interfacename="reflectivity90" />
+    </subtract>
 
     <!-- Exponent -->
     <divide name="exponent" type="float">
@@ -71,30 +79,15 @@
     </divide>
 
     <!-- Roughness -->
-    <subtract name="roughness_inverse" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="roughness" />
-    </subtract>
-    <ifgreatereq name="delta" type="float">
-      <input name="in1" type="float" nodename="roughness_inverse" />
-      <input name="in2" type="float" interfacename="roughness" />
+    <ifgreater name="anisotropy_switch" type="float">
       <input name="value1" type="float" interfacename="anisotropy" />
-      <input name="value2" type="float" value="0" />
-    </ifgreatereq>
-    <multiply name="roughness_additional" type="float">
+      <input name="value2" type="float" value="0.0" />
       <input name="in1" type="float" interfacename="anisotropy" />
-      <input name="in2" type="float" nodename="delta" />
-    </multiply>
-    <add name="roughness_bitangent" type="float">
-      <input name="in1" type="float" interfacename="roughness" />
-      <input name="in2" type="float" nodename="roughness_additional" />
-    </add>
-    <clamp name="roughness_bitangent_clamped" type="float">
-      <input name="in" type="float" nodename="roughness_bitangent" />
-    </clamp>
+      <input name="in2" type="float" interfacename="roughness" />
+    </ifgreater>
     <combine2 name="roughness_linear" type="vector2">
       <input name="in1" type="float" interfacename="roughness" />
-      <input name="in2" type="float" nodename="roughness_bitangent_clamped" />
+      <input name="in2" type="float" nodename="anisotropy_switch" />
     </combine2>
     <power name="roughness_anisotropic_squared" type="vector2">
       <input name="in1" type="vector2" nodename="roughness_linear" />
@@ -139,8 +132,8 @@
     <!-- Transmission -->
     <generalized_schlick_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" interfacename="transmissionTint" />
-      <input name="color90" type="color3" interfacename="reflectivity90" />
+      <input name="color0" type="color3" nodename="transmission_color0" />
+      <input name="color90" type="color3" nodename="transmission_color90" />
       <input name="exponent" type="float" nodename="exponent" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
@@ -148,10 +141,14 @@
       <input name="distribution" type="string" value="ggx" />
       <input name="scatter_mode" type="string" value="T" />
     </generalized_schlick_bsdf>
-    <layer name="transmission_layer" type="BSDF">
+    <layer name="transmission_interior" type="BSDF">
       <input name="top" type="BSDF" nodename="transmission_bsdf" />
       <input name="base" type="VDF" nodename="interior_vdf" />
     </layer>
+    <multiply name="transmission_layer" type="BSDF">
+      <input name="in1" type="BSDF" nodename="transmission_interior" />
+      <input name="in2" type="color3" interfacename="transmissionTint" />
+    </multiply>
 
     <!-- Reflection -->
     <generalized_schlick_bsdf name="reflection_generalized_schlick_bsdf" type="BSDF">
@@ -165,7 +162,6 @@
       <input name="distribution" type="string" value="ggx" />
       <input name="scatter_mode" type="string" value="R" />
     </generalized_schlick_bsdf>
-
     <multiply name="reflection_layer" type="BSDF">
       <input name="in1" type="BSDF" nodename="reflection_generalized_schlick_bsdf" />
       <input name="in2" type="color3" interfacename="reflectionTint" />

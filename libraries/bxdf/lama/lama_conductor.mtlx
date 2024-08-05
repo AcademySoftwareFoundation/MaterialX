@@ -3,7 +3,7 @@
   <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor" version="1.0" isdefaultversion="true">
     <input name="tint" type="color3" value="1, 1, 1" uiname="Tint" uifolder="Main"
            doc="Overall color multiplier. It should be used with parcimony, as a non-white value breaks physicality. The prefered way to define the color of a conductor is through the Fresnel attributes right below." />
-    <input name="fresnelMode" type="integer" uniform="true" enum="Scientific,Artistic" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
+    <input name="fresnelMode" type="integer" uniform="true" enum="Artistic,Scientific" enumvalues="0,1" value="0" uiname="Fresnel Mode" uifolder="Main"
            doc="Switches the Fresnel between Artistic and Scientific parameters. The Artistic mode offers reflectivity in the normal direction and reflectivity90 at the grazing angle. The Scientific mode provides an index of refraction for each rgb component. Note that IOR is only used to calculate the reflectivity value used by the Schlick approximation. When reflectivity90 is 1, then both modes achieve identical results, as one can be mapped to the other." />
     <input name="IOR" type="vector3" value="0.180000007153,0.419999986887,1.37000000477" uiname="IOR" uifolder="Main"
            doc="Index of refraction (often denoted by eta), defining the color reflected by the surface in the normal direction." />
@@ -40,13 +40,13 @@
       <input name="in" type="vector3" interfacename="extinction" />
     </convert>
     <switch name="eta_switch" type="color3">
-      <input name="in1" type="color3" nodename="convert_ior" />
-      <input name="in2" type="color3" nodename="artistic_ior" output="ior" />
+      <input name="in1" type="color3" nodename="artistic_ior" output="ior" />
+      <input name="in2" type="color3" nodename="convert_ior" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
     <switch name="kappa_switch" type="color3">
-      <input name="in1" type="color3" nodename="convert_extinction" />
-      <input name="in2" type="color3" nodename="artistic_ior" output="extinction" />
+      <input name="in1" type="color3" nodename="artistic_ior" output="extinction" />
+      <input name="in2" type="color3" nodename="convert_extinction" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
 
@@ -109,8 +109,6 @@
       <input name="tangent" type="vector3" nodename="tangent_rotate_normalize" />
       <input name="distribution" type="string" value="ggx" />
     </conductor_bsdf>
-
-    <!-- Layered BRDF -->
 
     <!-- Tinted BRDF -->
     <multiply name="tinted_bsdf" type="BSDF">
