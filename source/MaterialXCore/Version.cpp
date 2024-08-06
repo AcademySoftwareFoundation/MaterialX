@@ -1002,8 +1002,12 @@ void Document::upgradeVersion()
         auto matchesConvertPattern = [&](const string& channels, size_t sourceChannelCount)
         {
             for (auto& pattern : CHANNEL_CONVERT_PATTERNS)
+            {
                 if (pattern == std::make_pair(channels, sourceChannelCount))
+                {
                     return true;
+                }
+            }
             return false;
         };
 
