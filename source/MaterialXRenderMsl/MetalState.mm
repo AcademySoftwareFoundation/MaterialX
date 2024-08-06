@@ -8,6 +8,8 @@
 
 #include <MaterialXRenderMsl/MetalFramebuffer.h>
 
+MATERIALX_NAMESPACE_BEGIN
+
 std::unique_ptr<MetalState> MetalState::singleton = nullptr;
 
 MetalState::MetalState()
@@ -239,3 +241,5 @@ MaterialX::MetalFramebufferPtr MetalState::currentFramebuffer()
 {
     return framebufferStack.top();
 }
+
+MATERIALX_NAMESPACE_END

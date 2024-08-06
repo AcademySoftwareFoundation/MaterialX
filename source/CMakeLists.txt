@@ -5,6 +5,9 @@ if (MATERIALX_BUILD_MONOLITHIC)
     # such that the individual module would have been built if not in monolithic build mode
     add_library(${MATERIALX_MODULE_NAME} "" "" )
 
+    set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
     # Create version resource
     if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
         configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
