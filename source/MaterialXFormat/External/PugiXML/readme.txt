@@ -55,7 +55,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 These files are taken from https://github.com/zeux/pugixml/tree/v1.9
 
-There are MaterialX specific patches applied on top of the v1.9 release
-PugiXML
+The following MaterialX-specific modifications have been applied the original source:
    * Adding tracking for new-line characters
    * Adding support for serialization of `<` and `>` instead of `&lt` and `&gt`
