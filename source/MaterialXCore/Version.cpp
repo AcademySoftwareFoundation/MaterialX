@@ -992,12 +992,12 @@ void Document::upgradeVersion()
             { "color3", 3 }, { "color4", 4 },
             { "vector2", 2 }, { "vector3", 3 }, { "vector4", 4 }
         };
-
-        // Pairs of channels string & source channel count.
-        // Source channel count is needed to filter out multi-channel inputs when only the first channel is being used.
         const vector<std::pair<std::string, size_t>> CHANNEL_CONVERT_PATTERNS =
         {
-            { { "rgb", 3 }, { "rgb", 4 }, { "rgba", 4 }, { "xyz", 3 }, { "xyz", 4 }, { "xyzw", 4 }, { "rrr", 1 }, { "xxx", 1 }, { "rr", 1 }, { "xx", 1 } }
+            { "rgb", 3 }, { "rgb", 4 }, { "rgba", 4 },
+            { "xyz", 3 }, { "xyz", 4 }, { "xyzw", 4 },
+            { "rr", 1 }, { "rrr", 1 },
+            { "xx", 1 }, { "xxx", 1 }
         };
         auto matchesConvertPattern = [&](const string& channels, size_t sourceChannelCount)
         {
