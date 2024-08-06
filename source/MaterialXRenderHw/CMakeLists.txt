@@ -27,19 +27,19 @@ mx_add_library(MaterialXRenderHw
     ADD_OBJECTIVE_C_CODE)
 
 if(APPLE)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             "-framework Foundation"
             "-framework Metal")
     if (NOT MATERIALX_BUILD_IOS)
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+                PUBLIC
                 "-framework Cocoa"
         )
     endif()
 elseif(UNIX)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             X11::X11
             X11::Xt)
 endif()

@@ -300,7 +300,8 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             SOURCE_FILES
             HEADER_FILES
             INLINED_FILES
-            LIBRARIES)
+            LIBRARIES
+            PRIVATE_LIBRARIES)
     cmake_parse_arguments(args
             "${options}"
             "${oneValueArgs}"
@@ -328,10 +329,14 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+            PUBLIC
                 ${args_LIBRARIES}
                 ${CMAKE_DL_LIBS})
+
+        target_link_libraries(${TARGET_NAME}
+             PRIVATE
+                ${args_PRIVATE_LIBRARIES})
 
         target_include_directories(${TARGET_NAME}
                 PUBLIC
@@ -356,6 +361,9 @@ function(mx_add_library MATERIALX_MODULE_NAME)
         # Store the aliased MaterialX modules name to create cmake export aliases later.
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
+
+    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     target_sources(${TARGET_NAME}
         PRIVATE
