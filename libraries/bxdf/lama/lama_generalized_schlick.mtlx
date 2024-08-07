@@ -65,7 +65,7 @@
     </switch>
     <subtract name="transmission_color0" type="color3">
       <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="in2" type="color3" interfacename="reflectivity" />
+      <input name="in2" type="color3" nodename="fresnel_mode_switch" />
     </subtract>
     <subtract name="transmission_color90" type="color3">
       <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
