@@ -5,6 +5,7 @@
   <LamaIridescence name="LamaIridescence" type="BSDF">
     <input name="roughness" type="float" value="0.01" />
     <input name="anisotropy" type="float" value="0.0" />
+    <input name="anisotropyRotation" type="float" value="0.0" />
     <input name="relativeFilmThickness" type="float" value="0.5" />
     <input name="minFilmThickness" type="float" value="400.0" />
     <input name="maxFilmThickness" type="float" value="800.0" />
