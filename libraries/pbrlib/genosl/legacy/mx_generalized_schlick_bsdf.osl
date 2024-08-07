@@ -1,6 +1,6 @@
 #include "../lib/mx_microfacet_specular.osl"
 
-void mx_generalized_schlick_bsdf(float weight, color color0, color color90, float exponent, vector2 roughness, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
+void mx_generalized_schlick_bsdf(float weight, color color0, color color82, color color90, float exponent, vector2 roughness, float thinfilm_thickness, float thinfilm_ior, normal N, vector U, string distribution, string scatter_mode, output BSDF bsdf)
 {
     float avgF0 = dot(color0, color(1.0 / 3.0));
     float ior = mx_f0_to_ior(avgF0);

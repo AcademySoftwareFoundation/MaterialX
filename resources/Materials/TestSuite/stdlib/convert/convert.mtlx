@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Tuple conversion tests to feed into surfaceshader conversions 
        Note that as surfaceshader performs most of the basic tuple
        conversions they are not added explicitly here. -->

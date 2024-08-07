@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="Unit_test_inputGraph" fileprefix="resources/Images/">
     <!-- opacity_output -->
     <output name="base_color_output" type="color3" nodename="base_color_image" />

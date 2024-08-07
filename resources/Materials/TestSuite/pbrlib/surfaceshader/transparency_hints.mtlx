@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="geom_hint" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="geometric_opacity_hint" />
+  </surfacematerial>
+  <open_pbr_surface name="geometric_opacity_hint" type="surfaceshader">
+    <input name="geometry_opacity" type="float" value="0.5" />
+  </open_pbr_surface>
+  <surfacematerial name="transp_hint" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="transparency_weight_hint" />
+  </surfacematerial>
+  <open_pbr_surface name="transparency_weight_hint" type="surfaceshader">
+    <input name="transmission_weight" type="float" value="0.8" />
+  </open_pbr_surface>
+</materialx>

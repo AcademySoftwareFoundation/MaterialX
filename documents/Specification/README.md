@@ -8,8 +8,10 @@ The documents in this folder comprise the complete MaterialX Specification, vers
 
 * [**MaterialX Specification**](./MaterialX.Specification.md) - the main Specification, describing definitions, core functionality and the standard node library
 * [**MaterialX Physically Based Shading Nodes**](./MaterialX.PBRSpec.md) - describes BSDF and other shading function nodes useful in constructing complex layered rendering shaders using node graphs
+* [**MaterialX NPR Shading Nodes**](./MaterialX.NPRSpec.md) - specifies shading nodes that are designed for use in non-photorealistic and stylized rendering
 * [**MaterialX Geometry Extensions**](./MaterialX.GeomExts.md) - additional MaterialX elements to define geometry-related information such as collections, properties and material assignments
 * [**MaterialX Supplemental Notes**](./MaterialX.Supplement.md) - describes recommended naming and structuring conventions for libraries of custom node definitions
+* [**MaterialX: Proposed Additions and Changes**](./MaterialX.Proposals.md) - describes proposed future updates to various components of the Specification
 
 <p>
 
@@ -57,7 +59,7 @@ Additionally, a &lt;nodegraph> could previously declare itself to be an implemen
 
 **Generalized Swizzle Operator Removed**
 
-The standard &lt;swizzle> node using a string of channel names and allowing arbitrary channel reordering is very inefficient (and in some shading languages virtually impossible) to implement as previously specified, and as such has been removed.  Nodegraphs should instead use combinations of &lt;extract> (which is now a standard node), &lt;separateN> and &lt;combineN> nodes to perform arbitrary channel reordering.  Additionally, the previous "channels" attribute for inputs which allowed arbitrary channel reordering and used string "swizzle" channel naming has been replaced with an integer "channel" attribute, allowing a float input to be connected to a specified channel number of a color<em>N</em> or vector<em>N</em> output.  This is both far more efficient to implement and more closely matches the conventions for connecting different input and output types available in modern DCCs.
+The standard &lt;swizzle> node using a string of channel names and allowing arbitrary channel reordering is very inefficient (and in some shading languages virtually impossible) to implement as previously specified, and as such has been removed.  Nodegraphs should instead use combinations of &lt;extract> (which is now a standard node), &lt;separateN> and &lt;combineN> nodes to perform arbitrary channel reordering.  Additionally, the previous "channels" attribute for inputs which allowed arbitrary channel reordering and used string "swizzle" channel naming has been removed.
 
 
 **New Unlit Surface Shader and Standard Materials**
@@ -96,7 +98,6 @@ The following new standard physically based shading nodes have been added:
 
 **Other Changes**
 
-* The &lt;member> element for &lt;typedef>s and the "member" attribute for inputs have been removed from the Specification, as they had never been implemented and it was not clear how they could be implemented generally.
 * The "valuerange" and "valuecurve" attributes describing expressions and function curves have been removed, in favor of using the new &lt;curveinversecubic> / &lt;curveuniformcubic> / etc. nodes.
 * The &lt;geomcolor>, &lt;geompropvalue> and &lt;geompropvalueuniform> nodes for color3/4-type values can now take a "colorspace" attribute to declare the colorspace of the property value.
 * The &lt;cellnoise2d> and &lt;cellnoise3d> nodes now support vector<em>N</em> output types in addition to float output.

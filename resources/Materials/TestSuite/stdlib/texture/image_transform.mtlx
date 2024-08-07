@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="test_place2d_SRT">
     <texcoord name="texcoord1" type="vector2" />
     <place2d name="a_place2d" type="vector2">

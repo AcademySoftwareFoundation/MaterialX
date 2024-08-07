@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <nodegraph name="starfield">
     <viewdirection name="viewDir" type="vector3" />
     <multiply name="multiply_vector3FA" type="vector3">

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <standard_surface name="NormalMappedShader" type="surfaceshader">
     <input name="base" type="float" value="0.6" />
     <input name="metalness" type="float" value="1.0" />
@@ -15,7 +15,6 @@
     <normalmap name="normalmap" type="vector3">
       <input name="in" type="vector3" nodename="tiledimage" />
       <input name="scale" type="float" value="1.1" />
-      <input name="space" type="string" value="tangent" />
     </normalmap>
     <tiledimage name="tiledimage" type="vector3">
       <input name="file" type="filename" value="resources/images/mesh_wire_norm.png" />
@@ -40,7 +39,6 @@
     <normalmap name="normalmap_vector2" type="vector3">
       <input name="in" type="vector3" nodename="tiledimage2" />
       <input name="scale" type="vector2" value="1.1, 1.1" />
-      <input name="space" type="string" value="tangent" />
     </normalmap>
     <tiledimage name="tiledimage2" type="vector3">
       <input name="file" type="filename" value="resources/images/mesh_wire_norm.png" />

@@ -16,10 +16,10 @@ using OpaqueTestPair = std::pair<string, float>;
 using OpaqueTestPairList = vector<OpaqueTestPair>;
 
 // Inputs on a surface shader which are checked for transparency
-const OpaqueTestPairList inputPairList = { { "opacity", 1.0f },
-                                           { "existence", 1.0f },
-                                           { "alpha", 1.0f },
-                                           { "transmission", 0.0f } };
+const OpaqueTestPairList DEFAULT_INPUT_PAIR_LIST = { { "opacity", 1.0f },
+                                                     { "existence", 1.0f },
+                                                     { "alpha", 1.0f },
+                                                     { "transmission", 0.0f } };
 
 const string MIX_CATEGORY("mix");
 const string MIX_FG_INPUT("fg");
@@ -116,6 +116,23 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
         return false;
     }
 
+    // Check against nodedef input hints
+    OpaqueTestPairList inputPairList = DEFAULT_INPUT_PAIR_LIST;
+    NodeDefPtr nodeDef = node->getNodeDef();
+    StringMap nodeDefList = nodeDef ? nodeDef->getInputHints() : StringMap();
+    for (auto &item : nodeDefList)
+    {
+        string inputName = item.first;
+        if (item.second == Input::TRANSPARENCY_HINT)
+        {
+            inputPairList.push_back(std::make_pair(inputName, 0.0f) );
+        }
+        else if (item.second == Input::OPACITY_HINT)
+        {
+            inputPairList.push_back(std::make_pair(inputName, 1.0f));
+        }
+    }
+
     // Check against the interface if a node is passed in to check against
     OpaqueTestPairList interfaceNames;
     if (interfaceNode)
@@ -163,12 +180,14 @@ bool isTransparentShaderNode(NodePtr node, NodePtr interfaceNode)
                 }
             }
 
-            // If mapped but not an adjustment then assume transparency
+            // If mapped but not an operator node then assume transparency.
             NodePtr inputNode = checkInput->getConnectedNode();
             if (inputNode)
             {
-                NodeDefPtr nodeDef = inputNode->getNodeDef();
-                if (nodeDef && nodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) != NodeDef::ADJUSTMENT_NODE_GROUP)
+                NodeDefPtr inputNodeDef = inputNode->getNodeDef();
+                string nodeGroup = inputNodeDef ? inputNodeDef->getAttribute(NodeDef::NODE_GROUP_ATTRIBUTE) : EMPTY_STRING;
+                if (nodeGroup != NodeDef::ADJUSTMENT_NODE_GROUP &&
+                    nodeGroup != NodeDef::CHANNEL_NODE_GROUP)
                 {
                     return true;
                 }
@@ -209,8 +228,8 @@ bool isTransparentShaderGraph(OutputPtr output, const string& target, NodePtr in
             NodeDefPtr nodeDef = node->getNodeDef();
             if (nodeDef)
             {
-                const TypeDesc* nodeDefType = TypeDesc::get(nodeDef->getType());
-                if (*nodeDefType == *Type::BSDF)
+                const TypeDesc nodeDefType = TypeDesc::get(nodeDef->getType());
+                if (nodeDefType == Type::BSDF)
                 {
                     InterfaceElementPtr impl = nodeDef->getImplementation(target);
                     if (impl && impl->isA<NodeGraph>())

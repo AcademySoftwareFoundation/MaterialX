@@ -10,6 +10,18 @@
 namespace py = pybind11;
 namespace mx = MaterialX;
 
+class PyBindDocument : public mx::Document
+{
+  public:
+    mx::NodeDefPtr old_addNodeDefFromGraph(mx::NodeGraphPtr nodeGraph, const std::string& nodeDefName, const std::string& node, 
+        const std::string&, bool, const std::string&, const std::string& newGraphName)
+    {
+        PyErr_WarnEx(PyExc_DeprecationWarning,
+            "This method is deprecated, use addNodeDefFromGraph(nodeGraph, nodeDefName, category, newGraphName) instead.", 1);
+        return addNodeDefFromGraph(nodeGraph, nodeDefName, node, newGraphName);
+    }
+};
+
 void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
@@ -59,7 +71,9 @@ void bindPyDocument(py::module& mod)
         .def("removeTypeDef", &mx::Document::removeTypeDef)
         .def("addNodeDef", &mx::Document::addNodeDef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING, py::arg("node") = mx::EMPTY_STRING)
-        .def("addNodeDefFromGraph", &mx::Document::addNodeDefFromGraph)
+        .def("addNodeDefFromGraph", (mx::NodeDefPtr (mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&)) & mx::Document::addNodeDefFromGraph)
+        .def("addNodeDefFromGraph", (mx::NodeDefPtr(mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&,
+            bool, const std::string&, const std::string& )) & PyBindDocument::old_addNodeDefFromGraph)
         .def("getNodeDef", &mx::Document::getNodeDef)
         .def("getNodeDefs", &mx::Document::getNodeDefs)
         .def("removeNodeDef", &mx::Document::removeNodeDef)

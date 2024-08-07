@@ -91,14 +91,12 @@ void checkImplementations(mx::GenContext& context,
     mx::StringSet skipNodeTypes =
     {
         "ambientocclusion",
-        "arrayappend",
         "displacement",
         "volume",
         "curveadjust",
         "conical_edf",
         "measured_edf",
         "absorption_vdf",
-        "thin_surface",
         "geompropvalue",
         "surfacematerial",
         "volumematerial"
@@ -582,7 +580,7 @@ void ShaderGeneratorTester::findLights(mx::DocumentPtr doc, std::vector<mx::Node
     lights.clear();
     for (mx::NodePtr node : doc->getNodes())
     {
-        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
+        const mx::TypeDesc type = mx::TypeDesc::get(node->getType());
         if (type == mx::Type::LIGHTSHADER)
         {
             lights.push_back(node);

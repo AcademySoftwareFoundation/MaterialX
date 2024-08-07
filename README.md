@@ -20,11 +20,11 @@ MaterialX is an open standard for representing rich material and look-developmen
 
 ### Supported Platforms
 
-The MaterialX codebase requires a compiler with support for C++14, and can be built with any of the following:
+The MaterialX codebase requires a compiler with support for C++17, and can be built with any of the following:
 
 - Microsoft Visual Studio 2017 or newer
-- GCC 6 or newer
-- Clang 6 or newer
+- GCC 8 or newer
+- Clang 5 or newer
 
 The Python bindings for MaterialX are based on [PyBind11](https://github.com/pybind/pybind11), and support Python versions 3.6 and greater.
 
@@ -60,9 +60,9 @@ The Open Chess Set is an open reference asset, consisting of a [MaterialX file](
 
 The following packages contain pre-built binaries for the latest release, including the MaterialX viewer, Python libraries, and example assets:
 
-- [Microsoft Windows (Visual Studio 2022, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python311.zip)
-- [MacOS (Xcode 14, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_14_Python311.zip)
-- [Linux (GCC 12, Python 3.11)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_12_Python311.zip)
+- [Microsoft Windows (Visual Studio 2022, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Windows_VS2022_x64_Python312.zip)
+- [MacOS (Xcode 15, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_MacOS_Xcode_15_Python312.zip)
+- [Linux (GCC 14, Python 3.12)](https://github.com/AcademySoftwareFoundation/MaterialX/releases/latest/download/MaterialX_Linux_GCC_14_Python312.zip)
 
 ### Additional Resources
 

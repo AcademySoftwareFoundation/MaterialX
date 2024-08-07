@@ -65,7 +65,7 @@ ShaderPort* VariableBlock::find(const ShaderPortPredicate& predicate)
     return nullptr;
 }
 
-ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePtr value, bool shouldWiden)
+ShaderPort* VariableBlock::add(TypeDesc type, const string& name, ValuePtr value, bool shouldWiden)
 {
     auto it = _variableMap.find(name);
     if (it != _variableMap.end())
@@ -74,7 +74,7 @@ ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePt
         {
             // Automatically try to widen the type of the shader port if the requested type differs from
             // the existing port's type.
-            if (it->second->getType()->getSize() < type->getSize())
+            if (it->second->getType().getSize() < type.getSize())
             {
                 it->second->setType(type);
             }
@@ -82,8 +82,8 @@ ShaderPort* VariableBlock::add(const TypeDesc* type, const string& name, ValuePt
         else if (type != it->second->getType())
         {
             throw ExceptionShaderGenError("Trying to add shader port '" + name + "' with type '" +
-                                          type->getName() + "', but existing shader port with type '" +
-                                          it->second->getType()->getName() + "' was found");
+                                          type.getName() + "', but existing shader port with type '" +
+                                          it->second->getType().getName() + "' was found");
         }
         return it->second.get();
     }
@@ -359,12 +359,14 @@ void ShaderStage::addInclude(const FilePath& includeFilename, const FilePath& so
     }
 }
 
+bool ShaderStage::hasSourceDependency(const FilePath& file)
+{
+    return _sourceDependencies.count(file) != 0;
+}
+
 void ShaderStage::addSourceDependency(const FilePath& file)
 {
-    if (!_sourceDependencies.count(file))
-    {
-        _sourceDependencies.insert(file);
-    }
+    _sourceDependencies.insert(file);
 }
 
 void ShaderStage::addFunctionDefinition(const ShaderNode& node, GenContext& context)

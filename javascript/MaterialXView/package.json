@@ -10,14 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lil-gui": "^0.19.1",
+    "lil-gui": "^0.19.2",
     "three": "^0.152.2",
-    "webpack": "^5.89.0"
+    "webpack": "^5.92.1"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.1.1",
     "html-webpack-plugin": "^5.6.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.2"
   }
 }

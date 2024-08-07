@@ -17,12 +17,12 @@ MATERIALX_NAMESPACE_BEGIN
 namespace Type
 {
 
-const TypeDesc* MDL_COORDINATESPACE = TypeDesc::registerType("coordinatespace", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
-const TypeDesc* MDL_ADDRESSMODE = TypeDesc::registerType("addressmode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
-const TypeDesc* MDL_FILTERLOOKUPMODE = TypeDesc::registerType("filterlookup", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
-const TypeDesc* MDL_FILTERTYPE = TypeDesc::registerType("filtertype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
-const TypeDesc* MDL_DISTRIBUTION = TypeDesc::registerType("distributiontype", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
-const TypeDesc* MDL_SCATTER_MODE = TypeDesc::registerType("scatter_mode", TypeDesc::BASETYPE_NONE, TypeDesc::SEMANTIC_ENUM, 0);
+TYPEDESC_REGISTER_TYPE(MDL_COORDINATESPACE, "coordinatespace")
+TYPEDESC_REGISTER_TYPE(MDL_ADDRESSMODE, "addressmode")
+TYPEDESC_REGISTER_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup")
+TYPEDESC_REGISTER_TYPE(MDL_FILTERTYPE, "filtertype")
+TYPEDESC_REGISTER_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype")
+TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
 
 } // namespace Type
 
@@ -93,23 +93,6 @@ class MdlArrayTypeSyntax : public ScalarTypeSyntax
         return EMPTY_STRING;
     }
 
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct an array value");
-        }
-
-        string result = getName() + "[](" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i];
-        }
-        result += ")";
-
-        return result;
-    }
-
   protected:
     virtual bool isEmpty(const Value& value) const = 0;
 };
@@ -177,20 +160,6 @@ class MdlColor4TypeSyntax : public AggregateTypeSyntax
         ss << "mk_color4(" << c[0] << ", " << c[1] << ", " << c[2] << ", " << c[3] << ")";
 
         return ss.str();
-    }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        size_t valueCount = values.size();
-        if (valueCount == 4)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ", " + values[2] + ", " + values[3] + ")";
-        }
-        else if (valueCount == 2)
-        {
-            return "mk_color4(" + values[0] + ", " + values[1] + ")";
-        }
-        throw ExceptionShaderGenError("Incorrect number of values to construct a color4 value:" + std::to_string(valueCount));
     }
 };
 
@@ -448,7 +417,7 @@ MdlSyntax::MdlSyntax()
             FILTERTYPE_MEMBERS));
 
     registerTypeSyntax(
-        Type::MDL_DISTRIBUTION,
+        Type::MDL_DISTRIBUTIONTYPE,
         std::make_shared<MdlEnumSyntax>(
             "mx_distribution_type",
             "mx_distribution_type_ggx",
@@ -464,7 +433,7 @@ MdlSyntax::MdlSyntax()
             SCATTER_MODE_MEMBERS));
 }
 
-const TypeDesc* MdlSyntax::getEnumeratedType(const string& value) const
+TypeDesc MdlSyntax::getEnumeratedType(const string& value) const
 {
     for (const TypeSyntaxPtr& syntax : getTypeSyntaxes())
     {
@@ -475,74 +444,27 @@ const TypeDesc* MdlSyntax::getEnumeratedType(const string& value) const
             // We should find a more safe way to handled this.
             if (std::find(members.begin(), members.end(), value) != members.end())
             {
-                return getTypeDescription(syntax);
+                auto pos = std::find(_typeSyntaxes.begin(), _typeSyntaxes.end(), syntax);
+                if (pos != _typeSyntaxes.end())
+                {
+                    const size_t index = static_cast<size_t>(std::distance(_typeSyntaxes.begin(), pos));
+                    for (auto item : _typeSyntaxIndexByType)
+                    {
+                        if (item.second == index)
+                        {
+                            return item.first;
+                        }
+                    }
+                }
             }
         }
     }
-    return nullptr;
+    return Type::NONE;
 }
 
-const std::unordered_map<char, char> CHANNELS_TO_XYZW =
+string MdlSyntax::getArrayTypeSuffix(TypeDesc type, const Value& value) const
 {
-    { 'r', 'x' }, { 'x', 'x' },
-    { 'g', 'y' }, { 'y', 'y' },
-    { 'b', 'z' }, { 'z', 'z' },
-    { 'a', 'w' }, { 'w', 'w' }
-};
-
-string MdlSyntax::getSwizzledVariable(const string& srcName, const TypeDesc* srcType, const string& channels, const TypeDesc* dstType) const
-{
-    if (*srcType == *Type::COLOR3 || *srcType == *Type::COLOR4)
-    {
-        const TypeSyntax& srcSyntax = getTypeSyntax(srcType);
-        const TypeSyntax& dstSyntax = getTypeSyntax(dstType);
-
-        const StringVec& srcMembers = srcSyntax.getMembers();
-
-        StringVec membersSwizzled;
-
-        for (size_t i = 0; i < channels.size(); ++i)
-        {
-            const char ch = channels[i];
-            if (ch == '0' || ch == '1')
-            {
-                membersSwizzled.push_back(string(1, ch));
-                continue;
-            }
-
-            auto it = CHANNELS_MAPPING.find(ch);
-            if (it == CHANNELS_MAPPING.end())
-            {
-                throw ExceptionShaderGenError("Invalid channel pattern '" + channels + "'.");
-            }
-
-            int channelIndex = srcType->getChannelIndex(ch);
-            if (channelIndex < 0 || channelIndex >= static_cast<int>(srcMembers.size()))
-            {
-                throw ExceptionShaderGenError("Given channel index: '" + string(1, ch) + "' in channels pattern is incorrect for type '" + srcType->getName() + "'.");
-            }
-
-            string variable = srcName;
-            if (*srcType == *Type::COLOR3)
-            {
-                variable = "float3(" + srcName + ")";
-            }
-            else if (channelIndex < 3)
-            {
-                variable = "float3(" + srcName + ".rgb)";
-            }
-
-            membersSwizzled.push_back(variable + srcMembers[channelIndex]);
-        }
-
-        return dstSyntax.getValue(membersSwizzled, false);
-    }
-    return Syntax::getSwizzledVariable(srcName, srcType, channels, dstType);
-}
-
-string MdlSyntax::getArrayTypeSuffix(const TypeDesc* type, const Value& value) const
-{
-    if (type->isArray())
+    if (type.isArray())
     {
         if (value.isA<vector<float>>())
         {
@@ -558,7 +480,7 @@ string MdlSyntax::getArrayTypeSuffix(const TypeDesc* type, const Value& value) c
     return string();
 }
 
-bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, const string& enumNames, std::pair<const TypeDesc*, ValuePtr>& result) const
+bool MdlSyntax::remapEnumeration(const string& value, TypeDesc type, const string& enumNames, std::pair<TypeDesc, ValuePtr>& result) const
 {
     // Early out if not an enum input.
     if (enumNames.empty())
@@ -567,7 +489,7 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     }
 
     // Don't convert filenames or arrays.
-    if (*type == *Type::FILENAME || (type && type->isArray()))
+    if (type == Type::FILENAME || type.isArray())
     {
         return false;
     }
@@ -576,7 +498,7 @@ bool MdlSyntax::remapEnumeration(const string& value, const TypeDesc* type, cons
     if (!value.empty())
     {
         result.first = getEnumeratedType(value);
-        if (!result.first || (result.first->getSemantic() != TypeDesc::Semantic::SEMANTIC_ENUM))
+        if (result.first == Type::NONE || (result.first.getSemantic() != TypeDesc::Semantic::SEMANTIC_ENUM))
         {
             return false;
         }

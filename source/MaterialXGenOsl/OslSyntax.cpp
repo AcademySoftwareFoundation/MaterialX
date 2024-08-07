@@ -26,11 +26,6 @@ class OslBooleanTypeSyntax : public ScalarTypeSyntax
     {
         return value.asA<bool>() ? "1" : "0";
     }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        return values.size() && values[0] == "true" ? "1" : "0";
-    }
 };
 
 class OslArrayTypeSyntax : public ScalarTypeSyntax
@@ -53,23 +48,6 @@ class OslArrayTypeSyntax : public ScalarTypeSyntax
             throw ExceptionShaderGenError("Uniform array cannot initialize to a empty value.");
         }
         return EMPTY_STRING;
-    }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct an array value");
-        }
-
-        string result = "{" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i];
-        }
-        result += "}";
-
-        return result;
     }
 
   protected:
@@ -131,23 +109,6 @@ class OslStructTypeSyntax : public AggregateTypeSyntax
             return getName() + "(" + value.getValueString() + ")";
         }
     }
-
-    string getValue(const StringVec& values, bool uniform) const override
-    {
-        if (values.empty())
-        {
-            throw ExceptionShaderGenError("No values given to construct a value");
-        }
-
-        string result = uniform ? "{" : getName() + "(" + values[0];
-        for (size_t i = 1; i < values.size(); ++i)
-        {
-            result += ", " + values[i];
-        }
-        result += uniform ? "}" : ")";
-
-        return result;
-    }
 };
 
 // For the color4 type we need even more specialization since it's a struct of a struct:
@@ -189,23 +150,6 @@ class OslColor4TypeSyntax : public OslStructTypeSyntax
 
         return ss.str();
     }
-
-    string getValue(const StringVec& values, bool uniform) const override
-    {
-        if (values.size() < 4)
-        {
-            throw ExceptionShaderGenError("Too few values given to construct a color4 value");
-        }
-
-        if (uniform)
-        {
-            return "{color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + "}";
-        }
-        else
-        {
-            return "color4(color(" + values[0] + ", " + values[1] + ", " + values[2] + "), " + values[3] + ")";
-        }
-    }
 };
 
 class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
@@ -218,14 +162,9 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool uniform) const override
+    string getValue(const Value& value, bool /*uniform*/) const override
     {
         StringVec values = splitString(value.getValueString(), ",");
-        return getValue(values, uniform);
-    }
-
-    string getValue(const StringVec& values, bool /*uniform*/) const override
-    {
         if (values.empty())
         {
             throw ExceptionShaderGenError("No values given to construct a value");
@@ -279,18 +218,6 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
         const string prefix = uniform ? "{" : getName() + "(";
         const string suffix = uniform ? "}" : ")";
         return prefix + "\"" + value.getValueString() + "\", \"\"" + suffix;
-    }
-
-    string getValue(const StringVec& values, bool uniform) const override
-    {
-        if (values.size() != 2)
-        {
-            throw ExceptionShaderGenError("Incorrect number of values given to construct a value");
-        }
-
-        const string prefix = uniform ? "{" : getName() + "(";
-        const string suffix = uniform ? "}" : ")";
-        return prefix + "\"" + values[0] + "\", \"" + values[1] + "\"" + suffix;
     }
 };
 
@@ -450,10 +377,10 @@ OslSyntax::OslSyntax()
         Type::BSDF,
         std::make_shared<AggregateTypeSyntax>(
             "BSDF",
-            "BSDF(null_closure, color(1.0), 0.0, 0.0)",
-            "{ 0, color(1.0), 0.0, 0.0 }",
+            "BSDF(null_closure, color(1.0))",
+            "{ 0, color(1.0) }",
             "closure color",
-            "struct BSDF { closure color response; color throughput; float thickness; float ior; };"));
+            "struct BSDF { closure color response; color throughput; };"));
 
 #else
 

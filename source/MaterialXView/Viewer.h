@@ -109,6 +109,12 @@ class Viewer : public ng::Screen
         _lightHandler->setEnvSampleCount(count);
     }
 
+    // Set the environment light intensity.
+    void setEnvLightIntensity(float intensity)
+    {
+        _lightHandler->setEnvLightIntensity(intensity);
+    }
+
     // Set the rotation of the lighting environment about the Y axis.
     void setLightRotation(float rotation)
     {
@@ -149,6 +155,22 @@ class Viewer : public ng::Screen
     void setBakeFilename(const mx::FilePath& bakeFilename)
     {
         _bakeFilename = bakeFilename;
+    }
+
+    // Enable or disable frame timing.
+    void setFrameTiming(bool enable)
+    {
+        _frameTiming = enable;
+    }
+
+    // Reset frame timing after a blocking event.
+    void resetFrameTiming()
+    {
+        if (_frameTiming)
+        {
+            _frameTimer.startTimer();
+            _avgFrameTime = 0.0;
+        }
     }
 
     // Return true if all inputs should be shown in the property editor.
@@ -450,6 +472,14 @@ class Viewer : public ng::Screen
     unsigned int _bakeHeight;
     bool _bakeDocumentPerMaterial;
     mx::FilePath _bakeFilename;
+
+    // Frame timing
+    bool _frameTiming;
+    ng::Label* _timingLabel;
+    ng::Widget* _timingPanel;
+    ng::TextBox* _timingText;
+    mx::ScopedTimer _frameTimer;
+    double _avgFrameTime;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

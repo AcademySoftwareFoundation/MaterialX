@@ -32,6 +32,57 @@ bool isTopologicalOrder(const std::vector<mx::ElementPtr>& elems)
     return true;
 }
 
+TEST_CASE("Interface Input Validation", "[node]")
+{
+    std::string validationErrors;
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+
+    // Test inside nodegraph
+    mx::GraphElementPtr nodegraph = doc->addNodeGraph("graph1");
+
+    std::vector<mx::GraphElementPtr> graphs = { doc, nodegraph };
+    for (auto graph : graphs)
+    {
+        mx::InputPtr graphInput = graph->addInput(mx::EMPTY_STRING, "color3");
+        mx::NodePtr addNode = graph->addNode("add", mx::EMPTY_STRING, "color3");
+        mx::InputPtr addInput = addNode->addInput("in1");
+
+        addInput->setValueString("3, 3, 3");
+        addInput->setInterfaceName(graphInput->getName());
+        bool valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(!valid);
+
+        addInput->setConnectedInterfaceName(graphInput->getName());
+        mx::InputPtr interfaceInput = addInput->getInterfaceInput();
+        REQUIRE((interfaceInput && interfaceInput->getNamePath() == graphInput->getNamePath()));
+        REQUIRE(!addInput->getValue());
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+
+        addInput->setConnectedInterfaceName(mx::EMPTY_STRING);
+        addInput->setValueString("2, 2, 2");
+        interfaceInput = addInput->getInterfaceInput();
+        REQUIRE(!interfaceInput);
+        valid = doc->validate(&validationErrors);
+        if (!valid)
+        {
+            INFO(validationErrors);
+        }
+        REQUIRE(valid);
+    }
+}
+
 TEST_CASE("Node", "[node]")
 {
     // Create a document.
@@ -627,97 +678,116 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
     REQUIRE(graph);
     if (graph)
     {
-        const std::string VERSION1 = "1.0";
-        const std::string GROUP = "adjustment";
-        bool isDefaultVersion = false;
-        const std::string NODENAME = graph->getName();
-
-        // Duplicate the graph and then make the duplicate a nodedef nodegraph
-        std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
-        std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
-        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
-        REQUIRE(nodeDef != nullptr);
-        REQUIRE(nodeDef->getNodeGroup() == "adjustment");
-        REQUIRE(nodeDef->getVersionString() == VERSION1);
-        REQUIRE_FALSE(nodeDef->getDefaultVersion());
-
-        // Try and fail to create the same definition
-        mx::NodeDefPtr temp;
-        try
+        // Add some input interfaces to the graph
+        for (auto node : graph->getNodes())
         {
-            temp = nullptr;
-            temp = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, VERSION1, isDefaultVersion, GROUP, newGraphName);
-        }
-        catch (mx::Exception&)
-        {
-            REQUIRE(temp == nullptr);
-        }
-
-        // Check that the new nodegraph has the correct definition
-        mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
-        REQUIRE(newGraph != nullptr);
-        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
-
-        // Check declaration was set up properly
-        mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
-        REQUIRE(decl->getName() == nodeDef->getName());
-
-        // Arbitrarily add all unconnected inputs as interfaces
-        mx::ValueElementPtr newInterface = nullptr;
-        for (auto node : newGraph->getNodes())
-        {
-            mx::NodeDefPtr nodeNodeDef = node->getNodeDef();
-            REQUIRE(nodeNodeDef);
-            for (auto nodeDefValueElem : nodeNodeDef->getActiveValueElements())
+            for (mx::InputPtr input : node->getInputs())
             {
-                const std::string& valueElemName = nodeDefValueElem->getName();
-                mx::ValueElementPtr valueElem = node->getValueElement(valueElemName);
-                if (!valueElem)
+                if (!input->getConnectedNode())
                 {
-                    valueElem = node->addInputFromNodeDef(valueElemName);
-                    if (!valueElem)
+                    const std::string relativePath = node->getName() + "/" + input->getName();
+                    const std::string interfaceName = graph->createValidChildName(relativePath);
+                    mx::InputPtr interfaceInput = graph->addInterfaceName(relativePath, interfaceName);
+                    REQUIRE(interfaceInput);
+                    if (interfaceInput)
                     {
-                        continue;
-                    }
-                    REQUIRE(valueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE) == 
-                            nodeDefValueElem->getAttribute(mx::ValueElement::TYPE_ATTRIBUTE));
-                    REQUIRE(valueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE) == 
-                            nodeDefValueElem->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
-                }
-
-                mx::InputPtr input = valueElem->asA<mx::Input>();
-                if (input && !input->getConnectedNode())
-                {
-                    std::string interfaceName = input->getNamePath();
-                    interfaceName = nodeDef->createValidChildName(interfaceName);
-                    newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
-                    REQUIRE(nodeDef->getChild(interfaceName));
-                    try
-                    {
-                        // Check duplicate failure case
-                        newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
-                    }
-                    catch (mx::Exception& e)
-                    {
-                        REQUIRE(e.what());
-                        newGraph->removeInterfaceName(input->getNamePath(newGraph));
-                        REQUIRE(nodeDef->getChild(interfaceName) == nullptr);
-                        newGraph->addInterfaceName(input->getNamePath(newGraph), interfaceName);
-
-                        const std::string newInterfaceName = interfaceName + "_renamed";
-                        newGraph->modifyInterfaceName(input->getNamePath(newGraph), newInterfaceName);
-                        REQUIRE(nodeDef->getChild(newInterfaceName));
+                        interfaceInput->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, node->getName() + " " + input->getName());
+                        interfaceInput->setAttribute(mx::PortElement::UI_FOLDER_ATTRIBUTE, "Common");
                     }
                 }
             }
         }
 
+        const std::string VERSION1 = "1.0";
+        const std::string GROUP = "adjustment";
+        bool isDefaultVersion = false;
+        const std::string NODENAME = graph->getName();
+
+        // Create a new functional graph and definition from a compound graph
+        std::string newNodeDefName = doc->createValidChildName("ND_" + graph->getName());
+        std::string newGraphName = doc->createValidChildName("NG_" + graph->getName());
+        mx::NodeDefPtr nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName, NODENAME, newGraphName);
+        REQUIRE(nodeDef != nullptr);
+        nodeDef->setVersionString(VERSION1);
+        nodeDef->setDefaultVersion(isDefaultVersion);
+        nodeDef->setNodeGroup(GROUP);
+        nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION1);
+        nodeDef->setDocString("This is version 1 of the definition for the graph: " + newGraphName);
+
+        // Check validity of new definition
+        REQUIRE(nodeDef->getNodeGroup() == "adjustment");
+        REQUIRE(nodeDef->getVersionString() == VERSION1);
+        REQUIRE_FALSE(nodeDef->getDefaultVersion());
+        for (mx::InputPtr origInput : graph->getInputs())
+        {
+            mx::InputPtr nodeDefInput = nodeDef->getInput(origInput->getName());
+            REQUIRE(nodeDefInput);
+            REQUIRE(*origInput == *nodeDefInput);
+        }
+        mx::StringSet connectionAttributes =
+        {
+            mx::PortElement::NODE_GRAPH_ATTRIBUTE,
+            mx::PortElement::NODE_NAME_ATTRIBUTE,
+            mx::PortElement::INTERFACE_NAME_ATTRIBUTE,
+            mx::Element::XPOS_ATTRIBUTE,
+            mx::Element::YPOS_ATTRIBUTE
+        };
+        for (mx::OutputPtr origOutput : graph->getOutputs())
+        {
+            mx::OutputPtr nodeDefOutput = nodeDef->getOutput(origOutput->getName());
+            REQUIRE(nodeDefOutput);
+            for (const std::string& attribName : origOutput->getAttributeNames())
+            {
+                if (connectionAttributes.count(attribName))
+                {
+                    REQUIRE(!nodeDefOutput->hasAttribute(attribName));
+                    continue;
+                }
+                REQUIRE(origOutput->getAttribute(attribName) == nodeDefOutput->getAttribute(attribName));
+            }
+        }
+
+        // Check validity of new functional nodegraph
+        mx::NodeGraphPtr newGraph = doc->getNodeGraph(newGraphName);
+        REQUIRE(newGraph != nullptr);
+        REQUIRE(newGraph->getNodeDefString() == newNodeDefName);
+        mx::ConstInterfaceElementPtr decl = newGraph->getDeclaration();
+        REQUIRE(decl->getName() == nodeDef->getName());
+        REQUIRE(doc->validate());
+
+        // Create the new node
+        mx::NodePtr newInstance = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
+        REQUIRE(newInstance);
+
+        // Remove default version attribute from previous definitions
+        for (mx::NodeDefPtr prevNodeDef : doc->getMatchingNodeDefs(NODENAME))
+        {
+            prevNodeDef->setDefaultVersion(false);
+        }
+
         // Add new version 
         const std::string VERSION2 = "2.0";
         newGraphName = mx::EMPTY_STRING;
-        nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName + "2", NODENAME, VERSION2, isDefaultVersion, GROUP, newGraphName);
+        newNodeDefName = doc->createValidChildName("ND_" + graph->getName() + "_2");
+        newGraphName = doc->createValidChildName("NG_" + graph->getName() + "_2");
+        
+        // Create new default version
+        nodeDef = doc->addNodeDefFromGraph(graph, newNodeDefName + "2", NODENAME, newGraphName);
+        nodeDef->setVersionString(VERSION2);
+        nodeDef->setNodeGroup(GROUP);
         nodeDef->setDefaultVersion(true);
         REQUIRE(nodeDef != nullptr);
+        nodeDef->setAttribute(mx::PortElement::UI_NAME_ATTRIBUTE, NODENAME + " Version: " + VERSION2);
+        nodeDef->setDocString("This is version 2 of the definition for the graph: " + newGraphName);
+        
+        // Check that we create the version by default
+        mx::NodePtr newDefault = doc->addNode(NODENAME, mx::EMPTY_STRING, mx::MULTI_OUTPUT_TYPE_STRING);
+        if (newDefault)
+        {
+            nodeDef = newDefault->getNodeDef();
+            if (nodeDef)
+                REQUIRE(nodeDef->getVersionString() == VERSION2);
+        }
 
         std::vector<mx::NodeDefPtr> matchingNodeDefs;
         for (auto docNodeDef : doc->getNodeDefs())
@@ -738,6 +808,9 @@ TEST_CASE("Node Definition Creation", "[nodedef]")
             }
         }
         REQUIRE(findDefault);
+
+        doc->removeChild(graph->getName());
     }
+    
     REQUIRE(doc->validate());
 }

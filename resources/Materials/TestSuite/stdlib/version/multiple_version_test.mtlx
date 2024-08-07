@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!-- Version 1. Non-default -->
   <nodedef name="ND_myimage_color3_v1" node="myimage" version="1.0" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="resources/Images/grid.png" />

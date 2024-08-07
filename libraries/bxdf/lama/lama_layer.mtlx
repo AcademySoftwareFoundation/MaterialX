@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
   <!-- LamaLayer for BSDFs -->
   <nodedef name="ND_lama_layer_bsdf" node="LamaLayer" nodegroup="pbr" version="1.0" isdefaultversion="true">
-    <input name="materialTop" uiname="Material Top" type="BSDF" 
+    <input name="materialTop" uiname="Material Top" type="BSDF"
            doc="Material used for the top slab. If not set, the base material will be used by itself." />
-    <input name="materialBase" uiname="Material Base" type="BSDF" 
+    <input name="materialBase" uiname="Material Base" type="BSDF"
            doc="Base material, right under the top one." />
     <input name="topMix" uiname="Top Mix" type="float" uimin="0.0" uimax="1.0" value="1.0"
            doc="Defines how visible the top material is." />

@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-
 set(DEAR_IMGUI_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/External/ImGui" CACHE STRING "Path to Dear ImGui")
 
 if (NOT IS_DIRECTORY "${DEAR_IMGUI_PREFIX}/backends")
@@ -20,8 +18,7 @@ file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if (APPLE)
-    list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm)
-    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.mm" PROPERTIES LANGUAGE CXX)
+    list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)
 endif ()
 
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
@@ -82,10 +79,10 @@ set(MATERIALX_LIBRARIES
     MaterialXGenGlsl
     MaterialXRenderGlsl)
 
-if (APPLE)
+if(APPLE)
     find_library(CORE_FOUNDATION Foundation REQUIRED)
     list(APPEND MATERIALX_LIBRARIES ${CORE_FOUNDATION})
-endif ()
+endif()
 
 target_link_libraries(
     MaterialXGraphEditor

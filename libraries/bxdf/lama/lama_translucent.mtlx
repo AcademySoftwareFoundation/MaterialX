@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
   <nodedef name="ND_lama_translucent" node="LamaTranslucent" nodegroup="pbr" version="1.0" isdefaultversion="true">
     <input name="color" uiname="Color" type="color3" value="0.18, 0.18, 0.18"
            doc="Translucent color (aka albedo), defining what ratio of light is transmitted for each color channel." />

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <!-- create nodegraph to test cm conversion on image node before feeding to heighttonormal  -->
   <nodegraph name="height_to_normal_cm">
     <image name="b_image" type="color3">
@@ -26,7 +26,6 @@
     <normalmap name="impl_normalmap" type="vector3">
       <input name="in" type="vector3" nodename="c3tov3" />
       <input name="scale" type="float" value="1.5" />
-      <input name="space" type="string" value="tangent" />
     </normalmap>
     <output name="normal_map_output" type="vector3" nodename="impl_normalmap" />
   </nodegraph>

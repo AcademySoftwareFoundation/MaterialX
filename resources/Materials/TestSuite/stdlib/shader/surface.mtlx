@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
 
   <!-- Define a node that implements a checker board pattern -->
   <!-- Using a graph for the implementation.                 -->
@@ -15,14 +15,14 @@
       <input name="in1" type="vector2" nodename="texcoord1" />
       <input name="in2" type="vector2" interfacename="scale" />
     </multiply>
-    <swizzle name="swizz_x" type="float">
+    <extract name="swizz_x" type="float">
       <input name="in" type="vector2" nodename="mult1" />
-      <input name="channels" type="string" value="x" />
-    </swizzle>
-    <swizzle name="swizz_y" type="float">
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <extract name="swizz_y" type="float">
       <input name="in" type="vector2" nodename="mult1" />
-      <input name="channels" type="string" value="y" />
-    </swizzle>
+      <input name="index" type="integer" value="1" />
+    </extract>
     <floor name="floor1" type="float">
       <input name="in" type="float" nodename="swizz_x" />
     </floor>

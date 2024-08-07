@@ -16,17 +16,17 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.23.6",
-    "@babel/preset-env": "^7.23.6",
-    "@babel/register": "^7.22.15",
-    "chai": "^4.3.10",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/register": "^7.24.6",
+    "chai": "^4.4.1",
     "copyfiles": "^2.4.1",
-    "karma": "^6.4.2",
+    "karma": "^6.4.3",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.2.0",
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^10.2.0",
+    "mocha": "^10.4.0",
     "rimraf": "^3.0.2"
   }
 }

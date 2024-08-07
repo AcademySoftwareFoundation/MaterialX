@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
 
   <!-- LamaMix for BSDFs -->
   <nodedef name="ND_lama_mix_bsdf" node="LamaMix" nodegroup="pbr" version="1.0" isdefaultversion="true">

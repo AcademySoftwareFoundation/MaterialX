@@ -96,7 +96,7 @@ void LightCompoundNodeMsl::emitFunctionDefinition(ClosureContext* cct, GenContex
     {
         // Use the first output for classifying node type for the closure context.
         // This is only relevent for closures, and they only have a single output.
-        const TypeDesc* nodeType = _rootGraph->getOutputSocket()->getType();
+        const TypeDesc nodeType = _rootGraph->getOutputSocket()->getType();
         shadergen.emitLine("void " + _functionName + cct->getSuffix(nodeType) + "(LightData light, float3 position, out lightshader result)", stage, false);
     }
     else

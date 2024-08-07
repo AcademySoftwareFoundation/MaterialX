@@ -11,10 +11,12 @@ void mx_burley_diffuse_bsdf_reflection(vec3 L, vec3 V, vec3 P, float occlusion, 
 
     normal = mx_forward_facing_normal(normal, V);
 
+    float NdotV = clamp(dot(normal, V), M_FLOAT_EPS, 1.0);
     float NdotL = clamp(dot(normal, L), M_FLOAT_EPS, 1.0);
+    float LdotH = clamp(dot(L, normalize(L + V)), M_FLOAT_EPS, 1.0);
 
     bsdf.response = color * occlusion * weight * NdotL * M_PI_INV;
-    bsdf.response *= mx_burley_diffuse(L, V, normal, NdotL, roughness);
+    bsdf.response *= mx_burley_diffuse(NdotV, NdotL, LdotH, roughness);
 }
 
 void mx_burley_diffuse_bsdf_indirect(vec3 V, float weight, vec3 color, float roughness, vec3 normal, inout BSDF bsdf)
