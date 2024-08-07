@@ -53,25 +53,25 @@ endif()
 
 if(WIN32)
     if(MSVC)
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+            PUBLIC
                 Opengl32)
     elseif(MINGW)
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+                PUBLIC
                 Opengl32
                 gdi32)
     endif()
 elseif(APPLE)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             "-framework OpenGL"
             "-framework Foundation"
             "-framework Cocoa"
             "-framework Metal")
 elseif(UNIX)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             OpenGL::GL
             X11::X11
             X11::Xt)

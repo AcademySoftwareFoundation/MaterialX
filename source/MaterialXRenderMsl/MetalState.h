@@ -14,14 +14,14 @@
 #import <Metal/Metal.h>
 
 #include <MaterialXCore/Generated.h>
+#include <MaterialXRenderMsl/Export.h>
 
 MATERIALX_NAMESPACE_BEGIN
 class MetalFramebuffer;
 // Shared pointer to a MetalFramebuffer
 using MetalFramebufferPtr = std::shared_ptr<class MetalFramebuffer>;
-MATERIALX_NAMESPACE_END
 
-struct MetalState
+struct MX_RENDERMSL_API MetalState
 {
     static MetalState* getSingleton()
     {
@@ -67,11 +67,13 @@ struct MetalState
     std::atomic<int> inFlightCommandBuffers;
 };
 
-#define MTL(a) (MetalState::getSingleton()->a)
-#define MTL_DEPTHSTENCIL_STATE(a) (MetalState::getSingleton()->a##DepthStencilState)
-#define MTL_TRIGGER_CAPTURE MetalState::getSingleton()->triggerProgrammaticCapture()
-#define MTL_STOP_CAPTURE MetalState::getSingleton()->stopProgrammaticCapture()
-#define MTL_PUSH_FRAMEBUFFER(a) MetalState::getSingleton()->framebufferStack.push(a)
-#define MTL_POP_FRAMEBUFFER(a) MetalState::getSingleton()->framebufferStack.pop()
+MATERIALX_NAMESPACE_END
+
+#define MTL(a) (MaterialX::MetalState::getSingleton()->a)
+#define MTL_DEPTHSTENCIL_STATE(a) (MaterialX::MetalState::getSingleton()->a##DepthStencilState)
+#define MTL_TRIGGER_CAPTURE MaterialX::MetalState::getSingleton()->triggerProgrammaticCapture()
+#define MTL_STOP_CAPTURE MaterialX::MetalState::getSingleton()->stopProgrammaticCapture()
+#define MTL_PUSH_FRAMEBUFFER(a) MaterialX::MetalState::getSingleton()->framebufferStack.push(a)
+#define MTL_POP_FRAMEBUFFER(a) MaterialX::MetalState::getSingleton()->framebufferStack.pop()
 
 #endif // MATERIALXVIEW_METALSTATE_H
