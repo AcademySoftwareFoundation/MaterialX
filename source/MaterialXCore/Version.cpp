@@ -992,19 +992,19 @@ void Document::upgradeVersion()
             { "color3", 3 }, { "color4", 4 },
             { "vector2", 2 }, { "vector3", 3 }, { "vector4", 4 }
         };
-        const std::pair<std::string, size_t> CHANNEL_CONVERT_PATTERNS[] =
+        const std::array<std::pair<string, size_t>, 10> CHANNEL_CONVERT_PATTERNS = {
         {
             { "rgb", 3 }, { "rgb", 4 }, { "rgba", 4 },
             { "xyz", 3 }, { "xyz", 4 }, { "xyzw", 4 },
             { "rr", 1 }, { "rrr", 1 },
             { "xx", 1 }, { "xxx", 1 }
-        };
-        const std::pair<StringSet, string> CHANNEL_ATTRIBUTE_PATTERNS[] =
+        } };
+        const std::array<std::pair<StringSet, string>, 3> CHANNEL_ATTRIBUTE_PATTERNS = {
         {
             { { "xx", "xxx", "xxxx" }, "float" },
             { { "xyz", "x", "y", "z" }, "vector3" },
             { { "rgba", "a" }, "color4" }
-        };
+        } };
 
         // Convert channels attributes to legacy swizzle nodes, which are then converted
         // to modern nodes in a second pass.
@@ -1234,8 +1234,8 @@ void Document::upgradeVersion()
                         }
                     }
                     else if (sourceType != destType &&
-                             std::find(std::begin(CHANNEL_CONVERT_PATTERNS), std::end(CHANNEL_CONVERT_PATTERNS),
-                                       std::make_pair(channelString, sourceChannelCount)) != std::end(CHANNEL_CONVERT_PATTERNS))
+                             std::find(CHANNEL_CONVERT_PATTERNS.begin(), CHANNEL_CONVERT_PATTERNS.end(),
+                                       std::make_pair(channelString, sourceChannelCount)) != CHANNEL_CONVERT_PATTERNS.end())
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
