@@ -1233,9 +1233,8 @@ void Document::upgradeVersion()
                             node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
                         }
                     }
-                    else if (sourceType != destType &&
-                             std::find(CHANNEL_CONVERT_PATTERNS.begin(), CHANNEL_CONVERT_PATTERNS.end(),
-                                       std::make_pair(channelString, sourceChannelCount)) != CHANNEL_CONVERT_PATTERNS.end())
+                    else if (sourceType != destType && std::find(CHANNEL_CONVERT_PATTERNS.begin(), CHANNEL_CONVERT_PATTERNS.end(),
+                             std::make_pair(channelString, sourceChannelCount)) != CHANNEL_CONVERT_PATTERNS.end())
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
