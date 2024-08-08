@@ -116,7 +116,7 @@
     </dot>
 
     <!--Specular-->
-    <!--In OpenPBR surface, specular_weight directly controls the strength of the metallic layer in OpenPBR Surface, while in Standard Surface it has no effect-->
+    <!--In OpenPBR Surface, specular_weight controls the strength of the metallic layer, while it Standard Surface it has no effect on the metallic layer.-->
     <ifgreater name="specWeight" type="float">
       <input name="value1" type="float" interfacename="metalness" />
       <input name="value2" type="float" value="0.0" />
@@ -130,7 +130,7 @@
       <input name="in1" type="vector3" nodename="specVector" />
       <input name="in2" type="vector3" value="1.0, 1.0, 1.0" />
     </dotproduct>
-    <!--Intentionally ignoring the original specular_color input for metals, since the translation between these concepts will take more thought-->
+    <!--Intentionally ignoring the original specular_color input for metals, since the translation between these concepts will take more thought.-->
     <ifequal name="specColor" type="color3">
       <input name="value1" type="float" value="0.0"  />
       <input name="value2" type="float" nodename="dotProd" />
@@ -198,7 +198,7 @@
     </power>
 
     <!--Coat-->
-    <!--Standard Surface takes the approach of tinting the surface underneath by the color of this clearcoat, and that technique is how artists often create colored metals in Standard Surface. If this approach was taken, then coat_weight is set to 0 so that the color is not added redundantly-->
+    <!--Standard Surface takes the approach of tinting the surface underneath by the color of this clearcoat, and that technique is how artists often create colored metals in Standard Surface. If this approach was taken, then coat_weight is set to 0 so that the color is not added redundantly.-->
     <multiply name="coatMetallic" type="float">
       <input name="in1" type="float" interfacename="coat" />
       <input name="in2" type="float" interfacename="metalness" />
