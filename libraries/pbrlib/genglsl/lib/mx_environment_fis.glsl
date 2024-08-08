@@ -43,7 +43,7 @@ vec3 mx_environment_radiance(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         // Compute the geometric term.
         float G = mx_ggx_smith_G2(NdotL, NdotV, avgAlpha);
 
-        // Compute the combined FG term, which is inverted F for refraction.
+        // Compute the combined FG term, which simplifies to inverted Fresnel for refraction.
         vec3 FG = fd.refraction ? vec3(1.0) - F : F * G;
 
         // Add the radiance contribution of this sample.
