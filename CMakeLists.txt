@@ -180,10 +180,23 @@ if (MATERIALX_BUILD_USE_CCACHE)
     endif()
 endif()
 
+# Attempt to configure OSL testing if it can be found by cmake.
+# This will not override any explicitly provided oslc and testrender
+if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+    # We currently only need the actual OSL binaries if we're running tests with Render and GenOSL enabled.
+    find_package(OSL QUIET)
+    if(OSL_FOUND)
+        if(NOT MATERIALX_OSL_BINARY_OSLC)
+            set(MATERIALX_OSL_BINARY_OSLC $<TARGET_FILE:OSL::oslc>)
+        endif()
+        if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
+            # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
+            set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
+    endif()
+endif()
+
 # Add global definitions
-add_definitions(-DMATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\")
-add_definitions(-DMATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\")
-add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 if (MATERIALX_OSL_LEGACY_CLOSURES)
     add_definitions(-DMATERIALX_OSL_LEGACY_CLOSURES)
 endif()
@@ -287,7 +300,8 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             SOURCE_FILES
             HEADER_FILES
             INLINED_FILES
-            LIBRARIES)
+            LIBRARIES
+            PRIVATE_LIBRARIES)
     cmake_parse_arguments(args
             "${options}"
             "${oneValueArgs}"
@@ -315,10 +329,14 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+            PUBLIC
                 ${args_LIBRARIES}
                 ${CMAKE_DL_LIBS})
+
+        target_link_libraries(${TARGET_NAME}
+             PRIVATE
+                ${args_PRIVATE_LIBRARIES})
 
         target_include_directories(${TARGET_NAME}
                 PUBLIC
@@ -343,6 +361,9 @@ function(mx_add_library MATERIALX_MODULE_NAME)
         # Store the aliased MaterialX modules name to create cmake export aliases later.
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
+
+    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     target_sources(${TARGET_NAME}
         PRIVATE

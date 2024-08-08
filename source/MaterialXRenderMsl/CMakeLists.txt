@@ -46,23 +46,23 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(MSVC)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             Opengl32)
 elseif(APPLE)
     if(NOT MATERIALX_BUILD_IOS)
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+                PUBLIC
                 "-framework Cocoa"
                 "-framework OpenGL")
     endif()
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             "-framework Foundation"
             "-framework Metal")
 elseif(UNIX)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             OpenGL::GL
             X11::X11
             X11::Xt)

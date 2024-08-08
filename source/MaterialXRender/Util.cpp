@@ -77,8 +77,8 @@ ShaderPtr createAlbedoTableShader(GenContext& context,
 }
 
 ShaderPtr createEnvPrefilterShader(GenContext& context,
-                                        DocumentPtr stdLib,
-                                        const string& shaderName)
+                                   DocumentPtr stdLib,
+                                   const string& shaderName)
 {
     // Construct a dummy nodegraph.
     DocumentPtr doc = createDocument();

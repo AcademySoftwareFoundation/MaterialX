@@ -17,23 +17,23 @@ MATERIALX_NAMESPACE_BEGIN
 
 /// @class TypeDesc
 /// A type descriptor for MaterialX data types.
-/// 
+///
 /// All types need to have a type descriptor registered in order for shader generators
 /// to know about the type. It can be used for type comparisons as well as getting more
 /// information about the type. Type descriptors for all standard library data types are
 /// registered by default and can be accessed from the Type namespace, e.g. Type::FLOAT.
 ///
 /// To register custom types use the macro TYPEDESC_DEFINE_TYPE to define it in a header
-/// and the macro TYPEDESC_REGISTER_TYPE to register it in the type registry. Registration 
+/// and the macro TYPEDESC_REGISTER_TYPE to register it in the type registry. Registration
 /// must be done in order to access the type's name later using getName() and to find the
 /// type by name using TypeDesc::get().
-/// 
+///
 /// The class is a POD type of 64-bits and can efficiently be stored and passed by value.
 /// Type compare operations and hash operations are done using a precomputed hash value.
 ///
 class MX_GENSHADER_API TypeDesc
 {
-public:
+  public:
     enum BaseType
     {
         BASETYPE_NONE,
@@ -60,7 +60,8 @@ public:
     };
 
     /// Empty constructor.
-    constexpr TypeDesc() noexcept : _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0) {}
+    constexpr TypeDesc() noexcept :
+        _id(0), _basetype(BASETYPE_NONE), _semantic(SEMANTIC_NONE), _size(0) { }
 
     /// Constructor.
     constexpr TypeDesc(std::string_view name, uint8_t basetype, uint8_t semantic = SEMANTIC_NONE, uint16_t size = 1) noexcept :
@@ -68,7 +69,8 @@ public:
         _basetype(basetype),
         _semantic(semantic),
         _size(size)
-    {}
+    {
+    }
 
     /// Return the unique id assigned to this type.
     /// The id is a hash of the given type name.
@@ -143,7 +145,7 @@ public:
 
     static const string NONE_TYPE_NAME;
 
-private:
+  private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
     /// are used for our data type names.
     constexpr uint32_t constexpr_hash(std::string_view str, uint32_t n = 0, uint32_t h = 2166136261)
@@ -161,7 +163,7 @@ private:
 /// Helper class for type registration.
 class MX_GENSHADER_API TypeDescRegistry
 {
-public:
+  public:
     TypeDescRegistry(TypeDesc type, const string& name);
 };
 

@@ -1102,7 +1102,7 @@ void Document::upgradeVersion()
                 NodePtr base = node->getConnectedNode("base");
                 if (top && base && top->getCategory() == "thin_film_bsdf")
                 {
-                    // Apply thin-film parameters to all supported BSDF's upstream. 
+                    // Apply thin-film parameters to all supported BSDF's upstream.
                     const StringSet BSDF_WITH_THINFILM = { "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf" };
                     for (Edge edge : node->traverseGraph())
                     {
@@ -1171,9 +1171,9 @@ void Document::upgradeVersion()
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
                     size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
                     size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
-                    
+
                     // Resolve the invalid case of having both a connection and a value
-                    // by removing the value attribute. 
+                    // by removing the value attribute.
                     if (inInput->hasValue())
                     {
                         if (inInput->hasNodeName() || inInput->hasNodeGraphString() || inInput->hasInterfaceName())
@@ -1240,21 +1240,13 @@ void Document::upgradeVersion()
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
-                            if (i < channelString.size())
+                            if (i < channelString.size() && CHANNEL_CONSTANT_MAP.count(channelString[i]))
                             {
-                                if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
-                                {
-                                    combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
-                                }
-                                else
-                                {
-                                    copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
-                                }
+                                combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
                             }
                             else
                             {
-                                combineInInput->setConnectedNode(node);
-                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                                copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
                             }
                         }
                         node->removeInput(inInput->getName());
@@ -1264,7 +1256,7 @@ void Document::upgradeVersion()
                         // Replace swizzle with separate and combine.
                         GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
                         NodePtr separateNode = graph->addNode(std::string("separate") + std::to_string(sourceChannelCount),
-                            graph->createValidChildName("separate"), MULTI_OUTPUT_TYPE_STRING);
+                                                              graph->createValidChildName("separate"), MULTI_OUTPUT_TYPE_STRING);
                         int childIndex = graph->getChildIndex(node->getName());
                         if (childIndex != -1)
                         {

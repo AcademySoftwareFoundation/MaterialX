@@ -6,8 +6,6 @@
     <input name="color" type="color3" value="0.9, 0.0, 0.6" />
     <input name="roughness" type="float" value="0.0" />
     <input name="energyCompensation" type="float" value="1.0" />
-    <input name="lobeName" type="string" value="diffuse" />
-    <input name="matte" type="string" value="" />
   </LamaTranslucent>
   <surface name="LamaTranslucentSurface" type="surfaceshader">
     <input name="bsdf" type="BSDF" nodename="LamaTranslucent" />
