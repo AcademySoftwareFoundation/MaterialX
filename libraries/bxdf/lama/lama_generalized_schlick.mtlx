@@ -63,14 +63,6 @@
       <input name="in2" type="color3" nodename="ior_multiply" />
       <input name="which" type="integer" interfacename="fresnelMode" />
     </switch>
-    <subtract name="transmission_color0" type="color3">
-      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="in2" type="color3" nodename="fresnel_mode_switch" />
-    </subtract>
-    <subtract name="transmission_color90" type="color3">
-      <input name="in1" type="color3" value="1.0, 1.0, 1.0" />
-      <input name="in2" type="color3" interfacename="reflectivity90" />
-    </subtract>
 
     <!-- Exponent -->
     <divide name="exponent" type="float">
@@ -132,8 +124,8 @@
     <!-- Transmission -->
     <generalized_schlick_bsdf name="transmission_bsdf" type="BSDF">
       <input name="weight" type="float" value="1.0" />
-      <input name="color0" type="color3" nodename="transmission_color0" />
-      <input name="color90" type="color3" nodename="transmission_color90" />
+      <input name="color0" type="color3" nodename="fresnel_mode_switch" />
+      <input name="color90" type="color3" interfacename="reflectivity90" />
       <input name="exponent" type="float" nodename="exponent" />
       <input name="roughness" type="vector2" nodename="roughness_anisotropic_squared_clamped" />
       <input name="normal" type="vector3" interfacename="normal" />
