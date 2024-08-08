@@ -1,4 +1,5 @@
 add_subdirectory(External/PugiXML)
+set_property(TARGET pugixml PROPERTY FOLDER "External")
 
 file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
