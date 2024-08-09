@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <materialx version="1.39">
 
-  <nodedef name="ND_open_pbr_surface_to_standard_surface" node="open_pbr_surface_to_standard_surface" nodegroup="translation">
+  <nodedef name="ND_open_pbr_surface_to_standard_surface" node="open_pbr_surface_to_standard_surface" uiname="OpenPBR Surface to Standard Surface" nodegroup="translation">
     <input name="base_weight" type="float" value="1.0" />
     <input name="base_color" type="color3" value="0.8, 0.8, 0.8" />
     <input name="base_diffuse_roughness" type="float" value="0.0" />
