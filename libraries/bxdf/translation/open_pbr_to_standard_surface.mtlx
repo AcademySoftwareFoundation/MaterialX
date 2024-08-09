@@ -198,7 +198,7 @@
     <dot name="specColor" type="color3">
       <input name="in" type="color3" interfacename="specular_color" />
     </dot>
-    <!--Allows "override" of specular_roughness by coat_roughness for materials with coat, but not for simpler materials that don't leverage coat at all.-->
+    <!--Allows override of specular_roughness by coat_roughness for materials with coat, but not for simpler materials that don't leverage coat at all.-->
     <mix name="specRoughness" type="float">
       <input name="fg" type="float" interfacename="coat_roughness" />
       <input name="bg" type="float" interfacename="specular_roughness" />
