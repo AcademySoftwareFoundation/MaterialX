@@ -1121,7 +1121,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 temp = fileName;
 
                 // Need to clear the file prefix so that it can find the new file
-                input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
+                input->setFilePrefix(mx::EMPTY_STRING);
                 _fileDialogImage.clearSelected();
                 _fileDialogImage.setTypeFilters(std::vector<std::string>());
                 _fileDialogImageInputName = "";

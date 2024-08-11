@@ -100,7 +100,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target) const
     return InterfaceElementPtr();
 }
 
-const StringMap NodeDef::getInputHints() const
+StringMap NodeDef::getInputHints() const
 {
     StringMap hints;
     for (InputPtr input : getActiveInputs())
