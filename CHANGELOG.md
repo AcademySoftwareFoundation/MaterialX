@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.1] - Development
+## [1.39.1] - Release Candidate
 
 ### Added
 - Added initial shader translation graphs between [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1934) and [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1949).
