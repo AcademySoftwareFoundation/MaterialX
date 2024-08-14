@@ -42,6 +42,7 @@ option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MDL "Build the MDL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_MSL "Build the MSL shader generator back-end." ON)
+option(MATERIALX_BUILD_RENDER_CORE "Build the MaterialX Render core module." ON)
 option(MATERIALX_BUILD_RENDER "Build the MaterialX Render modules." ON)
 option(MATERIALX_BUILD_OIIO "Build OpenImageIO support for MaterialXRender." OFF)
 option(MATERIALX_BUILD_TESTS "Build unit tests." OFF)
@@ -79,6 +80,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_GEN_MSL ON)
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
@@ -103,6 +105,14 @@ if (MATERIALX_BUILD_JS)
     set(MATERIALX_BUILD_RENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
 endif()
+
+if (MATERIALX_BUILD_GEN_MSL)
+    # The MSL shader generation has a 'libraries' dependancy on GLSL, so it is necessary to build the GLSL shader
+    # generator - to allow for consumers (OpenUSD) to use MaterialX::GlslShaderGenerator::TARGET to locate those
+    # resources.
+    # Once the GLSL and MSL libraries are separated, this can be removed.
+    set(MATERIALX_BUILD_GEN_GLSL ON)
+endif ()
 
 set(MATERIALX_PYTHON_VERSION "" CACHE STRING
     "Python version to be used in building the MaterialX Python package (e.g. '3.9').")
@@ -463,8 +473,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
 endif()
 
 # Add rendering and viewer subdirectories
-if(MATERIALX_BUILD_RENDER)
+if (MATERIALX_BUILD_RENDER_CORE OR MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRender)
+endif ()
+if (MATERIALX_BUILD_RENDER)
     add_subdirectory(source/MaterialXRenderHw)
     if (MATERIALX_BUILD_GEN_GLSL)
         add_subdirectory(source/MaterialXRenderGlsl)
