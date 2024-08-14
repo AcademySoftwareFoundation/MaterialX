@@ -439,7 +439,7 @@
   -->
   <nodedef name="ND_hair_absorption_from_color" node="hair_absorption_from_color" nodegroup="pbr" doc="Calculates hair absorption from a color.">
     <input name="color" type="color3" value="1.0, 1.0, 1.0" />
-    <input name="roughness" type="float" value="0.1" />
+    <input name="azimuthal_roughness" type="float" value="0.2" />
     <output name="absorption" type="vector3" />
   </nodedef>
 

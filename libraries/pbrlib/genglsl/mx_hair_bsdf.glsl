@@ -218,11 +218,9 @@ vec3 mx_hair_chiang_bsdf(
         sinGammaO = -sinGammaO;
     float gammaO = asin(sinGammaO);
 
-    float eta = ior / 1.0;
-
-    float sinThetaT = sinThetaO / eta;
+    float sinThetaT = sinThetaO / ior;
     float cosThetaT = mx_hair_transform_sin_cos(sinThetaT);
-    float etaP = sqrt(max(eta * eta - sinThetaO * sinThetaO, 0.0)) / max(cosThetaO, 1e-8);
+    float etaP = sqrt(max(ior * ior - sinThetaO * sinThetaO, 0.0)) / max(cosThetaO, 1e-8);
     float sinGammaT = max(min(sinGammaO / etaP, 1.0), -1.0);
     float cosGammaT = sqrt(1.0 - sinGammaT * sinGammaT);
     float gammaT = asin(sinGammaT);
