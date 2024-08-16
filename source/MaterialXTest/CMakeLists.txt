@@ -93,14 +93,16 @@ endif()
 
 # TODO: Only do this stuff when it's relevant
 
-add_custom_command(TARGET MaterialXTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries)
-if(MATERIALX_OSL_LEGACY_CLOSURES)
-    add_custom_command(TARGET MaterialXTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rename
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.legacy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx)
-endif()
+# Copy the staged "libraries/build" folder for the tests - the dependency tracking here will ensure
+# edits to any of the "libraries" files are correctly accounted for in the unit tests.
+add_custom_command(OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/README.md
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_BINARY_DIR}/libraries/build ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries
+        DEPENDS MaterialX_Library_Files)
+add_custom_target(MaterialXTest_Copy_Libraries
+        DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libraries/README.md
+)
+add_dependencies(MaterialXTest MaterialXTest_Copy_Libraries)
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"

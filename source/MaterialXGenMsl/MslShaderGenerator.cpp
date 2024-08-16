@@ -616,15 +616,15 @@ void MslShaderGenerator::emitSpecularEnvironment(GenContext& context, ShaderStag
     int specularMethod = context.getOptions().hwSpecularEnvironmentMethod;
     if (specularMethod == SPECULAR_ENVIRONMENT_FIS)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_fis.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genmsl/lib/mx_environment_fis.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_PREFILTER)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_prefilter.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genmsl/lib/mx_environment_prefilter.glsl", context, stage);
     }
     else if (specularMethod == SPECULAR_ENVIRONMENT_NONE)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_environment_none.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genmsl/lib/mx_environment_none.glsl", context, stage);
     }
     else
     {
@@ -638,11 +638,11 @@ void MslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStage
     int transmissionMethod = context.getOptions().hwTransmissionRenderMethod;
     if (transmissionMethod == TRANSMISSION_REFRACTION)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_transmission_refract.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genmsl/lib/mx_transmission_refract.glsl", context, stage);
     }
     else if (transmissionMethod == TRANSMISSION_OPACITY)
     {
-        emitLibraryInclude("pbrlib/genglsl/lib/mx_transmission_opacity.glsl", context, stage);
+        emitLibraryInclude("pbrlib/genmsl/lib/mx_transmission_opacity.glsl", context, stage);
     }
     else
     {
@@ -939,20 +939,20 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
                          context.getOptions().hwWriteDepthMoments;
         if (shadowing)
         {
-            emitLibraryInclude("pbrlib/genglsl/lib/mx_shadow.glsl", context, stage);
+            emitLibraryInclude("pbrlib/genmsl/lib/mx_shadow.glsl", context, stage);
         }
 
         // Emit directional albedo table code.
         if (context.getOptions().hwWriteAlbedoTable)
         {
-            emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_albedo_table.glsl", context, stage);
+            emitLibraryInclude("pbrlib/genmsl/lib/mx_generate_albedo_table.glsl", context, stage);
             emitLineBreak(stage);
         }
 
         // Emit environment prefiltering code
         if (context.getOptions().hwWriteEnvPrefilter)
         {
-            emitLibraryInclude("pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl", context, stage);
+            emitLibraryInclude("pbrlib/genmsl/lib/mx_generate_prefilter_env.glsl", context, stage);
             emitLineBreak(stage);
         }
 
@@ -970,7 +970,7 @@ void MslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& co
         // Emit uv transform code globally if needed.
         if (context.getOptions().hwAmbientOcclusion)
         {
-            emitLibraryInclude("stdlib/genglsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
+            emitLibraryInclude("stdlib/genmsl/lib/" + _tokenSubstitutions[ShaderGenerator::T_FILE_TRANSFORM_UV], context, stage);
         }
 
         emitLightFunctionDefinitions(graph, context, stage);
