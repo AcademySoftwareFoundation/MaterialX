@@ -686,7 +686,7 @@
 
   <!-- <combine2> -->
   <implementation name="IM_combine2_vector2_genmdl" nodedef="ND_combine2_vector2" target="genmdl" sourcecode="float2( {{in1}},{{in2}} )" />
-  <implementation name="IM_combine2_color4CF_genmdl" nodedef="ND_combine2_color4CF" target="genmdl" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_combine2_color4CF({{in1}}, {{in2}})" target="genmdl" />
+  <implementation name="IM_combine2_color4CF_genmdl" nodedef="ND_combine2_color4CF" target="genmdl" sourcecode="materialx::stdlib_{{MDL_VERSION_SUFFIX}}::mx_combine2_color4CF({{in1}}, {{in2}})" />
   <implementation name="IM_combine2_vector4VF_genmdl" nodedef="ND_combine2_vector4VF" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in1}}[2],{{in2}} )" />
   <implementation name="IM_combine2_vector4VV_genmdl" nodedef="ND_combine2_vector4VV" target="genmdl" sourcecode="float4( {{in1}}[0],{{in1}}[1],{{in2}}[0],{{in2}}[1] )" />
 
