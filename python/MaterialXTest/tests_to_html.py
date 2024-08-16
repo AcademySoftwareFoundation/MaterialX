@@ -38,8 +38,8 @@ def main(args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i1', '--inputdir1', dest='inputdir1', action='store', help='Input directory', default=".")
-    parser.add_argument('-i2', '--inputdir2', dest='inputdir2', action='store', help='Second input directory', default=".")
-    parser.add_argument('-i3', '--inputdir3', dest='inputdir3', action='store', help='Third input directory', default=".")
+    parser.add_argument('-i2', '--inputdir2', dest='inputdir2', action='store', help='Second input directory', default="")
+    parser.add_argument('-i3', '--inputdir3', dest='inputdir3', action='store', help='Third input directory', default="")
     parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', help='Output file name', default="tests.html")
     parser.add_argument('-d', '--diff', dest='CREATE_DIFF', action='store_true', help='Perform image diff', default=False)
     parser.add_argument('-t', '--timestamp', dest='ENABLE_TIMESTAMPS', action='store_true', help='Write image timestamps', default=False)
@@ -67,24 +67,29 @@ def main(args=None):
     fh.write("}")
     fh.write("</style>")
     fh.write("<body>\n")
-    dir1 = os.getcwd() if args.inputdir1 == "." else args.inputdir1
-    dir2 = os.getcwd() if args.inputdir2 == "." else args.inputdir2
-    dir3 = os.getcwd() if args.inputdir3 == "." else args.inputdir3
 
-    useThirdLang = True if args.lang3 and (args.inputdir1 != args.inputdir3 or args.lang1 != args.lang3) else False
+    if args.inputdir1 == ".":
+        args.inputdir1 = os.getcwd()
 
+    if args.inputdir2 == ".":
+        args.inputdir2 = os.getcwd()
+    elif args.inputdir2 == "":
+        args.inputdir2 = args.inputdir1
+
+    if args.inputdir3 == ".":
+        args.inputdir3 = os.getcwd()
+    elif args.inputdir3 == "":
+        args.inputdir3 = args.inputdir1
+
+    useThirdLang = args.lang3
+    
     if useThirdLang:
-        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs " + args.lang2 + " (in: " + dir2 + ") vs " + args.lang3 + " (in: " + dir3 + ")</h3>\n")
+        fh.write("<h3>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ") vs "+ args.lang3 + " (in: " + args.inputdir3 + ")</h3>\n")
     else:
-        fh.write("<h3>" + args.lang1 + " (in: " + dir1 + ") vs " + args.lang2 + " (in: " + dir2 + ")</h3>\n")
+        fh.write("<h3>" + args.lang1 + " (in: " + args.inputdir1 + ") vs "+ args.lang2 + " (in: " + args.inputdir2 + ")</h3>\n")
 
     if not DIFF_ENABLED and args.CREATE_DIFF:
         print("--diff argument ignored. Diff utility not installed.")
-
-    if not args.inputdir2:
-        args.inputdir2 = args.inputdir1
-    if useThirdLang and not args.inputdir3:
-        args.inputdir3 = args.inputdir1
 
     # Remove potential trailing path separators
     if args.inputdir1[-1:] == '/' or args.inputdir1[-1:] == '\\':
@@ -116,7 +121,7 @@ def main(args=None):
         # pointing to the same directory 
         if args.inputdir1 != args.inputdir2 or args.lang1 != args.lang2:
             file2 = file1[:-len(postFix)] + args.lang2 + ".png"
-            path2 = os.path.join(args.inputdir2, path1[preFixLen:])
+            path2 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
         else:
             file2 = ""
             path2 = None
@@ -125,7 +130,7 @@ def main(args=None):
 
         if useThirdLang:
             file3 = file1[:-len(postFix)] + args.lang3 + ".png"
-            path3 = os.path.join(args.inputdir3, path1[preFixLen:])
+            path3 = os.path.join(args.inputdir2, path1[len(args.inputdir1)+1:])
         else:
             file3 = ""
             path3 = None
@@ -160,24 +165,25 @@ def main(args=None):
                 diffPath3 = fullPath1[0:-8] + "_" + args.lang2 + "-2_vs_" + args.lang3 + "-3_diff.png"
                 createDiff(fullPath2, fullPath3, diffPath3)
 
-            if os.path.isabs(args.outputfile):
-                fileUri = 'file:///'
-            else:
-                fileUri = ''
+            def prependFileUri(filepath: str) -> str:
+                if os.path.isabs(filepath):
+                    return 'file:///' + filepath
+                else:
+                    return filepath
 
             fh.write("<tr>\n")
             if fullPath1:
-                fh.write("<td class='td_image'><img src='" + fileUri + fullPath1 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(fullPath1) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if fullPath2:
-                fh.write("<td class='td_image'><img src='" + fileUri + fullPath2 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(fullPath2) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if fullPath3:
-                fh.write("<td class='td_image'><img src='" + fileUri + fullPath3 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(fullPath3) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if diffPath1:
-                fh.write("<td class='td_image'><img src='" + fileUri + diffPath1 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(diffPath1) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if diffPath2:
-                fh.write("<td class='td_image'><img src='" + fileUri + diffPath2 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(diffPath2) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             if diffPath3:
-                fh.write("<td class='td_image'><img src='" + fileUri + diffPath3 + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
+                fh.write("<td class='td_image'><img src='" + prependFileUri(diffPath3) + "' height='" + str(args.imageheight) + "' width='" + str(args.imagewidth) + "' loading='lazy' style='background-color:black;'/></td>\n")
             fh.write("</tr>\n")
 
             fh.write("<tr>\n")
