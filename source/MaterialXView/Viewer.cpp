@@ -137,6 +137,12 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
+bool useFloatBuffer()
+{
+    auto [capability_10bit, capability_EDR] = ng::test_10bit_edr_support();
+    return capability_10bit || capability_EDR;
+}
+
 } // anonymous namespace
 
 //
@@ -152,7 +158,7 @@ Viewer::Viewer(const std::string& materialFilename,
                int screenHeight,
                const mx::Color3& screenColor) :
     ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
-        true, false, true, true, false, 4, 0),
+        true, false, true, true, useFloatBuffer(), 4, 0),
     _window(nullptr),
     _materialFilename(materialFilename),
     _meshFilename(meshFilename),

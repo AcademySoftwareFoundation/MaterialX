@@ -16,7 +16,7 @@ MetalState::MetalState()
 {
 }
 
-void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQueue)
+void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQueue, bool floatBuffer)
 {
     device = mtlDevice;
     cmdQueue = mtlCmdQueue;
@@ -43,10 +43,10 @@ void MetalState::initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQ
     depthStencilDesc.depthCompareFunction = MTLCompareFunctionAlways;
     envMapDepthStencilState = [device newDepthStencilStateWithDescriptor:depthStencilDesc];
 
-    initLinearToSRGBKernel();
+    initLinearToSRGBKernel(floatBuffer);
 }
 
-void MetalState::initLinearToSRGBKernel()
+void MetalState::initLinearToSRGBKernel(bool floatBuffer)
 {
     NSError* error = nil;
     MTLCompileOptions* options = [MTLCompileOptions new];
@@ -57,6 +57,8 @@ void MetalState::initLinearToSRGBKernel()
 #endif
         options.languageVersion = MTLLanguageVersion2_0;
     options.fastMathEnabled = true;
+
+    MTLPixelFormat pixelFormat = floatBuffer ? MTLPixelFormatRGBA16Float : MTLPixelFormatRGBA8Unorm;
 
 #ifdef MAC_OS_VERSION_11_0
     bool useTiledPipeline = supportsTiledPipeline;
@@ -102,7 +104,7 @@ void MetalState::initLinearToSRGBKernel()
 
             MTLTileRenderPipelineDescriptor* renderPipelineDescriptor = [MTLTileRenderPipelineDescriptor new];
             [renderPipelineDescriptor setRasterSampleCount:1];
-            [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+            [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:pixelFormat];
             [renderPipelineDescriptor setTileFunction:function];
             linearToSRGB_pso = [device newRenderPipelineStateWithTileDescriptor:renderPipelineDescriptor options:0 reflection:nil error:&error];
         }
@@ -171,7 +173,7 @@ void MetalState::initLinearToSRGBKernel()
         MTLRenderPipelineDescriptor* renderPipelineDesc = [MTLRenderPipelineDescriptor new];
         [renderPipelineDesc setVertexFunction:vertexfunction];
         [renderPipelineDesc setFragmentFunction:Fragmentfunction];
-        [[renderPipelineDesc colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+        [[renderPipelineDesc colorAttachments][0] setPixelFormat:pixelFormat];
         [renderPipelineDesc setDepthAttachmentPixelFormat:MTLPixelFormatDepth32Float];
         linearToSRGB_pso = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc error:&error];
     }
