@@ -43,7 +43,7 @@ struct MX_RENDERMSL_API MetalState
     void endEncoder();
     void endCommandBuffer();
 
-    void waitForComplition();
+    void waitForCompletion();
 
     MaterialX::MetalFramebufferPtr currentFramebuffer();
 

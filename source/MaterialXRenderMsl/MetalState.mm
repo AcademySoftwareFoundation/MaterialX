@@ -227,7 +227,7 @@ void MetalState::endCommandBuffer()
     [cmdBuffer waitUntilCompleted];
 }
 
-void MetalState::waitForComplition()
+void MetalState::waitForCompletion()
 {
     std::unique_lock<std::mutex> lock(inFlightMutex);
     while (inFlightCommandBuffers != 0)

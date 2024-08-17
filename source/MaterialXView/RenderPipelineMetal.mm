@@ -704,7 +704,7 @@ mx::ImagePtr MetalRenderPipeline::getFrameImage()
     unsigned int width = MTL(currentFramebuffer())->getWidth();
     unsigned int height = MTL(currentFramebuffer())->getHeight();
     
-    MTL(waitForComplition());
+    MTL(waitForCompletion());
 
     id<MTLTexture> srcTexture = MTL(supportsTiledPipeline) ?
                                     (id<MTLTexture>)_viewer->_colorTexture :
