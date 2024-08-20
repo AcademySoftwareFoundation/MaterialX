@@ -1,11 +1,11 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 0)
+set(MATERIALX_BUILD_VERSION 1)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_MACOSX_RPATH ON)
@@ -182,10 +182,23 @@ if (MATERIALX_BUILD_USE_CCACHE)
     endif()
 endif()
 
+# Attempt to configure OSL testing if it can be found by cmake.
+# This will not override any explicitly provided oslc and testrender
+if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
+    # We currently only need the actual OSL binaries if we're running tests with Render and GenOSL enabled.
+    find_package(OSL QUIET)
+    if(OSL_FOUND)
+        if(NOT MATERIALX_OSL_BINARY_OSLC)
+            set(MATERIALX_OSL_BINARY_OSLC $<TARGET_FILE:OSL::oslc>)
+        endif()
+        if(NOT MATERIALX_OSL_BINARY_TESTRENDER)
+            # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
+            set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
+        endif()
+    endif()
+endif()
+
 # Add global definitions
-add_definitions(-DMATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\")
-add_definitions(-DMATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\")
-add_definitions(-DMATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\")
 if (MATERIALX_OSL_LEGACY_CLOSURES)
     add_definitions(-DMATERIALX_OSL_LEGACY_CLOSURES)
 endif()
@@ -288,7 +301,9 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     set(multiValueArgs
             SOURCE_FILES
             HEADER_FILES
-            LIBRARIES)
+            INLINED_FILES
+            LIBRARIES
+            PRIVATE_LIBRARIES)
     cmake_parse_arguments(args
             "${options}"
             "${oneValueArgs}"
@@ -303,11 +318,12 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     endif()
 
     assign_source_group("Source Files" ${args_SOURCE_FILES})
+    assign_source_group("Source Files" ${args_INLINED_FILES})
     assign_source_group("Header Files" ${args_HEADER_FILES})
 
     if (NOT MATERIALX_BUILD_MONOLITHIC)
         set(TARGET_NAME ${MATERIALX_MODULE_NAME})
-        add_library(${TARGET_NAME} ${args_SOURCE_FILES} ${args_HEADER_FILES})
+        add_library(${TARGET_NAME})
 
         # Create version resource
         if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
@@ -315,10 +331,14 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             target_sources(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
         endif()
 
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+            PUBLIC
                 ${args_LIBRARIES}
                 ${CMAKE_DL_LIBS})
+
+        target_link_libraries(${TARGET_NAME}
+             PRIVATE
+                ${args_PRIVATE_LIBRARIES})
 
         target_include_directories(${TARGET_NAME}
                 PUBLIC
@@ -338,14 +358,32 @@ function(mx_add_library MATERIALX_MODULE_NAME)
     else()
         set(TARGET_NAME ${MATERIALX_MONOLITHIC_TARGET})
 
-        target_sources(${TARGET_NAME} PRIVATE ${args_SOURCE_FILES})
-        target_sources(${TARGET_NAME} PRIVATE ${args_HEADER_FILES})
-
         add_library(${MATERIALX_MODULE_NAME} ALIAS ${MATERIALX_MONOLITHIC_TARGET})
 
         # Store the aliased MaterialX modules name to create cmake export aliases later.
         set_property(GLOBAL APPEND PROPERTY MATERIALX_MODULES ${MATERIALX_MODULE_NAME})
     endif()
+
+    set_target_properties(${TARGET_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${TARGET_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+    target_sources(${TARGET_NAME}
+        PRIVATE
+            ${args_SOURCE_FILES}
+        PUBLIC
+            FILE_SET
+                mxHeaders
+            TYPE
+                HEADERS
+            BASE_DIRS
+                ${CMAKE_CURRENT_SOURCE_DIR}/..
+                ${CMAKE_CURRENT_BINARY_DIR}/..
+            FILES
+                ${args_HEADER_FILES}
+                ${args_INLINED_FILES})
+
+    target_include_directories(${TARGET_NAME} PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>)
 
     target_compile_definitions(${TARGET_NAME} PRIVATE "-D${args_EXPORT_DEFINE}")
 
@@ -355,14 +393,9 @@ function(mx_add_library MATERIALX_MODULE_NAME)
                     EXPORT MaterialX
                     ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
                     LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                    RUNTIME DESTINATION bin)
+                    RUNTIME DESTINATION bin
+                    FILE_SET mxHeaders)
         endif()
-
-        install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
-                DESTINATION ${MATERIALX_INSTALL_INCLUDE_PATH}/${MATERIALX_MODULE_NAME}/ MESSAGE_NEVER
-                FILES_MATCHING
-                PATTERN "*.h*"
-                PATTERN "*.inl")
 
         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${MATERIALX_MODULE_NAME}.pdb"
                 DESTINATION "${MATERIALX_INSTALL_LIB_PATH}/" OPTIONAL)
@@ -452,6 +485,23 @@ endif()
 
 if(MATERIALX_BUILD_JS)
     add_subdirectory(source/JsMaterialX)
+endif()
+
+if (MATERIALX_BUILD_MONOLITHIC)
+    # MaterialX monolithic build target needs to be installed after any other included
+    # modules to ensure the correct files are in mxHeaders
+    if(NOT SKBUILD)
+        install(TARGETS ${MATERIALX_MONOLITHIC_TARGET}
+                EXPORT MaterialX
+                ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
+                RUNTIME DESTINATION bin
+                FILE_SET mxHeaders)
+
+        # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
+        # to do that installation, thus we respect the build options configuration, and only install
+        # the headers for the modules we've built in to the monolithic build.
+    endif()
 endif()
 
 if(MATERIALX_BUILD_VIEWER)

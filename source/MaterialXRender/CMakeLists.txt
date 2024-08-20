@@ -8,7 +8,9 @@ endif()
 
 mx_add_library(MaterialXRender
     SOURCE_FILES
-        ${materialx_source} ${materialx_inlined}
+        ${materialx_source}
+    INLINED_FILES
+        ${materialx_inlined}
     HEADER_FILES
         ${materialx_headers}
     LIBRARIES
@@ -27,5 +29,5 @@ if(MATERIALX_BUILD_OIIO)
     set(OPENIMAGEIO_ROOT_DIR ${MATERIALX_OIIO_DIR})
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/External/OpenImageIO")
     find_package(OpenImageIO CONFIG REQUIRED)
-    target_link_libraries(${TARGET_NAME} OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
+    target_link_libraries(${TARGET_NAME} PRIVATE OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util)
 endif()

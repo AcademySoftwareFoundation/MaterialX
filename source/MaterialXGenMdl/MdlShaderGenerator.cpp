@@ -41,13 +41,13 @@ const vector<string> DEFAULT_IMPORTS =
     "using ::materialx::sampling import *",
 };
 
-const vector<string> DEFAULT_VERSIONED_IMPORTS = {
+const vector<string> DEFAULT_VERSIONED_IMPORTS =
+{
     "using ::materialx::stdlib_",
     "using ::materialx::pbrlib_",
 };
 
 const string IMPORT_ALL = " import *";
-
 
 const string MDL_VERSION_1_6 = "1.6";
 const string MDL_VERSION_1_7 = "1.7";
@@ -223,7 +223,8 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
             emitLine("color finalOutput__ = mk_color3("
                      "r: math::dot(displacement__, state::texture_tangent_u(0)),"
                      "g: math::dot(displacement__, state::texture_tangent_v(0)),"
-                     "b: math::dot(displacement__, state::normal()))", stage);
+                     "b: math::dot(displacement__, state::normal()))",
+                     stage);
         }
         else
         {
@@ -606,7 +607,6 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const DocumentPtr doc
 
 } // anonymous namespace
 
-
 void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const
 {
     const string uniformPrefix = _syntax->getUniformQualifier() + " ";
@@ -644,7 +644,6 @@ void MdlShaderGenerator::emitShaderInputs(const DocumentPtr doc, const VariableB
         emitLineEnd(stage, false);
     }
 }
-
 
 void MdlShaderGenerator::emitMdlVersionNumber(GenContext& context, ShaderStage& stage) const
 {
@@ -687,7 +686,6 @@ const string& MdlShaderGenerator::getMdlVersionFilenameSuffix(GenContext& contex
             return MDL_VERSION_SUFFIX_1_8;
     }
 }
-
 
 void MdlShaderGenerator::emitMdlVersionFilenameSuffix(GenContext& context, ShaderStage& stage) const
 {

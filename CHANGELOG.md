@@ -1,5 +1,27 @@
 # Change Log
 
+## [1.39.1] - Release Candidate
+
+### Added
+- Added initial shader translation graphs between [Standard Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1934) and [OpenPBR Surface](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1949).
+- Added initial support for [code generation hints](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1954).
+
+### Changed
+- Raised the minimum CMake version to [CMake 3.24](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1929).
+- Moved feature proposals from the main specification to a new [MaterialX Proposals](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1953) document.
+- Updated the open definitions of the [MaterialX Lama nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1955) to improve alignment with RenderMan.
+
+### Fixed
+- Fixed errors in the [installation steps](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1923) for CMake builds.
+- Fixed the computation of [Fresnel transmission](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1962) in GLSL.
+- Fixed transposed matrices in color transforms for the [displayp3 space](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1960).
+- Fixed edge cases in the version upgrade process for [swizzle](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1945) [nodes](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1957).
+- Fixed a crash in the Graph Editor when [renaming a node graph](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1930).
+- Fixed the exporting of [PugiXML symbols](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1944) in MaterialXFormat.
+
+### Removed
+- Removed an extra installation of the [resources folder](https://github.com/AcademySoftwareFoundation/MaterialX/pull/1927) in MaterialXGenShader.
+
 ## [1.39.0] - 2024-07-05
 
 ### Added

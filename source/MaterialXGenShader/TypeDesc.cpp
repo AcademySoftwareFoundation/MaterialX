@@ -11,21 +11,22 @@ MATERIALX_NAMESPACE_BEGIN
 
 namespace
 {
-    using TypeDescMap = std::unordered_map<string, TypeDesc>;
-    using TypeDescNameMap = std::unordered_map<uint32_t, string>;
 
-    // Internal storage of registered type descriptors
-    TypeDescMap& typeMap()
-    {
-        static TypeDescMap map;
-        return map;
-    }
+using TypeDescMap = std::unordered_map<string, TypeDesc>;
+using TypeDescNameMap = std::unordered_map<uint32_t, string>;
 
-    TypeDescNameMap& typeNameMap()
-    {
-        static TypeDescNameMap map;
-        return map;
-    }
+// Internal storage of registered type descriptors
+TypeDescMap& typeMap()
+{
+    static TypeDescMap map;
+    return map;
+}
+
+TypeDescNameMap& typeNameMap()
+{
+    static TypeDescNameMap map;
+    return map;
+}
 
 } // anonymous namespace
 
@@ -56,7 +57,7 @@ TypeDescRegistry::TypeDescRegistry(TypeDesc type, const std::string& name)
 namespace Type
 {
 
-/// 
+///
 /// Register type descriptors for standard types.
 ///
 TYPEDESC_REGISTER_TYPE(NONE, "none")
@@ -83,6 +84,6 @@ TYPEDESC_REGISTER_TYPE(DISPLACEMENTSHADER, "displacementshader")
 TYPEDESC_REGISTER_TYPE(LIGHTSHADER, "lightshader")
 TYPEDESC_REGISTER_TYPE(MATERIAL, "material")
 
-}
+} // namespace Type
 
 MATERIALX_NAMESPACE_END

@@ -4437,3 +4437,9 @@ export float3 mx_worleynoise3d_float3(
 {
     return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
 }
+
+export core::color4 mx_combine2_color4CF(color in1, float in2)
+{
+    float3 in1_as_float3 = float3(in1);
+    return core::mk_color4(in1_as_float3.x, in1_as_float3.y, in1_as_float3.z, in2);	
+}

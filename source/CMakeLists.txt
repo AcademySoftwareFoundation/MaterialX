@@ -5,6 +5,9 @@ if (MATERIALX_BUILD_MONOLITHIC)
     # such that the individual module would have been built if not in monolithic build mode
     add_library(${MATERIALX_MODULE_NAME} "" "" )
 
+    set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
     # Create version resource
     if(MATERIALX_BUILD_SHARED_LIBS AND MSVC)
         configure_file(${CMAKE_SOURCE_DIR}/cmake/modules/MaterialXVersion.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
@@ -32,15 +35,6 @@ if (MATERIALX_BUILD_MONOLITHIC)
             PRIVATE
             ${EXTERNAL_INCLUDE_DIRS})
 
-    if(NOT SKBUILD)
-        install(TARGETS ${MATERIALX_MODULE_NAME}
-                EXPORT MaterialX
-                ARCHIVE DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                LIBRARY DESTINATION ${MATERIALX_INSTALL_LIB_PATH}
-                RUNTIME DESTINATION bin)
-
-        # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
-        # to do that installation, thus we respect the build options configuration, and only install
-        # the headers for the modules we've built in to the monolithic build.
-    endif()
+    # Monolithic target is installed in the root CMakeLists.txt to allow for collection
+    # of all necessary headers.
 endif()
