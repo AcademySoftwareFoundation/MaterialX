@@ -12,7 +12,7 @@
 
 #include <MaterialXCore/Definition.h>
 
-#include <MaterialXGenShader/ColorManagementSystem.h>
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <OpenColorIO/OpenColorABI.h>
 #include <OpenColorIO/OpenColorIO.h>
 
@@ -29,7 +29,7 @@ using OpenColorIOManagementSystemPtr = std::shared_ptr<class OpenColorIOManageme
 
 /// @class OpenColorIOManagementSystem
 /// Class for a default color management system.
-class MX_GENSHADER_API OpenColorIOManagementSystem : public ColorManagementSystem
+class MX_GENSHADER_API OpenColorIOManagementSystem : public DefaultColorManagementSystem
 {
   public:
     virtual ~OpenColorIOManagementSystem() { }

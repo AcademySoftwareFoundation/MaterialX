@@ -57,6 +57,7 @@ OpenColorIOManagementSystemPtr OpenColorIOManagementSystem::create(const OCIO::C
 }
 
 OpenColorIOManagementSystem::OpenColorIOManagementSystem(const OCIO::ConstConfigRcPtr& config, const string& target) :
+    DefaultColorManagementSystem(target),
     _target(target),
     _config(std::move(config))
 {
@@ -94,6 +95,11 @@ const char* OpenColorIOManagementSystem::getSupportedColorSpaceName(const char* 
 
 NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& transform) const
 {
+    // See if the default color management system already handles this:
+    if (auto cmNodeDef = DefaultColorManagementSystem::getNodeDef(transform)) {
+        return cmNodeDef;
+    }
+
     OCIO::ConstProcessorRcPtr processor;
     // Check if directly supported in the config:
     const char* sourceColorSpace = getSupportedColorSpaceName(transform.sourceSpace.c_str());
@@ -162,11 +168,18 @@ NodeDefPtr OpenColorIOManagementSystem::getNodeDef(const ColorSpaceTransform& tr
 
 bool OpenColorIOManagementSystem::hasImplementation(const string& implName) const
 {
+    if (DefaultColorManagementSystem::hasImplementation(implName)) {
+        return true;
+    }
     return _implementations.count(implName);
 }
 
 ShaderNodeImplPtr OpenColorIOManagementSystem::createImplementation(const string& implName) const
 {
+    if (auto impl = DefaultColorManagementSystem::createImplementation(implName)) {
+        return impl;
+    }
+
     if (_implementations.count(implName))
     {
         return OpenColorIONode::create();

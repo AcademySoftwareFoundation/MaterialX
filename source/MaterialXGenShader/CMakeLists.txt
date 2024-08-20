@@ -14,6 +14,6 @@ mx_add_library(MaterialXGenShader
 
 if(MATERIALX_BUILD_OCIO)
     find_package(OpenColorIO REQUIRED)
-    target_link_libraries(${TARGET_NAME} OpenColorIO::OpenColorIO)
+    target_link_libraries(${TARGET_NAME} PUBLIC OpenColorIO::OpenColorIO)
     target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_OCIO)
 endif()
