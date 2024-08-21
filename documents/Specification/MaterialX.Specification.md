@@ -1124,7 +1124,7 @@ Application nodes are used to reference application-defined properties within a 
 
 ```xml
   <frame name="f1" type="float"/>
-  <updirection name="updir1" type="vector3"/>
+  <time name="t1" type="float"/>
 ```
 
 Standard Application nodes:
