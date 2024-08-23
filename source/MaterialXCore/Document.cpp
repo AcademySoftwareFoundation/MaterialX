@@ -428,7 +428,6 @@ void Document::normalizeValueStrings(unsigned int numericPrecision)
     }
 }
 
-
 //
 // Deprecated methods
 //
