@@ -32,6 +32,20 @@ jobs:
           python: 3.11
           build_javascript: ON
 
+        - name: Linux_GCC_12_Python311_monolithic
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.11
+          cmake_config: -DMATERIALX_BUILD_MONOLITHIC=ON
+
+        - name: Linux_GCC_12_Python311_static_monolithic
+          os: ubuntu-22.04
+          compiler: gcc
+          compiler_version: "12"
+          python: 3.11
+          cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
+
         - name: Linux_GCC_14_Python312
           os: ubuntu-24.04
           compiler: gcc
