@@ -127,9 +127,20 @@ TEST_CASE("Document equivalence", "[document]")
     inputMap.insert({ "color3", "  1.0,   +2.0,  3.0   " });
     inputMap.insert({ "color4", "1.0,   2.00, 0.3000, -4" });
     inputMap.insert({ "float", "  00.1000  " });
+    inputMap.insert({ "integer", "  12 " });
+    inputMap.insert({ "matrix33", 
+                      "01.0,         2.0,  0000.2310, "
+                      "   01.0,         2.0,  0000.2310, "
+                      "01.0,         2.0,  0000.2310,       "
+                      "   01.0,         2.0,  0000.2310              " });
+    inputMap.insert({ "matrix44",
+                      "01.0,         2.0,  0000.2310, 0.100, "
+                      "01.0,         2.0,  0000.2310, 0.100, "
+                      "01.0,         2.0,  0000.2310, 0.100, "
+                      "01.0,         2.0,  0000.2310, 0.100" });
     inputMap.insert({ "vector2", "1.0,   0.012345678" });
-    inputMap.insert( {"vector3", "  1.0,   +2.0,  3.0   " });
-    inputMap.insert( {"vector4", "1.0,   2.00, 0.3000, -4" });
+    inputMap.insert({ "vector3", "  1.0,   +2.0,  3.0   " });
+    inputMap.insert({ "vector4", "1.0,   2.00, 0.3000, -4" });
 
     unsigned int index = 0;
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
@@ -141,12 +152,15 @@ TEST_CASE("Document equivalence", "[document]")
 
     mx::DocumentPtr doc2 = mx::createDocument();
     std::multimap<std::string, std::string> inputMap2;
-    inputMap2.insert({ "color3", "1,2,3" });
-    inputMap2.insert({ "color4", "1,2,0.3,-4" });
-    inputMap2.insert( {"float", "0.1" });
-    inputMap2.insert( {"vector2", "1,0.0123456" });
-    inputMap2.insert( {"vector3", "1,2,3" });
-    inputMap2.insert( {"vector4", "1,2,0.3,-4" });
+    inputMap2.insert({ "color3", "1, 2, 3" });
+    inputMap2.insert({ "color4", "1, 2, 0.3, -4" });
+    inputMap2.insert({ "float", "0.1" });
+    inputMap2.insert({ "integer", "12" });
+    inputMap2.insert({ "matrix33", "1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231" });
+    inputMap2.insert({ "matrix44", "1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1" });
+    inputMap2.insert({ "vector2", "1, 0.0123456" });
+    inputMap2.insert({ "vector3", "1, 2, 3" });
+    inputMap2.insert({ "vector4", "1, 2, 0.3, -4" });
 
     index = 0;
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
@@ -158,6 +172,9 @@ TEST_CASE("Document equivalence", "[document]")
 
     doc->normalizeValueStrings();
     doc2->normalizeValueStrings();
+
+    mx::writeToXmlFile(doc, "doc.mtlx");
+    mx::writeToXmlFile(doc2, "doc2.mtlx");
 
     // Note: do not check doc2 == doc as that is a pointer comparison
     bool equivalent = (*doc2 == *doc);

@@ -404,12 +404,10 @@ void Document::invalidateCache()
 
 void Document::normalizeValueStrings()
 {
-    // For now this will only normalize numeric strings
-    StringSet numericType = { "float", "vector2", "vector3", "vector4", "color3", "color4" };
     for (ElementPtr elem : traverseTree())
     {
         ValueElementPtr valueElem = elem->asA<ValueElement>();
-        if (!valueElem || numericType.end() == numericType.find(valueElem->getType()))
+        if (!valueElem)
         {
             continue;
         }
@@ -420,7 +418,7 @@ void Document::normalizeValueStrings()
             continue;
         }
 
-        string normalizeString = normalizeNumericString(originalString);
+        string normalizeString = normalizeValueString(originalString, valueElem->getType());
         if (normalizeString != originalString)
         {
             valueElem->setValueString(normalizeString);

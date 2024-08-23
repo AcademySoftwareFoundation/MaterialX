@@ -38,28 +38,53 @@ TEST_CASE("String utilities", "[coreutil]")
     REQUIRE(mx::stringEndsWith("testName", "Name"));
     REQUIRE(!mx::stringEndsWith("testName", "test"));
 
+    std::string inputInteger = "  12  ";
+    std::string resultInteger = mx::normalizeValueString(inputInteger, "integer");
+    REQUIRE(resultInteger == "12");
+
     std::string inputScalar1 = "  00.1000  ";
-    std::string resultScalar1 = mx::normalizeNumericString(inputScalar1);
+    std::string resultScalar1 = mx::normalizeValueString(inputScalar1, "float");
     REQUIRE(resultScalar1 == "0.1");
     std::string inputScalar2 = ".000000";
-    std::string resultScalar2 = mx::normalizeNumericString(inputScalar2);
+    std::string resultScalar2 = mx::normalizeValueString(inputScalar2, "float");
     REQUIRE(resultScalar2 == "0");
     std::string inputScalar3 = "000.";
-    std::string resultScalar3 = mx::normalizeNumericString(inputScalar3);
+    std::string resultScalar3 = mx::normalizeValueString(inputScalar3, "float");
     REQUIRE(resultScalar3 == "0");
     std::string inputScalar4 = "000.01";
-    std::string resultScalar4 = mx::normalizeNumericString(inputScalar4);
+    std::string resultScalar4 = mx::normalizeValueString(inputScalar4, "float");
     REQUIRE(resultScalar4 == "0.01");
 
     std::string inputVector1 = "1.0, 2.0,  0000.231";
+    std::string resultVector1 = mx::normalizeValueString(inputVector1, "vector3");
+    REQUIRE(resultVector1 == "1, 2, 0.231");
+    resultVector1 = mx::normalizeValueString(inputVector1, "color3");
+    REQUIRE(resultVector1 == "1, 2, 0.231");
+
     std::string inputVector2 = "0001.2000, 0000.00010";
-    std::string resultVector1 = mx::normalizeNumericString(inputVector1);
-    REQUIRE(resultVector1 == "1,2,0.231");
-    std::string resultVector2 = mx::normalizeNumericString(inputVector2);
-    REQUIRE(resultVector2 == "1.2,0.0001");
-    std::string inputVector3 = "01.0,         2.0,  0000.2310";
-    std::string resultVector3 = mx::normalizeNumericString(inputVector3);
-    REQUIRE(resultVector3 == resultVector1);
+    std::string resultVector2 = mx::normalizeValueString(inputVector2, "vector2");
+    REQUIRE(resultVector2 == "1.2, 0.0001");
+
+    std::string inputVector3 = "01.0,         2.0,  0000.2310, 0.1";
+    std::string resultVector3 = mx::normalizeValueString(inputVector3, "vector4");
+    REQUIRE(resultVector3 == "1, 2, 0.231, 0.1");
+    resultVector3 = mx::normalizeValueString(inputVector3, "color4");
+    REQUIRE(resultVector3 == "1, 2, 0.231, 0.1");
+
+    std::string inputMatrix3 = "01.0,         2.0,  0000.2310, "
+        "   01.0,         2.0,  0000.2310, "
+        "01.0,         2.0,  0000.2310,       "
+        "   01.0,         2.0,  0000.2310              ";
+    std::string resultMatrix3 = mx::normalizeValueString(inputMatrix3, "matrix33");
+    std::string compareMatrix3 = "1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231";
+    REQUIRE(resultMatrix3 == compareMatrix3);
+    std::string inputMatrix = "01.0,         2.0,  0000.2310, 0.100, "
+                              "01.0,         2.0,  0000.2310, 0.100, "
+                              "01.0,         2.0,  0000.2310, 0.100, "
+                              "01.0,         2.0,  0000.2310, 0.100";
+    std::string resultMatrix = mx::normalizeValueString(inputMatrix, "matrix44");
+    std::string compareMatrix = "1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1";
+    REQUIRE(resultMatrix == compareMatrix);
 }
 
 TEST_CASE("Print utilities", "[coreutil]")

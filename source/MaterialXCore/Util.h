@@ -69,9 +69,9 @@ MX_CORE_API string createNamePath(const StringVec& nameVec);
 /// Given a name path, return the parent name path
 MX_CORE_API string parentNamePath(const string& namePath);
 
-/// Normalize a string containing a numeric value. This can
-/// either be a single number or an array of comma seperated numbers.
-MX_CORE_API string normalizeNumericString(const string& str);
+/// Normalize a string containing a value.
+/// Currently single floating point numbers or an array of comma seperated numbers is supported.
+MX_CORE_API string normalizeValueString(const string& str, const std::string valueType);
 
 MATERIALX_NAMESPACE_END
 

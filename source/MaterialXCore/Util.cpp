@@ -181,48 +181,68 @@ string parentNamePath(const string& namePath)
     return EMPTY_STRING;
 }
 
-std::string normalizeNumericString(const std::string& str)
+std::string normalizeValueString(const std::string& str, const std::string valueType)
 {
+    // Currently supported value types.
+    StringSet supportedTypes = { "integer", "float", "vector2", "vector3", "vector4", "color3", "color4", "matrix33", "matrix44"};
+    if (supportedTypes.end() == supportedTypes.find(valueType))
+    {
+        return str;
+    }
+
     std::stringstream ss(str);
     std::string result;
     std::string token;
 
-    while (std::getline(ss, token, ',')) 
+    bool isInteger = (valueType == "integer");
+    if (isInteger)
     {
         // Remove leading and trailing spaces
+        token = str;
         token.erase(0, token.find_first_not_of(' '));
         token.erase(token.find_last_not_of(' ') + 1);
-
-        // Remove leading zeros
-        token.erase(0, token.find_first_not_of('0'));
-
-        // Preserve 0 values
-        if (token.empty() || token[0] == '.') 
-        {
-            token = "0" + token;
-        }
-
-        // If the token contains a decimal point, remove trailing zeros
-        size_t decimalPos = token.find('.');
-        if (decimalPos != std::string::npos) 
-        {
-            token.erase(token.find_last_not_of('0') + 1);
-
-            // If the token ends with a decimal point after removing trailing zeros, remove it
-            if (token.back() == '.') 
-            {
-                token.pop_back();
-            }
-        }
-
-        // Append the formatted token to the result with a comma
-        result += token + ",";
+        result = token;
     }
-
-    // Remove the last comma
-    if (!result.empty()) 
+    else
     {
-        result.pop_back();
+        while (std::getline(ss, token, ','))
+        {
+            // Remove leading and trailing spaces
+            token.erase(0, token.find_first_not_of(' '));
+            token.erase(token.find_last_not_of(' ') + 1);
+
+            // Remove leading zeros
+            token.erase(0, token.find_first_not_of('0'));
+
+            // Preserve 0 values
+            if (token.empty() || token[0] == '.')
+            {
+                token = "0" + token;
+            }
+
+            // If the token contains a decimal point, remove trailing zeros
+            size_t decimalPos = token.find('.');
+            if (decimalPos != std::string::npos)
+            {
+                token.erase(token.find_last_not_of('0') + 1);
+
+                // If the token ends with a decimal point after removing trailing zeros, remove it
+                if (token.back() == '.')
+                {
+                    token.pop_back();
+                }
+            }
+
+            // Append the formatted token to the result with a comma
+            result += token + ", ";
+        }
+
+        // Remove the last comma
+        if (!result.empty())
+        {
+            result.pop_back();
+            result.pop_back();
+        }
     }
 
     return result;
