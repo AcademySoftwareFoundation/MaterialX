@@ -181,47 +181,47 @@ string parentNamePath(const string& namePath)
     return EMPTY_STRING;
 }
 
-string normalizeNumericString(const string& str, unsigned int precision)
+std::string normalizeNumericString(const std::string& str)
 {
     std::stringstream ss(str);
-    std::stringstream result;
+    std::string result;
     std::string token;
 
-    while (std::getline(ss, token, ','))
-    {
+    while (std::getline(ss, token, ',')) {
         // Remove leading and trailing spaces
         token.erase(0, token.find_first_not_of(' '));
         token.erase(token.find_last_not_of(' ') + 1);
 
-        // Convert the string to a double (automatically removes leading zeros)
-        double number = std::stod(token);
+        // Remove leading zeros
+        token.erase(0, token.find_first_not_of('0'));
 
-        // Format the number with the specified precision
-        result << std::fixed << std::setprecision(precision) << number;
-
-        // Remove unnecessary trailing zeros
-        std::string formattedNumber = result.str();
-        formattedNumber.erase(formattedNumber.find_last_not_of('0') + 1, std::string::npos);
-        if (formattedNumber.back() == '.')
-        {
-            formattedNumber.pop_back(); // Remove the trailing dot if there's no decimal part left
+        // Preserve 0 values
+        if (token.empty() || token[0] == '.') {
+            token = "0" + token;
         }
 
-        // Append the formatted number to the result
-        result.str(EMPTY_STRING); // Clear the stringstream for the next number
-        result.clear();
-        result << formattedNumber << ",";
-    }
+        // If the token contains a decimal point, remove trailing zeros
+        size_t decimalPos = token.find('.');
+        if (decimalPos != std::string::npos) {
+            token.erase(token.find_last_not_of('0') + 1);
 
-    std::string output = result.str();
+            // If the token ends with a decimal point after removing trailing zeros, remove it
+            if (token.back() == '.') {
+                token.pop_back();
+            }
+        }
+
+        // Append the formatted token to the result with a comma
+        result += token + ",";
+    }
 
     // Remove the last comma
-    if (!output.empty())
-    {
-        output.pop_back();
+    if (!result.empty()) {
+        result.pop_back();
     }
 
-    return output;
+    return result;
 }
+
 
 MATERIALX_NAMESPACE_END

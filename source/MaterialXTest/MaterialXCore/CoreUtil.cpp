@@ -41,14 +41,15 @@ TEST_CASE("String utilities", "[coreutil]")
     std::string inputScalar1 = "  00.1000  ";
     std::string resultScalar1 = mx::normalizeNumericString(inputScalar1);
     REQUIRE(resultScalar1 == "0.1");
-    std::string inputScalar2 = "0.1234567890";
-    std::string resultScalar2 = mx::normalizeNumericString(inputScalar2, 3);
-    REQUIRE(resultScalar2 == "0.123");
-    std::string resultScalar3 = mx::normalizeNumericString(inputScalar2, 12);
-    REQUIRE(resultScalar3 == "0.123456789");
-    std::string inputScalar3 = "0.12345678901234567890";
-    std::string resultScalar4 = mx::normalizeNumericString(inputScalar3, 9);
-    REQUIRE(resultScalar4 == "0.123456789");
+    std::string inputScalar2 = ".000000";
+    std::string resultScalar2 = mx::normalizeNumericString(inputScalar2);
+    REQUIRE(resultScalar2 == "0");
+    std::string inputScalar3 = "000.";
+    std::string resultScalar3 = mx::normalizeNumericString(inputScalar3);
+    REQUIRE(resultScalar3 == "0");
+    std::string inputScalar4 = "000.01";
+    std::string resultScalar4 = mx::normalizeNumericString(inputScalar4);
+    REQUIRE(resultScalar4 == "0.01");
 
     std::string inputVector1 = "1.0, 2.0,  0000.231";
     std::string inputVector2 = "0001.2000, 0000.00010";

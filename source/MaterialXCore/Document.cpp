@@ -402,7 +402,7 @@ void Document::invalidateCache()
     _cache->valid = false;
 }
 
-void Document::normalizeValueStrings(unsigned int numericPrecision)
+void Document::normalizeValueStrings()
 {
     // For now this will only normalize numeric strings
     StringSet numericType = { "float", "vector2", "vector3", "vector4", "color3", "color4" };
@@ -420,7 +420,7 @@ void Document::normalizeValueStrings(unsigned int numericPrecision)
             continue;
         }
 
-        string normalizeString = normalizeNumericString(originalString, numericPrecision);
+        string normalizeString = normalizeNumericString(originalString);
         if (normalizeString != originalString)
         {
             valueElem->setValueString(normalizeString);

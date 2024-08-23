@@ -119,7 +119,7 @@ TEST_CASE("Document", "[document]")
     REQUIRE(doc->validate());
 }
 
-TEST_CASE("Document equivalence", "[document2]")
+TEST_CASE("Document equivalence", "[document]")
 {
     mx::DocumentPtr doc = mx::createDocument();
     std::multimap<std::string, std::string> inputMap;

@@ -71,7 +71,7 @@ MX_CORE_API string parentNamePath(const string& namePath);
 
 /// Normalize a string containing a numeric value. This can
 /// either be a single number or an array of comma seperated numbers.
-MX_CORE_API string normalizeNumericString(const string& str, unsigned int precision = 6);
+MX_CORE_API string normalizeNumericString(const string& str);
 
 MATERIALX_NAMESPACE_END
 

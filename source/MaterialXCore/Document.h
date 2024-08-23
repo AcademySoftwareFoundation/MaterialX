@@ -664,8 +664,7 @@ class MX_CORE_API Document : public GraphElement
     void invalidateCache();
 
     /// Normalize value strings for all numeric values attributes
-    /// @param numericPrecision Precision to use for floating point numbers. Default is 6.
-    void normalizeValueStrings(unsigned int numericPrecision = 6);
+    void normalizeValueStrings();
 
     /// @}
 

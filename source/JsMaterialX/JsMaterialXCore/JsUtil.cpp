@@ -47,4 +47,6 @@ EMSCRIPTEN_BINDINGS(util)
     ems::function("splitNamePath", &mx::splitNamePath);
     ems::function("createNamePath", &mx::createNamePath);
     ems::function("parentNamePath", &mx::parentNamePath);
+
+    ems::function("normalizeNumericString", &mx::normalizeNumericString);
 }

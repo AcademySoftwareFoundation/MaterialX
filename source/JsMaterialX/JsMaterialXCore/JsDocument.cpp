@@ -103,6 +103,7 @@ EMSCRIPTEN_BINDINGS(document)
         .function("hasColorManagementConfig", &mx::Document::hasColorManagementConfig)
         .function("getColorManagementConfig", &mx::Document::getColorManagementConfig)
         .function("invalidateCache", &mx::Document::invalidateCache)
+        .function("normalizeValueStrings", &mx::Document::normalizeValueStrings)
         .class_property("CATEGORY", &mx::Document::CATEGORY)
         .class_property("CMS_ATTRIBUTE", &mx::Document::CMS_ATTRIBUTE)
         .class_property("CMS_CONFIG_ATTRIBUTE", &mx::Document::CMS_CONFIG_ATTRIBUTE);
