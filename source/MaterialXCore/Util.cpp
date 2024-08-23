@@ -187,7 +187,8 @@ string normalizeNumericString(const string& str, unsigned int precision)
     std::stringstream result;
     std::string token;
 
-    while (std::getline(ss, token, ',')) {
+    while (std::getline(ss, token, ','))
+    {
         // Remove leading and trailing spaces
         token.erase(0, token.find_first_not_of(' '));
         token.erase(token.find_last_not_of(' ') + 1);
@@ -201,7 +202,8 @@ string normalizeNumericString(const string& str, unsigned int precision)
         // Remove unnecessary trailing zeros
         std::string formattedNumber = result.str();
         formattedNumber.erase(formattedNumber.find_last_not_of('0') + 1, std::string::npos);
-        if (formattedNumber.back() == '.') {
+        if (formattedNumber.back() == '.')
+        {
             formattedNumber.pop_back(); // Remove the trailing dot if there's no decimal part left
         }
 
@@ -214,7 +216,8 @@ string normalizeNumericString(const string& str, unsigned int precision)
     std::string output = result.str();
 
     // Remove the last comma
-    if (!output.empty()) {
+    if (!output.empty())
+    {
         output.pop_back();
     }
 
