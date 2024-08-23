@@ -193,6 +193,8 @@ if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
             # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
             set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
         endif()
+        # NOTE : we do not derive a value for MATERIALX_OSL_INCLUDE_PATH here, as a a cmake installed OSL package
+        # should have the shader includes in the expected location.
     endif()
 endif()
 
