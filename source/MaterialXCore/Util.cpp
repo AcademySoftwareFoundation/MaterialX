@@ -187,7 +187,8 @@ std::string normalizeNumericString(const std::string& str)
     std::string result;
     std::string token;
 
-    while (std::getline(ss, token, ',')) {
+    while (std::getline(ss, token, ',')) 
+    {
         // Remove leading and trailing spaces
         token.erase(0, token.find_first_not_of(' '));
         token.erase(token.find_last_not_of(' ') + 1);
@@ -196,17 +197,20 @@ std::string normalizeNumericString(const std::string& str)
         token.erase(0, token.find_first_not_of('0'));
 
         // Preserve 0 values
-        if (token.empty() || token[0] == '.') {
+        if (token.empty() || token[0] == '.') 
+        {
             token = "0" + token;
         }
 
         // If the token contains a decimal point, remove trailing zeros
         size_t decimalPos = token.find('.');
-        if (decimalPos != std::string::npos) {
+        if (decimalPos != std::string::npos) 
+        {
             token.erase(token.find_last_not_of('0') + 1);
 
             // If the token ends with a decimal point after removing trailing zeros, remove it
-            if (token.back() == '.') {
+            if (token.back() == '.') 
+            {
                 token.pop_back();
             }
         }
@@ -216,7 +220,8 @@ std::string normalizeNumericString(const std::string& str)
     }
 
     // Remove the last comma
-    if (!result.empty()) {
+    if (!result.empty()) 
+    {
         result.pop_back();
     }
 
