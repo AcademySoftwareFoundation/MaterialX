@@ -7,6 +7,7 @@
 
 #include <MaterialXCore/Util.h>
 #include <MaterialXCore/Document.h>
+#include <iostream>
 
 namespace mx = MaterialX;
 
@@ -36,6 +37,28 @@ TEST_CASE("String utilities", "[coreutil]")
     REQUIRE(!mx::stringStartsWith("testName", "Name"));
     REQUIRE(mx::stringEndsWith("testName", "Name"));
     REQUIRE(!mx::stringEndsWith("testName", "test"));
+
+    std::string inputScalar1 = "  00.1000  ";
+    std::string resultScalar1 = mx::normalizeNumericString(inputScalar1);
+    REQUIRE(resultScalar1 == "0.1");
+    std::string inputScalar2 = "0.1234567890";
+    std::string resultScalar2 = mx::normalizeNumericString(inputScalar2, 3);
+    REQUIRE(resultScalar2 == "0.123");
+    std::string resultScalar3 = mx::normalizeNumericString(inputScalar2, 12);
+    REQUIRE(resultScalar3 == "0.123456789");
+    std::string inputScalar3 = "0.12345678901234567890";
+    std::string resultScalar4 = mx::normalizeNumericString(inputScalar3, 9);
+    REQUIRE(resultScalar4 == "0.123456789");
+
+    std::string inputVector1 = "1.0, 2.0,  0000.231";
+    std::string inputVector2 = "0001.2000, 0000.00010";
+    std::string resultVector1 = mx::normalizeNumericString(inputVector1);
+    REQUIRE(resultVector1 == "1,2,0.231");
+    std::string resultVector2 = mx::normalizeNumericString(inputVector2);
+    REQUIRE(resultVector2 == "1.2,0.0001");
+    std::string inputVector3 = "01.0,         2.0,  0000.2310";
+    std::string resultVector3 = mx::normalizeNumericString(inputVector3);
+    REQUIRE(resultVector3 == resultVector1);
 }
 
 TEST_CASE("Print utilities", "[coreutil]")

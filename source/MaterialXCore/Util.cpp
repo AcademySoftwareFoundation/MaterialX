@@ -6,6 +6,8 @@
 #include <MaterialXCore/Types.h>
 
 #include <cctype>
+#include <sstream>
+#include <iomanip>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -177,6 +179,46 @@ string parentNamePath(const string& namePath)
         return createNamePath(nameVec);
     }
     return EMPTY_STRING;
+}
+
+string normalizeNumericString(const string& str, unsigned int precision)
+{
+    std::stringstream ss(str);
+    std::stringstream result;
+    std::string token;
+
+    while (std::getline(ss, token, ',')) {
+        // Remove leading and trailing spaces
+        token.erase(0, token.find_first_not_of(' '));
+        token.erase(token.find_last_not_of(' ') + 1);
+
+        // Convert the string to a double (automatically removes leading zeros)
+        double number = std::stod(token);
+
+        // Format the number with the specified precision
+        result << std::fixed << std::setprecision(precision) << number;
+
+        // Remove unnecessary trailing zeros
+        std::string formattedNumber = result.str();
+        formattedNumber.erase(formattedNumber.find_last_not_of('0') + 1, std::string::npos);
+        if (formattedNumber.back() == '.') {
+            formattedNumber.pop_back(); // Remove the trailing dot if there's no decimal part left
+        }
+
+        // Append the formatted number to the result
+        result.str(EMPTY_STRING); // Clear the stringstream for the next number
+        result.clear();
+        result << formattedNumber << ",";
+    }
+
+    std::string output = result.str();
+
+    // Remove the last comma
+    if (!output.empty()) {
+        output.pop_back();
+    }
+
+    return output;
 }
 
 MATERIALX_NAMESPACE_END

@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Util.h>
 
 #include <mutex>
 
@@ -400,6 +401,33 @@ void Document::invalidateCache()
 {
     _cache->valid = false;
 }
+
+void Document::normalizeValueStrings(unsigned int numericPrecision)
+{
+    // For now this will only normalize numeric strings
+    StringSet numericType = { "float", "vector2", "vector3", "vector4", "color3", "color4" };
+    for (ElementPtr elem : traverseTree())
+    {
+        ValueElementPtr valueElem = elem->asA<ValueElement>();
+        if (!valueElem || numericType.end() == numericType.find(valueElem->getType()))
+        {
+            continue;
+        }
+
+        const string& originalString = valueElem->getValueString();
+        if (originalString.empty())
+        {
+            continue;
+        }
+
+        string normalizeString = normalizeNumericString(originalString, numericPrecision);
+        if (normalizeString != originalString)
+        {
+            valueElem->setValueString(normalizeString);
+        }
+    }
+}
+
 
 //
 // Deprecated methods
