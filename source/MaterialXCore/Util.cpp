@@ -190,7 +190,6 @@ std::string normalizeValueString(const std::string& str, const std::string value
         return str;
     }
 
-    std::stringstream ss(str);
     std::string result;
     std::string token;
 
@@ -198,13 +197,13 @@ std::string normalizeValueString(const std::string& str, const std::string value
     if (isInteger)
     {
         // Remove leading and trailing spaces
-        token = str;
-        token.erase(0, token.find_first_not_of(' '));
-        token.erase(token.find_last_not_of(' ') + 1);
-        result = token;
+        result = str;
+        result.erase(0, result.find_first_not_of(' '));
+        result.erase(result.find_last_not_of(' ') + 1);
     }
     else
     {
+        std::stringstream ss(str);
         while (std::getline(ss, token, ','))
         {
             // Remove leading and trailing spaces

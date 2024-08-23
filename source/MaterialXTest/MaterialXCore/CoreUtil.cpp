@@ -37,7 +37,10 @@ TEST_CASE("String utilities", "[coreutil]")
     REQUIRE(!mx::stringStartsWith("testName", "Name"));
     REQUIRE(mx::stringEndsWith("testName", "Name"));
     REQUIRE(!mx::stringEndsWith("testName", "test"));
+}
 
+TEST_CASE("Value normalization", "[coreutil]")
+{
     std::string inputInteger = "  12  ";
     std::string resultInteger = mx::normalizeValueString(inputInteger, "integer");
     REQUIRE(resultInteger == "12");
@@ -73,14 +76,14 @@ TEST_CASE("String utilities", "[coreutil]")
 
     std::string inputMatrix3 = "01.0,         2.0,  0000.2310, "
         "   01.0,         2.0,  0000.2310, "
-        "01.0,         2.0,  0000.2310,       "
-        "   01.0,         2.0,  0000.2310              ";
+        "01.0,         2.0,  0000.2310       ";
     std::string resultMatrix3 = mx::normalizeValueString(inputMatrix3, "matrix33");
-    std::string compareMatrix3 = "1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231";
+    std::string compareMatrix3 = "1, 2, 0.231, 1, 2, 0.231, 1, 2, 0.231";
     REQUIRE(resultMatrix3 == compareMatrix3);
-    std::string inputMatrix = "01.0,         2.0,  0000.2310, 0.100, "
-                              "01.0,         2.0,  0000.2310, 0.100, "
-                              "01.0,         2.0,  0000.2310, 0.100, "
+
+    std::string inputMatrix = "01.0,         2.0,  0000.2310,  0.100,"
+                              "01.0,         2.0,  0000.2310, 0.100,"
+                              "01.0,         2.0,  0000.2310, 0.100,"
                               "01.0,         2.0,  0000.2310, 0.100";
     std::string resultMatrix = mx::normalizeValueString(inputMatrix, "matrix44");
     std::string compareMatrix = "1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1";
