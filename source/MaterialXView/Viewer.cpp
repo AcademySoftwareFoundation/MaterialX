@@ -52,6 +52,11 @@ const float DEFAULT_CAMERA_ZOOM = 1.0f;
 
 namespace
 {
+#ifdef MATERIALXVIEW_METAL_BACKEND
+const bool USE_FLOAT_BUFFER = true;
+#else
+const bool USE_FLOAT_BUFFER = false;
+#endif
 
 const int MIN_ENV_SAMPLE_COUNT = 4;
 const int MAX_ENV_SAMPLE_COUNT = 1024;
@@ -137,12 +142,6 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
-bool useFloatBuffer()
-{
-    auto [capability_10bit, capability_EDR] = ng::test_10bit_edr_support();
-    return capability_10bit || capability_EDR;
-}
-
 } // anonymous namespace
 
 //
@@ -158,7 +157,7 @@ Viewer::Viewer(const std::string& materialFilename,
                int screenHeight,
                const mx::Color3& screenColor) :
     ng::Screen(ng::Vector2i(screenWidth, screenHeight), "MaterialXView",
-        true, false, true, true, useFloatBuffer(), 4, 0),
+        true, false, true, true, USE_FLOAT_BUFFER, 4, 0),
     _window(nullptr),
     _materialFilename(materialFilename),
     _meshFilename(meshFilename),

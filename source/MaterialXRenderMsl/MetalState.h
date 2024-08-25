@@ -34,8 +34,8 @@ struct MX_RENDERMSL_API MetalState
 
     MetalState();
 
-    void initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQueue, bool floatBuffer);
-    void initLinearToSRGBKernel(bool floatBuffer);
+    void initialize(id<MTLDevice> mtlDevice, id<MTLCommandQueue> mtlCmdQueue);
+    void initLinearToSRGBKernel();
     void triggerProgrammaticCapture();
     void stopProgrammaticCapture();
     void beginCommandBuffer();

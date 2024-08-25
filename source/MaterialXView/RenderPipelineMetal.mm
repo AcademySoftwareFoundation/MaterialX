@@ -32,8 +32,7 @@ MetalRenderPipeline::MetalRenderPipeline(Viewer* viewerPtr) :
 void MetalRenderPipeline::initialize(void* metal_device, void* metal_cmd_queue)
 {
     MTL(initialize((id<MTLDevice>)metal_device,
-                   (id<MTLCommandQueue>)metal_cmd_queue,
-                   _viewer->has_float_buffer()));
+                   (id<MTLCommandQueue>)metal_cmd_queue));
 }
 
 mx::ImageHandlerPtr MetalRenderPipeline::createImageHandler()
@@ -58,18 +57,14 @@ std::shared_ptr<void> MetalRenderPipeline::createTextureBaker(unsigned int width
 void MetalRenderPipeline::initFramebuffer(int width, int height,
                                           void* color_texture)
 {
-    bool floatBuffer = _viewer->has_float_buffer();
-    mx::Image::BaseType baseType = floatBuffer ? mx::Image::BaseType::HALF : mx::Image::BaseType::UINT8;
-    MTLPixelFormat pixelFormat = floatBuffer ? MTLPixelFormatRGBA16Float : MTLPixelFormatRGBA8Unorm;
-
     MTL_PUSH_FRAMEBUFFER(mx::MetalFramebuffer::create(
                             MTL(device),
                             width * _viewer->m_pixel_ratio,
                             height * _viewer->m_pixel_ratio,
-                            4, baseType,
+                            4, mx::Image::BaseType::HALF,
                             MTL(supportsTiledPipeline) ?
                             (id<MTLTexture>)color_texture : nil,
-                            false, pixelFormat));
+                            false, MTLPixelFormatRGBA16Float));
 }
 
 void MetalRenderPipeline::resizeFramebuffer(int width, int height,
