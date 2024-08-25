@@ -128,6 +128,7 @@ TEST_CASE("Document equivalence", "[document]")
 
     inputMap.insert({ "color3", "  1.0,   +2.0,  3.0   " });
     inputMap.insert({ "color4", "1.0,   2.00, 0.3000, -4" });
+    inputMap.insert({ "float", "  1.2e-10  " });
     inputMap.insert({ "float", "  00.1000  " });
     inputMap.insert({ "integer", "  12 " });
     inputMap.insert({ "matrix33", 
@@ -158,6 +159,7 @@ TEST_CASE("Document equivalence", "[document]")
     std::multimap<std::string, std::string> inputMap2;
     inputMap2.insert({ "color3", "1, 2, 3" });
     inputMap2.insert({ "color4", "1, 2, 0.3, -4" });
+    inputMap2.insert({ "float", "1.2e-10" });
     inputMap2.insert({ "float", "0.1" });
     inputMap2.insert({ "integer", "12" });
     inputMap2.insert({ "matrix33", "1, 2, 0.231,  1, 2, 0.231,  1, 2, 0.231,  1, 2, 0.231" });
@@ -194,5 +196,10 @@ TEST_CASE("Document equivalence", "[document]")
 
     // Note: do not check doc2 == doc as that is a pointer comparison
     bool equivalent = (*doc2 == *doc);
+    if (!equivalent)
+    {
+        std::cout << "doc 1: " << mx::prettyPrint(doc) << std::endl;
+        std::cout << "doc 2: " << mx::prettyPrint(doc2) << std::endl;
+    }
     REQUIRE(equivalent);
 }

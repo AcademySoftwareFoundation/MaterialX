@@ -181,6 +181,7 @@ string parentNamePath(const string& namePath)
     return EMPTY_STRING;
 }
 
+
 std::string normalizeValueString(const std::string& str, const std::string valueType)
 {
     // Currently supported value types.
@@ -189,6 +190,8 @@ std::string normalizeValueString(const std::string& str, const std::string value
     {
         return str;
     }
+
+    const string TOKEN_SEPARATOR = ", ";
 
     std::string result;
     std::string token;
@@ -210,37 +213,52 @@ std::string normalizeValueString(const std::string& str, const std::string value
             token.erase(0, token.find_first_not_of(' '));
             token.erase(token.find_last_not_of(' ') + 1);
 
-            // Remove leading zeros
-            token.erase(0, token.find_first_not_of('0'));
-
-            // Preserve 0 values
-            if (token.empty() || token[0] == '.')
+            // Skip if the token is empty. Note that this is
+            // invalid in MaterialX but can still be stored this way. 
+            if (!token.empty())
             {
-                token = "0" + token;
-            }
+                // Remove leading zeros
+                token.erase(0, token.find_first_not_of('0'));
 
-            // If the token contains a decimal point, remove trailing zeros
-            size_t decimalPos = token.find('.');
-            if (decimalPos != std::string::npos)
-            {
-                token.erase(token.find_last_not_of('0') + 1);
-
-                // If the token ends with a decimal point after removing trailing zeros, remove it
-                if (token.back() == '.')
+                // Preserve 0 values
+                if (token.empty() || token[0] == '.')
                 {
-                    token.pop_back();
+                    token = "0" + token;
+                }
+
+                // Check if string token has a 'e' character
+                // implying it is a floating point number in scientific notation.
+                // If it does not have an 'e' character, remove trailing zeros.
+                //
+                size_t ePos = token.find('e');
+                if (ePos == std::string::npos)
+                {
+                    // If the token contains a decimal point, remove trailing zeros
+                    size_t decimalPos = token.find('.');
+                    if (decimalPos != std::string::npos)
+                    {
+                        token.erase(token.find_last_not_of('0') + 1);
+
+                        // If the token ends with a decimal point after removing trailing zeros, remove it
+                        if (token.back() == '.')
+                        {
+                            token.pop_back();
+                        }
+                    }
                 }
             }
 
             // Append the formatted token to the result with a comma
-            result += token + ", ";
+            result += token + TOKEN_SEPARATOR;
         }
 
-        // Remove the last comma
+        // Remove the last separator
         if (!result.empty())
         {
-            result.pop_back();
-            result.pop_back();
+            for (size_t i = 0; i < TOKEN_SEPARATOR.size(); i++)
+            {
+                result.pop_back();
+            }
         }
     }
 
