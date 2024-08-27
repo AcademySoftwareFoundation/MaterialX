@@ -3,13 +3,20 @@
 
 
 // d’Eon et al. (2011)
-void mx_hair_absorption_from_melanin(float melanin_concentration, float melanin_redness, out vec3 absorption)
+void mx_hair_absorption_from_melanin(
+    float melanin_concentration,
+    float melanin_redness,
+    // constants converted to color via exp(-c). the defaults are lin_rec709 colors, they may be
+    // transformed to scene-linear rendering color space.
+    vec3 eumelanin_color,    // default: (0.657704, 0.498077, 0.254106) == exp(-(0.419, 0.697, 1.37))
+    vec3 pheomelanin_color,  // default: (0.829443, 0.670320, 0.349937) == exp(-(0.187, 0.4, 1.05))
+    out vec3 absorption)
 {
     float melanin = -log(max(1.0 - melanin_concentration, 0.0001));
     float eumelanin = melanin * (1.0 - melanin_redness);
     float pheomelanin = melanin * melanin_redness;
     absorption = max(
-        eumelanin * vec3(0.419, 0.697, 1.37) + pheomelanin * vec3(0.187, 0.4, 1.05), 
+        eumelanin * -log(eumelanin_color) + pheomelanin * -log(pheomelanin_color), 
         vec3(0.0)
     );
 }
@@ -34,6 +41,8 @@ void mx_hair_absorption_from_color(vec3 color, float betaN, out vec3 absorption)
 void mx_hair_roughness(
     float longitudinal,
     float azimuthal,
+    float scale_TT,   // empirical roughenss scale from Marschner et al. (2003).
+    float scale_TRT,  // default: scale_TT = 0.5, scale_TRT = 2.0
     out vec2 roughness_R,
     out vec2 roughness_TT,
     out vec2 roughness_TRT
@@ -46,14 +55,11 @@ void mx_hair_roughness(
     float v = 0.726 * lr + 0.812 * lr * lr + 3.7 * pow(lr, 20);
     v = v * v;
 
-    // azimuthal scale
-    // the constant can be found in Appendix A, eq (12)
-    const float sqrtPiOver8 = 0.626657;
-    float s = sqrtPiOver8 * (0.265 * ar + 1.194 * ar * ar + 5.372 * pow(ar, 22));
+    float s = 0.265 * ar + 1.194 * ar * ar + 5.372 * pow(ar, 22);
 
     roughness_R = vec2(v, s);
-    roughness_TT = vec2(v * 0.25, s);  // empirical roughenss scale from Marschner et al. (2003)
-    roughness_TRT = vec2(v * 4.0, s);  // values are squared here
+    roughness_TT = vec2(v * scale_TT * scale_TT, s);
+    roughness_TRT = vec2(v * scale_TRT * scale_TRT, s);
 }
 
 float mx_hair_transform_sin_cos(float x)
@@ -101,6 +107,8 @@ float mx_hair_logistic_cdf(float x, float s)
 
 float mx_hair_trimmed_logistic(float x, float s, float a, float b)
 {
+    // the constant can be found in Chiang et al. (2016) Appendix A, eq. (12)
+    s *= 0.626657;  // sqrt(M_PI/8)
     return mx_hair_logistic(x, s) / (mx_hair_logistic_cdf(b, s) - mx_hair_logistic_cdf(a, s));
 }
 
@@ -157,7 +165,7 @@ void mx_hair_alpha_angles(
     // 0:R, 1:TT, 2:TRT, 3:TRRT+
     for (int i = 0; i <= 3; ++i)
     {
-        if (alpha == 0.0)
+        if (alpha == 0.0 || i == 3)
             angles[i] = vec2(sinThetaI, cosThetaI);
         else
         {
@@ -182,10 +190,10 @@ void mx_hair_attenuation(float f, vec3 T, out vec3 Ap[4])  // Ap
 vec3 mx_hair_chiang_bsdf(
     vec3 L,
     vec3 V,
-    float ior,
     vec3 tint_R,
     vec3 tint_TT,
     vec3 tint_TRT,
+    float ior,
     vec2 roughness_R,
     vec2 roughness_TT,
     vec2 roughness_TRT,
@@ -195,7 +203,6 @@ vec3 mx_hair_chiang_bsdf(
     vec3 X
 )
 {
-    vec3 Ng = N;
     N = mx_forward_facing_normal(N, V);
     X = normalize(X - dot(X, N) * N);
     vec3 Y = cross(N, X);
@@ -236,9 +243,6 @@ vec3 mx_hair_chiang_bsdf(
     float alpha = cuticle_angle * M_PI - (M_PI / 2.0);  // remap [0, 1] to [-PI/2, PI/2]
     mx_hair_alpha_angles(alpha, sinThetaI, cosThetaI, angles);
 
-    tint_R = clamp(tint_R, 0.0, 1.0);
-    tint_TT = clamp(tint_TT, 0.0, 1.0);
-    tint_TRT = clamp(tint_TRT, 0.0, 1.0);
     vec3 tint[4] = vec3[](tint_R, tint_TT, tint_TRT, tint_TRT);
 
     roughness_R = clamp(roughness_R, 0.001, 1.0);
@@ -246,18 +250,17 @@ vec3 mx_hair_chiang_bsdf(
     roughness_TRT = clamp(roughness_TRT, 0.001, 1.0);
     vec2 vs[4] = vec2[](roughness_R, roughness_TT, roughness_TRT, roughness_TRT);
 
-    // R, TT, TRT
+    // R, TT, TRT, TRRT+
     vec3 F = vec3(0.0);
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i <= 3; ++i)
     {
-        F += mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x)
-            * mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT)
-            * tint[i] * Ap[i];
+        if (all(lessThanEqual(tint[i], vec3(0.0))))
+            continue;
+
+        float Mp = mx_hair_longitudinal_scattering(angles[i].x, angles[i].y, sinThetaO, cosThetaO, vs[i].x);
+        float Np = (i == 3) ?  (1.0 / 2.0 * M_PI) : mx_hair_azimuthal_scattering(phi, i, vs[i].y, gammaO, gammaT);
+        F += Mp * Np * tint[i] * Ap[i];
     }
-    // TRRT+
-    F += mx_hair_longitudinal_scattering(cosThetaO, angles[3].y, angles[3].x, sinThetaO, vs[3].x)
-        * (1.0 / 2.0 * M_PI)
-        * tint[3] * Ap[3];
 
     return F;
 }
@@ -267,10 +270,10 @@ void mx_hair_chiang_bsdf_reflection(
     vec3 V,
     vec3 P,
     float occlusion,
-    float ior,
     vec3 tint_R,
     vec3 tint_TT,
     vec3 tint_TRT,
+    float ior,
     vec2 roughness_R,
     vec2 roughness_TT,
     vec2 roughness_TRT,
@@ -284,10 +287,10 @@ void mx_hair_chiang_bsdf_reflection(
     vec3 F = mx_hair_chiang_bsdf(
         L,
         V,
-        ior,
         tint_R,
         tint_TT,
         tint_TRT,
+        ior,
         roughness_R,
         roughness_TT,
         roughness_TRT,
@@ -297,16 +300,16 @@ void mx_hair_chiang_bsdf_reflection(
         X
     );
 
-    bsdf.throughput = 1.0 - F;
+    bsdf.throughput = vec3(0.0);
     bsdf.response = F * occlusion * M_PI_INV;
 }
 
 void mx_hair_chiang_bsdf_indirect(
     vec3 V,
-    float ior,
     vec3 tint_R,
     vec3 tint_TT,
     vec3 tint_TRT,
+    float ior,
     vec2 roughness_R,
     vec2 roughness_TT,
     vec2 roughness_TRT,
@@ -326,7 +329,8 @@ void mx_hair_chiang_bsdf_indirect(
     FresnelData fd = mx_init_fresnel_dielectric(ior, 0.0, 1.0);
     vec3 F = mx_compute_fresnel(NdotV, fd);
 
-    vec2 safeAlpha = clamp(roughness_R, M_FLOAT_EPS, 1.0);  // ?
+    vec2 roughness = (roughness_R + roughness_TT + roughness_TRT) / vec2(3.0);  // ?
+    vec2 safeAlpha = clamp(roughness, M_FLOAT_EPS, 1.0);
     float avgAlpha = mx_average_alpha(safeAlpha);
 
     // use ggx because the environment map for FIS is preintegrated with ggx
@@ -335,6 +339,8 @@ void mx_hair_chiang_bsdf_indirect(
     vec3 dirAlbedo = mx_ggx_dir_albedo(NdotV, avgAlpha, F0, 1.0) * comp;
 
     vec3 Li = mx_environment_radiance(N, V, X, safeAlpha, 0, fd);
-    bsdf.throughput = 1.0 - dirAlbedo;
-    bsdf.response = Li * comp;
+    vec3 tint = (tint_R + tint_TT + tint_TRT) / vec3(3.0);  // ?
+
+    bsdf.throughput = vec3(0.0);
+    bsdf.response = Li * comp * tint;
 }
