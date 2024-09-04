@@ -71,6 +71,46 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
+/// @class ElemenEquivalenceOptions
+/// A set of options for controlling for equivalence comparison.
+class MX_CORE_API ElementEquivalenceOptions
+{
+  public:
+    ElementEquivalenceOptions() 
+    {
+        format = Value::getFloatFormat();
+        precision = Value::getFloatPrecision();
+        skipAttributes = {};
+        ignoreAttributeOrder = true;
+        status = EMPTY_STRING;
+    };
+    ~ElementEquivalenceOptions() { }
+
+    /// Floating point format option for floating point value comparisons
+    Value::FloatFormat format;
+
+    /// Floating point precision option for floating point value comparisons
+    int precision;
+
+    /// Attribute filtering options. By default all attributes are considered.
+    /// Name, category attributes cannot be skipped.
+    /// 
+    /// For example UI attribute comparision be skipped by setting:
+    /// skipAttributes = { 
+    ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
+    ///     Element::YPOS_ATTRIBUTE };
+    StringSet skipAttributes;
+
+    /// Option to indicate whether to ignore the order that attributes
+    /// are specified on an element. Default is to ignore order.
+    bool ignoreAttributeOrder;
+
+    /// Status string for first difference found.
+    string status;
+};
+
 /// @class Element
 /// The base class for MaterialX elements.
 ///
@@ -99,6 +139,9 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     template <class T> friend class ElementRegistry;
 
   public:
+    /// @name Comparison interfaces
+    /// @{
+
     /// Return true if the given element tree, including all descendants,
     /// is identical to this one.
     bool operator==(const Element& rhs) const;
@@ -107,6 +150,12 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// differs from this one.
     bool operator!=(const Element& rhs) const;
 
+    /// Return tue if the given element treee, including all descendents,
+    /// is considered to be equivalent to this one based on the equivalence
+    /// criteria provided.
+    virtual bool isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const;
+
+    /// @}
     /// @name Category
     /// @{
 
@@ -925,6 +974,14 @@ class MX_CORE_API ValueElement : public TypedElement
   public:
     virtual ~ValueElement() { }
 
+    /// @name Comparison interfaces
+    /// @{
+
+    /// Return tue if the given value element is considered to be equivalent to this 
+    /// one based on the equivalence criteria provided.
+    bool isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const override;
+
+    /// @}
     /// @name Value String
     /// @{
 

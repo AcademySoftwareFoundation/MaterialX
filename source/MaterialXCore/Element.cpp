@@ -81,6 +81,69 @@ bool Element::operator!=(const Element& rhs) const
     return !(*this == rhs);
 }
 
+bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const
+{
+    if (getCategory() != rhs->getCategory() ||
+        getName() != rhs->getName())
+    {
+        options.status = "Name or category does not match for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+        return false;
+    }
+
+    // Compare attribute names. 
+    StringVec attributeNames = getAttributeNames();
+    StringVec rhsAttributeNames = rhs->getAttributeNames();
+
+    // Filter out any attributes specified in the options.
+    const StringSet& skipAttributes = options.skipAttributes;
+    if (!skipAttributes.empty())
+    {
+        attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            attributeNames.end());
+        rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            rhsAttributeNames.end());
+    }    
+
+    // Ignore ordering if option specified.
+    if (options.ignoreAttributeOrder)
+    {
+        // Sort the string arrays
+        std::sort(attributeNames.begin(), attributeNames.end());
+        std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
+    }
+    if (attributeNames != rhsAttributeNames)
+    {
+        options.status = "Attribute names differ for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+        return false;
+    }
+
+    for (const string& attr : rhsAttributeNames)
+    {
+        if (getAttribute(attr) != rhs->getAttribute(attr))
+        {
+            options.status = "Attribute " + attr + " differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+            return false;
+        }
+    }
+
+    // Compare children.
+    const vector<ElementPtr>& c1 = getChildren();
+    const vector<ElementPtr>& c2 = rhs->getChildren();
+    if (c1.size() != c2.size())
+    {
+        options.status = "Child count differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+        return false;
+    }
+    for (size_t i = 0; i < c1.size(); i++)
+    {
+        if (!c1[i]->isEquivalent(c2[i], options))
+            return false;
+    }
+    return true;
+}
+
 void Element::setName(const string& name)
 {
     ElementPtr parent = getParent();
@@ -481,6 +544,99 @@ TypeDefPtr TypedElement::getTypeDef() const
 //
 // ValueElement methods
 //
+
+bool ValueElement::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const
+{
+    if (getCategory() != rhs->getCategory() ||
+        getName() != rhs->getName())
+    {
+        options.status = "Name or category does not match for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+        return false;
+    }
+
+    // Compare attribute names. 
+    StringVec attributeNames = getAttributeNames();
+    StringVec rhsAttributeNames = rhs->getAttributeNames();
+
+    // Filter out any attributes specified in the options.
+    const StringSet& skipAttributes = options.skipAttributes;
+    if (!skipAttributes.empty())
+    {
+        attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            attributeNames.end());
+        rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            rhsAttributeNames.end());
+    }    
+
+    // Ignore ordering if option specified.
+    if (options.ignoreAttributeOrder)
+    {
+        // Sort the string arrays
+        std::sort(attributeNames.begin(), attributeNames.end());
+        std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
+    }
+    if (attributeNames != rhsAttributeNames)
+    {
+        options.status = "Attribute names differ for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+        return false;
+    }
+
+    const StringSet uiAttributes = {
+        ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+        ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+        ValueElement::UI_STEP_ATTRIBUTE
+    };
+
+    // Get precision and format options
+    ScopedFloatFormatting fmt(options.format, options.precision);
+
+    ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
+    for (const string& attr : rhsAttributeNames)
+    {
+        // Check value equality
+        if (attr == ValueElement::VALUE_ATTRIBUTE)
+        {
+            ValuePtr thisValue = getValue();
+            ValuePtr rhsValue = rhsValueElement->getValue();
+            if (thisValue && rhsValue)
+            {
+                if (thisValue->getValueString() != rhsValue->getValueString())
+                {
+                    options.status = "Attribute 'value' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+                    return false;
+                }
+            }
+        }
+
+        // Check ui attribute value equality
+        else if (uiAttributes.find(attr) != uiAttributes.end())
+        {
+            const string& uiAttribute = getAttribute(attr);
+            const string& rhsUiAttribute = getAttribute(attr);
+            ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
+            ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
+            if (uiValue && rhsUiValue)
+            {
+                if (uiValue->getValueString() != rhsUiValue->getValueString())
+                {
+                    options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+                    return false;
+                }
+            }
+        }
+
+        // Perform string comparison
+        else if (getAttribute(attr) != rhsValueElement->getAttribute(attr))
+        {
+            options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+            return false;
+        }
+    }
+
+    return true;
+}
 
 string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
 {
