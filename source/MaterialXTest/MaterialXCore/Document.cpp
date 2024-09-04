@@ -184,15 +184,31 @@ TEST_CASE("Document equivalence", "[document]")
         input->setValueString((*it).second);
         if (inputType == "float")
         {
-            input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.0100 ");
-            input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  01.0100 ");
+            input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.01");
+            input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  1.01");
         }
         index++;
     }
 
-    // Check attibute values 
     mx::ElementEquivalenceOptions options;
+
+    // Check skipping all value compares
+    options.skipValueComparisons = true;
     bool equivalent = doc->isEquivalent(doc2, options);
+    if (equivalent)
+    {
+        std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
+        std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
+    }
+    else
+    {
+        std::cout << "Expected difference: " << options.status << std::endl;
+    }
+    REQUIRE(!equivalent);
+
+    // Check attibute values 
+    options.skipValueComparisons = false;
+    equivalent = doc->isEquivalent(doc2, options);
     if (!equivalent)
     {
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;

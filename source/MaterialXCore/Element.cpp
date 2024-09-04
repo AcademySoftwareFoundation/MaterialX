@@ -595,43 +595,51 @@ bool ValueElement::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& 
     ConstValueElementPtr rhsValueElement = rhs->asA<ValueElement>();
     for (const string& attr : rhsAttributeNames)
     {
-        // Check value equality
-        if (attr == ValueElement::VALUE_ATTRIBUTE)
+        bool performStringCompare = true;
+        if (!options.skipValueComparisons)
         {
-            ValuePtr thisValue = getValue();
-            ValuePtr rhsValue = rhsValueElement->getValue();
-            if (thisValue && rhsValue)
+            // Check value equality
+            if (attr == ValueElement::VALUE_ATTRIBUTE)
             {
-                if (thisValue->getValueString() != rhsValue->getValueString())
+                ValuePtr thisValue = getValue();
+                ValuePtr rhsValue = rhsValueElement->getValue();
+                if (thisValue && rhsValue)
                 {
-                    options.status = "Attribute 'value' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
-                    return false;
+                    if (thisValue->getValueString() != rhsValue->getValueString())
+                    {
+                        options.status = "Attribute 'value' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+                        return false;
+                    }
                 }
+                performStringCompare = false;
+            }
+
+            // Check ui attribute value equality
+            else if (uiAttributes.find(attr) != uiAttributes.end())
+            {
+                const string& uiAttribute = getAttribute(attr);
+                const string& rhsUiAttribute = getAttribute(attr);
+                ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
+                ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
+                if (uiValue && rhsUiValue)
+                {
+                    if (uiValue->getValueString() != rhsUiValue->getValueString())
+                    {
+                        options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+                        return false;
+                    }
+                }
+                performStringCompare = false;
             }
         }
 
-        // Check ui attribute value equality
-        else if (uiAttributes.find(attr) != uiAttributes.end())
+        if (performStringCompare)
         {
-            const string& uiAttribute = getAttribute(attr);
-            const string& rhsUiAttribute = getAttribute(attr);
-            ValuePtr uiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(uiAttribute, getType()) : nullptr;
-            ValuePtr rhsUiValue = !rhsUiAttribute.empty() ? Value::createValueFromStrings(rhsUiAttribute, getType()) : nullptr;
-            if (uiValue && rhsUiValue)
+            if (getAttribute(attr) != rhsValueElement->getAttribute(attr))
             {
-                if (uiValue->getValueString() != rhsUiValue->getValueString())
-                {
-                    options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
-                    return false;
-                }
+                options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
+                return false;
             }
-        }
-
-        // Perform string comparison
-        else if (getAttribute(attr) != rhsValueElement->getAttribute(attr))
-        {
-            options.status = "Attribute '" + attr + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'";
-            return false;
         }
     }
 

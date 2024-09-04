@@ -82,6 +82,7 @@ class MX_CORE_API ElementEquivalenceOptions
         precision = Value::getFloatPrecision();
         skipAttributes = {};
         ignoreAttributeOrder = true;
+        skipValueComparisons = false;
         status = EMPTY_STRING;
     };
     ~ElementEquivalenceOptions() { }
@@ -106,6 +107,11 @@ class MX_CORE_API ElementEquivalenceOptions
     /// Option to indicate whether to ignore the order that attributes
     /// are specified on an element. Default is to ignore order.
     bool ignoreAttributeOrder;
+
+    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
+    /// Default is false. The operator==() method can be used instead as it always performs
+    /// a strict comparison. Default is false.
+    bool skipValueComparisons;
 
     /// Status string for first difference found.
     string status;
