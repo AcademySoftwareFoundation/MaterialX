@@ -71,6 +71,37 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
+/// @class ElemenEquivalenceResult
+/// The results of comparing for equivalence.
+class MX_CORE_API ElementEquivalenceResult
+{
+  public:
+      ElementEquivalenceResult() = default;
+      ~ElementEquivalenceResult() = default;
+
+      /// Append to list of equivalence messages
+      void addMessage(const string& message)
+      {
+          messages.push_back(message);
+      }
+
+      /// Clear result information
+      void clear()
+      {
+          messages.clear();
+      }
+
+      /// Get a list of equivalence messages
+      const StringVec& getMessages() const
+      {
+          return messages;
+      }
+
+  private:
+      /// A list of feedback messages
+      StringVec messages;
+};
+
 /// @class ElemenEquivalenceOptions
 /// A set of options for controlling for equivalence comparison.
 class MX_CORE_API ElementEquivalenceOptions
@@ -83,7 +114,6 @@ class MX_CORE_API ElementEquivalenceOptions
         skipAttributes = {};
         ignoreAttributeOrder = true;
         skipValueComparisons = false;
-        status = EMPTY_STRING;
     };
     ~ElementEquivalenceOptions() { }
 
@@ -112,9 +142,6 @@ class MX_CORE_API ElementEquivalenceOptions
     /// Default is false. The operator==() method can be used instead as it always performs
     /// a strict comparison. Default is false.
     bool skipValueComparisons;
-
-    /// Status string for first difference found.
-    string status;
 };
 
 /// @class Element
@@ -156,10 +183,26 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// differs from this one.
     bool operator!=(const Element& rhs) const;
 
-    /// Return tue if the given element treee, including all descendents,
+    /// Return true if the given element treee, including all descendents,
     /// is considered to be equivalent to this one based on the equivalence
     /// criteria provided.
-    virtual bool isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const;
+    /// @param rhs Element to compare against
+    /// @param options Equivalence criteria
+    /// @param result Results of comparison if argument is specified.
+    /// @return True if the elements are equivalent. False otherwise.
+    bool isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options, 
+                      ElementEquivalenceResult* result = nullptr) const;
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param result Results of comparison if argument is specified.
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                       ElementEquivalenceOptions& options, 
+                                       ElementEquivalenceResult* result = nullptr) const;
 
     /// @}
     /// @name Category
@@ -983,9 +1026,16 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @name Comparison interfaces
     /// @{
 
-    /// Return tue if the given value element is considered to be equivalent to this 
-    /// one based on the equivalence criteria provided.
-    bool isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options) const override;
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param result Results of comparison if argument is specified.
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                               ElementEquivalenceOptions& options, 
+                               ElementEquivalenceResult* result = nullptr) const override;
 
     /// @}
     /// @name Value String

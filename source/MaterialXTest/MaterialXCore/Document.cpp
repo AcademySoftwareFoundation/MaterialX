@@ -181,6 +181,7 @@ TEST_CASE("Document equivalence", "[document]")
     {
         const std::string inputType = (*it).first;
         mx::InputPtr input = doc2->addInput("input" + std::to_string(index), inputType);
+        // Note: order of value and ui attributes is different for ordering comparison
         input->setValueString((*it).second);
         if (inputType == "float")
         {
@@ -191,10 +192,11 @@ TEST_CASE("Document equivalence", "[document]")
     }
 
     mx::ElementEquivalenceOptions options;
+    mx::ElementEquivalenceResult result;
 
     // Check skipping all value compares
     options.skipValueComparisons = true;
-    bool equivalent = doc->isEquivalent(doc2, options);
+    bool equivalent = doc->isEquivalent(doc2, options, &result);
     if (equivalent)
     {
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
@@ -202,15 +204,23 @@ TEST_CASE("Document equivalence", "[document]")
     }
     else
     {
-        std::cout << "Expected difference: " << options.status << std::endl;
+        for (const std::string& message : result.getMessages())
+        {
+            std::cout << "Expected difference: " << message << std::endl;
+        }
+        result.clear();
     }
     REQUIRE(!equivalent);
 
     // Check attibute values 
     options.skipValueComparisons = false;
-    equivalent = doc->isEquivalent(doc2, options);
+    equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
+        for (const std::string& message : result.getMessages())
+        {
+            std::cout << "Unexpected difference: " << message << std::endl;
+        }
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
@@ -219,7 +229,6 @@ TEST_CASE("Document equivalence", "[document]")
     unsigned int currentPrecision = mx::Value::getFloatPrecision();
     // This will compare 0.012345608 versus: 1, 0.012345611 for input10
     options.precision = 8;
-    options.status = mx::EMPTY_STRING;
     equivalent = doc->isEquivalent(doc2, options);
     if (equivalent)
     {
@@ -228,7 +237,10 @@ TEST_CASE("Document equivalence", "[document]")
     }
     else
     {
-        std::cout << "Expected difference: " << options.status << std::endl;
+        for (const std::string& message : result.getMessages())
+        {
+            std::cout << "Expected difference: " << message << std::endl;
+        }
     }
     REQUIRE(!equivalent);
     options.precision = currentPrecision;
@@ -236,8 +248,8 @@ TEST_CASE("Document equivalence", "[document]")
     // Check attribute order ignore. Some inputs have differing attribute order
     // which will be caught.
     options.ignoreAttributeOrder = false;
-    options.status = mx::EMPTY_STRING;
-    equivalent = doc->isEquivalent(doc2, options);
+    result.clear();
+    equivalent = doc->isEquivalent(doc2, options, &result);
     if (equivalent)
     {
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
@@ -245,17 +257,24 @@ TEST_CASE("Document equivalence", "[document]")
     }
     else
     {
-        std::cout << "Expected difference: " << options.status << std::endl;
+        for (const std::string& message : result.getMessages())
+        {
+            std::cout << "Expected difference: " << message << std::endl;
+        }
     }
     REQUIRE(!equivalent);
 
     // Check attribute filtering of inputs with differing attribute ordering.
     options.ignoreAttributeOrder = false;
-    options.status = mx::EMPTY_STRING;
+    result.clear();
     options.skipAttributes = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
-    equivalent = doc->isEquivalent(doc2, options);
+    equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
+        for (const std::string& message : result.getMessages())
+        {
+            std::cout << "Unexpected difference: " << message << std::endl;
+        }
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
