@@ -6,6 +6,7 @@ target_sources(MaterialXTest PUBLIC ${source} ${headers})
 target_compile_definitions(MaterialXTest PRIVATE
         MATERIALX_OSL_BINARY_OSLC=\"${MATERIALX_OSL_BINARY_OSLC}\"
         MATERIALX_OSL_BINARY_TESTRENDER=\"${MATERIALX_OSL_BINARY_TESTRENDER}\"
+        MATERIALX_OSL_INCLUDE_PATH=\"${MATERIALX_OSL_INCLUDE_PATH}\"
 )
 
 add_tests("${source}")
