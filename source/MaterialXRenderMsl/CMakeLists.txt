@@ -26,7 +26,7 @@ mx_add_library(MaterialXRenderMsl
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRenderHw
         MaterialXGenMsl
     EXPORT_DEFINE
@@ -59,7 +59,8 @@ elseif(APPLE)
     target_link_libraries(${TARGET_NAME}
             PUBLIC
             "-framework Foundation"
-            "-framework Metal")
+            "-framework Metal"
+            "-framework MetalPerformanceShaders")
 elseif(UNIX)
     target_link_libraries(${TARGET_NAME}
             PUBLIC
