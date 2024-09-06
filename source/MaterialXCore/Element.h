@@ -79,27 +79,45 @@ class MX_CORE_API ElementEquivalenceResult
       ElementEquivalenceResult() = default;
       ~ElementEquivalenceResult() = default;
 
-      /// Append to list of equivalence messages
-      void addMessage(const string& message)
+      /// Append to list of equivalence differences
+      void addDifference(const string& path1, const string& path2, const string& differenceType, 
+                         const string& name=EMPTY_STRING)
       {
-          messages.push_back(message);
+          StringVec difference = { path1, path2, differenceType, name};
+          differences.push_back(difference);
       }
 
       /// Clear result information
       void clear()
       {
-          messages.clear();
+          differences.clear();
       }
 
-      /// Get a list of equivalence messages
-      const StringVec& getMessages() const
+      /// Get a list of equivalence differences
+      /// Difference is of the form:
+      /// { path to 1st element, path to 2nd element, difference type, [attribute if is attribute difference] }
+      StringVec getDifference(size_t index) const
       {
-          return messages;
+          if (index < differenceCount())
+            return differences[index];
+          return StringVec();
       }
+
+      const size_t differenceCount() const
+      {
+          return differences.size();
+      }
+
+      static const string ATTRIBUTE;
+      static const string ATTRIBUTE_NAMES;
+      static const string CHILD_COUNT;
+      static const string CHILD_NAME;
+      static const string NAME;
+      static const string CATEGORY;
 
   private:
-      /// A list of feedback messages
-      StringVec messages;
+      /// A list of  differences
+      vector<StringVec> differences;
 };
 
 /// @class ElemenEquivalenceOptions

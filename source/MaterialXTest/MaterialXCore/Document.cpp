@@ -10,7 +10,7 @@
 #include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
-#include <map>
+#include <unordered_map>
 #include <iostream>
 
 namespace mx = MaterialX;
@@ -120,15 +120,25 @@ TEST_CASE("Document", "[document]")
     REQUIRE(doc->validate());
 }
 
+void printDifferences(mx::ElementEquivalenceResult& result, const std::string& label)
+{
+    size_t differenceCount = result.differenceCount();
+    for (size_t i=0; i<differenceCount; ++i)
+    {
+        mx::StringVec message = result.getDifference(i);
+        std::cout << label << ": " << "Element: " << message[0] << 
+            ", Element: " << message[1] << ", Difference Type: " << message[2] 
+            << ", Value: " << message[3] << std::endl;
+    }
+}
+
 TEST_CASE("Document equivalence", "[document]")
 {
     mx::DocumentPtr doc = mx::createDocument();
-    std::multimap<std::string, std::string> inputMap;
+    std::unordered_multimap<std::string, std::string> inputMap;
 
     inputMap.insert({ "color3", "  1.0,   +2.0,  3.0   " });
     inputMap.insert({ "color4", "1.0,   2.00, 0.3000, -4" });
-    inputMap.insert({ "float", "  1.2e-10  " });
-    inputMap.insert({ "float", "  00.1000  " });
     inputMap.insert({ "integer", "  12 " });
     inputMap.insert({ "matrix33",
                       "01.0,         2.0,  0000.2310, "
@@ -145,48 +155,62 @@ TEST_CASE("Document equivalence", "[document]")
     inputMap.insert({ "string", "mystring" });
     inputMap.insert({ "boolean", "false" });
     inputMap.insert({ "filename", "filename1" });
+    inputMap.insert({ "float", "  1.2e-10  " });
+    inputMap.insert({ "float", "  00.1000  " });
 
     unsigned int index = 0;
+    mx::ElementPtr child = doc->addNodeGraph("mygraph");
+    mx::NodeGraphPtr graph = child->asA<mx::NodeGraph>();
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
         const std::string inputType = (*it).first;
-        mx::InputPtr input = doc->addInput("input" + std::to_string(index), inputType);
+        mx::InputPtr input = graph->addInput("input" + std::to_string(index), inputType);
         if (inputType == "float")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.0100 ");
             input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  01.0100 ");
+        }
+        else
+        {
+            input->setName("input_" + inputType); // Set by name for difference in order test
         }
         input->setValueString((*it).second);
         index++;
     }
 
     mx::DocumentPtr doc2 = mx::createDocument();
-    std::multimap<std::string, std::string> inputMap2;
-    inputMap2.insert({ "color3", "1, 2, 3" });
-    inputMap2.insert({ "color4", "1, 2, 0.3, -4" });
-    inputMap2.insert({ "float", "1.2e-10" });
-    inputMap2.insert({ "float", "0.1" });
+    std::unordered_multimap<std::string, std::string> inputMap2;
+    inputMap2.insert({ "color4", "1, 2, 0.3, -4" }); 
     inputMap2.insert({ "integer", "12" });
     inputMap2.insert({ "matrix33", "1, 2, 0.231,  1, 2, 0.231,  1, 2, 0.231,  1, 2, 0.231" });
     inputMap2.insert({ "matrix44", "1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1, 1, 2, 0.231, 0.1" });
     inputMap2.insert({ "vector2", "1, 0.012345611" }); // For precision check
-    inputMap2.insert({ "vector3", "1, 2, 3" });
-    inputMap2.insert({ "vector4", "1, 2, 0.3, -4" });
     inputMap2.insert({ "string", "mystring" });
     inputMap2.insert({ "boolean", "false" });
+    inputMap2.insert({ "color3", "1, 2, 3" });
+    inputMap2.insert({ "vector3", "1, 2, 3" });
+    inputMap2.insert({ "vector4", "1, 2, 0.3, -4" });
     inputMap2.insert({ "filename", "filename1" });
+    inputMap2.insert({ "float", "1.2e-10" });
+    inputMap2.insert({ "float", "0.1" });
 
     index = 0;
+    child = doc2->addNodeGraph("mygraph");
+    graph = child->asA<mx::NodeGraph>();
     for (auto it = inputMap2.begin(); it != inputMap2.end(); ++it)
     {
         const std::string inputType = (*it).first;
-        mx::InputPtr input = doc2->addInput("input" + std::to_string(index), inputType);
+        mx::InputPtr input = graph->addInput("input" + std::to_string(index), inputType);
         // Note: order of value and ui attributes is different for ordering comparison
         input->setValueString((*it).second);
         if (inputType == "float")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.01");
             input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  1.01");
+        }
+        else
+        {
+            input->setName("input_" + inputType);
         }
         index++;
     }
@@ -199,28 +223,23 @@ TEST_CASE("Document equivalence", "[document]")
     bool equivalent = doc->isEquivalent(doc2, options, &result);
     if (equivalent)
     {
+        std::cout << "Unexpected equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     else
     {
-        for (const std::string& message : result.getMessages())
-        {
-            std::cout << "Expected difference: " << message << std::endl;
-        }
-        result.clear();
+        printDifferences(result, "Expected differences");
     }
     REQUIRE(!equivalent);
 
     // Check attibute values 
     options.skipValueComparisons = false;
+    result.clear();
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
-        for (const std::string& message : result.getMessages())
-        {
-            std::cout << "Unexpected difference: " << message << std::endl;
-        }
+        printDifferences(result, "Unexpected difference");
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
@@ -232,15 +251,13 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options);
     if (equivalent)
     {
+        std::cout << "Unexpected equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     else
     {
-        for (const std::string& message : result.getMessages())
-        {
-            std::cout << "Expected difference: " << message << std::endl;
-        }
+        printDifferences(result, "Expected difference");
     }
     REQUIRE(!equivalent);
     options.precision = currentPrecision;
@@ -252,15 +269,13 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (equivalent)
     {
+        std::cout << "Unexpected equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     else
     {
-        for (const std::string& message : result.getMessages())
-        {
-            std::cout << "Expected difference: " << message << std::endl;
-        }
+        printDifferences(result, "Expected differences");
     }
     REQUIRE(!equivalent);
 
@@ -271,13 +286,26 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
-        for (const std::string& message : result.getMessages())
-        {
-            std::cout << "Unexpected difference: " << message << std::endl;
-        }
+        printDifferences(result, "Unexpected differences");
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     REQUIRE(equivalent);
 
+    // Check for child name miss-match
+    mx::ElementPtr mismatchElement = doc->getDescendant("mygraph/input_color4");
+    mismatchElement->setName("mismatch_color4");
+    result.clear();
+    equivalent = doc->isEquivalent(doc2, options, &result);
+    if (!equivalent)
+    {
+        printDifferences(result, "Expected differences");
+    }
+    else
+    {
+        std::cout << "Unexpected equivalence:" << std::endl;
+        std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
+        std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
+    }
+    REQUIRE(!equivalent);
 }

@@ -42,6 +42,14 @@ const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
 
 Element::CreatorMap Element::_creatorMap;
 
+const string ElementEquivalenceResult::ATTRIBUTE = "attribute";
+const string ElementEquivalenceResult::ATTRIBUTE_NAMES = "attribute names";
+const string ElementEquivalenceResult::CHILD_COUNT = "child count";
+const string ElementEquivalenceResult::CHILD_NAME = "child name";
+const string ElementEquivalenceResult::NAME = "name";
+const string ElementEquivalenceResult::CATEGORY = "category";
+
+
 //
 // Element methods
 //
@@ -84,11 +92,16 @@ bool Element::operator!=(const Element& rhs) const
 bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options,
                            ElementEquivalenceResult* result) const
 {
-    if (getCategory() != rhs->getCategory() ||
-        getName() != rhs->getName())
+    if (getName() != rhs->getName())
     {
         if (result)
-            result->addMessage("Name or category does not match for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME);
+        return false;
+    }
+    if (getCategory() != rhs->getCategory())
+    {
+        if (result)
+            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY);
         return false;
     }
 
@@ -118,7 +131,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     if (attributeNames != rhsAttributeNames)
     {
         if (result)
-            result->addMessage("Attribute names differ for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES);
         return false;
     }
 
@@ -136,12 +149,26 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     if (c1.size() != c2.size())
     {
         if (result)
-            result->addMessage("Child count differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT);
         return false;
     }
     for (size_t i = 0; i < c1.size(); i++)
     {
-        if (!c1[i]->isEquivalent(c2[i], options, result))
+        ElementPtr c2Element = c2[i];
+        // Handle unordered children if parent is a graph.
+        if (this->isA<GraphElement>())
+        {
+            const string& childName = c1[i]->getName();
+            c2Element = rhs->getChild(childName);
+            if (!c2Element)
+            {
+                if (result)
+                    result->addDifference(c1[i]->getNamePath(), "<NONE>", ElementEquivalenceResult::CHILD_NAME,
+                        childName);
+                return false;
+            }
+        }
+        if (!c1[i]->isEquivalent(c2Element, options, result))
             return false;
     }
     return true;
@@ -153,7 +180,7 @@ bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attribute
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
         if (result)
-            result->addMessage("Attribute " + attributeName + " differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
         return false;
     }
     return true;
@@ -589,7 +616,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
                 if (thisValue->getValueString() != rhsValue->getValueString())
                 {
                     if (result)
-                        result->addMessage("Attribute 'value' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+                        result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
                     return false;
                 }
             }
@@ -608,7 +635,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
                 if (uiValue->getValueString() != rhsUiValue->getValueString())
                 {
                     if (result)
-                        result->addMessage("Attribute '" + attributeName + "' differs for elements: '" + getNamePath() + "', '" + rhs->getNamePath() + "'");
+                        result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
                     return false;
                 }
             }
