@@ -14,8 +14,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
         target_sources(${MATERIALX_MODULE_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
     endif()
 
-    set_target_properties(
-            ${MATERIALX_MODULE_NAME} PROPERTIES
+    set_target_properties(${MATERIALX_MODULE_NAME} PROPERTIES
             OUTPUT_NAME ${MATERIALX_MODULE_NAME}${MATERIALX_LIBNAME_SUFFIX}
             COMPILE_FLAGS "${EXTERNAL_COMPILE_FLAGS}"
             LINK_FLAGS "${EXTERNAL_LINK_FLAGS}"
@@ -23,8 +22,8 @@ if (MATERIALX_BUILD_MONOLITHIC)
             VERSION "${MATERIALX_LIBRARY_VERSION}"
             SOVERSION "${MATERIALX_MAJOR_VERSION}")
 
-    target_link_libraries(
-            ${MATERIALX_MODULE_NAME}
+    target_link_libraries(${MATERIALX_MODULE_NAME}
+            PUBLIC
             ${CMAKE_DL_LIBS})
 
     target_include_directories(${MATERIALX_MODULE_NAME}

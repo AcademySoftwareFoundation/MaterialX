@@ -1,6 +1,6 @@
 #include "mx_microfacet.glsl"
 
-// http://www.aconty.com/pdf/s2017_pbs_imageworks_sheen.pdf
+// https://fpsunflower.github.io/ckulla/data/s2017_pbs_imageworks_sheen.pdf
 // Equation 2
 float mx_imageworks_sheen_NDF(float NdotH, float roughness)
 {

@@ -151,7 +151,7 @@ class MX_CORE_API NodeDef : public InterfaceElement
     /// @{
 
     /// Return list of input hint pairs of the form { input_name, hint_string }
-    const StringMap getInputHints() const;
+    StringMap getInputHints() const;
 
     /// @}
     /// @name Validation

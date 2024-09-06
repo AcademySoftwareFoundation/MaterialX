@@ -20,7 +20,7 @@ mx_add_library(MaterialXRenderHw
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRender
     EXPORT_DEFINE
         MATERIALX_RENDERHW_EXPORTS
