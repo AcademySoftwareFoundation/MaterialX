@@ -169,13 +169,13 @@ TEST_CASE("Document equivalence", "[document]")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.0100 ");
             input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  01.0100 ");
+            index++;
         }
         else
         {
             input->setName("input_" + inputType); // Set by name for difference in order test
         }
         input->setValueString((*it).second);
-        index++;
     }
 
     mx::DocumentPtr doc2 = mx::createDocument();
@@ -207,13 +207,16 @@ TEST_CASE("Document equivalence", "[document]")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.01");
             input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  1.01");
+            index++;
         }
         else
         {
             input->setName("input_" + inputType);
         }
-        index++;
     }
+
+    std::cout << "Original Document 1: " << mx::prettyPrint(doc) << std::endl;
+    std::cout << "Original Document 2: " << mx::prettyPrint(doc2) << std::endl;
 
     mx::ElementEquivalenceOptions options;
     mx::ElementEquivalenceResult result;
