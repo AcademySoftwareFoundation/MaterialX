@@ -63,7 +63,7 @@ void HeightToNormalNodeMsl::emitFunctionDefinition(const ShaderNode&, GenContext
     {
         // Emit sampling functions
         const ShaderGenerator& shadergen = context.getShaderGenerator();
-        shadergen.emitLibraryInclude("stdlib/genglsl/lib/mx_sampling.glsl", context, stage);
+        shadergen.emitLibraryInclude("stdlib/genmsl/lib/mx_sampling.glsl", context, stage);
         shadergen.emitLineBreak(stage);
     }
 }
