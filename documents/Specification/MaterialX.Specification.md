@@ -2387,7 +2387,7 @@ Custom nodes that output data types with a "shader" semantic are referred to in 
 The attributes for &lt;nodedef> elements as they pertain to the declaration of shaders are:
 
 * `name` (string, required): a user-chosen name for this shader node definition element.  
-* `node` (string, required): the name of the shader node being defined, which typically matches the name of an associated shader function such as “blinn_phong”, “Disney_BRDF_2012”, “volumecloud_vol”.  Just as for custom nodes, this shading program may be defined precisely through an &lt;implementation> or &lt;nodegraph>, or left to the application to locate by name using any shader definition method that it chooses.
+* `node` (string, required): the name of the shader node being defined, which typically matches the name of an associated shader function such as “blinn_phong”, “disney_principled”, “volumecloud_vol”.  Just as for custom nodes, this shading program may be defined precisely through an &lt;implementation> or &lt;nodegraph>, or left to the application to locate by name using any shader definition method that it chooses.
 
 The child &lt;output> element within the &lt;nodedef> defines the "data type" of the output for this shader, which must have been defined with a "shader" semantic; see the [Custom Data Types](#custom-data-types) section above and discussion below for details.
 
@@ -2707,8 +2707,6 @@ Example uses for variants include defining a number of allowable colors and text
 Variants and variantsets are not intrinsically associated with any particular material; they merely state a number of values for a number of named inputs/tokens.  However, variantsets may state that they are associated with specific shader-semantic nodes and/or &lt;nodedef> declarations by providing stringarray-type `node` and/or `nodedef` attributes:
 
 ```xml
-  <variantset name="damagevars" node="Disney_BRDF_2012,Disney_BRDF_2015">
-    ...
   <variantset name="costumevars" nodedef="ND_unifiedsrf_studio">
     ...
 ```
