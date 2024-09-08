@@ -164,7 +164,7 @@ TEST_CASE("Document equivalence", "[document]")
     for (auto it = inputMap.begin(); it != inputMap.end(); ++it)
     {
         const std::string inputType = (*it).first;
-        mx::InputPtr input = graph->addInput("input" + std::to_string(index), inputType);
+        mx::InputPtr input = graph->addInput("input_" + std::to_string(index), inputType);
         if (inputType == "float")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.0100 ");
@@ -197,16 +197,18 @@ TEST_CASE("Document equivalence", "[document]")
     index = 0;
     child = doc2->addNodeGraph("mygraph");
     graph = child->asA<mx::NodeGraph>();
+    std::vector<mx::InputPtr> floatInputs;
     for (auto it = inputMap2.begin(); it != inputMap2.end(); ++it)
     {
         const std::string inputType = (*it).first;
-        mx::InputPtr input = graph->addInput("input" + std::to_string(index), inputType);
+        mx::InputPtr input = graph->addInput("input_" + std::to_string(index), inputType);
         // Note: order of value and ui attributes is different for ordering comparison
         input->setValueString((*it).second);
         if (inputType == "float")
         {
             input->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.01");
             input->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  1.01");
+            floatInputs.push_back(input);
             index++;
         }
         else
@@ -214,9 +216,6 @@ TEST_CASE("Document equivalence", "[document]")
             input->setName("input_" + inputType);
         }
     }
-
-    std::cout << "Original Document 1: " << mx::prettyPrint(doc) << std::endl;
-    std::cout << "Original Document 2: " << mx::prettyPrint(doc2) << std::endl;
 
     mx::ElementEquivalenceOptions options;
     mx::ElementEquivalenceResult result;
@@ -226,13 +225,13 @@ TEST_CASE("Document equivalence", "[document]")
     bool equivalent = doc->isEquivalent(doc2, options, &result);
     if (equivalent)
     {
-        std::cout << "Unexpected equivalence:" << std::endl;
+        std::cout << "Unexpected skip value equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     else
     {
-        printDifferences(result, "Expected differences");
+        printDifferences(result, "Expected value differences");
     }
     REQUIRE(!equivalent);
 
@@ -242,7 +241,7 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
-        printDifferences(result, "Unexpected difference");
+        printDifferences(result, "Unexpected value difference");
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
@@ -254,59 +253,79 @@ TEST_CASE("Document equivalence", "[document]")
     equivalent = doc->isEquivalent(doc2, options);
     if (equivalent)
     {
-        std::cout << "Unexpected equivalence:" << std::endl;
+        std::cout << "Unexpected precision equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     else
     {
-        printDifferences(result, "Expected difference");
+        printDifferences(result, "Expected precision difference");
     }
     REQUIRE(!equivalent);
     options.precision = currentPrecision;
 
-    // Check attribute order ignore. Some inputs have differing attribute order
-    // which will be caught.
-    options.ignoreAttributeOrder = false;
-    result.clear();
-    equivalent = doc->isEquivalent(doc2, options, &result);
-    if (equivalent)
-    {
-        std::cout << "Unexpected equivalence:" << std::endl;
-        std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
-        std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
-    }
-    else
-    {
-        printDifferences(result, "Expected differences");
-    }
-    REQUIRE(!equivalent);
-
-    // Check attribute filtering of inputs with differing attribute ordering.
-    options.ignoreAttributeOrder = false;
+    // Check attribute filtering of inputs
     result.clear();
     options.skipAttributes = { mx::ValueElement::UI_MIN_ATTRIBUTE, mx::ValueElement::UI_MAX_ATTRIBUTE };
+    for (mx::InputPtr floatInput : floatInputs)
+    {
+        floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "0.9");
+        floatInput->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "100.0");
+    }
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
-        printDifferences(result, "Unexpected differences");
+        printDifferences(result, "Unexpected filtering differences");
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }
     REQUIRE(equivalent);
+    for (mx::InputPtr floatInput : floatInputs)
+    {
+        floatInput->setAttribute(mx::ValueElement::UI_MIN_ATTRIBUTE, "  0.01");
+        floatInput->setAttribute(mx::ValueElement::UI_MAX_ATTRIBUTE, "  1.01");
+    }
 
-    // Check for child name miss-match
+    // Check for child name mismatch
     mx::ElementPtr mismatchElement = doc->getDescendant("mygraph/input_color4");
+    std::string previousName = mismatchElement->getName();
     mismatchElement->setName("mismatch_color4");
     result.clear();
     equivalent = doc->isEquivalent(doc2, options, &result);
     if (!equivalent)
     {
-        printDifferences(result, "Expected differences");
+        printDifferences(result, "Expected name mismatch differences");
     }
     else
     {
-        std::cout << "Unexpected equivalence:" << std::endl;
+        std::cout << "Unexpected name match equivalence:" << std::endl;
+        std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
+        std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
+    }
+    REQUIRE(!equivalent);
+    mismatchElement->setName(previousName);
+    result.clear();
+    equivalent = doc->isEquivalent(doc2, options, &result);
+    REQUIRE(equivalent);
+
+    // Check for functional nodegraphs
+    mx::NodeGraphPtr nodeGraph = doc->getNodeGraph("mygraph");
+    REQUIRE(nodeGraph);
+    doc->addNodeDef("ND_mygraph");
+    nodeGraph->setNodeDefString("ND_mygraph");
+    mx::NodeGraphPtr nodeGraph2 = doc2->getNodeGraph("mygraph");
+    REQUIRE(nodeGraph2);
+    doc2->addNodeDef("ND_mygraph");
+    nodeGraph2->setNodeDefString("ND_mygraph");
+    result.clear();
+    equivalent = doc->isEquivalent(doc2, options, &result);
+    if (!equivalent)
+    {
+        printDifferences(result, "Expected functional graph differences");
+    }
+    else
+    {
+        std::cout << "Unexpected functional graph equivalence:" << std::endl;
         std::cout << "Document 1: " << mx::prettyPrint(doc) << std::endl;
         std::cout << "Document 2: " << mx::prettyPrint(doc2) << std::endl;
     }

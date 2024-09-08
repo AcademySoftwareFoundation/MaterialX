@@ -121,13 +121,10 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
             rhsAttributeNames.end());
     }    
 
-    // Ignore ordering if option specified.
-    if (options.ignoreAttributeOrder)
-    {
-        // Sort the string arrays
-        std::sort(attributeNames.begin(), attributeNames.end());
-        std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
-    }
+    // Ignore attribute ordering by sorting names
+    std::sort(attributeNames.begin(), attributeNames.end());
+    std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
+
     if (attributeNames != rhsAttributeNames)
     {
         if (result)
@@ -155,17 +152,25 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     for (size_t i = 0; i < c1.size(); i++)
     {
         ElementPtr c2Element = c2[i];
-        // Handle unordered children if parent is a graph.
-        if (this->isA<GraphElement>())
+        // Handle unordered children if parent is a compound graph (NodeGraph, Document).
+        // (Functional graphs have a "nodedef" reference and define node interfaces
+        // so require strict interface ordering.)
+        GraphElementPtr graph = this->getSelfNonConst()->asA<GraphElement>();
+        if (graph)
         {
-            const string& childName = c1[i]->getName();
-            c2Element = rhs->getChild(childName);
-            if (!c2Element)
+            NodeGraphPtr nodeGraph = graph->asA<NodeGraph>();
+            DocumentPtr document = graph->asA<Document>();
+            if (document || (nodeGraph && !nodeGraph->getNodeDef()))
             {
-                if (result)
-                    result->addDifference(c1[i]->getNamePath(), "<NONE>", ElementEquivalenceResult::CHILD_NAME,
-                        childName);
-                return false;
+                const string& childName = c1[i]->getName();
+                c2Element = rhs->getChild(childName);
+                if (!c2Element)
+                {
+                    if (result)
+                        result->addDifference(c1[i]->getNamePath(), "<NONE>", ElementEquivalenceResult::CHILD_NAME,
+                            childName);
+                    return false;
+                }
             }
         }
         if (!c1[i]->isEquivalent(c2Element, options, result))
