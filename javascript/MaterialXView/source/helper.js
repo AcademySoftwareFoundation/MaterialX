@@ -87,7 +87,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(viewer, type, value, name, uniforms, textureLoader, searchPath, flipY)
+function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
 {
     let outValue = null;
     switch (type)
@@ -156,8 +156,6 @@ function toThreeUniform(viewer, type, value, name, uniforms, textureLoader, sear
                             // Add texture to ThreeJS cache
                             if (checkCache)
                                 THREE.Cache.add(texturePath, texture);
-
-                            viewer.scheduleUpdate();
                         },
                         undefined,
                         function (error) {
@@ -330,7 +328,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(viewer, shaderStage, textureLoader, searchPath, flipY)
+export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
 {
     let threeUniforms = {};
 
@@ -344,8 +342,7 @@ export function getUniformValues(viewer, shaderStage, textureLoader, searchPath,
                 const variable = uniforms.get(i);
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
-                //console.log('fill uniform, name:', name, ', value:', value);
-                threeUniforms[name] = new THREE.Uniform(toThreeUniform(viewer, variable.getType().getName(), value, name, uniforms,
+                threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms,
                     textureLoader, searchPath, flipY));
             }
         }
