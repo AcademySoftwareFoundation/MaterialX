@@ -146,7 +146,7 @@ class MX_FORMAT_API FilePath
             size_t i = baseName.rfind('.');
             if (i != string::npos)
             {
-                baseName = baseName.substr(0, i);
+                baseName.resize(i);
             }
         }
     }

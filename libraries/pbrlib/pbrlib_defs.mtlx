@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -79,8 +79,8 @@
   -->
   <nodedef name="ND_conductor_bsdf" node="conductor_bsdf" bsdf="R" nodegroup="pbr" doc="A reflection BSDF node based on a microfacet model and a Fresnel curve for conductors/metals.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
-    <input name="ior" type="color3" value="0.183, 0.421, 1.373" colorspace="none" />
-    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" colorspace="none" />
+    <input name="ior" type="color3" value="0.183, 0.421, 1.373" />
+    <input name="extinction" type="color3" value="3.424, 2.346, 1.770" />
     <input name="roughness" type="vector2" value="0.05, 0.05" />
     <input name="thinfilm_thickness" type="float" value="0" unittype="distance" unit="nanometer" />
     <input name="thinfilm_ior" type="float" value="1.5" />
@@ -117,7 +117,7 @@
   <nodedef name="ND_subsurface_bsdf" node="subsurface_bsdf" bsdf="R" nodegroup="pbr" doc="A subsurface scattering BSDF for true subsurface scattering.">
     <input name="weight" type="float" value="1.0" uimin="0.0" uimax="1.0" />
     <input name="color" type="color3" value="0.18, 0.18, 0.18" />
-    <input name="radius" type="vector3" value="1.0, 1.0, 1.0" />
+    <input name="radius" type="color3" value="1.0, 1.0, 1.0" />
     <input name="anisotropy" type="float" value="0.0" />
     <input name="normal" type="vector3" defaultgeomprop="Nworld" />
     <output name="out" type="BSDF" />

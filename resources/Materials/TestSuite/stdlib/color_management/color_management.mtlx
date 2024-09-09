@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="lin_rec709">
+<materialx version="1.39" colorspace="lin_rec709">
   <nodegraph name="ng1">
     <image name="image_lin_rec709" type="color3">
       <input name="file" type="filename" value="resources/Images/grid.png" colorspace="lin_rec709" />
@@ -81,78 +81,111 @@
     <constant name="color_lin_rec709" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_rec709" />
     </constant>
+    <convert name="color_lin_rec709_color3" type="color3">
+      <input name="in" type="color4" nodename="color_lin_rec709" />
+    </convert>
     <standard_surface name="color_lin_rec709_standard_surface" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_lin_rec709" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_lin_rec709_color3" />
     </standard_surface>
     <output name="color_lin_rec709_output" type="surfaceshader" nodename="color_lin_rec709_standard_surface" />
     <constant name="color_gamma18" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma18" />
     </constant>
+    <convert name="color_gamma18_color3" type="color3">
+      <input name="in" type="color4" nodename="color_gamma18" />
+    </convert>
     <standard_surface name="color_gamma18_standard_surface2" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_gamma18" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_gamma18_color3" />
     </standard_surface>
     <output name="color_gamma18_output" type="surfaceshader" nodename="color_gamma18_standard_surface2" />
     <constant name="color_gamma22" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma22" />
     </constant>
+    <convert name="color_gamma22_color3" type="color3">
+      <input name="in" type="color4" nodename="color_gamma22" />
+    </convert>
     <standard_surface name="color_gamma22_standard_surface3" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_gamma22" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_gamma22_color3" />
     </standard_surface>
     <output name="color_gamma22_output" type="surfaceshader" nodename="color_gamma22_standard_surface3" />
     <constant name="color_gamma24" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="gamma24" />
     </constant>
+    <convert name="color_gamma24_color3" type="color3">
+      <input name="in" type="color4" nodename="color_gamma24" />
+    </convert>
     <standard_surface name="color_gamma24_standard_surface4" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_gamma24" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_gamma24_color3" />
     </standard_surface>
     <output name="color_gamma24_output" type="surfaceshader" nodename="color_gamma24_standard_surface4" />
     <constant name="color_acescg" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="acescg" />
     </constant>
+    <convert name="color_acescg_color3" type="color3">
+      <input name="in" type="color4" nodename="color_acescg" />
+    </convert>
     <standard_surface name="color_acescg_standard_surface5" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_acescg" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_acescg_color3" />
     </standard_surface>
     <output name="color_acescg_output" type="surfaceshader" nodename="color_acescg_standard_surface5" />
     <constant name="color_g22_ap1" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="g22_ap1" />
     </constant>
+    <convert name="color_g22_ap1_color3" type="color3">
+      <input name="in" type="color4" nodename="color_g22_ap1" />
+    </convert>
     <standard_surface name="color_g22_ap1_standard_surface5" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_g22_ap1" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_g22_ap1_color3" />
     </standard_surface>
     <output name="color_g22_ap1_output" type="surfaceshader" nodename="color_g22_ap1_standard_surface5" />
     <constant name="color_srgb_texture" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="srgb_texture" />
     </constant>
+    <convert name="color_srgb_texture_color3" type="color3">
+      <input name="in" type="color4" nodename="color_srgb_texture" />
+    </convert>
     <standard_surface name="color_srgb_texture_standard_surface6" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_srgb_texture" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_srgb_texture_color3" />
     </standard_surface>
     <output name="color_srgb_texture_output" type="surfaceshader" nodename="color_srgb_texture_standard_surface6" />
     <constant name="color_adobergb" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="adobergb" />
     </constant>
+    <convert name="color_adobergb_color3" type="color3">
+      <input name="in" type="color4" nodename="color_adobergb" />
+    </convert>
     <standard_surface name="color_adobergb_standard_surface7" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_adobergb" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_adobergb_color3" />
     </standard_surface>
     <output name="color_adobergb_output" type="surfaceshader" nodename="color_adobergb_standard_surface7" />
     <constant name="color_lin_adobergb" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_adobergb" />
     </constant>
+    <convert name="color_lin_adobergb_color3" type="color3">
+      <input name="in" type="color4" nodename="color_lin_adobergb" />
+    </convert>
     <standard_surface name="color_lin_adobergb_standard_surface8" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_lin_adobergb" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_lin_adobergb_color3" />
     </standard_surface>
     <output name="color_lin_adobergb_output" type="surfaceshader" nodename="color_lin_adobergb_standard_surface8" />
     <constant name="color_srgb_displayp3" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="srgb_displayp3" />
     </constant>
+    <convert name="color_srgb_displayp3_color3" type="color3">
+      <input name="in" type="color4" nodename="color_srgb_displayp3" />
+    </convert>
     <standard_surface name="color_srgb_displayp3_standard_surface5" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_srgb_displayp3" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_srgb_displayp3_color3" />
     </standard_surface>
     <output name="color_srgb_displayp3_output" type="surfaceshader" nodename="color_srgb_displayp3_standard_surface5" />
     <constant name="color_lin_displayp3" type="color4">
       <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="lin_displayp3" />
     </constant>
+    <convert name="color_lin_displayp3_color3" type="color3">
+      <input name="in" type="color4" nodename="color_lin_displayp3" />
+    </convert>
     <standard_surface name="color_lin_displayp3_standard_surface5" type="surfaceshader">
-      <input name="base_color" type="color3" nodename="color_lin_displayp3" channels="rgb" />
+      <input name="base_color" type="color3" nodename="color_lin_displayp3_color3" />
     </standard_surface>
     <output name="color_lin_displayp3_output" type="surfaceshader" nodename="color_lin_displayp3_standard_surface5" />
   </nodegraph>

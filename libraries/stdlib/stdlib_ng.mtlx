@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -1318,7 +1318,10 @@
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
-    <output name="out" type="color3" nodename="N_noise2d" channels="xyz" />
+    <convert name="N_convert" type="color3">
+      <input name="in" type="vector3" nodename="N_noise2d" />
+    </convert>
+    <output name="out" type="color3" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_noise2d_color4" nodedef="ND_noise2d_color4">
     <noise2d name="N_noise2d" type="vector4">
@@ -1326,43 +1329,61 @@
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
-    <output name="out" type="color4" nodename="N_noise2d" channels="xyzw" />
+    <convert name="N_convert" type="color4">
+      <input name="in" type="vector4" nodename="N_noise2d" />
+    </convert>
+    <output name="out" type="color4" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_noise2d_color3FA" nodedef="ND_noise2d_color3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise2d name="N_noise2d" type="color3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
     <output name="out" type="color3" nodename="N_noise2d" />
   </nodegraph>
   <nodegraph name="NG_noise2d_color4FA" nodedef="ND_noise2d_color4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise2d name="N_noise2d" type="color4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
     <output name="out" type="color4" nodename="N_noise2d" />
   </nodegraph>
   <nodegraph name="NG_noise2d_vector2FA" nodedef="ND_noise2d_vector2FA">
+    <convert name="N_convert" type="vector2">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise2d name="N_noise2d" type="vector2">
-      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="amplitude" type="vector2" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
     <output name="out" type="vector2" nodename="N_noise2d" />
   </nodegraph>
   <nodegraph name="NG_noise2d_vector3FA" nodedef="ND_noise2d_vector3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise2d name="N_noise2d" type="vector3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
     <output name="out" type="vector3" nodename="N_noise2d" />
   </nodegraph>
   <nodegraph name="NG_noise2d_vector4FA" nodedef="ND_noise2d_vector4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise2d name="N_noise2d" type="vector4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="texcoord" type="vector2" interfacename="texcoord" />
     </noise2d>
@@ -1378,7 +1399,10 @@
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
-    <output name="out" type="color3" nodename="N_noise3d" channels="xyz" />
+    <convert name="N_convert" type="color3">
+      <input name="in" type="vector3" nodename="N_noise3d" />
+    </convert>
+    <output name="out" type="color3" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_noise3d_color4" nodedef="ND_noise3d_color4">
     <noise3d name="N_noise3d" type="vector4">
@@ -1386,43 +1410,61 @@
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
-    <output name="out" type="color4" nodename="N_noise3d" channels="xyzw" />
+    <convert name="N_convert" type="color4">
+      <input name="in" type="vector4" nodename="N_noise3d" />
+    </convert>
+    <output name="out" type="color4" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_noise3d_color3FA" nodedef="ND_noise3d_color3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise3d name="N_noise3d" type="color3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
     <output name="out" type="color3" nodename="N_noise3d" />
   </nodegraph>
   <nodegraph name="NG_noise3d_color4FA" nodedef="ND_noise3d_color4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise3d name="N_noise3d" type="color4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
     <output name="out" type="color4" nodename="N_noise3d" />
   </nodegraph>
   <nodegraph name="NG_noise3d_vector2FA" nodedef="ND_noise3d_vector2FA">
+    <convert name="N_convert" type="vector2">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise3d name="N_noise3d" type="vector2">
-      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="amplitude" type="vector2" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
     <output name="out" type="vector2" nodename="N_noise3d" />
   </nodegraph>
   <nodegraph name="NG_noise3d_vector3FA" nodedef="ND_noise3d_vector3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise3d name="N_noise3d" type="vector3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
     <output name="out" type="vector3" nodename="N_noise3d" />
   </nodegraph>
   <nodegraph name="NG_noise3d_vector4FA" nodedef="ND_noise3d_vector4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <noise3d name="N_noise3d" type="vector4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="pivot" type="float" interfacename="pivot" />
       <input name="position" type="vector3" interfacename="position" />
     </noise3d>
@@ -1440,7 +1482,10 @@
       <input name="diminish" type="float" interfacename="diminish" />
       <input name="position" type="vector3" interfacename="position" />
     </fractal3d>
-    <output name="out" type="color3" nodename="N_fractal3d" channels="xyz" />
+    <convert name="N_convert" type="color3">
+      <input name="in" type="vector3" nodename="N_fractal3d" />
+    </convert>
+    <output name="out" type="color3" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_color4" nodedef="ND_fractal3d_color4">
     <fractal3d name="N_fractal3d" type="vector4">
@@ -1450,11 +1495,17 @@
       <input name="diminish" type="float" interfacename="diminish" />
       <input name="position" type="vector3" interfacename="position" />
     </fractal3d>
-    <output name="out" type="color4" nodename="N_fractal3d" channels="xyzw" />
+    <convert name="N_convert" type="color4">
+      <input name="in" type="vector4" nodename="N_fractal3d" />
+    </convert>
+    <output name="out" type="color4" nodename="N_convert" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_color3FA" nodedef="ND_fractal3d_color3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <fractal3d name="N_fractal3d" type="color3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="octaves" type="integer" interfacename="octaves" />
       <input name="lacunarity" type="float" interfacename="lacunarity" />
       <input name="diminish" type="float" interfacename="diminish" />
@@ -1463,8 +1514,11 @@
     <output name="out" type="color3" nodename="N_fractal3d" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_color4FA" nodedef="ND_fractal3d_color4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <fractal3d name="N_fractal3d" type="color4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="octaves" type="integer" interfacename="octaves" />
       <input name="lacunarity" type="float" interfacename="lacunarity" />
       <input name="diminish" type="float" interfacename="diminish" />
@@ -1473,8 +1527,11 @@
     <output name="out" type="color4" nodename="N_fractal3d" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_vector2FA" nodedef="ND_fractal3d_vector2FA">
+    <convert name="N_convert" type="vector2">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <fractal3d name="N_fractal3d" type="vector2">
-      <input name="amplitude" type="vector2" interfacename="amplitude" channels="xx" />
+      <input name="amplitude" type="vector2" nodename="N_convert" />
       <input name="octaves" type="integer" interfacename="octaves" />
       <input name="lacunarity" type="float" interfacename="lacunarity" />
       <input name="diminish" type="float" interfacename="diminish" />
@@ -1483,8 +1540,11 @@
     <output name="out" type="vector2" nodename="N_fractal3d" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_vector3FA" nodedef="ND_fractal3d_vector3FA">
+    <convert name="N_convert" type="vector3">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <fractal3d name="N_fractal3d" type="vector3">
-      <input name="amplitude" type="vector3" interfacename="amplitude" channels="xxx" />
+      <input name="amplitude" type="vector3" nodename="N_convert" />
       <input name="octaves" type="integer" interfacename="octaves" />
       <input name="lacunarity" type="float" interfacename="lacunarity" />
       <input name="diminish" type="float" interfacename="diminish" />
@@ -1493,8 +1553,11 @@
     <output name="out" type="vector3" nodename="N_fractal3d" />
   </nodegraph>
   <nodegraph name="NG_fractal3d_vector4FA" nodedef="ND_fractal3d_vector4FA">
+    <convert name="N_convert" type="vector4">
+      <input name="in" type="float" interfacename="amplitude" />
+    </convert>
     <fractal3d name="N_fractal3d" type="vector4">
-      <input name="amplitude" type="vector4" interfacename="amplitude" channels="xxxx" />
+      <input name="amplitude" type="vector4" nodename="N_convert" />
       <input name="octaves" type="integer" interfacename="octaves" />
       <input name="lacunarity" type="float" interfacename="lacunarity" />
       <input name="diminish" type="float" interfacename="diminish" />
@@ -1895,21 +1958,30 @@
       <input name="in1" type="vector2" nodename="sample_double" />
       <input name="in2" type="float" interfacename="radius" />
     </subtract>
+    <separate2 name="sample_double_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="sample_double" />
+    </separate2>
+    <separate2 name="sample_add_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="sample_add" />
+    </separate2>
+    <separate2 name="sample_subtract_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="sample_subtract" />
+    </separate2>
     <combine2 name="coord1" type="vector2">
-      <input name="in1" type="float" nodename="sample_add" channels="x" />
-      <input name="in2" type="float" nodename="sample_double" channels="y" />
+      <input name="in1" type="float" nodename="sample_add_separate" output="outx" />
+      <input name="in2" type="float" nodename="sample_double_separate" output="outy" />
     </combine2>
     <combine2 name="coord2" type="vector2">
-      <input name="in1" type="float" nodename="sample_subtract" channels="x" />
-      <input name="in2" type="float" nodename="sample_double" channels="y" />
+      <input name="in1" type="float" nodename="sample_subtract_separate" output="outx" />
+      <input name="in2" type="float" nodename="sample_double_separate" output="outy" />
     </combine2>
     <combine2 name="coord3" type="vector2">
-      <input name="in1" type="float" nodename="sample_double" channels="x" />
-      <input name="in2" type="float" nodename="sample_subtract" channels="y" />
+      <input name="in1" type="float" nodename="sample_double_separate" output="outx" />
+      <input name="in2" type="float" nodename="sample_subtract_separate" output="outy" />
     </combine2>
     <combine2 name="coord4" type="vector2">
-      <input name="in1" type="float" nodename="sample_double" channels="x" />
-      <input name="in2" type="float" nodename="sample_add" channels="y" />
+      <input name="in1" type="float" nodename="sample_double_separate" output="outx" />
+      <input name="in2" type="float" nodename="sample_add_separate" output="outy" />
     </combine2>
     <circle name="circle1" type="float">
       <input name="texcoord" type="vector2" nodename="coord1" />
@@ -1952,6 +2024,19 @@
     Uses formulas from Inigo Quilez SDF samples (iquilezles.org)
   -->
   <nodegraph name="NG_hexagon_float" nodedef="ND_hexagon_float">
+    <constant name="k" type="vector3">
+      <input name="value" type="vector3" value="-0.866025, 0.5, 0.57735" />
+    </constant>
+    <multiply name="minus_k" type="vector3">
+      <input name="in1" type="vector3" nodename="k" />
+      <input name="in2" type="float" value="-1.0" />
+    </multiply>
+    <separate3 name="k_separate" type="multioutput">
+      <input name="in" type="vector3" nodename="k" />
+    </separate3>
+    <separate3 name="minus_k_separate" type="multioutput">
+      <input name="in" type="vector3" nodename="minus_k" />
+    </separate3>
     <subtract name="delta" type="vector2">
       <input name="in1" type="vector2" interfacename="texcoord" />
       <input name="in2" type="vector2" interfacename="center" />
@@ -1959,32 +2044,28 @@
     <absval name="delta_abs" type="vector2">
       <input name="in" type="vector2" nodename="delta" />
     </absval>
+    <separate2 name="delta_abs_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="delta_abs" />
+    </separate2>
     <combine2 name="p" type="vector2">
-      <input name="in1" type="float" nodename="delta_abs" channels="y" />
-      <input name="in2" type="float" nodename="delta_abs" channels="x" />
+      <input name="in1" type="float" nodename="delta_abs_separate" output="outy" />
+      <input name="in2" type="float" nodename="delta_abs_separate" output="outx" />
     </combine2>
-    <constant name="k" type="vector3">
-      <input name="value" type="vector3" value="-0.866025, 0.5, 0.57735" />
-    </constant>
     <multiply name="kz_r1" type="float">
-      <input name="in1" type="float" nodename="k" channels="z" />
+      <input name="in1" type="float" nodename="k_separate" output="outz" />
       <input name="in2" type="float" interfacename="radius" />
     </multiply>
-    <multiply name="minus_k" type="vector3">
-      <input name="in1" type="vector3" nodename="k" />
-      <input name="in2" type="float" value="-1.0" />
-    </multiply>
     <multiply name="minus_kz_r" type="float">
-      <input name="in1" type="float" nodename="minus_k" channels="z" />
+      <input name="in1" type="float" nodename="minus_k_separate" output="outz" />
       <input name="in2" type="float" interfacename="radius" />
     </multiply>
     <combine2 name="combine_mkx_ky" type="vector2">
-      <input name="in1" type="float" nodename="minus_k" channels="x" />
-      <input name="in2" type="float" nodename="k" channels="y" />
+      <input name="in1" type="float" nodename="minus_k_separate" output="outx" />
+      <input name="in2" type="float" nodename="k_separate" output="outy" />
     </combine2>
     <combine2 name="kxy" type="vector2">
-      <input name="in1" type="float" nodename="k" channels="x" />
-      <input name="in2" type="float" nodename="k" channels="y" />
+      <input name="in1" type="float" nodename="k_separate" output="outx" />
+      <input name="in2" type="float" nodename="k_separate" output="outy" />
     </combine2>
     <dotproduct name="dot_kxy_p" type="float">
       <input name="in1" type="vector2" nodename="kxy" />
@@ -2016,8 +2097,12 @@
       <input name="in1" type="vector2" nodename="multiply_min_comb" />
       <input name="in2" type="float" value="2" />
     </multiply>
+    <extract name="new_p2_x" type="float">
+      <input name="in" type="vector2" nodename="new_p2" />
+      <input name="index" type="integer" value="0" />
+    </extract>
     <clamp name="clamp" type="float">
-      <input name="in" type="float" nodename="new_p2" channels="x" />
+      <input name="in" type="float" nodename="new_p2_x" />
       <input name="low" type="float" nodename="minus_kz_r" />
       <input name="high" type="float" nodename="kz_r1" />
     </clamp>
@@ -2067,15 +2152,18 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
+    <separate2 name="texcoord_bias_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="texcoord_bias" />
+    </separate2>
     <subtract name="thick_to_size" type="float">
       <input name="in1" type="float" value="1.0" />
       <input name="in2" type="float" interfacename="thickness" />
     </subtract>
     <modulo name="mod_Y" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
     </modulo>
     <modulo name="mod_Y_row" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="2" />
     </modulo>
     <multiply name="mody_2" type="float">
@@ -2088,14 +2176,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outx" />
       <input name="in2" type="float" nodename="alt_rows_shift" />
     </add>
     <ifequal name="stagger_selection" type="float">
       <input name="value1" type="boolean" interfacename="staggered" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="shift_X" />
-      <input name="in2" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in2" type="float" nodename="texcoord_bias_separate" output="outx" />
     </ifequal>
     <modulo name="mod_X" type="float">
       <input name="in1" type="float" nodename="stagger_selection" />
@@ -2158,11 +2246,14 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
+    <separate2 name="texcoord_bias_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="texcoord_bias" />
+    </separate2>
     <modulo name="mod_Y" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
     </modulo>
     <modulo name="mod_Y_row" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="2" />
     </modulo>
     <multiply name="mody_2" type="float">
@@ -2175,14 +2266,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outx" />
       <input name="in2" type="float" nodename="alt_rows_shift" />
     </add>
     <ifequal name="stagger_selection" type="float">
       <input name="value1" type="boolean" interfacename="staggered" />
       <input name="value2" type="boolean" value="true" />
       <input name="in1" type="float" nodename="shift_X" />
-      <input name="in2" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in2" type="float" nodename="texcoord_bias_separate" output="outx" />
     </ifequal>
     <modulo name="mod_X" type="float">
       <input name="in1" type="float" nodename="stagger_selection" />
@@ -2243,6 +2334,9 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
+    <separate2 name="texcoord_bias_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="texcoord_bias" />
+    </separate2>
     <modulo name="mod_texcoord" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord_bias" />
     </modulo>
@@ -2255,7 +2349,7 @@
       <input name="in2" type="float" value="1" />
     </subtract>
     <modulo name="stagg_Y" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="1.73205" />
     </modulo>
     <ifgreater name="delta_X" type="float">
@@ -2264,14 +2358,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outx" />
       <input name="in2" type="float" nodename="delta_X" />
     </add>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
     <modulo name="mod_Y_1" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="0.866025" />
     </modulo>
     <subtract name="coord_adj_1" type="float">
@@ -2352,6 +2446,9 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
+    <separate2 name="texcoord_bias_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="texcoord_bias" />
+    </separate2>
     <modulo name="mod_texcoord" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord_bias" />
     </modulo>
@@ -2364,7 +2461,7 @@
       <input name="in2" type="float" value="1" />
     </subtract>
     <modulo name="stagg_Y" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="1" />
     </modulo>
     <ifgreater name="delta_X" type="float">
@@ -2373,14 +2470,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outx" />
       <input name="in2" type="float" nodename="delta_X" />
     </add>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
     <modulo name="mod_Y_1" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="0.5" />
     </modulo>
     <subtract name="coord_adj_1" type="float">
@@ -2461,6 +2558,9 @@
       <input name="in1" type="vector2" nodename="texcoord_scale" />
       <input name="in2" type="vector2" interfacename="uvoffset" />
     </subtract>
+    <separate2 name="texcoord_bias_separate" type="multioutput">
+      <input name="in" type="vector2" nodename="texcoord_bias" />
+    </separate2>
     <modulo name="mod_texcoord" type="vector2">
       <input name="in1" type="vector2" nodename="texcoord_bias" />
     </modulo>
@@ -2473,7 +2573,7 @@
       <input name="in2" type="float" value="1" />
     </subtract>
     <modulo name="stagg_Y" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="1.73205" />
     </modulo>
     <ifgreater name="delta_X" type="float">
@@ -2482,14 +2582,14 @@
       <input name="in1" type="float" value="0.5" />
     </ifgreater>
     <add name="shift_X" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="x" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outx" />
       <input name="in2" type="float" nodename="delta_X" />
     </add>
     <modulo name="mod_X_1" type="float">
       <input name="in1" type="float" nodename="shift_X" />
     </modulo>
     <modulo name="mod_Y_1" type="float">
-      <input name="in1" type="float" nodename="texcoord_bias" channels="y" />
+      <input name="in1" type="float" nodename="texcoord_bias_separate" output="outy" />
       <input name="in2" type="float" value="0.866025" />
     </modulo>
     <subtract name="coord_adj_1" type="float">
@@ -2799,60 +2899,306 @@
     to output 0-1.
   -->
   <nodegraph name="NG_smoothstep_color3" nodedef="ND_smoothstep_color3">
-    <smoothstep name="N_smoothstep" type="vector3">
-      <input name="in" type="vector3" interfacename="in" channels="rgb" />
-      <input name="low" type="vector3" interfacename="low" channels="rgb" />
-      <input name="high" type="vector3" interfacename="high" channels="rgb" />
+    <separate3 name="separate_in" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <separate3 name="separate_low" type="multioutput">
+      <input name="in" type="color3" interfacename="low" />
+    </separate3>
+    <separate3 name="separate_high" type="multioutput">
+      <input name="in" type="color3" interfacename="high" />
+    </separate3>
+    <smoothstep name="smoothstep_r" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outr"/>
+      <input name="low" type="float" nodename="separate_low" output="outr"/>
+      <input name="high" type="float" nodename="separate_high" output="outr"/>
     </smoothstep>
-    <output name="out" type="color3" nodename="N_smoothstep" channels="xyz" />
+    <smoothstep name="smoothstep_g" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outg"/>
+      <input name="low" type="float" nodename="separate_low" output="outg"/>
+      <input name="high" type="float" nodename="separate_high" output="outg"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_b" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outb"/>
+      <input name="low" type="float" nodename="separate_low" output="outb"/>
+      <input name="high" type="float" nodename="separate_high" output="outb"/>
+    </smoothstep>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="smoothstep_r"/>
+      <input name="in2" type="float" nodename="smoothstep_g"/>
+      <input name="in3" type="float" nodename="smoothstep_b"/>
+    </combine3>
+    <output name="out" type="color3" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_color4" nodedef="ND_smoothstep_color4">
-    <smoothstep name="N_smoothstep" type="vector4">
-      <input name="in" type="vector4" interfacename="in" channels="rgba" />
-      <input name="low" type="vector4" interfacename="low" channels="rgba" />
-      <input name="high" type="vector4" interfacename="high" channels="rgba" />
+    <separate4 name="separate_in" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <separate4 name="separate_low" type="multioutput">
+      <input name="in" type="color4" interfacename="low" />
+    </separate4>
+    <separate4 name="separate_high" type="multioutput">
+      <input name="in" type="color4" interfacename="high" />
+    </separate4>
+    <smoothstep name="smoothstep_r" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outr"/>
+      <input name="low" type="float" nodename="separate_low" output="outr"/>
+      <input name="high" type="float" nodename="separate_high" output="outr"/>
     </smoothstep>
-    <output name="out" type="color4" nodename="N_smoothstep" channels="xyzw" />
+    <smoothstep name="smoothstep_g" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outg"/>
+      <input name="low" type="float" nodename="separate_low" output="outg"/>
+      <input name="high" type="float" nodename="separate_high" output="outg"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_b" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outb"/>
+      <input name="low" type="float" nodename="separate_low" output="outb"/>
+      <input name="high" type="float" nodename="separate_high" output="outb"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_a" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outa"/>
+      <input name="low" type="float" nodename="separate_low" output="outa"/>
+      <input name="high" type="float" nodename="separate_high" output="outa"/>
+    </smoothstep>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="smoothstep_r"/>
+      <input name="in2" type="float" nodename="smoothstep_g"/>
+      <input name="in3" type="float" nodename="smoothstep_b"/>
+      <input name="in4" type="float" nodename="smoothstep_a"/>
+    </combine4>
+    <output name="out" type="color4" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_color3FA" nodedef="ND_smoothstep_color3FA">
-    <smoothstep name="N_smoothstep" type="color3">
+    <separate3 name="separate_in" type="multioutput">
       <input name="in" type="color3" interfacename="in" />
-      <input name="low" type="color3" interfacename="low" channels="xxx" />
-      <input name="high" type="color3" interfacename="high" channels="xxx" />
+    </separate3>
+    <smoothstep name="smoothstep_r" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outr"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
     </smoothstep>
-    <output name="out" type="color3" nodename="N_smoothstep" />
+    <smoothstep name="smoothstep_g" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outg"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_b" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outb"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="smoothstep_r"/>
+      <input name="in2" type="float" nodename="smoothstep_g"/>
+      <input name="in3" type="float" nodename="smoothstep_b"/>
+    </combine3>
+    <output name="out" type="color3" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_color4FA" nodedef="ND_smoothstep_color4FA">
-    <smoothstep name="N_smoothstep" type="color4">
+    <separate4 name="separate_in" type="multioutput">
       <input name="in" type="color4" interfacename="in" />
-      <input name="low" type="color4" interfacename="low" channels="xxxx" />
-      <input name="high" type="color4" interfacename="high" channels="xxxx" />
+    </separate4>
+    <smoothstep name="smoothstep_r" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outr"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
     </smoothstep>
-    <output name="out" type="color4" nodename="N_smoothstep" />
+    <smoothstep name="smoothstep_g" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outg"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_b" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outb"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_a" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outa"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="smoothstep_r"/>
+      <input name="in2" type="float" nodename="smoothstep_g"/>
+      <input name="in3" type="float" nodename="smoothstep_b"/>
+      <input name="in4" type="float" nodename="smoothstep_a"/>
+    </combine4>
+    <output name="out" type="color4" nodename="combine"/>
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector2" nodedef="ND_smoothstep_vector2">
+    <separate2 name="separate_in" type="multioutput">
+      <input name="in" type="vector2" interfacename="in"/>
+    </separate2>
+    <separate2 name="separate_low" type="multioutput">
+      <input name="in" type="vector2" interfacename="low"/>
+    </separate2>
+    <separate2 name="separate_high" type="multioutput">
+      <input name="in" type="vector2" interfacename="high"/>
+    </separate2>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" nodename="separate_low" output="outx"/>
+      <input name="high" type="float" nodename="separate_high" output="outx"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" nodename="separate_low" output="outy"/>
+      <input name="high" type="float" nodename="separate_high" output="outy"/>
+    </smoothstep>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+    </combine2>
+    <output name="out" type="vector2" nodename="combine"/>
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector3" nodedef="ND_smoothstep_vector3">
+    <separate3 name="separate_in" type="multioutput">
+      <input name="in" type="vector3" interfacename="in"/>
+    </separate3>
+    <separate3 name="separate_low" type="multioutput">
+      <input name="in" type="vector3" interfacename="low"/>
+    </separate3>
+    <separate3 name="separate_high" type="multioutput">
+      <input name="in" type="vector3" interfacename="high"/>
+    </separate3>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" nodename="separate_low" output="outx"/>
+      <input name="high" type="float" nodename="separate_high" output="outx"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" nodename="separate_low" output="outy"/>
+      <input name="high" type="float" nodename="separate_high" output="outy"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_z" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outz"/>
+      <input name="low" type="float" nodename="separate_low" output="outz"/>
+      <input name="high" type="float" nodename="separate_high" output="outz"/>
+    </smoothstep>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in3" type="float" nodename="smoothstep_z"/>
+    </combine3>
+    <output name="out" type="vector3" nodename="combine"/>
+  </nodegraph>
+  <nodegraph name="NG_smoothstep_vector4" nodedef="ND_smoothstep_vector4">
+    <separate4 name="separate_in" type="multioutput">
+      <input name="in" type="vector4" interfacename="in"/>
+    </separate4>
+    <separate4 name="separate_low" type="multioutput">
+      <input name="in" type="vector4" interfacename="low"/>
+    </separate4>
+    <separate4 name="separate_high" type="multioutput">
+      <input name="in" type="vector4" interfacename="high"/>
+    </separate4>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" nodename="separate_low" output="outx"/>
+      <input name="high" type="float" nodename="separate_high" output="outx"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" nodename="separate_low" output="outy"/>
+      <input name="high" type="float" nodename="separate_high" output="outy"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_z" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outz"/>
+      <input name="low" type="float" nodename="separate_low" output="outz"/>
+      <input name="high" type="float" nodename="separate_high" output="outz"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_w" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outw"/>
+      <input name="low" type="float" nodename="separate_low" output="outw"/>
+      <input name="high" type="float" nodename="separate_high" output="outw"/>
+    </smoothstep>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in3" type="float" nodename="smoothstep_z"/>
+      <input name="in4" type="float" nodename="smoothstep_w"/>
+    </combine4>
+    <output name="out" type="vector4" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector2FA" nodedef="ND_smoothstep_vector2FA">
-    <smoothstep name="N_smoothstep" type="vector2">
+    <separate2 name="separate_in" type="multioutput">
       <input name="in" type="vector2" interfacename="in" />
-      <input name="low" type="vector2" interfacename="low" channels="xx" />
-      <input name="high" type="vector2" interfacename="high" channels="xx" />
+    </separate2>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
     </smoothstep>
-    <output name="out" type="vector2" nodename="N_smoothstep" />
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+    </combine2>
+    <output name="out" type="vector2" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector3FA" nodedef="ND_smoothstep_vector3FA">
-    <smoothstep name="N_smoothstep" type="vector3">
+    <separate3 name="separate_in" type="multioutput">
       <input name="in" type="vector3" interfacename="in" />
-      <input name="low" type="vector3" interfacename="low" channels="xxx" />
-      <input name="high" type="vector3" interfacename="high" channels="xxx" />
+    </separate3>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
     </smoothstep>
-    <output name="out" type="vector3" nodename="N_smoothstep" />
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_z" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outz"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in3" type="float" nodename="smoothstep_z"/>
+    </combine3>
+    <output name="out" type="vector3" nodename="combine"/>
   </nodegraph>
   <nodegraph name="NG_smoothstep_vector4FA" nodedef="ND_smoothstep_vector4FA">
-    <smoothstep name="N_smoothstep" type="vector4">
+    <separate4 name="separate_in" type="multioutput">
       <input name="in" type="vector4" interfacename="in" />
-      <input name="low" type="vector4" interfacename="low" channels="xxxx" />
-      <input name="high" type="vector4" interfacename="high" channels="xxxx" />
+    </separate4>
+    <smoothstep name="smoothstep_x" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outx"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
     </smoothstep>
-    <output name="out" type="vector4" nodename="N_smoothstep" />
+    <smoothstep name="smoothstep_y" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outy"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_z" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outz"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <smoothstep name="smoothstep_w" type="float">
+      <input name="in" type="float" nodename="separate_in" output="outw"/>
+      <input name="low" type="float" interfacename="low"/>
+      <input name="high" type="float" interfacename="high"/>
+    </smoothstep>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="smoothstep_x"/>
+      <input name="in2" type="float" nodename="smoothstep_y"/>
+      <input name="in3" type="float" nodename="smoothstep_z"/>
+      <input name="in4" type="float" nodename="smoothstep_w"/>
+    </combine4>
+    <output name="out" type="vector4" nodename="combine"/>
   </nodegraph>
 
   <!--
@@ -4054,6 +4400,380 @@
     Convert a stream from one type to another; only certain unambiguous conversion
     types are supported.
   -->
+  <nodegraph name="NG_convert_float_color3" nodedef="ND_convert_float_color3">
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" interfacename="in" />
+      <input name="in3" type="float" interfacename="in" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_float_color4" nodedef="ND_convert_float_color4">
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" interfacename="in" />
+      <input name="in3" type="float" interfacename="in" />
+      <input name="in4" type="float" interfacename="in" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_float_vector2" nodedef="ND_convert_float_vector2">
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" interfacename="in" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_float_vector3" nodedef="ND_convert_float_vector3">
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" interfacename="in" />
+      <input name="in3" type="float" interfacename="in" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_float_vector4" nodedef="ND_convert_float_vector4">
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" interfacename="in" />
+      <input name="in2" type="float" interfacename="in" />
+      <input name="in3" type="float" interfacename="in" />
+      <input name="in4" type="float" interfacename="in" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color3_color4" nodedef="ND_convert_color3_color4">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color3_vector2" nodedef="ND_convert_color3_vector2">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color3_vector3" nodedef="ND_convert_color3_vector3">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color3_vector4" nodedef="ND_convert_color3_vector4">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="color3" interfacename="in" />
+    </separate3>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color4_color3" nodedef="ND_convert_color4_color3">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color4_vector2" nodedef="ND_convert_color4_vector2">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color4_vector3" nodedef="ND_convert_color4_vector3">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_color4_vector4" nodedef="ND_convert_color4_vector4">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="color4" interfacename="in" />
+    </separate4>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="separate" output="outr" />
+      <input name="in2" type="float" nodename="separate" output="outg" />
+      <input name="in3" type="float" nodename="separate" output="outb" />
+      <input name="in4" type="float" nodename="separate" output="outa" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector2_color3" nodedef="ND_convert_vector2_color3">
+    <separate2 name="separate" type="multioutput">
+      <input name="in" type="vector2" interfacename="in" />
+    </separate2>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" value="0.0" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector2_color4" nodedef="ND_convert_vector2_color4">
+    <separate2 name="separate" type="multioutput">
+      <input name="in" type="vector2" interfacename="in" />
+    </separate2>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" value="0.0" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector2_vector3" nodedef="ND_convert_vector2_vector3">
+    <separate2 name="separate" type="multioutput">
+      <input name="in" type="vector2" interfacename="in" />
+    </separate2>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" value="0.0" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector2_vector4" nodedef="ND_convert_vector2_vector4">
+    <separate2 name="separate" type="multioutput">
+      <input name="in" type="vector2" interfacename="in" />
+    </separate2>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" value="0.0" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector3_color3" nodedef="ND_convert_vector3_color3">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="vector3" interfacename="in" />
+    </separate3>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector3_color4" nodedef="ND_convert_vector3_color4">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="vector3" interfacename="in" />
+    </separate3>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector3_vector2" nodedef="ND_convert_vector3_vector2">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="vector3" interfacename="in" />
+    </separate3>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector3_vector4" nodedef="ND_convert_vector3_vector4">
+    <separate3 name="separate" type="multioutput">
+      <input name="in" type="vector3" interfacename="in" />
+    </separate3>
+    <combine4 name="combine" type="vector4">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+      <input name="in4" type="float" value="1.0" />
+    </combine4>
+    <output name="out" type="vector4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector4_color3" nodedef="ND_convert_vector4_color3">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="vector4" interfacename="in" />
+    </separate4>
+    <combine3 name="combine" type="color3">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+    </combine3>
+    <output name="out" type="color3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector4_color4" nodedef="ND_convert_vector4_color4">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="vector4" interfacename="in" />
+    </separate4>
+    <combine4 name="combine" type="color4">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+      <input name="in4" type="float" nodename="separate" output="outw" />
+    </combine4>
+    <output name="out" type="color4" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector4_vector2" nodedef="ND_convert_vector4_vector2">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="vector4" interfacename="in" />
+    </separate4>
+    <combine2 name="combine" type="vector2">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+    </combine2>
+    <output name="out" type="vector2" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_vector4_vector3" nodedef="ND_convert_vector4_vector3">
+    <separate4 name="separate" type="multioutput">
+      <input name="in" type="vector4" interfacename="in" />
+    </separate4>
+    <combine3 name="combine" type="vector3">
+      <input name="in1" type="float" nodename="separate" output="outx" />
+      <input name="in2" type="float" nodename="separate" output="outy" />
+      <input name="in3" type="float" nodename="separate" output="outz" />
+    </combine3>
+    <output name="out" type="vector3" nodename="combine" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_color3" nodedef="ND_convert_boolean_color3">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="convert" type="color3">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="color3" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_color4" nodedef="ND_convert_boolean_color4">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="convert" type="color4">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="color4" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_vector2" nodedef="ND_convert_boolean_vector2">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector2">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector2" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_vector3" nodedef="ND_convert_boolean_vector3">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector3">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector3" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_vector4" nodedef="ND_convert_boolean_vector4">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="boolean" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector4">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector4" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_boolean_integer" nodedef="ND_convert_boolean_integer">
+    <ifequal name="ifequal" type="integer">
+      <input name="value1" type="boolean" interfacename="in" />
+      <input name="value2" type="boolean" value="true" />
+      <input name="in1" type="integer" value="1" />
+      <input name="in2" type="integer" value="0" />
+    </ifequal>
+    <output name="out" type="integer" nodename="ifequal" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_color3" nodedef="ND_convert_integer_color3">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="convert" type="color3">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="color3" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_color4" nodedef="ND_convert_integer_color4">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="convert" type="color4">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="color4" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_vector2" nodedef="ND_convert_integer_vector2">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector2">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector2" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_vector3" nodedef="ND_convert_integer_vector3">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector3">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector3" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_vector4" nodedef="ND_convert_integer_vector4">
+    <convert name="convert_to_float" type="float">
+      <input name="in" type="integer" interfacename="in" />
+    </convert>
+    <convert name="convert" type="vector4">
+      <input name="in" type="float" nodename="convert_to_float" />
+    </convert>
+    <output name="out" type="vector4" nodename="convert" />
+  </nodegraph>
+  <nodegraph name="NG_convert_integer_boolean" nodedef="ND_convert_integer_boolean">
+    <ifequal name="ifequal" type="boolean">
+      <input name="value1" type="integer" interfacename="in" />
+      <input name="value2" type="integer" value="0" />
+    </ifequal>
+    <not name="not" type="boolean">
+      <input name="in" type="boolean" nodename="ifequal" />
+    </not>
+    <output name="out" type="boolean" nodename="not" />
+  </nodegraph>
   <nodegraph name="NG_convert_color3_surfaceshader" nodedef="ND_convert_color3_surfaceshader">
     <surface_unlit name="surface" type="surfaceshader">
       <input name="emission_color" type="color3" interfacename="in" />
@@ -4168,7 +4888,7 @@
     <output name="outb" type="float" nodename="N_extract_2" />
   </nodegraph>
   <nodegraph name="NG_separate4_color4" nodedef="ND_separate4_color4">
-     <extract name="N_extract_0" type="float">
+    <extract name="N_extract_0" type="float">
       <input name="in" type="color4" interfacename="in" />
       <input name="index" type="integer" value="0" />
     </extract>
@@ -4190,7 +4910,7 @@
     <output name="outa" type="float" nodename="N_extract_3" />
   </nodegraph>
   <nodegraph name="NG_separate2_vector2" nodedef="ND_separate2_vector2">
-     <extract name="N_extract_0" type="float">
+    <extract name="N_extract_0" type="float">
       <input name="in" type="vector2" interfacename="in" />
       <input name="index" type="integer" value="0" />
     </extract>
@@ -4202,7 +4922,7 @@
     <output name="outy" type="float" nodename="N_extract_1" />
   </nodegraph>
   <nodegraph name="NG_separate3_vector3" nodedef="ND_separate3_vector3">
-     <extract name="N_extract_0" type="float">
+    <extract name="N_extract_0" type="float">
       <input name="in" type="vector3" interfacename="in" />
       <input name="index" type="integer" value="0" />
     </extract>
@@ -5253,6 +5973,37 @@
       <input name="in2" type="matrix44" nodename="ifgreater_2" />
     </ifgreater>
     <output name="out" type="matrix44" nodename="ifgreater_1" />
+  </nodegraph>
+
+
+  <!-- ======================================================================== -->
+  <!-- Logical operator nodes                                                   -->
+  <!-- ======================================================================== -->
+
+  <!--
+    Node: <xor>
+    Logical XOR operation for two boolean values.
+  -->
+  <nodegraph name="NG_logical_xor" nodedef="ND_logical_xor">
+    <not name="not_in1" type="boolean">
+      <input name="in" type="boolean" interfacename="in1"/>
+    </not>
+    <not name="not_in2" type="boolean">
+      <input name="in" type="boolean" interfacename="in2"/>
+    </not>
+    <and name="in1_and_not_in2" type="boolean">
+      <input name="in1" type="boolean" interfacename="in1" />
+      <input name="in2" type="boolean" nodename="not_in2" />
+    </and>
+    <and name="in2_and_not_in1" type="boolean">
+      <input name="in1" type="boolean" interfacename="in2" />
+      <input name="in2" type="boolean" nodename="not_in1" />
+    </and>
+    <or name="or" type="boolean">
+      <input name="in1" type="boolean" nodename="in1_and_not_in2"/>
+      <input name="in2" type="boolean" nodename="in2_and_not_in1"/>
+    </or>
+    <output name="out" type="boolean" nodename="or" />
   </nodegraph>
 
 </materialx>

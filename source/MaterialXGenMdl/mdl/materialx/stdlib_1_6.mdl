@@ -2094,46 +2094,32 @@ export float4 mx_transformmatrix_vector4(
 
 export float3 mx_normalmap_vector2(
 	float3 mxp_in = float3(0.5, 0.5, 1.0),
-	uniform string mxp_space = string("tangent")
-	[[
-		anno::description("Enumeration {tangent, object}.")
-	]],
 	float2 mxp_scale = float2(1.0, 1.0),
 	float3 mxp_normal = float3(::state::transform_normal(::state::coordinate_internal,::state::coordinate_world,::state::normal())),
-	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0)))
+	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0))),
+	float3 mxp_bitangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_v(0)))
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	if (mxp_space == "tangent")
-	{
-		float3 v = mxp_in * 2.0 - 1.0;
-		float3 binormal = ::math::normalize(::math::cross(mxp_normal, mxp_tangent));
-		return ::math::normalize(mxp_tangent * v.x * mxp_scale.x + binormal * v.y * mxp_scale.y + mxp_normal * v.z);
-	}
-	else
-	{
-		float3 n = mxp_in * 2.0 - 1.0;
-		return ::math::normalize(n);
-	}
+	float3 v = (mxp_in == float3(0.0)) ? float3(0.0, 0.0, 1.0) : mxp_in * 2.0 - 1.0;
+
+	return ::math::normalize(mxp_tangent * v.x * mxp_scale.x + mxp_bitangent * v.y * mxp_scale.y + mxp_normal * v.z);
 }
 
 export float3 mx_normalmap_float(
 	float3 mxp_in = float3(0.5, 0.5, 1.0),
-	uniform string mxp_space = string("tangent")
-	[[
-		anno::description("Enumeration {tangent, object}.")
-	]],
 	float mxp_scale = float(1.0),
 	float3 mxp_normal = float3(::state::transform_normal(::state::coordinate_internal,::state::coordinate_world,::state::normal())),
-	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0)))
+	float3 mxp_tangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_u(0))),
+	float3 mxp_bitangent = float3(state::transform_vector(::state::coordinate_internal,::state::coordinate_world,::state::texture_tangent_v(0)))
 )
 	[[
 		anno::description("Node Group: math")
 	]]
 {
-	return mx_normalmap_vector2(mxp_in, mxp_space, float2(mxp_scale, mxp_scale), mxp_normal, mxp_tangent);
+	return mx_normalmap_vector2(mxp_in, float2(mxp_scale, mxp_scale), mxp_normal, mxp_tangent, mxp_bitangent);
 }
 
 export float3x3 mx_transpose_matrix33(
@@ -4450,4 +4436,10 @@ export float3 mx_worleynoise3d_float3(
 )
 {
     return noise::mx_worley_noise_float3(mxp_position, mxp_jitter, 0);
+}
+
+export core::color4 mx_combine2_color4CF(color in1, float in2)
+{
+    float3 in1_as_float3 = float3(in1);
+    return core::mk_color4(in1_as_float3.x, in1_as_float3.y, in1_as_float3.z, in2);	
 }

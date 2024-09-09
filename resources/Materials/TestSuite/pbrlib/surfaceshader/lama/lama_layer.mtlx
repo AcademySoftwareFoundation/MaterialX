@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<materialx version="1.38" colorspace="acescg">
+<materialx version="1.39" colorspace="acescg">
 
   <!-- LamaLayer with BSDFs -->
-  
+
   <!-- LamaConductor -->
   <LamaConductor name="LamaConductor" type="BSDF">
     <input name="tint" type="color3" value="1, 1, 1" />
@@ -33,18 +33,18 @@
   </LamaDielectric>
 
   <LamaLayer name="LamaLayerBSDF" type="BSDF">
-      <input name="materialTop" type="BSDF" nodename="LamaDielectric" />
-      <input name="materialBase" type="BSDF" nodename="LamaConductor" />
-      <input name="topMix" type="float" value="1.0" />
-      <input name="topThickness" type="float" value="0.0" />
+    <input name="materialTop" type="BSDF" nodename="LamaDielectric" />
+    <input name="materialBase" type="BSDF" nodename="LamaConductor" />
+    <input name="topMix" type="float" value="1.0" />
+    <input name="topThickness" type="float" value="0.0" />
   </LamaLayer>
 
   <surface name="LamaLayerBSDFSurface" type="surfaceshader">
-      <input name="bsdf" type="BSDF" nodename="LamaLayerBSDF" />
+    <input name="bsdf" type="BSDF" nodename="LamaLayerBSDF" />
   </surface>
 
   <surfacematerial name="LamaLayerBSDFTest" type="material">
-      <input name="surfaceshader" type="surfaceshader" nodename="LamaLayerBSDFSurface" />
+    <input name="surfaceshader" type="surfaceshader" nodename="LamaLayerBSDFSurface" />
   </surfacematerial>
-    
+
 </materialx>

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
 
   <!-- <oren_nayar_diffuse_bsdf> -->
   <implementation name="IM_oren_nayar_diffuse_bsdf_genmdl" nodedef="ND_oren_nayar_diffuse_bsdf" sourcecode="materialx::pbrlib_{{MDL_VERSION_SUFFIX}}::mx_oren_nayar_diffuse_bsdf(mxp_weight:{{weight}}, mxp_color:{{color}}, mxp_roughness:{{roughness}}, mxp_normal:{{normal}})" target="genmdl" />

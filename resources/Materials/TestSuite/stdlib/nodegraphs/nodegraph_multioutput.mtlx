@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <nodegraph name="green_graph">
     <input name="in" type="color3" value="0, 1, 0" />
     <separate3 name="green_node" type="multioutput" nodedef="ND_separate3_color3">

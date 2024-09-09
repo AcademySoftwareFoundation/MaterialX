@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.38">
+<materialx version="1.39">
   <!--
     Copyright Contributors to the MaterialX Project
     SPDX-License-Identifier: Apache-2.0
@@ -48,10 +48,10 @@
     Node: <gooch_shade>
   -->
   <nodegraph name="NG_gooch_shade" type="color3" nodedef="ND_gooch_shade">
-    <normal name="normal" type="vector3" >
+    <normal name="normal" type="vector3">
       <input name="space" type="string" value="world" />
     </normal>
-    <viewdirection name="viewdir" type="vector3" >
+    <viewdirection name="viewdir" type="vector3">
       <input name="space" type="string" value="world" />
     </viewdirection>
     <normalize name="unit_normal" type="vector3">

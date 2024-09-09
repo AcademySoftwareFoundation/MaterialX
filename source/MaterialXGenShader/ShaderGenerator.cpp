@@ -383,7 +383,7 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         ShaderMetadata(ValueElement::UNIT_ATTRIBUTE, Type::STRING),
         ShaderMetadata(ValueElement::COLOR_SPACE_ATTRIBUTE, Type::STRING)
     };
-    for (auto data : DEFAULT_METADATA)
+    for (const ShaderMetadata& data : DEFAULT_METADATA)
     {
         registry->addMetadata(data.name, data.type);
     }

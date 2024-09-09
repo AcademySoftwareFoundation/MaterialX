@@ -992,16 +992,19 @@ void Document::upgradeVersion()
             { "color3", 3 }, { "color4", 4 },
             { "vector2", 2 }, { "vector3", 3 }, { "vector4", 4 }
         };
-        const StringSet CHANNEL_CONVERT_PATTERNS =
-        {
-            "rgb", "rgba", "xyz", "xyzw", "rrr", "xxx"
-        };
-        const vector<std::pair<StringSet, string>> CHANNEL_ATTRIBUTE_PATTERNS =
-        {
+        const std::array<std::pair<string, size_t>, 10> CHANNEL_CONVERT_PATTERNS =
+        { {
+            { "rgb", 3 }, { "rgb", 4 }, { "rgba", 4 },
+            { "xyz", 3 }, { "xyz", 4 }, { "xyzw", 4 },
+            { "rr", 1 }, { "rrr", 1 },
+            { "xx", 1 }, { "xxx", 1 }
+        } };
+        const std::array<std::pair<StringSet, string>, 3> CHANNEL_ATTRIBUTE_PATTERNS =
+        { {
             { { "xx", "xxx", "xxxx" }, "float" },
             { { "xyz", "x", "y", "z" }, "vector3" },
             { { "rgba", "a" }, "color4" }
-        };
+        } };
 
         // Convert channels attributes to legacy swizzle nodes, which are then converted
         // to modern nodes in a second pass.
@@ -1102,7 +1105,7 @@ void Document::upgradeVersion()
                 NodePtr base = node->getConnectedNode("base");
                 if (top && base && top->getCategory() == "thin_film_bsdf")
                 {
-                    // Apply thin-film parameters to all supported BSDF's upstream. 
+                    // Apply thin-film parameters to all supported BSDF's upstream.
                     const StringSet BSDF_WITH_THINFILM = { "dielectric_bsdf", "conductor_bsdf", "generalized_schlick_bsdf" };
                     for (Edge edge : node->traverseGraph())
                     {
@@ -1128,6 +1131,18 @@ void Document::upgradeVersion()
                     // Mark original nodes as unused.
                     unusedNodes.push_back(node);
                     unusedNodes.push_back(top);
+                }
+            }
+            else if (nodeCategory == "subsurface_bsdf")
+            {
+                InputPtr radiusInput = node->getInput("radius");
+                if (radiusInput && radiusInput->getType() == "vector3")
+                {
+                    GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                    NodePtr convertNode = graph->addNode("convert", graph->createValidChildName("convert"), "color3");
+                    copyInputWithBindings(node, "radius", convertNode, "in");
+                    radiusInput->setConnectedNode(convertNode);
+                    radiusInput->setType("color3");
                 }
             }
             else if (nodeCategory == "switch")
@@ -1157,11 +1172,13 @@ void Document::upgradeVersion()
                     CHANNEL_COUNT_MAP.count(node->getType()))
                 {
                     string channelString = channelsInput ? channelsInput->getValueString() : EMPTY_STRING;
-                    size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(inInput->getType());
-                    size_t destChannelCount = CHANNEL_COUNT_MAP.at(node->getType());
-                    
+                    string sourceType = inInput->getType();
+                    string destType = node->getType();
+                    size_t sourceChannelCount = CHANNEL_COUNT_MAP.at(sourceType);
+                    size_t destChannelCount = CHANNEL_COUNT_MAP.at(destType);
+
                     // Resolve the invalid case of having both a connection and a value
-                    // by removing the value attribute. 
+                    // by removing the value attribute.
                     if (inInput->hasValue())
                     {
                         if (inInput->hasNodeName() || inInput->hasNodeGraphString() || inInput->hasInterfaceName())
@@ -1216,7 +1233,8 @@ void Document::upgradeVersion()
                             node->setInputValue("index", (int) CHANNEL_INDEX_MAP.at(channelString[0]));
                         }
                     }
-                    else if (CHANNEL_CONVERT_PATTERNS.count(channelString))
+                    else if (sourceType != destType && std::find(CHANNEL_CONVERT_PATTERNS.begin(), CHANNEL_CONVERT_PATTERNS.end(),
+                             std::make_pair(channelString, sourceChannelCount)) != CHANNEL_CONVERT_PATTERNS.end())
                     {
                         // Replace swizzle with convert.
                         node->setCategory("convert");
@@ -1228,21 +1246,13 @@ void Document::upgradeVersion()
                         for (size_t i = 0; i < destChannelCount; i++)
                         {
                             InputPtr combineInInput = node->addInput(std::string("in") + std::to_string(i + 1), "float");
-                            if (i < channelString.size())
+                            if (i < channelString.size() && CHANNEL_CONSTANT_MAP.count(channelString[i]))
                             {
-                                if (CHANNEL_CONSTANT_MAP.count(channelString[i]))
-                                {
-                                    combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
-                                }
-                                else
-                                {
-                                    copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
-                                }
+                                combineInInput->setValue(CHANNEL_CONSTANT_MAP.at(channelString[i]));
                             }
                             else
                             {
-                                combineInInput->setConnectedNode(node);
-                                combineInInput->setOutputString(combineInInput->isColorType() ? "outr" : "outx");
+                                copyInputWithBindings(node, inInput->getName(), node, combineInInput->getName());
                             }
                         }
                         node->removeInput(inInput->getName());
@@ -1252,7 +1262,7 @@ void Document::upgradeVersion()
                         // Replace swizzle with separate and combine.
                         GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
                         NodePtr separateNode = graph->addNode(std::string("separate") + std::to_string(sourceChannelCount),
-                            graph->createValidChildName("separate"), MULTI_OUTPUT_TYPE_STRING);
+                                                              graph->createValidChildName("separate"), MULTI_OUTPUT_TYPE_STRING);
                         int childIndex = graph->getChildIndex(node->getName());
                         if (childIndex != -1)
                         {
@@ -1304,10 +1314,28 @@ void Document::upgradeVersion()
                     input2->setName("inx");
                 }
             }
-            else if (node->getNodeDefString() == "ND_normalmap")
+            else if (nodeCategory == "normalmap")
             {
                 // ND_normalmap was renamed to ND_normalmap_float
                 node->setNodeDefString("ND_normalmap_float");
+
+                node->removeInput("space");
+
+                // If the normal or tangent inputs are set, the bitangent input should be normalize(cross(N, T))
+                InputPtr normalInput = node->getInput("normal");
+                InputPtr tangentInput = node->getInput("tangent");
+                if (normalInput || tangentInput)
+                {
+                    GraphElementPtr graph = node->getAncestorOfType<GraphElement>();
+                    NodePtr crossNode = graph->addNode("crossproduct", graph->createValidChildName("normalmap_cross"), "vector3");
+                    copyInputWithBindings(node, "normal", crossNode, "in1");
+                    copyInputWithBindings(node, "tangent", crossNode, "in2");
+
+                    NodePtr normalizeNode = graph->addNode("normalize", graph->createValidChildName("normalmap_cross_norm"), "vector3");
+                    normalizeNode->addInput("in", "vector3")->setConnectedNode(crossNode);
+
+                    node->addInput("bitangent", "vector3")->setConnectedNode(normalizeNode);
+                }
             }
         }
         for (NodePtr node : unusedNodes)

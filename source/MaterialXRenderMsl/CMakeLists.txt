@@ -1,4 +1,3 @@
-
 file(GLOB_RECURSE materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.m*")
 file(GLOB_RECURSE materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
@@ -22,20 +21,17 @@ elseif(UNIX)
     find_package(OpenGL REQUIRED)
 endif()
 
-
 mx_add_library(MaterialXRenderMsl
     SOURCE_FILES
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRenderHw
         MaterialXGenMsl
     EXPORT_DEFINE
         MATERIALX_RENDERMSL_EXPORTS
-    ADD_OBJECTIVE_C_CODE
-)
-
+    ADD_OBJECTIVE_C_CODE)
 
 if(APPLE)
     target_compile_definitions(${TARGET_NAME} PRIVATE -DGL_SILENCE_DEPRECATION)
@@ -50,23 +46,24 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(MSVC)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             Opengl32)
 elseif(APPLE)
     if(NOT MATERIALX_BUILD_IOS)
-        target_link_libraries(
-                ${TARGET_NAME}
+        target_link_libraries(${TARGET_NAME}
+                PUBLIC
                 "-framework Cocoa"
                 "-framework OpenGL")
     endif()
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             "-framework Foundation"
-            "-framework Metal")
+            "-framework Metal"
+            "-framework MetalPerformanceShaders")
 elseif(UNIX)
-    target_link_libraries(
-            ${TARGET_NAME}
+    target_link_libraries(${TARGET_NAME}
+            PUBLIC
             OpenGL::GL
             X11::X11
             X11::Xt)

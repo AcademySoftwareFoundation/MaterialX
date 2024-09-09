@@ -633,14 +633,14 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
         if (input->hasValue() || input->hasInterfaceName())
         {
             string sourceColorSpace = input->getActiveColorSpace();
-            if (input->getType() == FILENAME_TYPE_STRING && node->isColorType())
+            if (input->getType() == FILENAME_TYPE_STRING && (node->isColorType() || node->isMultiOutputType()))
             {
                 // Adjust the source color space for filename interface names.
                 if (input->hasInterfaceName())
                 {
                     for (ConstNodePtr parentNode : context.getParentNodes())
                     {
-                        if (!parentNode->isColorType())
+                        if (!parentNode->isColorType() && !parentNode->isMultiOutputType())
                         {
                             InputPtr interfaceInput = parentNode->getInput(input->getInterfaceName());
                             string interfaceColorSpace = interfaceInput ? interfaceInput->getActiveColorSpace() : EMPTY_STRING;
@@ -652,9 +652,11 @@ void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNodePtr shaderNo
                     }
                 }
 
-                ShaderOutput* shaderOutput = shaderNode->getOutput();
-                populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
-                populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                for (ShaderOutput* shaderOutput : shaderNode->getOutputs())
+                {
+                    populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
+                    populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
+                }
             }
             else
             {
@@ -1069,7 +1071,9 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
     if (!shaderPort ||
         sourceColorSpace.empty() ||
         targetColorSpace.empty() ||
-        sourceColorSpace == targetColorSpace)
+        sourceColorSpace == targetColorSpace ||
+        sourceColorSpace == "none" ||
+        targetColorSpace == "none")
     {
         return;
     }
