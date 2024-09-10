@@ -243,9 +243,9 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `mode` (uniform string): Selects between `conty_kulla` and `zeltner` sheen models. Defaults to `conty_kulla`.
 
-<a id="node-hair-chiang-bsdf"> </a>
+<a id="node-chinag-hair-bsdf"> </a>
 
-* **`hair_chiang_bsdf`**: Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. This node does not support vertical layering.
+* **`chiang_hair_bsdf`**: Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. This node does not support vertical layering.
     * `tint_R` (color3): Color multiplier for the first R-lobe. Defaults to (1.0, 1.0, 1.0).
     * `tint_TT` (color3): Color multiplier for the first TT-lobe. Defaults to (1.0, 1.0, 1.0).
     * `tint_TRT` (color3): Color multiplier for the first TRT-lobe. Defaults to (1.0, 1.0, 1.0).
@@ -389,19 +389,25 @@ Note that the standard library includes definitions for [**`displacement`**](./M
     * `ior` (**output**, vector3): Computed index of refraction.
     * `extinction` (**output**, vector3): Computed extinction coefficient.
 
-* **`hair_roughness`**: Converts the artistic parameterization hair roughness to roughness for R, TT and TRT lobes. Output type `multioutput`, `roughness_R`, `roughness_TT` and `roughness_TRT`, `vector2` type. 
+<a id="node-chiang-hair-roughness"> </a>
+
+* **`chiang_hair_roughness`**: Converts the artistic parameterization hair roughness to roughness for R, TT and TRT lobes. Output type `multioutput`, `roughness_R`, `roughness_TT` and `roughness_TRT`, `vector2` type. 
     * `longitudinal` (float): Longitudinal roughness, range [0.0, 1.0]. Defaults to 0.1.
     * `azimuthal` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
     * `scale_TT` (float): Roughness scale for TT lobe. Defaults to 0.5[^Marschner2003].
     * `scale_TRT` (float): Roughness scale for TRT lobe. Defaults to 2.0[^Marschner2003].
 
-* **`hair_absorption_from_melanin`** : Converts the hair melanin parameterization to absorption coefficient based on pigments eumelanin and pheomelanin using the mapping method described in [^d'Eon2011]. The default of `eumelanin_color` and `pheomelanin_color` are `lin_rec709` color converted from the constants[^d'Eon2011] via `exp(-c)`. They may be transformed to scene-linear rendering color space. `Output type `vector3`.
+<a id="node-deon-hair-absorption-from-melanin"> </a>
+
+* **`deon_hair_absorption_from_melanin`** : Converts the hair melanin parameterization to absorption coefficient based on pigments eumelanin and pheomelanin using the mapping method described in [^d'Eon2011]. The default of `eumelanin_color` and `pheomelanin_color` are `lin_rec709` color converted from the constants[^d'Eon2011] via `exp(-c)`. They may be transformed to scene-linear rendering color space. `Output type `vector3`.
     * `melanin_concentration` (float): Amount of melanin affected to the output, range [0.0, 1.0]. Defaults to 0.25.
     * `melanin_redness` (float): Amount of redness affected to the output, range [0.0, 1.0]. Defaults to 0.5.
     * `eumelanin_color` (color3): Eumelanin color. Defaults to (0.657704, 0.498077, 0.254107)
     * `pheomelanin_color` (color3): Pheomelanin color. Defaults to (0.829444, 0.67032, 0.349938)
 
-* **`hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
+<a id="node-chian-hair-absorption-from-color"> </a>
+
+* **`chiang_hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
     * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
     * `azimuthal_roughness` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
 

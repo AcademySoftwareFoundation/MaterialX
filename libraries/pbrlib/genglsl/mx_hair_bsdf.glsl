@@ -3,7 +3,7 @@
 
 
 // d’Eon et al. (2011)
-void mx_hair_absorption_from_melanin(
+void mx_deon_hair_absorption_from_melanin(
     float melanin_concentration,
     float melanin_redness,
     // constants converted to color via exp(-c). the defaults are lin_rec709 colors, they may be
@@ -22,7 +22,7 @@ void mx_hair_absorption_from_melanin(
 }
 
 // Chiang et al. (2016)
-void mx_hair_absorption_from_color(vec3 color, float betaN, out vec3 absorption)
+void mx_chiang_hair_absorption_from_color(vec3 color, float betaN, out vec3 absorption)
 {
     float b2 = betaN* betaN;
     float b4 = b2 * b2;
@@ -38,7 +38,7 @@ void mx_hair_absorption_from_color(vec3 color, float betaN, out vec3 absorption)
 }
 
 // Chiang et al. (2016)
-void mx_hair_roughness(
+void mx_chiang_hair_roughness(
     float longitudinal,
     float azimuthal,
     float scale_TT,   // empirical roughenss scale from Marschner et al. (2003).
@@ -187,7 +187,7 @@ void mx_hair_attenuation(float f, vec3 T, out vec3 Ap[4])  // Ap
     Ap[3] = Ap[2] * T * f / (vec3(1.0) - T * f);
 }
 
-vec3 mx_hair_chiang_bsdf(
+vec3 mx_chiang_hair_bsdf(
     vec3 L,
     vec3 V,
     vec3 tint_R,
@@ -265,7 +265,7 @@ vec3 mx_hair_chiang_bsdf(
     return F;
 }
 
-void mx_hair_chiang_bsdf_reflection(
+void mx_chiang_hair_bsdf_reflection(
     vec3 L,
     vec3 V,
     vec3 P,
@@ -284,7 +284,7 @@ void mx_hair_chiang_bsdf_reflection(
     inout BSDF bsdf
 )
 {
-    vec3 F = mx_hair_chiang_bsdf(
+    vec3 F = mx_chiang_hair_bsdf(
         L,
         V,
         tint_R,
@@ -304,7 +304,7 @@ void mx_hair_chiang_bsdf_reflection(
     bsdf.response = F * occlusion * M_PI_INV;
 }
 
-void mx_hair_chiang_bsdf_indirect(
+void mx_chiang_hair_bsdf_indirect(
     vec3 V,
     vec3 tint_R,
     vec3 tint_TT,

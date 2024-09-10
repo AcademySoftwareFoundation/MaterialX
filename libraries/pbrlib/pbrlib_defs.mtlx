@@ -137,10 +137,10 @@
   </nodedef>
 
   <!--
-    Node: <hair_chiang_bsdf>
+    Node: <chiang_hair_bsdf>
     A BSDF node for Chaing hair shading model.
   -->
-  <nodedef name="ND_hair_chiang_bsdf" node="hair_chiang_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Chiang hair shading model.">
+  <nodedef name="ND_chiang_hair_bsdf" node="chiang_hair_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Chiang hair shading model.">
     <input name="tint_R" type="color3" value="1, 1, 1" />
     <input name="tint_TT" type="color3" value="1, 1, 1" />
     <input name="tint_TRT" type="color3" value="1, 1, 1" />
@@ -424,10 +424,10 @@
   </nodedef>
 
   <!--
-    Node: <hair_absorption_from_melanin>
+    Node: <deon_hair_absorption_from_melanin>
     Calculates hair absorption from melanin parameters.
   -->
-  <nodedef name="ND_hair_absorption_from_melanin" node="hair_absorption_from_melanin" nodegroup="pbr" doc="Calculates hair absorption from melanin parameters.">
+  <nodedef name="ND_deon_hair_absorption_from_melanin" node="deon_hair_absorption_from_melanin" nodegroup="pbr" doc="Calculates hair absorption from melanin parameters.">
     <input name="melanin_concentration" type="float" value="0.25" />
     <input name="melanin_redness" type="float" value="0.5" />
     <input name="eumelanin_color" type="color3" value="0.657704, 0.498077, 0.254107" colorspace="lin_rec709" doc="constant from d'Eon et al. 2011, converted to color via exp(-c)" uiadvanced="true"/>
@@ -436,20 +436,20 @@
   </nodedef>
 
   <!--
-    Node: <hair_absorption_from_color>
+    Node: <chiang_hair_absorption_from_color>
     Calculates hair absorption from a color.
   -->
-  <nodedef name="ND_hair_absorption_from_color" node="hair_absorption_from_color" nodegroup="pbr" doc="Calculates hair absorption from a color.">
+  <nodedef name="ND_chiang_hair_absorption_from_color" node="chiang_hair_absorption_from_color" nodegroup="pbr" doc="Calculates hair absorption from a color.">
     <input name="color" type="color3" value="1.0, 1.0, 1.0" />
     <input name="azimuthal_roughness" type="float" value="0.2" />
     <output name="absorption" type="vector3" />
   </nodedef>
 
   <!--
-    Node: <hair_roughness>
+    Node: <chiang_hair_roughness>
     Calculates hair roughness for R, TT and TRT component.
   -->
-  <nodedef name="ND_hair_roughness" node="hair_roughness" nodegroup="pbr" doc="Calculates hair roughness for R, TT and TRT component.">
+  <nodedef name="ND_chiang_hair_roughness" node="chiang_hair_roughness" nodegroup="pbr" doc="Calculates hair roughness for R, TT and TRT component.">
     <input name="longitudinal" type="float" value="0.1" />
     <input name="azimuthal" type="float" value="0.2" />
     <input name="scale_TT" type="float" value="0.5" />
