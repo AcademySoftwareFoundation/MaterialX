@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surface_unlit name="image_shader" type="surfaceshader">
+    <input name="emission" type="float" value="1" />
+    <input name="emission_color" type="color3" nodename="colorspaced_image" />
+    <input name="transmission" type="float" value="0" />
+    <input name="transmission_color" type="color3" value="1,1,1" />
+    <input name="opacity" type="float" value="1" />
+  </surface_unlit>
+  <surfacematerial name="image_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="image_shader" />
+    <input name="backsurfaceshader" type="surfaceshader" value="" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <image name="colorspaced_image" type="color3">
+    <input name="file" type="filename" value="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4z/AfAAQAAf/zKSWvAAAAAElFTkSuQmCC" colorspace="srgb_texture" />
+    <input name="layer" type="string" value="" />
+    <input name="default" type="color3" value="0,0,0" />
+    <input name="texcoord" type="vector2" value="0,0" />
+    <input name="uaddressmode" type="string" value="periodic" />
+    <input name="vaddressmode" type="string" value="periodic" />
+    <input name="filtertype" type="string" value="linear" />
+    <input name="framerange" type="string" value="" />
+    <input name="frameoffset" type="integer" value="0" />
+    <input name="frameendaction" type="string" value="constant" />
+  </image>
+</materialx>

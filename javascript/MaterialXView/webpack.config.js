@@ -35,9 +35,18 @@ dirent = fs.readdirSync(openPbrMaterials).filter(
 let openMaterials = dirent
     .map((fileName) => ({ name: fileName, value: `${openPbrMaterialsBaseURL}/${fileName}` }));
 
+const localMaterials = "./resources/Materials/";
+const localMaterialsBaseURL = "Materials/Examples/Local";
+dirent = fs.readdirSync(localMaterials).filter(
+    function (file) { if (file.lastIndexOf(".mtlx") > -1) return file; }
+)
+let locMaterials = dirent
+    .map((fileName) => ({ name: fileName, value: `${localMaterialsBaseURL}/${fileName}` }));
+
 materials = materials.concat(usdMaterials);
 materials = materials.concat(gltfMaterials);
 materials = materials.concat(openMaterials);
+materials = materials.concat(locMaterials);
 
 const geometryFiles = "../../resources/Geometry";
 const geometryFilesURL = "Geometry";
@@ -81,6 +90,7 @@ module.exports = {
                 { from: usdSurfaceMaterials, to: usdSurfaceMaterialsBaseURL },
                 { from: gltfPbrMaterials, to: gltfPbrMaterialsBaseURL },
                 { from: openPbrMaterials, to: openPbrMaterialsBaseURL },
+                { from: localMaterials, to: localMaterialsBaseURL },
                 { from: "../build/bin/JsMaterialXCore.wasm" },
                 { from: "../build/bin/JsMaterialXCore.js" },
                 { from: "../build/bin/JsMaterialXGenShader.wasm" },

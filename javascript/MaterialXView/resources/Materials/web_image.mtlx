@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surface_unlit name="Default_Unlit" type="surfaceshader">
+    <input name="emission" type="float" value="1" />
+    <input name="emission_color" type="color3" nodename="tiledimage_color4" />
+    <input name="transmission" type="float" value="0" />
+    <input name="transmission_color" type="color3" value="1,1,1" />
+    <input name="opacity" type="float" value="1" />
+  </surface_unlit>
+  <surfacematerial name="Default" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="Default_Unlit" />
+    <input name="backsurfaceshader" type="surfaceshader" value="" />
+    <input name="displacementshader" type="displacementshader" value="" />
+  </surfacematerial>
+  <tiledimage name="tiledimage_color4" type="color3">
+    <input name="file" type="filename" value="https://materialx.org/images/MaterialXLogoSmallA.png" colorspace="none" />
+    <input name="default" type="color3" value="0,0,0" />
+    <input name="texcoord" type="vector2" value="0,0" />
+    <input name="uvtiling" type="vector2" value="1,1" />
+    <input name="uvoffset" type="vector2" value="0,0" />
+    <input name="realworldimagesize" type="vector2" value="1,1" unittype="distance" />
+    <input name="realworldtilesize" type="vector2" value="1,1" unittype="distance" />
+    <input name="filtertype" type="string" value="linear" />
+    <input name="framerange" type="string" value="" />
+    <input name="frameoffset" type="integer" value="0" />
+    <input name="frameendaction" type="string" value="constant" />
+  </tiledimage>
+</materialx>
