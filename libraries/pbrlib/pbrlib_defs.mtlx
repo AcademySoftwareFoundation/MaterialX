@@ -452,8 +452,8 @@
   <nodedef name="ND_chiang_hair_roughness" node="chiang_hair_roughness" nodegroup="pbr" doc="Calculates hair roughness for R, TT and TRT component.">
     <input name="longitudinal" type="float" value="0.1" />
     <input name="azimuthal" type="float" value="0.2" />
-    <input name="scale_TT" type="float" value="0.5" />
-    <input name="scale_TRT" type="float" value="2.0" />
+    <input name="scale_TT" type="float" value="0.5" uiadvanced="true" />
+    <input name="scale_TRT" type="float" value="2.0" uiadvanced="true" />
     <output name="roughness_R" type="vector2" />
     <output name="roughness_TT" type="vector2" />
     <output name="roughness_TRT" type="vector2" />

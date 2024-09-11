@@ -391,7 +391,7 @@ Note that the standard library includes definitions for [**`displacement`**](./M
 
 <a id="node-chiang-hair-roughness"> </a>
 
-* **`chiang_hair_roughness`**: Converts the artistic parameterization hair roughness to roughness for R, TT and TRT lobes. Output type `multioutput`, `roughness_R`, `roughness_TT` and `roughness_TRT`, `vector2` type. 
+* **`chiang_hair_roughness`**: Converts the artistic parameterization hair roughness to roughness for R, TT and TRT lobes, as described in [^Chiang2016]. Output type `multioutput`, `roughness_R`, `roughness_TT` and `roughness_TRT`, `vector2` type. 
     * `longitudinal` (float): Longitudinal roughness, range [0.0, 1.0]. Defaults to 0.1.
     * `azimuthal` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
     * `scale_TT` (float): Roughness scale for TT lobe. Defaults to 0.5[^Marschner2003].
