@@ -21,8 +21,7 @@ T1 mx_mod(T1 x, T2 y)
     return x - y * floor(x/y);
 }
 
-template <typename T>
-T mx_inversesqrt(T x)
+float mx_inversesqrt(float x)
 {
     return ::rsqrt(x);
 }

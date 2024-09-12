@@ -22,3 +22,8 @@ vec3 mx_srgb_encode(vec3 color)
     vec3 powSeg = 1.055 * pow(max(color, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
     return mix(linSeg, powSeg, isAbove);
 }
+
+float mx_inversesqrt(float x)
+{
+    return inversesqrt(x);
+}
