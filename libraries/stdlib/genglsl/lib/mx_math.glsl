@@ -1,3 +1,8 @@
+// This file, and the corresponding mx_math.msl provide functions with a common interface, to allow
+// code to be shared between GLSL and MSL.
+// Guideline : prefix any functions with `mx_` to ensure no conflict with code that other shader
+// generators (like HdStorm) might create.
+
 #define M_FLOAT_EPS 1e-8
 
 float mx_square(float x)
