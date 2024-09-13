@@ -21,6 +21,11 @@ T1 mx_mod(T1 x, T2 y)
     return x - y * floor(x/y);
 }
 
+float mx_inversesqrt(float x)
+{
+    return ::rsqrt(x);
+}
+
 #ifdef __DECL_GL_MATH_FUNCTIONS__
 
 float radians(float degree) { return (degree * M_PI_F / 180.0f); }
@@ -96,9 +101,6 @@ T atan(T y_over_x) { return ::atan(y_over_x); }
 
 template <typename T>
 T atan(T y, T x) { return ::atan2(y, x); }
-
-template <typename T>
-T inversesqrt(T x) { return ::rsqrt(x); }
 
 #define lessThan(a, b) ((a) < (b))
 #define lessThanEqual(a, b) ((a) <= (b))
