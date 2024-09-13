@@ -27,3 +27,30 @@ float mx_inversesqrt(float x)
 {
     return inversesqrt(x);
 }
+
+float mx_radians(float degree)
+{
+    return radians(degree);
+}
+
+float mx_atan(float y_over_x)
+{
+    return atan(y_over_x);
+}
+
+float mx_atan(float y, float x)
+{
+    return atan(y, x);
+}
+vec2 mx_atan(vec2 y, vec2 x)
+{
+    return atan(y, x);
+}
+vec3 mx_atan(vec3 y, vec3 x)
+{
+    return atan(y, x);
+}
+vec4 mx_atan(vec4 y, vec4 x)
+{
+    return atan(y, x);
+}

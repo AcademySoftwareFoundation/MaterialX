@@ -286,9 +286,9 @@ void mx_fresnel_conductor_phase_polarized(float cosTheta, float eta1, vec3 eta2,
     vec3 U = sqrt((A+B)/2.0);
     vec3 V = max(vec3(0.0), sqrt((B-A)/2.0));
 
-    phiS = atan(2.0*eta1*V*cosTheta, U*U + V*V - mx_square(eta1*cosTheta));
-    phiP = atan(2.0*eta1*eta2*eta2*cosTheta * (2.0*k2*U - (vec3(1.0)-k2*k2) * V),
-                mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
+    phiS = mx_atan(2.0 * eta1 * V * cosTheta, U * U + V * V - mx_square(eta1 * cosTheta));
+    phiP = mx_atan(2.0 * eta1 * eta2 * eta2 * cosTheta * (2.0 * k2 * U - (vec3(1.0) - k2 * k2) * V),
+                   mx_square(eta2*eta2*(vec3(1.0)+k2*k2)*cosTheta) - eta1*eta1*(U*U+V*V));
 }
 
 // https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
@@ -341,7 +341,7 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     }
 
     // Phase shift
-    float cosB = cos(atan(eta2 / eta1));
+    float cosB = cos(mx_atan(eta2 / eta1));
     vec2 phi21 = vec2(cosTheta < cosB ? 0.0 : M_PI, M_PI);
     vec3 phi23p, phi23s;
     if (fd.model == FRESNEL_MODEL_SCHLICK)
@@ -487,7 +487,7 @@ vec3 mx_refraction_solid_sphere(vec3 R, vec3 N, float ior)
 vec2 mx_latlong_projection(vec3 dir)
 {
     float latitude = -asin(dir.y) * M_PI_INV + 0.5;
-    float longitude = atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
+    float longitude = mx_atan(dir.x, -dir.z) * M_PI_INV * 0.5 + 0.5;
     return vec2(longitude, latitude);
 }
 
