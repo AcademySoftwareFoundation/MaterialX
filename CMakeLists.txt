@@ -3,6 +3,7 @@ set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
 set(MATERIALX_BUILD_VERSION 2)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
+math(EXPR MATERIALX_BUILD_VERSION "${MATERIALX_MAJOR_VERSION} * 10000 + ${MATERIALX_MINOR_VERSION} * 100 + ${MATERIALX_BUILD_VERSION}")
 
 # Cmake setup
 cmake_minimum_required(VERSION 3.24)
@@ -93,7 +94,13 @@ endif()
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-" CACHE STRING "The Codesigning identity needed to sign compiled objects")
 option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
 if (MATERIALX_BUILD_APPLE_FRAMEWORK)
+    add_definitions(-DBUILD_APPLE_FRAMEWORK)
     set(MATERIALX_BUILD_MONOLITHIC ON)
+    set(MATERIALX_BUILD_PYTHON OFF)
+    set(MATERIALX_BUILD_VIEWER OFF)
+    set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_TESTS OFF)
+    set(MATERIALX_BUILD_SHARED_LIBS ON)
 endif()
 
 if (MATERIALX_BUILD_JS)
@@ -520,6 +527,25 @@ if (MATERIALX_BUILD_MONOLITHIC)
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
         # to do that installation, thus we respect the build options configuration, and only install
         # the headers for the modules we've built in to the monolithic build.
+
+        # Finally do the framework build if requested
+        # This uses a zsh script since zsh is guaranteed to exist on systems
+        if(MATERIALX_BUILD_APPLE_FRAMEWORK)
+            # Conform cmake formats to zsh expected formats
+            set(__embedded_build "false")
+            if (MATERIALX_BUILD_APPLE_EMBEDDED)
+                    set(__embedded_build "true")
+            endif()
+
+            # Install the Info.plist and shell script
+            configure_file(cmake/modules/Info.plist.in "${PROJECT_BINARY_DIR}/Info.plist" @ONLY)
+            configure_file(cmake/modules/AppleFrameworkBuild.zsh.in "${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh" @ONLY)
+
+            # Run the shell script for the primary configuration
+            install(CODE "execute_process(COMMAND zsh ${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh )")
+
+        endif()
+
     endif()
 endif()
 
