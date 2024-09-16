@@ -221,9 +221,14 @@ export class Scene
         orbitControls.update();
     }
 
-    setUpdateTransforms()
+    setUpdateTransforms(val=true)
     {
-        this.#_updateTransforms = true;
+        this.#_updateTransforms = val;
+    }
+
+    getUpdateTransforms()
+    {
+        return this.#_updateTransforms;
     }
 
     updateTransforms()
@@ -235,7 +240,7 @@ export class Scene
         {
             return;
         }
-        this.#_updateTransforms = false;
+        this.setUpdateTransforms(false);
 
         const scene = this.getScene();
         const camera = this.getCamera();
@@ -622,7 +627,12 @@ export class Material
 
         // Load material
         if (mtlxMaterial)
-            await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            try {                
+                await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+            }
+            catch (error) {
+                console.log('Error loading material file: ', error);
+            }
         else
             Material.createFallbackMaterial(doc);
 
