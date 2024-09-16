@@ -5,7 +5,7 @@
 
 #if defined(__APPLE__)
 
-#ifdef TARGET_OS_IOS
+#ifdef TARGET_OS_IPHONE
 
 #include <MaterialXRenderHw/SimpleWindow.h>
 
