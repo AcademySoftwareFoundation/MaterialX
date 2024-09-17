@@ -1,6 +1,4 @@
-
 #include "lib/mx_microfacet_specular.glsl"
-
 
 // d’Eon et al. (2011)
 void mx_deon_hair_absorption_from_melanin(
