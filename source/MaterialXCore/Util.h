@@ -39,6 +39,11 @@ MX_CORE_API StringVec splitString(const string& str, const string& sep);
 /// separator between each substring.
 MX_CORE_API string joinStrings(const StringVec& strVec, const string& sep);
 
+/// Split a string in the form of a list initializer, i.e, "{1,2,3}" into a
+/// vector of substrings.
+/// Note: "{1,2,{3,4,5}}" will be split in to ["1", "2", "{3,4,5}"]
+MX_CORE_API StringVec splitListInitializer(const string& str);
+
 /// Apply the given substring substitutions to the input string.
 MX_CORE_API string replaceSubstrings(string str, const StringMap& stringMap);
 
