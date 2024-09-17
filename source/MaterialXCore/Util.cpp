@@ -101,60 +101,6 @@ string joinStrings(const StringVec& stringVec, const string& sep)
     return res;
 }
 
-StringVec splitListInitializer(const string& str)
-{
-    const char SEPARATOR = ';';
-    const char OPEN_BRACE = '{';
-    const char CLOSE_BRACE = '}';
-
-    if (str.empty())
-        return StringVec();
-
-    // validate the string is correctly formatted - must be at least 2 characters long and start and end with braces
-    if (str.size() < 2 || (str[0] != OPEN_BRACE || str[str.size()-1] != CLOSE_BRACE))
-    {
-        return StringVec();
-    }
-
-    StringVec split;
-
-    // strip off the surrounding braces
-    string substring = str.substr(1, str.size()-2);
-
-    // sequentially examine each character to parse the list initializer.
-    string part = "";
-    int braceDepth = 0;
-    for (const char c : substring)
-    {
-        if (c == OPEN_BRACE)
-        {
-            // we've already trimmed the starting brace, so any additional braces indicate members that are themselves list initializers.
-            // we will just return this as a string of the list initializer.
-            braceDepth += 1;
-        }
-        if (braceDepth > 0 && c == CLOSE_BRACE)
-        {
-            braceDepth -= 1;
-        }
-
-        if (braceDepth == 0 && c == SEPARATOR)
-        {
-            // when we hit a separator we store the currently accumlated part, and clear to start collecting the next.
-            split.emplace_back(part);
-            part = "";
-        }
-        else
-        {
-            part += c;
-        }
-    }
-
-    if (!part.empty())
-        split.emplace_back(part);
-
-    return split;
-}
-
 string replaceSubstrings(string str, const StringMap& stringMap)
 {
     for (const auto& pair : stringMap)

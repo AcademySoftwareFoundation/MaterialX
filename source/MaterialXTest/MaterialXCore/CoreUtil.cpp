@@ -29,14 +29,6 @@ TEST_CASE("String utilities", "[coreutil]")
     REQUIRE(mx::splitString("robot1, robot2", ", ") == (std::vector<std::string>{"robot1", "robot2"}));
     REQUIRE(mx::splitString("[one...two...three]", "[.]") == (std::vector<std::string>{"one", "two", "three"}));
 
-    REQUIRE(mx::splitListInitializer("{{1;2;3};4}") == (std::vector<std::string>{"{1;2;3}","4"}));
-    REQUIRE(mx::splitListInitializer("{1;2;3;4}") == (std::vector<std::string>{"1","2","3","4"}));
-    REQUIRE(mx::splitListInitializer("{1;{2;3};4}") == (std::vector<std::string>{"1","{2;3}","4"}));
-    REQUIRE(mx::splitListInitializer("{1;{2;3;4}}") == (std::vector<std::string>{"1","{2;3;4}"}));
-    REQUIRE(mx::splitListInitializer("{1;{2;{3;4}}}") == (std::vector<std::string>{"1","{2;{3;4}}"}));
-    REQUIRE(mx::splitListInitializer("{1;2;{3};4}") == (std::vector<std::string>{"1","2","{3}","4"}));
-    REQUIRE(mx::splitListInitializer("{1;2;{3};4}") == (std::vector<std::string>{"1","2","{3}","4"}));
-
     REQUIRE(mx::stringToLower("testName") == "testname");
     REQUIRE(mx::stringToLower("testName1") == "testname1");
 
