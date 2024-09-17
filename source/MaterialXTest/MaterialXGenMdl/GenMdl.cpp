@@ -354,7 +354,6 @@ void MdlShaderGeneratorTester::compileSource(const std::vector<mx::FilePath>& so
 TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    searchPath.append(searchPath.find("resources/Materials/TestSuite"));
 
     mx::FilePathVec testRootPaths;
     testRootPaths.push_back(searchPath.find("resources/Materials/TestSuite"));

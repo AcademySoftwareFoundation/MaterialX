@@ -71,7 +71,7 @@
     <input name="irradianceIBLPath" type="string" value="resources/Lights/irradiance/san_giuseppe_bridge.hdr" />
 
     <!-- List of extra library paths for generator and render tests -->
-    <input name="extraLibraryPaths" type="string" value="resources/Materials/TestSuite/library" />
+    <input name="extraLibraryPaths" type="string" value="" />
 
     <!-- List of document paths for render tests -->
     <input name="renderTestPaths" type="string" value="resources/Materials/Examples/StandardSurface,resources/Materials/TestSuite/stdlib/color_management,resources/Materials/TestSuite/stdlib/convolution,resources/Materials/TestSuite/stdlib/geometric,resources/Materials/TestSuite/stdlib/procedural,resources/Materials/TestSuite/pbrlib,resources/Materials/TestSuite/nprlib" />
