@@ -243,7 +243,7 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `mode` (uniform string): Selects between `conty_kulla` and `zeltner` sheen models. Defaults to `conty_kulla`.
 
-<a id="node-chinag-hair-bsdf"> </a>
+<a id="node-chiang-hair-bsdf"> </a>
 
 * **`chiang_hair_bsdf`**: Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. This node does not support vertical layering.
     * `tint_R` (color3): Color multiplier for the first R-lobe. Defaults to (1.0, 1.0, 1.0).
