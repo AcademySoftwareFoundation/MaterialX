@@ -227,20 +227,23 @@ FileSearchPath getDefaultDataSearchPath()
     const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
     FilePath currentPath = FilePath::getModulePath();
 
+    FileSearchPath searchPath = FileSearchPath();
+
     #if defined(BUILD_APPLE_FRAMEWORK)
         const FilePath FRAMEWORK_RESOURCES("Resources");
-        currentPath = FilePath::getSharedLibraryPath() / FRAMEWORK_RESOURCES;
+        searchPath.append(FilePath::getSharedLibraryPath() / FRAMEWORK_RESOURCES);
     #endif
 
     while (!currentPath.isEmpty())
     {
         if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
         {
-            return FileSearchPath(currentPath);
+            searchPath.append(FileSearchPath(currentPath));
+            break;
         }
         currentPath = currentPath.getParentPath();
     }
-    return FileSearchPath();
+    return searchPath;
 }
 
 MATERIALX_NAMESPACE_END
