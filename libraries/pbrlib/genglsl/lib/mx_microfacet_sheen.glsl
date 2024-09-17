@@ -123,7 +123,7 @@ mat3 mx_orthonormal_basis_ltc(vec3 V, vec3 N, float NdotV)
     float lenSqr = dot(X, X);
     if (lenSqr > 0.0)
     {
-        X *= inversesqrt(lenSqr);
+        X *= mx_inversesqrt(lenSqr);
         vec3 Y = cross(N, X);
         return mat3(X, Y, N);
     }
@@ -173,7 +173,7 @@ vec3 mx_zeltner_sheen_importance_sample(vec2 Xi, vec3 V, vec3 N, float roughness
     vec3 w = vec3(wo.x/aInv - wo.z*bInv/aInv, wo.y / aInv, wo.z);
 
     float lenSqr = dot(w, w);
-    w *= inversesqrt(lenSqr);
+    w *= mx_inversesqrt(lenSqr);
 
     // D(w) = Do(wo) . ||M.wo||^3 / |M|
     //      = Do(wo / ||M.wo||) . ||M.wo||^4 / |M| 
