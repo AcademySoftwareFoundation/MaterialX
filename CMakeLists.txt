@@ -76,7 +76,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS"
         OR CMAKE_SYSTEM_NAME MATCHES "visionOS"
         OR CMAKE_SYSTEM_NAME MATCHES "watchOS")
     set(MATERIALX_BUILD_APPLE_EMBEDDED ON)
-    set(__build_apple_framework ON)
+    set(__build_apple_framework ${MATERIALX_BUILD_SHARED_LIBS})
     # TARGET_OS_IPHONE refers to all IPHONE derived platforms
     # https://chaosinmotion.com/2021/08/02/things-to-remember-compiler-conditionals-for-macos-ios-etc/
     # This should be auto-defined, but leaving it in here because it was historically defined
