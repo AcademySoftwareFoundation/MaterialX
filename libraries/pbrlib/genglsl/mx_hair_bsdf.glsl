@@ -1,6 +1,6 @@
 #include "lib/mx_microfacet_specular.glsl"
 
-// d’Eon et al. (2011)
+// https://eugenedeon.com/pdfs/egsrhair.pdf
 void mx_deon_hair_absorption_from_melanin(
     float melanin_concentration,
     float melanin_redness,
@@ -19,7 +19,7 @@ void mx_deon_hair_absorption_from_melanin(
     );
 }
 
-// Chiang et al. (2016)
+// https://media.disneyanimation.com/uploads/production/publication_asset/152/asset/eurographics2016Fur_Smaller.pdf
 void mx_chiang_hair_absorption_from_color(vec3 color, float betaN, out vec3 absorption)
 {
     float b2 = betaN* betaN;
@@ -35,7 +35,6 @@ void mx_chiang_hair_absorption_from_color(vec3 color, float betaN, out vec3 abso
     absorption = sigma * sigma;
 }
 
-// Chiang et al. (2016)
 void mx_chiang_hair_roughness(
     float longitudinal,
     float azimuthal,
