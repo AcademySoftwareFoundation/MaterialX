@@ -553,7 +553,7 @@ void ShaderGeneratorTester::setupDependentLibraries()
     _dependLib = mx::createDocument();
 
     // Load the standard libraries.
-    loadLibraries({ "libraries", "testSuiteLibraries" }, _searchPath, _dependLib, _skipLibraryFiles);
+    loadLibraries({ "libraries" }, _searchPath, _dependLib, _skipLibraryFiles);
 }
 
 LightIdMap ShaderGeneratorTester::computeLightIdMap(const std::vector<mx::NodePtr>& nodes)
