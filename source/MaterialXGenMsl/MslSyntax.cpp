@@ -20,7 +20,7 @@ class MslStringTypeSyntax : public StringTypeSyntax
     MslStringTypeSyntax() :
         StringTypeSyntax("int", "0", "0") { }
 
-    string getValue(const Value& /*value*/, bool /*uniform*/) const override
+    string getValue(const Value& /*value*/, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         return "0";
     }
@@ -34,7 +34,7 @@ class MslArrayTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         size_t arraySize = getSize(value);
         if (arraySize > 0)

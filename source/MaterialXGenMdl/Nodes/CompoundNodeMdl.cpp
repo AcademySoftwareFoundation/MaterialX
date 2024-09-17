@@ -236,7 +236,7 @@ void CompoundNodeMdl::emitFunctionSignature(const ShaderNode&, GenContext& conte
         const string& qualifier = input->isUniform() || input->getType() == Type::FILENAME ? uniformPrefix : EMPTY_STRING;
         const string& type = syntax.getTypeName(input->getType());
 
-        string value = input->getValue() ? syntax.getValue(input->getType(), *input->getValue(), true) : EMPTY_STRING;
+        string value = input->getValue() ? syntax.getValue(input->getType(), *input->getValue(), context, true) : EMPTY_STRING;
         const string& geomprop = input->getGeomProp();
         if (!geomprop.empty())
         {

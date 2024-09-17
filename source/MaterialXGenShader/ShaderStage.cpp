@@ -65,7 +65,7 @@ ShaderPort* VariableBlock::find(const ShaderPortPredicate& predicate)
     return nullptr;
 }
 
-ShaderPort* VariableBlock::add(TypeDesc type, const string& name, ValuePtr value, bool shouldWiden)
+ShaderPort* VariableBlock::add(TypeDesc type, const GenContext& context, const string& name, ValuePtr value, bool shouldWiden)
 {
     auto it = _variableMap.find(name);
     if (it != _variableMap.end())
@@ -88,7 +88,7 @@ ShaderPort* VariableBlock::add(TypeDesc type, const string& name, ValuePtr value
         return it->second.get();
     }
 
-    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, name, value);
+    ShaderPortPtr port = std::make_shared<ShaderPort>(nullptr, type, name, context.getStructMembers(type), value);
     _variableMap[name] = port;
     _variableOrder.push_back(port.get());
 

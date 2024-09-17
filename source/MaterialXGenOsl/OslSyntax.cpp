@@ -22,7 +22,7 @@ class OslBooleanTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         return value.asA<bool>() ? "1" : "0";
     }
@@ -36,7 +36,7 @@ class OslArrayTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool uniform) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool uniform) const override
     {
         if (!isEmpty(value))
         {
@@ -98,7 +98,7 @@ class OslStructTypeSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool uniform) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool uniform) const override
     {
         if (uniform)
         {
@@ -126,7 +126,7 @@ class OslColor4TypeSyntax : public OslStructTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool uniform) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool uniform) const override
     {
         StringStream ss;
 
@@ -162,7 +162,7 @@ class OSLMatrix3TypeSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         StringVec values = splitString(value.getValueString(), ",");
         if (values.empty())
@@ -200,7 +200,7 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const ShaderPort* port, bool uniform) const override
+    string getValue(const ShaderPort* port, const GenContext& /*context*/, bool uniform) const override
     {
         if (!port)
         {
@@ -213,7 +213,7 @@ class OSLFilenameTypeSyntax : public AggregateTypeSyntax
         return prefix + "\"" + filename + "\", \"" + port->getColorSpace() + "\"" + suffix;
     }
 
-    string getValue(const Value& value, bool uniform) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool uniform) const override
     {
         const string prefix = uniform ? "{" : getName() + "(";
         const string suffix = uniform ? "}" : ")";

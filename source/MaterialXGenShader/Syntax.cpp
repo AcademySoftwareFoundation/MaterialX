@@ -77,16 +77,16 @@ const TypeSyntax& Syntax::getTypeSyntax(TypeDesc type) const
     return *_typeSyntaxes[it->second];
 }
 
-string Syntax::getValue(const ShaderPort* port, bool uniform) const
+string Syntax::getValue(const ShaderPort* port, const GenContext& context, bool uniform) const
 {
     const TypeSyntax& syntax = getTypeSyntax(port->getType());
-    return syntax.getValue(port, uniform);
+    return syntax.getValue(port, context, uniform);
 }
 
-string Syntax::getValue(TypeDesc type, const Value& value, bool uniform) const
+string Syntax::getValue(TypeDesc type, const Value& value, const GenContext& context, bool uniform) const
 {
     const TypeSyntax& syntax = getTypeSyntax(type);
-    return syntax.getValue(value, uniform);
+    return syntax.getValue(value, context, uniform);
 }
 
 const string& Syntax::getDefaultValue(TypeDesc type, bool uniform) const
@@ -190,24 +190,35 @@ bool Syntax::remapEnumeration(const string&, TypeDesc, const string&, std::pair<
     return false;
 }
 
-void Syntax::registerStructTypeDescSyntax()
+void Syntax::registerStructTypeDescSyntax(const GenContext& context)
 {
-    for (const auto& typeName : StructTypeDesc::getStructTypeNames())
+    // It's important to sort the struct types and register their syntax entries in the order
+    // they were added (this is reflected in the struct index).  This ensures that any struct
+    // types used for members of another struct are declared in the correct order in the
+    // generated shader code.
+    auto structTypeDescs = context.getStructTypeDescs();
+    std::sort(structTypeDescs.begin(), structTypeDescs.end(), [](TypeDesc a, TypeDesc b)
     {
-        const auto& typeDesc = TypeDesc::get(typeName);
-        const auto& structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
+        return a.getStructIndex() < b.getStructIndex();
+    });
 
-        string structTypeName = typeName;
-        string defaultValue = typeName + "( ";
+    for (const auto& typeDesc : structTypeDescs)
+    {
+        ConstStructMemberDescVecPtr structMemberDescs = context.getStructMembers(typeDesc);
+        if (!typeDesc.isStruct() || !structMemberDescs)
+            continue;
+
+        string structTypeName = typeDesc.getName();
+        string defaultValue = structTypeName + "( ";
         string uniformDefaultValue = EMPTY_STRING;
         string typeAlias = EMPTY_STRING;
         string typeDefinition = "struct " + structTypeName + " { ";
 
-        for (const auto& x : structTypeDesc.getMembers())
+        for (const auto& structMemberDesc : *structMemberDescs)
         {
-            string memberName = x._name;
-            string memberType = x._typeDesc.getName();
-            string memberDefaultValue = x._defaultValueStr;
+            string memberName = structMemberDesc.getName();
+            string memberType = structMemberDesc.getTypeDesc().getName();
+            string memberDefaultValue = structMemberDesc.getDefaultValueStr();
 
             defaultValue += memberDefaultValue + ", ";
             typeDefinition += memberType + " " + memberName + "; ";
@@ -233,13 +244,13 @@ TypeSyntax::TypeSyntax(const string& name, const string& defaultValue, const str
 {
 }
 
-string TypeSyntax::getValue(const ShaderPort* port, bool uniform) const
+string TypeSyntax::getValue(const ShaderPort* port, const GenContext& context, bool uniform) const
 {
     if (!port || !port->getValue())
     {
         return getDefaultValue(uniform);
     }
-    return getValue(*port->getValue(), uniform);
+    return getValue(*port->getValue(), context, uniform);
 }
 
 ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
@@ -248,7 +259,7 @@ ScalarTypeSyntax::ScalarTypeSyntax(const string& name, const string& defaultValu
 {
 }
 
-string ScalarTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+string ScalarTypeSyntax::getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const
 {
     return value.getValueString();
 }
@@ -259,7 +270,7 @@ StringTypeSyntax::StringTypeSyntax(const string& name, const string& defaultValu
 {
 }
 
-string StringTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+string StringTypeSyntax::getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const
 {
     return "\"" + value.getValueString() + "\"";
 }
@@ -270,7 +281,7 @@ AggregateTypeSyntax::AggregateTypeSyntax(const string& name, const string& defau
 {
 }
 
-string AggregateTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+string AggregateTypeSyntax::getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const
 {
     const string valueString = value.getValueString();
     return valueString.empty() ? valueString : getName() + "(" + valueString + ")";
@@ -282,12 +293,9 @@ StructTypeSyntax::StructTypeSyntax(const Syntax* parentSyntax, const string& nam
 {
 }
 
-string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
+string StructTypeSyntax::getValue(const Value& value, const GenContext& context, bool /*uniform*/) const
 {
     const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
-
-    auto typeDesc = TypeDesc::get(aggValue.getTypeString());
-    auto structTypeDesc = StructTypeDesc::get(typeDesc.getStructIndex());
 
     string result = "{";
 
@@ -298,10 +306,10 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
         separator = ";";
 
         auto memberTypeName = memberValue->getTypeString();
-        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+        auto memberTypeDesc = context.getTypeDesc(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can support nested structs.
-        const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+        const string valueStr = _parentSyntax->getValue(memberTypeDesc, *memberValue, context, true);
 
         result += valueStr;
     }

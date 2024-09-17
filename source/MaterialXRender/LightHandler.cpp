@@ -41,8 +41,7 @@ void LightHandler::findLights(DocumentPtr doc, vector<NodePtr>& lights)
     lights.clear();
     for (NodePtr node : doc->getNodes())
     {
-        const TypeDesc type = TypeDesc::get(node->getType());
-        if (type == Type::LIGHTSHADER)
+        if (node->getType() == Type::LIGHTSHADER.getName())
         {
             lights.push_back(node);
         }

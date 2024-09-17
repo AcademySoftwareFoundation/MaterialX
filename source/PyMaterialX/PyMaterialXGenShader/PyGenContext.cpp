@@ -24,7 +24,9 @@ void bindPyGenContext(py::module& mod)
         .def("resolveSourceFile", &mx::GenContext::resolveSourceFile)
         .def("pushUserData", &mx::GenContext::pushUserData)
         .def("setApplicationVariableHandler", &mx::GenContext::setApplicationVariableHandler)
-        .def("getApplicationVariableHandler", &mx::GenContext::getApplicationVariableHandler);
+        .def("getApplicationVariableHandler", &mx::GenContext::getApplicationVariableHandler)
+        .def("getTypeDesc", &mx::GenContext::getTypeDesc);
+
 }
 
 void bindPyGenUserData(py::module& mod)

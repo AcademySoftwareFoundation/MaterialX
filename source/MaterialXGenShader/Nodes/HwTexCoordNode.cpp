@@ -16,7 +16,7 @@ ShaderNodeImplPtr HwTexCoordNode::create()
     return std::make_shared<HwTexCoordNode>();
 }
 
-void HwTexCoordNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwTexCoordNode::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     const ShaderOutput* output = node.getOutput();
     const string index = getIndex(node);
@@ -24,8 +24,8 @@ void HwTexCoordNode::createVariables(const ShaderNode& node, GenContext&, Shader
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, output->getType(), HW::T_IN_TEXCOORD + "_" + index, vs, true);
-    addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_TEXCOORD + "_" + index, vs, ps, true);
+    addStageInput(HW::VERTEX_INPUTS, output->getType(), context, HW::T_IN_TEXCOORD + "_" + index, vs, true);
+    addStageConnector(HW::VERTEX_DATA, output->getType(), context, HW::T_TEXCOORD + "_" + index, vs, ps, true);
 }
 
 void HwTexCoordNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

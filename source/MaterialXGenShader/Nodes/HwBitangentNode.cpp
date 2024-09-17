@@ -23,31 +23,31 @@ void HwBitangentNode::createVariables(const ShaderNode& node, GenContext& contex
 
     if (options.hwImplicitBitangents)
     {
-        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
-        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_TANGENT, vs);
+        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_NORMAL, vs);
+        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_TANGENT, vs);
     }
     else
     {
-        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_BITANGENT, vs);
+        addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_BITANGENT, vs);
     }
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_BITANGENT_WORLD, vs, ps);
-        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_MATRIX, vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_BITANGENT_WORLD, vs, ps);
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, context, HW::T_WORLD_MATRIX, vs);
 
         if (options.hwImplicitBitangents)
         {
-            addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
-            addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_WORLD, vs, ps);
-            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
+            addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_NORMAL_WORLD, vs, ps);
+            addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_TANGENT_WORLD, vs, ps);
+            addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, context, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
         }
     }
     else
     {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_BITANGENT_OBJECT, vs, ps);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_BITANGENT_OBJECT, vs, ps);
     }
 }
 

@@ -85,12 +85,14 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Get the version number suffix appended to MDL modules that use versions.
     const string& getMdlVersionFilenameSuffix(GenContext& context) const;
 
+    void registerBuiltinTypes(GenContext& context) override;
+
   protected:
     // Create and initialize a new MDL shader for shader generation.
     ShaderPtr createShader(const string& name, ElementPtr element, GenContext& context) const;
 
     // Emit a block of shader inputs.
-    void emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, ShaderStage& stage) const;
+    void emitShaderInputs(const DocumentPtr doc, const VariableBlock& inputs, const GenContext& context, ShaderStage& stage) const;
 };
 
 namespace MDL

@@ -15,7 +15,7 @@ const string HwTransformNode::MODEL = "model";
 const string HwTransformNode::OBJECT = "object";
 const string HwTransformNode::WORLD = "world";
 
-void HwTransformNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwTransformNode::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     const string toSpace = getToSpace(node);
     const string fromSpace = getFromSpace(node);
@@ -23,7 +23,7 @@ void HwTransformNode::createVariables(const ShaderNode& node, GenContext&, Shade
     if (!matrix.empty())
     {
         ShaderStage& ps = shader.getStage(Stage::PIXEL);
-        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, matrix, ps);
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, context, matrix, ps);
     }
 }
 

@@ -17,9 +17,10 @@ const string ShaderMetadataRegistry::USER_DATA_NAME = "ShaderMetadataRegistry";
 // ShaderPort methods
 //
 
-ShaderPort::ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value) :
+ShaderPort::ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers, ValuePtr value) :
     _node(node),
     _type(type),
+    _structMembers(structMembers),
     _name(name),
     _variable(name),
     _value(value),
@@ -41,8 +42,8 @@ string ShaderPort::getValueString() const
 // ShaderInput methods
 //
 
-ShaderInput::ShaderInput(ShaderNode* node, TypeDesc type, const string& name) :
-    ShaderPort(node, type, name),
+ShaderInput::ShaderInput(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers) :
+    ShaderPort(node, type, name, structMembers),
     _connection(nullptr)
 {
 }
@@ -92,8 +93,8 @@ ShaderNode* ShaderInput::getConnectedSibling() const
 // ShaderOutput methods
 //
 
-ShaderOutput::ShaderOutput(ShaderNode* node, TypeDesc type, const string& name) :
-    ShaderPort(node, type, name)
+ShaderOutput::ShaderOutput(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers) :
+    ShaderPort(node, type, name, structMembers)
 {
 }
 
@@ -179,10 +180,10 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Create interface from nodedef
     for (const ValueElementPtr& port : nodeDef.getActiveValueElements())
     {
-        const TypeDesc portType = TypeDesc::get(port->getType());
+        const TypeDesc portType = context.getTypeDesc(port->getType());
         if (port->isA<Output>())
         {
-            newNode->addOutput(port->getName(), portType);
+            newNode->addOutput(port->getName(), portType, context);
         }
         else if (port->isA<Input>())
         {
@@ -192,12 +193,12 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
             const string& enumNames = port->getAttribute(ValueElement::ENUM_ATTRIBUTE);
             if (context.getShaderGenerator().getSyntax().remapEnumeration(portValue, portType, enumNames, enumResult))
             {
-                input = newNode->addInput(port->getName(), enumResult.first);
+                input = newNode->addInput(port->getName(), enumResult.first, context);
                 input->setValue(enumResult.second);
             }
             else
             {
-                input = newNode->addInput(port->getName(), portType);
+                input = newNode->addInput(port->getName(), portType, context);
                 if (!portValue.empty())
                 {
                     input->setValue(port->getResolvedValue());
@@ -216,7 +217,7 @@ ShaderNodePtr ShaderNode::create(const ShaderGraph* parent, const string& name, 
     // Add a default output if needed
     if (newNode->numOutputs() == 0)
     {
-        newNode->addOutput("out", TypeDesc::get(nodeDef.getType()));
+        newNode->addOutput("out", context.getTypeDesc(nodeDef.getType()), context);
     }
 
     const string& nodeDefName = nodeDef.getName();
@@ -349,7 +350,7 @@ void ShaderNode::initialize(const Node& node, const NodeDef& nodeDef, GenContext
             const string& valueString = portValue ? portValue->getValueString() : EMPTY_STRING;
             std::pair<TypeDesc, ValuePtr> enumResult;
             const string& enumNames = nodeDefInput->getAttribute(ValueElement::ENUM_ATTRIBUTE);
-            const TypeDesc type = TypeDesc::get(nodeDefInput->getType());
+            const TypeDesc type = context.getTypeDesc(nodeDefInput->getType());
             if (context.getShaderGenerator().getSyntax().remapEnumeration(valueString, type, enumNames, enumResult))
             {
                 input->setValue(enumResult.second);
@@ -437,7 +438,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
             const string& attrValue = nodeDef.getAttribute(nodedefAttr);
             if (!attrValue.empty())
             {
-                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue);
+                ValuePtr value = metadataEntry->type.createValueFromStrings(attrValue, context);
                 if (!value)
                 {
                     value = metadataEntry->value;
@@ -472,7 +473,7 @@ void ShaderNode::createMetadata(const NodeDef& nodeDef, GenContext& context)
                     if (!attrValue.empty())
                     {
                         const TypeDesc type = metadataEntry->type != Type::NONE ? metadataEntry->type : input->getType();
-                        ValuePtr value = type.createValueFromStrings(attrValue);
+                        ValuePtr value = type.createValueFromStrings(attrValue, context);
                         if (!value)
                         {
                             value = metadataEntry->value;
@@ -517,28 +518,28 @@ const ShaderOutput* ShaderNode::getOutput(const string& name) const
     return it != _outputMap.end() ? it->second.get() : nullptr;
 }
 
-ShaderInput* ShaderNode::addInput(const string& name, TypeDesc type)
+ShaderInput* ShaderNode::addInput(const string& name, TypeDesc type, const GenContext& context)
 {
     if (getInput(name))
     {
         throw ExceptionShaderGenError("An input named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    ShaderInputPtr input = std::make_shared<ShaderInput>(this, type, name);
+    ShaderInputPtr input = std::make_shared<ShaderInput>(this, type, name, context.getStructMembers(type));
     _inputMap[name] = input;
     _inputOrder.push_back(input.get());
 
     return input.get();
 }
 
-ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type)
+ShaderOutput* ShaderNode::addOutput(const string& name, TypeDesc type, const GenContext& context)
 {
     if (getOutput(name))
     {
         throw ExceptionShaderGenError("An output named '" + name + "' already exists on node '" + _name + "'");
     }
 
-    ShaderOutputPtr output = std::make_shared<ShaderOutput>(this, type, name);
+    ShaderOutputPtr output = std::make_shared<ShaderOutput>(this, type, name, context.getStructMembers(type));
     _outputMap[name] = output;
     _outputOrder.push_back(output.get());
 

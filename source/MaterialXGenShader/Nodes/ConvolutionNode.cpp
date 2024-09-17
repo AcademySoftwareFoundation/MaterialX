@@ -34,7 +34,7 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void ConvolutionNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& stage = shader.getStage(Stage::PIXEL);
     VariableBlock& constants = stage.getConstantBlock();
@@ -57,7 +57,7 @@ void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& sh
     {
         boxWeightArray.push_back(boxWeight7x7);
     }
-    constants.add(Type::FLOATARRAY, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
+    constants.add(Type::FLOATARRAY, context, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
 
     // Create constant for Gaussian weights
     vector<float> gaussianWeightArray;
@@ -83,7 +83,7 @@ void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& sh
             gaussianWeightArray.push_back(GAUSSIAN_KERNEL_7[y] * GAUSSIAN_KERNEL_7[x]);
         }
     }
-    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(gaussianWeightArray));
+    constants.add(Type::FLOATARRAY, context, "c_gaussian_filter_weights", Value::createValue<vector<float>>(gaussianWeightArray));
 }
 
 /// Get input which is used for sampling. If there is none

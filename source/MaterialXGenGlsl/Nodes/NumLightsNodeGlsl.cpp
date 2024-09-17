@@ -26,11 +26,11 @@ ShaderNodeImplPtr NumLightsNodeGlsl::create()
     return std::make_shared<NumLightsNodeGlsl>();
 }
 
-void NumLightsNodeGlsl::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void NumLightsNodeGlsl::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Create uniform for number of active light sources
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
-    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
+    ShaderPort* numActiveLights = addStageUniform(HW::PRIVATE_UNIFORMS, Type::INTEGER, context, HW::T_NUM_ACTIVE_LIGHT_SOURCES, ps);
     numActiveLights->setValue(Value::createValue<int>(0));
 }
 

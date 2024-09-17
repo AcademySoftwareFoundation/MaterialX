@@ -55,13 +55,13 @@ class MX_GENOSL_API OslShaderGenerator : public ShaderGenerator
     virtual void emitLibraryIncludes(ShaderStage& stage, GenContext& context) const;
 
     /// Emit a block of shader inputs.
-    virtual void emitShaderInputs(const VariableBlock& inputs, ShaderStage& stage) const;
+    virtual void emitShaderInputs(const VariableBlock& inputs, const GenContext& context, ShaderStage& stage) const;
 
     /// Emit a block of shader outputs.
     virtual void emitShaderOutputs(const VariableBlock& inputs, ShaderStage& stage) const;
 
     /// Emit metadata for a shader parameter.
-    virtual void emitMetadata(const ShaderPort* port, ShaderStage& stage) const;
+    virtual void emitMetadata(const ShaderPort* port, const GenContext& context, ShaderStage& stage) const;
 };
 
 namespace OSL

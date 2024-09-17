@@ -924,7 +924,7 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                 continue;
             }
 
-            // TODO: Shoud we really create new ones here each update?
+            // TODO: Should we really create new ones here each update?
             InputPtr inputPtr = std::make_shared<Input>(-1, -1, int(v->getType().getSize()), EMPTY_STRING);
             _uniformList[v->getVariable()] = inputPtr;
             inputPtr->isConstant = true;
@@ -954,13 +954,13 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
 
                 const auto populateUniformInput =
                     [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                    (TypeDesc typedesc, const string& variableName, ConstValuePtr variableValue) -> void
+                    (TypeDesc typedesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
                 {
                     auto populateUniformInput_impl =
                         [this, variablePath, variableUnit, variableColorspace, variableSemantic, &errors, uniforms, &uniformTypeMismatchFound]
-                        (TypeDesc typedesc, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc typedesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
-                        if (!typedesc.isStruct())
+                        if (!typedesc.isStruct() || !variableStructMembers)
                         {
                             // Handle non-struct types
                             int glType = mapTypeToOpenGLType(typedesc);
@@ -1007,26 +1007,23 @@ const GlslProgram::InputMap& GlslProgram::updateUniformsList()
                         else
                         {
                             // If we're a struct - we need to loop over each member
-                            auto structTypeDesc = StructTypeDesc::get(typedesc.getStructIndex());
                             auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
-
-                            const auto& members = structTypeDesc.getMembers();
-                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
                             {
-                                const auto& member = members[i];
-                                auto memberTypeDesc = member._typeDesc;
-                                auto memberVariableName = variableName + "." + member._name;
+                                const auto& structMember = variableStructMembers->at(i);
+                                auto memberTypeDesc = structMember.getTypeDesc();
+                                auto memberVariableName = variableName + "." + structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(memberTypeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(memberTypeDesc, structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
 
-                    return populateUniformInput_impl(typedesc, variableName, variableValue, populateUniformInput_impl);
+                    return populateUniformInput_impl(typedesc, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getStructMembers(), v->getVariable(), v->getValue());
             }
         }
 
@@ -1140,12 +1137,12 @@ const GlslProgram::InputMap& GlslProgram::updateAttributesList()
             if (string::npos != sattributeName.find(colorSet))
             {
                 string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
-                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
             else if (string::npos != sattributeName.find(uvSet))
             {
                 string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
-                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
 
             _attributeList[sattributeName] = inputPtr;

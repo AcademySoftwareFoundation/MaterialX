@@ -164,7 +164,7 @@ void ShaderGenerator::emitTypeDefinitions(GenContext&, ShaderStage& stage) const
 }
 
 void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const string& qualifier,
-                                              GenContext&, ShaderStage& stage,
+                                              GenContext& context, ShaderStage& stage,
                                               bool assignValue) const
 {
     string str = qualifier.empty() ? EMPTY_STRING : qualifier + " ";
@@ -187,7 +187,7 @@ void ShaderGenerator::emitVariableDeclaration(const ShaderPort* variable, const 
     if (assignValue)
     {
         const string valueStr = (variable->getValue() ?
-                                 _syntax->getValue(variable->getType(), *variable->getValue(), true) :
+                                 _syntax->getValue(variable->getType(), *variable->getValue(), context, true) :
                                  _syntax->getDefaultValue(variable->getType(), true));
         str += valueStr.empty() ? EMPTY_STRING : " = " + valueStr;
     }
@@ -243,7 +243,7 @@ string ShaderGenerator::getUpstreamResult(const ShaderInput* input, GenContext& 
 {
     if (!input->getConnection())
     {
-        return input->getValue() ? _syntax->getValue(input->getType(), *input->getValue()) : _syntax->getDefaultValue(input->getType());
+        return input->getValue() ? _syntax->getValue(input->getType(), *input->getValue(), context) : _syntax->getDefaultValue(input->getType());
     }
 
     string variable = input->getConnection()->getVariable();
@@ -300,7 +300,7 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
         throw ExceptionShaderGenError("NodeDef '" + nodedef.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = TypeDesc::get(outputs[0]->getType());
+    const TypeDesc outputType = context.getTypeDesc(outputs[0]->getType());
 
     if (implElement->isA<NodeGraph>())
     {
@@ -344,8 +344,48 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     return impl;
 }
 
+void ShaderGenerator::registerTypeDefs(const DocumentPtr& doc, GenContext& context)
+{
+    registerBuiltinTypes(context);
+    registerStructTypeDefs(doc, context);
+}
+
+void ShaderGenerator::registerBuiltinTypes(GenContext& context)
+{
+    // TODO - revisit this once this is merged and make this list of types
+    // dynamically loaded from what is present in the document - making MaterialX
+    // more data driven.  Initially this can just be a name matching against the
+    // <typedef> in the document against the TypeDesc object in Type::, later
+    // we may consider fully specifying the type in the <typedef>
+
+    // Register type descriptors for standard types.
+    context.registerTypeDesc(Type::NONE, "none");
+    context.registerTypeDesc(Type::BOOLEAN, "boolean");
+    context.registerTypeDesc(Type::INTEGER, "integer");
+    context.registerTypeDesc(Type::INTEGERARRAY, "integerarray");
+    context.registerTypeDesc(Type::FLOAT, "float");
+    context.registerTypeDesc(Type::FLOATARRAY, "floatarray");
+    context.registerTypeDesc(Type::VECTOR2, "vector2");
+    context.registerTypeDesc(Type::VECTOR3, "vector3");
+    context.registerTypeDesc(Type::VECTOR4, "vector4");
+    context.registerTypeDesc(Type::COLOR3, "color3");
+    context.registerTypeDesc(Type::COLOR4, "color4");
+    context.registerTypeDesc(Type::MATRIX33, "matrix33");
+    context.registerTypeDesc(Type::MATRIX44, "matrix44");
+    context.registerTypeDesc(Type::STRING, "string");
+    context.registerTypeDesc(Type::FILENAME, "filename");
+    context.registerTypeDesc(Type::BSDF, "BSDF");
+    context.registerTypeDesc(Type::EDF, "EDF");
+    context.registerTypeDesc(Type::VDF, "VDF");
+    context.registerTypeDesc(Type::SURFACESHADER, "surfaceshader");
+    context.registerTypeDesc(Type::VOLUMESHADER, "volumeshader");
+    context.registerTypeDesc(Type::DISPLACEMENTSHADER, "displacementshader");
+    context.registerTypeDesc(Type::LIGHTSHADER, "lightshader");
+    context.registerTypeDesc(Type::MATERIAL, "material");
+}
+
 /// Load any struct type definitions from the document in to the type cache.
-void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
+void ShaderGenerator::registerStructTypeDefs(const DocumentPtr& doc, GenContext& context)
 {
     for (const auto& mxTypeDef : doc->getTypeDefs())
     {
@@ -356,33 +396,28 @@ void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
         if (members.empty())
             continue;
 
-        StructTypeDesc newStructTypeDesc;
+        auto structMemberDescs = std::make_shared<StructMemberDescVec>();
         for (const auto& member : members)
         {
             auto memberName = member->getName();
             auto memberTypeName = member->getType();
-            auto memberType = TypeDesc::get(memberTypeName);
+            auto memberType = context.getTypeDesc(memberTypeName);
             auto memberDefaultValue = member->getValueString();
 
-            newStructTypeDesc.addMember(memberName, memberType, memberDefaultValue);
+            // If the member type is a struct itself - then we need to collect the submember information
+            // this is to ensure we can access it later in a context where the GenContext isn't available,
+            // such as the MaterialXRender.
+            ConstStructMemberDescVecPtr submembers = context.getStructMembers(memberType);
+
+            structMemberDescs->emplace_back( StructMemberDesc(memberName, memberType, memberDefaultValue, submembers) );
         }
 
-        auto structIndex = StructTypeDesc::emplace_back(newStructTypeDesc);
+        auto structIndex = context.registerStructMembers(structMemberDescs);
 
-        TypeDesc structTypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex);
-
-        TypeDescRegistry(structTypeDesc, typeDefName);
-
-        StructTypeDesc::get(structIndex).setTypeDesc(TypeDesc::get(typeDefName));
+        context.registerTypeDesc(TypeDesc(typeDefName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structIndex), typeDefName);
     }
 
-    _syntax->registerStructTypeDescSyntax();
-}
-
-/// Clear any struct type definitions loaded
-void ShaderGenerator::clearStructTypeDefs()
-{
-    StructTypeDesc::clear();
+    _syntax->registerStructTypeDescSyntax(context);
 }
 
 namespace
@@ -436,7 +471,7 @@ void ShaderGenerator::registerShaderMetadata(const DocumentPtr& doc, GenContext&
         if (def->getExportable())
         {
             const string& attrName = def->getAttrName();
-            const TypeDesc type = TypeDesc::get(def->getType());
+            const TypeDesc type = context.getTypeDesc(def->getType());
             if (!attrName.empty() && type != Type::NONE)
             {
                 registry->addMetadata(attrName, type, def->getValue());

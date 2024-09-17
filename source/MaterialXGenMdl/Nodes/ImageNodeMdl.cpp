@@ -20,7 +20,7 @@ ShaderNodeImplPtr ImageNodeMdl::create()
 void ImageNodeMdl::addInputs(ShaderNode& node, GenContext& context) const
 {
     BASE::addInputs(node, context);
-    node.addInput(ImageNodeMdl::FLIP_V, Type::BOOLEAN)->setUniform();
+    node.addInput(ImageNodeMdl::FLIP_V, Type::BOOLEAN, context)->setUniform();
 }
 
 bool ImageNodeMdl::isEditable(const ShaderInput& input) const

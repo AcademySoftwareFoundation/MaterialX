@@ -21,6 +21,12 @@ namespace mx = MaterialX;
 
 TEST_CASE("GenShader: MSL Syntax Check", "[genmsl]")
 {
+    mx::GenContext context(mx::MslShaderGenerator::create());
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+    context.getShaderGenerator().registerTypeDefs(libraries, context);
+
     mx::SyntaxPtr syntax = mx::MslSyntax::create();
 
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
@@ -50,31 +56,31 @@ TEST_CASE("GenShader: MSL Syntax Check", "[genmsl]")
     REQUIRE(value.empty());
 
     mx::ValuePtr floatValue = mx::Value::createValue<float>(42.0f);
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue);
+    value = syntax->getValue(mx::Type::FLOAT, *floatValue, context);
     REQUIRE(value == "42.0");
-    value = syntax->getValue(mx::Type::FLOAT, *floatValue, true);
+    value = syntax->getValue(mx::Type::FLOAT, *floatValue, context, true);
     REQUIRE(value == "42.0");
 
     mx::ValuePtr color3Value = mx::Value::createValue<mx::Color3>(mx::Color3(1.0f, 2.0f, 3.0f));
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value);
+    value = syntax->getValue(mx::Type::COLOR3, *color3Value, context);
     REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
-    value = syntax->getValue(mx::Type::COLOR3, *color3Value, true);
+    value = syntax->getValue(mx::Type::COLOR3, *color3Value, context, true);
     REQUIRE(value == "vec3(1.0, 2.0, 3.0)");
 
     mx::ValuePtr color4Value = mx::Value::createValue<mx::Color4>(mx::Color4(1.0f, 2.0f, 3.0f, 4.0f));
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value);
+    value = syntax->getValue(mx::Type::COLOR4, *color4Value, context);
     REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
-    value = syntax->getValue(mx::Type::COLOR4, *color4Value, true);
+    value = syntax->getValue(mx::Type::COLOR4, *color4Value, context, true);
     REQUIRE(value == "vec4(1.0, 2.0, 3.0, 4.0)");
 
     std::vector<float> floatArray = { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f };
     mx::ValuePtr floatArrayValue = mx::Value::createValue<std::vector<float>>(floatArray);
-    value = syntax->getValue(mx::Type::FLOATARRAY, *floatArrayValue);
+    value = syntax->getValue(mx::Type::FLOATARRAY, *floatArrayValue, context);
     REQUIRE(value == "{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7}");
 
     std::vector<int> intArray = { 1, 2, 3, 4, 5, 6, 7 };
     mx::ValuePtr intArrayValue = mx::Value::createValue<std::vector<int>>(intArray);
-    value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue);
+    value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue, context);
     REQUIRE(value == "{1, 2, 3, 4, 5, 6, 7}");
 }
 
@@ -107,6 +113,7 @@ TEST_CASE("GenShader: MSL Bind Light Shaders", "[genmsl]")
 
     mx::GenContext context(mx::MslShaderGenerator::create());
     context.registerSourceCodeSearchPath(searchPath);
+    context.getShaderGenerator().registerTypeDefs(doc, context);
 
     mx::HwShaderGenerator::bindLightShader(*pointLightShader, 42, context);
     REQUIRE_THROWS(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 42, context));

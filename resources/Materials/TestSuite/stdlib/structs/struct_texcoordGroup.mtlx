@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<materialx version="1.38">
+
+    <typedef name="texcoord_struct">
+        <member name="ss" type="float" value="0.5"/>
+        <member name="tt" type="float" value="0.5"/>
+    </typedef>
+    <typedef name="texcoordGroup_struct">
+        <member name="st_0" type="texcoord_struct" value="{0.1;0.1}"/>
+        <member name="st_1" type="texcoord_struct" value="{0.5;0.5}"/>
+        <member name="st_2" type="texcoord_struct" value="{0.9;0.9}"/>
+    </typedef>
+
+    <nodedef name="ND_extract_first_s_texcoordGroup" node="extractfirstsgroup" nodegroup="shader" >
+        <input name="in" type="texcoordGroup_struct" value="{{0.1;0.2};{0.3;0.4};{0.5;0.6}}"/>
+        <output name="out" type="float" value="0.0" />
+    </nodedef>
+
+    <implementation name="IM_extract_first_s_texcoordGroup_genglsl" nodedef="ND_extract_first_s_texcoordGroup" target="genglsl" sourcecode="{{in}}.st_0.ss">
+        <input name="in" type="texcoordGroup_struct" implname="data" />
+    </implementation>
+    <implementation name="IM_extract_first_s_texcoordGroup_genmdl" nodedef="ND_extract_first_s_texcoordGroup" target="genmdl" sourcecode="{{in}}.st_0.ss">
+        <input name="in" type="texcoordGroup_struct" implname="data" />
+    </implementation>
+    <implementation name="IM_extract_first_s_texcoordGroup_genmsl" nodedef="ND_extract_first_s_texcoordGroup" target="genmsl" sourcecode="{{in}}.st_0.ss">
+        <input name="in" type="texcoordGroup_struct" implname="data" />
+    </implementation>
+    <implementation name="IM_extract_first_s_texcoordGroup_genosl" nodedef="ND_extract_first_s_texcoordGroup" target="genosl" sourcecode="{{in}}.st_0.ss">
+        <input name="in" type="texcoordGroup_struct" implname="data" />
+    </implementation>
+
+    <nodegraph name="test_struct_texcoordgroup">
+        <extractfirstsgroup name="extractfirstsgroup" type="float">
+            <input name="in" type="texcoordGroup_struct" value="{{0.1;0.2};{0.3;0.4};{0.5;0.6}}"/>
+        </extractfirstsgroup>
+        <convert name="float_to_color3" type="color3">
+            <input name="in" type="float" nodename="extractfirstsgroup"/>
+        </convert>
+        <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
+            <input name="color" type="color3" nodename="float_to_color3" />
+        </oren_nayar_diffuse_bsdf>
+        <surface name="surface1" type="surfaceshader">
+            <input name="bsdf" type="BSDF" nodename="diffuse_brdf1" />
+            <input name="opacity" type="float" value="1.0" />
+        </surface>
+        <output name="out" type="surfaceshader" nodename="surface1" />
+    </nodegraph>
+</materialx>

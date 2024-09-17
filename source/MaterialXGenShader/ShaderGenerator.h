@@ -191,11 +191,7 @@ class MX_GENSHADER_API ShaderGenerator
         return _tokenSubstitutions;
     }
 
-    /// Load any struct type definitions from the document in to the type cache.
-    void loadStructTypeDefs(const DocumentPtr& doc);
-
-    /// Clear any struct type definitions loaded
-    void clearStructTypeDefs();
+    void registerTypeDefs(const DocumentPtr& doc, GenContext& context);
 
     /// Register metadata that should be exported to the generated shaders.
     /// Supported metadata includes standard UI attributes like "uiname", "uifolder",
@@ -207,6 +203,14 @@ class MX_GENSHADER_API ShaderGenerator
     /// Applications must explicitly call this method before shader generation to enable
     /// export of metadata.
     virtual void registerShaderMetadata(const DocumentPtr& doc, GenContext& context) const;
+
+  private:
+    /// Load any struct type definitions from the document in to the type cache.
+    void registerStructTypeDefs(const DocumentPtr& doc, GenContext& context);
+
+  protected:
+    /// protected so that subclasses can add additional builtin types. (MDL needs this).
+    virtual void registerBuiltinTypes(GenContext& context);
 
   protected:
     /// Protected constructor

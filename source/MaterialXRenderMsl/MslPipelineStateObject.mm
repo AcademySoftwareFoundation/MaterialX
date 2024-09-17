@@ -265,12 +265,12 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
             if (string::npos != sattributeName.find(colorSet))
             {
                 string setNumber = sattributeName.substr(colorSet.size(), sattributeName.size());
-                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
             else if (string::npos != sattributeName.find(uvSet))
             {
                 string setNumber = sattributeName.substr(uvSet.size(), sattributeName.size());
-                inputPtr->value = Type::INTEGER.createValueFromStrings(setNumber);
+                inputPtr->value = Value::createValueFromStrings(setNumber, getTypeString<int>());
             }
 
             _attributeList[sattributeName] = inputPtr;
@@ -1035,11 +1035,11 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
 
                 const auto populateUniformInput =
                     [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
-                    (TypeDesc variableTypeDesc, const string& variableName, ConstValuePtr variableValue) -> void
+                    (TypeDesc variableTypeDesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue) -> void
                 {
                     auto populateUniformInput_impl =
                         [this, uniforms, variablePath, variableSemantic, &errors, &uniformTypeMismatchFound]
-                        (TypeDesc variableTypeDesc, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
+                        (TypeDesc variableTypeDesc, const StructMemberDescVec* variableStructMembers, const string& variableName, ConstValuePtr variableValue, auto& populateUniformInput_ref) -> void
                     {
                         // There is no way to match with an unnamed variable
                         if (variableName.empty())
@@ -1054,7 +1054,7 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                             return;
                         }
 
-                        if (!variableTypeDesc.isStruct())
+                        if (!variableTypeDesc.isStruct() || !variableStructMembers)
                         {
                             auto inputIt = _uniformList.find(variableName);
 
@@ -1094,25 +1094,22 @@ const MslProgram::InputMap& MslProgram::updateUniformsList()
                         }
                         else
                         {
-                            auto structTypeDesc = StructTypeDesc::get(variableTypeDesc.getStructIndex());
                             auto aggregateValue = std::static_pointer_cast<const AggregateValue>(variableValue);
-
-                            const auto& members = structTypeDesc.getMembers();
-                            for (size_t i = 0, n = members.size(); i < n; ++i)
+                            for (size_t i = 0, n = variableStructMembers->size(); i < n; ++i)
                             {
-                                const auto& structMember = members[i];
-                                auto memberVariableName = variableName+"."+structMember._name;
+                                const auto& structMember = variableStructMembers->at(i);
+                                auto memberVariableName = variableName+"."+structMember.getName();
                                 auto memberVariableValue = aggregateValue->getMemberValue(i);
 
-                                populateUniformInput_ref(structMember._typeDesc, memberVariableName, memberVariableValue, populateUniformInput_ref);
+                                populateUniformInput_ref(structMember.getTypeDesc(), structMember.getSubMembers().get(), memberVariableName, memberVariableValue, populateUniformInput_ref);
                             }
                         }
                     };
 
-                    return populateUniformInput_impl(variableTypeDesc, variableName, variableValue, populateUniformInput_impl);
+                    return populateUniformInput_impl(variableTypeDesc, variableStructMembers, variableName, variableValue, populateUniformInput_impl);
                 };
 
-                populateUniformInput(v->getType(), v->getVariable(), v->getValue());
+                populateUniformInput(v->getType(), v->getStructMembers(), v->getVariable(), v->getValue());
             }
         }
 

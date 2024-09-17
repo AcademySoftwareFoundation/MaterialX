@@ -19,12 +19,12 @@ ShaderNodeImplPtr HwImageNode::create()
     return std::make_shared<HwImageNode>();
 }
 
-void HwImageNode::addInputs(ShaderNode& node, GenContext&) const
+void HwImageNode::addInputs(ShaderNode& node, GenContext& context) const
 {
     // Add additional scale and offset inputs to match implementation arguments
-    ShaderInput* input = node.addInput(UV_SCALE, Type::VECTOR2);
+    ShaderInput* input = node.addInput(UV_SCALE, Type::VECTOR2, context);
     input->setValue(Value::createValue<Vector2>(Vector2(1.0f, 1.0f)));
-    input = node.addInput(UV_OFFSET, Type::VECTOR2);
+    input = node.addInput(UV_OFFSET, Type::VECTOR2, context);
     input->setValue(Value::createValue<Vector2>(Vector2(0.0f, 0.0f)));
 }
 

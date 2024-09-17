@@ -13,19 +13,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-// Custom types to handle enumeration output
-namespace Type
-{
-
-TYPEDESC_REGISTER_TYPE(MDL_COORDINATESPACE, "coordinatespace")
-TYPEDESC_REGISTER_TYPE(MDL_ADDRESSMODE, "addressmode")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERLOOKUPMODE, "filterlookup")
-TYPEDESC_REGISTER_TYPE(MDL_FILTERTYPE, "filtertype")
-TYPEDESC_REGISTER_TYPE(MDL_DISTRIBUTIONTYPE, "distributiontype")
-TYPEDESC_REGISTER_TYPE(MDL_SCATTER_MODE, "scatter_mode")
-
-} // namespace Type
-
 namespace
 {
 
@@ -37,7 +24,7 @@ class MdlFilenameTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         const string outputValue = value.getValueString();
         if (outputValue.empty() || outputValue == "/")
@@ -84,7 +71,7 @@ class MdlArrayTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         if (!isEmpty(value))
         {
@@ -145,7 +132,7 @@ class MdlColor4TypeSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         StringStream ss;
 
@@ -171,7 +158,7 @@ class MdlEnumSyntax : public AggregateTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         return _name + "_" + value.getValueString();
     }

@@ -220,6 +220,35 @@ class MX_GENSHADER_API GenContext
         return _applicationVariableHandler;
     }
 
+    //
+    // TypeDesc methods
+    //
+
+    TypeDesc getTypeDesc(const string& name) const
+    {
+        return _typeDescs.getTypeDesc(name);
+    }
+
+    void registerTypeDesc(TypeDesc T, const string& name)
+    {
+        _typeDescs.registerTypeDesc(T, name);
+    }
+
+    uint16_t registerStructMembers(ConstStructMemberDescVecPtr structTypeDesc)
+    {
+        return _typeDescs.registerStructMembers(structTypeDesc);
+    }
+
+    ConstStructMemberDescVecPtr getStructMembers(TypeDesc typeDesc) const
+    {
+        return _typeDescs.getStructMembers(typeDesc);
+    }
+
+    vector<TypeDesc> getStructTypeDescs() const
+    {
+        return _typeDescs.getStructTypeDescs();
+    }
+
   protected:
     GenContext() = delete;
 
@@ -237,6 +266,13 @@ class MX_GENSHADER_API GenContext
     vector<ConstNodePtr> _parentNodes;
 
     ApplicationVariableHandler _applicationVariableHandler;
+
+  private:
+    // TODO - Decide if we want to keep this object - or unfold its contents inside this class.
+    // This object contains all the TypeDesc and StructMemberDescs.
+    // The methods above just wrap and expose this storage.
+    // This is useful as a separate object if we ever think we might want to use it outside of Shader Generation.
+    TypeDescStorage _typeDescs;
 };
 
 /// @class ClosureContext

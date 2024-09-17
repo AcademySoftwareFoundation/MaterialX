@@ -167,7 +167,7 @@ void BlurNode::emitFunctionCall(const ShaderNode& node, GenContext& context, Sha
             string emitValue = "\"" + GAUSSIAN_FILTER + "\"";
             if (syntax.remapEnumeration(GAUSSIAN_FILTER, Type::STRING, FILTER_LIST, result))
             {
-                emitValue = syntax.getValue(result.first, *(result.second));
+                emitValue = syntax.getValue(result.first, *(result.second), context);
             }
             shadergen.emitString(" == " + emitValue + ")", stage);
             shadergen.emitLineEnd(stage, false);

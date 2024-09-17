@@ -70,7 +70,7 @@ class MX_GENSHADER_API Syntax
     /// Multiple calls will add to the internal set of tokens.
     void registerInvalidTokens(const StringMap& tokens);
 
-    virtual void registerStructTypeDescSyntax();
+    virtual void registerStructTypeDescSyntax(const GenContext& context);
 
     /// Returns a set of names that are reserved words for this language syntax.
     const StringSet& getReservedWords() const { return _reservedWords; }
@@ -109,11 +109,11 @@ class MX_GENSHADER_API Syntax
     [[deprecated]] const string& getDefaultValue(const TypeDesc* type, bool uniform = false) const { return getDefaultValue(*type, uniform); }
 
     /// Returns the value string for a given type and value object
-    virtual string getValue(TypeDesc type, const Value& value, bool uniform = false) const;
-    [[deprecated]] string getValue(const TypeDesc* type, const Value& value, bool uniform = false) const { return getValue(*type, value, uniform); }
+    virtual string getValue(TypeDesc type, const Value& value, const GenContext& context, bool uniform = false) const;
+    [[deprecated]] string getValue(const TypeDesc* type, const Value& value, const GenContext& context, bool uniform = false) const { return getValue(*type, value, context, uniform); }
 
     /// Returns the value string for a given shader port object
-    virtual string getValue(const ShaderPort* port, bool uniform = false) const;
+    virtual string getValue(const ShaderPort* port, const GenContext& context, bool uniform = false) const;
 
     /// Returns a type qualifier to be used when declaring types for input variables.
     /// Default implementation returns empty string and derived syntax classes should
@@ -258,11 +258,11 @@ class MX_GENSHADER_API TypeSyntax
 
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given shader port object.
-    virtual string getValue(const ShaderPort* port, bool uniform) const;
+    virtual string getValue(const ShaderPort* port, const GenContext& context, bool uniform) const;
 
     /// Returns a value formatted according to this type syntax.
     /// The value is constructed from the given value object.
-    virtual string getValue(const Value& value, bool uniform) const = 0;
+    virtual string getValue(const Value& value, const GenContext& context, bool uniform) const = 0;
 
   protected:
     /// Protected constructor
@@ -286,7 +286,7 @@ class MX_GENSHADER_API ScalarTypeSyntax : public TypeSyntax
     ScalarTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
-    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const Value& value, const GenContext& context, bool uniform) const override;
 };
 
 /// Specialization of TypeSyntax for string types.
@@ -296,7 +296,7 @@ class MX_GENSHADER_API StringTypeSyntax : public ScalarTypeSyntax
     StringTypeSyntax(const string& name, const string& defaultValue, const string& uniformDefaultValue,
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING);
 
-    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const Value& value, const GenContext& context, bool uniform) const override;
 };
 
 /// Specialization of TypeSyntax for aggregate types.
@@ -307,7 +307,7 @@ class MX_GENSHADER_API AggregateTypeSyntax : public TypeSyntax
                         const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                         const StringVec& members = EMPTY_MEMBERS);
 
-    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const Value& value, const GenContext& context, bool uniform) const override;
 };
 
 /// Specialization of TypeSyntax for aggregate types.
@@ -318,7 +318,7 @@ class MX_GENSHADER_API StructTypeSyntax : public TypeSyntax
                      const string& typeAlias = EMPTY_STRING, const string& typeDefinition = EMPTY_STRING,
                      const StringVec& members = EMPTY_MEMBERS);
 
-    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const Value& value, const GenContext& context, bool uniform) const override;
 
   protected:
     const Syntax* _parentSyntax;

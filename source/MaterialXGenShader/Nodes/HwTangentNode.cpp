@@ -14,23 +14,23 @@ ShaderNodeImplPtr HwTangentNode::create()
     return std::make_shared<HwTangentNode>();
 }
 
-void HwTangentNode::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void HwTangentNode::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_TANGENT, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_TANGENT, vs);
 
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
     if (space == WORLD_SPACE)
     {
-        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_MATRIX, vs);
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_WORLD, vs, ps);
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, context, HW::T_WORLD_MATRIX, vs);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_TANGENT_WORLD, vs, ps);
     }
     else
     {
-        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_TANGENT_OBJECT, vs, ps);
+        addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_TANGENT_OBJECT, vs, ps);
     }
 }
 

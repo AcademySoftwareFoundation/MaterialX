@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+    <!-- TODO - Decide if perhaps this structs test folder belongs in a different parent folder
+                its not really testing any stdlib node.
+                Its more like testing Core MaterialX features -->
+
+    <typedef name="texcoord_struct">
+        <member name="ss" type="float" value="0.5"/>
+        <member name="tt" type="float" value="0.5"/>
+    </typedef>
+
+    <nodedef name="ND_extract_s_texcoord" node="extracts" nodegroup="shader" >
+        <input name="in" type="texcoord_struct" value="{0.1;0.1}" />
+        <output name="out" type="float" value="0.0" />
+    </nodedef>
+
+    <implementation name="IM_extract_s_texcoord_genmsl" nodedef="ND_extract_s_texcoord" target="genmsl" sourcecode="{{in}}.ss" />
+    <implementation name="IM_extract_s_texcoord_genosl" nodedef="ND_extract_s_texcoord" target="genosl" sourcecode="{{in}}.ss" />
+    <implementation name="IM_extract_s_texcoord_genmdl" nodedef="ND_extract_s_texcoord" target="genmdl" sourcecode="{{in}}.ss" />
+    <implementation name="IM_extract_s_texcoord_genglsl" nodedef="ND_extract_s_texcoord" target="genglsl" sourcecode="{{in}}.ss" />
+
+    <nodegraph name="test_struct_texcoord">
+        <extracts name="extracts" type="float">
+            <input name="in" type="texcoord_struct" value="{0.01;0.5}"/>
+        </extracts>
+        <convert name="float_to_color3" type="color3">
+            <input name="in" type="float" nodename="extracts"/>
+        </convert>
+        <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
+            <input name="color" type="color3" nodename="float_to_color3" />
+        </oren_nayar_diffuse_bsdf>
+        <surface name="surface1" type="surfaceshader">
+            <input name="bsdf" type="BSDF" nodename="diffuse_brdf1" />
+            <input name="opacity" type="float" value="1.0" />
+        </surface>
+        <output name="out" type="surfaceshader" nodename="surface1" />
+    </nodegraph>
+</materialx>

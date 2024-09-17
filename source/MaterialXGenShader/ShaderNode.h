@@ -123,7 +123,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 {
   public:
     /// Constructor.
-    ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ValuePtr value = nullptr);
+    ShaderPort(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers, ValuePtr value = nullptr);
 
     /// Return a shared pointer instance of this object.
     ShaderPortPtr getSelf()
@@ -142,6 +142,8 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 
     /// Return the data type for this port.
     TypeDesc getType() const { return _type; }
+
+    const StructMemberDescVec* getStructMembers() const { return _structMembers.get(); }
 
     /// Set the name of this port.
     void setName(const string& name) { _name = name; }
@@ -246,6 +248,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
   protected:
     ShaderNode* _node;
     TypeDesc _type;
+    ConstStructMemberDescVecPtr _structMembers;
     string _name;
     string _path;
     string _semantic;
@@ -263,7 +266,7 @@ class MX_GENSHADER_API ShaderPort : public std::enable_shared_from_this<ShaderPo
 class MX_GENSHADER_API ShaderInput : public ShaderPort
 {
   public:
-    ShaderInput(ShaderNode* node, TypeDesc type, const string& name);
+    ShaderInput(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers);
 
     /// Return a connection to an upstream node output,
     /// or nullptr if not connected.
@@ -294,7 +297,7 @@ class MX_GENSHADER_API ShaderInput : public ShaderPort
 class MX_GENSHADER_API ShaderOutput : public ShaderPort
 {
   public:
-    ShaderOutput(ShaderNode* node, TypeDesc type, const string& name);
+    ShaderOutput(ShaderNode* node, TypeDesc type, const string& name, ConstStructMemberDescVecPtr structMembers);
 
     /// Return a set of connections to downstream node inputs,
     /// empty if not connected.
@@ -436,8 +439,8 @@ class MX_GENSHADER_API ShaderNode
     void initialize(const Node& node, const NodeDef& nodeDef, GenContext& context);
 
     /// Add inputs/outputs
-    ShaderInput* addInput(const string& name, TypeDesc type);
-    ShaderOutput* addOutput(const string& name, TypeDesc type);
+    ShaderInput* addInput(const string& name, TypeDesc type, const GenContext& context);
+    ShaderOutput* addOutput(const string& name, TypeDesc type, const GenContext& context);
 
     /// Get number of inputs/outputs
     size_t numInputs() const { return _inputOrder.size(); }

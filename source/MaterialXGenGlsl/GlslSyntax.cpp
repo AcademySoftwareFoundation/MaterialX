@@ -5,6 +5,7 @@
 
 #include <MaterialXGenGlsl/GlslSyntax.h>
 
+#include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -20,7 +21,7 @@ class GlslStringTypeSyntax : public StringTypeSyntax
     GlslStringTypeSyntax() :
         StringTypeSyntax("int", "0", "0") { }
 
-    string getValue(const Value& /*value*/, bool /*uniform*/) const override
+    string getValue(const Value& /*value*/, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         return "0";
     }
@@ -34,7 +35,7 @@ class GlslArrayTypeSyntax : public ScalarTypeSyntax
     {
     }
 
-    string getValue(const Value& value, bool /*uniform*/) const override
+    string getValue(const Value& value, const GenContext& /*context*/, bool /*uniform*/) const override
     {
         size_t arraySize = getSize(value);
         if (arraySize > 0)
@@ -388,7 +389,7 @@ StructTypeSyntaxPtr GlslSyntax::createStructSyntax(const string& structTypeName,
         typeDefinition);
 }
 
-string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) const
+string GlslStructTypeSyntax::getValue(const Value& value, const GenContext& context, bool /*uniform*/) const
 {
     const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
 
@@ -401,10 +402,10 @@ string GlslStructTypeSyntax::getValue(const Value& value, bool /* uniform */) co
         separator = ",";
 
         auto memberTypeName = memberValue->getTypeString();
-        auto memberTypeDesc = TypeDesc::get(memberTypeName);
+        auto memberTypeDesc = context.getTypeDesc(memberTypeName);
 
         // Recursively use the syntax to generate the output, so we can supported nested structs.
-        result += _parentSyntax->getValue(memberTypeDesc, *memberValue, true);
+        result += _parentSyntax->getValue(memberTypeDesc, *memberValue, context, true);
     }
 
     result += ")";

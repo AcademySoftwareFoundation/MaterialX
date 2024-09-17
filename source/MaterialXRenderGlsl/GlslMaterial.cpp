@@ -360,7 +360,7 @@ void GlslMaterial::modifyUniform(const std::string& path, ConstValuePtr value, s
     {
         valueString = value->getValueString();
     }
-    uniform->setValue(uniform->getType().createValueFromStrings(valueString));
+    uniform->setValue(Value::createValueFromStrings(valueString, uniform->getType().getName()));
     if (_doc)
     {
         ElementPtr element = _doc->getDescendant(uniform->getPath());

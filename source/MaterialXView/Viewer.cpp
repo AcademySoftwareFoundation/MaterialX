@@ -1309,6 +1309,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         // Store data library reference.
         doc->setDataLibrary(libraries);
 
+        // Load any additional type defs in the document
+        _genContext.getShaderGenerator().registerTypeDefs(doc, _genContext);
+
         // Apply direct lights.
         applyDirectLights(doc);
 
@@ -1761,7 +1764,7 @@ void Viewer::initContext(mx::GenContext& context)
     context.getOptions().targetDistanceUnit = "meter";
 
     // Initialize the struct typedefs from the stdlib
-    context.getShaderGenerator().loadStructTypeDefs(_stdLib);
+    context.getShaderGenerator().registerTypeDefs(_stdLib, context);
 }
 
 void Viewer::loadStandardLibraries()

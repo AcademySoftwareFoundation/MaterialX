@@ -52,14 +52,14 @@ void SurfaceNodeMsl::createVariables(const ShaderNode&, GenContext& context, Sha
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_POSITION, vs);
-    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, HW::T_IN_NORMAL, vs);
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_POSITION, vs);
+    addStageInput(HW::VERTEX_INPUTS, Type::VECTOR3, context, HW::T_IN_NORMAL, vs);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, context, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, vs);
 
-    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
-    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_NORMAL_WORLD, vs, ps);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_POSITION_WORLD, vs, ps);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, context, HW::T_NORMAL_WORLD, vs, ps);
 
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, context, HW::T_VIEW_POSITION, ps);
 
     const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);

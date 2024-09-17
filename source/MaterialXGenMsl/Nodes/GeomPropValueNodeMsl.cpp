@@ -14,7 +14,7 @@ ShaderNodeImplPtr GeomPropValueNodeMsl::create()
     return std::make_shared<GeomPropValueNodeMsl>();
 }
 
-void GeomPropValueNodeMsl::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void GeomPropValueNodeMsl::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput || !geomPropInput->getValue())
@@ -27,8 +27,8 @@ void GeomPropValueNodeMsl::createVariables(const ShaderNode& node, GenContext&, 
     ShaderStage& vs = shader.getStage(Stage::VERTEX);
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
 
-    addStageInput(HW::VERTEX_INPUTS, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs);
-    addStageConnector(HW::VERTEX_DATA, output->getType(), HW::T_IN_GEOMPROP + "_" + geomProp, vs, ps);
+    addStageInput(HW::VERTEX_INPUTS, output->getType(), context, HW::T_IN_GEOMPROP + "_" + geomProp, vs);
+    addStageConnector(HW::VERTEX_DATA, output->getType(), context, HW::T_IN_GEOMPROP + "_" + geomProp, vs, ps);
 }
 
 void GeomPropValueNodeMsl::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
@@ -72,7 +72,7 @@ ShaderNodeImplPtr GeomPropValueNodeMslAsUniform::create()
     return std::make_shared<GeomPropValueNodeMslAsUniform>();
 }
 
-void GeomPropValueNodeMslAsUniform::createVariables(const ShaderNode& node, GenContext&, Shader& shader) const
+void GeomPropValueNodeMslAsUniform::createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const
 {
     const ShaderInput* geomPropInput = node.getInput(GEOMPROP);
     if (!geomPropInput || !geomPropInput->getValue())
@@ -81,7 +81,7 @@ void GeomPropValueNodeMslAsUniform::createVariables(const ShaderNode& node, GenC
     }
     const string geomProp = geomPropInput->getValue()->getValueString();
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
-    ShaderPort* uniform = addStageUniform(HW::PRIVATE_UNIFORMS, node.getOutput()->getType(), HW::T_GEOMPROP + "_" + geomProp, ps);
+    ShaderPort* uniform = addStageUniform(HW::PRIVATE_UNIFORMS, node.getOutput()->getType(), context, HW::T_GEOMPROP + "_" + geomProp, ps);
     uniform->setPath(geomPropInput->getPath());
 }
 

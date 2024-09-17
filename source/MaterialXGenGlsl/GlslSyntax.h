@@ -58,7 +58,7 @@ class MX_GENGLSL_API GlslStructTypeSyntax : public StructTypeSyntax
   public:
     using StructTypeSyntax::StructTypeSyntax;
 
-    string getValue(const Value& value, bool uniform) const override;
+    string getValue(const Value& value, const GenContext& context, bool uniform) const override;
 };
 
 MATERIALX_NAMESPACE_END

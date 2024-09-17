@@ -65,7 +65,7 @@ void ScalarUnitNode::emitFunctionDefinition(const ShaderNode& node, GenContext& 
         const string VAR_UNIT_SCALE = "u_" + _scalarUnitConverter->getUnitType() + "_unit_scales";
         VariableBlock unitLUT("unitLUT", EMPTY_STRING);
         ScopedFloatFormatting fmt(Value::FloatFormatFixed, 15);
-        unitLUT.add(Type::FLOATARRAY, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
+        unitLUT.add(Type::FLOATARRAY, context, VAR_UNIT_SCALE, Value::createValue<vector<float>>(unitScales));
 
         const ShaderGenerator& shadergen = context.getShaderGenerator();
         shadergen.emitLine("float " + _unitRatioFunctionName + "(int unit_from, int unit_to)", stage, false);

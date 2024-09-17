@@ -14,10 +14,10 @@ ShaderNodeImplPtr HwTimeNode::create()
     return std::make_shared<HwTimeNode>();
 }
 
-void HwTimeNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+void HwTimeNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     ShaderStage& ps = shader.getStage(Stage::PIXEL);
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, HW::T_FRAME, ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::FLOAT, context, HW::T_FRAME, ps);
 }
 
 void HwTimeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const

@@ -39,9 +39,9 @@ void LightNodeMsl::createVariables(const ShaderNode&, GenContext& context, Shade
 
     // Create uniform for intensity, exposure and direction
     VariableBlock& lightUniforms = ps.getUniformBlock(HW::LIGHT_DATA);
-    lightUniforms.add(Type::FLOAT, "intensity", Value::createValue<float>(1.0f));
-    lightUniforms.add(Type::FLOAT, "exposure", Value::createValue<float>(0.0f));
-    lightUniforms.add(Type::VECTOR3, "direction", Value::createValue<Vector3>(Vector3(0.0f, 1.0f, 0.0f)));
+    lightUniforms.add(Type::FLOAT, context, "intensity", Value::createValue<float>(1.0f));
+    lightUniforms.add(Type::FLOAT, context, "exposure", Value::createValue<float>(0.0f));
+    lightUniforms.add(Type::VECTOR3, context, "direction", Value::createValue<Vector3>(Vector3(0.0f, 1.0f, 0.0f)));
 
     const MslShaderGenerator& shadergen = static_cast<const MslShaderGenerator&>(context.getShaderGenerator());
     shadergen.addStageLightingUniforms(context, ps);
