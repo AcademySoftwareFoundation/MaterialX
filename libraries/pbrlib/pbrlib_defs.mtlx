@@ -138,7 +138,7 @@
 
   <!--
     Node: <chiang_hair_bsdf>
-    A BSDF node for Chaing hair shading model.
+    A BSDF node for Chiang hair shading model.
   -->
   <nodedef name="ND_chiang_hair_bsdf" node="chiang_hair_bsdf" bsdf="R" nodegroup="pbr" doc="A BSDF node for Chiang hair shading model.">
     <input name="tint_R" type="color3" value="1, 1, 1" />
