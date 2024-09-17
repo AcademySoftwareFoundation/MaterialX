@@ -9,8 +9,6 @@
 /// @file
 /// Generic value classes
 
-#include <MaterialXCore/MaterialXCore_fwd.h>
-
 #include <MaterialXCore/Exception.h>
 
 #include <MaterialXCore/Types.h>
@@ -37,6 +35,9 @@ using ConstValuePtr = shared_ptr<const Value>;
 using AggregateValuePtr = shared_ptr<AggregateValue>;
 /// A shared pointer to a const Aggregate Value
 using ConstAggregateValuePtr = shared_ptr<const AggregateValue>;
+
+class TypeDef;
+using ConstTypeDefPtr = shared_ptr<const TypeDef>;
 
 template <class T> class TypedValue;
 
