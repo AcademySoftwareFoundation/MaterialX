@@ -25,6 +25,7 @@
     #include <sys/syslimits.h>
 #elif defined(__APPLE__)
     #include <mach-o/dyld.h>
+    #include <dlfcn.h>
 #endif
 
 #include <array>
@@ -370,6 +371,24 @@ FilePath FilePath::getModulePath()
     }
 #endif
 }
+
+#if defined(__APPLE__)
+FilePath FilePath::getSharedLibraryPath()
+{
+    Dl_info info;
+
+    if (dladdr(reinterpret_cast<void*>(&getSharedLibraryPath), &info))
+    {
+        FilePath path = FilePath(info.dli_fname);
+        if (!path.isEmpty())
+        {
+            path = path.getParentPath();
+            return path;
+        }
+    }
+    return {};
+}
+#endif
 
 FileSearchPath getEnvironmentPath(const string& sep)
 {

@@ -226,6 +226,12 @@ FileSearchPath getDefaultDataSearchPath()
 {
     const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
     FilePath currentPath = FilePath::getModulePath();
+
+    #if defined(BUILD_APPLE_FRAMEWORK)
+        const FilePath FRAMEWORK_RESOURCES("Resources");
+        currentPath = FilePath::getSharedLibraryPath() / FRAMEWORK_RESOURCES;
+    #endif
+
     while (!currentPath.isEmpty())
     {
         if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
