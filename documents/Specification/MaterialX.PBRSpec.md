@@ -405,7 +405,7 @@ Note that the standard library includes definitions for [**`displacement`**](./M
     * `eumelanin_color` (color3): Eumelanin color. Defaults to (0.657704, 0.498077, 0.254107)
     * `pheomelanin_color` (color3): Pheomelanin color. Defaults to (0.829444, 0.67032, 0.349938)
 
-<a id="node-chian-hair-absorption-from-color"> </a>
+<a id="node-chiang-hair-absorption-from-color"> </a>
 
 * **`chiang_hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
     * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
