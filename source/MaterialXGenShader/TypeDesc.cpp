@@ -5,7 +5,7 @@
 
 #include <MaterialXGenShader/TypeDesc.h>
 
-#include <MaterialXGenShader/Exceptions.h>
+#include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <sstream>
 
