@@ -193,6 +193,60 @@ template <class T> T fromValueString(const string& value)
     return data;
 }
 
+StringVec parseStructValueString(const string& value)
+{
+    static const char SEPARATOR = ';';
+    static const char OPEN_BRACE = '{';
+    static const char CLOSE_BRACE = '}';
+
+    if (value.empty())
+        return StringVec();
+
+    // Validate the string is correctly formatted - must be at least 2 characters long and start and end with braces
+    if (value.size() < 2 || (value[0] != OPEN_BRACE || value[value.size()-1] != CLOSE_BRACE))
+    {
+        return StringVec();
+    }
+
+    StringVec split;
+
+    // Strip off the surrounding braces
+    string substring = value.substr(1, value.size()-2);
+
+    // Sequentially examine each character to parse the list initializer.
+    string part = "";
+    int braceDepth = 0;
+    for (const char c : substring)
+    {
+        if (c == OPEN_BRACE)
+        {
+            // We've already trimmed the starting brace, so any additional braces indicate members that are themselves list initializers.
+            // We will just return this as a string of the list initializer.
+            braceDepth += 1;
+        }
+        if (braceDepth > 0 && c == CLOSE_BRACE)
+        {
+            braceDepth -= 1;
+        }
+
+        if (braceDepth == 0 && c == SEPARATOR)
+        {
+            // When we hit a separator we store the currently accumulated part, and clear to start collecting the next.
+            split.emplace_back(part);
+            part = "";
+        }
+        else
+        {
+            part += c;
+        }
+    }
+
+    if (!part.empty())
+        split.emplace_back(part);
+
+    return split;
+}
+
 //
 // TypedValue methods
 //
