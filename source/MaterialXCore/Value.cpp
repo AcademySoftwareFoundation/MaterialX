@@ -319,7 +319,7 @@ string AggregateValue::getValueString() const
 
 AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& value, const string& type, ConstTypeDefPtr typeDefPtr)
 {
-    StringVec subValues = splitListInitializer(value);
+    StringVec subValues = parseStructValueString(value);
 
     AggregateValuePtr result = AggregateValue::createAggregateValue(type);
     const auto& members = typeDefPtr->getMembers();

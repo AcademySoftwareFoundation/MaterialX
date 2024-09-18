@@ -85,7 +85,7 @@ ValuePtr TypeDesc::createValueFromStrings(const string& value) const
         return newValue;
 
     // otherwise we are a struct type - and need to create a new aggregate value
-    StringVec subValues = splitListInitializer(value);
+    StringVec subValues = parseStructValueString(value);
 
     AggregateValuePtr  result = AggregateValue::createAggregateValue(getName());
     auto structTypeDesc = StructTypeDesc::get(getStructIndex());
