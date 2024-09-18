@@ -219,7 +219,7 @@ template <class T> MX_CORE_API T fromValueString(const string& value);
 /// Tokenize the string representation of a struct value i.e, "{1;2;3}" into a
 /// vector of substrings.
 /// Note: "{1;2;{3;4;5}}" will be split in to ["1", "2", "{3;4;5}"]
-MX_CORE_API StringVec parseStructValueString(const string& str);
+MX_CORE_API StringVec parseStructValueString(const string& value);
 
 /// Forward declaration of specific template instantiations.
 /// Base types
