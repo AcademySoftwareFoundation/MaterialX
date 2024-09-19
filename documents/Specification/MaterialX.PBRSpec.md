@@ -243,6 +243,21 @@ The PBS nodes also make use of the following standard MaterialX types:
     * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
     * `mode` (uniform string): Selects between `conty_kulla` and `zeltner` sheen models. Defaults to `conty_kulla`.
 
+<a id="node-chiang-hair-bsdf"> </a>
+
+* **`chiang_hair_bsdf`**: Constructs a hair BSDF based on the Chiang hair shading model[^Chiang2016]. This node does not support vertical layering.
+    * `tint_R` (color3): Color multiplier for the first R-lobe. Defaults to (1.0, 1.0, 1.0).
+    * `tint_TT` (color3): Color multiplier for the first TT-lobe. Defaults to (1.0, 1.0, 1.0).
+    * `tint_TRT` (color3): Color multiplier for the first TRT-lobe. Defaults to (1.0, 1.0, 1.0).
+    * `ior` (float): Index of refraction. Defaults to 1.55 being the value for keratin.
+    * `roughness_R` (vector2): Longitudinal and azimuthal roughness (ν, s) for the first R-lobe, range [0.0, ∞). With (0, 0) specifying pure specular scattering. Defaults to (0.1, 0.1).
+    * `roughness_TT` (vector2): Longitudinal and azimuthal roughness (ν, s) for the first TT-lobe, range [0.0, ∞). With (0, 0) specifying pure specular scattering. Defaults to (0.05, 0.05).
+    * `roughness_TRT` (vector2): Longitudinal and azimuthal roughness (ν, s) for the first TRT-lobe, range [0.0, ∞). With (0, 0) specifying pure specular scattering. Defaults to (0.2, 0.2).
+    * `cuticle_angle` (float): Cuticle angle in radians, Values above 0.5 tilt the scales towards the root of the fiber, range [0.0, 1.0]. With 0.5 specifying no tilt. Defaults to 0.5.
+    * `absorption_coefficient` (vector3): Absorption coefficient normalized to the hair fiber diameter. Defaults to (0.0, 0.0, 0.0).
+    * `normal` (vector3): Normal vector of the surface. Defaults to world space normal.
+    * `curve_direction` (vector3): Direction of the hair geometry. Defaults to world space tangent.
+
 
 ## EDF Nodes
 
@@ -374,11 +389,40 @@ Note that the standard library includes definitions for [**`displacement`**](./M
     * `ior` (**output**, vector3): Computed index of refraction.
     * `extinction` (**output**, vector3): Computed extinction coefficient.
 
+<a id="node-chiang-hair-roughness"> </a>
+
+* **`chiang_hair_roughness`**: Converts the artistic parameterization hair roughness to roughness for R, TT and TRT lobes, as described in [^Chiang2016]. Output type `multioutput`, `roughness_R`, `roughness_TT` and `roughness_TRT`, `vector2` type. 
+    * `longitudinal` (float): Longitudinal roughness, range [0.0, 1.0]. Defaults to 0.1.
+    * `azimuthal` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
+    * `scale_TT` (float): Roughness scale for TT lobe. Defaults to 0.5[^Marschner2003].
+    * `scale_TRT` (float): Roughness scale for TRT lobe. Defaults to 2.0[^Marschner2003].
+
+<a id="node-deon-hair-absorption-from-melanin"> </a>
+
+* **`deon_hair_absorption_from_melanin`** : Converts the hair melanin parameterization to absorption coefficient based on pigments eumelanin and pheomelanin using the mapping method described in [^d'Eon2011]. The default of `eumelanin_color` and `pheomelanin_color` are `lin_rec709` color converted from the constants[^d'Eon2011] via `exp(-c)`. They may be transformed to scene-linear rendering color space. `Output type `vector3`.
+    * `melanin_concentration` (float): Amount of melanin affected to the output, range [0.0, 1.0]. Defaults to 0.25.
+    * `melanin_redness` (float): Amount of redness affected to the output, range [0.0, 1.0]. Defaults to 0.5.
+    * `eumelanin_color` (color3): Eumelanin color. Defaults to (0.657704, 0.498077, 0.254107)
+    * `pheomelanin_color` (color3): Pheomelanin color. Defaults to (0.829444, 0.67032, 0.349938)
+
+<a id="node-chiang-hair-absorption-from-color"> </a>
+
+* **`chiang_hair_absorption_from_color`** : Coverts the hair scattering color to absorption coefficient using the mapping method described in [^Chiang2016]. Output type `vector3`.
+    * `color` (color3): Scattering color. Defaults to (1.0, 1.0, 1.0).
+    * `azimuthal_roughness` (float): Azimuthal roughness, range [0.0, 1.0]. Defaults to 0.2.
 
 
 # Shading Model Examples
 
 This section contains examples of shading model implementations using the MaterialX PBS library. For all examples, the shading model is defined via a &lt;nodedef> interface plus a nodegraph implementation. The resulting nodes can be used as shaders by a MaterialX material definition.
+
+
+## Disney Principled BSDF
+
+This shading model was presented by Brent Burley from Walt Disney Animation Studios in 2012[^Burley2012], with additional refinements presented in 2015[^Burley2015].
+
+A MaterialX definition and nodegraph implementation of the Disney Principled BSDF can be found here:  
+[https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/disney_principled.mtlx](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/libraries/bxdf/disney_principled.mtlx)
 
 
 ## Autodesk Standard Surface
@@ -430,15 +474,24 @@ The MaterialX PBS Library includes a number of nodegraphs that can be used to ap
 
 [^Burley2012]: Brent Burley, **Physically-Based Shading at Disney**, <https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf>, 2012
 
+[^Burley2015]: Brent Burley, **Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering**, <https://blog.selfshadow.com/publications/s2015-shading-course/burley/s2015_pbs_disney_bsdf_notes.pdf>, 2015
+
+[^Chiang2016]: Matt Jen-Yuan Chiang et al., **A Practical and Controllable Hair and Fur Model for Production
+Path Tracing**, <https://media.disneyanimation.com/uploads/production/publication_asset/152/asset/eurographics2016Fur_Smaller.pdf>, 2016
+
 [^Christensen2015]: Per H. Christensen, Brent Burley, **Approximate Reflectance Profiles for Efficient Subsurface Scattering**, <http://graphics.pixar.com/library/ApproxBSSRDF/> 2015
 
 [^Conty2017]: Alejandro Conty, Christopher Kulla, **Production Friendly Microfacet Sheen BRDF**, <https://fpsunflower.github.io/ckulla/data/s2017_pbs_imageworks_sheen.pdf>, 2017
+
+[^d'Eon2011]: Eugene d'Eon et al., **An Energy-Conserving Hair Reflectance Model**, <https://eugenedeon.com/pdfs/egsrhair.pdf>, 2011
 
 [^Georgiev2019]: Iliyan Georgiev et al., **Autodesk Standard Surface**, <https://autodesk.github.io/standard-surface/>, 2019.
 
 [^Gulbrandsen2014]: Ole Gulbrandsen, **Artist Friendly Metallic Fresnel**, <http://jcgt.org/published/0003/04/03/paper.pdf>, 2014
 
 [^Hoffman2023]: Naty Hoffman, **Generalization of Adobe's Fresnel Model**, <https://renderwonk.com/publications/wp-generalization-adobe/gen-adobe.pdf> 2023
+
+[^Marschner2003]: Stephen R. Marschner et al., **Light Scattering from Human Hair Fibers**, <http://www.graphics.stanford.edu/papers/hair/hair-sg03final.pdf>, 2003
 
 [^Oren1994]: Michael Oren, Shree K. Nayar, **Generalization of Lambert’s Reflectance Model**, <https://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_SIGGRAPH94.pdf>, 1994
 
