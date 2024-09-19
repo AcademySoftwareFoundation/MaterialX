@@ -299,6 +299,23 @@ template <class T> const T& Value::asA() const
     return typedVal->getData();
 }
 
+template <>
+bool Value::isA<AggregateValue>() const
+{
+    return dynamic_cast<const AggregateValue*>(this) != nullptr;
+}
+
+template <>
+const AggregateValue& Value::asA<AggregateValue>() const
+{
+    const AggregateValue* typedVal = dynamic_cast<const AggregateValue*>(this);
+    if (!typedVal)
+    {
+        throw ExceptionTypeError("Incorrect type specified for value");
+    }
+    return *typedVal;
+}
+
 /// Return value string.
 string AggregateValue::getValueString() const
 {
