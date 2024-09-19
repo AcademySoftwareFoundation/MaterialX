@@ -1316,10 +1316,7 @@ void Document::upgradeVersion()
             }
             else if (nodeCategory == "normalmap")
             {
-                // ND_normalmap was renamed to ND_normalmap_float.
-                // But, there is also ND_normalmap_vector2 that was not renamed.
-                // The only difference between them is the "scale" input type
-                // (float and vector2, respectively), so use that as a test.
+                // ND_normalmap was renamed to ND_normalmap_float
                 NodeDefPtr nodeDef = getShaderNodeDef(node);
                 InputPtr scaleInput = node->getInput("scale");
                 if ((nodeDef && nodeDef->getName() == "ND_normalmap") ||
