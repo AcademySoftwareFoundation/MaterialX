@@ -91,9 +91,14 @@ TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 
     mx::StringSet generatorSkipNodeTypes;
     generatorSkipNodeTypes.insert("light");
-    mx::StringSet generatorSkipNodeDefs;
 
-    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 31);
+    mx::StringSet generatorSkipNodeDefs;
+    generatorSkipNodeDefs.insert("ND_chiang_hair_roughness");
+    generatorSkipNodeDefs.insert("ND_chiang_hair_absorption_from_color");
+    generatorSkipNodeDefs.insert("ND_deon_hair_absorption_from_melanin");
+    generatorSkipNodeDefs.insert("ND_chiang_hair_bsdf");
+
+    GenShaderUtil::checkImplementations(context, generatorSkipNodeTypes, generatorSkipNodeDefs, 35);
 }
 
 
