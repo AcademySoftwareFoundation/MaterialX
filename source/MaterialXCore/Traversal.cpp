@@ -113,7 +113,7 @@ GraphIterator& GraphIterator::operator++()
         // Traverse to the first upstream edge of this element.
         _stack.emplace_back(_upstreamElem, 0);
         Edge nextEdge = _upstreamElem->getUpstreamEdge(0);
-        if (nextEdge && nextEdge.getUpstreamElement())
+        if (nextEdge && nextEdge.getUpstreamElement() && (!_skipVisitedEdges || !skipOrMarkAsVisited(nextEdge)))
         {
             extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());
             return *this;
@@ -140,7 +140,7 @@ GraphIterator& GraphIterator::operator++()
         if (parentFrame.second + 1 < parentFrame.first->getUpstreamEdgeCount())
         {
             Edge nextEdge = parentFrame.first->getUpstreamEdge(++parentFrame.second);
-            if (nextEdge && nextEdge.getUpstreamElement())
+            if (nextEdge && nextEdge.getUpstreamElement() && (!_skipVisitedEdges || !skipOrMarkAsVisited(nextEdge)))
             {
                 extendPathUpstream(nextEdge.getUpstreamElement(), nextEdge.getConnectingElement());
                 return *this;
@@ -175,6 +175,12 @@ void GraphIterator::returnPathDownstream(ElementPtr upstreamElem)
     _pathElems.erase(upstreamElem);
     _upstreamElem = ElementPtr();
     _connectingElem = ElementPtr();
+}
+
+bool GraphIterator::skipOrMarkAsVisited(const Edge& edge)
+{
+    auto [it, inserted] = _visitedEdges.emplace(edge);
+    return !inserted;
 }
 
 //

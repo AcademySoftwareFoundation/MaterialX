@@ -661,6 +661,9 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @sa getUpstreamElement
     GraphIterator traverseGraph() const;
 
+    /// Works just like traverseGraph(), but each edge is only visited once.
+    GraphIterator uniqueTraverseGraph() const;
+
     /// Return the Edge with the given index that lies directly upstream from
     /// this element in the dataflow graph.
     /// @param index An optional index of the edge to be returned, where the
