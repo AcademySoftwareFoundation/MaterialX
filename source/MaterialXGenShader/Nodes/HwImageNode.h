@@ -17,6 +17,9 @@ class MX_GENSHADER_API HwImageNode : public SourceCodeNode
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext& context) const override;
+
+    StringVec addedInputNames() const override;
+
     void setValues(const Node& node, ShaderNode& shaderNode, GenContext& context) const override;
 };
 

@@ -45,6 +45,7 @@ class MX_GENMDL_API LayerableNodeMdl : public SourceCodeNodeMdl
     static ShaderNodeImplPtr create();
 
     void addInputs(ShaderNode& node, GenContext&) const override;
+    StringVec addedInputNames() const override;    
 };
 
 MATERIALX_NAMESPACE_END
