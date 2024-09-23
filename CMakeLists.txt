@@ -533,7 +533,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
             # Conform cmake formats to zsh expected formats
             set(__embedded_build "false")
             if (MATERIALX_BUILD_APPLE_EMBEDDED)
-                    set(__embedded_build "true")
+                set(__embedded_build "true")
             endif()
 
             # Install the Info.plist and shell script
@@ -543,9 +543,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
 
             # Run the shell script for the primary configuration
             install(CODE "execute_process(COMMAND zsh ${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh )")
-
         endif()
-
     endif()
 endif()
 
