@@ -371,7 +371,6 @@ FilePath FilePath::getModulePath()
 #endif
 }
 
-
 FileSearchPath getEnvironmentPath(const string& sep)
 {
     string searchPathEnv = getEnviron(MATERIALX_SEARCH_PATH_ENV_VAR);
