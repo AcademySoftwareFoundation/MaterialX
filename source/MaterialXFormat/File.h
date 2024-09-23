@@ -207,11 +207,6 @@ class MX_FORMAT_API FilePath
     /// Return the directory containing the executable module.
     static FilePath getModulePath();
 
-    #if defined(__APPLE__)
-    /// Return the directory containing the shared library.
-    static FilePath getSharedLibraryPath();
-    #endif
-
   private:
     StringVec _vec;
     Type _type;
