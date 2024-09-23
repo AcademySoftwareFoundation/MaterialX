@@ -17,7 +17,7 @@
     <key>CFBundleShortVersionString</key>
     <string>@MATERIALX_LIBRARY_VERSION@</string>
     <key>CFBundleVersion</key>
-    <string>@MATERIALX_BUILD_IDENTIFIER@</string>
+    <string>@CFBUNDLEVERSION@</string>
     <key>CSResourcesFileMapped</key>
     <true />
 </dict>

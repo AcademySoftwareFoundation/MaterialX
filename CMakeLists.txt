@@ -3,7 +3,6 @@ set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
 set(MATERIALX_BUILD_VERSION 2)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
-math(EXPR MATERIALX_BUILD_IDENTIFIER "${MATERIALX_MAJOR_VERSION} * 10000 + ${MATERIALX_MINOR_VERSION} * 100 + ${MATERIALX_BUILD_VERSION}")
 
 # Cmake setup
 cmake_minimum_required(VERSION 3.24)
@@ -538,6 +537,7 @@ if (MATERIALX_BUILD_MONOLITHIC)
             endif()
 
             # Install the Info.plist and shell script
+            math(EXPR CFBUNDLEVERSION "${MATERIALX_MAJOR_VERSION} * 10000 + ${MATERIALX_MINOR_VERSION} * 100 + ${MATERIALX_BUILD_VERSION}")
             configure_file(cmake/modules/Info.plist.in "${PROJECT_BINARY_DIR}/Info.plist" @ONLY)
             configure_file(cmake/modules/AppleFrameworkBuild.zsh.in "${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh" @ONLY)
 
