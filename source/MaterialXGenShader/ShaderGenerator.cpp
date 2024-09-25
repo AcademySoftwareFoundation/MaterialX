@@ -316,8 +316,12 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     }
     else if (implElement->isA<Implementation>())
     {
-        // Try creating a new in the factory.
-        impl = _implFactory.create(name);
+        if (getColorManagementSystem() && getColorManagementSystem()->hasImplementation(name)) {
+            impl = getColorManagementSystem()->createImplementation(name);
+        } else {
+            // Try creating a new in the factory.
+            impl = _implFactory.create(name);
+        }
         if (!impl)
         {
             // Fall back to source code implementation.
