@@ -9,6 +9,10 @@
 #include <iostream>
 #include <sstream>
 
+#if defined(__APPLE__) && defined(BUILD_APPLE_FRAMEWORK)
+    #include <dlfcn.h>
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 string readFile(const FilePath& filePath)
@@ -226,15 +230,33 @@ FileSearchPath getDefaultDataSearchPath()
 {
     const FilePath REQUIRED_LIBRARY_FOLDER("libraries/targets");
     FilePath currentPath = FilePath::getModulePath();
+
+    FileSearchPath searchPath;
+    #if defined(BUILD_APPLE_FRAMEWORK)
+        const FilePath FRAMEWORK_RESOURCES("Resources");
+
+        Dl_info info;
+        if (dladdr(reinterpret_cast<void*>(&getDefaultDataSearchPath), &info))
+        {
+            FilePath path = FilePath(info.dli_fname);
+            if (!path.isEmpty())
+            {
+                path = path.getParentPath();
+                searchPath.append(path / FRAMEWORK_RESOURCES);
+            }
+        }
+    #endif
+
     while (!currentPath.isEmpty())
     {
         if ((currentPath / REQUIRED_LIBRARY_FOLDER).exists())
         {
-            return FileSearchPath(currentPath);
+            searchPath.append(FileSearchPath(currentPath));
+            break;
         }
         currentPath = currentPath.getParentPath();
     }
-    return FileSearchPath();
+    return searchPath;
 }
 
 MATERIALX_NAMESPACE_END
