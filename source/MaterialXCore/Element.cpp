@@ -49,7 +49,6 @@ const string ElementEquivalenceResult::CHILD_NAME = "child name";
 const string ElementEquivalenceResult::NAME = "name";
 const string ElementEquivalenceResult::CATEGORY = "category";
 
-
 //
 // Element methods
 //
