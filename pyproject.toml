@@ -2,7 +2,11 @@
 # Use a fixed version because we use an experimental feature
 # (a custom plugin) and for now that functionality has
 # no compatibility promises.
-requires = ["scikit-build-core==0.4.4"]
+requires = [
+  "scikit-build-core==0.4.4",
+  # For generating .pyi stub files:
+  "mypy==1.11.2"
+  ]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -71,6 +75,7 @@ sdist.exclude = [
 [tool.scikit-build.cmake.define]
 MATERIALX_BUILD_SHARED_LIBS = 'OFF' # Be explicit
 MATERIALX_BUILD_PYTHON = 'ON'
+MATERIALX_PYTHON_STUBS = 'ON'
 MATERIALX_TEST_RENDER = 'OFF'
 MATERIALX_WARNINGS_AS_ERRORS = 'ON'
 MATERIALX_BUILD_TESTS = 'OFF'
