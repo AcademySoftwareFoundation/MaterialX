@@ -727,7 +727,7 @@ void Viewer::createHelpInterface(Widget* parent)
         std::make_pair("-", "Zoom out with the camera.")
     };
 
-    for (const auto shortcut : keyboard_shortcuts)
+    for (const auto& shortcut : keyboard_shortcuts)
     {
         ng::Widget* twoColumns = new ng::Widget(helpPopup);
         twoColumns->set_layout(gridLayout2);
