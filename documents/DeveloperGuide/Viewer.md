@@ -28,7 +28,6 @@ Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewe
 3.  **Load Environment**: Load a lat-long environment light in the HDR format.
 4.  **Property Editor**: View or edit properties of the current material.
 5.  **Advanced Settings** : Asset and rendering options.
-6.  **Help** : Help and keyboard shorcuts.
 
 ### Geometry
 

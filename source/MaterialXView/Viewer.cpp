@@ -300,7 +300,6 @@ void Viewer::initialize()
     createLoadEnvironmentInterface(_window, "Load Environment");
     createPropertyEditorInterface(_window, "Property Editor");
     createAdvancedSettings(_window);
-    createHelpInterface(_window);
 
     // Create geometry selection box.
     _geomLabel = new ng::Label(_window, "Select Geometry");
@@ -677,24 +676,22 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
     });
 }
 
-void Viewer::createHelpInterface(Widget* parent)
+void Viewer::createShortcutsInterface(Widget* parent)
 {
-    ng::PopupButton* helpButton = new ng::PopupButton(parent, "Help");
-    helpButton->set_icon(FA_INFO_CIRCLE);
-    helpButton->set_chevron_icon(-1);
-    helpButton->set_tooltip("General help and keyboard shortcuts.");
+    ng::Button* shortcutsButton = new ng::Button(parent, "Keyboard Shortcuts");
+    shortcutsButton->set_flags(ng::Button::ToggleButton);
+    shortcutsButton->set_icon(FA_CARET_RIGHT);
 
-    ng::Popup* helpPopupParent = helpButton->popup();
-    helpPopupParent->set_layout(new ng::GroupLayout());
+    ng::Widget* shortcutsTable = new ng::Widget(parent);
+    shortcutsTable->set_layout(new ng::GroupLayout(13));
+    shortcutsTable->set_visible(false);
 
-    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(helpPopupParent);
-    scrollPanel->set_fixed_height(500);
-    ng::Widget* helpPopup = new ng::Widget(scrollPanel);
-    helpPopup->set_layout(new ng::GroupLayout(13));
-
-    ng::Label* viewLabel = new ng::Label(helpPopup, "Keyboard Shortcuts");
-    viewLabel->set_font_size(20);
-    viewLabel->set_font("sans-bold");
+    // recompute layout when showing/hiding shortcuts.
+    shortcutsButton->set_change_callback([this, shortcutsButton, shortcutsTable](bool state) {
+        shortcutsTable->set_visible(state);
+        shortcutsButton->set_icon(state ? FA_CARET_DOWN : FA_CARET_RIGHT);
+        perform_layout();
+    });
 
     // 2 cell layout for (key, description) pair.
     ng::GridLayout* gridLayout2 = new ng::GridLayout(ng::Orientation::Horizontal, 2,
@@ -702,6 +699,7 @@ void Viewer::createHelpInterface(Widget* parent)
     gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
 
     std::vector<std::pair<std::string, std::string>> keyboard_shortcuts = {
+        std::make_pair("U", "It will toggle the display of the UI."),
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
         std::make_pair("G", "Save the current GLSL shader source to file."),
@@ -729,22 +727,24 @@ void Viewer::createHelpInterface(Widget* parent)
 
     for (const auto& shortcut : keyboard_shortcuts)
     {
-        ng::Widget* twoColumns = new ng::Widget(helpPopup);
+        ng::Widget* twoColumns = new ng::Widget(shortcutsTable);
         twoColumns->set_layout(gridLayout2);
 
         ng::Label* keyLabel = new ng::Label(twoColumns, shortcut.first);
         keyLabel->set_font("sans-bold");
-        keyLabel->set_font_size(20);
-        keyLabel->set_fixed_width(80);
+        keyLabel->set_font_size(16);
+        keyLabel->set_fixed_width(40);
 
         ng::Label* descriptionLabel = new ng::Label(twoColumns, shortcut.second);
-        descriptionLabel->set_font_size(20);
-        descriptionLabel->set_fixed_width(350);
+        descriptionLabel->set_font_size(16);
+        descriptionLabel->set_fixed_width(160);
     }
 }
 
+
 void Viewer::createAdvancedSettings(Widget* parent)
 {
+
     ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
     advancedButton->set_icon(FA_TOOLS);
     advancedButton->set_chevron_icon(-1);
@@ -756,6 +756,8 @@ void Viewer::createAdvancedSettings(Widget* parent)
     scrollPanel->set_fixed_height(500);
     ng::Widget* advancedPopup = new ng::Widget(scrollPanel);
     advancedPopup->set_layout(new ng::GroupLayout(13));
+
+    createShortcutsInterface(advancedPopup);
 
     ng::Label* viewLabel = new ng::Label(advancedPopup, "Viewing Options");
     viewLabel->set_font_size(20);
