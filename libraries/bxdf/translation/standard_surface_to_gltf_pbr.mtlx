@@ -76,12 +76,18 @@
     </dotproduct>
 
     <!-- Metallic roughness -->
-    <ifequal name="base_color" type="color3">
+    <ifequal name="no_transmission_base_color" type="color3">
       <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
     </ifequal>
+    <ifgreater name="base_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" nodename="transmission_in_effect_base_color" />
+      <input name="in2" type="color3" nodename="no_transmission_base_color" />
+    </ifgreater>
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
     </dot>
@@ -96,9 +102,24 @@
     <dot name="thickness" type="float">
       <input name="in" type="float" interfacename="transmission_depth" />
     </dot>
-    <dot name="attenuation_color" type="color3">
-      <input name="in" type="color3" interfacename="transmission_color" />
-    </dot>
+    <ifgreater name="transmission_in_effect_attenuation_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission_depth" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" interfacename="transmission_color" />
+      <input name="in2" type="color3" value="1, 1, 1" />
+    </ifgreater>
+    <ifgreater name="attenuation_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" nodename="transmission_in_effect_attenuation_color" />
+      <input name="in2" type="color3" value="1, 1, 1" />
+    </ifgreater>
+    <ifgreater name="transmission_in_effect_base_color" type="color3">
+      <input name="value1" type="float" interfacename="transmission_depth" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" value="1, 1, 1" />
+      <input name="in2" type="color3" interfacename="transmission_color" />
+    </ifgreater>
 
     <!-- Sheen -->
     <multiply name="sheen_color" type="color3">
