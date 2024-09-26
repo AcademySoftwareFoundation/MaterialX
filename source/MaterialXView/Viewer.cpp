@@ -300,6 +300,7 @@ void Viewer::initialize()
     createLoadEnvironmentInterface(_window, "Load Environment");
     createPropertyEditorInterface(_window, "Property Editor");
     createAdvancedSettings(_window);
+    createHelpInterface(_window);
 
     // Create geometry selection box.
     _geomLabel = new ng::Label(_window, "Select Geometry");
@@ -566,6 +567,7 @@ void Viewer::createLoadMeshInterface(Widget* parent, const std::string& label)
 {
     ng::Button* meshButton = new ng::Button(parent, label);
     meshButton->set_icon(FA_FOLDER);
+    meshButton->set_tooltip("Load a new geometry in the OBJ or glTF format.");
     meshButton->set_callback([this]()
     {
         m_process_events = false;
@@ -593,6 +595,7 @@ void Viewer::createLoadMaterialsInterface(Widget* parent, const std::string& lab
 {
     ng::Button* materialButton = new ng::Button(parent, label);
     materialButton->set_icon(FA_FOLDER);
+    materialButton->set_tooltip("Load a material document in the MTLX format.");
     materialButton->set_callback([this]()
     {
         m_process_events = false;
@@ -610,6 +613,7 @@ void Viewer::createLoadEnvironmentInterface(Widget* parent, const std::string& l
 {
     ng::Button* envButton = new ng::Button(parent, label);
     envButton->set_icon(FA_FOLDER);
+    envButton->set_tooltip("Load a lat-long environment light in the HDR format.");
     envButton->set_callback([this]()
     {
         m_process_events = false;
@@ -635,6 +639,7 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
 {
     ng::Button* materialButton = new ng::Button(parent, label);
     materialButton->set_icon(FA_SAVE);
+    materialButton->set_tooltip("Save a material document in the MTLX format.");
     materialButton->set_callback([this]()
     {
         m_process_events = false;
@@ -664,6 +669,7 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
 {
     ng::Button* editorButton = new ng::Button(parent, label);
     editorButton->set_flags(ng::Button::ToggleButton);
+    editorButton->set_tooltip("View or edit properties of the current material.");
     editorButton->set_change_callback([this](bool state)
     {
         _propertyEditor.setVisible(state);
@@ -671,11 +677,78 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
     });
 }
 
+void Viewer::createHelpInterface(Widget* parent)
+{
+    ng::PopupButton* helpButton = new ng::PopupButton(parent, "Help");
+    helpButton->set_icon(FA_INFO_CIRCLE);
+    helpButton->set_chevron_icon(-1);
+    helpButton->set_tooltip("General help and keyboard shortcuts.");
+
+    ng::Popup* helpPopupParent = helpButton->popup();
+    helpPopupParent->set_layout(new ng::GroupLayout());
+
+    ng::VScrollPanel* scrollPanel = new ng::VScrollPanel(helpPopupParent);
+    scrollPanel->set_fixed_height(500);
+    ng::Widget* helpPopup = new ng::Widget(scrollPanel);
+    helpPopup->set_layout(new ng::GroupLayout(13));
+
+    ng::Label* viewLabel = new ng::Label(helpPopup, "Keyboard Shortcuts");
+    viewLabel->set_font_size(20);
+    viewLabel->set_font("sans-bold");
+
+    // 2 cell layout for (key, description) pair.
+    ng::GridLayout* gridLayout2 = new ng::GridLayout(ng::Orientation::Horizontal, 2,
+                                                     ng::Alignment::Minimum, 2, 2);
+    gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
+
+    std::vector<std::pair<std::string, std::string>> keyboard_shortcuts = {
+        std::make_pair("R", "Reload the current material from file. "
+                            "Hold SHIFT to reload all standard libraries as well."),
+        std::make_pair("G", "Save the current GLSL shader source to file."),
+        std::make_pair("O","Save the current OSL shader source to file."),
+        std::make_pair("M","Save the current MDL shader source to file."),
+        std::make_pair("L","Load GLSL shader source from file. "
+                            "Editing the source files before loading provides a way "
+                            "to debug and experiment with shader source code."),
+        std::make_pair("D", "Save each node graph in the current material as a DOT file. "
+                            "See www.graphviz.org for more details on this format."),
+        std::make_pair("F","Capture the current frame and save to file."),
+        std::make_pair("W", "Create a wedge rendering and save to file. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("T", "Translate the current material to a different shading model. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("B", "Bake the current material to textures. "
+                            "See Advanced Settings for additional controls."),
+        std::make_pair("UP","Select the previous geometry."),
+        std::make_pair("DOWN","Select the next geometry."),
+        std::make_pair("RIGHT", "Switch to the next material."),
+        std::make_pair("LEFT", "Switch to the previous material."),
+        std::make_pair("+", "Zoom in with the camera."),
+        std::make_pair("-", "Zoom out with the camera.")
+    };
+
+    for (const auto shortcut : keyboard_shortcuts)
+    {
+        ng::Widget* twoColumns = new ng::Widget(helpPopup);
+        twoColumns->set_layout(gridLayout2);
+
+        ng::Label* keyLabel = new ng::Label(twoColumns, shortcut.first);
+        keyLabel->set_font("sans-bold");
+        keyLabel->set_font_size(20);
+        keyLabel->set_fixed_width(80);
+
+        ng::Label* descriptionLabel = new ng::Label(twoColumns, shortcut.second);
+        descriptionLabel->set_font_size(20);
+        descriptionLabel->set_fixed_width(350);
+    }
+}
+
 void Viewer::createAdvancedSettings(Widget* parent)
 {
     ng::PopupButton* advancedButton = new ng::PopupButton(parent, "Advanced Settings");
     advancedButton->set_icon(FA_TOOLS);
     advancedButton->set_chevron_icon(-1);
+    advancedButton->set_tooltip("Asset and rendering options.");
     ng::Popup* advancedPopupParent = advancedButton->popup();
     advancedPopupParent->set_layout(new ng::GroupLayout());
 
