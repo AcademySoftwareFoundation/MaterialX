@@ -122,6 +122,11 @@ void ShaderGraph::createConnectedNodes(const ElementPtr& downstreamElement,
     {
         // We have a node downstream
         ShaderNode* downstream = getNode(downstreamNode->getName());
+        if (downstream == newNode)
+        {
+            throw ExceptionShaderGenError("Upstream node '" + downstream->getName() + "' has itself as downstream node, creating a loop");
+        }
+
         if (downstream && connectingElement)
         {
             ShaderInput* input = downstream->getInput(connectingElement->getName());

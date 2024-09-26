@@ -57,6 +57,13 @@ void ShaderInput::makeConnection(ShaderOutput* src)
         if (src)
         {
             // Make the new connection.
+            if (src->getNode() == this->getNode())
+            {
+                throw ExceptionShaderGenError(
+                    "Tried to create looping connection on node " + getNode()->getName()
+                        + " from output: " + src->getFullName() + " to input: " + getFullName());
+            }
+
             _connection = src;
             src->_connections.push_back(this);
         }
