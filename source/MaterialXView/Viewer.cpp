@@ -717,14 +717,14 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
         std::make_pair("G", "Save the current GLSL shader source to file."),
-        std::make_pair("O","Save the current OSL shader source to file."),
-        std::make_pair("M","Save the current MDL shader source to file."),
-        std::make_pair("L","Load GLSL shader source from file. "
+        std::make_pair("O", "Save the current OSL shader source to file."),
+        std::make_pair("M", "Save the current MDL shader source to file."),
+        std::make_pair("L", "Load GLSL shader source from file. "
                             "Editing the source files before loading provides a way "
                             "to debug and experiment with shader source code."),
         std::make_pair("D", "Save each node graph in the current material as a DOT file. "
                             "See www.graphviz.org for more details on this format."),
-        std::make_pair("F","Capture the current frame and save to file."),
+        std::make_pair("F", "Capture the current frame and save to file."),
         std::make_pair("W", "Create a wedge rendering and save to file. "
                             "See Advanced Settings for additional controls."),
         std::make_pair("T", "Translate the current material to a different shading model. "
