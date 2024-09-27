@@ -676,14 +676,25 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
     });
 }
 
-void Viewer::createShortcutsInterface(Widget* parent, ng::VScrollPanel* scrollPanel)
+void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scrollPanel)
 {
 
-    ng::Button* shortcutsButton = new ng::Button(parent, "Keyboard Shortcuts");
+    ng::GridLayout* documentationLayout = new ng::GridLayout(ng::Orientation::Vertical, 3,
+                                                             ng::Alignment::Minimum, 13, 5);
+    documentationLayout->set_row_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
+
+    ng::Widget* documentationGroup = new ng::Widget(parent);
+    documentationGroup->set_layout(documentationLayout);
+    ng::Label* documentationLabel = new ng::Label(documentationGroup, "Documentation");
+    documentationLabel->set_font_size(20);
+    documentationLabel->set_font("sans-bold");
+
+    ng::Button* shortcutsButton = new ng::Button(documentationGroup, "Keyboard Shortcuts");
     shortcutsButton->set_flags(ng::Button::ToggleButton);
     shortcutsButton->set_icon(FA_CARET_RIGHT);
+    shortcutsButton->set_fixed_width(230);
 
-    ng::Widget* shortcutsTable = new ng::Widget(parent);
+    ng::Widget* shortcutsTable = new ng::Widget(documentationGroup);
     shortcutsTable->set_layout(new ng::GroupLayout(13));
     shortcutsTable->set_visible(false);
 
@@ -1131,7 +1142,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     wedgeCountBox->set_value(8);
     wedgeCountBox->set_editable(true);
 
-    createShortcutsInterface(advancedPopup, scrollPanel);
+    createDocumentationInterface(advancedPopup, scrollPanel);
 }
 
 void Viewer::updateGeometrySelections()

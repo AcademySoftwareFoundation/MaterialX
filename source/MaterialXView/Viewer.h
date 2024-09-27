@@ -289,7 +289,7 @@ class Viewer : public ng::Screen
     void createSaveMaterialsInterface(Widget* parent, const std::string& label);
     void createPropertyEditorInterface(Widget* parent, const std::string& label);
     void createAdvancedSettings(Widget* parent);
-    void createShortcutsInterface(Widget* parent, ng::VScrollPanel* scrollPanel);
+    void createDocumentationInterface(Widget* parent, ng::VScrollPanel* scrollPanel);
 
     // Return the ambient occlusion image, if any, associated with the given material.
     mx::ImagePtr getAmbientOcclusionImage(mx::MaterialPtr material);
