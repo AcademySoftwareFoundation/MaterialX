@@ -76,48 +76,48 @@ using ElementPredicate = std::function<bool(ConstElementPtr)>;
 class MX_CORE_API ElementEquivalenceResult
 {
   public:
-      ElementEquivalenceResult() = default;
-      ~ElementEquivalenceResult() = default;
+    ElementEquivalenceResult() = default;
+    ~ElementEquivalenceResult() = default;
 
-      /// Append to list of equivalence differences
-      void addDifference(const string& path1, const string& path2, const string& differenceType, 
-                         const string& name=EMPTY_STRING)
-      {
-          StringVec difference = { path1, path2, differenceType, name};
-          differences.push_back(difference);
-      }
+    /// Append to list of equivalence differences
+    void addDifference(const string& path1, const string& path2, const string& differenceType, 
+                        const string& name=EMPTY_STRING)
+    {
+        StringVec difference = { path1, path2, differenceType, name};
+        differences.push_back(difference);
+    }
 
-      /// Clear result information
-      void clear()
-      {
-          differences.clear();
-      }
+    /// Clear result information
+    void clear()
+    {
+        differences.clear();
+    }
 
-      /// Get a list of equivalence differences
-      /// Difference is of the form:
-      /// { path to 1st element, path to 2nd element, difference type, [attribute if is attribute difference] }
-      StringVec getDifference(size_t index) const
-      {
-          if (index < differenceCount())
-            return differences[index];
-          return StringVec();
-      }
+    /// Get a list of equivalence differences
+    /// Difference is of the form:
+    /// { path to 1st element, path to 2nd element, difference type, [attribute if is attribute difference] }
+    StringVec getDifference(size_t index) const
+    {
+        if (index < differenceCount())
+        return differences[index];
+        return StringVec();
+    }
 
-      const size_t differenceCount() const
-      {
-          return differences.size();
-      }
+    const size_t differenceCount() const
+    {
+        return differences.size();
+    }
 
-      static const string ATTRIBUTE;
-      static const string ATTRIBUTE_NAMES;
-      static const string CHILD_COUNT;
-      static const string CHILD_NAME;
-      static const string NAME;
-      static const string CATEGORY;
+    static const string ATTRIBUTE;
+    static const string ATTRIBUTE_NAMES;
+    static const string CHILD_COUNT;
+    static const string CHILD_NAME;
+    static const string NAME;
+    static const string CATEGORY;
 
   private:
-      /// A list of  differences
-      vector<StringVec> differences;
+    /// A list of  differences
+    vector<StringVec> differences;
 };
 
 /// @class ElemenEquivalenceOptions
