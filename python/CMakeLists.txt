@@ -29,15 +29,33 @@ if (MATERIALX_PYTHON_STUBS)
     OUTPUT_VARIABLE _MYPY_STUBGEN_HELP_OUTPUT
     ERROR_VARIABLE _MYPY_STUBGEN_HELP_OUTPUT
     RESULT_VARIABLE _MYPY_STUBGEN_HELP_EXITCODE
+    COMMAND_ECHO STDOUT
   )
 
   # build stubs if stubgen could be found properly
   if (_MYPY_STUBGEN_HELP_EXITCODE EQUAL "0")
+    message("mypy stubgen found successfully, setting up Python Stubs build process...")
     install(CODE "
-      execute_process(
-        COMMAND ${_MYPY_STUBGEN_EXECUTABLE} -p MaterialX --inspect-mode -o \"${CMAKE_INSTALL_PREFIX}/python\" -v --ignore-errors
-        WORKING_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/python\")
-    ")
+      message(\"Building Python Stubs...\")
+      message(\"MATERIALX_PYTHON_FOLDER_NAME=${MATERIALX_PYTHON_FOLDER_NAME}\")
+      message(\"CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}\")
+      if(EXISTS ${_MYPY_STUBGEN_EXECUTABLE})
+        execute_process(
+          COMMAND ${_MYPY_STUBGEN_EXECUTABLE} -p MaterialX --inspect-mode -o ${CMAKE_INSTALL_PREFIX}/python -v --ignore-errors
+          WORKING_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/python\"
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          COMMAND_ECHO STDOUT
+          COMMAND_ERROR_IS_FATAL ANY
+        )
+        message(\"Finished Building Python.\")
+      else()
+        message(
+            FATAL_ERROR
+            \"MATERIALX_PYTHON_STUBS=${MATERIALX_PYTHON_STUBS} but mypy stubgen doesn't exist!\"
+        )
+      endif()
+      "
+    )
   else ()
     # prints errors if mypy couldn't be found
     # TODO: should this be a fatal error or?
