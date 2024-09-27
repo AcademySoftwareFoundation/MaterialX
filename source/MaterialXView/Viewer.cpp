@@ -678,7 +678,6 @@ void Viewer::createPropertyEditorInterface(Widget* parent, const std::string& la
 
 void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scrollPanel)
 {
-
     ng::GridLayout* documentationLayout = new ng::GridLayout(ng::Orientation::Vertical, 3,
                                                              ng::Alignment::Minimum, 13, 5);
     documentationLayout->set_row_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
@@ -700,7 +699,8 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
 
     // recompute layout when showing/hiding shortcuts.
     shortcutsButton->set_change_callback([this, scrollPanel, shortcutsButton,
-                                          shortcutsTable](bool state) {
+                                          shortcutsTable](bool state)
+    {
         shortcutsTable->set_visible(state);
         shortcutsButton->set_icon(state ? FA_CARET_DOWN : FA_CARET_RIGHT);
         scrollPanel->set_scroll(state ? 0.73f : 1.0f);
@@ -754,7 +754,6 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
         descriptionLabel->set_fixed_width(160);
     }
 }
-
 
 void Viewer::createAdvancedSettings(Widget* parent)
 {
