@@ -712,7 +712,8 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
                                                      ng::Alignment::Minimum, 2, 2);
     gridLayout2->set_col_alignment({ ng::Alignment::Minimum, ng::Alignment::Maximum });
 
-    std::vector<std::pair<std::string, std::string>> keyboard_shortcuts = {
+    const std::vector<std::pair<std::string, std::string>> KEYBOARD_SHORTCUTS =
+    {
         std::make_pair("U", "It will toggle the display of the UI."),
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
@@ -739,7 +740,7 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
         std::make_pair("-", "Zoom out with the camera.")
     };
 
-    for (const auto& shortcut : keyboard_shortcuts)
+    for (const auto& shortcut : KEYBOARD_SHORTCUTS)
     {
         ng::Widget* twoColumns = new ng::Widget(shortcutsTable);
         twoColumns->set_layout(gridLayout2);
