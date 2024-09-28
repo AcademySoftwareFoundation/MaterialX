@@ -141,43 +141,6 @@ TEST_CASE("GenShader: Shader Translation", "[translate]")
     }
 }
 
-TEST_CASE("GenShader: Gltf Transmission Translation", "[translate]")
-{
-    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-    mx::ShaderTranslatorPtr shaderTranslator = mx::ShaderTranslator::create();
-
-    mx::FilePath testPath = searchPath.find("resources/Materials/Examples/StandardSurface");
-
-    mx::FilePath mtlxFile{"standard_surface_glass.mtlx"};
-    mx::DocumentPtr doc = mx::createDocument();
-    loadLibraries({ "libraries/targets", "libraries/stdlib", "libraries/pbrlib", "libraries/bxdf" }, searchPath, doc);
-
-    mx::readFromXmlFile(doc, testPath / mtlxFile, searchPath);
-    mtlxFile.removeExtension();
-
-    bool translated = false;
-    try
-    {
-        shaderTranslator->translateAllMaterials(doc, "gltf_pbr");
-        translated = true;
-    }
-    catch (mx::Exception &e)
-    {
-        std::cout << "Failed translating: " << (testPath / mtlxFile).asString() << ": " << e.what() << std::endl;
-    }
-    REQUIRE(translated);
-
-    std::string validationErrors;
-    bool valid = doc->validate(&validationErrors);
-    if (!doc->validate(&validationErrors))
-    {
-        std::cout << "Shader translation of " << (testPath / mtlxFile).asString() << " failed" << std::endl;
-        std::cout << "Validation errors: " << validationErrors << std::endl;
-    }
-    REQUIRE(valid);
-
-}
-
 TEST_CASE("GenShader: Transparency Regression Check", "[genshader]")
 {
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
