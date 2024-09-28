@@ -71,13 +71,13 @@ bool Element::operator==(const Element& rhs) const
     }
 
     // Compare children.
-    const vector<ElementPtr>& children = getChildren();
-    const vector<ElementPtr>& rhsChildren = rhs.getChildren();
-    if (children.size() != rhsChildren.size())
+    const vector<ElementPtr>& c1 = getChildren();
+    const vector<ElementPtr>& c2 = rhs.getChildren();
+    if (c1.size() != c2.size())
         return false;
-    for (size_t i = 0; i < children.size(); i++)
+    for (size_t i = 0; i < c1.size(); i++)
     {
-        if (*children[i] != *rhsChildren[i])
+        if (*c1[i] != *c2[i])
             return false;
     }
     return true;
@@ -150,7 +150,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     }
     for (size_t i = 0; i < children.size(); i++)
     {
-        ElementPtr c2Element = rhsChildren[i];
+        ElementPtr rhsElement = rhsChildren[i];
         // Handle unordered children if parent is a compound graph (NodeGraph, Document).
         // (Functional graphs have a "nodedef" reference and define node interfaces
         // so require strict interface ordering.)
@@ -162,8 +162,8 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
             if (document || (nodeGraph && !nodeGraph->getNodeDef()))
             {
                 const string& childName = children[i]->getName();
-                c2Element = rhs->getChild(childName);
-                if (!c2Element)
+                rhsElement = rhs->getChild(childName);
+                if (!rhsElement)
                 {
                     if (result)
                         result->addDifference(children[i]->getNamePath(), "<NONE>", ElementEquivalenceResult::CHILD_NAME,
@@ -172,7 +172,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
                 }
             }
         }
-        if (!children[i]->isEquivalent(c2Element, options, result))
+        if (!children[i]->isEquivalent(rhsElement, options, result))
             return false;
     }
     return true;
