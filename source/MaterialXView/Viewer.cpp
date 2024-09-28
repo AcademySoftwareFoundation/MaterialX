@@ -714,7 +714,6 @@ void Viewer::createDocumentationInterface(Widget* parent, ng::VScrollPanel* scro
 
     const std::vector<std::pair<std::string, std::string>> KEYBOARD_SHORTCUTS =
     {
-        std::make_pair("U", "It will toggle the display of the UI."),
         std::make_pair("R", "Reload the current material from file. "
                             "Hold SHIFT to reload all standard libraries as well."),
         std::make_pair("G", "Save the current GLSL shader source to file."),
