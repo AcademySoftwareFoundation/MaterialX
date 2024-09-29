@@ -1,11 +1,11 @@
 # Shader Generation
 
 ## 1.1 Scope
-A shader generation framework is implemented as part of MaterialX. This can help applications to transform the agnostic MaterialX data description into executable shader code for a specific renderer. A library module named MaterialXGenShader contains the core shader generation features, and support for specific languages resides in separate libraries, e.g. [MaterialXGenGlsl](/source/MaterialXGenGlsl), [MaterialXGenOsl](/source/MaterialXGenOsl).
+A shader generation framework is implemented as part of MaterialX. This can help applications to transform the agnostic MaterialX data description into executable shader code for a specific renderer. A library module named MaterialXGenShader contains the core shader generation features, and support for specific languages resides in separate libraries, e.g. [MaterialXGenGlsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenGlsl), [MaterialXGenOsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenOsl).
 
 Note that this system has no runtime and the output produced is source code, not binary executable code. The source code produced needs to be compiled by a shading language compiler before being executed by the renderer. See Figure 1 for a high level overview of the system.
 
-![Shader generation with multiple shader generators](/documents/Images/shadergen.png)
+![Shader generation with multiple shader generators](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/shadergen.png)
 
 **Figure 1**: Shader generation with multiple shader generators.
 
@@ -28,11 +28,11 @@ In the following sub-sections each of these methods are explained. For all metho
 ### 1.3.1 Inline Expression
 Provided code generators support a very simple expression language for inlining code. This is useful for simple nodes where the operation can be expressed as a single line of code. Inlining will reduce the number of function calls and produce more compact code. The syntax to use is the same as the target shading language, with the addition of using the node’s input ports as variables wrapped in double curly brackets: `{{input}}`. The code generator will replace these variables with values assigned or connected to the respective inputs. Figure 2 gives an example.
 
-Connecting the expression to the nodedef is done using an `<implementation>` element as seen in
+Connecting the expression to the `nodedef` is done using an `<implementation>` element as seen in
 Figure 2. The first option is to keep inline code in a file. The file extension is used to differentiate inline expressions from source code functions, using `filename.inline`. The second option is to directly embed the inlined code using `sourcecode`. This is the recommended approach for inlining if there the logic can fit on one line of code.
 
 ```xml
-// Nodedef elements for node <add>
+<!-- Node definition elements for node <add> -->
 <nodedef name="ND_add_float" node="add">
   <input name="in1" type="float" />
   <input name="in2" type="float" />
@@ -43,14 +43,14 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
   <input name="in2" type="color3" />
   <output name="out" type="color3" defaultinput="in1" />
 </nodedef>
-<... more types ...>
+<!-- ... more types ... -->
 
-// Implementation elements for node <add>
+<!-- Implementation elements for node <add> -->
 <implementation name="IM_add_float" nodedef="ND_add_float" file="mx_add.inline" />
 <implementation name="IM_add_color3" nodedef="ND_add_color3" file="mx_add.inline" />
-<... more types ...>
+<!-- ... more types ... -->
 
-// Nodedef elements for node <mix>
+<!-- Node definition elements for node <mix> -->
 <nodedef name="ND_mix_float" node="mix">
   <input name="fg" type="float" />
   <input name="bg" type="float" />
@@ -63,12 +63,12 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
   <input name="mix" type="color3" />
   <output name="out" type="color3" defaultinput="bg" />
 </nodedef>
-<... more types ...>
+<!-- ... more types ... -->
 
-// Implementation elements for node <mix>
+<!-- Implementation elements for node <mix> -->
 <implementation name="IM_mix_float" nodedef="ND_mix_float" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
 <implementation name="IM_mix_color3" nodedef="ND_mix_color3" sourcecode="mix({{bg}}, {{fg}}, {{mix}})" />
-<... more types ...>
+<!-- ... more types ... -->
 ```
 ```c++
 // File 'mx_add.inline' contains:
@@ -79,10 +79,10 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
 `<implemenentation>` declaration. 
 
 ### 1.3.2 Shading Language Function
-For nodes that can’t be implemented by inline expressions a function definition can be used instead. The function signature should match the nodedefs interface with inputs and outputs. See Figure 3 for an example. Connecting the source code to the nodedef is done using an `<implementation>` element, see the [MaterialX specification](../Specification/MaterialX.v1.36.Spec.pdf) for more information.
+For nodes that can’t be implemented by inline expressions a function definition can be used instead. The function signature should match the nodedefs interface with inputs and outputs. See Figure 3 for an example. Connecting the source code to the nodedef is done using an `<implementation>` element, see the [MaterialX Specification](https://materialx.org/Specification.html) for more information.
 
 ```xml
-// Nodedef element
+<!-- Node definition element -->
 <nodedef name="ND_image_color3" node="image">
   <input name="file" type="filename" value="" uniform="true" />
   <input name="layer" type="string" value="" uniform="true" />
@@ -97,7 +97,7 @@ For nodes that can’t be implemented by inline expressions a function definitio
   <output name="out" type="color3" default="0.0, 0.0, 0.0" />
 </nodedef>
 
-// Implementation element
+<!-- Implementation element -->
 <implementation name="IM_image_color3_osl" nodedef="ND_image_color3" file="mx_image_color3.osl" target="genosl" />
 ```
 ```c++
