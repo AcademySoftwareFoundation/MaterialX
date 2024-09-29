@@ -76,17 +76,23 @@
     </dotproduct>
 
     <!-- Metallic roughness -->
-    <ifequal name="noTransmissionBaseColor" type="color3">
+    <ifequal name="baseColor" type="color3">
       <input name="value1" type="float" nodename="hasCoatColor" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
     </ifequal>
+    <ifgreater name="baseColorWithTransmission" type="color3">
+      <input name="value1" type="float" interfacename="transmission_depth" />
+      <input name="value2" type="float" value="0" />
+      <input name="in1" type="color3" value="1, 1, 1" />
+      <input name="in2" type="color3" interfacename="transmission_color" />
+    </ifgreater>
     <ifgreater name="base_color" type="color3">
       <input name="value1" type="float" interfacename="transmission" />
       <input name="value2" type="float" value="0" />
-      <input name="in1" type="color3" nodename="transmissionInEffectBaseColor" />
-      <input name="in2" type="color3" nodename="noTransmissionBaseColor" />
+      <input name="in1" type="color3" nodename="baseColorWithTransmission" />
+      <input name="in2" type="color3" nodename="baseColor" />
     </ifgreater>
     <dot name="metallic" type="float">
       <input name="in" type="float" interfacename="metalness" />
@@ -113,12 +119,6 @@
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" nodename="transmissionInEffectAttenuationColor" />
       <input name="in2" type="color3" value="1, 1, 1" />
-    </ifgreater>
-    <ifgreater name="transmissionInEffectBaseColor" type="color3">
-      <input name="value1" type="float" interfacename="transmission_depth" />
-      <input name="value2" type="float" value="0" />
-      <input name="in1" type="color3" value="1, 1, 1" />
-      <input name="in2" type="color3" interfacename="transmission_color" />
     </ifgreater>
 
     <!-- Sheen -->
