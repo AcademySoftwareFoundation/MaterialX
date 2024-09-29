@@ -82,7 +82,7 @@
       <input name="in1" type="color3" nodename="scaledBaseColor" />
       <input name="in2" type="color3" nodename="mixedBaseColor" />
     </ifequal>
-    <ifgreater name="baseColorWithTransmission" type="color3">
+    <ifgreater name="transmissionColor" type="color3">
       <input name="value1" type="float" interfacename="transmission_depth" />
       <input name="value2" type="float" value="0" />
       <input name="in1" type="color3" value="1, 1, 1" />
@@ -91,7 +91,7 @@
     <ifgreater name="base_color" type="color3">
       <input name="value1" type="float" interfacename="transmission" />
       <input name="value2" type="float" value="0" />
-      <input name="in1" type="color3" nodename="baseColorWithTransmission" />
+      <input name="in1" type="color3" nodename="transmissionColor" />
       <input name="in2" type="color3" nodename="baseColor" />
     </ifgreater>
     <dot name="metallic" type="float">
