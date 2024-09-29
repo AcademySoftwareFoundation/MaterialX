@@ -24,8 +24,8 @@ void HwViewDirectionNode::createVariables(const ShaderNode& node, GenContext&, S
     const ShaderInput* spaceInput = node.getInput(SPACE);
     const int space = spaceInput ? spaceInput->getValue()->asA<int>() : OBJECT_SPACE;
 
-    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, vs);
-    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_VIEW_DIRECTION, vs, ps);
+    addStageUniform(HW::PRIVATE_UNIFORMS, Type::VECTOR3, HW::T_VIEW_POSITION, ps);
+    addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
     if (space == OBJECT_SPACE || space == MODEL_SPACE)
     {
         addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, ps);
@@ -43,11 +43,11 @@ void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& c
     {
         VariableBlock& vertexData = stage.getOutputBlock(HW::VERTEX_DATA);
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
-        ShaderPort* view_direction = vertexData[HW::T_VIEW_DIRECTION];
-        if (!view_direction->isEmitted())
+        ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
+        if (!position->isEmitted())
         {
-            view_direction->setEmitted();
-            shadergen.emitLine(prefix + view_direction->getVariable() + " = hPositionWorld.xyz - " + HW::T_VIEW_POSITION, stage);
+            position->setEmitted();
+            shadergen.emitLine(prefix + position->getVariable() + " = hPositionWorld.xyz", stage);
         }
     }
 
@@ -57,14 +57,14 @@ void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         const string prefix = shadergen.getVertexDataPrefix(vertexData);
         shadergen.emitLineBegin(stage);
         shadergen.emitOutput(node.getOutput(), true, false, context, stage);
-        ShaderPort* view_direction = vertexData[HW::T_VIEW_DIRECTION];
+        ShaderPort* position = vertexData[HW::T_POSITION_WORLD];
         if (space == WORLD_SPACE)
         {
-            shadergen.emitString(" = normalize(" + prefix + view_direction->getVariable() + ")", stage);
+            shadergen.emitString(" = normalize(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ")", stage);
         }
         else
         {
-            shadergen.emitString(" = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + prefix + view_direction->getVariable() + ", 0.0)).xyz)", stage);
+            shadergen.emitString(" = normalize((" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + " * vec4(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
         }
         shadergen.emitLineEnd(stage);
     }
