@@ -649,7 +649,7 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
     addColorManagement();
     addUnitSystem();
 
-    // register struct typedefs from the library files.
+    // Register struct typedefs from the library files.
     _shaderGenerator->loadStructTypeDefs(_dependLib);
 
     // Test suite setup
