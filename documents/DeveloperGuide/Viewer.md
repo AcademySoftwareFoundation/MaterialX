@@ -6,32 +6,26 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 <p float="left">
-  <img alt="A teapot with a Standard Surface Marble material applied"
-       title="Standard Surface Marble material"
+  <img title="Standard Surface Marble material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png"
        width="24%" />
-  <img alt="A teapot with a Standard Surface Copper material applied"
-       title="Standard Surface Copper material"
+  <img title="Standard Surface Copper material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png"
        width="24%" />
-  <img alt="A teapot with a Standard Surface Plastic material applied"
-       title="Standard Surface Plastic material"
+  <img title="Standard Surface Plastic material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png"
        width="24%" />
-  <img alt="A teapot with a Standard Surface Carpaint material applied"
-       title="Standard Surface Carpaint material"
+  <img title="Standard Surface Carpaint material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png"
        width="24%" />
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
-       title="Standard Surface Tiled Brass material"
+  <img title="Standard Surface Tiled Brass material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png"
        width="49%" />
-  <img alt="A shader ball with a Standard Surface Tiled Wood material applied"
-       title="Standard Surface Tiled Wood material"
+  <img title="Standard Surface Tiled Wood material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png"
        width="49%" />
 </p>
