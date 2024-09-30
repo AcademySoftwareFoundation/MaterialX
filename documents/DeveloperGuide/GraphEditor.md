@@ -2,6 +2,8 @@
 
 The MaterialX Graph Editor is an example application for visualizing, creating, and editing MaterialX graphs.  It utilizes the ImGui framework as well as additional ImGui extensions such as the Node Editor.
 
+## Example Images
+
 **Figure 1:** MaterialX Graph Editor with procedural marble example
 
 ![MaterialX Graph Editor with procedural marble example](https://github.com/AcademySoftwareFoundation/MaterialX/raw/main/documents/Images/MaterialXGraphEditor_Marble.png)
