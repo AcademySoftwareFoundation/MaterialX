@@ -4,13 +4,13 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 
 | Marble | Copper | Plastic | Carpaint |
 |--------|--------|---------|----------|
-| ![MaterialX Marble material](../Images/MaterialXView_Marble.png) | ![MaterialX Copper material](../Images/MaterialXView_Copper.png) | ![MaterialX Plastic material](../Images/MaterialXView_Plastic.png) | ![MaterialX Carpaint material](../Images/MaterialXView_Carpaint.png) |
+| ![MaterialX Marble material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png) | ![MaterialX Copper material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png) | ![MaterialX Plastic material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png) | ![MaterialX Carpaint material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png) |
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 
 | Tiled Brass | Tiled Wood |
 |-------------|------------|
-| ![MaterialX TiledBrass material](../Images/MaterialXView_TiledBrass.png) | ![MaterialX TiledWood material](../Images/MaterialXView_TiledWood.png) |
+| ![MaterialX TiledBrass material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png) | ![MaterialX TiledWood material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png) |
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 
