@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -12,7 +13,7 @@ void bindPyMslResourceBindingContext(py::module &mod);
 
 PYBIND11_MODULE(PyMaterialXGenMsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenMsl library";
+    mod.doc() = PyMaterialXGenMsl_DOCSTRING;
 
     // PyMaterialXGenMsl depends on types defined in PyMaterialXGenShader
     PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);

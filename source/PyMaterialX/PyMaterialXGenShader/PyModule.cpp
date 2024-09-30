@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -24,7 +25,7 @@ void bindPyUnitSystem(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenShader, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenShader library";
+    mod.doc() = PyMaterialXGenShader_DOCSTRING;
 
     bindPyColorManagement(mod);
     bindPyShaderPort(mod);

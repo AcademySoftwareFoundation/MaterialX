@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -14,7 +15,7 @@ void bindPyVkShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXGenGlsl library";
+    mod.doc() = PyMaterialXGenGlsl_DOCSTRING;
 
     // PyMaterialXGenGlsl depends on types defined in PyMaterialXGenShader
     PYMATERIALX_IMPORT_MODULE(PyMaterialXGenShader);
