@@ -50,12 +50,10 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 <p float="left">
-  <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
-       title="Standard Surface Tiled Brass material"
+  <img title="Standard Surface Tiled Brass material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png"
        width="49%" />
-  <img alt="A shader ball with a Standard Surface Tiled Wood material applied"
-       title="Standard Surface Tiled Wood material"
+  <img title="Standard Surface Tiled Wood material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png"
        width="49%" />
 </p>
