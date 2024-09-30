@@ -300,7 +300,7 @@ template <class T> const T& Value::asA() const
 }
 
 template <>
-bool Value::isA<AggregateValue>() const
+MX_CORE_API bool Value::isA<AggregateValue>() const
 {
     return dynamic_cast<const AggregateValue*>(this) != nullptr;
 }
