@@ -33,10 +33,15 @@ endif()
 
 project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 
+# Build options
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.6 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
+option(MATERIALX_BUILD_PYTHON_DOCS "Create HTML documentation for the MaterialX Python API using Sphinx. Requires that Sphinx be installed. Sets MATERIALX_BUILD_PYTHON to ON." OFF)
+if(MATERIALX_BUILD_PYTHON_DOCS)
+    set(MATERIALX_BUILD_PYTHON ON)
+endif()
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
 option(MATERIALX_BUILD_GEN_OSL "Build the OSL shader generator back-end." ON)
@@ -158,6 +163,7 @@ message(STATUS "Setting namespace to '${MATERIALX_NAMESPACE}'")
 set (MATERIALX_LIBNAME_SUFFIX "" CACHE STRING "Specify a suffix to all libraries that are built")
 
 mark_as_advanced(MATERIALX_BUILD_DOCS)
+mark_as_advanced(MATERIALX_BUILD_PYTHON_DOCS)
 mark_as_advanced(MATERIALX_BUILD_GEN_GLSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_OSL)
 mark_as_advanced(MATERIALX_BUILD_GEN_MDL)
@@ -506,6 +512,9 @@ endif()
 
 if(MATERIALX_BUILD_DOCS)
     add_subdirectory(documents)
+endif()
+if(MATERIALX_BUILD_PYTHON_DOCS)
+    add_subdirectory(documents/PythonAPI)
 endif()
 
 if(MATERIALX_BUILD_JS)
