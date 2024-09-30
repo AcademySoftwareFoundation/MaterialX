@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXCore/Value.h>
 #include <MaterialXCore/Definition.h>
 #include <MaterialXCore/Document.h>
+#include <MaterialXCore/Value.h>
 
 #include <iomanip>
 #include <sstream>
