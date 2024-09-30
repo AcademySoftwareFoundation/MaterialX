@@ -52,10 +52,10 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 <p float="left">
   <img title="Standard Surface Tiled Brass material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png"
-       width="48%" />
+       width="49%" />
   <img title="Standard Surface Tiled Wood material"
        src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png"
-       width="48%" />
+       width="49%" />
 </p>
 
 ## Open Chess Set
