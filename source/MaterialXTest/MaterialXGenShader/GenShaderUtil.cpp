@@ -316,8 +316,7 @@ void testUniqueNames(mx::GenContext& context, const std::string& stage)
 void shaderGenPerformanceTest(mx::GenContext& context)
 {
     mx::DocumentPtr nodeLibrary = mx::createDocument();
-    mx::FilePath currentPath = mx::FilePath::getCurrentPath();
-    const mx::FileSearchPath libSearchPath(currentPath);
+    const mx::FileSearchPath libSearchPath(mx::getDefaultDataSearchPath());
 
     // Load the standard libraries.
     loadLibraries({ "libraries" }, libSearchPath, nodeLibrary);
@@ -351,8 +350,9 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     }
 
     // Read mtlx documents
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec testRootPaths;
-    testRootPaths.push_back("resources/Materials/Examples/StandardSurface");
+    testRootPaths.push_back(searchPath.find("resources/Materials/Examples/StandardSurface"));
 
     std::vector<mx::DocumentPtr> loadedDocuments;
     mx::StringVec documentsPaths;
@@ -367,7 +367,7 @@ void shaderGenPerformanceTest(mx::GenContext& context)
     REQUIRE(loadedDocuments.size() > 0);
     REQUIRE(loadedDocuments.size() == documentsPaths.size());
 
-    // Shuffle the order of documents and perform document library import validatation and shadergen
+    // Shuffle the order of documents and perform document library import validation and shadergen
     std::mt19937 rng(0);
     std::shuffle(loadedDocuments.begin(), loadedDocuments.end(), rng);
     for (const auto& doc : loadedDocuments)

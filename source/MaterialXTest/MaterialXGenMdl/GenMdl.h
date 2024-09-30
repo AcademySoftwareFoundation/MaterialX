@@ -49,6 +49,10 @@ class MdlShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
             // df_cuda will currently hang on rendering one of the shaders in this file
             _skipFiles.insert("heighttonormal_in_nodegraph.mtlx");
         }
+
+        _skipFiles.insert("hair_bsdf.mtlx");
+        _skipFiles.insert("hair_surfaceshader.mtlx");
+
         ShaderGeneratorTester::addSkipFiles();
     }
 

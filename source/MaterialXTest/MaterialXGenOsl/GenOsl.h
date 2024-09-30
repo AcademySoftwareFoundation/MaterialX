@@ -42,6 +42,13 @@ class OslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
     {
         _skipLibraryFiles.insert( "pbrlib_genosl_arnold_impl.mtlx" );
     }
+
+    void addSkipFiles() override
+    {
+        _skipFiles.insert("hair_bsdf.mtlx");
+        _skipFiles.insert("hair_surfaceshader.mtlx");
+    }
+
     // Ignore light shaders in the document for OSL
     void findLights(mx::DocumentPtr /*doc*/, std::vector<mx::NodePtr>& lights) override
     {

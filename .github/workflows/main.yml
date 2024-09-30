@@ -96,7 +96,7 @@ jobs:
           compiler: xcode
           compiler_version: "15.4"
           python: None
-          cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019
@@ -332,7 +332,7 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@v4.6.4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
