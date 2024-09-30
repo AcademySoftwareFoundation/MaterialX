@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -14,7 +15,7 @@ void bindPyTextureBaker(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderGlsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRenderGlsl library";
+    mod.doc() = PyMaterialXRenderGlsl_DOCSTRING;
 
     // PyMaterialXRenderGlsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);

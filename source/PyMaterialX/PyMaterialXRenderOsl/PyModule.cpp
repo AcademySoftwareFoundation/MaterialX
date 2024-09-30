@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -11,7 +12,7 @@ void bindPyOslRenderer(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderOsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRenderOsl library";
+    mod.doc() = PyMaterialXRenderOsl_DOCSTRING;
 
     // PyMaterialXRenderOsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);

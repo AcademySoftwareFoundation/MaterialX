@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -23,7 +24,7 @@ void bindPyCgltfLoader(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRender, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRender library";
+    mod.doc() = PyMaterialXRender_DOCSTRING;
 
     // PyMaterialXRender depends on types defined in PyMaterialXCore
     PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
