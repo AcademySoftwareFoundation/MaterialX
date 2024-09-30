@@ -288,13 +288,6 @@ stringToValue = _stringToValue
 
 
 #
-# XmlIo
-#
-
-readFromXmlFile = readFromXmlFileBase
-
-
-#
 # Default Data Paths
 #
 

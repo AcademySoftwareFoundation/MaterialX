@@ -4,6 +4,7 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
+#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -13,7 +14,7 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXFormat library";
+    mod.doc() = PyMaterialXFormat_DOCSTRING;
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
     PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);

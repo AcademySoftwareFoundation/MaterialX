@@ -26,7 +26,7 @@ void bindPyXmlIo(py::module& mod)
         .def_readwrite("writeXIncludeEnable", &mx::XmlWriteOptions::writeXIncludeEnable)
         .def_readwrite("elementPredicate", &mx::XmlWriteOptions::elementPredicate);
 
-    mod.def("readFromXmlFileBase", &mx::readFromXmlFile,
+    mod.def("readFromXmlFile", &mx::readFromXmlFile,
         py::arg("doc"), py::arg("filename"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
     mod.def("readFromXmlString", &mx::readFromXmlString,
         py::arg("doc"), py::arg("str"), py::arg("searchPath") = mx::FileSearchPath(), py::arg("readOptions") = (mx::XmlReadOptions*) nullptr);
