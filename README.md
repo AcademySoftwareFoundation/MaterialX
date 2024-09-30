@@ -33,7 +33,6 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
-
 <p float="left">
   <img alt="A teapot with a Standard Surface Marble material applied"
        title="Standard Surface Marble material"
@@ -54,7 +53,6 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
-
 <p float="left">
   <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
        title="Standard Surface Tiled Brass material"
@@ -71,11 +69,9 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 The Open Chess Set is an open reference asset, consisting of a [MaterialX file](resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx) in the Standard Surface shading model and a [geometry file](resources/Geometry) in the glTF format.  It was authored by Moeen Sayed and Mujtaba Sayed, and was contributed to the MaterialX project by Side Effects.
 
 **Figure 3:** The Open Chess Set, rendered in Arnold for Maya
-
 ![The Open Chess Set rendered in Arnold for Maya](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Arnold_01.png)
 
 **Figure 4:** The Open Chess Set, rendered in Karma XPU for Houdini
-
 ![The Open Chess Set rendered in Karma XPU for Houdini](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Karma_01.png)
 
 ## Pre-Built Binaries
