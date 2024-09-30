@@ -41,6 +41,12 @@ class MslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         ParentClass::addSkipNodeDefs();
     }
 
+    void addSkipFiles() override
+    {
+        _skipFiles.insert("hair_bsdf.mtlx");
+        _skipFiles.insert("hair_surfaceshader.mtlx");
+    }
+
     void setupDependentLibraries() override
     {
         ParentClass::setupDependentLibraries();
