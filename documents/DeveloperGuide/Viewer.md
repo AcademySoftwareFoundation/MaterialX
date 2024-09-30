@@ -5,7 +5,6 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 ## Example Images
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
-
 <p float="left">
   <img alt="A teapot with a Standard Surface Marble material applied"
        title="Standard Surface Marble material"
@@ -26,7 +25,6 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 </p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
-
 <p float="left">
   <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
        title="Standard Surface Tiled Brass material"
