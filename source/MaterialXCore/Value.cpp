@@ -277,7 +277,7 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type, 
 
     if (typeDefPtr && !typeDefPtr->getMembers().empty())
     {
-        // if we're given a typeDef pointer that has child members- then we can create a new AggregateValue
+        // If we're given a TypeDef pointer that has child members, then we can create a new AggregateValue.
         return AggregateValue::createAggregateValueFromString(value, type, typeDefPtr);
     }
 
@@ -353,10 +353,10 @@ AggregateValuePtr AggregateValue::createAggregateValueFromString(const string& v
     {
         const auto& member = members[i];
 
-        // this will return nullptr if the type is not a listed typedef.
+        // This will return nullptr if the type is not a listed typedef.
         ConstTypeDefPtr subTypeDef = doc->getTypeDef(members[i]->getType());
 
-        // calling Value::createValueFromStrings() here allows support for recursively nested structs.
+        // Calling Value::createValueFromStrings() here allows support for recursively nested structs.
         result->appendValue(Value::createValueFromStrings(subValues[i], member->getType(), subTypeDef));
     }
 
