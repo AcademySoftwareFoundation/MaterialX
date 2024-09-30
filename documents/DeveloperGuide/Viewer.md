@@ -6,51 +6,37 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 
-<table style="border: none; border-collapse: separate; border-spacing: 4px;">
-  <tbody>
-    <tr>
-      <td style="padding: 0px;">
-        <img alt="A teapot with a Standard Surface Marble material applied"
-             title="Standard Surface Marble material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png">
-      </td>
-      <td style="padding: 0px;">
-        <img alt="A teapot with a Standard Surface Copper material applied"
-             title="Standard Surface Copper material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png">
-      </td>
-      <td style="padding: 0px;">
-        <img alt="A teapot with a Standard Surface Plastic material applied"
-             title="Standard Surface Plastic material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png">
-      </td>
-      <td style="padding: 0px;">
-        <img alt="A teapot with a Standard Surface Carpaint material applied"
-             title="Standard Surface Carpaint material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png">
-      </td>
-    </tr>
-  </tbody>
-</table>
+<p float="left">
+  <img alt="A teapot with a Standard Surface Marble material applied"
+       title="Standard Surface Marble material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png"
+       width="24%" />
+  <img alt="A teapot with a Standard Surface Copper material applied"
+       title="Standard Surface Copper material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png"
+       width="24%" />
+  <img alt="A teapot with a Standard Surface Plastic material applied"
+       title="Standard Surface Plastic material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png"
+       width="24%" />
+  <img alt="A teapot with a Standard Surface Carpaint material applied"
+       title="Standard Surface Carpaint material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png"
+       width="24%" />
+</p>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 
-<table style="border: none; border-collapse: separate; border-spacing: 4px;">
-  <tbody>
-    <tr>
-      <td style="padding: 0px;">
-        <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
-             title="Standard Surface Tiled Brass material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png">
-      </td>
-      <td style="padding: 0px;">
-        <img alt="A shader ball with a Standard Surface Tiled Wood material applied"
-             title="Standard Surface Tiled Wood material"
-             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png">
-      </td>
-    </tr>
-  </tbody>
-</table>
+<p float="left">
+  <img alt="A shader ball with a Standard Surface Tiled Brass material applied"
+       title="Standard Surface Tiled Brass material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png"
+       width="49%" />
+  <img alt="A shader ball with a Standard Surface Tiled Wood material applied"
+       title="Standard Surface Tiled Wood material"
+       src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png"
+       width="49%" />
+</p>
 
 ## Building The MaterialX Viewer
 Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `/bin` directory within the selected install folder.
