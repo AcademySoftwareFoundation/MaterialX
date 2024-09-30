@@ -7,29 +7,25 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 <table>
   <tbody>
     <tr>
-      <td style="text-align: center">
+      <td>
         <img alt="A teapot with a MaterialX Marble material applied"
              title="MaterialX Marble material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png">
-        <br><small>Marble</small>
       </td>
-      <td style="text-align: center">
+      <td>
         <img alt="A teapot with a MaterialX Copper material applied"
              title="MaterialX Copper material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png">
-        <br><small>Copper</small>
       </td>
-      <td style="text-align: center">
+      <td>
         <img alt="A teapot with a MaterialX Plastic material applied"
              title="MaterialX Plastic material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png">
-        <br><small>Plastic</small>
       </td>
-      <td style="text-align: center">
+      <td>
         <img alt="A teapot with a MaterialX Carpaint material applied"
              title="MaterialX Carpaint material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png">
-        <br><small>Carpaint</small>
       </td>
     </tr>
   </tbody>
@@ -40,17 +36,15 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
 <table>
   <tbody>
     <tr>
-      <td style="text-align: center">
+      <td>
         <img alt="A shader ball with a MaterialX TiledBrass material applied"
              title="MaterialX TiledBrass material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png">
-        <br><small>Tiled Brass</small>
       </td>
-      <td style="text-align: center">
+      <td>
         <img alt="A shader ball with a MaterialX TiledWood material applied"
              title="MaterialX TiledWood material"
              src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png">
-        <br><small>Tiled Wood</small>
       </td>
     </tr>
   </tbody>
