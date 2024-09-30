@@ -306,7 +306,7 @@ bool Value::isA<AggregateValue>() const
 }
 
 template <>
-const AggregateValue& Value::asA<AggregateValue>() const
+MX_CORE_API const AggregateValue& Value::asA<AggregateValue>() const
 {
     const AggregateValue* typedVal = dynamic_cast<const AggregateValue*>(this);
     if (!typedVal)
