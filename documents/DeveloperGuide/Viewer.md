@@ -2,6 +2,8 @@
 
 The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  The standard set of pattern and physically based shading nodes is supported, and libraries of custom nodes can be included as additional library paths.
 
+## Example Images
+
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 
 <table>
