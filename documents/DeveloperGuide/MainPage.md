@@ -58,7 +58,7 @@ Building the `install` target of your project will install the MaterialX C++ and
 
 ## MaterialX Versioning
 
-The MaterialX codebase uses a modified semantic versioning system where the *major* and *minor* versions match that of the corresponding [MaterialX Specification](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/Specification/MaterialX.Specification.md), and the *build* version represents engineering advances within that specification version.  MaterialX documents are similarly marked with the specification version they were authored in, and they are valid to load into any MaterialX codebase with an equal or higher specification version.
+The MaterialX codebase uses a modified semantic versioning system where the *major* and *minor* versions match that of the corresponding [MaterialX Specification](https://materialx.org/Specification.html), and the *build* version represents engineering advances within that specification version.  MaterialX documents are similarly marked with the specification version they were authored in, and they are valid to load into any MaterialX codebase with an equal or higher specification version.
 
 Upgrading of MaterialX documents from earlier versions is handled at import time by the `Document::upgradeVersion()` method, which applies the syntax and node interface upgrades that have occurred in previous specification revisions.  This allows the syntax conventions of MaterialX and the names and interfaces of nodes to evolve over time, without invalidating documents from earlier versions.
 
