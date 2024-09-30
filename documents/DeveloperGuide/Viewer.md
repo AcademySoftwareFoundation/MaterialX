@@ -2,6 +2,8 @@
 
 The MaterialX Viewer leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.  The standard set of pattern and physically based shading nodes is supported, and libraries of custom nodes can be included as additional library paths.
 
+**Figure 1:** Procedural and uniform materials in the MaterialX viewer
+
 <table>
   <tbody>
     <tr>
@@ -33,7 +35,7 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
   </tbody>
 </table>
 
-**Figure 1:** Procedural and uniform materials in the MaterialX viewer
+**Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 
 <table>
   <tbody>
@@ -53,8 +55,6 @@ The MaterialX Viewer leverages shader generation to build GLSL shaders from Mate
     </tr>
   </tbody>
 </table>
-
-**Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
 
 ## Building The MaterialX Viewer
 Select the `MATERIALX_BUILD_VIEWER` option in CMake to build the MaterialX Viewer.  Installation will copy the **MaterialXView** executable to a `/bin` directory within the selected install folder.

@@ -90,13 +90,13 @@ The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader gene
 
 The Open Chess Set is an open reference asset, consisting of a [MaterialX file](resources/Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx) in the Standard Surface shading model and a [geometry file](resources/Geometry) in the glTF format.  It was authored by Moeen Sayed and Mujtaba Sayed, and was contributed to the MaterialX project by Side Effects.
 
-![The Open Chess Set rendered in Arnold for Maya](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Arnold_01.png)
-
 **Figure 3:** The Open Chess Set, rendered in Arnold for Maya
 
-![The Open Chess Set rendered in Karma XPU for Houdini](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Karma_01.png)
+![The Open Chess Set rendered in Arnold for Maya](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Arnold_01.png)
 
 **Figure 4:** The Open Chess Set, rendered in Karma XPU for Houdini
+
+![The Open Chess Set rendered in Karma XPU for Houdini](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/OpenChessSet_Karma_01.png)
 
 ## Pre-Built Binaries
 
