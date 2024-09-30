@@ -7,7 +7,7 @@ Note that this system has no runtime and the output produced is source code, not
 
 ![Shader generation with multiple shader generators](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/shadergen.png)
 
-**Figure 1**: Shader generation with multiple shader generators.
+**Figure 1:** Shader generation with multiple shader generators.
 
 ## 1.2 Languages and Shader Generators
 The MaterialX description is free from device specific details and all implementation details needs to be taken care of by shader generators. There is one shader generator for each supported shading language. However for each language there can also be variations needed for different renderers. For example; OpenGL renderers supporting GLSL can use forward rendering or deferred rendering, each with very different requirements for how the shaders are constructed. Another example is different renderers supporting OSL but with different sets of closures or closure parameters. Hence a separate shader generator can be defined for each language/target combination.
@@ -75,7 +75,7 @@ Figure 2. The first option is to keep inline code in a file. The file extension 
 {{in1}} + {{in2}}
 ```
 
-**Figure 2**: Inline expressions for implementing nodes `<add>` and `<mix>`. The code for `<add>` is stored in an additional file, while the code for `<mix>` is specified as part of the
+**Figure 2:** Inline expressions for implementing nodes `<add>` and `<mix>`. The code for `<add>` is stored in an additional file, while the code for `<mix>` is specified as part of the
 `<implemenentation>` declaration. 
 
 ### 1.3.2 Shading Language Function
@@ -115,7 +115,7 @@ void mx_image_color3(string file, string layer, color defaultvalue,
                   "wrap", uaddressmode);
 }
 ```
-**Figure 3**: Shading language function's implementation for node `<image>` in OSL.
+**Figure 3:** Shading language function's implementation for node `<image>` in OSL.
 
 ### 1.3.3 Node Graph Implementation
 As an alternative to defining source code, there is also an option to reference a nodegraph as the implementation of a nodedef. The only requirement is that the nodegraph and nodedef have matching inputs and outputs.
@@ -147,7 +147,7 @@ This is useful for creating a compound for a set of nodes performing some common
   <output name="out" type="float" nodename="modulo1" />
 </nodegraph>
 ```
-**Figure 4**: Checker node implementation using a nodegraph.
+**Figure 4:** Checker node implementation using a nodegraph.
 
 ### 1.3.4 Dynamic Code Generation
 In some situations static source code is not enough to implement a node. The code might need to be customized depending on parameters set on the node. Or for a hardware render target vertex streams or uniform inputs might need to be created in order to supply the data needed for the node implementation.
@@ -192,7 +192,7 @@ OslShaderGenerator::OslShaderGenerator() :
     ...
 }
 ```
-**Figure 5**: C++ class for dynamic code generation.
+**Figure 5:** C++ class for dynamic code generation.
 
 ## 1.4 Shader Generation Steps
 This section outlines the steps taken in general to produce a shader from the MaterialX description. The `ShaderGenerator` base class and its supporting classes will handle this for you, but it’s good to know the steps involved if custom changes are needed to support a new target.
@@ -305,7 +305,7 @@ class TexCoordGlsl : public ShaderNodeImpl
     }
 };
 ```
-**Figure 6**: Implementation of node `texcoord` in GLSL. Using a `ShaderNodeImpl` sub-class in order to control shader variable creation and code generation into separate shader stages.
+**Figure 6:** Implementation of node `texcoord` in GLSL. Using a `ShaderNodeImpl` sub-class in order to control shader variable creation and code generation into separate shader stages.
 
 ### 1.6.2 Variable Naming Convention
 
@@ -353,4 +353,4 @@ Uniform variables
 | u_lightData[]                       | struct  | Array of struct LightData holding parameters for active light sources. The `LightData` struct is built dynamically depending on requirements for bound light shaders. |
 | u_\<unitType>UnitTarget[]           | integer  | An attribute indicating the target unit for a given unit type definition (\<unitType>). |
 
-**Figure 7** : Listing of predefined variables with their binding rules.
+**Figure 7:** Listing of predefined variables with their binding rules.

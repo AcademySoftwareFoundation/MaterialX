@@ -32,17 +32,59 @@ The Python bindings for MaterialX are based on [PyBind11](https://github.com/pyb
 
 The [MaterialX Viewer](documents/DeveloperGuide/Viewer.md) leverages shader generation to build GLSL shaders from MaterialX graphs, rendering the results using the NanoGUI framework.
 
-| Marble | Copper | Plastic | Carpaint |
-|--------|--------|---------|----------|
-| ![MaterialX Marble material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png) | ![MaterialX Copper material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png) | ![MaterialX Plastic material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png) | ![MaterialX Carpaint material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png) |
-
 **Figure 1:** Procedural and uniform materials in the MaterialX viewer
 
-| Tiled Brass | Tiled Wood |
-|-------------|------------|
-| ![MaterialX TiledBrass material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png) | ![MaterialX TiledWood material](https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png) |
+<table>
+  <tbody>
+    <tr>
+      <td style="text-align: center">
+        <img alt="A teapot with a MaterialX Marble material applied"
+             title="MaterialX Marble material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Marble.png">
+        <br><small>Marble</small>
+      </td>
+      <td style="text-align: center">
+        <img alt="A teapot with a MaterialX Copper material applied"
+             title="MaterialX Copper material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Copper.png">
+        <br><small>Copper</small>
+      </td>
+      <td style="text-align: center">
+        <img alt="A teapot with a MaterialX Plastic material applied"
+             title="MaterialX Plastic material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Plastic.png">
+        <br><small>Plastic</small>
+      </td>
+      <td style="text-align: center">
+        <img alt="A teapot with a MaterialX Carpaint material applied"
+             title="MaterialX Carpaint material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_Carpaint.png">
+        <br><small>Carpaint</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 **Figure 2:** Textured, color-space-managed materials in the MaterialX viewer
+
+<table>
+  <tbody>
+    <tr>
+      <td style="text-align: center">
+        <img alt="A shader ball with a MaterialX TiledBrass material applied"
+             title="MaterialX TiledBrass material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledBrass.png">
+        <br><small>Tiled Brass</small>
+      </td>
+      <td style="text-align: center">
+        <img alt="A shader ball with a MaterialX TiledWood material applied"
+             title="MaterialX TiledWood material"
+             src="https://raw.githubusercontent.com/AcademySoftwareFoundation/MaterialX/main/documents/Images/MaterialXView_TiledWood.png">
+        <br><small>Tiled Wood</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Open Chess Set
 
