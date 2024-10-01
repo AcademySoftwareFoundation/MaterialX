@@ -263,7 +263,6 @@ int main(int argc, char* const argv[])
             break;
         }
 
-
         double xpos = 0.0;
         double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -271,7 +270,6 @@ int main(int argc, char* const argv[])
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
-
     }
 
     // Cleanup
