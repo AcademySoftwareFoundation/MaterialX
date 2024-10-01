@@ -1,7 +1,7 @@
 # MaterialX Version
 set(MATERIALX_MAJOR_VERSION 1)
 set(MATERIALX_MINOR_VERSION 39)
-set(MATERIALX_BUILD_VERSION 1)
+set(MATERIALX_BUILD_VERSION 2)
 set(MATERIALX_LIBRARY_VERSION ${MATERIALX_MAJOR_VERSION}.${MATERIALX_MINOR_VERSION}.${MATERIALX_BUILD_VERSION})
 
 # Cmake setup
@@ -59,10 +59,27 @@ option(MATERIALX_COVERAGE_ANALYSIS "Build MaterialX libraries with coverage anal
 option(MATERIALX_DYNAMIC_ANALYSIS "Build MaterialX libraries with dynamic analysis on supporting platforms." OFF)
 option(MATERIALX_OSL_LEGACY_CLOSURES "Build OSL shader generation supporting the legacy OSL closures." OFF)
 
-option(MATERIALX_BUILD_IOS "Build MaterialX for iOS." OFF)
+option(MATERIALX_BUILD_IOS "Build MaterialX for iOS. (Deprecated. Set CMAKE_SYSTEM_NAME instead)" OFF)
+set(MATERIALX_BUILD_APPLE_EMBEDDED OFF)
 if (MATERIALX_BUILD_IOS)
+    MESSAGE(WARNING "The MATERIALX_BUILD_IOS is deprecated. Set the CMAKE_SYSTEM_NAME to the platform instead")
     set(CMAKE_SYSTEM_NAME iOS)
-    add_definitions(-DTARGET_OS_IOS=1)
+endif()
+
+# Cross Compilation detection as defined in CMake docs
+# https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-visionos-or-watchos
+# Note: All these SDKs may not be supported by MaterialX
+set(__build_apple_framework OFF)
+if (CMAKE_SYSTEM_NAME MATCHES "iOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "tvOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "visionOS"
+        OR CMAKE_SYSTEM_NAME MATCHES "watchOS")
+    set(MATERIALX_BUILD_APPLE_EMBEDDED ON)
+    set(__build_apple_framework ${MATERIALX_BUILD_SHARED_LIBS})
+    # TARGET_OS_IPHONE refers to all IPHONE derived platforms
+    # https://chaosinmotion.com/2021/08/02/things-to-remember-compiler-conditionals-for-macos-ios-etc/
+    # This should be auto-defined, but leaving it in here because it was historically defined
+    add_definitions(-DTARGET_OS_IPHONE=1)
     set(MATERIALX_BUILD_MONOLITHIC ON)
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
@@ -71,6 +88,18 @@ if (MATERIALX_BUILD_IOS)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
     set(MATERIALX_BUILD_TESTS OFF)
+endif()
+
+set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-" CACHE STRING "The Codesigning identity needed to sign compiled objects")
+option(MATERIALX_BUILD_APPLE_FRAMEWORK "Build MaterialX as an Apple Framework" ${__build_apple_framework})
+if (MATERIALX_BUILD_APPLE_FRAMEWORK)
+    add_definitions(-DBUILD_APPLE_FRAMEWORK)
+    set(MATERIALX_BUILD_MONOLITHIC ON)
+    set(MATERIALX_BUILD_PYTHON OFF)
+    set(MATERIALX_BUILD_VIEWER OFF)
+    set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_TESTS OFF)
+    set(MATERIALX_BUILD_SHARED_LIBS ON)
 endif()
 
 if (MATERIALX_BUILD_JS)
@@ -163,6 +192,7 @@ mark_as_advanced(MATERIALX_INSTALL_STDLIB_PATH)
 mark_as_advanced(MATERIALX_BUILD_JS)
 mark_as_advanced(MATERIALX_EMSDK_PATH)
 mark_as_advanced(MATERIALX_BUILD_IOS)
+mark_as_advanced(MATERIALX_BUILD_APPLE_FRAMEWORK)
 if (MATERIALX_BUILD_GEN_MDL)
     mark_as_advanced(MATERIALX_MDLC_EXECUTABLE)
     mark_as_advanced(MATERIALX_MDL_RENDER_EXECUTABLE)
@@ -193,6 +223,8 @@ if(MATERIALX_BUILD_RENDER AND MATERIALX_BUILD_GEN_OSL AND MATERIALX_BUILD_TESTS)
             # currently OSL does not export a cmake target for testrender, but once that's added this can be simplified.
             set(MATERIALX_OSL_BINARY_TESTRENDER $<TARGET_FILE_DIR:OSL::oslc>/testrender)
         endif()
+        # NOTE : we do not derive a value for MATERIALX_OSL_INCLUDE_PATH here, as a a cmake installed OSL package
+        # should have the shader includes in the expected location.
     endif()
 endif()
 
@@ -300,8 +332,7 @@ function(mx_add_library MATERIALX_MODULE_NAME)
             SOURCE_FILES
             HEADER_FILES
             INLINED_FILES
-            LIBRARIES
-            PRIVATE_LIBRARIES)
+            MTLX_MODULES)
     cmake_parse_arguments(args
             "${options}"
             "${oneValueArgs}"
@@ -331,12 +362,8 @@ function(mx_add_library MATERIALX_MODULE_NAME)
 
         target_link_libraries(${TARGET_NAME}
             PUBLIC
-                ${args_LIBRARIES}
+                ${args_MTLX_MODULES}
                 ${CMAKE_DL_LIBS})
-
-        target_link_libraries(${TARGET_NAME}
-             PRIVATE
-                ${args_PRIVATE_LIBRARIES})
 
         target_include_directories(${TARGET_NAME}
                 PUBLIC
@@ -499,6 +526,24 @@ if (MATERIALX_BUILD_MONOLITHIC)
         # Note : we don't install the headers etc. here, and rely on each separate modules CMakeLists.txt
         # to do that installation, thus we respect the build options configuration, and only install
         # the headers for the modules we've built in to the monolithic build.
+
+        # Finally do the framework build if requested
+        # This uses a zsh script since zsh is guaranteed to exist on systems
+        if(MATERIALX_BUILD_APPLE_FRAMEWORK)
+            # Conform cmake formats to zsh expected formats
+            set(__embedded_build "false")
+            if (MATERIALX_BUILD_APPLE_EMBEDDED)
+                set(__embedded_build "true")
+            endif()
+
+            # Install the Info.plist and shell script
+            math(EXPR CFBUNDLEVERSION "${MATERIALX_MAJOR_VERSION} * 10000 + ${MATERIALX_MINOR_VERSION} * 100 + ${MATERIALX_BUILD_VERSION}")
+            configure_file(cmake/modules/Info.plist.in "${PROJECT_BINARY_DIR}/Info.plist" @ONLY)
+            configure_file(cmake/modules/AppleFrameworkBuild.zsh.in "${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh" @ONLY)
+
+            # Run the shell script for the primary configuration
+            install(CODE "execute_process(COMMAND zsh ${PROJECT_BINARY_DIR}/AppleFrameworkBuild.zsh )")
+        endif()
     endif()
 endif()
 

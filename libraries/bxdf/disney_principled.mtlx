@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+
+  <nodedef name="ND_disney_principled" node="disney_principled" nodegroup="pbr" doc="The Disney Principled BSDF">
+    <input name="baseColor" type="color3" value="0.16, 0.16, 0.16" uiname="Base Color" uifolder="Base" />
+    <input name="metallic" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Metallic" uifolder="Base" />
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Roughness" uifolder="Base" />
+    <input name="anisotropic" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Anisotropic" uifolder="Specular" />
+    <input name="specular" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Specular" uifolder="Specular" />
+    <input name="specularTint" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Specular Tint" uifolder="Specular" />
+    <input name="sheen" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Sheen" uifolder="Sheen" />
+    <input name="sheenTint" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Sheen Tint" uifolder="Sheen" />
+    <input name="clearcoat" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Clearcoat" uifolder="Clearcoat" />
+    <input name="clearcoatGloss" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Clearcoat Gloss" uifolder="Clearcoat" />
+    <input name="specTrans" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Spec Trans" uifolder="Transmission" />
+    <input name="ior" type="float" value="1.5" uisoftmin="1.0" uisoftmax="3.0" uiname="IOR" uifolder="Transmission" />
+    <input name="subsurface" type="float" value="0.0" uiname="Subsurface" uifolder="Subsurface" />
+    <input name="subsurfaceDistance" type="color3" value="1.0, 1.0, 1.0" uiname="Subsurface Distance" uifolder="Subsurface" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodegraph name="NG_disney_principled" nodedef="ND_disney_principled">
+
+    <!-- Diffuse Layer -->
+    <invert name="invert_metalness" type="float">
+      <input name="in" type="float" interfacename="metallic" />
+    </invert>
+    <burley_diffuse_bsdf name="diffuse_bsdf" type="BSDF">
+      <input name="weight" type="float" nodename="invert_metalness" />
+      <input name="color" type="color3" interfacename="baseColor" />
+      <input name="roughness" type="float" interfacename="roughness" />
+    </burley_diffuse_bsdf>
+
+    <!-- Subsurface Layer -->
+    <subsurface_bsdf name="subsurface_bsdf" type="BSDF">
+      <input name="color" type="color3" interfacename="baseColor" />
+      <input name="radius" type="color3" interfacename="subsurfaceDistance" />
+    </subsurface_bsdf>
+    <mix name="subsurface_mix" type="BSDF">
+      <input name="bg" type="BSDF" nodename="diffuse_bsdf" />
+      <input name="fg" type="BSDF" nodename="subsurface_bsdf" />
+      <input name="mix" type="float" interfacename="subsurface" />
+    </mix>
+
+    <!-- Sheen Layer -->
+    <mix name="sheen_color" type="color3">
+      <input name="bg" type="color3" value="1, 1, 1" />
+      <input name="fg" type="color3" interfacename="baseColor" />
+      <input name="mix" type="float" interfacename="sheenTint" />
+    </mix>
+    <sheen_bsdf name="sheen_bsdf" type="BSDF">
+      <input name="weight" type="float" interfacename="sheen" />
+      <input name="color" type="color3" nodename="sheen_color" />
+    </sheen_bsdf>
+    <layer name="sheen_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="sheen_bsdf" />
+      <input name="base" type="BSDF" nodename="subsurface_mix" />
+    </layer>
+
+    <!-- Transmission Layer -->
+    <dielectric_bsdf name="transmission_bsdf" type="BSDF">
+      <input name="tint" type="color3" interfacename="baseColor" />
+      <input name="ior" type="float" interfacename="ior" />
+      <input name="roughness" type="vector2" value="0.0, 0.0" />
+      <input name="scatter_mode" type="string" value="T" />
+    </dielectric_bsdf>
+    <mix name="transmission_mix" type="BSDF">
+      <input name="bg" type="BSDF" nodename="sheen_layer" />
+      <input name="fg" type="BSDF" nodename="transmission_bsdf" />
+      <input name="mix" type="float" interfacename="specTrans" />
+    </mix>
+
+    <!-- Dielectric Layer -->
+    <roughness_anisotropy name="specular_roughness" type="vector2">
+      <input name="roughness" type="float" interfacename="roughness" />
+      <input name="anisotropy" type="float" interfacename="anisotropic" />
+    </roughness_anisotropy>
+    <multiply name="dielectric_intensity" type="float">
+      <input name="in1" type="float" interfacename="specular" />
+      <input name="in2" type="float" value="0.08" />
+    </multiply>
+    <mix name="dielectric_tint" type="color3">
+      <input name="bg" type="color3" value="1, 1, 1" />
+      <input name="fg" type="color3" interfacename="baseColor" />
+      <input name="mix" type="float" interfacename="specularTint" />
+    </mix>
+    <generalized_schlick_bsdf name="dielectric_bsdf" type="BSDF">
+      <input name="weight" type="float" nodename="dielectric_intensity" />
+      <input name="color0" type="color3" nodename="dielectric_tint" />
+      <input name="roughness" type="vector2" nodename="specular_roughness" />
+    </generalized_schlick_bsdf>
+    <layer name="dielectric_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="dielectric_bsdf" />
+      <input name="base" type="BSDF" nodename="transmission_mix" />
+    </layer>
+
+    <!-- Metallic Layer -->
+    <generalized_schlick_bsdf name="metallic_bsdf" type="BSDF">
+      <input name="color0" type="color3" interfacename="baseColor" />
+      <input name="roughness" type="vector2" nodename="specular_roughness" />
+    </generalized_schlick_bsdf>
+    <mix name="metallic_mix" type="BSDF">
+      <input name="bg" type="BSDF" nodename="dielectric_layer" />
+      <input name="fg" type="BSDF" nodename="metallic_bsdf" />
+      <input name="mix" type="float" interfacename="metallic" />
+    </mix>
+
+    <!-- Coat Layer -->
+    <multiply name="coat_intensity" type="float">
+      <input name="in1" type="float" interfacename="clearcoat" />
+      <input name="in2" type="float" value="0.04" />
+    </multiply>
+    <invert name="coat_roughness" type="float">
+      <input name="in" type="float" interfacename="clearcoatGloss" />
+    </invert>
+    <convert name="coat_roughness_vector" type="vector2">
+      <input name="in" type="float" nodename="coat_roughness" />
+    </convert>
+    <roughness_dual name="coat_roughness_dual" type="vector2">
+      <input name="roughness" type="vector2" nodename="coat_roughness_vector" />
+    </roughness_dual>
+    <generalized_schlick_bsdf name="coat_bsdf" type="BSDF">
+      <input name="weight" type="float" nodename="coat_intensity" />
+      <input name="roughness" type="vector2" nodename="coat_roughness_dual" />
+    </generalized_schlick_bsdf>
+    <layer name="coat_layer" type="BSDF">
+      <input name="top" type="BSDF" nodename="coat_bsdf" />
+      <input name="base" type="BSDF" nodename="metallic_mix" />
+    </layer>
+
+    <!-- Surface Constructor -->
+    <surface name="surface_constructor" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="coat_layer" />
+    </surface>
+
+    <!-- Output -->
+    <output name="out" type="surfaceshader" nodename="surface_constructor" />
+  </nodegraph>
+
+</materialx>

@@ -3,7 +3,7 @@ file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
 
 if(APPLE)
-    if (NOT MATERIALX_BUILD_IOS)
+    if (NOT MATERIALX_BUILD_APPLE_EMBEDDED)
         find_library(COCOA_FRAMEWORK Cocoa)
     endif()
 elseif(UNIX)
@@ -20,7 +20,7 @@ mx_add_library(MaterialXRenderHw
         ${materialx_source}
     HEADER_FILES
         ${materialx_headers}
-    LIBRARIES
+    MTLX_MODULES
         MaterialXRender
     EXPORT_DEFINE
         MATERIALX_RENDERHW_EXPORTS
@@ -31,7 +31,7 @@ if(APPLE)
             PUBLIC
             "-framework Foundation"
             "-framework Metal")
-    if (NOT MATERIALX_BUILD_IOS)
+    if (NOT MATERIALX_BUILD_APPLE_EMBEDDED)
         target_link_libraries(${TARGET_NAME}
                 PUBLIC
                 "-framework Cocoa"

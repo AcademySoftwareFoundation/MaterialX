@@ -1,0 +1,43 @@
+name: release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  
+jobs:
+
+  release:
+    name: Release Signing
+    runs-on: ubuntu-latest
+    env:
+       RELEASE_TAG: ${{ github.ref_name }}
+    permissions:
+      contents: write
+      id-token: write
+      repository-projects: write
+       
+    steps:
+      - name: Sync Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Create Archive Name
+        run: echo "MATERIALX_ARCHIVE=MaterialX-${RELEASE_TAG//v}" >> $GITHUB_ENV
+
+      - name: Generate Archives
+        run: |
+          git archive --prefix ${MATERIALX_ARCHIVE}/ --output ${MATERIALX_ARCHIVE}.zip ${RELEASE_TAG}
+          git archive --prefix ${MATERIALX_ARCHIVE}/ --output ${MATERIALX_ARCHIVE}.tar.gz ${RELEASE_TAG}
+
+      - name: Sign and Upload Archives
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        with:
+          inputs: |
+            ${{ env.MATERIALX_ARCHIVE }}.zip
+            ${{ env.MATERIALX_ARCHIVE }}.tar.gz
+          upload-signing-artifacts: true
+          release-signing-artifacts: false

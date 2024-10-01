@@ -102,7 +102,7 @@ void MetalState::initLinearToSRGBKernel()
 
             MTLTileRenderPipelineDescriptor* renderPipelineDescriptor = [MTLTileRenderPipelineDescriptor new];
             [renderPipelineDescriptor setRasterSampleCount:1];
-            [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+            [[renderPipelineDescriptor colorAttachments][0] setPixelFormat:MTLPixelFormatRGBA16Float];
             [renderPipelineDescriptor setTileFunction:function];
             linearToSRGB_pso = [device newRenderPipelineStateWithTileDescriptor:renderPipelineDescriptor options:0 reflection:nil error:&error];
         }
@@ -171,7 +171,7 @@ void MetalState::initLinearToSRGBKernel()
         MTLRenderPipelineDescriptor* renderPipelineDesc = [MTLRenderPipelineDescriptor new];
         [renderPipelineDesc setVertexFunction:vertexfunction];
         [renderPipelineDesc setFragmentFunction:Fragmentfunction];
-        [[renderPipelineDesc colorAttachments][0] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+        [[renderPipelineDesc colorAttachments][0] setPixelFormat:MTLPixelFormatRGBA16Float];
         [renderPipelineDesc setDepthAttachmentPixelFormat:MTLPixelFormatDepth32Float];
         linearToSRGB_pso = [device newRenderPipelineStateWithDescriptor:renderPipelineDesc error:&error];
     }
@@ -225,7 +225,7 @@ void MetalState::endCommandBuffer()
     [cmdBuffer waitUntilCompleted];
 }
 
-void MetalState::waitForComplition()
+void MetalState::waitForCompletion()
 {
     std::unique_lock<std::mutex> lock(inFlightMutex);
     while (inFlightCommandBuffers != 0)

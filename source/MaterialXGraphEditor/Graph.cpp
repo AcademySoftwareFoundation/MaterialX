@@ -1121,7 +1121,7 @@ void Graph::setConstant(UiNodePtr node, mx::InputPtr& input, const mx::UIPropert
                 temp = fileName;
 
                 // Need to clear the file prefix so that it can find the new file
-                input->setAttribute(input->FILE_PREFIX_ATTRIBUTE, "");
+                input->setFilePrefix(mx::EMPTY_STRING);
                 _fileDialogImage.clearSelected();
                 _fileDialogImage.setTypeFilters(std::vector<std::string>());
                 _fileDialogImageInputName = "";
@@ -3239,6 +3239,15 @@ void Graph::graphButtons()
 
     ImGui::BeginChild("Selection", ImVec2(paneWidth, 0), false, windowFlags);
     ImVec2 windowPos = ImGui::GetWindowPos();
+
+    // Update cursorInRenderView to account for other windows overlapping the Render View (e.g. Menu dropdown).
+    cursorInRenderView &= ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+
+    // Update cursorInRenderView to account for visible scrollbar and scroll amount.
+    ImGuiContext* context = ImGui::GetCurrentContext();
+    bool hasScrollbar = context->CurrentWindow->ScrollbarY;
+    cursorInRenderView &= hasScrollbar ? mousePos.x < (tempWindowPos.x + screenSize.x - ImGui::GetStyle().ScrollbarSize) : true;
+    cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());

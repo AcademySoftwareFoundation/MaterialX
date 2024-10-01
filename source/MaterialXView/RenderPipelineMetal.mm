@@ -15,6 +15,8 @@
 
 #include <nanogui/messagedialog.h>
 
+#include <MetalPerformanceShaders/MetalPerformanceShaders.h>
+
 namespace
 {
 
@@ -59,10 +61,10 @@ void MetalRenderPipeline::initFramebuffer(int width, int height,
                             MTL(device),
                             width * _viewer->m_pixel_ratio,
                             height * _viewer->m_pixel_ratio,
-                            4, mx::Image::BaseType::UINT8,
+                            4, mx::Image::BaseType::HALF,
                             MTL(supportsTiledPipeline) ?
                             (id<MTLTexture>)color_texture : nil,
-                            false,  MTLPixelFormatBGRA8Unorm));
+                            false, MTLPixelFormatRGBA16Float));
 }
 
 void MetalRenderPipeline::resizeFramebuffer(int width, int height,
@@ -697,16 +699,30 @@ mx::ImagePtr MetalRenderPipeline::getFrameImage()
     unsigned int width = MTL(currentFramebuffer())->getWidth();
     unsigned int height = MTL(currentFramebuffer())->getHeight();
     
-    MTL(waitForComplition());
+    MTL(waitForCompletion());
+
+    id<MTLTexture> srcTexture = MTL(supportsTiledPipeline) ?
+                                    (id<MTLTexture>)_viewer->_colorTexture :
+                                    MTL(currentFramebuffer())->getColorTexture();
+
     mx::MetalFramebufferPtr framebuffer = mx::MetalFramebuffer::create(
                             MTL(device),
                             width, height, 4,
                             mx::Image::BaseType::UINT8,
-                            MTL(supportsTiledPipeline) ?
-                                (id<MTLTexture>)_viewer->_colorTexture :
-                                MTL(currentFramebuffer())->getColorTexture(),
+                            nil,
                             false, MTLPixelFormatBGRA8Unorm);
-    mx::ImagePtr frame = framebuffer->getColorImage(MTL(cmdQueue));
+    id<MTLTexture> dstTexture = framebuffer->getColorTexture();
+
+    id<MTLCommandQueue> cmdQueue = MTL(cmdQueue);
+
+    // Copy with format conversion
+    MPSImageConversion* conversion = [[MPSImageConversion alloc] initWithDevice:MTL(device)];
+    id<MTLCommandBuffer> cmdBuffer = [cmdQueue commandBuffer];
+    [conversion encodeToCommandBuffer:cmdBuffer sourceTexture:srcTexture destinationTexture:dstTexture];
+    [cmdBuffer commit];
+    [cmdBuffer waitUntilCompleted];
+
+    mx::ImagePtr frame = framebuffer->getColorImage(cmdQueue);
     
     // Flips the captured image
     std::vector<unsigned char> tmp(frame->getRowStride());
