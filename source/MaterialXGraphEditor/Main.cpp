@@ -31,6 +31,7 @@ const std::string options =
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
     "    --uiScale [FACTOR]             Manually specify a UI scaling factor\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --font [FILE]                  Specify the name of the font file to use. If not specified the default font will be used\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -68,6 +69,7 @@ int main(int argc, char* const argv[])
     int viewHeight = 256;
     float uiScale = 0.0f;
     std::string captureFilename;
+    std::string fontFilename;
 
     for (size_t i = 0; i < tokens.size(); i++)
     {
@@ -105,6 +107,10 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--font")
+        {
+            parseToken(nextToken, "string", fontFilename);
         }
         else if (token == "--help")
         {
@@ -172,7 +178,16 @@ int main(int argc, char* const argv[])
     io.IniFilename = NULL;
     io.LogFilename = NULL;
 
-    io.Fonts->AddFontDefault();
+    ImFont* customFont = nullptr;
+    float fontSize = 13.0f; // Font size used for AddFontDefault()
+    if (!fontFilename.empty())
+    {
+        customFont = io.Fonts->AddFontFromFileTTF(fontFilename.c_str(), fontSize);
+    }
+    if (!customFont)
+    {
+        io.Fonts->AddFontDefault();
+    }
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -239,6 +254,7 @@ int main(int argc, char* const argv[])
             break;
         }
 
+
         double xpos = 0.0;
         double ypos = 0.0;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -246,6 +262,7 @@ int main(int argc, char* const argv[])
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+
     }
 
     // Cleanup
