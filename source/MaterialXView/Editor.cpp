@@ -631,6 +631,8 @@ void PropertyEditor::updateContents(Viewer* viewer)
         {
             ng::Widget* twoColumns = new ng::Widget(_container);
             twoColumns->set_layout(_gridLayout2);
+            ng::Widget* threeColumns = new ng::Widget(_container);
+            threeColumns->set_layout(_gridLayout3);
             ng::Label* modelLabel = new ng::Label(twoColumns, "Shading Model");
             modelLabel->set_font_size(20);
             modelLabel->set_font("sans-bold");
