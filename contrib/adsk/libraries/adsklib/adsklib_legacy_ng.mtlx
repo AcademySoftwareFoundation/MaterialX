@@ -437,7 +437,7 @@
     </range>
     <fractal3d name="fractal3d_float" type="float" xpos="10.985507" ypos="4.931035">
       <input name="octaves" type="integer" nodename="levels_int" />
-      <input name="position" type="vector3" nodename="rotate3d_z" />
+      <input name="position" type="vector3" nodename="add_offset" />
     </fractal3d>
     <range name="range_fractal3d" type="float" xpos="13.304348" ypos="4.922414">
       <input name="in" type="float" nodename="fractal3d_float" />
@@ -462,7 +462,7 @@
       <input name="doclamp" type="boolean" value="true" />
     </range>
     <noise3d name="noise3d_float" type="float" xpos="10.985507" ypos="2.336207">
-      <input name="position" type="vector3" nodename="rotate3d_z" />
+      <input name="position" type="vector3" nodename="add_offset" />
     </noise3d>
     <combine3 name="combine_coord" type="vector3" xpos="2.492754" ypos="2.758621">
       <input name="in1" type="float" output="outx" nodename="separate_2" />
@@ -478,7 +478,7 @@
       <input name="in1" type="float" value="1" />
     </divide>
     <rotate3d name="rotate3d_x" type="vector3" xpos="2.492754" ypos="12.439655">
-      <input name="in" type="vector3" nodename="add_offset" />
+      <input name="in" type="vector3" nodename="adj_coord" />
       <input name="amount" type="float" interfacename="rotate_x" />
       <input name="axis" type="vector3" value="1, 0, 0" />
     </rotate3d>
@@ -496,9 +496,9 @@
       <input name="amount" type="float" interfacename="rotate_z" />
       <input name="axis" type="vector3" value="0, 0, 1" />
     </rotate3d>
-    <subtract name="add_offset" type="vector3" xpos="6.695652" ypos="3.060345">
+    <subtract name="add_offset" type="vector3" xpos="5.847826" ypos="11.439655">
       <input name="in2" type="vector3" nodename="combine_offset" />
-      <input name="in1" type="vector3" nodename="adj_coord" />
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
     </subtract>
     <texcoord name="texcoord_vector2" type="vector2" xpos="-2.630435" ypos="2.146552" />
     <separate2 name="separate_2" type="multioutput" xpos="-0.478261" ypos="2.482759">
@@ -507,13 +507,504 @@
       <output name="outy" type="float" />
     </separate2>
     <turbulence3d name="turbulence3d_float" type="float" xpos="11.036232" ypos="7.344828">
-      <input name="position" type="vector3" nodename="rotate3d_z" />
+      <input name="position" type="vector3" nodename="add_offset" />
       <input name="octaves" type="float" interfacename="levels" />
     </turbulence3d>
     <floor name="levels_int" type="integer" xpos="-0.876812" ypos="-6.620690">
       <input name="in" type="float" interfacename="levels" />
     </floor>
     <output name="output_color3" type="color3" xpos="21.615942" ypos="0.560345" nodename="mix_colors" />
+  </nodegraph>
+
+  <nodegraph name="NG_util_specklenoise_float" nodedef="ND_util_specklenoise_float">
+    <noise3d name="noise3d" type="float" nodedef="ND_noise3d_float" xpos="1.69604" ypos="5.06204">
+      <input name="position" type="vector3" interfacename="position" />
+    </noise3d>
+    <multiply name="multiply1" type="float" nodedef="ND_multiply_float" xpos="3.58012" ypos="5.15412">
+      <input name="in1" type="float" nodename="noise3d" />
+      <input name="in2" type="float" value="1.65" />
+    </multiply>
+    <clamp name="clamp1" type="float" nodedef="ND_clamp_float" xpos="4.89629" ypos="5.11237">
+      <input name="in" type="float" nodename="multiply1" />
+      <input name="low" type="float" value="-1" />
+    </clamp>
+    <add name="add1" type="float" nodedef="ND_add_float" xpos="6.22483" ypos="5.1326">
+      <input name="in1" type="float" nodename="clamp1" />
+      <input name="in2" type="float" value="1" />
+    </add>
+    <multiply name="multiply2" type="float" nodedef="ND_multiply_float" xpos="7.52156" ypos="5.12913">
+      <input name="in1" type="float" nodename="add1" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+    <output name="out" type="float" nodename="multiply2" />
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_speckle_color3" xpos="-0.886106" ypos="-1.16111" Autodesk-ldx_inputPos="-574 -331.5" Autodesk-ldx_outputPos="402 -139.5" nodedef="ND_legacy_speckle_color3">
+    <rotate3d name="rotate3d_x" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7181" ypos="-5.00226">
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="in" type="vector3" interfacename="position" />
+      <input name="amount" type="float" interfacename="rotate_x" />
+    </rotate3d>
+    <rotate3d name="rotate3d_y" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7102" ypos="-3.61387">
+      <input name="in" type="vector3" nodename="rotate3d_x" />
+      <input name="amount" type="float" interfacename="rotate_y" />
+    </rotate3d>
+    <rotate3d name="rotate3d_z" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-10.7331" ypos="-2.30938">
+      <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="in" type="vector3" nodename="rotate3d_y" />
+      <input name="amount" type="float" interfacename="rotate_z" />
+    </rotate3d>
+    <ifgreatereq name="check_zero" type="float" nodedef="ND_ifgreatereq_float" xpos="-10.6897" ypos="0.306317">
+      <input name="value2" type="float" value="0.0001" />
+      <input name="in2" type="float" value="0.0001" />
+      <input name="value1" type="float" interfacename="size" />
+      <input name="in1" type="float" interfacename="size" />
+    </ifgreatereq>
+    <divide name="divide5" type="float" nodedef="ND_divide_float" xpos="-9.16622" ypos="0.303137">
+      <input name="in2" type="float" nodename="check_zero" />
+      <input name="in1" type="float" value="10" />
+    </divide>
+    <add name="offset_xyz" type="vector3" nodedef="ND_add_vector3" xpos="-9.15544" ypos="-1.07747">
+      <input name="in2" type="vector3" nodename="combine1" />
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+    </add>
+    <multiply name="multiply16" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-7.562" ypos="-0.601072">
+      <input name="in2" type="float" ldx_value="500" nodename="divide5" />
+      <input name="in1" type="vector3" nodename="offset_xyz" />
+    </multiply>
+    <combine3 name="combine1" type="vector3" nodedef="ND_combine3_vector3" Autodesk-hidden="true">
+      <input name="in1" type="float" interfacename="offset_x" ldx_value="0" />
+      <input name="in2" type="float" interfacename="offset_y" ldx_value="0" />
+      <input name="in3" type="float" interfacename="offset_z" ldx_value="0" />
+    </combine3>
+    <divide name="divide1" type="float" nodedef="ND_divide_float" xpos="2.12439" ypos="1.39331">
+      <input name="in2" type="float" value="2" />
+      <input name="in1" type="float" nodename="util_specklenoise2" />
+    </divide>
+    <divide name="divide2" type="float" nodedef="ND_divide_float" xpos="2.16557" ypos="2.83531">
+      <input name="in2" type="float" value="4" />
+      <input name="in1" type="float" nodename="util_specklenoise3" />
+    </divide>
+    <divide name="divide3" type="float" nodedef="ND_divide_float" xpos="2.09734" ypos="4.19981">
+      <input name="in2" type="float" value="8" />
+      <input name="in1" type="float" nodename="util_specklenoise4" />
+    </divide>
+    <divide name="divide4" type="float" nodedef="ND_divide_float" xpos="2.16068" ypos="5.84122">
+      <input name="in2" type="float" value="16" />
+      <input name="in1" type="float" nodename="util_specklenoise5" />
+    </divide>
+    <add name="add2" type="float" nodedef="ND_add_float" xpos="5.27562" ypos="1.36001">
+      <input name="in2" type="float" nodename="divide1" />
+      <input name="in1" type="float" nodename="util_specklenoise1" />
+    </add>
+    <add name="add3" type="float" nodedef="ND_add_float" xpos="5.25856" ypos="2.77571">
+      <input name="in2" type="float" nodename="divide2" />
+      <input name="in1" type="float" nodename="add2" />
+    </add>
+    <add name="add4" type="float" nodedef="ND_add_float" xpos="5.24136" ypos="4.14871">
+      <input name="in2" type="float" nodename="divide3" />
+      <input name="in1" type="float" nodename="add3" />
+    </add>
+    <add name="add5" type="float" nodedef="ND_add_float" xpos="5.24531" ypos="5.816">
+      <input name="in2" type="float" nodename="divide4" />
+      <input name="in1" type="float" nodename="add4" />
+    </add>
+    <divide name="divide7" type="float" nodedef="ND_divide_float" xpos="2.19737" ypos="7.328">
+      <input name="in2" type="float" value="32" />
+      <input name="in1" type="float" nodename="util_specklenoise6" />
+    </divide>
+    <add name="add6" type="float" nodedef="ND_add_float" xpos="5.28201" ypos="7.30272">
+      <input name="in2" type="float" nodename="divide7" />
+      <input name="in1" type="float" nodename="add5" />
+    </add>
+    <divide name="divide8" type="float" nodedef="ND_divide_float" xpos="2.18691" ypos="8.86672">
+      <input name="in2" type="float" value="64" />
+      <input name="in1" type="float" nodename="util_specklenoise7" />
+    </divide>
+    <add name="add7" type="float" nodedef="ND_add_float" xpos="5.27152" ypos="8.8415">
+      <input name="in2" type="float" nodename="divide8" />
+      <input name="in1" type="float" nodename="add6" />
+    </add>
+    <modulo name="modulo_octave" type="float" nodedef="ND_modulo_float" xpos="7.66422" ypos="3.99471">
+      <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" interfacename="octaves" />
+    </modulo>
+    <divide name="divide_octave" type="float" nodedef="ND_divide_float" xpos="7.68244" ypos="5.38771">
+      <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" interfacename="octaves" />
+    </divide>
+    <divide name="divide9" type="float" nodedef="ND_divide_float" xpos="2.18691" ypos="10.3427">
+      <input name="in2" type="float" value="128" />
+      <input name="in1" type="float" nodename="util_specklenoise8" />
+    </divide>
+    <add name="add8" type="float" nodedef="ND_add_float" xpos="5.27151" ypos="10.3176">
+      <input name="in2" type="float" nodename="divide9" />
+      <input name="in1" type="float" nodename="add7" />
+    </add>
+    <switch name="switch_oct1" type="float" nodedef="ND_switch_float" xpos="9.44228" ypos="1.48501">
+      <input name="in2" type="float" nodename="util_specklenoise1" />
+      <input name="in3" type="float" nodename="add2" />
+      <input name="in4" type="float" nodename="add3" />
+      <input name="in5" type="float" nodename="add4" />
+      <input name="which" type="float" nodename="modulo_octave" />
+    </switch>
+    <switch name="switch_oct2" type="float" nodedef="ND_switch_float" xpos="9.445" ypos="3.36151">
+      <input name="which" type="float" nodename="modulo_octave" />
+      <input name="in1" type="float" nodename="add5" />
+      <input name="in2" type="float" nodename="add6" />
+      <input name="in3" type="float" nodename="add7" />
+      <input name="in4" type="float" nodename="add8" />
+    </switch>
+    <switch name="switch_oct_frac1" type="float" nodedef="ND_switch_float" xpos="9.55911" ypos="12.6192">
+      <input name="which" type="float" nodename="modulo_octave_frac" />
+      <input name="in1" type="float" nodename="multiply7" />
+      <input name="in2" type="float" nodename="multiply8" />
+      <input name="in3" type="float" nodename="multiply9" />
+      <input name="in4" type="float" nodename="multiply13" />
+      <input name="in5" type="float" nodename="multiply14" />
+    </switch>
+    <modulo name="octave_frac" type="float" nodedef="ND_modulo_float" xpos="-4.61917" ypos="13.438">
+      <input name="in1" type="float" interfacename="octaves" />
+    </modulo>
+    <multiply name="multiply7" type="float" nodedef="ND_multiply_float" xpos="1.39603" ypos="13.3233">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="util_specklenoise1" />
+    </multiply>
+    <switch name="switch_oct_frac2" type="float" nodedef="ND_switch_float" xpos="9.56183" ypos="14.4957">
+      <input name="which" type="float" nodename="modulo_octave_frac" />
+      <input name="in1" type="float" nodename="multiply15" />
+      <input name="in2" type="float" nodename="multiply17" />
+    </switch>
+    <modulo name="modulo_octave_frac" type="float" nodedef="ND_modulo_float" xpos="7.78094" ypos="15.1291">
+      <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" interfacename="octaves" />
+    </modulo>
+    <multiply name="multiply8" type="float" nodedef="ND_multiply_float" xpos="1.40383" ypos="14.4921">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide1" />
+    </multiply>
+    <switch name="switch_octave" type="float" nodedef="ND_switch_float" xpos="11.0783" ypos="3.82171">
+      <input name="in1" type="float" nodename="switch_oct1" />
+      <input name="in2" type="float" nodename="switch_oct2" />
+      <input name="which" type="float" nodename="divide_octave" />
+    </switch>
+    <switch name="switch_octave_frac" type="float" nodedef="ND_switch_float" xpos="11.195" ypos="14.9561">
+      <input name="in1" type="float" nodename="switch_oct_frac1" />
+      <input name="in2" type="float" nodename="switch_oct_frac2" />
+      <input name="which" type="float" nodename="divide_octave_frac" />
+    </switch>
+    <multiply name="multiply9" type="float" nodedef="ND_multiply_float" xpos="1.38727" ypos="15.6588">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide2" />
+    </multiply>
+    <divide name="divide_octave_frac" type="float" nodedef="ND_divide_float" xpos="7.79917" ypos="16.5221">
+      <input name="in2" type="float" value="5" />
+      <input name="in1" type="float" interfacename="octaves" />
+    </divide>
+    <multiply name="multiply13" type="float" nodedef="ND_multiply_float" xpos="1.45712" ypos="16.7633">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide3" />
+    </multiply>
+    <multiply name="multiply14" type="float" nodedef="ND_multiply_float" xpos="1.4773" ypos="18.0251">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide4" />
+    </multiply>
+    <add name="add_frac_octave" type="float" nodedef="ND_add_float" xpos="12.6851" ypos="4.23351">
+      <input name="in1" type="float" nodename="switch_octave" />
+      <input name="in2" type="float" nodename="switch_octave_frac" />
+    </add>
+    <multiply name="multiply15" type="float" nodedef="ND_multiply_float" xpos="1.464" ypos="19.1832">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide7" />
+    </multiply>
+    <multiply name="multiply17" type="float" nodedef="ND_multiply_float" xpos="1.49783" ypos="20.3861">
+      <input name="in2" type="float" nodename="octave_frac" />
+      <input name="in1" type="float" nodename="divide8" />
+    </multiply>
+    <ifgreater name="octave_max" type="float" nodedef="ND_ifgreater_float" xpos="14.6104" ypos="3.72806">
+      <input name="value2" type="float" value="8" />
+      <input name="in2" type="float" nodename="add_frac_octave" />
+      <input name="in1" type="float" nodename="add8" />
+      <input name="value1" type="float" interfacename="octaves" />
+    </ifgreater>
+    <output name="out" type="color3" nodename="color_mix" />
+    <util_specklenoise name="util_specklenoise1" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.60778" ypos="-0.535371">
+      <input name="position" type="vector3" nodename="multiply16" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise2" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.52728" ypos="1.57871">
+      <input name="position" type="vector3" nodename="multiply3" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise3" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.55569" ypos="3.03481">
+      <input name="position" type="vector3" nodename="multiply4" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise4" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.52728" ypos="4.48401">
+      <input name="position" type="vector3" nodename="multiply5" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise5" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.47755" ypos="5.98272">
+      <input name="position" type="vector3" nodename="multiply6" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise6" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.48414" ypos="7.53133">
+      <input name="position" type="vector3" nodename="multiply10" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise7" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.50596" ypos="9.07972">
+      <input name="position" type="vector3" nodename="multiply11" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise8" type="float" nodedef="ND_util_specklenoise_float" xpos="-1.46335" ypos="10.5927">
+      <input name="position" type="vector3" nodename="multiply12" />
+    </util_specklenoise>
+    <mix name="color_mix" type="color3" nodedef="ND_mix_color3" xpos="17.2821" ypos="-3.51321">
+      <input name="bg" type="color3" interfacename="color1" />
+      <input name="fg" type="color3" interfacename="color2" />
+      <input name="mix" type="float" nodename="remap1" />
+    </mix>
+    <remap name="remap1" type="float" nodedef="ND_remap_float" xpos="17.0418" ypos="0.762083">
+      <input name="in" type="float" nodename="octave_max" />
+      <input name="inhigh" type="float" value="2" />
+    </remap>
+    <multiply name="multiply3" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.74456" ypos="1.47081">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="2" />
+    </multiply>
+    <multiply name="multiply4" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.70334" ypos="2.91271">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="4" />
+    </multiply>
+    <multiply name="multiply5" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.77156" ypos="4.27731">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="8" />
+    </multiply>
+    <multiply name="multiply6" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.71673" ypos="5.95272">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="16" />
+    </multiply>
+    <multiply name="multiply10" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.68006" ypos="7.4395">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="32" />
+    </multiply>
+    <multiply name="multiply11" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.69045" ypos="8.97833">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="64" />
+    </multiply>
+    <multiply name="multiply12" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-4.69051" ypos="10.4543">
+      <input name="in1" type="vector3" nodename="multiply16" />
+      <input name="in2" type="float" value="128" />
+    </multiply>
+  </nodegraph>
+
+  <nodegraph name="NG_legacy_marble_color3" xpos="-0.886106" ypos="-1.16111" Autodesk-ldx_inputPos="-574 -331.5" Autodesk-ldx_outputPos="402 -139.5" nodedef="ND_legacy_marble_color3">
+    <output name="out" type="color3" nodename="color_mix" />
+    <divide name="r1" type="vector3" nodedef="ND_divide_vector3" xpos="-6.20478" ypos="1.50219">
+      <input name="in2" type="vector3" value="100, 200, 200" />
+      <input name="in1" type="vector3" nodename="multiply16" />
+    </divide>
+    <add name="add2" type="float" nodedef="ND_add_float" xpos="-3.74353" ypos="3.91973">
+      <input name="in2" type="float" value="10000" />
+      <input name="in1" type="float" nodename="separate3_1" output="outx" />
+    </add>
+    <multiply name="multiply3" type="float" nodedef="ND_multiply_float" xpos="-2.34145" ypos="3.20756">
+      <input name="in1" type="float" nodename="add2" />
+      <input name="in2" type="float" interfacename="width" />
+    </multiply>
+    <add name="d1" type="float" nodedef="ND_add_float" xpos="1.17492" ypos="3.87733">
+      <input name="in1" type="float" nodename="multiply3" />
+      <input name="in2" type="float" nodename="multiply4" />
+    </add>
+    <multiply name="multiply4" type="float" nodedef="ND_multiply_float" xpos="-0.894833" ypos="4.50951">
+      <input name="in2" type="float" value="7" />
+      <input name="in1" type="float" nodename="util_specklenoise1" />
+    </multiply>
+    <backdrop name="compute_d" xpos="-3.79909" ypos="2.76867" width="6.27956" height="2.90196" />
+    <ifgreatereq name="id_4_or_less" type="float" nodedef="ND_ifgreatereq_float" xpos="6.13389" ypos="5.19118">
+      <input name="value2" type="float" value="4" />
+      <input name="in1" type="float" value="1" />
+      <input name="value1" type="float" nodename="id2" />
+    </ifgreatereq>
+    <ifgreatereq name="id_9_or_above" type="float" nodedef="ND_ifgreatereq_float" xpos="7.05056" ypos="6.81678">
+      <input name="value2" type="float" value="9" />
+      <input name="in2" type="float" nodename="id_4_or_less" />
+      <input name="value1" type="float" nodename="id2" />
+      <input name="in1" type="float" value="2" />
+    </ifgreatereq>
+    <switch name="slices_switch" type="float" nodedef="ND_switch_float" xpos="11.6629" ypos="11.5424">
+      <input name="in1" type="float" nodename="i1" ldx_value="0.25" />
+      <input name="in2" type="float" ldx_value="0.5" nodename="i3" />
+      <input name="in3" type="float" nodename="i2" ldx_value="0.75" />
+      <input name="in4" type="float" ldx_value="1" nodename="i3" />
+      <input name="which" type="float" nodename="id_12_or_above" ldx_value="3" />
+    </switch>
+    <ifgreatereq name="id_12_or_above" type="float" nodedef="ND_ifgreatereq_float" xpos="7.98472" ypos="8.2725">
+      <input name="value2" type="float" value="12" />
+      <input name="in2" type="float" nodename="id_9_or_above" />
+      <input name="value1" type="float" nodename="id2" />
+      <input name="in1" type="float" value="3" />
+    </ifgreatereq>
+    <divide name="divide2" type="float" nodedef="ND_divide_float" xpos="-5.12518" ypos="7.16794">
+      <input name="in1" type="float" nodename="d1" />
+      <input name="in2" type="float" value="17" />
+    </divide>
+    <sign name="sign1" type="float" nodedef="ND_sign_float" xpos="-3.21636" ypos="7.01311">
+      <input name="in" type="float" nodename="divide2" />
+    </sign>
+    <ifgreatereq name="ifgreatereq1" type="float" nodedef="ND_ifgreatereq_float" xpos="-1.45509" ypos="6.90883">
+      <input name="value1" type="float" nodename="sign1" />
+      <input name="in2" type="float" nodename="ceil1" />
+      <input name="in1" type="float" nodename="floor2" />
+    </ifgreatereq>
+    <ceil name="ceil1" type="float" nodedef="ND_ceil_float" xpos="-3.26728" ypos="9.55533">
+      <input name="in" type="float" nodename="divide2" />
+    </ceil>
+    <multiply name="multiply5" type="float" nodedef="ND_multiply_float" xpos="-0.6351" ypos="9.12994">
+      <input name="in1" type="float" nodename="ifgreatereq1" />
+      <input name="in2" type="float" value="17" />
+    </multiply>
+    <subtract name="id2" type="float" nodedef="ND_subtract_float" xpos="1.04871" ypos="9.17511">
+      <input name="in2" type="float" nodename="multiply5" />
+      <input name="in1" type="float" nodename="d1" />
+    </subtract>
+    <backdrop name="id_fmod" xpos="-5.43283" ypos="6.44817" width="7.94556" height="4.06294" />
+    <divide name="r2" type="vector3" nodedef="ND_divide_vector3" xpos="-4.79435" ypos="12.5481">
+      <input name="in1" type="vector3" nodename="r1" />
+      <input name="in2" type="vector3" value="70, 50, 50" />
+    </divide>
+    <multiply name="multiply8" type="float" nodedef="ND_multiply_float" xpos="-0.728244" ypos="12.6494">
+      <input name="in1" type="float" nodename="util_specklenoise2" />
+      <input name="in2" type="float" value="0.2" />
+    </multiply>
+    <add name="i1" type="float" nodedef="ND_add_float" xpos="0.754483" ypos="12.5824">
+      <input name="in2" type="float" value="0.7" />
+      <input name="in1" type="float" nodename="multiply8" />
+    </add>
+    <backdrop name="id_less_then_4" xpos="-5.29771" ypos="11.4041" width="8.06728" height="3.24999" />
+    <backdrop name="id_4_to_9_or_above_12" xpos="5.30848" ypos="18.4369" width="7.59572" height="8.07233" />
+    <backdrop name="id_9_to_12" xpos="5.31157" ypos="15.4354" width="3.89198" height="2.68824" />
+    <add name="add7" type="float" nodedef="ND_add_float" xpos="5.7895" ypos="16.2375">
+      <input name="in2" type="float" value="1" />
+      <input name="in1" type="float" nodename="util_specklenoise3" />
+    </add>
+    <multiply name="i2" type="float" nodedef="ND_multiply_float" xpos="7.48883" ypos="16.2786">
+      <input name="in1" type="float" nodename="add7" />
+      <input name="in2" type="float" value="0.2" />
+    </multiply>
+    <backdrop name="selection_by_range" xpos="5.91328" ypos="4.34165" width="3.87368" height="5.65561" uicolor="#B2B2B5" Autodesk-ldx_alpha="0.156863" />
+    <subtract name="subtract2" type="float" nodedef="ND_subtract_float" xpos="7.89878" ypos="22.4051">
+      <input name="in1" type="float" nodename="subtract3" />
+      <input name="in2" type="float" value="10.5" />
+    </subtract>
+    <subtract name="subtract3" type="float" nodedef="ND_subtract_float" xpos="6.23544" ypos="22.3627">
+      <input name="in2" type="float" nodename="trunc1" />
+      <input name="in1" type="float" nodename="d1" />
+    </subtract>
+    <absval name="absval1" type="float" nodedef="ND_absval_float" xpos="9.64372" ypos="22.4137">
+      <input name="in" type="float" nodename="subtract2" />
+    </absval>
+    <multiply name="multiply13" type="float" nodedef="ND_multiply_float" xpos="11.1398" ypos="22.3641">
+      <input name="in1" type="float" nodename="absval1" />
+      <input name="in2" type="float" value="0.153846" />
+    </multiply>
+    <multiply name="multiply14" type="float" nodedef="ND_multiply_float" xpos="6.20383" ypos="23.7939">
+      <input name="in2" type="float" value="0.2" />
+      <input name="in1" type="float" nodename="util_specklenoise3" />
+    </multiply>
+    <multiply name="multiply15" type="float" nodedef="ND_multiply_float" xpos="6.14889" ypos="25.0404">
+      <input name="in2" type="float" value="0.3" />
+      <input name="in1" type="float" nodename="multiply13" />
+    </multiply>
+    <add name="add8" type="float" nodedef="ND_add_float" xpos="8.05156" ypos="24.4211">
+      <input name="in1" type="float" nodename="multiply14" />
+      <input name="in2" type="float" nodename="multiply15" />
+    </add>
+    <add name="i3" type="float" nodedef="ND_add_float" xpos="9.65022" ypos="24.3536">
+      <input name="in2" type="float" value="0.4" />
+      <input name="in1" type="float" nodename="add8" />
+    </add>
+    <mix name="color_mix" type="color3" nodedef="ND_mix_color3" xpos="13.6561" ypos="8.4905">
+      <input name="fg" type="color3" interfacename="stone_color" ldx_value="1, 1, 1" />
+      <input name="mix" type="float" nodename="slices_switch" />
+      <input name="bg" type="color3" ldx_value="0, 0, 0" interfacename="vein_color" />
+    </mix>
+    <multiply name="multiply16" type="vector3" nodedef="ND_multiply_vector3FA" xpos="-7.92117" ypos="1.81314">
+      <input name="in2" type="float" nodename="divide5" ldx_value="500" />
+      <input name="in1" type="vector3" nodename="offset_xyz" />
+    </multiply>
+    <ifgreatereq name="check_zero" type="float" nodedef="ND_ifgreatereq_float" xpos="-11.2461" ypos="3.74031">
+      <input name="value1" type="float" interfacename="size" />
+      <input name="value2" type="float" value="0.0001" />
+      <input name="in2" type="float" value="0.0001" />
+      <input name="in1" type="float" interfacename="size" />
+    </ifgreatereq>
+    <divide name="divide5" type="float" nodedef="ND_divide_float" xpos="-9.72256" ypos="3.73709">
+      <input name="in2" type="float" nodename="check_zero" />
+      <input name="in1" type="float" value="500" />
+    </divide>
+    <separate3 name="separate3_2" type="multioutput" nodedef="ND_separate3_vector3" xpos="-4.83354" ypos="16.1107">
+      <input name="in" type="vector3" nodename="r1" />
+    </separate3>
+    <divide name="divide3" type="float" nodedef="ND_divide_float" xpos="-2.99172" ypos="15.7557">
+      <input name="in1" type="float" nodename="separate3_2" output="outx" />
+      <input name="in2" type="float" value="100" />
+    </divide>
+    <divide name="divide6" type="float" nodedef="ND_divide_float" xpos="-1.79342" ypos="16.4436">
+      <input name="in1" type="float" nodename="separate3_2" output="outy" />
+      <input name="in2" type="float" value="100" />
+    </divide>
+    <combine3 name="r3" type="vector3" nodedef="ND_combine3_vector3" xpos="0.22593" ypos="16.0331">
+      <input name="in1" type="float" nodename="divide3" />
+      <input name="in2" type="float" nodename="divide6" />
+      <input name="in3" type="float" nodename="divide3" />
+    </combine3>
+    <backdrop name="matching_odd_z_handling_as_in_rtsl_and_ogs_code" xpos="-5.14428" ypos="15.1708" width="7.08628" height="2.62256" />
+    <sign name="sign2" type="float" nodedef="ND_sign_float" xpos="6.20494" ypos="19.0417">
+      <input name="in" type="float" nodename="d1" />
+    </sign>
+    <ifgreatereq name="trunc1" type="float" nodedef="ND_ifgreatereq_float" xpos="8.40617" ypos="19.5372">
+      <input name="value1" type="float" nodename="sign2" />
+      <input name="in2" type="float" nodename="ceil2" />
+      <input name="in1" type="float" nodename="floor4" />
+    </ifgreatereq>
+    <ceil name="ceil2" type="float" nodedef="ND_ceil_float" xpos="6.226" ypos="21.0641">
+      <input name="in" type="float" nodename="d1" />
+    </ceil>
+    <floor name="floor4" type="float" nodedef="ND_floor_float" xpos="6.20411" ypos="20.0819">
+      <input name="in" type="float" nodename="d1" />
+    </floor>
+    <floor name="floor2" type="float" nodedef="ND_floor_float" xpos="-3.28118" ypos="8.49333">
+      <input name="in" type="float" nodename="divide2" />
+    </floor>
+    <add name="offset_xyz" type="vector3" nodedef="ND_add_vector3" xpos="-9.56672" ypos="0.676967">
+      <input name="in2" type="vector3" nodename="combine1" />
+      <input name="in1" type="vector3" nodename="rotate3d_z" />
+    </add>
+    <combine3 name="combine1" type="vector3" nodedef="ND_combine3_vector3" Autodesk-hidden="true">
+      <input name="in1" type="float" interfacename="offset_x" ldx_value="0" />
+      <input name="in2" type="float" interfacename="offset_y" ldx_value="0" />
+      <input name="in3" type="float" interfacename="offset_z" ldx_value="0" />
+    </combine3>
+    <rotate3d name="rotate3d_x" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0772" ypos="-2.58804">
+      <input name="amount" type="float" interfacename="rotate_x" />
+      <input name="axis" type="vector3" value="1, 0, 0" />
+      <input name="in" type="vector3" interfacename="position" />
+    </rotate3d>
+    <rotate3d name="rotate3d_y" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0694" ypos="-1.19966">
+      <input name="amount" type="float" interfacename="rotate_y" />
+      <input name="in" type="vector3" nodename="rotate3d_x" />
+    </rotate3d>
+    <rotate3d name="rotate3d_z" type="vector3" nodedef="ND_rotate3d_vector3" xpos="-11.0923" ypos="0.104826">
+      <input name="amount" type="float" interfacename="rotate_z" />
+      <input name="axis" type="vector3" value="0, 0, 1" />
+      <input name="in" type="vector3" nodename="rotate3d_y" />
+    </rotate3d>
+    <util_specklenoise name="util_specklenoise1" type="float" nodedef="ND_util_specklenoise_float" xpos="-3.59206" ypos="1.05953">
+      <input name="position" type="vector3" nodename="r1" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise2" type="float" nodedef="ND_util_specklenoise_float" xpos="-2.76553" ypos="12.6447">
+      <input name="position" type="vector3" nodename="r2" />
+    </util_specklenoise>
+    <util_specklenoise name="util_specklenoise3" type="float" nodedef="ND_util_specklenoise_float" xpos="2.48472" ypos="16.2542">
+      <input name="position" type="vector3" nodename="r3" />
+    </util_specklenoise>
+    <separate3 name="separate3_1" type="multioutput" nodedef="ND_separate3_vector3" xpos="-6.33117" ypos="4.88354">
+      <input name="in" type="vector3" nodename="multiply16" />
+    </separate3>
   </nodegraph>
 
   <!-- 

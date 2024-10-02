@@ -66,7 +66,7 @@
   <nodedef name="ND_legacy_noise" node="legacy_noise" version="0.1" isdefaultversion="true" nodegroup="adsk_legacy" >
     <input name="color1" type="color3" value="1, 1, 1" xpos="-2.652174" ypos="-3.724138" uivisible="true" uiname="Color 1" />
     <input name="color2" type="color3" value="0, 0, 0" xpos="-2.652174" ypos="-2.500000" uivisible="true" uiname="Color 2" />
-    <input name="noise_type" type="integer" value="0" xpos="-2.615942" ypos="-4.982759" uivisible="true" uiname="Noise Type" uimin="0" uimax="2"/>
+    <input name="noise_type" type="integer" value="0" xpos="-2.615942" ypos="-4.982759" uivisible="true" uiname="Noise Type" uimin="0" uimax="2" />
     <input name="threshold_low" type="float" value="0.49" xpos="-2.688406" ypos="-0.681035" uivisible="true" uiname="Threshold Low" uimin="0" uimax="1" />
     <input name="threshold_high" type="float" value="0.51" xpos="-2.688406" ypos="0.698276" uivisible="true" uiname="Threshold High" uimin="0" uimax="1" />
     <input name="levels" type="float" value="3" xpos="-2.572464" ypos="-6.344828" uivisible="true" uiname="Levels" uimin="0" uisoftmax="10" />
@@ -76,8 +76,8 @@
     <input name="offset_y" type="float" value="0" xpos="-2.688406" ypos="9.387931" uivisible="true" uiname="Offset Y" unittype="distance" />
     <input name="offset_z" type="float" value="0" xpos="-2.652174" ypos="10.491380" uivisible="true" uiname="Offset Z" unittype="distance" />
     <input name="rotate_x" type="float" value="0" xpos="-2.652174" ypos="12.258620" uivisible="true" uiname="Rotate X" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
-    <input name="rotate_y" type="float" value="0" xpos="-2.652174" ypos="13.370689" uivisible="true" uiname="Rotate Y" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360"/>
-    <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360"/>
+    <input name="rotate_y" type="float" value="0" xpos="-2.652174" ypos="13.370689" uivisible="true" uiname="Rotate Y" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
+    <input name="rotate_z" type="float" value="0" xpos="-2.652174" ypos="14.474138" uivisible="true" uiname="Rotate Z" unittype="angle" unit="degree" uisoftmin="0" uisoftmax="360" />
     <output name="output_color3" type="color3" xpos="12.717391" ypos="-2.206897" />
   </nodedef>
   
@@ -93,6 +93,41 @@
     <input name="octaves" type="float" value="3.0" uimin="0" uisoftmax="10" />
     <input name="position" type="vector3" defaultgeomprop="Pobject" />
     <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <nodedef name="ND_util_specklenoise_float" node="util_specklenoise" nodegroup="adsk_legacy">
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
+    <output name="out" type="float" default="0.0" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_speckle_color3" node="legacy_speckle_color3" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
+    <input name="color1" type="color3" value="1, 1, 1" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="color2" type="color3" value="0, 0, 0" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
+    <input name="size" type="float" value="1" uisoftmin="0.0" uisoftmax="10.0" />
+    <input name="octaves" type="float" value="4.0" uisoftmin="0.0" uisoftmax="8.0" />
+    <input name="offset_x" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="offset_y" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="offset_z" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="rotate_x" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="rotate_y" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="rotate_z" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_legacy_marble_color3" node="legacy_marble_color3" nodegroup="adsk_legacy" version="1.0.1" isdefaultversion="true" >
+    <input name="position" type="vector3" defaultgeomprop="Pobject" />
+    <input name="size" type="float" value="0.7636" uimin="0.0" uisoftmax="10.0" />
+    <input name="width" type="float" value="0.070283" uimin="0.0" uisoftmax="10.0" />
+    <input name="stone_color" type="color3" value="0.0303, 0.0321, 0.0122" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="vein_color" type="color3" value="0.7832, 0.7832, 0.5755" uisoftmin="0,0,0" uisoftmax="1,1,1" />
+    <input name="offset_x" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="offset_y" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="offset_z" type="float" value="0" uimin="0.0" uisoftmax="10.0" unittype="distance" />
+    <input name="rotate_x" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="rotate_y" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <input name="rotate_z" type="float" value="0" uimin="0.0" uisoftmax="360.0" unittype="angle" />
+    <output name="out" type="color3" />
   </nodedef>
 
   <!-- 
