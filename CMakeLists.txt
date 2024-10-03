@@ -38,7 +38,7 @@ option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindi
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
-option(MATERIALX_BUILD_PYTHON_DOCS "Create HTML documentation for the MaterialX Python API using Sphinx. Requires that Sphinx be installed. Sets MATERIALX_BUILD_PYTHON to ON." OFF)
+option(MATERIALX_BUILD_PYTHON_DOCS "Create HTML documentation for the MaterialX Python API using Sphinx. Requires that Sphinx be installed." OFF)
 if(MATERIALX_BUILD_PYTHON_DOCS)
     set(MATERIALX_BUILD_PYTHON ON)
 endif()
