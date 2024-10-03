@@ -81,9 +81,9 @@ class MX_CORE_API ElementEquivalenceResult
 
     /// Append to list of equivalence differences
     void addDifference(const string& path1, const string& path2, const string& differenceType, 
-                        const string& name=EMPTY_STRING)
+                       const string& name=EMPTY_STRING)
     {
-        StringVec difference = { path1, path2, differenceType, name};
+        StringVec difference = { path1, path2, differenceType, name };
         differences.push_back(difference);
     }
 
