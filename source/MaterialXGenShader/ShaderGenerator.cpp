@@ -344,7 +344,6 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     return impl;
 }
 
-
 /// Load any struct type definitions from the document in to the type cache.
 void ShaderGenerator::loadStructTypeDefs(const DocumentPtr& doc)
 {
