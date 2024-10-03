@@ -4,7 +4,6 @@
 //
 
 #include <PyMaterialX/PyMaterialX.h>
-#include "__doc__.md.h"
 
 namespace py = pybind11;
 
@@ -27,7 +26,7 @@ void bindPyVariant(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXCore, mod)
 {
-    mod.doc() = PyMaterialXCore_DOCSTRING;
+    mod.doc() = "Core MaterialX elements and graph traversal.";
 
     bindPyElement(mod);
     bindPyTraversal(mod);
