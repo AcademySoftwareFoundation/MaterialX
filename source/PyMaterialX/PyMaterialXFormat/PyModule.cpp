@@ -13,7 +13,7 @@ void bindPyUtil(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXFormat, mod)
 {
-    mod.doc() = "Cross-platform support for file and search paths, and XML serialization.";
+    mod.doc() = "Cross-platform support for file paths, search paths, and serialization.";
 
     // PyMaterialXFormat depends on types defined in PyMaterialXCore
     PYMATERIALX_IMPORT_MODULE(PyMaterialXCore);
