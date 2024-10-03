@@ -10,7 +10,6 @@
 #include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
-#include <unordered_map>
 #include <iostream>
 
 namespace mx = MaterialX;
