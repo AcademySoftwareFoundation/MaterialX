@@ -71,7 +71,7 @@ using ElementMap = std::unordered_map<string, ElementPtr>;
 /// A standard function taking an ElementPtr and returning a boolean.
 using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
-/// @class ElemenEquivalenceResult
+/// @class ElementEquivalenceResult
 /// The results of comparing for equivalence.
 class MX_CORE_API ElementEquivalenceResult
 {
@@ -120,7 +120,7 @@ class MX_CORE_API ElementEquivalenceResult
     vector<StringVec> differences;
 };
 
-/// @class ElemenEquivalenceOptions
+/// @class ElementEquivalenceOptions
 /// A set of options for controlling for equivalence comparison.
 class MX_CORE_API ElementEquivalenceOptions
 {
