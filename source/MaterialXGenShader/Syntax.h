@@ -205,8 +205,8 @@ class MX_GENSHADER_API Syntax
     Syntax();
 
     virtual StructTypeSyntaxPtr createStructSyntax(const string& structTypeName, const string& defaultValue,
-                                           const string& uniformDefaultValue, const string& typeAlias,
-                                           const string& typeDefinition) const
+                                                   const string& uniformDefaultValue, const string& typeAlias,
+                                                   const string& typeDefinition) const
     {
         return std::make_shared<StructTypeSyntax>(
             this,
