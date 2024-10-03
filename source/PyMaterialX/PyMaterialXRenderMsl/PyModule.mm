@@ -14,7 +14,7 @@ void bindPyTextureBaker(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderMsl, mod)
 {
-    mod.doc() = "Rendering materials using the Metal Shading Language.";
+    mod.doc() = "Rendering support for the Metal Shading Language.";
 
     // PyMaterialXRenderMsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);
