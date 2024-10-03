@@ -14,7 +14,7 @@ void bindPyTextureBaker(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXRenderGlsl, mod)
 {
-    mod.doc() = "Module containing Python bindings for the MaterialXRenderGlsl library";
+    mod.doc() = "Rendering materials using the OpenGL Shading Language.";
 
     // PyMaterialXRenderGlsl depends on types defined in PyMaterialXRender
     PYMATERIALX_IMPORT_MODULE(PyMaterialXRender);
