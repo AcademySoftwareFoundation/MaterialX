@@ -26,9 +26,31 @@ namespace mx = MaterialX;
 
 void bindPyElement(py::module& mod)
 {
+    py::class_<mx::ElementEquivalenceResult>(mod, "ElementEquivalenceResult")
+        .def("addDifference", &mx::ElementEquivalenceResult::addDifference)
+        .def("clear", &mx::ElementEquivalenceResult::clear)
+        .def("getDifference", &mx::ElementEquivalenceResult::getDifference)
+        .def("differenceCount", &mx::ElementEquivalenceResult::differenceCount)
+        .def_readonly_static("ATTRIBUTE", &mx::ElementEquivalenceResult::ATTRIBUTE)
+        .def_readonly_static("ATTRIBUTE_NAMES", &mx::ElementEquivalenceResult::ATTRIBUTE_NAMES)
+        .def_readonly_static("CHILD_COUNT", &mx::ElementEquivalenceResult::CHILD_COUNT)
+        .def_readonly_static("CHILD_NAME", &mx::ElementEquivalenceResult::CHILD_NAME)
+        .def_readonly_static("NAME", &mx::ElementEquivalenceResult::NAME)
+        .def_readonly_static("CATEGORY", &mx::ElementEquivalenceResult::CATEGORY)
+        .def(py::init<>());
+    
+    py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
+        .def_readwrite("format", &mx::ElementEquivalenceOptions::format)
+        .def_readwrite("precision", &mx::ElementEquivalenceOptions::precision)
+        .def_readwrite("skipAttributes", &mx::ElementEquivalenceOptions::skipAttributes)
+        .def_readwrite("skipValueComparisons", &mx::ElementEquivalenceOptions::skipValueComparisons)
+        .def(py::init<>());
+
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
+        .def("isEquivalent", &mx::Element::isEquivalent,
+            py::arg("rhs"), py::arg("options"), py::arg("result") = nullptr)
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
         .def("setName", &mx::Element::setName)
