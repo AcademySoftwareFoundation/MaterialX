@@ -34,7 +34,7 @@ MATERIALX_NAMESPACE_BEGIN
 ///
 class MX_GENSHADER_API TypeDesc
 {
-public:
+  public:
     enum BaseType
     {
         BASETYPE_NONE,
@@ -158,8 +158,7 @@ public:
     /// Create a Value from a string for a given typeDesc
     ValuePtr createValueFromStrings(const string& value) const;
 
-
-private:
+  private:
     /// Simple constexpr hash function, good enough for the small set of short strings that
     /// are used for our data type names.
     constexpr uint32_t constexpr_hash(std::string_view str, uint32_t n = 0, uint32_t h = 2166136261)
