@@ -39,15 +39,14 @@ const string ValueElement::UI_ADVANCED_ATTRIBUTE = "uiadvanced";
 const string ValueElement::UNIT_ATTRIBUTE = "unit";
 const string ValueElement::UNITTYPE_ATTRIBUTE = "unittype";
 const string ValueElement::UNIFORM_ATTRIBUTE = "uniform";
-
-Element::CreatorMap Element::_creatorMap;
-
 const string ElementEquivalenceResult::ATTRIBUTE = "attribute";
 const string ElementEquivalenceResult::ATTRIBUTE_NAMES = "attribute names";
 const string ElementEquivalenceResult::CHILD_COUNT = "child count";
 const string ElementEquivalenceResult::CHILD_NAME = "child name";
 const string ElementEquivalenceResult::NAME = "name";
 const string ElementEquivalenceResult::CATEGORY = "category";
+
+Element::CreatorMap Element::_creatorMap;
 
 //
 // Element methods
