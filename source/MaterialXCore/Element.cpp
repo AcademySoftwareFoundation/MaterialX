@@ -88,19 +88,19 @@ bool Element::operator!=(const Element& rhs) const
     return !(*this == rhs);
 }
 
-bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& options,
-                           ElementEquivalenceResult* result) const
+bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
+                           ElementEquivalenceResults* result) const
 {
     if (getName() != rhs->getName())
     {
         if (result)
-            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME);
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
         return false;
     }
     if (getCategory() != rhs->getCategory())
     {
         if (result)
-            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY);
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
         return false;
     }
 
@@ -127,7 +127,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     if (attributeNames != rhsAttributeNames)
     {
         if (result)
-            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES);
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
         return false;
     }
 
@@ -145,7 +145,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
     if (children.size() != rhsChildren.size())
     {
         if (result)
-            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT);
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
         return false;
     }
     for (size_t i = 0; i < children.size(); i++)
@@ -166,8 +166,8 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
                 if (!rhsElement)
                 {
                     if (result)
-                        result->addDifference(children[i]->getNamePath(), "<NONE>", ElementEquivalenceResult::CHILD_NAME,
-                            childName);
+                        result->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
+                                                                   ElementEquivalenceResult::CHILD_NAME, childName));
                     return false;
                 }
             }
@@ -179,12 +179,12 @@ bool Element::isEquivalent(ConstElementPtr rhs, ElementEquivalenceOptions& optio
 }
 
 bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    ElementEquivalenceOptions& /*options*/, ElementEquivalenceResult* result) const
+                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResults* result) const
 {
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
         if (result)
-            result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
         return false;
     }
     return true;
@@ -592,10 +592,11 @@ TypeDefPtr TypedElement::getTypeDef() const
 //
 
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
-                                         ElementEquivalenceOptions& options, ElementEquivalenceResult* result) const
+                                         const ElementEquivalenceOptions& options, ElementEquivalenceResults* result) const
 {    
     // Perform value comparisons
     //
+    bool performedValueComparison = false;
     if (!options.skipValueComparisons)
     {
         const StringSet uiAttributes = 
@@ -620,10 +621,11 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
                 if (thisValue->getValueString() != rhsValue->getValueString())
                 {
                     if (result)
-                        result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
+                        result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
                     return false;
                 }
             }
+            performedValueComparison = true;
         }
 
         // Check ui attribute value equality
@@ -638,15 +640,17 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
                 if (uiValue->getValueString() != rhsUiValue->getValueString())
                 {
                     if (result)
-                        result->addDifference(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName);
+                        result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
                     return false;
                 }
             }
+
+            performedValueComparison = true;
         }
     }
 
-    // Perform default comparison
-    else
+    // If did not peform a value comparison, perform the default comparison
+    if (!performedValueComparison)
     {
         return Element::isAttributeEquivalent(rhs, attributeName, options, result);
     }

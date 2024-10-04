@@ -27,18 +27,17 @@ namespace mx = MaterialX;
 void bindPyElement(py::module& mod)
 {
     py::class_<mx::ElementEquivalenceResult>(mod, "ElementEquivalenceResult")
-        .def("addDifference", &mx::ElementEquivalenceResult::addDifference)
-        .def("clear", &mx::ElementEquivalenceResult::clear)
-        .def("getDifference", &mx::ElementEquivalenceResult::getDifference)
-        .def("differenceCount", &mx::ElementEquivalenceResult::differenceCount)
         .def_readonly_static("ATTRIBUTE", &mx::ElementEquivalenceResult::ATTRIBUTE)
         .def_readonly_static("ATTRIBUTE_NAMES", &mx::ElementEquivalenceResult::ATTRIBUTE_NAMES)
         .def_readonly_static("CHILD_COUNT", &mx::ElementEquivalenceResult::CHILD_COUNT)
         .def_readonly_static("CHILD_NAME", &mx::ElementEquivalenceResult::CHILD_NAME)
         .def_readonly_static("NAME", &mx::ElementEquivalenceResult::NAME)
         .def_readonly_static("CATEGORY", &mx::ElementEquivalenceResult::CATEGORY)
-        .def(py::init<>());
-    
+        .def_readwrite("path1", &mx::ElementEquivalenceResult::path1)
+        .def_readwrite("path2", &mx::ElementEquivalenceResult::path2)
+        .def_readwrite("differenceType", &mx::ElementEquivalenceResult::differenceType)
+        .def_readwrite("attributeName", &mx::ElementEquivalenceResult::attributeName);
+
     py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
         .def_readwrite("format", &mx::ElementEquivalenceOptions::format)
         .def_readwrite("precision", &mx::ElementEquivalenceOptions::precision)
@@ -49,7 +48,13 @@ void bindPyElement(py::module& mod)
     py::class_<mx::Element, mx::ElementPtr>(mod, "Element")
         .def(py::self == py::self)
         .def(py::self != py::self)
-        .def("isEquivalent", &mx::Element::isEquivalent,
+        .def("isEquivalent", [](const mx::Element& elem, mx::ConstElementPtr& rhs, const mx::ElementEquivalenceOptions& options)
+        {
+            mx::ElementEquivalenceResults results;
+            bool res = elem.isEquivalent(rhs, options, &results);
+            return std::pair<bool, mx::ElementEquivalenceResults>(res, results);
+        })        
+        .def("", &mx::Element::isEquivalent,
             py::arg("rhs"), py::arg("options"), py::arg("result") = nullptr)
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
