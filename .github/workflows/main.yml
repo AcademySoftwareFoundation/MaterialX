@@ -37,8 +37,6 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.12
-          static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -63,10 +61,10 @@ jobs:
           test_render: ON
           clang_format: ON
 
-        - name: MacOS_Xcode_13_Python39
-          os: macos-12
+        - name: MacOS_Xcode_14_Python39
+          os: macos-13
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "14.1"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
 
@@ -75,6 +73,8 @@ jobs:
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_15_Python312
           os: macos-14
@@ -245,10 +245,14 @@ jobs:
       working-directory: build
 
     - name: Static Analysis Tests
-      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
+      if: matrix.static_analysis == 'ON'
       run: |
-        sudo apt-get install cppcheck
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sudo apt-get install cppcheck
+        else
+          brew install cppcheck
+        fi
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
