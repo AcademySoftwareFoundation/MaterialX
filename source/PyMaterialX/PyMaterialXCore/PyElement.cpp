@@ -50,9 +50,9 @@ void bindPyElement(py::module& mod)
         .def(py::self != py::self)
         .def("isEquivalent", [](const mx::Element& elem, mx::ConstElementPtr& rhs, const mx::ElementEquivalenceOptions& options)
         {
-            mx::ElementEquivalenceResults results;
+            mx::ElementEquivalenceResultVec results;
             bool res = elem.isEquivalent(rhs, options, &results);
-            return std::pair<bool, mx::ElementEquivalenceResults>(res, results);
+            return std::pair<bool, mx::ElementEquivalenceResultVec>(res, results);
         })        
         .def("", &mx::Element::isEquivalent,
             py::arg("rhs"), py::arg("options"), py::arg("result") = nullptr)

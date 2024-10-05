@@ -88,7 +88,7 @@ bool Element::operator!=(const Element& rhs) const
 }
 
 bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
-                           ElementEquivalenceResults* result) const
+                           ElementEquivalenceResultVec* result) const
 {
     if (getName() != rhs->getName())
     {
@@ -178,7 +178,7 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
 }
 
 bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResults* result) const
+                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* result) const
 {
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
@@ -591,7 +591,7 @@ TypeDefPtr TypedElement::getTypeDef() const
 //
 
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
-                                         const ElementEquivalenceOptions& options, ElementEquivalenceResults* result) const
+                                         const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* result) const
 {    
     // Perform value comparisons
     //

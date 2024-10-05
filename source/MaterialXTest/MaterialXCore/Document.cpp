@@ -119,7 +119,7 @@ TEST_CASE("Document", "[document]")
     REQUIRE(doc->validate());
 }
 
-void printDifferences(mx::ElementEquivalenceResults& results, const std::string& label)
+void printDifferences(mx::ElementEquivalenceResultVec& results, const std::string& label)
 {
     for (size_t i=0; i<results.size(); ++i)
     {
@@ -216,7 +216,7 @@ TEST_CASE("Document equivalence", "[document]")
     }
 
     mx::ElementEquivalenceOptions options;
-    mx::ElementEquivalenceResults results;
+    mx::ElementEquivalenceResultVec results;
 
     // Check skipping all value compares
     options.skipValueComparisons = true;

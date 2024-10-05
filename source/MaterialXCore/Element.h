@@ -73,7 +73,7 @@ using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
 class ElementEquivalenceOptions;
 class ElementEquivalenceResult;
-using ElementEquivalenceResults = std::vector<ElementEquivalenceResult>;
+using ElementEquivalenceResultVec = std::vector<ElementEquivalenceResult>;
 
 /// @class Element
 /// The base class for MaterialX elements.
@@ -122,7 +122,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @param result Results of comparison if argument is specified.
     /// @return True if the elements are equivalent. False otherwise.
     bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
-                      ElementEquivalenceResults* result = nullptr) const;
+                      ElementEquivalenceResultVec* result = nullptr) const;
 
     /// Return true if the attribute on a given element is equivalent
     /// based on the equivalence criteria provided.
@@ -133,7 +133,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                        const ElementEquivalenceOptions& options, 
-                                       ElementEquivalenceResults* result = nullptr) const;
+                                       ElementEquivalenceResultVec* result = nullptr) const;
 
     /// @}
     /// @name Category
@@ -1032,7 +1032,7 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                const ElementEquivalenceOptions& options, 
-                               ElementEquivalenceResults* result = nullptr) const override;
+                               ElementEquivalenceResultVec* result = nullptr) const override;
 
     /// @}
     /// @name Value String
