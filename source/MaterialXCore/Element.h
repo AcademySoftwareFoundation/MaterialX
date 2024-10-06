@@ -103,9 +103,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     template <class T> friend class ElementRegistry;
 
   public:
-    /// @name Comparison interfaces
-    /// @{
-
     /// Return true if the given element tree, including all descendants,
     /// is identical to this one.
     bool operator==(const Element& rhs) const;
@@ -113,27 +110,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// Return true if the given element tree, including all descendants,
     /// differs from this one.
     bool operator!=(const Element& rhs) const;
-
-    /// Return true if the given element treee, including all descendents,
-    /// is considered to be equivalent to this one based on the equivalence
-    /// criteria provided.
-    /// @param rhs Element to compare against
-    /// @param options Equivalence criteria
-    /// @param result Results of comparison if argument is specified.
-    /// @return True if the elements are equivalent. False otherwise.
-    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
-                      ElementEquivalenceResultVec* result = nullptr) const;
-
-    /// Return true if the attribute on a given element is equivalent
-    /// based on the equivalence criteria provided.
-    /// @param rhs Element to compare against
-    /// @param attributeName Name of attribute to compare
-    /// @param options Equivalence criteria
-    /// @param result Results of comparison if argument is specified.
-    /// @return True if the attribute on the elements are equivalent. False otherwise.
-    virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                       const ElementEquivalenceOptions& options, 
-                                       ElementEquivalenceResultVec* result = nullptr) const;
 
     /// @}
     /// @name Category
@@ -640,6 +616,31 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
         }
         return nullptr;
     }
+
+    /// @}
+    /// @name Functional Equivalence
+    /// @{
+
+    /// Return true if the given element treee, including all descendents,
+    /// is considered to be equivalent to this one based on the equivalence
+    /// criteria provided.
+    /// @param rhs Element to compare against
+    /// @param options Equivalence criteria
+    /// @param result Results of comparison if argument is specified.
+    /// @return True if the elements are equivalent. False otherwise.
+    bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
+                      ElementEquivalenceResultVec* result = nullptr) const;
+
+    /// Return true if the attribute on a given element is equivalent
+    /// based on the equivalence criteria provided.
+    /// @param rhs Element to compare against
+    /// @param attributeName Name of attribute to compare
+    /// @param options Equivalence criteria
+    /// @param result Results of comparison if argument is specified.
+    /// @return True if the attribute on the elements are equivalent. False otherwise.
+    virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                       const ElementEquivalenceOptions& options, 
+                                       ElementEquivalenceResultVec* result = nullptr) const;
 
     /// @}
     /// @name Traversal
