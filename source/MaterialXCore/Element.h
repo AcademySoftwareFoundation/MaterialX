@@ -878,7 +878,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
 };
 
 /// @class ElementEquivalenceResult
-/// An equivalence result
+/// A comparison result for the functional equivalence of two elements.
 class MX_CORE_API ElementEquivalenceResult
 {
   public:
@@ -907,7 +907,7 @@ class MX_CORE_API ElementEquivalenceResult
 };
 
 /// @class ElementEquivalenceOptions
-/// A set of options for controlling for equivalence comparison.
+/// A set of options for comparing the functional equivalence of elements.
 class MX_CORE_API ElementEquivalenceOptions
 {
   public:
