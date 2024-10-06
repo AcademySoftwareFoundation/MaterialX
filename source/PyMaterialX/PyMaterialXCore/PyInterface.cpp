@@ -30,6 +30,14 @@ void bindPyInterface(py::module& mod)
         .def("getConnectedNode", &mx::PortElement::getConnectedNode)
         .def("setConnectedOutput", &mx::PortElement::setConnectedOutput)
         .def("getConnectedOutput", &mx::PortElement::getConnectedOutput);
+    mod.attr("PortElement").doc() = R"docstring(
+    The base class for port elements.
+
+    Port elements support spatially-varying upstream connections to nodes.
+
+    Inherited by: `Input` and `Output`.
+
+    :see: https://materialx.org/docs/api/class_port_element.html)docstring";
 
     py::class_<mx::Input, mx::InputPtr, mx::PortElement>(mod, "Input")
         .def("setDefaultGeomPropString", &mx::Input::setDefaultGeomPropString)
@@ -40,11 +48,22 @@ void bindPyInterface(py::module& mod)
         .def("setConnectedInterfaceName", &mx::Input::setConnectedInterfaceName)
         .def("getInterfaceInput", &mx::Input::getInterfaceInput)
         .def_readonly_static("CATEGORY", &mx::Input::CATEGORY);
+    mod.attr("Input").doc() = R"docstring(
+    An input element within a `Node` or `NodeDef`.
+
+    An `Input` holds either a uniform value or a connection to a spatially-varying
+    `Output`, either of which may be modified within the scope of a `Material`.
+
+    :see: https://materialx.org/docs/api/class_input.html)docstring";
 
     py::class_<mx::Output, mx::OutputPtr, mx::PortElement>(mod, "Output")
         .def("hasUpstreamCycle", &mx::Output::hasUpstreamCycle)
         .def_readonly_static("CATEGORY", &mx::Output::CATEGORY)
         .def_readonly_static("DEFAULT_INPUT_ATTRIBUTE", &mx::Output::DEFAULT_INPUT_ATTRIBUTE);
+    mod.attr("Output").doc() = R"docstring(
+    A spatially-varying output element within a `NodeGraph` or `NodeDef`.
+
+    :see: https://materialx.org/docs/api/class_output.html)docstring";
 
     py::class_<mx::InterfaceElement, mx::InterfaceElementPtr, mx::TypedElement>(mod, "InterfaceElement")
         .def("setNodeDefString", &mx::InterfaceElement::setNodeDefString)
@@ -111,4 +130,14 @@ void bindPyInterface(py::module& mod)
         BIND_INTERFACE_TYPE_INSTANCE(floatarray, mx::FloatVec)
         BIND_INTERFACE_TYPE_INSTANCE(stringarray, mx::StringVec)
         .def_readonly_static("NODE_DEF_ATTRIBUTE", &mx::InterfaceElement::NODE_DEF_ATTRIBUTE);
+    mod.attr("InterfaceElement").doc() = R"docstring(
+    The base class for interface elements.
+
+    An `InterfaceElement` supports a set of `Input` and `Output` elements, with
+    an API for setting their values.
+
+    Inherited by: `GraphElement`, `Implementation`, `Node`, `NodeDef`, and
+    `Variant`.
+
+    :see: https://materialx.org/docs/api/class_interface_element.html)docstring";
 }

@@ -73,24 +73,45 @@ using IndexPair = std::pair<size_t, size_t>;
 void bindPyTypes(py::module& mod)
 {
     py::class_<mx::VectorBase>(mod, "VectorBase");
+    mod.attr("VectorBase").doc() = R"docstring(
+    The base class for vectors of scalar values.
+
+    :see: https://materialx.org/docs/api/class_vector_base.html)docstring";
+
     py::class_<mx::MatrixBase>(mod, "MatrixBase");
+    mod.attr("MatrixBase").doc() = R"docstring(
+    The base class for square matrices of scalar values.
+
+    :see: https://materialx.org/docs/api/class_matrix_base.html)docstring";
 
     py::class_<mx::Vector2, mx::VectorBase>(mod, "Vector2")
         BIND_VECTOR_SUBCLASS(mx::Vector2, 2)
         .def(py::init<float, float>())
         .def("cross", &mx::Vector2::cross)
         .def("asTuple", [](const mx::Vector2& v) { return std::make_tuple(v[0], v[1]); });
+    mod.attr("Vector2").doc() = R"docstring(
+    A vector of two floating-point values.
+
+    :see: https://materialx.org/docs/api/class_vector2.html)docstring";
 
     py::class_<mx::Vector3, mx::VectorBase>(mod, "Vector3")
         BIND_VECTOR_SUBCLASS(mx::Vector3, 3)
         .def(py::init<float, float, float>())
         .def("cross", &mx::Vector3::cross)
         .def("asTuple", [](const mx::Vector3& v) { return std::make_tuple(v[0], v[1], v[2]); });
+    mod.attr("Vector3").doc() = R"docstring(
+    A vector of three floating-point values.
+
+    :see: https://materialx.org/docs/api/class_vector3.html)docstring";
 
     py::class_<mx::Vector4, mx::VectorBase>(mod, "Vector4")
         BIND_VECTOR_SUBCLASS(mx::Vector4, 4)
         .def(py::init<float, float, float, float>())
         .def("asTuple", [](const mx::Vector4& v) { return std::make_tuple(v[0], v[1], v[2], v[3]); });
+    mod.attr("Vector4").doc() = R"docstring(
+    A vector of four floating-point values.
+
+    :see: https://materialx.org/docs/api/class_vector4.html)docstring";
 
     py::class_<mx::Color3, mx::VectorBase>(mod, "Color3")
         BIND_VECTOR_SUBCLASS(mx::Color3, 3)
@@ -98,11 +119,19 @@ void bindPyTypes(py::module& mod)
         .def("linearToSrgb", &mx::Color3::linearToSrgb)
         .def("srgbToLinear", &mx::Color3::srgbToLinear)
         .def("asTuple", [](const mx::Color3& v) { return std::make_tuple(v[0], v[1], v[2]); });
+    mod.attr("Color3").doc() = R"docstring(
+    A three-component RGB color value.
+
+    :see: https://materialx.org/docs/api/class_color3.html)docstring";
 
     py::class_<mx::Color4, mx::VectorBase>(mod, "Color4")
         BIND_VECTOR_SUBCLASS(mx::Color4, 4)
         .def(py::init<float, float, float, float>())
         .def("asTuple", [](const mx::Color4& v) { return std::make_tuple(v[0], v[1], v[2], v[3]); });
+    mod.attr("Color4").doc() = R"docstring(
+    A four-component RGBA color value.
+
+    :see: https://materialx.org/docs/api/class_color4.html)docstring";
 
     py::class_<mx::Matrix33, mx::MatrixBase>(mod, "Matrix33")
         BIND_MATRIX_SUBCLASS(mx::Matrix33, 3)
@@ -115,6 +144,13 @@ void bindPyTypes(py::module& mod)
         .def("transformNormal", &mx::Matrix33::transformNormal)
         .def_static("createRotation", &mx::Matrix33::createRotation)
         .def_readonly_static("IDENTITY", &mx::Matrix33::IDENTITY);
+    mod.attr("Matrix33").doc() = R"docstring(
+    A 3x3 matrix of floating-point values.
+
+    Vector transformation methods follow the row-vector convention,
+    with matrix-vector multiplication computed as `v' = vM`.
+
+    :see: https://materialx.org/docs/api/class_matrix33.html)docstring";
 
     py::class_<mx::Matrix44, mx::MatrixBase>(mod, "Matrix44")
         BIND_MATRIX_SUBCLASS(mx::Matrix44, 4)
@@ -130,6 +166,13 @@ void bindPyTypes(py::module& mod)
         .def_static("createRotationY", &mx::Matrix44::createRotationY)
         .def_static("createRotationZ", &mx::Matrix44::createRotationZ)
         .def_readonly_static("IDENTITY", &mx::Matrix44::IDENTITY);
+    mod.attr("Matrix44").doc() = R"docstring(
+    A 4x4 matrix of floating-point values.
+
+    Vector transformation methods follow the row-vector convention,
+    with matrix-vector multiplication computed as `v' = vM`.
+
+    :see: https://materialx.org/docs/api/class_matrix44.html)docstring";
 
     mod.attr("DEFAULT_TYPE_STRING") = mx::DEFAULT_TYPE_STRING;
     mod.attr("FILENAME_TYPE_STRING") = mx::FILENAME_TYPE_STRING;
