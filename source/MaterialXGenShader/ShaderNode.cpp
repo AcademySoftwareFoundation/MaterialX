@@ -57,7 +57,7 @@ void ShaderInput::makeConnection(ShaderOutput* src)
         if (src)
         {
             // Make the new connection.
-            if (src->getNode() == this->getNode())
+            if (src->getNode() == this->getNode() && !this->getNode()->isAGraph())
             {
                 throw ExceptionShaderGenError(
                     "Tried to create looping connection on node " + getNode()->getName()
