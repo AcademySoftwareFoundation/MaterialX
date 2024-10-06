@@ -2,62 +2,47 @@
 
 .. automodule:: {{ fullname }}
 
-   Alphabetical Index
-   ------------------
-
-   {% block attributes %}
-   {% if attributes %}
-   .. rubric:: {{ _('Module Attributes') }}
-
-   .. autosummary::
-   {% for item in attributes %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
-
-   {% block functions %}
-   {% if functions %}
-   .. rubric:: {{ _('Functions') }}
-
-   .. autosummary::
-   {% for item in functions %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
-
-   {% block classes %}
-   {% if classes %}
-   .. rubric:: {{ _('Classes') }}
-
-   .. autosummary::
-   {% for item in classes %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
-
-   {% block exceptions %}
-   {% if exceptions %}
-   .. rubric:: {{ _('Exceptions') }}
-
-   .. autosummary::
-   {% for item in exceptions %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
-
-{% block modules %}
-{% if modules %}
-.. rubric:: Modules
+{% block classes %}
+{% if classes %}
+Classes
+-------
 
 .. autosummary::
    :toctree:
-   :recursive:
-{% for item in modules %}
+
+{% for item in classes %}
    {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
+
+{% block exceptions %}
+{% if exceptions %}
+Exception Types
+---------------
+
+.. autosummary::
+   :toctree:
+
+{% for item in exceptions %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
+
+{% block functions %}
+{% if functions %}
+Module Functions
+----------------
+
+.. autosummary::
+{% for item in functions %}
+   {{ item }}
+{%- endfor %}
+
+{{ (fullname + " Module Function Documentation") | underline("^") }}
+{% for item in functions %}
+.. autofunction:: {{ item }}
 {%- endfor %}
 {% endif %}
 {% endblock %}
