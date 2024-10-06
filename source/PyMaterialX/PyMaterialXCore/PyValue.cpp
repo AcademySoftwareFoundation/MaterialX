@@ -23,6 +23,10 @@ void bindPyValue(py::module& mod)
         .def("getValueString", &mx::Value::getValueString)
         .def("getTypeString", &mx::Value::getTypeString)
         .def_static("createValueFromStrings", &mx::Value::createValueFromStrings);
+    mod.attr("Value").doc() = R"docstring(
+    A generic, discriminated value, whose type may be queried dynamically.
+
+    :see: https://materialx.org/docs/api/class_value.html)docstring";
 
     BIND_TYPE_INSTANCE(integer, int)
     BIND_TYPE_INSTANCE(boolean, bool)
@@ -39,4 +43,20 @@ void bindPyValue(py::module& mod)
     BIND_TYPE_INSTANCE(booleanarray, mx::BoolVec)
     BIND_TYPE_INSTANCE(floatarray, mx::FloatVec)
     BIND_TYPE_INSTANCE(stringarray, mx::StringVec)
+
+    mod.attr("TypedValue_boolean").doc() = "A `Value` object that stores a value of type `bool`.";
+    mod.attr("TypedValue_booleanarray").doc() = "A `Value` object that stores a `list` of `bool` values.";
+    mod.attr("TypedValue_color3").doc() = "A `Value` object that stores a value of type `Color3`.";
+    mod.attr("TypedValue_color4").doc() = "A `Value` object that stores a value of type `Color4`.";
+    mod.attr("TypedValue_float").doc() = "A `Value` object that stores a value of type `float`.";
+    mod.attr("TypedValue_floatarray").doc() = "A `Value` object that stores a `list` of `float` values.";
+    mod.attr("TypedValue_integer").doc() = "A `Value` object that stores a value of type `int`.";
+    mod.attr("TypedValue_integerarray").doc() = "A `Value` object that stores a `list` of `int` values.";
+    mod.attr("TypedValue_matrix33").doc() = "A `Value` object that stores a value of type `Matrix33`.";
+    mod.attr("TypedValue_matrix44").doc() = "A `Value` object that stores a value of type `Matrix44`.";
+    mod.attr("TypedValue_string").doc() = "A `Value` object that stores a value of type `str`.";
+    mod.attr("TypedValue_stringarray").doc() = "A `Value` object that stores a `list` of `str` values.";
+    mod.attr("TypedValue_vector2").doc() = "A `Value` object that stores a value of type `Vector2`.";
+    mod.attr("TypedValue_vector3").doc() = "A `Value` object that stores a value of type `Vector3`.";
+    mod.attr("TypedValue_vector4").doc() = "A `Value` object that stores a value of type `Vector4`.";
 }

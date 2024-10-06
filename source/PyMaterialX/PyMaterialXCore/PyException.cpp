@@ -13,6 +13,11 @@ namespace mx = MaterialX;
 void bindPyException(py::module& mod)
 {
     static py::exception<mx::Exception> pyException(mod, "Exception");
+    mod.attr("Exception").doc() = R"docstring(
+    The base class for exceptions that are propagated from the MaterialX
+    library to the client application.
+
+    :see: https://materialx.org/docs/api/class_exception.html)docstring";
 
     py::register_exception_translator(
         [](std::exception_ptr errPtr)
