@@ -111,7 +111,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// differs from this one.
     bool operator!=(const Element& rhs) const;
 
-    /// @}
     /// @name Category
     /// @{
 
