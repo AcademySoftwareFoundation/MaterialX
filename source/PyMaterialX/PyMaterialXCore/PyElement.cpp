@@ -54,8 +54,6 @@ void bindPyElement(py::module& mod)
             bool res = elem.isEquivalent(rhs, options, &results);
             return std::pair<bool, mx::ElementEquivalenceResultVec>(res, results);
         })        
-        .def("", &mx::Element::isEquivalent,
-            py::arg("rhs"), py::arg("options"), py::arg("result") = nullptr)
         .def("setCategory", &mx::Element::setCategory)
         .def("getCategory", &mx::Element::getCategory)
         .def("setName", &mx::Element::setName)
