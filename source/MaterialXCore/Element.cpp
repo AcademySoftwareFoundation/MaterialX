@@ -590,6 +590,58 @@ TypeDefPtr TypedElement::getTypeDef() const
 // ValueElement methods
 //
 
+string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
+{
+    if (!StringResolver::isResolvedType(getType()))
+    {
+        return getValueString();
+    }
+    if (!resolver)
+    {
+        resolver = createStringResolver();
+    }
+    return resolver->resolve(getValueString(), getType());
+}
+
+ValuePtr ValueElement::getDefaultValue() const
+{
+    ConstElementPtr parent = getParent();
+    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+    if (interface)
+    {
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
+        if (decl)
+        {
+            ValueElementPtr value = decl->getActiveValueElement(getName());
+            if (value)
+            {
+                return value->getValue();
+            }
+        }
+    }
+    return ValuePtr();
+}
+
+const string& ValueElement::getActiveUnit() const
+{
+    // Return the unit, if any, stored in our declaration.
+    ConstElementPtr parent = getParent();
+    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
+    if (interface)
+    {
+        ConstInterfaceElementPtr decl = interface->getDeclaration();
+        if (decl)
+        {
+            ValueElementPtr value = decl->getActiveValueElement(getName());
+            if (value)
+            {
+                return value->getUnit();
+            }
+        }
+    }
+    return EMPTY_STRING;
+}
+
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
                                          const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* result) const
 {    
@@ -654,58 +706,6 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
     }
 
     return true;
-}
-
-string ValueElement::getResolvedValueString(StringResolverPtr resolver) const
-{
-    if (!StringResolver::isResolvedType(getType()))
-    {
-        return getValueString();
-    }
-    if (!resolver)
-    {
-        resolver = createStringResolver();
-    }
-    return resolver->resolve(getValueString(), getType());
-}
-
-ValuePtr ValueElement::getDefaultValue() const
-{
-    ConstElementPtr parent = getParent();
-    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-    if (interface)
-    {
-        ConstInterfaceElementPtr decl = interface->getDeclaration();
-        if (decl)
-        {
-            ValueElementPtr value = decl->getActiveValueElement(getName());
-            if (value)
-            {
-                return value->getValue();
-            }
-        }
-    }
-    return ValuePtr();
-}
-
-const string& ValueElement::getActiveUnit() const
-{
-    // Return the unit, if any, stored in our declaration.
-    ConstElementPtr parent = getParent();
-    ConstInterfaceElementPtr interface = parent ? parent->asA<InterfaceElement>() : nullptr;
-    if (interface)
-    {
-        ConstInterfaceElementPtr decl = interface->getDeclaration();
-        if (decl)
-        {
-            ValueElementPtr value = decl->getActiveValueElement(getName());
-            if (value)
-            {
-                return value->getUnit();
-            }
-        }
-    }
-    return EMPTY_STRING;
 }
 
 bool ValueElement::validate(string* message) const
