@@ -620,7 +620,7 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// @name Functional Equivalence
     /// @{
 
-    /// Return true if the given element treee, including all descendents,
+    /// Return true if the given element tree, including all descendents,
     /// is considered to be equivalent to this one based on the equivalence
     /// criteria provided.
     /// @param rhs Element to compare against
