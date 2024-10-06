@@ -91,7 +91,7 @@ def has_member(module_name: str, class_name: str, member_name: str) -> bool:
 
 
 def render(self, template_name: str, context: dict) -> str:
-    self.env.globals['getDocstring'] = get_docstring
+    self.env.globals['get_docstring'] = get_docstring
     self.env.globals['has_member'] = has_member
     return _original_render(self, template_name, context)
 

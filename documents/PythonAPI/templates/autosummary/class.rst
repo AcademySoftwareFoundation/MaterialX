@@ -43,7 +43,7 @@
             {%- if "_" in item and has_member(module, objname, item) %}
    .. autoattribute:: {{ module }}.{{ objname }}.{{ item }}
 
-      {{ getDocstring(module, objname, item) }}
+      {{ get_docstring(module, objname, item) }}
             {%- endif %}
 
          {%- endfor %}
@@ -56,7 +56,9 @@
          {%- for item in attributes %}
             {%- if has_member(module, objname, item) %}
                {%- if not "_" in item %}
-   .. autoproperty:: {{ module }}.{{ objname }}.{{ item }}
+   .. autoattribute:: {{ module }}.{{ objname }}.{{ item }}
+
+      {{ get_docstring(module, objname, item) }}
                {%- endif %}
             {%- endif %}
 
