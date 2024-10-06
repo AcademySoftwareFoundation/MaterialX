@@ -73,7 +73,7 @@ using ElementPredicate = std::function<bool(ConstElementPtr)>;
 
 class ElementEquivalenceOptions;
 class ElementEquivalenceResult;
-using ElementEquivalenceResultVec = std::vector<ElementEquivalenceResult>;
+using ElementEquivalenceResultVec = vector<ElementEquivalenceResult>;
 
 /// @class Element
 /// The base class for MaterialX elements.
