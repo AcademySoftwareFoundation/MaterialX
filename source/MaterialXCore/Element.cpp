@@ -87,108 +87,6 @@ bool Element::operator!=(const Element& rhs) const
     return !(*this == rhs);
 }
 
-bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
-                           ElementEquivalenceResultVec* result) const
-{
-    if (getName() != rhs->getName())
-    {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
-        return false;
-    }
-    if (getCategory() != rhs->getCategory())
-    {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
-        return false;
-    }
-
-    // Compare attribute names. 
-    StringVec attributeNames = getAttributeNames();
-    StringVec rhsAttributeNames = rhs->getAttributeNames();
-
-    // Filter out any attributes specified in the options.
-    const StringSet& skipAttributes = options.skipAttributes;
-    if (!skipAttributes.empty())
-    {
-        attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
-            attributeNames.end());
-        rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
-            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
-            rhsAttributeNames.end());
-    }    
-
-    // Ignore attribute ordering by sorting names
-    std::sort(attributeNames.begin(), attributeNames.end());
-    std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
-
-    if (attributeNames != rhsAttributeNames)
-    {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
-        return false;
-    }
-
-    for (const string& attr : rhsAttributeNames)
-    {
-        if (!isAttributeEquivalent(rhs, attr, options, result))
-        {
-            return false;
-        }
-    }
-
-    // Compare children.
-    const vector<ElementPtr>& children = getChildren();
-    const vector<ElementPtr>& rhsChildren = rhs->getChildren();
-    if (children.size() != rhsChildren.size())
-    {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
-        return false;
-    }
-    for (size_t i = 0; i < children.size(); i++)
-    {
-        ElementPtr rhsElement = rhsChildren[i];
-        // Handle unordered children if parent is a compound graph (NodeGraph, Document).
-        // (Functional graphs have a "nodedef" reference and define node interfaces
-        // so require strict interface ordering.)
-        ConstGraphElementPtr graph = this->getSelf()->asA<GraphElement>();
-        if (graph)
-        {
-            ConstNodeGraphPtr nodeGraph = graph->asA<NodeGraph>();
-            ConstDocumentPtr document = graph->asA<Document>();
-            if (document || (nodeGraph && !nodeGraph->getNodeDef()))
-            {
-                const string& childName = children[i]->getName();
-                rhsElement = rhs->getChild(childName);
-                if (!rhsElement)
-                {
-                    if (result)
-                        result->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
-                                                                   ElementEquivalenceResult::CHILD_NAME, childName));
-                    return false;
-                }
-            }
-        }
-        if (!children[i]->isEquivalent(rhsElement, options, result))
-            return false;
-    }
-    return true;
-}
-
-bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* result) const
-{
-    if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
-    {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
-        return false;
-    }
-    return true;
-}
-
 void Element::setName(const string& name)
 {
     ElementPtr parent = getParent();
@@ -440,6 +338,108 @@ bool Element::hasInheritanceCycle() const
         return true;
     }
     return false;
+}
+
+bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
+                           ElementEquivalenceResultVec* result) const
+{
+    if (getName() != rhs->getName())
+    {
+        if (result)
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
+        return false;
+    }
+    if (getCategory() != rhs->getCategory())
+    {
+        if (result)
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
+        return false;
+    }
+
+    // Compare attribute names. 
+    StringVec attributeNames = getAttributeNames();
+    StringVec rhsAttributeNames = rhs->getAttributeNames();
+
+    // Filter out any attributes specified in the options.
+    const StringSet& skipAttributes = options.skipAttributes;
+    if (!skipAttributes.empty())
+    {
+        attributeNames.erase(std::remove_if(attributeNames.begin(), attributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            attributeNames.end());
+        rhsAttributeNames.erase(std::remove_if(rhsAttributeNames.begin(), rhsAttributeNames.end(),
+            [&skipAttributes](const string& attr) { return skipAttributes.find(attr) != skipAttributes.end(); }),
+            rhsAttributeNames.end());
+    }    
+
+    // Ignore attribute ordering by sorting names
+    std::sort(attributeNames.begin(), attributeNames.end());
+    std::sort(rhsAttributeNames.begin(), rhsAttributeNames.end());
+
+    if (attributeNames != rhsAttributeNames)
+    {
+        if (result)
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
+        return false;
+    }
+
+    for (const string& attr : rhsAttributeNames)
+    {
+        if (!isAttributeEquivalent(rhs, attr, options, result))
+        {
+            return false;
+        }
+    }
+
+    // Compare children.
+    const vector<ElementPtr>& children = getChildren();
+    const vector<ElementPtr>& rhsChildren = rhs->getChildren();
+    if (children.size() != rhsChildren.size())
+    {
+        if (result)
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
+        return false;
+    }
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        ElementPtr rhsElement = rhsChildren[i];
+        // Handle unordered children if parent is a compound graph (NodeGraph, Document).
+        // (Functional graphs have a "nodedef" reference and define node interfaces
+        // so require strict interface ordering.)
+        ConstGraphElementPtr graph = this->getSelf()->asA<GraphElement>();
+        if (graph)
+        {
+            ConstNodeGraphPtr nodeGraph = graph->asA<NodeGraph>();
+            ConstDocumentPtr document = graph->asA<Document>();
+            if (document || (nodeGraph && !nodeGraph->getNodeDef()))
+            {
+                const string& childName = children[i]->getName();
+                rhsElement = rhs->getChild(childName);
+                if (!rhsElement)
+                {
+                    if (result)
+                        result->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
+                                                                   ElementEquivalenceResult::CHILD_NAME, childName));
+                    return false;
+                }
+            }
+        }
+        if (!children[i]->isEquivalent(rhsElement, options, result))
+            return false;
+    }
+    return true;
+}
+
+bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
+                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* result) const
+{
+    if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
+    {
+        if (result)
+            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+        return false;
+    }
+    return true;
 }
 
 TreeIterator Element::traverseTree() const
