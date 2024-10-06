@@ -594,7 +594,6 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
                                          const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* result) const
 {    
     // Perform value comparisons
-    //
     bool performedValueComparison = false;
     if (!options.skipValueComparisons)
     {
