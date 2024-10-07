@@ -341,18 +341,18 @@ bool Element::hasInheritanceCycle() const
 }
 
 bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options,
-                           ElementEquivalenceResultVec* result) const
+                           ElementEquivalenceResultVec* results) const
 {
     if (getName() != rhs->getName())
     {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
+        if (results)
+            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::NAME));
         return false;
     }
     if (getCategory() != rhs->getCategory())
     {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
+        if (results)
+            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CATEGORY));
         return false;
     }
 
@@ -378,14 +378,14 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
 
     if (attributeNames != rhsAttributeNames)
     {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
+        if (results)
+            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE_NAMES));
         return false;
     }
 
     for (const string& attr : rhsAttributeNames)
     {
-        if (!isAttributeEquivalent(rhs, attr, options, result))
+        if (!isAttributeEquivalent(rhs, attr, options, results))
         {
             return false;
         }
@@ -396,8 +396,8 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
     const vector<ElementPtr>& rhsChildren = rhs->getChildren();
     if (children.size() != rhsChildren.size())
     {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
+        if (results)
+            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::CHILD_COUNT));
         return false;
     }
     for (size_t i = 0; i < children.size(); i++)
@@ -417,26 +417,26 @@ bool Element::isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions&
                 rhsElement = rhs->getChild(childName);
                 if (!rhsElement)
                 {
-                    if (result)
-                        result->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
+                    if (results)
+                        results->push_back(ElementEquivalenceResult(children[i]->getNamePath(), "<NONE>", 
                                                                    ElementEquivalenceResult::CHILD_NAME, childName));
                     return false;
                 }
             }
         }
-        if (!children[i]->isEquivalent(rhsElement, options, result))
+        if (!children[i]->isEquivalent(rhsElement, options, results))
             return false;
     }
     return true;
 }
 
 bool Element::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
-                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* result) const
+                                    const ElementEquivalenceOptions& /*options*/, ElementEquivalenceResultVec* results) const
 {
     if (getAttribute(attributeName) != rhs->getAttribute(attributeName))
     {
-        if (result)
-            result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+        if (results)
+            results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
         return false;
     }
     return true;
@@ -643,7 +643,7 @@ const string& ValueElement::getActiveUnit() const
 }
 
 bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName, 
-                                         const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* result) const
+                                         const ElementEquivalenceOptions& options, ElementEquivalenceResultVec* results) const
 {    
     // Perform value comparisons
     bool performedValueComparison = false;
@@ -670,8 +670,8 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (thisValue->getValueString() != rhsValue->getValueString())
                 {
-                    if (result)
-                        result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (results)
+                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
                     return false;
                 }
             }
@@ -689,8 +689,8 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
             {
                 if (uiValue->getValueString() != rhsUiValue->getValueString())
                 {
-                    if (result)
-                        result->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
+                    if (results)
+                        results->push_back(ElementEquivalenceResult(getNamePath(), rhs->getNamePath(), ElementEquivalenceResult::ATTRIBUTE, attributeName));
                     return false;
                 }
             }
@@ -702,7 +702,7 @@ bool ValueElement::isAttributeEquivalent(ConstElementPtr rhs, const string& attr
     // If did not peform a value comparison, perform the default comparison
     if (!performedValueComparison)
     {
-        return Element::isAttributeEquivalent(rhs, attributeName, options, result);
+        return Element::isAttributeEquivalent(rhs, attributeName, options, results);
     }
 
     return true;
