@@ -119,11 +119,10 @@ TEST_CASE("Document", "[document]")
     REQUIRE(doc->validate());
 }
 
-void printDifferences(mx::ElementEquivalenceResultVec& results, const std::string& label)
+void printDifferences(const mx::ElementEquivalenceResultVec& results, const std::string& label)
 {
-    for (size_t i=0; i<results.size(); ++i)
+    for (const mx::ElementEquivalenceResult& result : results)
     {
-        const mx::ElementEquivalenceResult & result = results[i];
         std::cout << label << ": " << "Element: " << result.path1 << 
             ", Element: " << result.path2 << ", Difference Type: " << result.differenceType
             << ", Value: " << result.attributeName << std::endl;
