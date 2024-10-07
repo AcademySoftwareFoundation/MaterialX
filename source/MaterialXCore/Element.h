@@ -625,21 +625,21 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     /// criteria provided.
     /// @param rhs Element to compare against
     /// @param options Equivalence criteria
-    /// @param result Results of comparison if argument is specified.
+    /// @param results Results of comparison if argument is specified.
     /// @return True if the elements are equivalent. False otherwise.
     bool isEquivalent(ConstElementPtr rhs, const ElementEquivalenceOptions& options, 
-                      ElementEquivalenceResultVec* result = nullptr) const;
+                      ElementEquivalenceResultVec* results = nullptr) const;
 
     /// Return true if the attribute on a given element is equivalent
     /// based on the equivalence criteria provided.
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param result Results of comparison if argument is specified.
+    /// @param results Results of comparison if argument is specified.
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     virtual bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                        const ElementEquivalenceOptions& options, 
-                                       ElementEquivalenceResultVec* result = nullptr) const;
+                                       ElementEquivalenceResultVec* results = nullptr) const;
 
     /// @}
     /// @name Traversal
@@ -1218,11 +1218,11 @@ class MX_CORE_API ValueElement : public TypedElement
     /// @param rhs Element to compare against
     /// @param attributeName Name of attribute to compare
     /// @param options Equivalence criteria
-    /// @param result Results of comparison if argument is specified.
+    /// @param results Results of comparison if argument is specified.
     /// @return True if the attribute on the elements are equivalent. False otherwise.
     bool isAttributeEquivalent(ConstElementPtr rhs, const string& attributeName,
                                const ElementEquivalenceOptions& options, 
-                               ElementEquivalenceResultVec* result = nullptr) const override;
+                               ElementEquivalenceResultVec* results = nullptr) const override;
 
     /// @}
     /// @name Validation
