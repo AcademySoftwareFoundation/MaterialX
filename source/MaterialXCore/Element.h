@@ -877,72 +877,6 @@ class MX_CORE_API Element : public std::enable_shared_from_this<Element>
     static CreatorMap _creatorMap;
 };
 
-/// @class ElementEquivalenceResult
-/// A comparison result for the functional equivalence of two elements.
-class MX_CORE_API ElementEquivalenceResult
-{
-  public:
-    ElementEquivalenceResult(const string& p1, const string& p2, const string& type,
-                             const string& attrName = EMPTY_STRING)
-    {
-        path1 = p1;
-        path2 = p2;
-        differenceType = type;
-        attributeName = attrName;
-    }
-    ElementEquivalenceResult() = delete;
-    ~ElementEquivalenceResult() = default;
-
-    string path1;
-    string path2;
-    string differenceType;
-    string attributeName;
-
-    static const string ATTRIBUTE;
-    static const string ATTRIBUTE_NAMES;
-    static const string CHILD_COUNT;
-    static const string CHILD_NAME;
-    static const string NAME;
-    static const string CATEGORY;
-};
-
-/// @class ElementEquivalenceOptions
-/// A set of options for comparing the functional equivalence of elements.
-class MX_CORE_API ElementEquivalenceOptions
-{
-  public:
-    ElementEquivalenceOptions()
-    {
-        format = Value::getFloatFormat();
-        precision = Value::getFloatPrecision();
-        skipAttributes = {};
-        skipValueComparisons = false;
-    };
-    ~ElementEquivalenceOptions() { }
-
-    /// Floating point format option for floating point value comparisons
-    Value::FloatFormat format;
-
-    /// Floating point precision option for floating point value comparisons
-    int precision;
-
-    /// Attribute filtering options. By default all attributes are considered.
-    /// Name, category attributes cannot be skipped.
-    /// 
-    /// For example UI attribute comparision be skipped by setting:
-    /// skipAttributes = { 
-    ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
-    ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
-    ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
-    ///     Element::YPOS_ATTRIBUTE };
-    StringSet skipAttributes;
-
-    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
-    /// Default is false. The operator==() method can be used instead as it always performs
-    /// a strict comparison. Default is false.
-    bool skipValueComparisons;
-};
-
 /// @class TypedElement
 /// The base class for typed elements.
 class MX_CORE_API TypedElement : public Element
@@ -1444,6 +1378,72 @@ class MX_CORE_API StringResolver
     string _geomPrefix;
     StringMap _filenameMap;
     StringMap _geomNameMap;
+};
+
+/// @class ElementEquivalenceResult
+/// A comparison result for the functional equivalence of two elements.
+class MX_CORE_API ElementEquivalenceResult
+{
+  public:
+    ElementEquivalenceResult(const string& p1, const string& p2, const string& type,
+                             const string& attrName = EMPTY_STRING)
+    {
+        path1 = p1;
+        path2 = p2;
+        differenceType = type;
+        attributeName = attrName;
+    }
+    ElementEquivalenceResult() = delete;
+    ~ElementEquivalenceResult() = default;
+
+    string path1;
+    string path2;
+    string differenceType;
+    string attributeName;
+
+    static const string ATTRIBUTE;
+    static const string ATTRIBUTE_NAMES;
+    static const string CHILD_COUNT;
+    static const string CHILD_NAME;
+    static const string NAME;
+    static const string CATEGORY;
+};
+
+/// @class ElementEquivalenceOptions
+/// A set of options for comparing the functional equivalence of elements.
+class MX_CORE_API ElementEquivalenceOptions
+{
+  public:
+    ElementEquivalenceOptions()
+    {
+        format = Value::getFloatFormat();
+        precision = Value::getFloatPrecision();
+        skipAttributes = {};
+        skipValueComparisons = false;
+    };
+    ~ElementEquivalenceOptions() { }
+
+    /// Floating point format option for floating point value comparisons
+    Value::FloatFormat format;
+
+    /// Floating point precision option for floating point value comparisons
+    int precision;
+
+    /// Attribute filtering options. By default all attributes are considered.
+    /// Name, category attributes cannot be skipped.
+    /// 
+    /// For example UI attribute comparision be skipped by setting:
+    /// skipAttributes = { 
+    ///     ValueElement::UI_MIN_ATTRIBUTE, ValueElement::UI_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_SOFT_MIN_ATTRIBUTE, ValueElement::UI_SOFT_MAX_ATTRIBUTE,
+    ///     ValueElement::UI_STEP_ATTRIBUTE, Element::XPOS_ATTRIBUTE, 
+    ///     Element::YPOS_ATTRIBUTE };
+    StringSet skipAttributes;
+
+    /// Do not perform any value comparisions. Instead perform exact string comparisons for attributes
+    /// Default is false. The operator==() method can be used instead as it always performs
+    /// a strict comparison. Default is false.
+    bool skipValueComparisons;
 };
 
 /// @class ExceptionOrphanedElement
