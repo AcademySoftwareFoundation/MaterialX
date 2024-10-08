@@ -70,10 +70,8 @@ if [ "$EMBEDDED_BUILD" = false ];then
 fi
 
 # Fix the linkage on the primary dylib
-
 install_name_tool -id "${FRAMEWORK_LINKER_PATH}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
 install_name_tool -change "@rpath/libMaterialX.@MATERIALX_MAJOR_VERSION@.dylib" "${FRAMEWORK_LINKER_PATH}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
-
 
 # Frameworks require all includes to use the framework name as the prefix for automatic discovery
 echo "Modifying headers..."
