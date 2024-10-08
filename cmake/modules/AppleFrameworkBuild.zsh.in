@@ -20,28 +20,6 @@ BUNDLE_IDENTIFIER="org.aswf.materialx"
 CODESIGN_ID="@CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY@"
 OLD_RC_PATH="${CMAKE_INSTALL_PREFIX}/lib"
 
-function fix_linkage() {
-    readonly file=${1:?"A file path must be specified."}
-    readonly prepend="${FRAMEWORK_NAME}.framework/Libraries"
-    filename=$(basename ${file})
-    # First, change the install name. This corresponds to LC_ID_DYLIB.
-    install_name_tool -id "@rpath/${prepend}/${filename}" ${file}
-
-    parts=("${(@f)$(otool -l ${file})}")
-    for line in ${parts}; do
-      dylib_name=""
-      [[ $line =~ ' *name @rpath/(.*\.dylib)' ]] && dylib_name=$match[1]
-      if [ -n "${dylib_name}" ]; then
-        install_name_tool -change "@rpath/${dylib_name}" "@rpath/${prepend}/${dylib_name}" "${file}"
-      fi
-      if [[ $line == *"${OLD_RC_PATH}"* ]]; then
-        install_name_tool -delete_rpath ${OLD_RC_PATH} ${file}
-      fi
-    done
-
-    codesign -f -s ${CODESIGN_ID} ${file}
-}
-
 # Remove the existing directory if it exists
 if [ -d ${FRAMEWORK_DIR} ]; then
   echo "Removing existing framework";
@@ -53,15 +31,17 @@ echo "Creating Framework Directory: ${FRAMEWORK_DIR}"
 mkdir -p ${FRAMEWORK_DIR}
 
 if [ "$EMBEDDED_BUILD" = true ];then
-  FRAMEWORK_RESOURCES_DIR="${FRAMEWORK_DIR}/Resources"
+  FRAMEWORK_RESOURCES_DIR="${FRAMEWORK_DIR}/Assets"
   FRAMEWORK_PLIST_LOCATION="${FRAMEWORK_DIR}/Info.plist"
   FRAMEWORK_HEADERS_DIR="${FRAMEWORK_DIR}/Headers"
   FRAMEWORK_LIB_PATH=""${FRAMEWORK_DIR}/${FRAMEWORK_NAME}""
+  FRAMEWORK_LINKER_PATH="@rpath/Frameworks/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}"
 else
   FRAMEWORK_RESOURCES_DIR="${FRAMEWORK_DIR}/Versions/A/Resources/"
   FRAMEWORK_PLIST_LOCATION="${FRAMEWORK_DIR}/Versions/A/Resources/Info.plist"
   FRAMEWORK_HEADERS_DIR="${FRAMEWORK_DIR}/Versions/A/Headers"
   FRAMEWORK_LIB_PATH="${FRAMEWORK_DIR}/Versions/A/${FRAMEWORK_NAME}"
+  FRAMEWORK_LINKER_PATH="@rpath/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}"
 fi
 
 echo "Creating Resources Root: ${FRAMEWORK_RESOURCES_DIR}"
@@ -90,9 +70,10 @@ if [ "$EMBEDDED_BUILD" = false ];then
 fi
 
 # Fix the linkage on the primary dylib
-fix_linkage "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
-install_name_tool -id "@rpath/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
-install_name_tool -change "@rpath/${FRAMEWORK_NAME}.framework/Libraries/${FRAMEWORK_NAME}" "@rpath/${FRAMEWORK_NAME}.framework/${FRAMEWORK_NAME}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
+
+install_name_tool -id "${FRAMEWORK_LINKER_PATH}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
+install_name_tool -change "@rpath/libMaterialX.@MATERIALX_MAJOR_VERSION@.dylib" "${FRAMEWORK_LINKER_PATH}" "${FRAMEWORK_DIR}/${FRAMEWORK_NAME}"
+
 
 # Frameworks require all includes to use the framework name as the prefix for automatic discovery
 echo "Modifying headers..."
