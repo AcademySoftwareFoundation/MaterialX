@@ -357,6 +357,14 @@ vector<OutputPtr> Document::getMaterialOutputs() const
 
 vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 {
+    // Return all nodedefs from datalibrary if available
+    if (_dataLibrary)
+    {
+        auto datalibrarynodes = _dataLibrary->getMatchingNodeDefs(nodeName);
+        if (!datalibrarynodes.empty())
+            return datalibrarynodes;
+    }
+
     // Refresh the cache.
     _cache->refresh();
 
@@ -373,6 +381,15 @@ vector<NodeDefPtr> Document::getMatchingNodeDefs(const string& nodeName) const
 
 vector<InterfaceElementPtr> Document::getMatchingImplementations(const string& nodeDef) const
 {
+
+    // Return all implementations from datalibrary if available
+    if (_dataLibrary)
+    {
+        auto datalibrarynodes = _dataLibrary->getMatchingImplementations(nodeDef);
+        if (!datalibrarynodes.empty())
+            return datalibrarynodes;
+    }
+
     // Refresh the cache.
     _cache->refresh();
 

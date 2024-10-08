@@ -1316,8 +1316,8 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
         mx::readFromXmlFile(doc, filename, _searchPath, &readOptions);
         _materialSearchPath = mx::getSourceSearchPath(doc);
 
-        // Import libraries.
-        doc->importLibrary(libraries);
+        // Register libraries.
+        doc->registerDataLibrary(libraries);
 
         // Apply direct lights.
         applyDirectLights(doc);

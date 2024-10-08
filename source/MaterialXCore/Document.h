@@ -78,13 +78,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeGraph, if any, with the given name.
     NodeGraphPtr getNodeGraph(const string& name) const
     {
-        return getChildOfType<NodeGraph>(name);
+        return hasDataLibrary() ? getChildOfType<NodeGraph>(getRegisteredDataLibrary(), name) : getChildOfType<NodeGraph>(name);
     }
 
     /// Return a vector of all NodeGraph elements in the document.
     vector<NodeGraphPtr> getNodeGraphs() const
     {
-        return getChildrenOfType<NodeGraph>();
+        return hasDataLibrary() ? getChildrenOfType<NodeGraph>(getRegisteredDataLibrary()) : getChildrenOfType<NodeGraph>();
     }
 
     /// Remove the NodeGraph, if any, with the given name.
@@ -345,13 +345,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the NodeDef, if any, with the given name.
     NodeDefPtr getNodeDef(const string& name) const
     {
-        return getChildOfType<NodeDef>(name);
+        return hasDataLibrary() ? getChildOfType<NodeDef>(getRegisteredDataLibrary(), name) : getChildOfType<NodeDef>(name);
     }
 
     /// Return a vector of all NodeDef elements in the document.
     vector<NodeDefPtr> getNodeDefs() const
     {
-        return getChildrenOfType<NodeDef>();
+        return hasDataLibrary() ? getChildrenOfType<NodeDef>(getRegisteredDataLibrary()) : getChildrenOfType<NodeDef>();
     }
 
     /// Remove the NodeDef, if any, with the given name.
@@ -361,6 +361,8 @@ class MX_CORE_API Document : public GraphElement
     }
 
     /// Return a vector of all NodeDef elements that match the given node name.
+    /// Nodedefs are first searched in the registered data library. 
+    /// If the registered data library search returns empty, the current document is searched.
     vector<NodeDefPtr> getMatchingNodeDefs(const string& nodeName) const;
 
     /// @}
@@ -380,13 +382,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     AttributeDefPtr getAttributeDef(const string& name) const
     {
-        return getChildOfType<AttributeDef>(name);
+        return hasDataLibrary() ? getChildOfType<AttributeDef>(getRegisteredDataLibrary(), name) : getChildOfType<AttributeDef>(name);
     }
 
     /// Return a vector of all AttributeDef elements in the document.
     vector<AttributeDefPtr> getAttributeDefs() const
     {
-        return getChildrenOfType<AttributeDef>();
+        return hasDataLibrary() ? getChildrenOfType<AttributeDef>(getRegisteredDataLibrary()) : getChildrenOfType<AttributeDef>();
     }
 
     /// Remove the AttributeDef, if any, with the given name.
@@ -412,13 +414,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the AttributeDef, if any, with the given name.
     TargetDefPtr getTargetDef(const string& name) const
     {
-        return getChildOfType<TargetDef>(name);
+        return hasDataLibrary() ? getChildOfType<TargetDef>(getRegisteredDataLibrary(), name) : getChildOfType<TargetDef>(name);
     }
 
     /// Return a vector of all TargetDef elements in the document.
     vector<TargetDefPtr> getTargetDefs() const
     {
-        return getChildrenOfType<TargetDef>();
+        return hasDataLibrary() ? getChildrenOfType<TargetDef>(getRegisteredDataLibrary()) : getChildrenOfType<TargetDef>();
     }
 
     /// Remove the TargetDef, if any, with the given name.
@@ -508,13 +510,13 @@ class MX_CORE_API Document : public GraphElement
     /// Return the Implementation, if any, with the given name.
     ImplementationPtr getImplementation(const string& name) const
     {
-        return getChildOfType<Implementation>(name);
+        return hasDataLibrary() ? getChildOfType<Implementation>(getRegisteredDataLibrary(), name) : getChildOfType<Implementation>(name);
     }
 
     /// Return a vector of all Implementation elements in the document.
     vector<ImplementationPtr> getImplementations() const
     {
-        return getChildrenOfType<Implementation>();
+        return hasDataLibrary() ? getChildrenOfType<Implementation>(getRegisteredDataLibrary()) : getChildrenOfType<Implementation>();
     }
 
     /// Remove the Implementation, if any, with the given name.
@@ -665,6 +667,32 @@ class MX_CORE_API Document : public GraphElement
 
     /// @}
 
+    /// @name MaterialX data library
+    /// @{
+
+    /// Register the given document as MaterialX data library for document
+    /// The MaterialX data library can be created using the loadLibraries utility
+    /// For improved performance it is recommended the data library 
+    /// is on the document instead of importing it
+    /// @param Data Library document to register.
+    void registerDataLibrary(ConstDocumentPtr dataLibrary)
+    {
+        _dataLibrary = dataLibrary;
+    }
+
+    /// Gets the registered data library
+    ConstDocumentPtr getRegisteredDataLibrary() const
+    {
+        return _dataLibrary;
+    }
+
+    /// Returns true if a data library is registered.
+    bool hasDataLibrary() const
+    {
+        return (_dataLibrary != nullptr);
+    }
+    /// @}
+
     //
     // These are deprecated wrappers for older versions of the function interfaces in this module.
     // Clients using these interfaces should update them to the latest API.
@@ -680,6 +708,8 @@ class MX_CORE_API Document : public GraphElement
   private:
     class Cache;
     std::unique_ptr<Cache> _cache;
+    // Data library for the document
+    ConstDocumentPtr _dataLibrary;
 };
 
 /// Create a new Document.
