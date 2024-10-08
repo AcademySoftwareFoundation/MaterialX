@@ -102,7 +102,7 @@ void bindPyUnitConverters(py::module& mod)
         .def("getUnitConverter", &mx::UnitConverterRegistry::getUnitConverter)
         .def("clearUnitConverters", &mx::UnitConverterRegistry::clearUnitConverters);
     mod.attr("UnitConverterRegistry").doc() = R"docstring(
-    Class implementing a registry for `UnitConverter` objects.
+    A registry for `UnitConverter` objects.
 
     :see: https://materialx.org/docs/api/class_unit_converter_registry.html)docstring";
 }
