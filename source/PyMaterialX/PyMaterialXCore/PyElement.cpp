@@ -272,6 +272,10 @@ void bindPyElement(py::module& mod)
         .def_readwrite("path2", &mx::ElementEquivalenceResult::path2)
         .def_readwrite("differenceType", &mx::ElementEquivalenceResult::differenceType)
         .def_readwrite("attributeName", &mx::ElementEquivalenceResult::attributeName);
+    mod.attr("ElementEquivalenceResult").doc() = R"docstring(
+    A comparison result for the functional equivalence of two elements.
+
+    :see: https://materialx.org/docs/api/class_element_equivalence_result.html)docstring";
 
     py::class_<mx::ElementEquivalenceOptions>(mod, "ElementEquivalenceOptions")
         .def_readwrite("format", &mx::ElementEquivalenceOptions::format)
@@ -279,6 +283,10 @@ void bindPyElement(py::module& mod)
         .def_readwrite("skipAttributes", &mx::ElementEquivalenceOptions::skipAttributes)
         .def_readwrite("skipValueComparisons", &mx::ElementEquivalenceOptions::skipValueComparisons)
         .def(py::init<>());
+    mod.attr("ElementEquivalenceOptions").doc() = R"docstring(
+    A set of options for comparing the functional equivalence of elements.
+
+    :see: https://materialx.org/docs/api/class_element_equivalence_options.html)docstring";
 
     py::class_<mx::StringResolver, mx::StringResolverPtr>(mod, "StringResolver")
         .def("setFilePrefix", &mx::StringResolver::setFilePrefix)
