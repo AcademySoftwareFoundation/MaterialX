@@ -44,19 +44,19 @@ void bindPyValue(py::module& mod)
     BIND_TYPE_INSTANCE(floatarray, mx::FloatVec)
     BIND_TYPE_INSTANCE(stringarray, mx::StringVec)
 
-    mod.attr("TypedValue_boolean").doc() = "A `Value` object that stores a value of type `bool`.";
-    mod.attr("TypedValue_booleanarray").doc() = "A `Value` object that stores a `list` of `bool` values.";
-    mod.attr("TypedValue_color3").doc() = "A `Value` object that stores a value of type `Color3`.";
-    mod.attr("TypedValue_color4").doc() = "A `Value` object that stores a value of type `Color4`.";
-    mod.attr("TypedValue_float").doc() = "A `Value` object that stores a value of type `float`.";
-    mod.attr("TypedValue_floatarray").doc() = "A `Value` object that stores a `list` of `float` values.";
-    mod.attr("TypedValue_integer").doc() = "A `Value` object that stores a value of type `int`.";
-    mod.attr("TypedValue_integerarray").doc() = "A `Value` object that stores a `list` of `int` values.";
-    mod.attr("TypedValue_matrix33").doc() = "A `Value` object that stores a value of type `Matrix33`.";
-    mod.attr("TypedValue_matrix44").doc() = "A `Value` object that stores a value of type `Matrix44`.";
-    mod.attr("TypedValue_string").doc() = "A `Value` object that stores a value of type `str`.";
-    mod.attr("TypedValue_stringarray").doc() = "A `Value` object that stores a `list` of `str` values.";
-    mod.attr("TypedValue_vector2").doc() = "A `Value` object that stores a value of type `Vector2`.";
-    mod.attr("TypedValue_vector3").doc() = "A `Value` object that stores a value of type `Vector3`.";
-    mod.attr("TypedValue_vector4").doc() = "A `Value` object that stores a value of type `Vector4`.";
+    mod.attr("TypedValue_boolean").doc() = "A `Value` storing a `bool` value.";
+    mod.attr("TypedValue_booleanarray").doc() = "A `Value` storing a `list` of `bool` values.";
+    mod.attr("TypedValue_color3").doc() = "A `Value` storing a `Color3` value.";
+    mod.attr("TypedValue_color4").doc() = "A `Value` storing a `Color4` value.";
+    mod.attr("TypedValue_float").doc() = "A `Value` storing a `float` value.";
+    mod.attr("TypedValue_floatarray").doc() = "A `Value` storing a `list` of `float` values.";
+    mod.attr("TypedValue_integer").doc() = "A `Value` storing an `int` value.";
+    mod.attr("TypedValue_integerarray").doc() = "A `Value` storing a `list` of `int` values.";
+    mod.attr("TypedValue_matrix33").doc() = "A `Value` storing a `Matrix33` value.";
+    mod.attr("TypedValue_matrix44").doc() = "A `Value` storing a `Matrix44` value.";
+    mod.attr("TypedValue_string").doc() = "A `Value` storing a `str` value.";
+    mod.attr("TypedValue_stringarray").doc() = "A `Value` storing a `list` of `str` values.";
+    mod.attr("TypedValue_vector2").doc() = "A `Value` storing a `Vector2` value.";
+    mod.attr("TypedValue_vector3").doc() = "A `Value` storing a `Vector3` value.";
+    mod.attr("TypedValue_vector4").doc() = "A `Value` storing a `Vector4` value.";
 }
