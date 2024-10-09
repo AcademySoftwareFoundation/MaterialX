@@ -459,8 +459,8 @@
   <implementation name="IM_determinant_matrix44_genmsl" nodedef="ND_determinant_matrix44" target="genmsl" sourcecode="determinant({{in}})" />
 
   <!-- <invertmatrix> -->
-  <implementation name="IM_invertmatrix_matrix33_genmsl" nodedef="ND_invertmatrix_matrix33" target="genmsl" sourcecode="mx_inverse({{in}})"/>
-  <implementation name="IM_invertmatrix_matrix44_genmsl" nodedef="ND_invertmatrix_matrix44" target="genmsl" sourcecode="mx_inverse({{in}})"/>
+  <implementation name="IM_invertmatrix_matrix33_genmsl" nodedef="ND_invertmatrix_matrix33" target="genmsl" sourcecode="mx_inverse({{in}})" />
+  <implementation name="IM_invertmatrix_matrix44_genmsl" nodedef="ND_invertmatrix_matrix44" target="genmsl" sourcecode="mx_inverse({{in}})" />
 
   <!-- <rotate2d> -->
   <implementation name="IM_rotate2d_vector2_genmsl" nodedef="ND_rotate2d_vector2" file="../genglsl/mx_rotate_vector2.glsl" function="mx_rotate_vector2" target="genmsl" />
