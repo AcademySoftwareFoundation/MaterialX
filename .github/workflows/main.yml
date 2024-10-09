@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_9_Python37
-          os: ubuntu-20.04
+        - name: Linux_GCC_10_Python37
+          os: ubuntu-22.04
           compiler: gcc
-          compiler_version: "9"
+          compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
@@ -46,10 +46,10 @@ jobs:
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
-        - name: Linux_Clang_10_Python37
-          os: ubuntu-20.04
+        - name: Linux_Clang_13_Python37
+          os: ubuntu-22.04
           compiler: clang
-          compiler_version: "10"
+          compiler_version: "13"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -351,7 +351,7 @@ jobs:
 
   sdist:
     name: Python SDist
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
@@ -387,7 +387,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11', '12']
-        os: ['ubuntu-latest', 'windows-2022', 'macos-13']
+        os: ['ubuntu-22.04', 'windows-2022', 'macos-13']
 
     steps:
     - name: Sync Repository
