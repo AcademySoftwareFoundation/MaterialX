@@ -1,8 +1,8 @@
 mat4 mx_rotationMatrix(vec3 axis, float angle)
 {
     axis = normalize(axis);
-    float s = sin(angle);
-    float c = cos(angle);
+    float s = mx_sin(angle);
+    float c = mx_cos(angle);
     float oc = 1.0 - c;
 
     return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,

@@ -327,29 +327,29 @@
   <implementation name="IM_power_vector4FA_genmsl" nodedef="ND_power_vector4FA" target="genmsl" sourcecode="pow({{in1}}, vec4({{in2}}))" />
 
   <!-- <sin>, <cos>, <tan>, <asin>, <acos>, <atan2> -->
-  <implementation name="IM_sin_float_genmsl" nodedef="ND_sin_float" target="genmsl" sourcecode="sin({{in}})" />
-  <implementation name="IM_cos_float_genmsl" nodedef="ND_cos_float" target="genmsl" sourcecode="cos({{in}})" />
-  <implementation name="IM_tan_float_genmsl" nodedef="ND_tan_float" target="genmsl" sourcecode="tan({{in}})" />
-  <implementation name="IM_asin_float_genmsl" nodedef="ND_asin_float" target="genmsl" sourcecode="asin({{in}})" />
-  <implementation name="IM_acos_float_genmsl" nodedef="ND_acos_float" target="genmsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_sin_float_genmsl" nodedef="ND_sin_float" target="genmsl" sourcecode="mx_sin({{in}})" />
+  <implementation name="IM_cos_float_genmsl" nodedef="ND_cos_float" target="genmsl" sourcecode="mx_cos({{in}})" />
+  <implementation name="IM_tan_float_genmsl" nodedef="ND_tan_float" target="genmsl" sourcecode="mx_tan({{in}})" />
+  <implementation name="IM_asin_float_genmsl" nodedef="ND_asin_float" target="genmsl" sourcecode="mx_asin({{in}})" />
+  <implementation name="IM_acos_float_genmsl" nodedef="ND_acos_float" target="genmsl" sourcecode="mx_acos({{in}})" />
   <implementation name="IM_atan2_float_genmsl" nodedef="ND_atan2_float" target="genmsl" sourcecode="mx_atan({{iny}}, {{inx}})"/>
-  <implementation name="IM_sin_vector2_genmsl" nodedef="ND_sin_vector2" target="genmsl" sourcecode="sin({{in}})" />
-  <implementation name="IM_cos_vector2_genmsl" nodedef="ND_cos_vector2" target="genmsl" sourcecode="cos({{in}})" />
-  <implementation name="IM_tan_vector2_genmsl" nodedef="ND_tan_vector2" target="genmsl" sourcecode="tan({{in}})" />
-  <implementation name="IM_asin_vector2_genmsl" nodedef="ND_asin_vector2" target="genmsl" sourcecode="asin({{in}})" />
-  <implementation name="IM_acos_vector2_genmsl" nodedef="ND_acos_vector2" target="genmsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_sin_vector2_genmsl" nodedef="ND_sin_vector2" target="genmsl" sourcecode="mx_sin({{in}})" />
+  <implementation name="IM_cos_vector2_genmsl" nodedef="ND_cos_vector2" target="genmsl" sourcecode="mx_cos({{in}})" />
+  <implementation name="IM_tan_vector2_genmsl" nodedef="ND_tan_vector2" target="genmsl" sourcecode="mx_tan({{in}})" />
+  <implementation name="IM_asin_vector2_genmsl" nodedef="ND_asin_vector2" target="genmsl" sourcecode="mx_asin({{in}})" />
+  <implementation name="IM_acos_vector2_genmsl" nodedef="ND_acos_vector2" target="genmsl" sourcecode="mx_acos({{in}})" />
   <implementation name="IM_atan2_vector2_genmsl" nodedef="ND_atan2_vector2" target="genmsl" sourcecode="mx_atan({{iny}}, {{inx}})"/>
-  <implementation name="IM_sin_vector3_genmsl" nodedef="ND_sin_vector3" target="genmsl" sourcecode="sin({{in}})" />
-  <implementation name="IM_cos_vector3_genmsl" nodedef="ND_cos_vector3" target="genmsl" sourcecode="cos({{in}})" />
-  <implementation name="IM_tan_vector3_genmsl" nodedef="ND_tan_vector3" target="genmsl" sourcecode="tan({{in}})" />
-  <implementation name="IM_asin_vector3_genmsl" nodedef="ND_asin_vector3" target="genmsl" sourcecode="asin({{in}})" />
-  <implementation name="IM_acos_vector3_genmsl" nodedef="ND_acos_vector3" target="genmsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_sin_vector3_genmsl" nodedef="ND_sin_vector3" target="genmsl" sourcecode="mx_sin({{in}})" />
+  <implementation name="IM_cos_vector3_genmsl" nodedef="ND_cos_vector3" target="genmsl" sourcecode="mx_cos({{in}})" />
+  <implementation name="IM_tan_vector3_genmsl" nodedef="ND_tan_vector3" target="genmsl" sourcecode="mx_tan({{in}})" />
+  <implementation name="IM_asin_vector3_genmsl" nodedef="ND_asin_vector3" target="genmsl" sourcecode="mx_asin({{in}})" />
+  <implementation name="IM_acos_vector3_genmsl" nodedef="ND_acos_vector3" target="genmsl" sourcecode="mx_acos({{in}})" />
   <implementation name="IM_atan2_vector3_genmsl" nodedef="ND_atan2_vector3" target="genmsl" sourcecode="mx_atan({{iny}}, {{inx}})"/>
-  <implementation name="IM_sin_vector4_genmsl" nodedef="ND_sin_vector4" target="genmsl" sourcecode="sin({{in}})" />
-  <implementation name="IM_cos_vector4_genmsl" nodedef="ND_cos_vector4" target="genmsl" sourcecode="cos({{in}})" />
-  <implementation name="IM_tan_vector4_genmsl" nodedef="ND_tan_vector4" target="genmsl" sourcecode="tan({{in}})" />
-  <implementation name="IM_asin_vector4_genmsl" nodedef="ND_asin_vector4" target="genmsl" sourcecode="asin({{in}})" />
-  <implementation name="IM_acos_vector4_genmsl" nodedef="ND_acos_vector4" target="genmsl" sourcecode="acos({{in}})" />
+  <implementation name="IM_sin_vector4_genmsl" nodedef="ND_sin_vector4" target="genmsl" sourcecode="mx_sin({{in}})" />
+  <implementation name="IM_cos_vector4_genmsl" nodedef="ND_cos_vector4" target="genmsl" sourcecode="mx_cos({{in}})" />
+  <implementation name="IM_tan_vector4_genmsl" nodedef="ND_tan_vector4" target="genmsl" sourcecode="mx_tan({{in}})" />
+  <implementation name="IM_asin_vector4_genmsl" nodedef="ND_asin_vector4" target="genmsl" sourcecode="mx_asin({{in}})" />
+  <implementation name="IM_acos_vector4_genmsl" nodedef="ND_acos_vector4" target="genmsl" sourcecode="mx_acos({{in}})" />
   <implementation name="IM_atan2_vector4_genmsl" nodedef="ND_atan2_vector4" target="genmsl" sourcecode="mx_atan({{iny}}, {{inx}})"/>
 
   <!-- <sqrt> -->
