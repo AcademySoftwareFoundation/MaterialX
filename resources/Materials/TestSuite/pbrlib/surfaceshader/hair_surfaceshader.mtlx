@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+
+  <nodedef name="ND_simple_hair_shader" node="simple_hair" nodegroup="pbr" doc="Simple hair shader" version="1.0" isdefaultversion="true">
+    <input name="melaninConcentration" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="melaninRedness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="melaninMix" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="baseColor" type="color3" value="1,1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="longitudinalRoughness" type="float" value="0.1" uimin="0.0" uimax="1.0" />
+    <input name="azimuthalRoughness" type="float" value="0.1" uimin="0.0" uimax="1.0" />
+    <input name="cuticleAngle" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="tint_R" type="color3" value="1 1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="tint_TT" type="color3" value="1 1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="tint_TRT" type="color3" value="1 1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="ior" type="float" value="1.55" uimin="0.0" uimax="1.0" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
+  <nodegraph name="NG_simple_hair_shader" nodedef="ND_simple_hair_shader">
+    <!-- absorption coefficient -->
+    <deon_hair_absorption_from_melanin name="absorption_from_melanin" type="vector3">
+      <input name="melanin_concentration" type="float" interfacename="melaninConcentration" />
+      <input name="melanin_redness" type="float" interfacename="melaninRedness" />
+    </deon_hair_absorption_from_melanin>
+    <chiang_hair_absorption_from_color name="absorption_from_color" type="vector3">
+      <input name="color" type="color3" interfacename="baseColor" />
+    </chiang_hair_absorption_from_color>
+    <mix name="mix_melanin_basecolor" type="vector3">
+      <input name="fg" type="vector3" nodename="absorption_from_melanin" />
+      <input name="bg" type="vector3" nodename="absorption_from_color" />
+      <input name="mix" type="float" interfacename="melaninMix" />
+    </mix>
+
+    <!-- specular roughness -->
+    <chiang_hair_roughness name="spec_roughness" type="multioutput">
+      <input name="longitudinal" type="float" interfacename="longitudinalRoughness" />
+      <input name="azimuthal" type="float" interfacename="azimuthalRoughness" />
+      <output name="roughness_R" type="vector2" />
+      <output name="roughness_TT" type="vector2" />
+      <output name="roughness_TRT" type="vector2" />
+    </chiang_hair_roughness>
+
+    <!-- specular (Chiang hair BSDF) -->
+    <chiang_hair_bsdf name="chiang_bsdf" type="BSDF">
+      <input name="tint_R" type="color3" interfacename="tint_R" />
+      <input name="tint_TT" type="color3" interfacename="tint_TT" />
+      <input name="tint_TRT" type="color3" interfacename="tint_TRT" />
+      <input name="roughness_R" type="vector2" nodename="spec_roughness" output="roughness_R" />
+      <input name="roughness_TT" type="vector2" nodename="spec_roughness" output="roughness_TT" />
+      <input name="roughness_TRT" type="vector2" nodename="spec_roughness" output="roughness_TRT" />
+      <input name="cuticle_angle" type="float" interfacename="cuticleAngle" />
+      <input name="absorption_coefficient" type="vector3" nodename="mix_melanin_basecolor" />
+    </chiang_hair_bsdf>
+
+    <surface name="surface_shader" type="surfaceshader">
+      <input name="bsdf" type="BSDF" nodename="chiang_bsdf" />
+    </surface>
+
+    <output name="out" type="surfaceshader" nodename="surface_shader" />
+  </nodegraph>
+
+
+  <!--  default material  -->
+  <simple_hair name="SR_default" type="surfaceshader">
+    <input name="melaninConcentration" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="melaninRedness" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="melaninMix" type="float" value="1.0" uimin="0.0" uimax="1.0" />
+    <input name="baseColor" type="color3" value="1,1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="longitudinalRoughness" type="float" value="0.1" uimin="0.0" uimax="1.0" />
+    <input name="azimuthalRoughness" type="float" value="0.1" uimin="0.0" uimax="1.0" />
+    <input name="cuticleAngle" type="float" value="0.5" uimin="0.0" uimax="1.0" />
+    <input name="tint_R" type="color3" value="1,1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="tint_TT" type="color3" value="1,1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="tint_TRT" type="color3" value="1,1,1" uimin="0,0,0" uimax="1,1,1" />
+    <input name="ior" type="float" value="1.55" uimin="0.0" uimax="1.0" />
+  </simple_hair>
+  <surfacematerial name="simple_hair_default" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_default" />
+  </surfacematerial>
+
+</materialx>

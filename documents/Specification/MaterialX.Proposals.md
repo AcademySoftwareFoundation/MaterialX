@@ -6,7 +6,7 @@ MaterialX Proposals v1.39
 # MaterialX: Proposed Additions and Changes
 
 **Proposals for Version 1.39**  
-July 26, 2024
+September 15, 2024
 
 
 # Introduction
@@ -207,6 +207,7 @@ We have a standard 3d fractal noise, but a 2d variant would be useful as well.
     * `geomprop` (uniform string): the geometric property to be referenced.
     * `default` (same type as the geomprop's value): a value to return if the specified `geomprop` is not defined on the current geometry.
 
+Note: when &lt;geompropvalueuniform> is added, the text in the first paragraph of the Specification about Node Inputs should be revised to include "&lt;geompropvalueuniform>" as an example of "or any other node whose output is explicitly declared to be uniform".
 
 
 ### Global Nodes

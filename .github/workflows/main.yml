@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: Linux_GCC_9_Python37
-          os: ubuntu-20.04
+        - name: Linux_GCC_10_Python37
+          os: ubuntu-22.04
           compiler: gcc
-          compiler_version: "9"
+          compiler_version: "10"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_MONOLITHIC=ON
 
@@ -37,8 +37,6 @@ jobs:
           compiler: gcc
           compiler_version: "14"
           python: 3.12
-          static_analysis: ON
-          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: Linux_GCC_CoverageAnalysis
           os: ubuntu-24.04
@@ -48,10 +46,10 @@ jobs:
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
-        - name: Linux_Clang_10_Python37
-          os: ubuntu-20.04
+        - name: Linux_Clang_13_Python37
+          os: ubuntu-22.04
           compiler: clang
-          compiler_version: "10"
+          compiler_version: "13"
           python: 3.7
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -63,10 +61,10 @@ jobs:
           test_render: ON
           clang_format: ON
 
-        - name: MacOS_Xcode_13_Python39
-          os: macos-12
+        - name: MacOS_Xcode_14_Python39
+          os: macos-13
           compiler: xcode
-          compiler_version: "13.1"
+          compiler_version: "14.1"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
           python: 3.9
 
@@ -75,6 +73,8 @@ jobs:
           compiler: xcode
           compiler_version: "14.3"
           python: 3.11
+          static_analysis: ON
+          cmake_config: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
         - name: MacOS_Xcode_15_Python312
           os: macos-14
@@ -96,7 +96,7 @@ jobs:
           compiler: xcode
           compiler_version: "15.4"
           python: None
-          cmake_config: -DMATERIALX_BUILD_IOS=ON -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake_config: -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=`xcrun --sdk iphoneos --show-sdk-path` -DCMAKE_OSX_ARCHITECTURES=arm64
 
         - name: Windows_VS2019_Win32_Python37
           os: windows-2019
@@ -245,10 +245,14 @@ jobs:
       working-directory: build
 
     - name: Static Analysis Tests
-      if: matrix.static_analysis == 'ON' && runner.os == 'Linux'
+      if: matrix.static_analysis == 'ON'
       run: |
-        sudo apt-get install cppcheck
-        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sudo apt-get install cppcheck
+        else
+          brew install cppcheck
+        fi
+        cppcheck --project=build/compile_commands.json --error-exitcode=1 --suppress=normalCheckLevelMaxBranches --suppress=*:*/External/* --suppress=*:*/NanoGUI/*
 
     - name: Initialize Virtual Framebuffer
       if: matrix.test_render == 'ON' && runner.os == 'Linux'
@@ -332,7 +336,7 @@ jobs:
 
     - name: Deploy Web Viewer
       if: matrix.build_javascript == 'ON' && github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@v4.6.4
       with:
         branch: gh-pages
         folder: javascript/MaterialXView/dist
@@ -347,7 +351,7 @@ jobs:
 
   sdist:
     name: Python SDist
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
@@ -383,7 +387,7 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['7', '8', '9', '10', '11', '12']
-        os: ['ubuntu-latest', 'windows-2022', 'macos-13']
+        os: ['ubuntu-22.04', 'windows-2022', 'macos-13']
 
     steps:
     - name: Sync Repository
